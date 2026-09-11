@@ -1,0 +1,38 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# builds
+.next/
+out/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# env & secrets — NEVER commit (SPEC 0.8)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
+
+# real client data — NEVER commit (SPEC 0.8). Fixtures must be generated, not stored.
+/fixtures/out/
+*.xlsx
+*.xlsm
+*.xls
+!/fixtures/generator/**/*.xlsx
+
+# test & tooling output
+coverage/
+playwright-report/
+test-results/
+.vitest/
+
+# local
+.DS_Store
+Thumbs.db
+*.log
+.claude/settings.local.json
