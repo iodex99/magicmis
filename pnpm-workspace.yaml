@@ -7,3 +7,10 @@ packages:
 allowBuilds:
   # esbuild is vitest's bundler; its postinstall fetches the platform binary.
   esbuild: true
+  # The three below arrive transitively via testcontainers -> dockerode -> ssh2.
+  # Each postinstall is an OPTIONAL native acceleration with a working pure-JS
+  # fallback, and none is on any path we use (we talk to Docker over the local
+  # socket, not SSH). Declining them keeps native compilation out of install.
+  cpu-features: false
+  ssh2: false
+  protobufjs: false
