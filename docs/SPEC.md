@@ -1,9 +1,13 @@
 > [!WARNING]
-> **THIS COPY IS INCOMPLETE.** The source document was truncated in transit at the
-> 50,000-character limit, mid-sentence in Section 17 (PII redaction, at the IFSC
-> detector regex). Sections 18-33 and **Section 34 (the phase plan)** were never
-> received. Everything below this banner is verbatim as received. See the
-> `[TRUNCATED]` marker at the end of Section 17.
+> **THIS COPY IS INCOMPLETE.** Assembled from two deliveries, each truncated at the
+> 50,000-character message limit.
+>
+> - Delivery 1 reached Section 17 (cut at the IFSC detector regex).
+> - Delivery 2 re-sent Sections 0-19 in full and cut at the **Section 20 heading**.
+>
+> **Sections 0-19 are complete and verbatim.** Section 20 onward — including
+> **Section 34, the phase plan** — has not been received. See the `[TRUNCATED]`
+> marker at the end of this file.
 >
 > Do not treat this file as the complete specification until the remainder is
 > supplied and this banner is removed.
@@ -783,30 +787,125 @@ Runs before any payload leaves the browser. **Detectors:**
 - **PAN:** `[A-Z]{5}[0-9]{4}[A-Z]`
 - **Aadhaar:** 12 digits with Verhoeff checksum
 - **UAN:** 12 digits in UAN-labelled columns
-- **IFSC:** `[A-Z]{4}0
+- **IFSC:** `[A-Z]{4}0[A-Z0-9]{6}`
+- **Bank account numbers:** 9–18 digits in account-labelled columns
+- **GSTIN:** includes an embedded PAN, so always tokenise
+- **Email addresses**
+- **Indian mobile numbers**
+- **Person-name columns in payroll and HR sheets** (header heuristics: name, employee name, emp name, staff), plus any column the user marks as sensitive
+- **Party ledgers:** ledgers whose parent group is Sundry Debtors or Sundry Creditors (or which the mapping identifies as party accounts) are tokenised as `PARTY_0001`. Their group already determines the MIS head, so their names are not needed for mapping.
+
+**Token behaviour**
+- **Tokens must be stable across months,** so the same party gets the same token in every snapshot and comparisons and continuity checks work.
+  - Generate tokens as a truncated HMAC-SHA-256 of the normalised value with a per-company redaction key, prefixed by type (e.g. `PARTY_9f3a1c2e`). Test the collision rate at the chosen length.
+  - The per-company redaction key is generated at company creation, stored encrypted with the company DEK, and delivered only to the authenticated owner's browser.
+- **Plaintext values never leave the browser.** The token→name map is built in the browser from the currently loaded source files and is never sent to the server.
+- **Snapshots stored server-side use tokens** for party-level and employee-level keys.
+  - The browser rehydrates names by hashing names found in the current session's files.
+  - Tokens with no match in the current session display as the token with a "name not in loaded files" hint.
+- **Company setting "Store party and employee names encrypted"** (default off): when on, the browser uploads the token→name dictionary encrypted with the company DEK, so history displays names without loading old files. The UI explains this trade-off.
+
+**Payload inspector:** a developer-mode panel showing exactly what JSON would be sent to the server for the current action.
+
+**Tests:** positive and negative cases per detector, including false positives (invoice numbers, amounts).
+
+---
+
+## 18. Semantic layer and mapping (`packages/semantic`)
+
+**Canonical MIS schema (`mis_heads`)**
+- Hierarchical and versioned.
+- Aligned to Schedule III (Division I by default; Division II structure available) plus management heads:
+  - Revenue, with dimensions (product, customer, region, channel, salesperson, branch)
+  - COGS / direct costs, gross profit
+  - Employee cost; other operating expenses by nature
+  - EBITDA; depreciation and amortisation; finance cost
+  - PBT, tax, PAT
+- Balance sheet heads; working capital heads (receivables, payables, inventory, cash and bank).
+- Each head has a normal balance (Dr/Cr) and a statement.
+
+**Normalisation for matching**
+- lowercase
+- strip punctuation and extra spaces
+- expand abbreviations from a maintained list (a/c→account, exp→expenses, dep→depreciation, sal→salary, adv→advance, prov→provision, etc.)
+- remove trailing numeric suffixes and dates
+
+**Mapping cascade, per ledger or column:**
+1. Company mapping rules (from the current blueprint)
+2. Account mapping rules ("apply to all my companies")
+3. Global library: exact normalised match, then alias match
+4. Global library fuzzy match above threshold (config), marked `needs_review`
+5. Claude (`mapLedgers`) for anything still unmatched, marked `needs_review`
+
+A ledger under a known Tally group inherits that group's default head unless a more specific rule exists.
+
+**Every mapping records:** source (company_rule/account_rule/global_exact/global_alias/global_fuzzy/group_default/ai), confidence, and needs_review.
+
+**Write-back**
+- Confirmed mappings become company rules in the next blueprint version.
+- The user can promote a mapping to account rules.
+
+**Global library promotion**
+- Admin-reviewed only; never automatic.
+- A candidate appears when a normalised non-party name maps to the same head in ≥ N distinct accounts (config, default 5).
+- Names matching person-name or party heuristics are excluded.
+- Tenant-specific names never enter the global library without admin approval.
+
+**Unmapped:** always a visible head named "Unmapped". Never silently dropped (see validation V1).
+
+---
+
+## 19. Mapping review UI
+
+This is part of paid setup and refresh jobs; the job is in the `awaiting_review` state.
+
+**Table**
+- Grouped by MIS head.
+- Columns: source ledger or column (rehydrated names), parent group, source file and sheet, period amount, proposed head, source badge, confidence, needs-review flag.
+
+**Controls**
+- Filters: needs review only, unmapped only, by head, by source.
+- Bulk reassign, search, full keyboard navigation.
+- "Apply to all my companies" per row.
+
+**Confirmation**
+- The user must confirm before compute starts.
+- Confirmation is blocked while needs-review items remain unless the user explicitly accepts them as proposed.
+
+**Refresh jobs:** show only new, changed or previously unmapped ledgers. If there are none, skip review automatically.
+
+**Reservation TTL:** the reservation is held while awaiting review (default 72h). Remind at 24h before expiry. On expiry, the job expires and `cancel_after_ai_fee` is captured if any AI call happened.
+
+---
+
+## 20. Deterministic engine
 
 <!-- ==================================================================== -->
-<!-- [TRUNCATED] The source document was cut off at exactly this point by -->
-<!-- the 50,000-character message limit. Everything from here to the end  -->
-<!-- of Section 34 is MISSING and must be supplied before the build can   -->
-<!-- proceed.                                                             -->
+<!-- [TRUNCATED] Delivery 2 was cut off at exactly this point by the      -->
+<!-- 50,000-character message limit. Sections 0-19 above are COMPLETE.    -->
+<!-- Section 20's body onward is MISSING.                                 -->
+<!--                                                                      -->
+<!-- NEXT DELIVERY: start pasting at the line "## 20. Deterministic       -->
+<!-- engine". Do NOT re-send Sections 0-19 -- they are already here, and  -->
+<!-- re-sending them consumes the whole character budget again.           -->
 <!--                                                                      -->
 <!-- Known-missing content, inferred from forward references made in      -->
-<!-- Sections 0-17 (this list is for tracking only, not a substitute):    -->
-<!--   - Section 17 (remainder): IFSC / bank account / phone / email /    -->
-<!--     address / party-name detectors, the tokeniser, and the optional  -->
-<!--     per-company encrypted token dictionary referenced in Section 10. -->
-<!--   - Semantic layer & mapping cascade (packages/semantic).            -->
-<!--   - Recipe DSL, metric library, lineage, validation checks V1..Vn    -->
-<!--     (Section 16 forward-references "validation check V4").           -->
+<!-- Sections 0-19 (tracking list only, not a substitute):                -->
+<!--   - Section 20: recipe DSL, DuckDB SQL compiler, metric library,     -->
+<!--     metric store, lineage.                                           -->
+<!--   - Validation checks V1..Vn. Two are already referenced by number:  -->
+<!--     V1 = nothing silently dropped / Unmapped head (Section 18),      -->
+<!--     V4 = subtotal equals sum of children (Section 16).               -->
 <!--   - Section 23: source-structure drift threshold driving             -->
-<!--     `refresh_with_restructure`.                                      -->
+<!--     `refresh_with_restructure` (Section 12).                         -->
 <!--   - Section 25: the placeholder mechanism for commentary and chat    -->
-<!--     (forward-referenced from Section 14 "Prompt rules").             -->
-<!--   - Section 26: the separate admin identity system                   -->
-<!--     (forward-referenced from Section 8 "Other rules").               -->
-<!--   - Company lifecycle states (active/grace/archived/purged) and the  -->
+<!--     (Section 14 "Prompt rules" depends on it).                       -->
+<!--   - Section 26: the separate admin identity system (Section 8).      -->
+<!--   - Template spec schema & built-in templates; reference-MIS layout  -->
+<!--     extraction; Excel and dashboard rendering specs.                 -->
+<!--   - Chat engine, SQL guard, thread summariser.                       -->
+<!--   - Company lifecycle (active/grace/archived/purged) and the         -->
 <!--     memory-fee billing cycle.                                        -->
-<!--   - Excel/dashboard rendering specs, chat engine & SQL guard.        -->
+<!--   - Job state machine, failure classes, notifications.               -->
 <!--   - Section 34: THE PHASE PLAN. Required by instruction 0.2.         -->
 <!-- ==================================================================== -->

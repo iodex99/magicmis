@@ -5,25 +5,36 @@ mandates *before* phased work begins, and the blocker preventing Phase 1.
 
 ## Blocker
 
-`docs/SPEC.md` is **incomplete**. The source document was truncated in transit at the
-50,000-character limit, mid-sentence in **Section 17** (PII redaction, at the IFSC
-detector regex). Sections 18–33 and **Section 34 — the phase plan** were never received.
+`docs/SPEC.md` is **incomplete**. It has been assembled from two deliveries, each cut at
+the 50,000-character message limit:
+
+| Delivery | Reached | Cut at |
+|---|---|---|
+| 1 | §0 – §17 (partial) | the IFSC detector regex in §17 |
+| 2 | §0 – §19 (complete) | the **§20 heading** — §20's body onward never arrived |
+
+Delivery 2 re-sent §0–§17 before reaching new material, so it bought only §17's
+remainder plus §18 and §19. **The next delivery must start at `## 20. Deterministic
+engine`.**
+
+**Sections 0–19 are now complete and verbatim.** §20 onward — including **§34, the phase
+plan** — is missing.
 
 SPEC §0.2 requires phases to be followed from §34, in order. SPEC §0.3 forbids working
 around a locked decision silently. Inventing a phase plan would do both, so Phase 1 has
 not been started.
 
-Forward references made in Sections 0–17 to material we do not have:
+Forward references made in Sections 0–19 to material we do not have:
 
 | Referenced from | Missing target |
 |---|---|
 | §16 "feeds validation check V4" | the validation check catalogue (V1..Vn) |
+| §18 "see validation V1" | same — V1 = nothing silently dropped / Unmapped head |
 | §14 prompt rules | §25 — the placeholder mechanism for commentary and chat |
 | §8 "Other rules" | §26 — the separate admin identity system |
 | §12 price book (`refresh_with_restructure`) | §23 — source-structure drift threshold |
-| §10 storage table | §17 remainder — optional encrypted token dictionary |
 | §9 `companies.lifecycle_state` | company lifecycle + memory-fee billing cycle |
-| §6 packages | semantic layer, recipe DSL, metric library, render specs, chat/SQL guard |
+| §6 packages | recipe DSL, metric library, template/render specs, chat + SQL guard |
 
 ## Done
 

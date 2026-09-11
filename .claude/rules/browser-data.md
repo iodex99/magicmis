@@ -26,6 +26,34 @@ possible. The **redaction token map never leaves the browser at all.**
 Redaction (`packages/redact`) runs **before** any payload is sent. Not after, not
 server-side.
 
+## Redaction tokens must be stable across months (SPEC §17)
+
+This is the requirement that quietly breaks everything downstream if got wrong: if a
+party's token changes between periods, comparatives and continuity checks silently
+compare two different entities.
+
+- Token = truncated **HMAC-SHA-256** of the *normalised* value under a **per-company
+  redaction key**, prefixed by type — `PARTY_9f3a1c2e`. Not a random ID, not a counter,
+  not a plain hash. **Test the collision rate at the chosen truncation length.**
+- The per-company redaction key is created at company creation, stored encrypted under
+  the company DEK, and released only to the authenticated owner's browser.
+- Server-side snapshots key party and employee rows **by token**. The browser rehydrates
+  names by hashing names in the *currently loaded* files; a token with no match displays
+  as the token plus a "name not in loaded files" hint.
+- Company setting **"Store party and employee names encrypted"** (default **off**): when
+  on, the browser uploads the token→name dictionary encrypted under the company DEK. The
+  UI must explain the trade-off.
+- Detectors: PAN · Aadhaar (Verhoeff) · UAN in UAN-labelled columns · IFSC
+  `[A-Z]{4}0[A-Z0-9]{6}` · bank accounts (9–18 digits in account-labelled columns) ·
+  GSTIN (**always** tokenise — it embeds a PAN) · email · Indian mobile · person-name
+  columns in payroll/HR by header heuristic · any column the user marks sensitive ·
+  **party ledgers** under Sundry Debtors/Creditors → `PARTY_*` (their group already
+  determines the MIS head, so the name is never needed for mapping).
+- Ship the **payload inspector**: a developer-mode panel showing the exact JSON that
+  would be sent for the current action.
+- Tests: positive *and* negative cases per detector, including false positives such as
+  invoice numbers and amounts.
+
 ## Parsing (SPEC §15)
 - **Header-based parsing only. Never rely on column positions.** Score candidate header
   rows on text density, uniqueness, type contrast with rows below, and known header

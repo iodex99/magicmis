@@ -9,12 +9,13 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — **currently incomplete, see
 
 **Phase 0 — repository bootstrap. BLOCKED on the remainder of the spec.**
 
-`docs/SPEC.md` is truncated at Section 17 (mid-sentence, at the IFSC detector regex).
-Sections 18–33 and **Section 34 (the phase plan)** have not been received.
+`docs/SPEC.md` holds **Sections 0–19 complete**. It stops at the Section 20 heading —
+Section 20 onward, including **Section 34 (the phase plan)**, has not been received.
 
 Instruction 0.2 requires phases to be followed from Section 34, in order. Until that
 section exists, **do not start Phase 1 and do not invent a phase plan.** Ask for the
-missing sections.
+missing sections — and ask for them **starting at Section 20**, since re-sending
+Sections 0–19 exhausts the message limit before reaching new material.
 
 Done so far:
 - [x] `docs/SPEC.md` saved (partial, banner-marked)
