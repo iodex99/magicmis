@@ -6,8 +6,8 @@ argument-hint: [phase-number]
 
 Begin phase $ARGUMENTS, following SPEC §0.2.
 
-1. Read `docs/SPEC.md` §34 for phase $ARGUMENTS's scope. **If §34 is missing or the spec
-   still carries its truncation banner, stop and say so — do not invent a phase plan.**
+1. Read `docs/SPEC.md` §34 for phase $ARGUMENTS's scope, including its **Acceptance**
+   line — that is the phase's exit condition.
 2. Read `CLAUDE.md`, the previous phase's summary, and every ADR that bears on this work.
 3. Identify every external fact this phase depends on — Anthropic API shapes, model IDs
    and prices, Supabase regions and features, Razorpay endpoints and webhook events,
@@ -22,4 +22,8 @@ Begin phase $ARGUMENTS, following SPEC §0.2.
    - open questions for me
    - which locked decisions (SPEC §2) this phase touches, and how each is upheld
 5. Update the **Current phase** section of `CLAUDE.md`.
-6. **Stop and wait for my review of the plan before writing any implementation code.**
+6. Then build it. SPEC §0.2 and §34 put the review gate at the **end** of a phase, not
+   after the plan — so do not stop here. Stop at `/phase-end $ARGUMENTS`.
+
+   The exception: if the plan surfaces a conflict with a locked decision (SPEC §2),
+   stop and ask. §0.3 forbids working around one silently.

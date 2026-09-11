@@ -1,18 +1,9 @@
-> [!WARNING]
-> **THIS COPY IS INCOMPLETE.** Assembled from two deliveries, each truncated at the
-> 50,000-character message limit.
->
-> - Delivery 1 reached Section 17 (cut at the IFSC detector regex).
-> - Delivery 2 re-sent Sections 0-19 in full and cut at the **Section 20 heading**.
->
-> **Sections 0-19 are complete and verbatim.** Section 20 onward — including
-> **Section 34, the phase plan** — has not been received. See the `[TRUNCATED]`
-> marker at the end of this file.
->
-> Do not treat this file as the complete specification until the remainder is
-> supplied and this banner is removed.
-
----
+<!--
+  COMPLETE: Sections 0-35, verbatim. Assembled from three deliveries, each capped at
+  the 50,000-character message limit (0-17, then 0-19, then 20-35). Markdown structure
+  in the final delivery arrived flattened in transit and was restored to match the
+  document's own conventions; wording is unaltered.
+-->
 
 # Build Specification and Instructions for Claude Code
 # [PRODUCT_NAME]: Prepaid, Usage-Priced AI MIS Platform for Indian CA Firms and SMEs
@@ -878,34 +869,661 @@ This is part of paid setup and refresh jobs; the job is in the `awaiting_review`
 
 ---
 
-## 20. Deterministic engine
+## 20. Deterministic engine, metric store and lineage (`packages/engine`)
 
-<!-- ==================================================================== -->
-<!-- [TRUNCATED] Delivery 2 was cut off at exactly this point by the      -->
-<!-- 50,000-character message limit. Sections 0-19 above are COMPLETE.    -->
-<!-- Section 20's body onward is MISSING.                                 -->
-<!--                                                                      -->
-<!-- NEXT DELIVERY: start pasting at the line "## 20. Deterministic       -->
-<!-- engine". Do NOT re-send Sections 0-19 -- they are already here, and  -->
-<!-- re-sending them consumes the whole character budget again.           -->
-<!--                                                                      -->
-<!-- Known-missing content, inferred from forward references made in      -->
-<!-- Sections 0-19 (tracking list only, not a substitute):                -->
-<!--   - Section 20: recipe DSL, DuckDB SQL compiler, metric library,     -->
-<!--     metric store, lineage.                                           -->
-<!--   - Validation checks V1..Vn. Two are already referenced by number:  -->
-<!--     V1 = nothing silently dropped / Unmapped head (Section 18),      -->
-<!--     V4 = subtotal equals sum of children (Section 16).               -->
-<!--   - Section 23: source-structure drift threshold driving             -->
-<!--     `refresh_with_restructure` (Section 12).                         -->
-<!--   - Section 25: the placeholder mechanism for commentary and chat    -->
-<!--     (Section 14 "Prompt rules" depends on it).                       -->
-<!--   - Section 26: the separate admin identity system (Section 8).      -->
-<!--   - Template spec schema & built-in templates; reference-MIS layout  -->
-<!--     extraction; Excel and dashboard rendering specs.                 -->
-<!--   - Chat engine, SQL guard, thread summariser.                       -->
-<!--   - Company lifecycle (active/grace/archived/purged) and the         -->
-<!--     memory-fee billing cycle.                                        -->
-<!--   - Job state machine, failure classes, notifications.               -->
-<!--   - Section 34: THE PHASE PLAN. Required by instruction 0.2.         -->
-<!-- ==================================================================== -->
+**Recipe DSL** (Zod schema, stored in the blueprint). It is declarative data, compiled to DuckDB SQL by our compiler. AI never writes SQL for the engine. It declares:
+
+- sources: file and sheet fingerprints and roles
+- column bindings: date, ledger, group, party, amount or debit/credit, quantity, dimensions
+- sign conventions
+- filters
+- mapping rules
+- period definition (FY start month, period granularity)
+- dimension definitions
+- metric definitions (from the metric library, with parameters)
+
+**Metric library** (deterministic, decimal-safe, each with unit tests):
+
+- revenue; direct costs; gross profit and gross margin %
+- employee cost and employee cost %; other opex
+- EBITDA and EBITDA %; depreciation; finance cost
+- PBT, tax, PAT and PAT %
+- MoM change (abs, %); YoY change (abs, %) vs same month last year
+- YTD and YTD vs LY-YTD
+- variance vs previous period
+- top contributors to change by dimension (deterministic driver analysis: contribution of each dimension value to the total change, sorted)
+- receivables, payables, inventory
+- DSO, DPO, inventory days, cash conversion cycle
+- current ratio, quick ratio, working capital
+- ageing buckets (config, default 0–30, 31–60, 61–90, 91–180, 180+) from bill dates
+- payroll: headcount, gross pay, employer PF/ESI where columns exist, cost by department
+
+**Rules**
+
+- Money: compute in integer paise or DECIMAL; round only at presentation. Totals are computed from unrounded values. The Excel output discloses that displayed figures are rounded.
+- Division by zero and missing data: produce explicit null with a reason code, never 0.
+
+**Metric store.** Each value records:
+
+- metric_id, period_id, dimension keys
+- value (decimal string), unit
+- formula expression (human-readable)
+- inputs: metric IDs or source references (file fingerprint, sheet, column, filter description, row count)
+- engine_version, computed_at
+
+**Lineage panel.** Any number in any output (Excel Lineage sheet, dashboard, commentary, chat) links to its metric ID. The panel shows source → calculation → result.
+
+**Snapshot upload.** At job completion, the browser sends ledger × period balances and the metric store (tokenised keys). The server encrypts and stores them as a new snapshot version.
+
+---
+
+## 21. Validation gate (`packages/engine/validation`)
+
+Runs after compute and before render. Every check has:
+
+- id
+- severity (blocking/warning)
+- failure class (data_fault/platform_fault)
+- message with plain-language fix instructions
+- the involved amounts (aggregates only)
+
+| ID | Check | Severity | Class |
+|---|---|---|---|
+| V1 | Coverage: every source balance or row is in exactly one head or in Unmapped; row counts and sums reconcile | blocking | platform_fault if rows lost by our code; Unmapped non-zero is blocking unless the user accepted "show as Unmapped" |
+| V2 | Source statement total equals MIS total, to the paisa | blocking | platform_fault |
+| V3 | Trial balance: total debits equal total credits (tolerance config, default 0) | blocking | data_fault |
+| V4 | Exported group subtotals equal sum of child ledgers | blocking | data_fault |
+| V5 | Balance sheet equation holds when BS data present | blocking | data_fault |
+| V6 | Current period profit reconciles to P&L account / reserves movement when both present | warning | data_fault |
+| V7 | Continuity: opening balances equal the previous snapshot's closing balances; list differences by ledger | warning | data_fault (and raises restatement notice) |
+| V8 | Period completeness: expected months present, no duplicate periods | blocking | data_fault |
+| V9 | Duplicate transactions across files (same date, voucher no., ledger, amount) | warning | data_fault |
+| V10 | Sign sanity: heads with unusual balance direction | warning | data_fault |
+| V11 | Generated Excel formulas evaluate to engine values (HyperFormula in-browser for the MVP) | blocking | platform_fault |
+| V12 | Placeholder integrity: every placeholder in commentary resolves; no stray numerals | blocking | platform_fault |
+
+**Where results appear:** a Validation page, the Excel "Checks" sheet, and the snapshot's `validation_results`.
+
+**Billing effect:** the failure class drives billing (Section 23).
+
+---
+
+## 22. Templates and reference MIS (`packages/templates`)
+
+**Template spec** (Zod; data, not code):
+
+- sections
+- rows: label, metric binding or subtotal rule, indentation level, emphasis, show-if-nonzero
+- column sets: month, MoM abs/%, same month LY, YoY abs/%, YTD, LY-YTD, variance
+- number format: lakhs_crores/absolute/millions, decimals
+- notes
+- default dashboard spec
+- default commentary sections
+- materiality defaults
+
+**Built-in template for this build: Monthly Financial MIS**
+
+- Cover and index
+- P&L month-wise for the FY, with current month, previous month, MoM, same month LY, YoY, YTD, LY-YTD
+- Key ratios
+- Balance sheet summary
+- Working capital summary
+- Receivables and payables ageing, when outstanding data is present
+- Payroll cost summary, when payroll data is present
+- Sections without data are omitted, with a note in Checks
+
+**Reference MIS: Recreate mode (this build only)**
+
+- The user uploads their current MIS workbook.
+- The browser extracts the layout:
+  - sheet order
+  - row labels and their order
+  - section headers
+  - column headers and period patterns
+  - bold and indent styles
+  - formulas as text
+  - number formats
+- Values are not needed and are not sent.
+- The redacted layout profile is sent to `extractReferenceLayout`. It returns a template spec draft binding each row label to canonical metrics or subtotal rules, each with a confidence.
+- The user reviews the bindings in the same review UI pattern as mappings, then confirms.
+- The template is saved to the company blueprint.
+- Rows that cannot be bound to available data are kept as labelled rows marked "Not available from supplied data". They are never filled with invented numbers.
+
+---
+
+## 23. Job pipeline, charge points and failure policy
+
+**Job types:** `data_diagnostic`, `company_setup` (optionally + `reference_mis_recreate`), `monthly_refresh`, `refresh_with_restructure`, `dashboard_addon`, `dashboard_refresh`, `commentary`. Chat uses the lighter flow in Section 27.
+
+**State machine**
+
+```
+draft → estimated → [needs_quote → quote_accepted] → reserved
+  → preflight → profiling → classifying → mapping → awaiting_review
+  → computing → validating → rendering → [commentary_queued → commentary_done]
+  → completed
+Terminal: completed | failed_data | failed_platform | cancelled | expired
+Pause: needs_quote (runtime cap) → resumes from checkpoint after acceptance
+```
+
+**Stage requirements**
+
+- Preflight is deterministic and runs before any AI call: readability, limits, period detection, required sheets present, V3/V8 early checks where possible.
+- Checkpointing: every stage persists its outputs (server side for AI outputs, browser side for session artefacts). A retry resumes from the last completed stage and reuses finished AI outputs; it never pays for the same AI stage twice.
+- Heartbeats every 60 seconds while running.
+
+**Charge points**
+
+| Outcome | Credits |
+|---|---|
+| Completed | Capture full price (or downgraded tier price if fallback occurred) |
+| Failed in preflight with data_fault | Capture `data_diagnostic` price; deliver the diagnostic report (what failed, how to fix) |
+| Failed later with data_fault | Capture `data_diagnostic` price; deliver the diagnostic report |
+| Failed with platform_fault | Release everything; absorbed AI cost recorded; incident logged |
+| User cancelled before any AI call | Release everything |
+| User cancelled after any AI call | Capture `cancel_after_ai_fee`; release remainder |
+| Expired awaiting review | Same as cancelled after AI call |
+| Runtime cap hit | Release; absorbed cost recorded as `estimation_miss`; quote offered to continue |
+
+**Data diagnostic job:** preflight + profiling + classification + mapping coverage + validation checks that can run without a template. The output is a Diagnostic report page plus a downloadable Excel "Data Health" workbook.
+
+**Setup flow**
+
+1. Create the company (captures nothing; memory fee starts only after the first successful setup).
+2. Upload files.
+3. Choose a template or upload a reference MIS.
+4. Choose tier and delivery.
+5. Estimate → confirm price → reserve.
+6. Pipeline runs; mapping review.
+7. Compute, validate, render.
+8. Blueprint v1 + snapshot saved.
+9. Memory fee anchor date set.
+
+**Refresh flow**
+
+1. Select company, then upload new period files.
+2. Fingerprint match against the blueprint's `source_fingerprints`:
+   - **Match** (header signatures and report types within threshold): the mapping cascade runs using company rules first. Only new or unmatched ledgers reach AI. If there are none, the job makes zero AI calls. Review covers only new items (auto-skipped if none).
+   - **Drift beyond threshold** (config: share of changed columns or report types): show a `refresh_with_restructure` price and require confirmation before proceeding.
+3. Compute, validate (including V7 continuity against the last snapshot), render.
+4. New snapshot version.
+5. If commentary or dashboard refresh is enabled for the company, those actions are offered with their prices; nothing auto-charges without confirmation.
+
+---
+
+## 24. Outputs
+
+### 24.1 Excel MIS (`packages/render-excel`, generated in the browser with ExcelJS)
+
+**Sheets**
+
+- **Cover:** company name, period, generated time (IST), tier, template name, disclaimer "Prepared from data provided by the user; requires professional review."
+- **Index**
+- **Report sheets** per template section
+- **Checks:** all validation results
+- **Data:** normalised long table with columns period, mis_head_code, mis_head_name, sub_head, dimension columns, amount; party and employee keys shown as rehydrated names from the session
+- **Lineage:** metric_id, label, formula text, source references
+
+**Report cells**
+
+- Use formulas referencing the Data sheet (SUMIFS and simple arithmetic on those cells), so the workbook recalculates and a reviewer can trace any cell inside Excel.
+- Also write cached values so the workbook opens with correct numbers before recalculation.
+- Ratio and variance cells use formulas referencing report cells, with division-by-zero guarded.
+
+**Formatting**
+
+- Indian lakh/crore digit grouping via custom number formats. Verify the format codes render correctly in Excel and LibreOffice, including negatives and zero; write tests using saved fixtures.
+- Freeze panes, column widths, print areas and titles, landscape A4, bold totals, indentation, sign display (negatives in brackets, per config).
+
+**File name:** `<Company>_<Template>_<YYYY-MM>_v<snapshotVersion>.xlsx`
+
+**Upload:** encrypted to Storage with the retention expiry.
+
+**Test:** V11. Evaluate every formula with HyperFormula and compare with engine values to the paisa.
+
+### 24.2 Dashboard (`packages/render-dashboard`)
+
+**Dashboard spec** (Zod):
+
+- grid layout
+- widgets: kpi_card, line, bar, stacked_bar, waterfall, table, ageing_chart
+- each widget binds to metric IDs, dimensions and periods
+- global filters: period and dimension
+- drilldown targets: another widget or a lineage panel
+
+**Rendering**
+
+- ECharts renderer components read only spec + metric store.
+- No AI-generated code is ever executed.
+- Every displayed number opens its lineage panel on click.
+
+**Edits** happen only through validated RFC 6902 JSON Patch operations (from `chat_edit` or UI controls). Every patch is:
+
+- validated against the spec schema
+- previewed
+- applied on confirmation
+- stored as a new blueprint version, with undo to the previous version
+
+---
+
+## 25. Commentary and the placeholder rule
+
+**Input facts pack** (built deterministically). Every value is referenced by ID; values are included for context in the prompt only as formatted text inside `<data>`:
+
+- selected metrics with IDs, periods and precomputed variances
+- top contributors to change
+- materiality thresholds; only items above materiality are included
+- validation warnings
+
+**Output schema:** `{ sections: [{ heading, paragraphs: [{ text }] }] }`
+
+Text may contain only these placeholders for any quantity, date or period:
+
+- `{{m:<metric_id>}}`: metric value formatted per company settings
+- `{{mv:<metric_id>:abs|pct}}`: variance forms
+- `{{d:<dimension_value_id>}}`: dimension value name (rehydrated in the browser)
+- `{{p:<period_id>}}`: period label
+
+**Post-check** (server, then browser):
+
+- Parse placeholders; every ID must exist in the facts pack.
+- Strip placeholders; the remaining text must contain no digits, except a strictly tested allowlist (e.g. "Schedule III", "Ind AS 115" style references from a config list).
+- On failure: one repair attempt with errors listed; then `platform_fault`.
+
+**Rendering:** the browser substitutes values and makes each substituted value a lineage link.
+
+**Style rules** (in prompt):
+
+- concise management-report English
+- neutral and factual; no hype
+- states when data is insufficient
+- no advice framed as professional opinion
+
+**Delivery:** Standard (batch) by default; Instant with surcharge.
+
+---
+
+## 26. Admin console (`apps/admin`)
+
+**Access**
+
+- Separate app on a separate subdomain.
+- Separate auth: allowlisted admin emails, mandatory TOTP, short sessions, optional IP allowlist.
+- Every action is written to `audit_log`.
+
+**Data access**
+
+- Admins cannot view decrypted customer financial data by default.
+- A break-glass flow requires a written reason, is time-limited, is audit-logged, and emails the account holder.
+
+**Screens**
+
+- **Margin dashboard** (the most important screen), filterable by date, action, tier and account:
+  - credits captured and their INR value
+  - AI cost INR
+  - AI cost ratio with p50/p90
+  - actions over `max_ai_cost_ratio` (flagged red)
+  - estimator drift (estimated vs actual)
+  - quote rate and acceptance rate
+  - cache hit rate by stage
+  - batch share of commentary
+  - fallback rate
+  - failure rates by class
+  - absorbed platform-failure cost
+  - `estimation_miss` cost
+  - expired credits (breakage)
+  - memory fee revenue
+  - daily gross margin estimate (captured credits value − AI cost − configured payment-fee % − configured infra cost/day)
+  - Daily email summary to admins
+- **Price book editor:** versioned, with effective dates, preview of margin impact against last 30 days of usage.
+- **Credit packs editor.**
+- **Model registry and tier routing editor:** shows `source_url` and `verified_at`; warns when `verified_at` is older than the config threshold.
+- **Config editor:** limits, retention, lifecycle periods, FX rate and buffer, GST settings, seller details.
+- **Accounts:** search; view profile, companies (names and states only), wallet, lots, ledger, purchases, invoices, login events; suspend or reactivate; admin credit adjustments with reason.
+- **Bank transfer queue:** proforma requests; mark received with UTR.
+- **Jobs inspector:** state timeline, stages, `ai_calls` (tokens, cost, model, fallback, errors), charge outcome. No decrypted content.
+- **Global mapping library:** candidates queue (approve/reject), library browser, seed management.
+- **Prompts and evals:** prompt versions, eval results per tier, activation gate.
+- **Accounting exports:** Section 13.
+- **Audit log viewer** with hash-chain verification.
+
+---
+
+## 27. Chat with the MIS (`packages/chat`)
+
+**Scope**
+
+- One company, a chosen period range, its blueprint and snapshots, plus session data when loaded.
+- The system prompt restricts answers to this MIS.
+- Out-of-scope requests are declined in one sentence. The message is still charged at its type's price, and the UI states this near the input.
+
+**Message types,** chosen explicitly by the user. The send button always shows the credit price.
+
+- **Quick (`chat_quick`)**
+  - Single call.
+  - Context: metric store facts relevant to the question (a deterministic retriever selects metrics by head, dimension and period keywords) + thread history.
+  - Numbers via placeholders only.
+- **Deep (`chat_deep`)**
+  - Tool loop over session data.
+  - Available only when this company's source files are loaded in the current browser session; otherwise disabled with an explanation.
+  - Flow:
+    1. The server calls Claude with a tool `run_query(sql, purpose)`.
+    2. The server validates the SQL with the SQL guard.
+    3. The server responds to the browser `{status: "needs_query", step_id, sql}`.
+    4. The browser re-validates with the same guard, executes in DuckDB (external access disabled, timeout 10s), redacts the result, caps it at 50 rows / 16 KB, and posts it to `/chat/messages/:id/steps/:step_id/result`.
+    5. The server validates size and schema and continues the loop.
+  - Max rounds (config, default 5), enforced server-side. On reaching the cap, Claude must answer with what it has.
+  - Answers reference numbers via `{{m:...}}` or `{{q:<step_id>:<row>:<col>}}` placeholders. Query result cells become lineage entries showing the SQL and source tables.
+- **Edit (`chat_edit`)**
+  - Returns JSON Patch against the template spec or dashboard spec.
+  - Validated, previewed and applied on confirmation, with undo.
+- **Investigate:** a button on every KPI and report row that sends a Deep message with a prefilled question about that metric's movement. Priced as `chat_deep`.
+
+**SQL guard** (shared code, used server-side and in the browser)
+
+- Parse with a real SQL parser (DuckDB's own serialisation or a maintained parser; record in ADR).
+- Allow exactly one statement: SELECT, with CTEs, joins, aggregates and window functions, over session tables only.
+- Deny:
+  - COPY, ATTACH, DETACH, INSTALL, LOAD, PRAGMA, SET, CALL, EXPORT, IMPORT
+  - CREATE, INSERT, UPDATE, DELETE, DROP, ALTER
+  - file and table functions (`read_csv`, `read_parquet`, `read_json`, `glob`, and any function not in an allowlist)
+  - httpfs or any URL
+- Inject or enforce LIMIT.
+- DuckDB instance: external access disabled.
+- Fuzz tests with malicious query corpora.
+
+**Thread rules**
+
+- Cap at 20 messages (config). Then the thread is capped and a new thread starts, seeded with a Haiku-generated summary; the summary cost is absorbed within the next message's price and counted in its AI cost.
+- Thread history is sent with prompt caching.
+
+**Reservations**
+
+- Quick and edit: reserve and capture the fixed price.
+- Deep: reserve the full price and capture it on answer. Release it on platform failure.
+
+Streaming of the final answer text to the UI is allowed. Placeholders are resolved after the stream completes, then re-rendered.
+
+---
+
+## 28. Company lifecycle and memory fee
+
+**States**
+
+| State | Entry | Allowed | Exit |
+|---|---|---|---|
+| active | First successful setup; fee paid | Everything | Fee debit fails → grace |
+| grace | Monthly fee could not be debited | View outputs and history, buy credits; no new jobs or chat for this company | Fee paid (arrears for months in grace) → active; 3 unpaid months (config) → archived |
+| archived | Grace exceeded | Nothing except restore | `company_restore` price + current month fee → active; 12 months archived (config) → purged |
+| purged | Archive period exceeded, or user deletion + purge delay | Nothing | Terminal (crypto-shredded) |
+
+**Billing**
+
+- The worker debits `company_memory_monthly` on each company's anchor date monthly, from the wallet, as a fixed capture with idempotency per company-month.
+- Low balance before the anchor date triggers a notice 7 days and 1 day ahead.
+
+**Notices:** entering grace, 30 and 7 days before archive, archive, 30 and 7 days before purge, purge completed.
+
+User deletion of a company stops fees immediately. There is no pro-rata refund.
+
+---
+
+## 29. Notifications (email only in this build)
+
+- **Security:** new device login, 2FA changes, password or email change, backup codes regenerated, break-glass admin access
+- **Billing:** purchase success with invoice, bank transfer received, low balance (config threshold), lot expiry notices, memory fee debited, memory fee failed
+- **Lifecycle:** grace, archive and purge notices
+- **Jobs:** awaiting review, review reservation expiring, completed (especially batch), failed (with reason and fix steps), quote offered
+- **Reminder:** monthly refresh reminder per company on `reminder_day_of_month`, with a direct link to that company's refresh flow
+
+All templates are plain, branded, and contain no financial figures from customer data.
+
+---
+
+## 30. Security
+
+- **Secrets:** server-only; environment validated at boot; no secrets in client bundles (add a CI check scanning built client assets for key patterns).
+- **Authorisation:** RLS on every customer table + server-side ownership checks; automated cross-tenant access tests for every endpoint.
+- **AI endpoints:** action-specific only; payload schemas + size caps; per-account rate limits.
+- **Encryption at rest:** as specified in Section 10. TLS everywhere; HSTS.
+- **CSP:**
+  - Strict, nonce-based.
+  - Third-party scripts only for Razorpay Checkout, on the payment page only.
+  - No analytics or session-replay tools that could capture on-screen financial data. Product analytics, if any, are event-count only with no content.
+- **Prompt injection:** file-derived text wrapped in `<data>`; structured outputs; no AI tool can reach the network or the server's data beyond its action; SQL guard; all AI text rendered as plain text (no HTML/markdown injection into the DOM without sanitisation).
+- **File safety:** no macro execution; formulas read as cached values; size and entry caps; parser runs in a worker with try/catch isolation.
+- **Webhooks:** signature verification and event de-duplication.
+- **Logging:** never log file contents, prompts containing data, AI responses, or decrypted blueprint or snapshot content. Sentry scrubbing rules tested.
+- **Audit log:** hash chain verification job runs nightly and alerts on mismatch.
+- **Dependencies and CI:** dependency and secret scanning in CI; lockfile enforced.
+- **Runbooks** (`docs/runbooks`): key rotation, breach response, account recovery, break-glass, Anthropic model unavailability, payment webhook outage.
+
+---
+
+## 31. Compliance and legal surfaces
+
+All legal text is a placeholder for professional review; mark `TODO(review)`. Do not write final legal language.
+
+- **Privacy notice** explaining:
+  - what is processed in the browser
+  - what leaves the browser (redacted profiles, capped samples, aggregates)
+  - that Anthropic processes AI requests as a subprocessor
+  - what is stored and for how long
+  - rights to access, correction, erasure and export
+  - grievance contact
+- **First-upload notice:** before the first upload in an account, show a concise processing notice and record consent.
+- **Terms:**
+  - credits prepaid, non-refundable, non-transferable, no cash-out, 12-month validity
+  - memory fee and lifecycle
+  - outputs prepared from user-provided data and requiring professional review
+  - acceptable use
+- **Data export and erasure flows:** Section 10.
+- **DPDP readiness:** design for India's DPDP Act obligations (core obligations apply from May 2027) now. Keep a processing register document in `docs/compliance`.
+
+---
+
+## 32. UI, UX and design direction
+
+**Audience:** chartered accountants and finance staff on desktop, working with dense numbers for long sessions.
+
+**Visual direction**
+
+- Precise, calm, professional.
+- No emojis anywhere.
+- No generic AI aesthetics: no sparkle icons, no purple-blue gradients, no "magic" wording, no glowing effects.
+- No rounded gradient blobs.
+- Marketing site is not a single long scrolling page; use distinct pages (Product, Pricing, How it works, Security, Help).
+
+**Typography**
+
+- A highly legible sans serif.
+- Tabular numerals for every figure; numbers right-aligned.
+- Indian digit grouping per company setting.
+
+**Colour:** restrained neutral palette with one accent colour. Red/green used only for variance meaning, always paired with sign or arrow so meaning never relies on colour alone.
+
+**Density:** compact tables with sticky headers, keyboard navigation, resizable columns.
+
+**Copy**
+
+- Never mention tokens, model names or "Claude" in the customer UI, except in the Privacy notice subprocessor list.
+- Call tiers "Intelligence tier: Efficient / Professional / Expert".
+- Every error and empty state says what to do next.
+
+**Customer app screens**
+
+- Auth: sign up, verify email, login, TOTP enrolment, backup codes, recovery information.
+- Wallet: available, held and balance; lots with expiry; buy credits (packs); bank transfer request; invoices; ledger history.
+- Companies: list with lifecycle state, last period, memory fee status, next reminder; create company.
+- Company workspace tabs:
+  - Overview
+  - Data: session files, load status
+  - Build: template or reference MIS, tier, delivery, price confirmation
+  - Review: mappings
+  - Validation
+  - Outputs: Excel downloads, version history
+  - Dashboard
+  - Commentary
+  - Chat
+  - History: blueprint versions, snapshots
+  - Settings: FY start, number format, materiality, reminder day, delete company
+- Job progress view: stages with plain-language labels, heartbeat, cancel with fee disclosure.
+- Modals: price confirmation, quote acceptance, insufficient credits with shortfall and pack suggestion.
+- Account settings: profile, GSTIN, billing address, security (password, 2FA, backup codes, login history), data export, delete account.
+- Help: Tally export guides, supported files, how pricing works.
+
+**Pricing page:** public price book and credit packs, GST note, no free trial language.
+
+**Accessibility:** WCAG 2.2 AA; full keyboard operability.
+
+**Mobile:** non-desktop user agents get a clean "desktop required" page (public marketing pages remain responsive).
+
+---
+
+## 33. Performance, testing and observability
+
+**Performance targets** (mid-range laptop, latest Chrome)
+
+- 50 MB xlsx parsed and loaded into DuckDB in under 60 seconds with visible progress.
+- Aggregations over 2 million rows under 5 seconds.
+- Mapping review table with 5,000 rows scrolls smoothly (virtualised).
+- Non-AI API endpoints p95 under 300 ms.
+- Browser memory pressure detection with a graceful message suggesting splitting files.
+
+**Testing**
+
+- **Unit (Vitest):**
+  - parsers and every Tally quirk
+  - header detection and type inference (day-first dates, Indian grouping, Dr/Cr)
+  - redaction detectors
+  - normalisation and mapping cascade
+  - recipe compiler and metric library
+  - validation checks (each with a passing and a failing fixture)
+  - pricing and quotes
+  - GST split and invoice numbering
+  - SQL guard, placeholder parser and post-check
+  - JSON Patch validation
+- **Property (fast-check):**
+  - ledger invariants
+  - engine totals equal source totals for generated datasets
+  - subtotal rows never double-counted
+  - rounding never changes totals
+- **Concurrency:** wallet reservations and captures against real Postgres.
+- **Integration:** full setup and refresh pipelines on every synthetic fixture with recorded Anthropic responses (record/replay mode; live mode behind an env flag). Golden outputs: metric store and Excel cell values.
+- **Excel verification:** HyperFormula evaluation equals engine values (V11) for all fixtures.
+- **E2E (Playwright):**
+  - Sign up, verify, enrol 2FA.
+  - Buy credits (Razorpay test mode) and receive the invoice.
+  - Create a company and run setup.
+  - Review mappings and download the Excel output.
+  - Refresh the next month with zero AI calls on a matching fixture.
+  - Run a drift fixture that triggers the restructure price.
+  - Commentary via batch (mocked).
+  - Chat quick, deep and edit.
+  - Memory fee debit via time travel, then grace and archive.
+  - Second login terminates the first session.
+  - Out-of-scope chat is declined and charged.
+  - Data-fault job captures the diagnostic fee.
+  - Platform-fault job releases all credits.
+- **Security:**
+  - cross-tenant RLS
+  - absence of a generic AI passthrough
+  - oversize payloads rejected
+  - prompt-injection fixtures (cells containing instructions) produce schema-valid outputs with no stray numerals
+  - SQL guard fuzzing
+  - client bundle secret scan
+- **AI evals:** Section 14, run in CI on prompt changes (live mode on demand).
+
+**Observability**
+
+- Sentry (scrubbed).
+- pino logs with request_id, job_id and account_id (no content).
+- Metrics: stage durations, AI cost per job, queue depth, error classes.
+- Uptime checks for web, worker and webhook endpoint.
+- Alerts: margin ratio breach rate above threshold, webhook failures, worker down, audit chain mismatch.
+
+---
+
+## 34. Build phases
+
+Stop after each phase for review.
+
+**Phase 0: Foundations**
+
+- Monorepo, CLAUDE.md, ADR template, CI (lint, typecheck, unit tests), env validation.
+- Supabase local, migrations for all tables in Section 9, RLS baseline + cross-tenant test harness.
+- Audit log with hash chain; config tables; design tokens and base UI components.
+- *Acceptance:* CI green; RLS harness proves isolation on seeded data; audit chain verification passes.
+
+**Phase 1: Accounts and security**
+
+- Signup, email verification, login, mandatory TOTP, backup codes, single active session, login events, new-device email.
+- Re-auth gates, account settings, consent records, desktop-only gate.
+- *Acceptance:* E2E auth flows pass; second login terminates the first session; app unusable without 2FA.
+
+**Phase 2: Wallet, pricing, payments, GST**
+
+- Lots, ledger, reservations, sweepers, lot expiry; price book, packs, quotes, price confirmation modal.
+- Razorpay orders, webhooks, invoices with GST split and gapless numbering; bank transfer flow.
+- Accounting exports; minimal admin screens for price book, packs and credit adjustments.
+- *Acceptance:* property and concurrency tests pass; test-mode purchase produces correct credits and invoice PDF; time-travel expiry tests pass.
+
+**Phase 3: Ingestion, Tally, redaction, fixtures**
+
+- Fixture generator with ground truth; worker-based parsing; DuckDB loading with provenance.
+- Header detection, type inference, Tally report detectors and parsers, hierarchy reconstruction.
+- Fingerprints, redaction with payload inspector, session hygiene.
+- *Acceptance:* every fixture parses to ground truth; redaction suite passes; 50 MB performance target met.
+
+**Phase 4: AI layer and margin controls**
+
+- Model registry and tier routing (verified against docs); orchestrator with structured outputs, repair, retries, fallback, caching, token counting, runtime cap.
+- `ai_calls` cost accounting; estimator and calibration; batch client in worker.
+- Prompts v1 for classification and mapping; eval harness.
+- *Acceptance:* recorded cost per call matches computed cost from usage; runtime cap test pauses a job; no generic passthrough exists (test); evals run and report.
+
+**Phase 5: Semantic layer, mapping, engine, validation**
+
+- Canonical MIS schema, Tally group seed, normalisation, mapping cascade, review UI.
+- Recipe DSL and compiler, metric library, metric store and lineage, validation checks V1–V10, snapshots.
+- *Acceptance:* fixtures produce correct metrics to the paisa; each validation check proven with failing fixtures; unmapped never dropped.
+
+**Phase 6: Jobs, Excel output, lifecycle**
+
+- Job state machine with charge points and checkpoints; diagnostic, setup and refresh flows; drift detection and restructure pricing.
+- Monthly Financial MIS template; Excel generator (report, Checks, Data, Lineage) with V11; lineage panel.
+- Company lifecycle and memory fee billing; notifications.
+- *Acceptance:* E2E setup then refresh with zero AI calls on matching fixture; failure classes bill exactly per Section 23; Excel formulas verified.
+
+**Phase 7: Dashboard, commentary, reference MIS recreate**
+
+- Dashboard spec, renderer, filters, lineage clicks; JSON Patch editing with versions and undo.
+- Commentary facts pack, placeholders, post-check (V12), batch and instant delivery.
+- Reference MIS layout extraction and binding review.
+- *Acceptance:* post-check rejects injected numerals; batch path completes and notifies; recreated template renders a fixture MIS layout correctly.
+
+**Phase 8: Chat**
+
+- Quick, deep and edit flows; SQL guard with fuzz tests; step protocol; round cap.
+- Thread cap and summary; Investigate buttons; pricing and reservations per type.
+- *Acceptance:* guard blocks the malicious corpus; round cap enforced server-side; out-of-scope decline charged per policy; placeholders resolve with lineage.
+
+**Phase 9: Admin console completion, compliance surfaces, hardening**
+
+- Full admin console (Section 26) including margin dashboard and daily email; library curation; prompt activation gate; break-glass flow.
+- Privacy and consent surfaces, data export, account and company deletion with purge and crypto-shred.
+- CSP and security headers, rate limits, runbooks, load test of wallet and job endpoints.
+- *Acceptance:* margin dashboard flags a seeded over-ratio action; purge verifiably destroys keys; security suite green.
+
+---
+
+## 35. Definition of done (whole build)
+
+- Every locked decision in Section 2 is enforced in code and covered by at least one automated test.
+- No customer-facing path exists that delivers analysis, mapping results, data-quality findings or outputs without a captured or held charge.
+- No path exists for a browser to send an arbitrary prompt to Anthropic.
+- Every number in Excel, dashboard, commentary and chat traces to a metric ID or query result with lineage.
+- Monthly refresh on an unchanged structure completes with zero AI calls.
+- Margin dashboard shows AI cost ratio per action. Seeded usage stays under `max_ai_cost_ratio` at seed prices, or the action is flagged.
+- All `TODO(review)` items are listed in `docs/REVIEW_ITEMS.md`.
+- `docs/SPEC.md`, `CLAUDE.md`, ADRs, runbooks and help content are current.

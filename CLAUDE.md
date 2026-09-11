@@ -7,25 +7,48 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — **currently incomplete, see
 
 ## Current phase
 
-**Phase 0 — repository bootstrap. BLOCKED on the remainder of the spec.**
+**Phase 0 — Foundations.** Plan: [docs/plans/phase-0.md](docs/plans/phase-0.md)
 
-`docs/SPEC.md` holds **Sections 0–19 complete**. It stops at the Section 20 heading —
-Section 20 onward, including **Section 34 (the phase plan)**, has not been received.
+`docs/SPEC.md` is **complete, Sections 0–35.**
 
-Instruction 0.2 requires phases to be followed from Section 34, in order. Until that
-section exists, **do not start Phase 1 and do not invent a phase plan.** Ask for the
-missing sections — and ask for them **starting at Section 20**, since re-sending
-Sections 0–19 exhausts the message limit before reaching new material.
+Phase 0 scope (§34): monorepo · ADR template · CI (lint, typecheck, unit tests) · env
+validation · Supabase local · migrations for all 35 tables in §9 · RLS baseline +
+cross-tenant harness · audit log with hash chain · config tables · design tokens and
+base UI components.
+**Acceptance:** CI green · RLS harness proves isolation on seeded data · audit chain
+verification passes.
 
-Done so far:
-- [x] `docs/SPEC.md` saved (partial, banner-marked)
-- [x] `CLAUDE.md` created
-- [x] git initialised on `main`; `.gitignore`
-- [x] `.claude/` team configuration
-- [x] Section 6 directory skeleton
-- [ ] Everything else — awaiting Section 34
+Bootstrap done (pre-phase): spec saved, `CLAUDE.md`, git + `.gitignore` +
+`.gitattributes`, `.claude/` configuration, Section 6 skeleton, ADR template,
+`docs/REVIEW_ITEMS.md`.
+
+### The ten phases (§34) — stop after each for review
+
+| # | Phase | State |
+|---|---|---|
+| 0 | Foundations | **current** |
+| 1 | Accounts and security | |
+| 2 | Wallet, pricing, payments, GST | |
+| 3 | Ingestion, Tally, redaction, fixtures | |
+| 4 | AI layer and margin controls | |
+| 5 | Semantic layer, mapping, engine, validation | |
+| 6 | Jobs, Excel output, lifecycle | |
+| 7 | Dashboard, commentary, reference MIS recreate | |
+| 8 | Chat | |
+| 9 | Admin console, compliance surfaces, hardening | |
 
 Update this section as each phase completes.
+
+### Definition of done for the whole build (§35)
+
+Every locked decision in §2 enforced in code **and** covered by an automated test · no
+path delivering analysis, mapping results, findings or outputs without a captured or
+held charge · no path for a browser to send an arbitrary prompt to Anthropic · every
+number traceable to a metric ID or query result with lineage · **monthly refresh on
+unchanged structure makes zero AI calls** · margin dashboard shows AI cost ratio per
+action and flags any over `max_ai_cost_ratio` · all `TODO(review)` items listed in
+[docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) · spec, CLAUDE.md, ADRs, runbooks and help
+content current.
 
 ---
 

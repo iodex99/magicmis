@@ -1,93 +1,183 @@
-# Phase 0 — Repository bootstrap
+# Phase 0 — Foundations
 
-Not a phase from SPEC §34 (§34 has not been received). This records the work SPEC §0.1
-mandates *before* phased work begins, and the blocker preventing Phase 1.
+Scope from SPEC §34:
 
-## Blocker
+> - Monorepo, CLAUDE.md, ADR template, CI (lint, typecheck, unit tests), env validation.
+> - Supabase local, migrations for all tables in Section 9, RLS baseline + cross-tenant
+>   test harness.
+> - Audit log with hash chain; config tables; design tokens and base UI components.
+> - *Acceptance:* CI green; RLS harness proves isolation on seeded data; audit chain
+>   verification passes.
 
-`docs/SPEC.md` is **incomplete**. It has been assembled from two deliveries, each cut at
-the 50,000-character message limit:
+No product features in this phase. No auth flows (Phase 1), no wallet logic (Phase 2) —
+only the tables those phases will fill.
 
-| Delivery | Reached | Cut at |
-|---|---|---|
-| 1 | §0 – §17 (partial) | the IFSC detector regex in §17 |
-| 2 | §0 – §19 (complete) | the **§20 heading** — §20's body onward never arrived |
+---
 
-Delivery 2 re-sent §0–§17 before reaching new material, so it bought only §17's
-remainder plus §18 and §19. **The next delivery must start at `## 20. Deterministic
-engine`.**
+## 0.a — Already done (pre-phase bootstrap)
 
-**Sections 0–19 are now complete and verbatim.** §20 onward — including **§34, the phase
-plan** — is missing.
+Completed before the spec was fully in hand:
 
-SPEC §0.2 requires phases to be followed from §34, in order. SPEC §0.3 forbids working
-around a locked decision silently. Inventing a phase plan would do both, so Phase 1 has
-not been started.
-
-Forward references made in Sections 0–19 to material we do not have:
-
-| Referenced from | Missing target |
-|---|---|
-| §16 "feeds validation check V4" | the validation check catalogue (V1..Vn) |
-| §18 "see validation V1" | same — V1 = nothing silently dropped / Unmapped head |
-| §14 prompt rules | §25 — the placeholder mechanism for commentary and chat |
-| §8 "Other rules" | §26 — the separate admin identity system |
-| §12 price book (`refresh_with_restructure`) | §23 — source-structure drift threshold |
-| §9 `companies.lifecycle_state` | company lifecycle + memory-fee billing cycle |
-| §6 packages | recipe DSL, metric library, template/render specs, chat + SQL guard |
-
-## Done
-
-- `docs/SPEC.md` — saved verbatim as received, with a truncation banner and an inline
-  `[TRUNCATED]` marker at the cut point (SPEC §0.1).
+- `docs/SPEC.md` — Sections 0–35, verbatim. Arrived in three deliveries, each capped at
+  the 50,000-character message limit; the third arrived with markdown flattened and was
+  restored to the document's own conventions, wording unaltered.
 - `CLAUDE.md` — locked decisions (§2), engineering conventions (§4), trust boundaries
-  (§7), stack (§5), out-of-scope (§3), layout (§6), and the current phase (§0.1).
-- git initialised on `main`; `.gitignore` refusing `.env*`, keys, and stray workbooks.
-- `.claude/` team configuration — see below.
-- Section 6 directory skeleton (`.gitkeep` placeholders only, no code).
+  (§7), stack (§5), out-of-scope (§3), layout (§6), current phase.
+- git on `main`; `.gitignore`; `.gitattributes` forcing LF (Windows `core.autocrlf`
+  would otherwise rewrite the hook scripts to CRLF and break bash).
+- `.claude/` — four path-scoped rules, six agents, three commands, an `indian-finance`
+  skill, two hooks. Hook paths tested: non-commit passes (0), commit without
+  `package.json` skips with a notice (0), staged `.env` blocks (2).
+- Section 6 directory skeleton (`.gitkeep` only).
 
-### `.claude/` configuration
+Carried forward: the `/phase-start` command originally stopped for review after writing
+the plan. §0.2 and §34 put the gate at the **end** of a phase, so that has been
+corrected to match the spec.
 
-| File | Purpose |
+---
+
+## 0.b — Tasks
+
+### 1. Monorepo and toolchain
+- `corepack enable pnpm` (pnpm absent on this machine; Node v22.18.0, npm 10.9.3 present).
+- `pnpm-workspace.yaml` over `apps/*` and `packages/*`; root `package.json`;
+  Turborepo pipeline for `lint`, `typecheck`, `test`, `build`.
+- Shared `tsconfig.base.json` — `strict: true`, plus `noUncheckedIndexedAccess`,
+  `exactOptionalPropertyTypes`, `noImplicitOverride`. ESLint flat config + Prettier.
+- Stub `package.json` + `tsconfig.json` in each of the 15 packages and 3 apps so the
+  graph resolves. No implementation beyond what later tasks need.
+
+### 2. `packages/core`
+- `money/` — integer paise and micro-USD types with unit-suffixed branded types, so a
+  paise value cannot be passed where rupees are expected. Parse, format, add, multiply
+  by ratio, divide with explicit rounding mode. **No float path exists.**
+- `time/` — UTC storage, IST display, FY helpers driven by `fy_start_month` (never a
+  hardcoded April), period IDs (`YYYY-MM`), day-first date parsing.
+- `format/` — Indian digit grouping (`1,00,000`), lakhs/crores/absolute/millions modes,
+  configurable decimals, parentheses-negative.
+- `identifiers/` — PAN shape, **GSTIN with checksum**, Aadhaar Verhoeff, IFSC.
+- `hashchain/` — `prev_hash`/`hash` computation and chain verification, shared by
+  `audit_log`, `credit_ledger` and `blueprints`.
+- `config/` — Zod-validated env loader. **The app refuses to start on invalid config**
+  (§4). Typed accessor for DB-backed `app_config` with `effective_from` resolution.
+
+### 3. `packages/db` — migrations for all 35 tables in §9
+Grouped, forward-only, each customer table's RLS policy in the **same** migration:
+
+| Migration | Tables |
 |---|---|
-| `settings.json` | Allowlist for safe commands and the seven documentation domains; denylist for `.env`/key reads, `rm -rf`, force-push, hard reset, `supabase db reset`. Wires both hooks. |
-| `hooks/pre-commit.sh` | Gates **commits only** — it parses the Bash payload and passes every non-commit command straight through. Blocks a staged `.env` or a live-looking key, then runs typecheck → lint → test. Skips the toolchain cleanly while `package.json` does not exist. |
-| `hooks/lint-on-save.sh` | Advisory formatter on Edit/Write. Never exits 2. |
-| `rules/money-and-ledger.md` | Integer paise, `FOR UPDATE`, hash-chained append-only ledger, FIFO capture, the mandatory property/concurrency tests. |
-| `rules/ai-boundary.md` | Server-only key, no generic prompt passthrough, no client-chosen model, Claude never emits a number, caps and fallback pricing. |
-| `rules/browser-data.md` | What may leave Zone A, header-based parsing, day-first dates, Dr/Cr recorded not guessed, subtotals never aggregated. |
-| `rules/database.md` | `account_id` + RLS on every customer table, no user-to-user relationships, crypto-shred purge, DB-level constraints. |
-| `agents/` | `code-reviewer`, `security-auditor`, `test-writer`, `debugger`, `refactorer`, `doc-writer`. |
-| `commands/` | `/phase-start`, `/phase-end`, `/verify-api`. |
-| `skills/indian-finance/` | Day-first dates, lakhs/crores, Apr–Mar FY, GSTIN/PAN/Aadhaar validation, GST place of supply, paise arithmetic. |
+| `0001_identity` | accounts, login_events, consents, account_keys |
+| `0002_companies` | companies, company_keys, blueprints, account_mapping_rules, snapshots |
+| `0003_semantic` | mis_heads, global_mapping_library, library_candidates *(global, not tenant)* |
+| `0004_jobs_ai` | jobs, job_stage_outputs, ai_calls, quotes, estimator_calibration |
+| `0005_wallet` | price_book, credit_packs, credit_lots, wallets, reservations, credit_ledger |
+| `0006_billing` | purchases, invoices, invoice_counters |
+| `0007_chat_outputs` | chat_threads, chat_messages, chat_query_steps, outputs |
+| `0008_notify_audit` | notifications, audit_log |
+| `0009_config` | app_config, model_registry, tier_routing |
+| `0010_grants` | revoke UPDATE/DELETE on `credit_ledger` and `audit_log` at the role level |
 
-Hook behaviour verified: non-commit passes through (exit 0); commit without
-`package.json` skips checks with a notice (exit 0); staged `.env` is blocked (exit 2).
+Constraints go in the schema, not the app: `credit_lots.credits_remaining ≥ 0`;
+`wallets.balance_credits ≥ 0`, `held_credits ≥ 0`, `held_credits ≤ balance_credits`;
+`credit_ledger.idempotency_key` UNIQUE; `invoice_counters` row-lockable.
 
-## Deviations from the configuration template, and why
+Seeds (values only, all admin-editable, all `TODO(review)`): price book, credit packs,
+app_config defaults, model registry, tier routing.
 
-- **`/fix-issue`, `/deploy`, `/pr-review` not created.** There is no git remote, no
-  issue tracker and no deploy target yet. They would encode guesses. Replaced with
-  `/phase-start`, `/phase-end` and `/verify-api`, which encode SPEC §0.2 and §0.4.
-- **No `model` pin in `settings.json`.** The template pinned `claude-sonnet-4-6`, which
-  is not a current model ID; pinning it would silently downgrade the session. Omitted so
-  the `/model` choice governs.
-- **No `memory:` key in agent frontmatter.** Unverified field — omitted rather than
-  guessed, per SPEC §0.4.
-- **Hooks invoked as `bash .claude/hooks/*.sh`.** Explicit interpreter, because the
-  development machine is Windows.
+### 4. Audit log with hash chain
+- Append-only writer taking actor, action, target, metadata. **Metadata carries no
+  financial data content** (§9).
+- Nightly verification job skeleton; alerts on mismatch (§30).
 
-## New dependencies
+### 5. RLS baseline + cross-tenant harness
+- Every customer table: `account_id`, policy scoped to the authenticated account.
+- Harness seeds two accounts with overlapping-looking data and asserts, per table, that
+  account A cannot read, update or delete account B's rows — including through the
+  service-role path used by the worker.
 
-None. No `package.json` yet — nothing has been installed.
+### 6. CI
+- GitHub Actions: `pnpm lint`, `pnpm typecheck`, `pnpm test`, migrations applied against
+  a throwaway Postgres, RLS harness, audit-chain verification. Lockfile enforced.
+- Secret + dependency scanning (§30). The client-bundle secret scan lands in Phase 4
+  when there is a bundle to scan.
 
-## TODO(review)
+### 7. `packages/ui` — design tokens and base components
+Per §32: precise and calm; **no emojis, no sparkle icons, no purple-blue gradients, no
+"magic" wording, no glowing effects, no gradient blobs.** Restrained neutral palette,
+one accent. Red/green only for variance, **always paired with a sign or arrow** so
+meaning never depends on colour. **Tabular numerals, numbers right-aligned.**
+WCAG 2.2 AA, full keyboard operability.
 
-- `TODO(review)` **— the missing spec.** Sections 17 (remainder) through 34.
-- Everything SPEC §0.6 designates (legal text, TallyPrime menu paths, SAC code, final
-  prices) becomes actionable only once the relevant sections arrive.
+Components: Button, Input, Select, Checkbox, Dialog, Table (sticky header, compact
+density), Badge, Alert, Tabs, Toast, `AmountCell`, `VarianceCell`.
 
-## Next
+---
 
-Blocked. On receipt of §17(rest)–§34: replace `docs/SPEC.md` in full, remove the
-truncation banner, then `/phase-start 1`.
+## 0.c — Tests
+
+- **Property (fast-check):** paise arithmetic never loses value; format→parse round-trips;
+  hash chain verifies and any mutation breaks it; FY/period maths across the April
+  boundary and leap years.
+- **Unit:** GSTIN checksum (valid and invalid), Aadhaar Verhoeff, PAN, IFSC; Indian
+  grouping across magnitudes; day-first parsing of `1-Apr-25`, `01-04-2025`,
+  `01/04/2025`, Excel serials; **explicit assertions that no input is read month-first**;
+  env loader rejects malformed config.
+- **Integration (Testcontainers Postgres):** migrations apply clean and are idempotent;
+  every constraint rejects its violation; `credit_ledger`/`audit_log` reject UPDATE and
+  DELETE at the role level.
+- **Security:** the cross-tenant harness, per table.
+
+---
+
+## 0.d — External facts to verify before implementing (§0.4)
+
+| Fact | Source | ADR |
+|---|---|---|
+| Supabase India (Mumbai) region availability | supabase.com/docs | 0002 |
+| Supabase local stack + TOTP MFA support | supabase.com/docs | 0002 |
+| Vercel region nearest India for functions | vercel.com/docs | 0002 |
+| pg-boss version, schema needs, Postgres compatibility | pg-boss docs | 0003 |
+| Postgres RLS + service-role interaction | supabase.com/docs | 0004 |
+
+Anthropic, Razorpay, SheetJS, DuckDB-WASM, ExcelJS, ECharts and GST facts are verified
+in the phases that use them (4, 2, 3, 3, 6, 7, 2 respectively).
+
+## 0.e — Decisions to record as ADRs
+
+| # | Decision |
+|---|---|
+| 0001 | ADR template and numbering |
+| 0002 | Hosting and region: Supabase region, Vercel function region |
+| 0003 | Monorepo tooling: pnpm workspaces, Turborepo yes/no |
+| 0004 | RLS strategy and how the worker's service-role path stays tenant-safe |
+| 0005 | Branded integer money types instead of a decimal library |
+| 0006 | Hash-chain construction (field order, encoding, hash function) |
+| 0007 | Email provider — Resend or Postmark (§5 requires a choice + ADR) |
+| 0008 | KMS vs secrets manager for the master key |
+| 0009 | Social login offered or not (§8 requires the decision recorded) |
+
+## 0.f — Proposed dependencies
+
+Each gets its one-line justification in the phase summary (§0.10). Expected: `zod`,
+`typescript`, `eslint`, `prettier`, `vitest`, `fast-check`, `@testcontainers/postgresql`,
+`postgres` or `pg`, `turbo`, `tailwindcss`, `@radix-ui/*` via shadcn/ui, `clsx`,
+`tailwind-merge`. Nothing outside this list without a note.
+
+## 0.g — Open questions
+
+Not blocking — I will proceed on the stated assumption and record it in the ADR.
+
+1. **Product name.** The spec says `[PRODUCT_NAME]` throughout; the directory is
+   `magicmis`. I will use a single `PRODUCT_NAME` constant in `packages/core` so the
+   real name is a one-line change, and will not bake a name into copy.
+   *Note:* §32 forbids "magic" wording in the UI, which sits awkwardly with "MagicMIS"
+   as a customer-facing brand. Flagging, not deciding.
+2. **Seller GSTIN, legal name, address, SAC code** — needed for §13 invoices in Phase 2,
+   not Phase 0. Tracked in `docs/REVIEW_ITEMS.md`.
+3. **Email provider** — I will pick Resend (simpler API, adequate deliverability for
+   transactional-only volume) unless told otherwise, and record ADR 0007.
+
+## 0.h — Acceptance
+
+Per §34: CI green · RLS harness proves isolation on seeded data · audit chain
+verification passes. Then `/phase-end 0` and stop for review.
