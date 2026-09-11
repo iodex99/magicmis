@@ -1,0 +1,14 @@
+# Normalise to LF in the repo. Development happens on Windows, where core.autocrlf
+# would otherwise rewrite the hook scripts to CRLF on checkout and bash would fail
+# with `\r: command not found`.
+* text=auto eol=lf
+
+# Never let these near a line-ending conversion.
+*.sh   text eol=lf
+*.xlsx binary
+*.xlsm binary
+*.xls  binary
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.ico  binary
