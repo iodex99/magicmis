@@ -4,4 +4,8 @@ dist
 .turbo
 coverage
 pnpm-lock.yaml
-docs/SPEC.md
+
+# Markdown is hand-formatted here: the spec, ADRs, rules and review tables are read as
+# documents, and Prettier's table alignment makes wide tables far less readable than the
+# hand-wrapped originals. Formatting these is not a correctness concern.
+*.md

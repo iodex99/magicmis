@@ -33,4 +33,5 @@ export const couldBeAccountNumber = (value: string): boolean =>
   ACCOUNT_DIGITS.test(value.replace(/[\s-]/gu, ""));
 
 /** SPEC §17: UAN is 12 digits, and like account numbers is only trusted in a labelled column. */
-export const couldBeUan = (value: string): boolean => /^\d{12}$/u.test(value.replace(/[\s-]/gu, ""));
+export const couldBeUan = (value: string): boolean =>
+  /^\d{12}$/u.test(value.replace(/[\s-]/gu, ""));

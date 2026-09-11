@@ -181,3 +181,97 @@ Not blocking — I will proceed on the stated assumption and record it in the AD
 
 Per §34: CI green · RLS harness proves isolation on seeded data · audit chain
 verification passes. Then `/phase-end 0` and stop for review.
+
+---
+
+# Phase 0 summary
+
+**Status: complete, pending your review.** 204 tests, lint and typecheck green across
+three packages.
+
+## Acceptance criteria (§34)
+
+| Criterion | Result |
+|---|---|
+| CI green | Workflow written and the identical commands pass locally (`format:check`, `lint`, `typecheck`, `test`). **Not yet observed on a runner** — there is no git remote, so nothing has executed in Actions. |
+| RLS harness proves isolation on seeded data | **Met.** 16 tests, two seeded tenants, real Postgres 17. |
+| Audit chain verification passes | **Met.** 9 tests including 30-way concurrent appends and tamper detection. |
+
+## What was built
+
+| Package | Contents | Tests |
+|---|---|---|
+| root | pnpm workspaces, Turborepo, strict TS, ESLint, Prettier, CI, `.gitattributes` | — |
+| `@magicmis/core` | money · time · format · identifiers · hashchain · config | 140 |
+| `@magicmis/db` | 11 migrations / 35 tables, RLS, audit writer + verifier, migration runner, Testcontainers harness | 49 |
+| `@magicmis/ui` | design tokens, numeric/variance presentation | 15 |
+
+Plus `docs/adr/0000`–`0005` and `docs/REVIEW_ITEMS.md`.
+
+## Bugs the tests caught
+
+Three, all of which would have shipped:
+
+1. **`audit_log` ordered by `(created_at, id)`.** `created_at` defaults to `now()` —
+   transaction-*start* time — so rapid appends tie, and the tie-break was a **random**
+   uuid. The tail lookup could pick the wrong row and break the chain under ordinary
+   traffic, not tampering. Replaced with a `bigserial`.
+2. **`select seq::text as seq ... order by seq`.** Postgres resolves `ORDER BY` to the
+   *output* column, so the verifier walked `1,10,11,…,2,20` lexicographically. Passed at
+   8 rows (1–9 sort identically either way), failed at 25.
+3. **`audit_log` missing from the privilege revoke list.** RLS already returned nothing,
+   but relying on "no policy" alone means a policy added later for one purpose silently
+   opens it for all.
+
+A fourth finding was not a bug: cross-tenant writes are refused at the **privilege**
+layer, because `authenticated` holds no UPDATE/DELETE grant at all — stronger than the
+test asserted. The tests now assert the property (row unchanged) rather than the
+mechanism.
+
+## Deviations from the plan
+
+- **Testcontainers instead of the Supabase local stack** for Phase 0 — ADR 0005.
+  SPEC §5 permits either; Phase 0 exercises no Supabase service beyond Postgres.
+- **`account_id` added to `blueprints`, `snapshots`, `company_keys`, `chat_messages`,
+  `chat_query_steps` and `outputs`**, which §9 lists with only `company_id`. The general
+  rule above that list ("all customer tables carry account_id") governs — ADR 0003.
+- **ADRs 0006–0009 not written.** They were planned for the email provider, KMS choice,
+  social login and region. An ADR records a decision taken; none of those has code
+  depending on it yet, and writing one now would record a guess. The region question is
+  resolved and recorded inside ADR 0003.
+
+## New dependencies (§0.10 — one line each)
+
+| Dependency | Justification |
+|---|---|
+| `typescript`, `eslint`, `typescript-eslint`, `@eslint/js`, `prettier` | The toolchain SPEC §4 and §5 require. |
+| `turbo` | Task graph across 18 workspace packages; SPEC §5 names it. |
+| `vitest`, `fast-check` | SPEC §5 names both; property tests are mandatory for money and ledger logic. |
+| `zod` | SPEC §4 requires Zod at every boundary. |
+| `pg`, `@types/pg` | The boring, maintained Postgres driver. |
+| `@testcontainers/postgresql` | SPEC §5 names it; RLS cannot be proven against a mock. |
+
+## `TODO(review)` raised this phase (§0.6)
+
+One new: **R-20**, the GSTIN check-character algorithm, needing confirmation against
+official GSTN documentation before Phase 2. It reproduces the check character on two
+independent specimen GSTINs and passes a generated-check-character property test, but
+§0.4 does not accept an external fact without a source.
+
+One closed: **R-19** — Supabase Mumbai (`ap-south-1`) confirmed available.
+
+## What Phase 1 depends on
+
+Schema and RLS are in place, so Phase 1 adds auth flows on top rather than alongside.
+Two carried-forward obligations:
+
+1. **Verify the auth shim against the real thing.** When Supabase local arrives for Auth,
+   run the RLS policies against it once to confirm the shim and the genuine `auth.uid()`
+   agree (ADR 0005).
+2. **`service_role` bypasses RLS**, so every server route must scope its own queries. The
+   cross-tenant tests must be extended to each new endpoint as it lands (SPEC §30).
+
+## Open, and not blocking
+
+Unchanged from §0.g: product name (R-01), and the email provider (R-16, proceeding with
+Resend unless told otherwise). Neither has code depending on it yet.

@@ -86,7 +86,9 @@ describe("audit chain", () => {
     // The trigger blocks UPDATE, so tamper the way a real attacker with database access
     // would have to: disable it first. If the chain could not detect this, it would be
     // decoration.
-    await testDb().pool.query(`alter table public.audit_log disable trigger audit_log_append_only`);
+    await testDb().pool.query(
+      `alter table public.audit_log disable trigger audit_log_append_only`,
+    );
     try {
       await testDb().pool.query(
         `update public.audit_log set action = 'tampered'
@@ -98,7 +100,9 @@ describe("audit chain", () => {
       expect(result.failures).toHaveLength(1);
       expect(result.failures[0]?.reason).toBe("bad_hash");
     } finally {
-      await testDb().pool.query(`alter table public.audit_log enable trigger audit_log_append_only`);
+      await testDb().pool.query(
+        `alter table public.audit_log enable trigger audit_log_append_only`,
+      );
     }
   });
 
@@ -106,7 +110,9 @@ describe("audit chain", () => {
     await expect(
       testDb().pool.query(`update public.audit_log set action = 'x'`),
     ).rejects.toThrow(/append-only/iu);
-    await expect(testDb().pool.query(`delete from public.audit_log`)).rejects.toThrow(/append-only/iu);
+    await expect(testDb().pool.query(`delete from public.audit_log`)).rejects.toThrow(
+      /append-only/iu,
+    );
   });
 
   it("records metadata as given, so verification is reproducible", async () => {
@@ -117,10 +123,10 @@ describe("audit chain", () => {
       metadata: { key: "max_ai_cost_ratio", from: "0.20", to: "0.25" },
     });
 
-    const row = await testDb().pool.query<{ metadata: Record<string, unknown>; hash: string }>(
-      `select metadata, hash from public.audit_log where id = $1`,
-      [appended.id],
-    );
+    const row = await testDb().pool.query<{
+      metadata: Record<string, unknown>;
+      hash: string;
+    }>(`select metadata, hash from public.audit_log where id = $1`, [appended.id]);
     expect(row.rows[0]?.metadata).toEqual({
       key: "max_ai_cost_ratio",
       from: "0.20",

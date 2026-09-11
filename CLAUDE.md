@@ -1,7 +1,7 @@
 # Project brain — [PRODUCT_NAME]
 
 Prepaid, usage-priced AI MIS platform for Indian CA firms and SMEs.
-Full specification: [docs/SPEC.md](docs/SPEC.md) — **currently incomplete, see "Current phase" below.**
+Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ---
 
@@ -18,34 +18,38 @@ base UI components.
 **Acceptance:** CI green · RLS harness proves isolation on seeded data · audit chain
 verification passes.
 
-Progress:
+Progress — all seven tasks done:
 
-| Task                                                                     | State                                |
-| ------------------------------------------------------------------------ | ------------------------------------ |
-| Bootstrap (spec, CLAUDE.md, git, `.claude/`, ADR template, REVIEW_ITEMS) | done                                 |
-| 1. Monorepo + toolchain (pnpm, strict TS, ESLint, Prettier, Turborepo)   | done                                 |
-| 2. `packages/core` — money, time, format, identifiers, hashchain, config | done, 140 tests                      |
-| 3. `packages/db` — 35 tables, RLS, seeds                                 | **blocked: needs Postgres**          |
-| 4. Audit log hash chain (writer + nightly verify)                        | core primitive done; writer needs db |
-| 5. RLS baseline + cross-tenant harness                                   | **blocked: needs Postgres**          |
-| 6. CI (GitHub Actions)                                                   | not started                          |
-| 7. `packages/ui` — design tokens + base components                       | not started                          |
+| Task | State |
+|---|---|
+| Bootstrap (spec, CLAUDE.md, git, `.claude/`, ADR template, REVIEW_ITEMS) | done |
+| 1. Monorepo + toolchain (pnpm, strict TS, ESLint, Prettier, Turborepo) | done |
+| 2. `packages/core` — money, time, format, identifiers, hashchain, config | done · 140 tests |
+| 3. `packages/db` — 11 migrations / 35 tables, RLS, constraints | done · 49 tests |
+| 4. Audit log hash chain (writer + paged verifier) | done |
+| 5. RLS baseline + cross-tenant harness | done · 16 of the 49 |
+| 6. CI (GitHub Actions) | written; not yet run on a runner (no git remote) |
+| 7. `packages/ui` — design tokens + numeric presentation | done · 15 tests |
 
-**Blocker:** Docker Desktop is not installed, so there is no Supabase local stack and no
-Testcontainers Postgres. Tasks 3 and 5 — and Phase 0's acceptance criteria — need one.
-The user has agreed to install Docker Desktop. Check for it (`docker info`) before
-resuming those tasks.
+**204 tests, lint and typecheck green.** Summary and ADRs: [docs/plans/phase-0.md](docs/plans/phase-0.md), [docs/adr/](docs/adr/).
 
-Toolchain note: `corepack enable pnpm` fails on this machine with EPERM writing to
-`C:\Program Files\nodejs`. pnpm 12.3.4 is installed via `npm i -g pnpm` into the existing
-user-writable prefix instead.
+Environment notes for a future session:
+
+- `corepack enable pnpm` fails here with EPERM writing to `C:\Program Files\nodejs`.
+  pnpm 12.3.4 is installed via `npm i -g pnpm` into the existing user-writable prefix.
+- Docker Desktop is a **per-user** install at
+  `%LOCALAPPDATA%\Programs\DockerDesktop`, not `Program Files`. A shell started before
+  the install has a stale PATH; `packages/db/test/setup-docker-path.ts` repairs it for
+  the test worker so Testcontainers can spawn the Docker credential helper.
+- Pre-pull `postgres:17-alpine` and `testcontainers/ryuk:0.14.0` if a registry pull
+  fails through Docker Desktop's built-in proxy.
 
 ### The ten phases (§34) — stop after each for review
 
 | #   | Phase                                         | State       |
 | --- | --------------------------------------------- | ----------- |
-| 0   | Foundations                                   | **current** |
-| 1   | Accounts and security                         |             |
+| 0   | Foundations                                   | **complete — awaiting review** |
+| 1   | Accounts and security                         | next |
 | 2   | Wallet, pricing, payments, GST                |             |
 | 3   | Ingestion, Tally, redaction, fixtures         |             |
 | 4   | AI layer and margin controls                  |             |

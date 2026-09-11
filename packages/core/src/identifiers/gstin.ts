@@ -33,7 +33,9 @@ const GSTIN_PATTERN = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{1}Z[0-9A-Z]$/u;
  */
 export function gstinCheckCharacter(first14: string): string {
   if (first14.length !== 14) {
-    throw new RangeError(`gstinCheckCharacter: expected 14 characters, got ${String(first14.length)}`);
+    throw new RangeError(
+      `gstinCheckCharacter: expected 14 characters, got ${String(first14.length)}`,
+    );
   }
 
   let factor = 2;
@@ -42,7 +44,9 @@ export function gstinCheckCharacter(first14: string): string {
   for (let i = first14.length - 1; i >= 0; i--) {
     const codePoint = ALPHABET.indexOf(first14[i] ?? "");
     if (codePoint < 0) {
-      throw new RangeError(`gstinCheckCharacter: ${JSON.stringify(first14[i])} is not in the alphabet`);
+      throw new RangeError(
+        `gstinCheckCharacter: ${JSON.stringify(first14[i])} is not in the alphabet`,
+      );
     }
     let addend = factor * codePoint;
     factor = factor === 2 ? 1 : 2;

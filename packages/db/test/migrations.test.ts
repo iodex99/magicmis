@@ -147,7 +147,12 @@ describe("wallet invariants are enforced by the database", () => {
 });
 
 describe("GST invariants (SPEC §13)", () => {
-  const insertPurchase = (cgst: number, sgst: number, igst: number, gst: number): Promise<unknown> =>
+  const insertPurchase = (
+    cgst: number,
+    sgst: number,
+    igst: number,
+    gst: number,
+  ): Promise<unknown> =>
     testDb().pool.query(
       `insert into public.purchases
          (account_id, amount_paise_ex_gst, gst_paise, cgst_paise, sgst_paise, igst_paise,
@@ -193,8 +198,11 @@ describe("GST invariants (SPEC §13)", () => {
 describe("other schema invariants", () => {
   it("refuses an fy_start_month outside 1-12", async () => {
     await expect(
-      testDb().pool.query(`insert into public.companies (account_id, name, fy_start_month)
-                     values ($1, 'Bad FY', 13)`, [accountId]),
+      testDb().pool.query(
+        `insert into public.companies (account_id, name, fy_start_month)
+                     values ($1, 'Bad FY', 13)`,
+        [accountId],
+      ),
     ).rejects.toThrow(/fy_start_month/iu);
   });
 

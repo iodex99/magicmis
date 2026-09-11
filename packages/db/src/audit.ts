@@ -131,7 +131,10 @@ export interface ChainVerification {
  * Streams in pages rather than loading the table, because this runs against a log that
  * only ever grows.
  */
-export async function verifyAuditChain(pool: Pool, pageSize = 1000): Promise<ChainVerification> {
+export async function verifyAuditChain(
+  pool: Pool,
+  pageSize = 1000,
+): Promise<ChainVerification> {
   const failures: ChainVerification["failures"] = [];
   let expectedPrev = GENESIS_HASH;
   let checked = 0;
@@ -188,7 +191,12 @@ export async function verifyAuditChain(pool: Pool, pageSize = 1000): Promise<Cha
         ip: row.ip,
       });
       if (recomputed !== row.hash) {
-        failures.push({ id: row.id, reason: "bad_hash", expected: recomputed, actual: row.hash });
+        failures.push({
+          id: row.id,
+          reason: "bad_hash",
+          expected: recomputed,
+          actual: row.hash,
+        });
       }
       expectedPrev = row.hash;
     }

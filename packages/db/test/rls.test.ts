@@ -125,12 +125,16 @@ describe("every customer table has RLS enabled and forced", () => {
 describe("account A cannot reach account B's data", () => {
   it("sees only its own row in every tenant table", async () => {
     for (const table of TENANT_TABLES) {
-      const rows = await testDb().asUser(alpha.authUserId, "authenticated", async (client) => {
-        const r = await client.query<{ account_id: string }>(
-          `select account_id from public.${table}`,
-        );
-        return r.rows;
-      });
+      const rows = await testDb().asUser(
+        alpha.authUserId,
+        "authenticated",
+        async (client) => {
+          const r = await client.query<{ account_id: string }>(
+            `select account_id from public.${table}`,
+          );
+          return r.rows;
+        },
+      );
       for (const row of rows) {
         expect(row.account_id, `${table} leaked a row to the wrong tenant`).toBe(
           alpha.accountId,
@@ -141,24 +145,32 @@ describe("account A cannot reach account B's data", () => {
 
   it("returns zero rows when filtering explicitly for the other tenant", async () => {
     for (const table of TENANT_TABLES) {
-      const count = await testDb().asUser(alpha.authUserId, "authenticated", async (client) => {
-        const r = await client.query<{ n: string }>(
-          `select count(*)::text as n from public.${table} where account_id = $1`,
-          [beta.accountId],
-        );
-        return Number.parseInt(r.rows[0]?.n ?? "0", 10);
-      });
+      const count = await testDb().asUser(
+        alpha.authUserId,
+        "authenticated",
+        async (client) => {
+          const r = await client.query<{ n: string }>(
+            `select count(*)::text as n from public.${table} where account_id = $1`,
+            [beta.accountId],
+          );
+          return Number.parseInt(r.rows[0]?.n ?? "0", 10);
+        },
+      );
       expect(count, `${table} returned rows for the other tenant`).toBe(0);
     }
   });
 
   it("cannot read another tenant's company by its id", async () => {
-    const rows = await testDb().asUser(alpha.authUserId, "authenticated", async (client) => {
-      const r = await client.query(`select id from public.companies where id = $1`, [
-        beta.companyId,
-      ]);
-      return r.rowCount;
-    });
+    const rows = await testDb().asUser(
+      alpha.authUserId,
+      "authenticated",
+      async (client) => {
+        const r = await client.query(`select id from public.companies where id = $1`, [
+          beta.companyId,
+        ]);
+        return r.rowCount;
+      },
+    );
     expect(rows).toBe(0);
   });
 
@@ -174,10 +186,14 @@ describe("account A cannot reach account B's data", () => {
   async function expectWriteRefused(sql: string, params: unknown[]): Promise<void> {
     let affected: number | null = 0;
     try {
-      affected = await testDb().asUser(alpha.authUserId, "authenticated", async (client) => {
-        const r = await client.query(sql, params);
-        return r.rowCount;
-      });
+      affected = await testDb().asUser(
+        alpha.authUserId,
+        "authenticated",
+        async (client) => {
+          const r = await client.query(sql, params);
+          return r.rowCount;
+        },
+      );
     } catch (error) {
       expect(String(error)).toMatch(/permission denied|violates row-level security/iu);
       affected = 0;
@@ -186,9 +202,10 @@ describe("account A cannot reach account B's data", () => {
   }
 
   it("cannot update another tenant's company", async () => {
-    await expectWriteRefused(`update public.companies set name = 'stolen' where id = $1`, [
-      beta.companyId,
-    ]);
+    await expectWriteRefused(
+      `update public.companies set name = 'stolen' where id = $1`,
+      [beta.companyId],
+    );
     // And the row really is untouched, verified from a role that can see it.
     const name = await testDb().asUser(null, "service_role", async (client) => {
       const r = await client.query<{ name: string }>(
@@ -201,7 +218,9 @@ describe("account A cannot reach account B's data", () => {
   });
 
   it("cannot delete another tenant's company", async () => {
-    await expectWriteRefused(`delete from public.companies where id = $1`, [beta.companyId]);
+    await expectWriteRefused(`delete from public.companies where id = $1`, [
+      beta.companyId,
+    ]);
     const stillThere = await testDb().asUser(null, "service_role", async (client) => {
       const r = await client.query(`select 1 from public.companies where id = $1`, [
         beta.companyId,
@@ -223,29 +242,37 @@ describe("account A cannot reach account B's data", () => {
   });
 
   it("cannot see another account's profile row", async () => {
-    const rows = await testDb().asUser(alpha.authUserId, "authenticated", async (client) => {
-      const r = await client.query<{ id: string }>(`select id from public.accounts`);
-      return r.rows;
-    });
+    const rows = await testDb().asUser(
+      alpha.authUserId,
+      "authenticated",
+      async (client) => {
+        const r = await client.query<{ id: string }>(`select id from public.accounts`);
+        return r.rows;
+      },
+    );
     expect(rows).toHaveLength(1);
     expect(rows[0]?.id).toBe(alpha.accountId);
   });
 
   it("cannot impersonate by shadowing accounts with a temp table", async () => {
     // app.current_account_id() pins an empty search_path precisely to stop this.
-    const rows = await testDb().asUser(alpha.authUserId, "authenticated", async (client) => {
-      await client.query(
-        `create temp table accounts (id uuid, auth_user_id uuid, deleted_at timestamptz, status text)`,
-      );
-      await client.query(`insert into accounts values ($1, $2, null, 'active')`, [
-        beta.accountId,
-        alpha.authUserId,
-      ]);
-      const r = await client.query<{ account_id: string }>(
-        `select account_id from public.companies`,
-      );
-      return r.rows;
-    });
+    const rows = await testDb().asUser(
+      alpha.authUserId,
+      "authenticated",
+      async (client) => {
+        await client.query(
+          `create temp table accounts (id uuid, auth_user_id uuid, deleted_at timestamptz, status text)`,
+        );
+        await client.query(`insert into accounts values ($1, $2, null, 'active')`, [
+          beta.accountId,
+          alpha.authUserId,
+        ]);
+        const r = await client.query<{ account_id: string }>(
+          `select account_id from public.companies`,
+        );
+        return r.rows;
+      },
+    );
     for (const row of rows) {
       expect(row.account_id).toBe(alpha.accountId);
     }

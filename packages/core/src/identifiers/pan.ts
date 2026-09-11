@@ -48,4 +48,5 @@ export function panHolderType(value: string): string | null {
   return PAN_HOLDER_TYPES[value[3] ?? ""] ?? null;
 }
 
-export const normalisePan = (value: string): string => value.replace(/\s+/gu, "").toUpperCase();
+export const normalisePan = (value: string): string =>
+  value.replace(/\s+/gu, "").toUpperCase();

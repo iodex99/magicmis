@@ -125,7 +125,12 @@ export function verifyChain(
     }
     const recomputed = computeHash(entry.prevHash, entry.payload);
     if (recomputed !== entry.hash) {
-      failures.push({ index, reason: "bad_hash", expected: recomputed, actual: entry.hash });
+      failures.push({
+        index,
+        reason: "bad_hash",
+        expected: recomputed,
+        actual: entry.hash,
+      });
     }
     // Continue from the stored hash, so one bad row does not cascade into
     // every subsequent row reporting a broken link.

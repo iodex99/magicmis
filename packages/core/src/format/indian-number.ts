@@ -98,7 +98,8 @@ export function formatPaise(value: Paise, options: NumberFormatOptions): string 
   // paise -> rupees at `decimals` places: value * 10^decimals / 100
   const scaled = divideRounded(value * 10n ** BigInt(decimals), 100n, rounding);
   const split = splitScaled(scaled, decimals);
-  const grouped = style === "lakhs_crores" ? groupIndian(split.whole) : groupWestern(split.whole);
+  const grouped =
+    style === "lakhs_crores" ? groupIndian(split.whole) : groupWestern(split.whole);
   return assemble(split, grouped, options);
 }
 
@@ -128,7 +129,11 @@ export function formatPaiseCompact(
   }
 
   const magnitude = negative ? -raw : raw;
-  const scaled = divideRounded(magnitude * 10n ** BigInt(decimals), 100n * divisor, rounding);
+  const scaled = divideRounded(
+    magnitude * 10n ** BigInt(decimals),
+    100n * divisor,
+    rounding,
+  );
   const split = splitScaled(scaled, decimals);
 
   const grouped = groupIndian(split.whole);

@@ -42,7 +42,7 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-16 | **Email provider** — §5 says Resend or Postmark, record in ADR. Proceeding with Resend unless told otherwise. | Phase 0 | drafted |
 | R-17 | **Google / Microsoft sign-in** — §8 says may be offered, decision recorded in ADR. 2FA stays mandatory either way. | Phase 1 | open |
 | R-18 | **KMS vs secrets manager** for the master key — §5 prefers a cloud KMS. | Phase 0 | open |
-| R-19 | **Supabase region** — §5 says use India (Mumbai) if available; confirm in docs. | Phase 0 | open |
+| R-19 | **Supabase region** — §5 says use India (Mumbai) if available; confirm in docs. | Phase 0 | **closed** — Mumbai `ap-south-1` ("South Asia (Mumbai)") confirmed available. [Source](https://supabase.com/docs/guides/platform/regions), verified 2026-09-11. See ADR 0003. |
 
 ---
 

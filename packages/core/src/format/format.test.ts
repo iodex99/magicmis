@@ -53,7 +53,9 @@ describe("formatPaise", () => {
 
   it("honours the millions style", () => {
     // ₹1,00,00,000 = 10 million
-    expect(formatPaise(paise(1_000_000_000n), { style: "millions", decimals: 2 })).toBe("10.00");
+    expect(formatPaise(paise(1_000_000_000n), { style: "millions", decimals: 2 })).toBe(
+      "10.00",
+    );
   });
 
   it("honours the decimals setting", () => {
@@ -73,8 +75,12 @@ describe("formatPaise", () => {
   });
 
   it("rejects an out-of-range decimals setting", () => {
-    expect(() => formatPaise(paise(1n), { style: "absolute", decimals: 7 })).toThrow(RangeError);
-    expect(() => formatPaise(paise(1n), { style: "absolute", decimals: -1 })).toThrow(RangeError);
+    expect(() => formatPaise(paise(1n), { style: "absolute", decimals: 7 })).toThrow(
+      RangeError,
+    );
+    expect(() => formatPaise(paise(1n), { style: "absolute", decimals: -1 })).toThrow(
+      RangeError,
+    );
   });
 
   it("never loses a digit of magnitude, even at crore scale", () => {

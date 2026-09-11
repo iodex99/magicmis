@@ -46,7 +46,11 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
     // A crash log that prints the value of a bad ANTHROPIC_API_KEY has leaked it.
     const secret = "sk-ant-super-secret-value";
     try {
-      loadServerEnv({ ...VALID_SERVER, EMAIL_FROM: "not-an-email", ANTHROPIC_API_KEY: secret });
+      loadServerEnv({
+        ...VALID_SERVER,
+        EMAIL_FROM: "not-an-email",
+        ANTHROPIC_API_KEY: secret,
+      });
       expect.unreachable("should have thrown");
     } catch (error) {
       expect(error).toBeInstanceOf(EnvValidationError);
@@ -60,7 +64,12 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
 
   it("reports every invalid variable at once, not just the first", () => {
     try {
-      loadServerEnv({ ...VALID_SERVER, EMAIL_FROM: "bad", DATABASE_URL: "", SENTRY_DSN: "bad" });
+      loadServerEnv({
+        ...VALID_SERVER,
+        EMAIL_FROM: "bad",
+        DATABASE_URL: "",
+        SENTRY_DSN: "bad",
+      });
       expect.unreachable("should have thrown");
     } catch (error) {
       const e = error as EnvValidationError;
@@ -71,9 +80,9 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
   });
 
   it("rejects a malformed URL", () => {
-    expect(() => loadPublicEnv({ ...VALID_PUBLIC, NEXT_PUBLIC_APP_URL: "not a url" })).toThrow(
-      EnvValidationError,
-    );
+    expect(() =>
+      loadPublicEnv({ ...VALID_PUBLIC, NEXT_PUBLIC_APP_URL: "not a url" }),
+    ).toThrow(EnvValidationError);
   });
 
   it("rejects an unknown environment name", () => {
@@ -84,7 +93,9 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
 
   it("keeps SENTRY_DSN optional", () => {
     expect(() => loadServerEnv({ ...VALID_SERVER })).not.toThrow();
-    expect(loadServerEnv({ ...VALID_SERVER, SENTRY_DSN: "https://x@sentry.io/1" })).toMatchObject({
+    expect(
+      loadServerEnv({ ...VALID_SERVER, SENTRY_DSN: "https://x@sentry.io/1" }),
+    ).toMatchObject({
       SENTRY_DSN: "https://x@sentry.io/1",
     });
   });

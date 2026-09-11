@@ -71,7 +71,10 @@ export class EnvValidationError extends Error {
   }
 }
 
-function parseOrThrow<T>(schema: z.ZodType<T>, source: Record<string, string | undefined>): T {
+function parseOrThrow<T>(
+  schema: z.ZodType<T>,
+  source: Record<string, string | undefined>,
+): T {
   const result = schema.safeParse(source);
   if (result.success) return result.data;
 

@@ -52,7 +52,9 @@ describe("GSTIN", () => {
     for (const g of VALID_GSTINS) {
       const wrong = g[14] === "A" ? "B" : "A";
       const tampered = `${g.slice(0, 14)}${wrong}`;
-      expect(hasGstinShape(tampered), `${tampered} should still look like a GSTIN`).toBe(true);
+      expect(hasGstinShape(tampered), `${tampered} should still look like a GSTIN`).toBe(
+        true,
+      );
       expect(isValidGstin(tampered), tampered).toBe(false);
     }
   });
@@ -164,7 +166,10 @@ describe("Aadhaar (Verhoeff)", () => {
   it("rejects numbers starting 0 or 1, which UIDAI does not issue", () => {
     // Build a Verhoeff-valid string that starts with 1, to prove the rule is separate.
     const payload = "1234567890";
-    const withCheck = `${payload}${String(verhoeffCheckDigit(payload))}`.padStart(12, "1");
+    const withCheck = `${payload}${String(verhoeffCheckDigit(payload))}`.padStart(
+      12,
+      "1",
+    );
     expect(isValidAadhaar(withCheck)).toBe(false);
   });
 
@@ -218,7 +223,11 @@ describe("Aadhaar (Verhoeff)", () => {
     let valid = 0;
     const samples = 2000;
     for (let i = 0; i < samples; i++) {
-      const n = String(2 + (i % 8)) + String(i * 7919).padStart(11, "0").slice(0, 11);
+      const n =
+        String(2 + (i % 8)) +
+        String(i * 7919)
+          .padStart(11, "0")
+          .slice(0, 11);
       if (isValidAadhaar(n)) valid++;
     }
     expect(valid / samples).toBeLessThan(0.2); // ~1/10 by chance

@@ -37,7 +37,9 @@ describe("canonicalise", () => {
   });
 
   it("rejects undefined rather than silently dropping the key", () => {
-    expect(() => canonicalise({ a: undefined } as unknown as ChainValue)).toThrow(TypeError);
+    expect(() => canonicalise({ a: undefined } as unknown as ChainValue)).toThrow(
+      TypeError,
+    );
   });
 
   it("distinguishes a number from its string form", () => {
@@ -98,7 +100,9 @@ describe("hash chain", () => {
   it("detects an edited payload — the tamper the chain exists to catch", () => {
     const chain = buildChain(payloads);
     const tampered = chain.map((e, i) =>
-      i === 1 ? { ...e, payload: { entryType: "reserve", amount: 1n, jobId: "job-1" } } : e,
+      i === 1
+        ? { ...e, payload: { entryType: "reserve", amount: 1n, jobId: "job-1" } }
+        : e,
     );
     const failures = verifyChain(tampered);
     expect(failures).toHaveLength(1);
@@ -130,7 +134,10 @@ describe("hash chain", () => {
 
   it("detects an entry appended onto the wrong predecessor", () => {
     const chain = buildChain(payloads);
-    const forged = { ...linkEntry(GENESIS_HASH, { entryType: "forged" }), payload: { entryType: "forged" } };
+    const forged = {
+      ...linkEntry(GENESIS_HASH, { entryType: "forged" }),
+      payload: { entryType: "forged" },
+    };
     const failures = verifyChain([...chain, forged]);
     expect(failures.some((f) => f.reason === "broken_link")).toBe(true);
   });
