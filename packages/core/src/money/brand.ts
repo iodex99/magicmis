@@ -39,3 +39,13 @@ export const credits = (v: bigint): Credits => v as Credits;
 export const ZERO_PAISE = paise(0n);
 export const ZERO_MICRO_USD = microUsd(0n);
 export const ZERO_CREDITS = credits(0n);
+
+/**
+ * Widen a branded value back to a plain `bigint`.
+ *
+ * `-somePaise` trips @typescript-eslint/no-unsafe-unary-minus, because the brand
+ * intersection is not literally `bigint`. Dropping the brand deliberately at the one
+ * spot that needs it is better than switching off a rule that exists to catch
+ * negating a string.
+ */
+export const unbrand = (v: Paise | MicroUsd | Credits): bigint => v;

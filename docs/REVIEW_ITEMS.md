@@ -27,6 +27,7 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-07 | **TallyPrime menu paths** in `docs/help`. §16: do not invent paths that cannot be verified — write structure, mark the path. | Phase 3 | open |
 | R-08 | **Tally predefined group lists** (15 primary, 13 sub-groups) verified against Tally documentation before seeding. | Phase 3 | open |
 | R-09 | **Model prices, IDs, effort parameter, cache multipliers, batch discount** verified against docs. §14 seed values are explicitly unverified. | Phase 4 | open |
+| R-20 | **GSTIN check-character algorithm** verified against official GSTN documentation. Implemented as a mod-36 Luhn-style fold and confirmed against two independent specimen GSTINs plus a generated-check-character property test, but §0.4 forbids relying on an external fact without a doc URL. Tax invoices depend on it, and an invalid GSTIN silently yields no state code — which would misroute CGST/SGST vs IGST. | Phase 2 | open |
 | R-10 | **Terms of service** — prepaid, non-refundable, non-transferable, no cash-out, 12-month validity, memory fee, lifecycle, professional-review disclaimer, acceptable use. §31: placeholder only, no final legal language. | Phase 9 | open |
 | R-11 | **Privacy notice** — browser processing, what leaves the browser, Anthropic as subprocessor, retention, DPDP rights, grievance contact. §31: placeholder only. | Phase 9 | open |
 | R-12 | **First-upload processing notice** text. §31. | Phase 9 | open |

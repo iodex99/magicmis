@@ -1,0 +1,100 @@
+import { describe, expect, it } from "vitest";
+
+import { EnvValidationError, loadPublicEnv, loadServerEnv } from "./env.js";
+
+const VALID_SERVER = {
+  NODE_ENV: "test",
+  DATABASE_URL: "postgres://localhost:5432/magicmis",
+  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  ANTHROPIC_API_KEY: "sk-ant-test-key",
+  RAZORPAY_KEY_ID: "rzp_test_id",
+  RAZORPAY_KEY_SECRET: "rzp_test_secret",
+  RAZORPAY_WEBHOOK_SECRET: "whsec",
+  KMS_MASTER_KEY_ID: "kms-key-1",
+  EMAIL_API_KEY: "email-key",
+  EMAIL_FROM: "noreply@example.com",
+} as const;
+
+const VALID_PUBLIC = {
+  NEXT_PUBLIC_APP_URL: "https://app.example.com",
+  NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
+  NEXT_PUBLIC_ENVIRONMENT: "development",
+} as const;
+
+describe("environment validation (SPEC §4 — refuse to start on invalid config)", () => {
+  it("accepts a complete configuration", () => {
+    expect(loadServerEnv({ ...VALID_SERVER })).toMatchObject({
+      DATABASE_URL: VALID_SERVER.DATABASE_URL,
+      LOG_LEVEL: "info", // default applied
+    });
+    expect(loadPublicEnv({ ...VALID_PUBLIC })).toMatchObject(VALID_PUBLIC);
+  });
+
+  it("throws rather than starting when a required secret is missing", () => {
+    const { ANTHROPIC_API_KEY: _omitted, ...incomplete } = VALID_SERVER;
+    expect(() => loadServerEnv(incomplete)).toThrow(EnvValidationError);
+  });
+
+  it("throws when a required secret is present but empty", () => {
+    expect(() => loadServerEnv({ ...VALID_SERVER, KMS_MASTER_KEY_ID: "" })).toThrow(
+      EnvValidationError,
+    );
+  });
+
+  it("names the offending variables but never echoes their values", () => {
+    // A crash log that prints the value of a bad ANTHROPIC_API_KEY has leaked it.
+    const secret = "sk-ant-super-secret-value";
+    try {
+      loadServerEnv({ ...VALID_SERVER, EMAIL_FROM: "not-an-email", ANTHROPIC_API_KEY: secret });
+      expect.unreachable("should have thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(EnvValidationError);
+      const e = error as EnvValidationError;
+      expect(e.variables).toContain("EMAIL_FROM");
+      expect(e.message).toContain("EMAIL_FROM");
+      expect(e.message).not.toContain(secret);
+      expect(e.message).not.toContain("not-an-email");
+    }
+  });
+
+  it("reports every invalid variable at once, not just the first", () => {
+    try {
+      loadServerEnv({ ...VALID_SERVER, EMAIL_FROM: "bad", DATABASE_URL: "", SENTRY_DSN: "bad" });
+      expect.unreachable("should have thrown");
+    } catch (error) {
+      const e = error as EnvValidationError;
+      expect(e.variables).toEqual(
+        expect.arrayContaining(["DATABASE_URL", "EMAIL_FROM", "SENTRY_DSN"]),
+      );
+    }
+  });
+
+  it("rejects a malformed URL", () => {
+    expect(() => loadPublicEnv({ ...VALID_PUBLIC, NEXT_PUBLIC_APP_URL: "not a url" })).toThrow(
+      EnvValidationError,
+    );
+  });
+
+  it("rejects an unknown environment name", () => {
+    expect(() =>
+      loadPublicEnv({ ...VALID_PUBLIC, NEXT_PUBLIC_ENVIRONMENT: "prod" }),
+    ).toThrow(EnvValidationError);
+  });
+
+  it("keeps SENTRY_DSN optional", () => {
+    expect(() => loadServerEnv({ ...VALID_SERVER })).not.toThrow();
+    expect(loadServerEnv({ ...VALID_SERVER, SENTRY_DSN: "https://x@sentry.io/1" })).toMatchObject({
+      SENTRY_DSN: "https://x@sentry.io/1",
+    });
+  });
+
+  it("keeps no secret in the public schema (SPEC §30)", () => {
+    // Anything server-only appearing in the public schema would ship to the browser.
+    const publicKeys = Object.keys(loadPublicEnv({ ...VALID_PUBLIC }));
+    for (const key of publicKeys) {
+      expect(key.startsWith("NEXT_PUBLIC_"), key).toBe(true);
+    }
+    expect(publicKeys).not.toContain("ANTHROPIC_API_KEY");
+  });
+});
