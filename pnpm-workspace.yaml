@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "fixtures/generator"
+# pnpm 12 requires explicit approval for postinstall scripts. Keep this list short and
+# justified -- each entry is code we let run at install time.
+allowBuilds:
+  # esbuild is vitest's bundler; its postinstall fetches the platform binary.
+  esbuild: true
