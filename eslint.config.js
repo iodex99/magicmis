@@ -48,8 +48,24 @@ export default tseslint.config(
       // SPEC 4 / 30: money is integer paise and micro-USD; logs never carry content.
       "no-restricted-globals": [
         "error",
-        { name: "parseFloat", message: "Money is integer paise. See packages/core/money." },
-        { name: "Number", message: "Use the money helpers in packages/core/money for amounts." },
+        {
+          name: "parseFloat",
+          message: "Money is integer paise. See packages/core/money.",
+        },
+      ],
+      // Ban the Number(...) coercion without banning Number.isInteger and friends.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.name='Number']",
+          message: "Number() on an amount loses precision. Use packages/core/money.",
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='Math'][callee.property.name='round']",
+          message:
+            "Math.round is float rounding. Use the explicit RoundingMode helpers in packages/core/money.",
+        },
       ],
       "no-console": ["error", { allow: ["warn", "error"] }],
       eqeqeq: ["error", "always", { null: "ignore" }],

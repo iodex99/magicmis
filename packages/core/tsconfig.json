@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // No rootDir/outDir: internal packages are consumed as TypeScript source
+    // (`main` points at src/index.ts) and are transpiled by whichever app imports
+    // them. `typecheck` is --noEmit, so there is nothing to lay out.
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "vitest.config.ts"]
+}
