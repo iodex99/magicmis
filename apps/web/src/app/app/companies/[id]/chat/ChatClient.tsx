@@ -19,6 +19,7 @@ import {
 } from "@magicmis/render-dashboard";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ProcessingNotice } from "@/components/ProcessingNotice";
 import { LineagePanel } from "@/components/LineagePanel";
 import { Alert, Button, Panel } from "@/components/ui";
 import { formatCredits, TIER_LABELS } from "@/lib/actions";
@@ -454,6 +455,7 @@ export function ChatClient({
                 {session?.loaded === true ? (
                   <p data-testid="chat-session">Files loaded in this browser ({session.balances} ledger lines). Queries run here; only redacted results are sent.</p>
                 ) : (
+                  <ProcessingNotice>
                   <label className="flex flex-col gap-1">
                     <span>Deep answers query this company's files, which must be loaded in this browser. They are not uploaded.</span>
                     <input
@@ -464,6 +466,7 @@ export function ChatClient({
                       onChange={(e) => void loadFiles(e.target.files)}
                     />
                   </label>
+                  </ProcessingNotice>
                 )}
               </div>
             ) : null}

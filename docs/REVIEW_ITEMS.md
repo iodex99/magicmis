@@ -71,6 +71,15 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-46 | **SQL guard allowlists and session tables** (`packages/sql-guard`): allowed functions, cast types and the `balances` / `bills` table definitions. Payroll data is not exposed to Deep chat yet. | Before launch | open |
 | R-41 | **Reference MIS limits and heuristics**: 20 visible sheets, 400 rows and 60 columns per sheet are read; the label column is the text-densest of the first three, the header row the text-densest of the first 15 with values below. Hidden sheets are skipped and listed. Move limits to config if real workbooks need more. | Before launch | open |
 
+## Raised in Phase 9
+
+| # | Item | Needed by | Status |
+|---|---|---|---|
+| R-47 | **Gross margin inputs** (migration 0025): `admin.payment_fee_percent` "2.00" and `admin.infra_cost_paise_per_day` 0 are placeholders. Set them from the Razorpay contract and actual hosting invoices, or the margin dashboard overstates gross margin. | Before launch | open |
+| R-48 | **Rate limits** (`ratelimit.limits`, per minute): AI 30 and chat 12 per account, export 3 per account, API 600 per IP. Tune from load tests and early usage. | Before launch | open |
+| R-49 | **Data export link lifetime** (`privacy.export_link_hours` 72, migration 0026). Other points to confirm against DPDP guidance: the export contents (sign-in history capped at 500 events), and that account deletion forfeits unused credits and is refused while credits are held. | Before launch | open |
+| R-50 | **Processing register** ([docs/compliance/processing-register.md](compliance/processing-register.md)). A data protection professional must review: <ul><li>purposes and legal basis wording;</li><li>subprocessor regions (Anthropic, Resend);</li><li>grievance officer;</li><li>Significant Data Fiduciary assessment.</li></ul> | Before launch | open |
+
 ## Decisions the spec leaves open
 
 | # | Item | Needed by | Status |

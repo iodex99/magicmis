@@ -11,6 +11,7 @@ import type { RowBinding } from "@magicmis/templates";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { MappingReview } from "@/components/MappingReview";
+import { ProcessingNotice } from "@/components/ProcessingNotice";
 import { ReferenceBindingReview } from "@/components/ReferenceBindingReview";
 import { Alert, Button, Panel } from "@/components/ui";
 import {
@@ -361,6 +362,7 @@ export function JobRunner({
       {error === null ? null : <Alert tone="error">{error}</Alert>}
 
       {phase.kind === "files" || phase.kind === "pricing" ? (
+        <ProcessingNotice>
         <Panel
           title={mode === "setup" ? "Upload trial balances" : "Upload this month's files"}
         >
@@ -467,6 +469,7 @@ export function JobRunner({
             </Button>
           </div>
         </Panel>
+        </ProcessingNotice>
       ) : null}
 
       {phase.kind === "confirm" ? (

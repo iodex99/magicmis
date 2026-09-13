@@ -22,6 +22,15 @@ let page: Page;
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
   await createVerifiedAccountWithTotp(page, uniqueEmail());
+  // SPEC §31: the first upload in an account waits for the processing notice to be accepted.
+  await page.goto("/app/data");
+  await expect(page.getByTestId("processing-notice")).toBeVisible();
+  await expect(page.getByLabel(/Excel or CSV exports/u)).toHaveCount(0);
+  await page.getByRole("button", { name: /I understand/u }).click();
+  await expect(page.getByLabel(/Excel or CSV exports/u)).toBeEnabled();
+  await page.reload();
+  await expect(page.getByLabel(/Excel or CSV exports/u)).toBeEnabled();
+  await expect(page.getByTestId("processing-notice")).toHaveCount(0);
 });
 
 test.afterAll(async () => {

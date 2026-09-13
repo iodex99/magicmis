@@ -17,6 +17,9 @@ export default async function ProfilePage() {
         <Link href="/settings/security" className="text-sm text-neutral-700 underline">
           Security
         </Link>
+        <Link href="/settings/privacy" className="text-sm text-neutral-700 underline">
+          Privacy and data
+        </Link>
       </div>
       <ProfileForm />
     </AppFrame>

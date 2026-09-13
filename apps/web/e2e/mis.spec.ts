@@ -49,6 +49,10 @@ test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
   email = uniqueEmail();
   await createVerifiedAccountWithTotp(page, email);
+  const consent = await page.request.post("/api/account/consents", {
+    data: { document: "processing" },
+  });
+  expect(consent.ok()).toBe(true);
   // Fund the wallet the way an admin grant would (Razorpay needs live test keys; ADR 0012).
   const account = await db.query<{ id: string }>(
     `select id from accounts where email = $1`,

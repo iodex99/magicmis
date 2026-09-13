@@ -11,6 +11,7 @@ export default async function SignedOutPage({
 }) {
   const { reason } = await searchParams;
   const elsewhere = reason === "elsewhere";
+  const deleted = reason === "deleted";
   return (
     <AuthShell title="Signed out">
       <div className="flex flex-col gap-3 text-sm text-neutral-700">
@@ -18,7 +19,9 @@ export default async function SignedOutPage({
         <p data-testid="signed-out-reason">
           {elsewhere
             ? "You were signed out because this account signed in elsewhere."
-            : "You have been signed out."}
+            : deleted
+              ? "Your account has been deleted. We have emailed you the date its data will be permanently destroyed."
+              : "You have been signed out."}
         </p>
         {elsewhere ? (
           <p>

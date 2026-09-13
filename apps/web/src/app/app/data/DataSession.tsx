@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as Comlink from "comlink";
 
+import { ProcessingNotice } from "@/components/ProcessingNotice";
 import { Alert, Button, Panel } from "@/components/ui";
 import { formatCount } from "@/lib/actions";
 import { api } from "@/lib/client-api";
@@ -102,6 +103,7 @@ export function DataSession({
       {error ? <Alert tone="error">{error}</Alert> : null}
 
       <Panel title="Add files">
+        <ProcessingNotice>
         <div
           className="flex flex-col items-start gap-3 rounded-md border border-dashed border-neutral-300 p-6"
           onDragOver={(e) => {
@@ -129,6 +131,7 @@ export function DataSession({
             Drag files here, or choose them. Macros are never run.
           </p>
         </div>
+        </ProcessingNotice>
         {inFlight.length > 0 ? (
           <ul
             className="mt-4 flex flex-col gap-2 text-sm"

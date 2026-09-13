@@ -8,6 +8,8 @@ import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 
+import { DeleteCompany } from "./DeleteCompany";
+
 export const metadata = { title: "Company" };
 export const dynamic = "force-dynamic";
 
@@ -129,6 +131,9 @@ export default async function CompanyPage({
               </tbody>
             </table>
           )}
+        </Panel>
+        <Panel title="Delete company">
+          <DeleteCompany companyId={id} name={company.name} />
         </Panel>
       </div>
     </AppFrame>
