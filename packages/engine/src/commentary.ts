@@ -86,6 +86,9 @@ const formatValue = (v: MetricValue): string =>
         ? `${v.value}%`
         : v.value;
 
+/** A metric value as prompt text (rupees with Indian grouping, percent, decimals). */
+export const formatFactText = formatValue;
+
 function isMaterial(
   change: MetricValue | undefined,
   pct: MetricValue | undefined,
@@ -191,7 +194,6 @@ export function checkCommentary(
     ...pack.dimensions.map((d) => d.id),
     ...pack.periods,
   ]);
-  const problems: string[] = [];
   const texts = output.sections.flatMap((s, si) => [
     { where: `section ${(si + 1).toString()} heading`, text: s.heading },
     ...s.paragraphs.map((p, pi) => ({
@@ -199,12 +201,51 @@ export function checkCommentary(
       text: p.text,
     })),
   ]);
+  return checkPlaceholderTexts(texts, known, allowlist, []);
+}
+
+/** Placeholders in chat answers: the commentary forms plus a query result cell (SPEC §27). */
+export const ANSWER_PLACEHOLDER = /\{\{\s*(m|mv|d|p|q):([^{}\s]+)\s*\}\}/gu;
+
+/** The shape of a query result a `{{q:<step>:<row>:<column>}}` placeholder may point into. */
+export interface QueryResultShape {
+  readonly stepId: string;
+  readonly rowCount: number;
+  readonly columns: readonly string[];
+}
+
+/**
+ * V12 for any placeholder text: every placeholder resolves (facts by ID, query cells by step, row
+ * and column), no digit or currency sign remains outside placeholders and allowlisted phrases.
+ */
+export function checkPlaceholderTexts(
+  texts: readonly { readonly where: string; readonly text: string }[],
+  known: ReadonlySet<string>,
+  allowlist: readonly string[],
+  queries: readonly QueryResultShape[],
+): string[] {
+  const problems: string[] = [];
+  const steps = new Map(queries.map((q) => [q.stepId, q]));
   for (const { where, text } of texts) {
-    for (const m of text.matchAll(PLACEHOLDER)) {
-      const id = `${m[1] ?? ""}:${m[2] ?? ""}`;
-      if (!known.has(id)) problems.push(`${where}: unknown placeholder {{${id}}}`);
+    for (const m of text.matchAll(ANSWER_PLACEHOLDER)) {
+      const kind = m[1] ?? "";
+      const body = m[2] ?? "";
+      if (kind === "q") {
+        const [stepId = "", row = "", column = ""] = body.split(":");
+        const step = steps.get(stepId);
+        const r = /^\d{1,3}$/u.test(row) ? Number.parseInt(row, 10) : -1;
+        if (
+          step === undefined ||
+          r < 0 ||
+          r >= step.rowCount ||
+          !step.columns.includes(column)
+        )
+          problems.push(`${where}: unknown query cell {{q:${body}}}`);
+      } else if (!known.has(`${kind}:${body}`)) {
+        problems.push(`${where}: unknown placeholder {{${kind}:${body}}}`);
+      }
     }
-    let stripped = text.replace(PLACEHOLDER, " ");
+    let stripped = text.replace(ANSWER_PLACEHOLDER, " ");
     if (/\{\{|\}\}/u.test(stripped)) problems.push(`${where}: malformed placeholder`);
     for (const phrase of [...allowlist].sort((a, b) => b.length - a.length)) {
       stripped = stripped.split(phrase).join(" ");

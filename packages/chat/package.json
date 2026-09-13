@@ -17,6 +17,7 @@
   "dependencies": {
     "@magicmis/core": "workspace:*",
     "@magicmis/engine": "workspace:*",
+    "@magicmis/templates": "workspace:*",
     "libpg-query": "17.7.4",
     "zod": "^4.1.13"
   },
