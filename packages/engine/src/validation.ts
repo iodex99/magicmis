@@ -17,7 +17,7 @@ import type { HeadCube } from "./compute";
 import type { LedgerFact, TxnFact } from "./facts";
 
 export type CheckId =
-  "V1" | "V2" | "V3" | "V4" | "V5" | "V6" | "V7" | "V8" | "V9" | "V10";
+  "V1" | "V2" | "V3" | "V4" | "V5" | "V6" | "V7" | "V8" | "V9" | "V10" | "V11" | "V12";
 export type Severity = "blocking" | "warning";
 export type FailureClass = "data_fault" | "platform_fault";
 

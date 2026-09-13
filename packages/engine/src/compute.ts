@@ -67,6 +67,8 @@ export interface HeadCube {
     head: string;
     closing: bigint;
     movement: bigint | null;
+    /** An implied zero closing (ledger absent from this loaded month) that still carries movement. */
+    implied: boolean;
   }[];
 }
 
@@ -230,8 +232,10 @@ export async function computeCube(
     WHERE NOT l.excluded AND NOT l.implied AND EXISTS (SELECT 1 FROM e_heads h WHERE h.code = l.head_code AND h.ancestor = l.head_code)
     GROUP BY period`);
   const ledgerRows = await conn.query(`SELECT ledger_key, period, head_code,
-      CAST(closing AS VARCHAR) AS closing, CAST(movement AS VARCHAR) AS movement
-    FROM e_ledger_mapped WHERE NOT excluded AND NOT implied ORDER BY ledger_key, period`);
+      CAST(closing AS VARCHAR) AS closing, CAST(movement AS VARCHAR) AS movement, implied
+    FROM e_ledger_mapped
+    WHERE NOT excluded AND (NOT implied OR COALESCE(movement, 0) <> 0)
+    ORDER BY ledger_key, period`);
   const dims =
     await conn.query(`SELECT period, dimension, value, head, CAST(SUM(amount) AS VARCHAR) AS amount
     FROM e_dim GROUP BY period, dimension, value, head`);
@@ -279,6 +283,7 @@ export async function computeCube(
       head: str(r["head_code"]),
       closing: big(r["closing"]),
       movement: r["movement"] === null ? null : big(r["movement"]),
+      implied: r["implied"] === true,
     })),
   };
 }
