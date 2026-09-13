@@ -277,6 +277,48 @@ describe("pg-boss wiring", () => {
   });
 });
 
+describe("admin margin digest (SPEC §26)", () => {
+  it("emails each active admin once per day, naming actions over their ratio", async () => {
+    const { sendAdminMarginDigest } = await import("../src/admin-digest");
+    const pool = testDb().pool;
+    await pool.query(
+      `insert into admin_users (email, password_hash, totp_secret_enc, totp_key_wrapped, totp_key_version, status)
+       values ($1, 'x', '\\x00', '\\x00', 'test', 'active'), ($2, 'x', '\\x00', '\\x00', 'test', 'disabled')`,
+      [`${randomUUID()}@admin.example.test`, `${randomUUID()}@admin.example.test`],
+    );
+    const a = await account();
+    // commentary: 100 credits captured, ₹30 AI cost → 0.30, over the 0.20 cap.
+    await pool.query(
+      `insert into jobs (account_id, type, state, idempotency_key, captured_credits, actual_ai_cost_paise)
+       values ($1, 'commentary', 'completed', $2, 100, 3000)`,
+      [a.id, randomUUID()],
+    );
+    const mail = new RecordingSender();
+    const now = new Date();
+    const first = await sendAdminMarginDigest(
+      pool,
+      mail,
+      "https://admin.example.test",
+      now,
+    );
+    const active = await pool.query(
+      `select count(*)::int as n from admin_users where status = 'active'`,
+    );
+    expect(first.sent).toBe((active.rows[0] as { n: number }).n);
+    expect(first.flagged).toBeGreaterThanOrEqual(1);
+    const email = mail.sent[0];
+    expect(email?.subject).toMatch(/^\[Over ratio\] Daily margin \d{4}-\d{2}-\d{2}$/u);
+    expect(email?.text).toContain("OVER MAX AI COST RATIO: commentary");
+    expect(email?.text).toContain("Gross margin estimate");
+    // The idempotency key makes a repeated run the same send for the provider.
+    const again = new RecordingSender();
+    await sendAdminMarginDigest(pool, again, "https://admin.example.test", now);
+    expect(again.sent.map((e) => e.idempotencyKey)).toEqual(
+      mail.sent.map((e) => e.idempotencyKey),
+    );
+  });
+});
+
 describe("worker env", () => {
   it("refuses to start without its variables, naming them but not their values", () => {
     try {

@@ -26,6 +26,7 @@ import {
 import { sweepChatMessages } from "@magicmis/chat/server";
 import type { Pool } from "pg";
 
+import { sendAdminMarginDigest } from "./admin-digest";
 import { deliverNotifications } from "./deliver";
 import type { MailSender } from "./mail";
 
@@ -35,6 +36,8 @@ export interface TaskDeps {
   readonly pool: Pool;
   readonly mail: MailSender;
   readonly appUrl: string;
+  /** Admin console base URL for admin emails; defaults to the app URL. */
+  readonly adminUrl?: string;
   /** Output storage for purges; absent when storage is not configured (sealed files stay unreadable). */
   readonly outputs?: OutputStore | null;
   /** Commentary batches; absent when the worker has no Anthropic key configured. */
@@ -141,6 +144,14 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     cron: "*/5 * * * *",
     expireInSeconds: 240,
     run: ({ pool }, now) => sweepChatMessages(pool, now),
+  },
+  {
+    // SPEC §26: daily margin summary to admins, 08:00 IST.
+    queue: "admin-margin-digest",
+    cron: "0 8 * * *",
+    expireInSeconds: 600,
+    run: ({ pool, mail, appUrl, adminUrl }, now) =>
+      sendAdminMarginDigest(pool, mail, adminUrl ?? appUrl, now),
   },
   {
     queue: "notifications-deliver",

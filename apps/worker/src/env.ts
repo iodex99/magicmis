@@ -20,6 +20,8 @@ export const workerEnvSchema = serverEnvSchema
   })
   .extend({
     APP_URL: publicEnvSchema.shape.NEXT_PUBLIC_APP_URL,
+    // The admin console, linked from the daily margin email (SPEC §26).
+    ADMIN_URL: publicEnvSchema.shape.NEXT_PUBLIC_APP_URL.optional(),
     // Optional: output storage for purges (SPEC §28). Without it, purge still destroys the key.
     NEXT_PUBLIC_SUPABASE_URL: publicEnvSchema.shape.NEXT_PUBLIC_SUPABASE_URL.optional(),
     SUPABASE_SECRET_KEY: serverEnvSchema.shape.SUPABASE_SECRET_KEY.optional(),

@@ -36,6 +36,7 @@ const boss = await startBoss(
     pool,
     mail: new ResendMailSender(env.RESEND_API_KEY, env.EMAIL_FROM),
     appUrl: env.APP_URL,
+    adminUrl: env.ADMIN_URL ?? env.APP_URL,
     outputs:
       env.NEXT_PUBLIC_SUPABASE_URL !== undefined && env.SUPABASE_SECRET_KEY !== undefined
         ? new SupabaseOutputStore(

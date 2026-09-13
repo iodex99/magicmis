@@ -291,6 +291,75 @@ describe("margin report", () => {
     });
   });
 
+  it("covers chat actions, percentiles, filters, rates and the gross margin estimate (Phase 9 acceptance)", async () => {
+    const account = await newAccount(pool());
+    const other = await newAccount(pool());
+    const from = new Date(Date.now() - 3_600_000);
+    const to = new Date(Date.now() + 60_000);
+    const thread = await pool().query<{ id: string }>(
+      `insert into companies (account_id, name) values ($1, 'Margin Co') returning id`,
+      [account],
+    );
+    const t = await pool().query<{ id: string }>(
+      `insert into chat_threads (account_id, company_id) values ($1, $2) returning id`,
+      [account, thread.rows[0]?.id],
+    );
+    // Seeded over-ratio chat action: 19 credits captured (₹19), ₹5.70 AI cost → 0.30 > 0.20.
+    for (const aiPaise of [570, 190]) {
+      const m = await pool().query<{ id: string }>(
+        `insert into chat_messages (thread_id, account_id, role, message_type, content, tier, price_credits, credits_charged, state)
+         values ($1, $2, 'user', 'quick', '\\x', 'professional', 19, 19, 'completed') returning id`,
+        [t.rows[0]?.id, account],
+      );
+      await pool().query(
+        `insert into ai_calls (account_id, chat_message_id, stage, prompt_version, model_requested, model_used, max_tokens, input_tokens, usd_cost_micro, inr_cost_paise, fx_rate_used)
+         values ($1, $2, 'chat_quick', 'chat_quick/v1', 'claude-sonnet-5', 'claude-sonnet-5', 1500, 1000, 50000, $3, 97.85)`,
+        [account, m.rows[0]?.id, aiPaise],
+      );
+    }
+    await pool().query(
+      `insert into jobs (account_id, type, state, tier, idempotency_key, captured_credits, actual_ai_cost_paise,
+                         estimated_ai_cost_micro_usd, actual_ai_cost_micro_usd, failure_class)
+       values ($1, 'monthly_refresh', 'completed', 'expert', $2, 299, 1000, 100000, 150000, null),
+              ($1, 'monthly_refresh', 'failed_data', 'expert', $3, 299, 0, 0, 0, 'data_fault'),
+              ($4, 'monthly_refresh', 'completed', 'expert', $5, 299, 9999, 0, 0, null)`,
+      [account, randomUUID(), randomUUID(), other, randomUUID()],
+    );
+
+    const report = await marginReport(pool(), from, to, { accountId: account });
+    const quick = report.actions.find((a) => a.actionKey === "chat_quick");
+    expect(quick).toMatchObject({ jobs: 2, capturedCredits: 38n, aiCostPaise: 760n, ratio: "0.2000", overCap: false });
+    expect(quick?.p50).toBe("0.1000");
+    expect(quick?.p90).toBe("0.3000");
+
+    const flagged = await marginReport(pool(), from, to, { accountId: account, actionKey: "chat_quick", tier: "professional" });
+    expect(flagged.actions).toHaveLength(1);
+    // Adding a second over-ratio message pushes the action over its cap.
+    const m3 = await pool().query<{ id: string }>(
+      `insert into chat_messages (thread_id, account_id, role, message_type, content, tier, price_credits, credits_charged, state)
+       values ($1, $2, 'user', 'quick', '\\x', 'professional', 19, 19, 'completed') returning id`,
+      [t.rows[0]?.id, account],
+    );
+    await pool().query(
+      `insert into ai_calls (account_id, chat_message_id, stage, prompt_version, model_requested, model_used, max_tokens, input_tokens, usd_cost_micro, inr_cost_paise, fx_rate_used)
+       values ($1, $2, 'chat_quick', 'chat_quick/v1', 'claude-sonnet-5', 'claude-sonnet-5', 1500, 1000, 50000, 1900, 97.85)`,
+      [account, m3.rows[0]?.id],
+    );
+    const over = await marginReport(pool(), from, to, { accountId: account, actionKey: "chat_quick" });
+    expect(over.actions[0]).toMatchObject({ actionKey: "chat_quick", overCap: true });
+
+    const refresh = report.actions.find((a) => a.actionKey === "monthly_refresh");
+    expect(refresh).toMatchObject({ jobs: 2, capturedCredits: 598n, aiCostPaise: 1000n });
+    expect(report.estimator).toEqual({ jobs: 1, actualToEstimate: "1.5000", underestimated: 1 });
+    expect(report.failures).toEqual([{ failureClass: "data_fault", jobs: 1, rate: "0.5000" }]);
+    const captured = (38n + 598n) * 100n;
+    expect(report.grossMargin.capturedValuePaise).toBe(captured);
+    expect(report.grossMargin.aiCostPaise).toBe(1760n);
+    // Payment fee config "2.00" percent, rounded up; infra cost 0.
+    expect(report.grossMargin.paymentFeesPaise).toBe((captured * 2n + 99n) / 100n);
+    expect(report.grossMargin.marginPaise).toBe(captured - 1760n - report.grossMargin.paymentFeesPaise);
+  });
+
   it("flags stale registry entries", async () => {
     const view = await modelRegistryView(pool(), 30, new Date("2026-12-31T00:00:00Z"));
     expect(view.find((m) => m.modelId === "claude-opus-5")?.stale).toBe(true);
