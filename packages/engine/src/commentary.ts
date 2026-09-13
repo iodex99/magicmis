@@ -35,7 +35,7 @@ export interface FactsPack {
   readonly warnings: readonly string[];
 }
 
-const LABELS: Readonly<Record<string, string>> = {
+export const METRIC_LABELS: Readonly<Record<string, string>> = {
   revenue: "Revenue from operations",
   direct_costs: "Direct costs",
   gross_profit: "Gross profit",
@@ -122,7 +122,7 @@ export function buildFactsPack(input: {
     );
   const facts: Fact[] = [];
   const periods = new Set<string>([input.period]);
-  for (const [metric, label] of Object.entries(LABELS)) {
+  for (const [metric, label] of Object.entries(METRIC_LABELS)) {
     const current = at(metric);
     if (current === undefined || current.value === null) continue;
     const mom = at(`${metric}.mom_abs`);

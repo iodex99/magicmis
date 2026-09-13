@@ -2,7 +2,12 @@ import "server-only";
 
 import { RoutingError, RuntimeCapExceeded, AiStageError } from "@magicmis/ai";
 import { CompanyKeyDestroyed } from "@magicmis/engine/server";
-import { JobError, JobStateError } from "@magicmis/jobs";
+import {
+  CommentaryError,
+  DashboardError,
+  JobError,
+  JobStateError,
+} from "@magicmis/jobs";
 import { PricingError } from "@magicmis/wallet";
 
 import { apiError } from "../http";
@@ -26,6 +31,23 @@ export function jobErrorResponse(error: unknown): Response {
           error.code,
           "This job cannot do that now. Reload the page to see its current state.",
         );
+  }
+  if (error instanceof DashboardError) {
+    const status =
+      error.code === "no_blueprint" || error.code === "no_dashboard"
+        ? 404
+        : error.code === "invalid_patch"
+          ? 422
+          : 409;
+    return apiError(
+      status,
+      error.code,
+      error.message,
+      error.errors.length > 0 ? { operations: error.errors.join("; ") } : undefined,
+    );
+  }
+  if (error instanceof CommentaryError) {
+    return apiError(error.code === "no_snapshot" ? 404 : 409, error.code, error.message);
   }
   if (error instanceof PricingError) {
     return apiError(

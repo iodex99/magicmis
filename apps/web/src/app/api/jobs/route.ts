@@ -9,7 +9,13 @@ import { jobErrorResponse } from "@/lib/server/job-errors";
 
 const bodySchema = z.object({
   companyId: z.uuid(),
-  type: z.enum(["data_diagnostic", "company_setup", "monthly_refresh"]),
+  type: z.enum([
+    "data_diagnostic",
+    "company_setup",
+    "monthly_refresh",
+    "dashboard_addon",
+    "commentary",
+  ]),
   tier: z.enum(["efficient", "professional", "expert"]),
   delivery: z.enum(["standard", "instant"]),
   // Counts only (SPEC §12): the browser never sends content to be priced.

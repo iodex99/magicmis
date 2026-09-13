@@ -2,6 +2,7 @@ import {
   acceptJobQuote,
   advanceJob,
   cancelJob,
+  completeDashboardAddon,
   confirmJob,
   failJob,
   heartbeatJob,
@@ -11,6 +12,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { apiError, idempotent, ok, parseJson, withAccount } from "@/lib/http";
 import { jobErrorResponse } from "@/lib/server/job-errors";
+import { keyWrapper } from "@/lib/server/runtime";
 
 type Ctx = { params: Promise<{ id: string; action: string }> };
 
@@ -35,7 +37,7 @@ const failSchema = z.object({
 });
 
 /**
- * POST /api/jobs/:id/{confirm|accept-quote|advance|heartbeat|cancel|fail}. Every transition is
+ * POST /api/jobs/:id/{confirm|accept-quote|advance|deliver-dashboard|heartbeat|cancel|fail}. Every transition is
  * checked on the server; the browser cannot choose a price, a charge, or a backwards move.
  */
 export async function POST(request: Request, context: Ctx): Promise<Response> {
@@ -63,6 +65,17 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
           await advanceJob(pool, { ...base, to: parsed.data.to });
           return ok({ state: parsed.data.to });
         }
+        case "deliver-dashboard":
+          return await idempotent(request, `job-dashboard:${id}`, { id }, async () => {
+            const r = await completeDashboardAddon(pool, keyWrapper(), base);
+            return {
+              status: 200,
+              body: {
+                capturedCredits: r.captured.toString(),
+                blueprintVersion: r.blueprintVersion,
+              },
+            };
+          });
         case "heartbeat":
           return ok({ held: await heartbeatJob(pool, base) });
         case "cancel":

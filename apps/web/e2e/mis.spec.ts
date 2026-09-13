@@ -159,3 +159,44 @@ test("refreshes the next month with no review and zero AI calls", async () => {
     held_credits: "0",
   });
 });
+
+test("adds the dashboard, opens lineage from a number, edits with preview, and undoes", async () => {
+  const company = await db.query<{ id: string }>(
+    `select c.id from companies c join accounts a on a.id = c.account_id where a.email = $1`,
+    [email],
+  );
+  const companyId = company.rows[0]?.id ?? "";
+  await page.goto(`/app/companies/${companyId}`);
+  await page.getByRole("link", { name: "Dashboard" }).click();
+  await page.getByRole("button", { name: "Get price" }).click();
+  await expect(page.getByTestId("job-price")).toContainText("Dashboard");
+  await page.getByRole("button", { name: /^Confirm/u }).click();
+
+  const revenue = page.getByTestId("widget-kpi_revenue");
+  await expect(revenue).toBeVisible();
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-05");
+  await revenue.locator("[data-metric-key='revenue@2026-05']").click();
+  await expect(page.getByTestId("lineage-panel")).toContainText("revenue");
+  await expect(page.getByTestId("lineage-panel")).toContainText("Formula");
+
+  await page.getByRole("button", { name: "Edit layout" }).click();
+  page.once("dialog", (d) => void d.accept("Sales"));
+  await revenue.getByRole("button", { name: "Rename" }).click();
+  await expect(page.getByTestId("patch-preview")).toContainText("1 change");
+  await expect(revenue).toContainText("Sales");
+  await page.getByRole("button", { name: "Apply" }).click();
+  await expect(page.getByTestId("patch-preview")).toHaveCount(0);
+  await expect(revenue).toContainText("Sales");
+
+  await page.getByRole("button", { name: "Undo last change" }).click();
+  await expect(revenue).toContainText("Revenue");
+  await expect(page.getByRole("button", { name: "Undo last change" })).toHaveCount(0);
+
+  const versions = await db.query<{ n: number }>(
+    `select count(*)::int as n from blueprints where company_id = $1`,
+    [companyId],
+  );
+  // v1 setup, v2 dashboard add-on, v3 rename, v4 undo.
+  expect(versions.rows[0]?.n).toBe(4);
+  expect(await aiCallsForAccount()).toBe(0);
+});

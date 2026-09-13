@@ -51,9 +51,27 @@ export default async function CompanyPage({
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-neutral-900">{company.name}</h1>
         {company.lifecycle_state === "active" ? (
-          <Link href={`/app/companies/${id}/run`} className="text-accent-700 underline">
-            {company.first_setup_at === null ? "Set up MIS" : "Run monthly refresh"}
-          </Link>
+          <nav className="flex gap-4">
+            <Link href={`/app/companies/${id}/run`} className="text-accent-700 underline">
+              {company.first_setup_at === null ? "Set up MIS" : "Run monthly refresh"}
+            </Link>
+            {company.first_setup_at === null ? null : (
+              <>
+                <Link
+                  href={`/app/companies/${id}/dashboard`}
+                  className="text-accent-700 underline"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href={`/app/companies/${id}/commentary`}
+                  className="text-accent-700 underline"
+                >
+                  Commentary
+                </Link>
+              </>
+            )}
+          </nav>
         ) : null}
       </div>
       <div className="flex flex-col gap-6">
