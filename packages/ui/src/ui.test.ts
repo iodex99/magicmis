@@ -8,8 +8,8 @@ import {
   varianceColor,
   varianceDirection,
   varianceGlyph,
-} from "./numeric.js";
-import { elevation, tokens, typography, variance } from "./tokens.js";
+} from "./numeric";
+import { elevation, tokens, typography, variance } from "./tokens";
 
 describe("variance presentation (SPEC §32)", () => {
   it("reads direction from the sign", () => {

@@ -7,7 +7,7 @@
  * hardcoded April would quietly break the first company that uses a January year.
  */
 
-import { compareCalendarDates, daysInMonth, type CalendarDate } from "./calendar-date.js";
+import { compareCalendarDates, daysInMonth, type CalendarDate } from "./calendar-date";
 
 /** A month, as `YYYY-MM`. Matches `snapshots.period` in SPEC §9. */
 export type PeriodId = string & { readonly __brand: "PeriodId" };

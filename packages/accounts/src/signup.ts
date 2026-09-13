@@ -13,7 +13,7 @@ import { withTransaction } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 import { z } from "zod";
 
-import { isGstStateCode } from "./state-codes.js";
+import { isGstStateCode } from "./state-codes";
 
 export const billingAddressSchema = z.object({
   line1: z.string().trim().min(1).max(200),

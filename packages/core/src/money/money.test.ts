@@ -1,29 +1,29 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
-import { microUsd, paise, PAISE_PER_RUPEE } from "./brand.js";
+import { microUsd, paise, PAISE_PER_RUPEE } from "./brand";
 import {
   formatDecimal,
   multiplyByDecimal,
   multiplyByDecimalString,
   parseDecimal,
   percentOf,
-} from "./decimal.js";
+} from "./decimal";
 import {
   effectiveInrPerUsd,
   fxRate,
   microUsdToPaise,
   tokenCostMicroUsd,
   usdStringToMicroUsd,
-} from "./fx.js";
+} from "./fx";
 import {
   addPaise,
   paiseToRupeeString,
   paiseToWholeRupees,
   rupeeStringToPaise,
   sumPaise,
-} from "./paise.js";
-import { divideRounded, roundUpToEnding, type RoundingMode } from "./rounding.js";
+} from "./paise";
+import { divideRounded, roundUpToEnding, type RoundingMode } from "./rounding";
 
 const MODES: RoundingMode[] = [
   "half_up",

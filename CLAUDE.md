@@ -7,7 +7,13 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**Phase 0 — Foundations.** Plan: [docs/plans/phase-0.md](docs/plans/phase-0.md)
+**Phase 2 — Wallet, pricing, payments, GST.** Previous: [phase-0](docs/plans/phase-0.md), [phase-1](docs/plans/phase-1.md)
+
+Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
+Phase 6 and its container fails a health check on first boot here). Web E2E:
+`pnpm --filter @magicmis/web build && pnpm --filter @magicmis/web e2e`.
+
+### Phase 0 record
 
 `docs/SPEC.md` is **complete, Sections 0–35.**
 
@@ -44,13 +50,16 @@ Environment notes for a future session:
 - Pre-pull `postgres:17-alpine` and `testcontainers/ryuk:0.14.0` if a registry pull
   fails through Docker Desktop's built-in proxy.
 
-### The ten phases (§34) — stop after each for review
+### The ten phases (§34)
+
+The product owner waived the stop-for-review gate between phases on 2026-09-13 ("build
+everything now"). Plans, summaries and ADRs are still written per phase.
 
 | #   | Phase                                         | State       |
 | --- | --------------------------------------------- | ----------- |
-| 0   | Foundations                                   | **complete — awaiting review** |
-| 1   | Accounts and security                         | next |
-| 2   | Wallet, pricing, payments, GST                |             |
+| 0   | Foundations                                   | complete |
+| 1   | Accounts and security                         | complete (275 tests incl. 5 E2E) |
+| 2   | Wallet, pricing, payments, GST                | **current** |
 | 3   | Ingestion, Tally, redaction, fixtures         |             |
 | 4   | AI layer and margin controls                  |             |
 | 5   | Semantic layer, mapping, engine, validation   |             |

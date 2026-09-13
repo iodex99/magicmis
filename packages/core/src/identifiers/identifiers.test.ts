@@ -6,8 +6,8 @@ import {
   isValidVerhoeff,
   synthesiseAadhaarForFixtures,
   verhoeffCheckDigit,
-} from "./aadhaar.js";
-import { couldBeAccountNumber, couldBeUan, ifscBankCode, isValidIfsc } from "./bank.js";
+} from "./aadhaar";
+import { couldBeAccountNumber, couldBeUan, ifscBankCode, isValidIfsc } from "./bank";
 import {
   gstinCheckCharacter,
   gstinPan,
@@ -15,8 +15,8 @@ import {
   hasGstinShape,
   isValidGstin,
   normaliseGstin,
-} from "./gstin.js";
-import { isValidPan, panHolderType } from "./pan.js";
+} from "./gstin";
+import { isValidPan, panHolderType } from "./pan";
 
 /**
  * Specimen GSTINs, not customer data.

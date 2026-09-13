@@ -16,10 +16,10 @@ import { appendAudit } from "@magicmis/db/audit";
 import { withTransaction } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 
-import { sessionClaimsSchema } from "./claims.js";
-import { deviceFingerprintHash, describeUserAgent } from "./device.js";
-import { enqueueNotification } from "./notifications.js";
-import { type AuthProvider } from "./provider.js";
+import { sessionClaimsSchema } from "./claims";
+import { deviceFingerprintHash, describeUserAgent } from "./device";
+import { enqueueNotification } from "./notifications";
+import { type AuthProvider } from "./provider";
 
 export interface RequestContext {
   readonly ip: string | null;

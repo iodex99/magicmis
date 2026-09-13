@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens from packages/ui (SPEC §32): restrained neutral palette, one teal accent,
+ * red/green only for variance, tabular numerals, small radii, no gradients or glows.
+ * Kept in sync with packages/ui/src/tokens.ts.
+ */
+@theme {
+  --font-sans:
+    "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+
+  --color-neutral-0: #ffffff;
+  --color-neutral-25: #fcfcfb;
+  --color-neutral-50: #f7f7f5;
+  --color-neutral-100: #eeeeec;
+  --color-neutral-200: #dededa;
+  --color-neutral-300: #c5c5bf;
+  --color-neutral-400: #9a9a93;
+  --color-neutral-500: #76766f;
+  --color-neutral-600: #5a5a54;
+  --color-neutral-700: #43433f;
+  --color-neutral-800: #2b2b28;
+  --color-neutral-900: #1a1a18;
+
+  --color-accent-50: #eef6f6;
+  --color-accent-100: #d3e8e8;
+  --color-accent-500: #1f7575;
+  --color-accent-600: #165c5c;
+  --color-accent-700: #124a4a;
+
+  --color-positive: #1c6b3f;
+  --color-positive-subtle: #e8f3ec;
+  --color-negative: #a8321f;
+  --color-negative-subtle: #fbecea;
+  --color-warning: #8a5a00;
+  --color-warning-subtle: #fdf3e0;
+
+  --radius-sm: 2px;
+  --radius: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+}
+
+html {
+  color: var(--color-neutral-900);
+  background: var(--color-neutral-25);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+/* Tabular, lining numerals on every figure (SPEC §32). */
+.num {
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
+}
+
+/* WCAG 2.2 AA: visible, non-colour-only focus indicator on every interactive element. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 1px;
+}

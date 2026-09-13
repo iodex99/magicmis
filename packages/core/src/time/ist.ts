@@ -10,7 +10,7 @@
  * ./calendar-date instead.
  */
 
-import type { CalendarDate } from "./calendar-date.js";
+import type { CalendarDate } from "./calendar-date";
 
 /** +05:30 in minutes. */
 export const IST_OFFSET_MINUTES = 330;

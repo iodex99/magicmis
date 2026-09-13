@@ -1,1 +1,1 @@
-export * from "./indian-number.js";
+export * from "./indian-number";

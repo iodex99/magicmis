@@ -8,7 +8,7 @@
 
 import type { z } from "zod";
 
-import { type Queryable } from "./tx.js";
+import { type Queryable } from "./tx";
 
 export class ConfigMissingError extends Error {
   constructor(readonly key: string) {

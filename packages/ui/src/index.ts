@@ -1,2 +1,2 @@
-export * from "./numeric.js";
-export * from "./tokens.js";
+export * from "./numeric";
+export * from "./tokens";

@@ -18,8 +18,14 @@ const nonEmpty = z.string().min(1);
 export const publicEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  /** The anon key is designed to be public; RLS is what protects the data. */
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: nonEmpty,
+  /**
+   * Supabase publishable key (`sb_publishable_…`). Designed to be public; RLS is what
+   * protects the data. The legacy JWT anon key is deprecated by the end of 2026
+   * (https://supabase.com/docs/guides/api/api-keys, verified 2026-09-13) and not accepted.
+   */
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z
+    .string()
+    .regex(/^sb_publishable_[A-Za-z0-9_-]+$/u),
   NEXT_PUBLIC_ENVIRONMENT: z.enum(["development", "staging", "production"]),
 });
 
@@ -33,7 +39,12 @@ export const serverEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
   DATABASE_URL: nonEmpty,
-  SUPABASE_SERVICE_ROLE_KEY: nonEmpty,
+  /**
+   * Supabase secret key (`sb_secret_…`): bypasses RLS, server only. Used for Auth admin
+   * calls such as removing TOTP factors during backup-code recovery. The legacy
+   * service_role JWT is deprecated and not accepted.
+   */
+  SUPABASE_SECRET_KEY: z.string().regex(/^sb_secret_[A-Za-z0-9_-]+$/u),
 
   ANTHROPIC_API_KEY: nonEmpty,
 

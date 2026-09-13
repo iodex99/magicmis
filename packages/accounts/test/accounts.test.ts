@@ -11,16 +11,16 @@ import { verifyAuditChain } from "@magicmis/db/audit";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { requireAccount, type AccountContext } from "../src/claims.js";
-import { type AuthProvider } from "../src/provider.js";
-import { hasFreshReauth, reauthenticate } from "../src/reauth.js";
+import { requireAccount, type AccountContext } from "../src/claims";
+import { type AuthProvider } from "../src/provider";
+import { hasFreshReauth, reauthenticate } from "../src/reauth";
 import {
   issueBackupCodes,
   redeemBackupCode,
   remainingBackupCodes,
-} from "../src/recovery.js";
-import { claimSession } from "../src/session.js";
-import { provisionAccount, signupProfileSchema } from "../src/signup.js";
+} from "../src/recovery";
+import { claimSession } from "../src/session";
+import { provisionAccount, signupProfileSchema } from "../src/signup";
 
 let db: TestDb | undefined;
 

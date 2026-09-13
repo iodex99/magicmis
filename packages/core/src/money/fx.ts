@@ -10,15 +10,9 @@
  * move between the call and the reporting period does not eat the margin.
  */
 
-import {
-  MICRO_USD_PER_USD,
-  microUsd,
-  paise,
-  type MicroUsd,
-  type Paise,
-} from "./brand.js";
-import { multiplyByDecimal, parseDecimal, type Decimal } from "./decimal.js";
-import { divideRounded, type RoundingMode } from "./rounding.js";
+import { MICRO_USD_PER_USD, microUsd, paise, type MicroUsd, type Paise } from "./brand";
+import { multiplyByDecimal, parseDecimal, type Decimal } from "./decimal";
+import { divideRounded, type RoundingMode } from "./rounding";
 
 /** The FX rate actually applied to a conversion, recorded alongside the result. */
 export interface FxRate {

@@ -8,19 +8,11 @@ import {
   isWellFormedBackupCode,
   normaliseBackupCode,
   verifyBackupCode,
-} from "./backup-codes.js";
-import { isDesktopUserAgent, isDeviceAgnosticPath } from "./desktop.js";
-import {
-  describeUserAgent,
-  deviceFingerprintHash,
-  normaliseUserAgent,
-} from "./device.js";
-import {
-  placeOfSupplyState,
-  signupProfileSchema,
-  signupRequestSchema,
-} from "./signup.js";
-import { GST_STATE_CODES, isGstStateCode } from "./state-codes.js";
+} from "./backup-codes";
+import { isDesktopUserAgent, isDeviceAgnosticPath } from "./desktop";
+import { describeUserAgent, deviceFingerprintHash, normaliseUserAgent } from "./device";
+import { placeOfSupplyState, signupProfileSchema, signupRequestSchema } from "./signup";
+import { GST_STATE_CODES, isGstStateCode } from "./state-codes";
 
 const CHROME_WIN =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";

@@ -11,7 +11,8 @@
     "./tx": "./src/tx.ts",
     "./config": "./src/config.ts",
     "./audit": "./src/audit.ts",
-    "./test-harness": "./test/harness.ts"
+    "./test-harness": "./test/harness.ts",
+    "./idempotency": "./src/idempotency.ts"
   },
   "scripts": {
     "lint": "eslint src test",

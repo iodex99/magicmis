@@ -4,8 +4,8 @@
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { appendAuditInTransaction, verifyAuditChain } from "../src/audit.js";
-import { startTestDb, type TestDb } from "./harness.js";
+import { appendAuditInTransaction, verifyAuditChain } from "../src/audit";
+import { startTestDb, type TestDb } from "./harness";
 
 // Undefined until beforeAll completes -- and it stays undefined if beforeAll throws,
 // which is exactly when afterAll still runs. The optional chain below is not defensive

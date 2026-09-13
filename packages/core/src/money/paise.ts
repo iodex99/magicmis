@@ -6,9 +6,9 @@
  * the wire format use.
  */
 
-import { PAISE_PER_RUPEE, paise, type Paise } from "./brand.js";
-import { formatDecimal, parseDecimal } from "./decimal.js";
-import { divideRounded, type RoundingMode } from "./rounding.js";
+import { PAISE_PER_RUPEE, paise, type Paise } from "./brand";
+import { formatDecimal, parseDecimal } from "./decimal";
+import { divideRounded, type RoundingMode } from "./rounding";
 
 /**
  * Parse a rupee amount given as a canonical decimal string into paise.

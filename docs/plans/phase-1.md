@@ -74,3 +74,92 @@ against real Postgres without a live Auth server.
 
 Admin MFA factor deletion: the reference page returned 404; its signature is taken from
 the installed `@supabase/auth-js` type definitions and cited there.
+
+---
+
+# Phase 1 summary
+
+**Status: complete.** Review gate waived by the product owner (2026-09-13); work continues
+into Phase 2.
+
+## Acceptance criteria (§34)
+
+| Criterion | Result |
+|---|---|
+| E2E auth flows pass | **Met.** Playwright against the real Supabase local stack (Auth, Mailpit, Postgres) and a production build: sign up → verify email → enrol TOTP → backup codes → app. |
+| Second login terminates the first session | **Met.** Two browser contexts; the first is refused with `session_superseded` on its next API call and its page shows "You were signed out because this account signed in elsewhere." |
+| App unusable without 2FA | **Met.** At aal1, `/app` redirects to MFA and every data API returns `mfa_required`. The database refuses aal1 independently (RLS tests). |
+
+## Tests
+
+| Suite | Count |
+|---|---|
+| `@magicmis/core` | 145 |
+| `@magicmis/db` (RLS incl. aal2 / stale-session refusals, idempotency, constraints, audit chain) | 62 |
+| `@magicmis/accounts` (unit + real-Postgres flows) | 48 |
+| `@magicmis/ui` | 15 |
+| `@magicmis/web` E2E | 5 |
+| **Total** | **275** |
+
+## Built
+
+- Migration 0012: aal2 + active-session tenancy predicate; backup codes, re-auth grants,
+  throttle; config defaults. Migration 0013: idempotency keys; sign-in throttle config.
+- `packages/accounts`: provisioning, session claim, `requireAccount`, backup codes,
+  re-auth, throttle, device fingerprinting, desktop gate, notifications queueing.
+- `apps/web`: Next.js 16 with `proxy.ts`; 15 API routes; sign-up, verification, sign-in,
+  enrolment, MFA, recovery, signed-out, desktop-required, app shell, security and profile
+  settings.
+- Supabase local configuration, token-hash confirmation template, migration mirroring script.
+- CI: E2E job running Supabase local + Playwright; migration-mirror check.
+- Runbook: account recovery without backup codes.
+
+## Found and fixed along the way
+
+1. **The test auth shim diverged from Supabase.** Comparing against `pg_get_functiondef`
+   on the real stack: `auth.jwt()` returns NULL with no claims, the shim returned `{}`.
+   No test outcome changed (policies use `coalesce`), but the shim now copies the real bodies.
+2. **Turbopack cannot resolve `.js` specifiers onto `.ts` sources** — ADR 0012.
+3. **`set role` in the pool's connect handler raced the first query.** Replaced with a
+   startup parameter; verified that DELETE on `credit_ledger` is then refused at the
+   privilege level for server code.
+4. **Backup-code normaliser folded O→0 and I/L→1, but the alphabet contains none of them**,
+   so folding could only turn a typo into a certain failure. Removed.
+5. **Default PKCE email link only verifies in the browser that signed up.** Switched to a
+   token-hash template.
+6. **A string replacement corrupted a source file** (`$\`` in a JS `replace` replacement
+   string). Rewritten; replacement scripts are no longer used on code.
+
+## Decisions (ADRs)
+
+- 0010 Resend (supersedes 0007 Postmark) — product owner's direction.
+- 0011 Accounts architecture: Supabase Auth for credentials; SPEC §8 enforced in DB and app.
+- 0012 Extensionless internal imports.
+
+## New dependencies (§0.10)
+
+| Dependency | Justification |
+|---|---|
+| `next`, `react`, `react-dom` | SPEC §5 web stack. |
+| `@supabase/ssr`, `@supabase/supabase-js` | SPEC §5 Auth; the SSR package is Supabase's documented Next.js integration. |
+| `tailwindcss`, `@tailwindcss/postcss` | SPEC §5 styling. |
+| `supabase` (CLI, dev) | Local stack for E2E and migration verification against real Supabase. |
+| `@playwright/test` (dev) | SPEC §5 E2E. |
+| `otpauth` (dev) | Generates TOTP codes in E2E the way an authenticator app does. |
+| `server-only` | Build-time guarantee that server modules (DB pool, secret key) never enter a client bundle. |
+
+**Not yet used, deviation noted:** SPEC §5 names shadcn/ui for primitives. Phase 1's forms
+use small in-repo components styled with the §32 tokens. shadcn/ui is adopted when the
+dense table and dialog work of Phases 2–6 arrives; recorded here so it is not forgotten.
+
+## `TODO(review)` raised this phase
+
+- **R-01** Product name: a placeholder, "MIS Studio", is set in `apps/web/src/lib/brand.ts`
+  (§32 rules out the repository's "magic" name for customer copy).
+- **R-10 / R-11** Terms and Privacy pages are placeholders; consent records use document
+  version `0.1-draft` from `app_config`.
+- **R-21** Runbook step recording an admin MFA reset uses a witnessed SQL insert until the
+  Phase 9 admin console provides the action.
+- **R-22** Production Supabase project must mirror `supabase/config.toml`: confirmations on,
+  TOTP on, 12-character mixed passwords, secure password change, Resend SMTP, and the
+  token-hash confirmation template.

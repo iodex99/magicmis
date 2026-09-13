@@ -13,14 +13,14 @@ import { one, withTransaction, type Queryable } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 import { z } from "zod";
 
-import { type AccountContext } from "./claims.js";
-import { type AuthProvider } from "./provider.js";
+import { type AccountContext } from "./claims";
+import { type AuthProvider } from "./provider";
 import {
   checkThrottle,
   clearThrottle,
   registerFailure,
   throttleLimitFor,
-} from "./throttle.js";
+} from "./throttle";
 
 export type ReauthAction =
   | "change_email"

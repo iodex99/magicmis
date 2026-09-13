@@ -13,7 +13,7 @@ your sign-off · `closed` — resolved, with the resolution noted.
 
 | # | Item | Needed by | Status |
 |---|---|---|---|
-| R-01 | **Product name.** Spec says `[PRODUCT_NAME]`; directory is `magicmis`. Note §32 forbids "magic" wording in customer UI, which sits awkwardly with MagicMIS as a brand. Held as a single constant in `packages/core` so it is a one-line change. | Phase 1 (first customer-facing copy) | open |
+| R-01 | **Product name.** Spec says `[PRODUCT_NAME]`; directory is `magicmis`. Note §32 forbids "magic" wording in customer UI, which sits awkwardly with MagicMIS as a brand. Held as a single constant (`apps/web/src/lib/brand.ts`), currently the placeholder "MIS Studio", so the real name is a one-line change. | Before launch | open |
 | R-02 | **Seller legal name, address, GSTIN** for tax invoices (§13). | Phase 2 | open |
 | R-03 | **SAC code** for the service. Spec marks this `TODO(review)` explicitly. Needs CA confirmation. | Phase 2 | open |
 | R-04 | **Final price book.** §12's table is explicitly illustrative. Seeded as given, admin-editable. Margin dashboard will show whether seed prices hold under `max_ai_cost_ratio`. | Phase 2 seeds; confirm before launch | open |
@@ -34,6 +34,8 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-13 | **GST rate** — seeded at 18% per §13 config default; confirm current rate for this SAC at launch. | Before launch | open |
 | R-14 | **FX rate and buffer** — seeded at §13's 3% buffer default; set the operating rate. | Before launch | open |
 | R-15 | **Statutory retention period** for financial records — seeded at §10's 8-year default; confirm. | Before launch | open |
+| R-21 | **Admin MFA reset recording** — the account-recovery runbook records the reset with a witnessed SQL insert into `audit_log` until the Phase 9 admin console provides the action. | Phase 9 | open |
+| R-22 | **Production Supabase Auth settings** must mirror `supabase/config.toml`: email confirmations on, TOTP on, 12-character mixed-case-and-digit passwords, secure password change, Resend SMTP, and the token-hash confirmation template in `supabase/templates/confirmation.html`. | Before launch | open |
 
 ## Decisions the spec leaves open
 

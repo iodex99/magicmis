@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { EnvValidationError, loadPublicEnv, loadServerEnv } from "./env.js";
+import { EnvValidationError, loadPublicEnv, loadServerEnv } from "./env";
 
 const VALID_SERVER = {
   NODE_ENV: "test",
   DATABASE_URL: "postgres://localhost:5432/magicmis",
-  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  SUPABASE_SECRET_KEY: "sb_secret_test_key",
   ANTHROPIC_API_KEY: "sk-ant-test-key",
   RAZORPAY_KEY_ID: "rzp_test_id",
   RAZORPAY_KEY_SECRET: "rzp_test_secret",
@@ -19,7 +19,7 @@ const VALID_SERVER = {
 const VALID_PUBLIC = {
   NEXT_PUBLIC_APP_URL: "https://app.example.com",
   NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test_key",
   NEXT_PUBLIC_ENVIRONMENT: "development",
 } as const;
 

@@ -8,8 +8,8 @@
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { loadMigrations, migrate, MigrationChecksumError } from "../src/migrate.js";
-import { startTestDb, type TestDb } from "./harness.js";
+import { loadMigrations, migrate, MigrationChecksumError } from "../src/migrate";
+import { startTestDb, type TestDb } from "./harness";
 
 // Undefined until beforeAll completes -- and it stays undefined if beforeAll throws,
 // which is exactly when afterAll still runs. The optional chain below is not defensive

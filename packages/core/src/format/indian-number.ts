@@ -11,9 +11,9 @@
  * money module exists to prevent. This formats from the integer directly.
  */
 
-import { unbrand, type Paise } from "../money/brand.js";
-import { formatDecimal } from "../money/decimal.js";
-import { divideRounded, type RoundingMode } from "../money/rounding.js";
+import { unbrand, type Paise } from "../money/brand";
+import { formatDecimal } from "../money/decimal";
+import { divideRounded, type RoundingMode } from "../money/rounding";
 
 export type NumberFormatStyle = "lakhs_crores" | "absolute" | "millions";
 

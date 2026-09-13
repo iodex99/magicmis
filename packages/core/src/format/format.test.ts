@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
-import { paise } from "../money/brand.js";
+import { paise } from "../money/brand";
 import {
   formatPaise,
   formatPaiseCompact,
@@ -9,7 +9,7 @@ import {
   groupIndian,
   groupWestern,
   type NumberFormatOptions,
-} from "./indian-number.js";
+} from "./indian-number";
 
 const LAKHS: NumberFormatOptions = { style: "lakhs_crores", decimals: 2 };
 

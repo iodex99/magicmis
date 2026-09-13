@@ -12,7 +12,7 @@
  * scaled integer and applied with bigint arithmetic and a named rounding mode.
  */
 
-import { divideRounded, type RoundingMode } from "./rounding.js";
+import { divideRounded, type RoundingMode } from "./rounding";
 
 /** An exact decimal held as `unscaled / 10^scale`. `2.5` is `{ unscaled: 25n, scale: 1 }`. */
 export interface Decimal {

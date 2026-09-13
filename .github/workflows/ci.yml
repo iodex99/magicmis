@@ -62,6 +62,66 @@ jobs:
       - name: Test
         run: pnpm test
 
+  e2e:
+    name: end-to-end (Supabase local + Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check supabase/migrations mirrors packages/db
+        run: node scripts/sync-supabase-migrations.mjs --check
+
+      # Storage, image proxy and realtime are not used before Phase 6 and add minutes of
+      # image pulls; excluded so the job measures the product, not the registry.
+      - name: Start Supabase local stack
+        run: npx supabase start -x storage-api,imgproxy,realtime
+
+      - name: Write app environment from the running stack
+        run: |
+          eval "$(npx supabase status -o env | sed 's/^/export /')"
+          cat > apps/web/.env.local <<EOF
+          NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000
+          NEXT_PUBLIC_SUPABASE_URL=${API_URL}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${PUBLISHABLE_KEY}
+          NEXT_PUBLIC_ENVIRONMENT=development
+          DATABASE_URL=${DB_URL}
+          SUPABASE_SECRET_KEY=${SECRET_KEY}
+          ANTHROPIC_API_KEY=sk-ant-ci-placeholder
+          RAZORPAY_KEY_ID=rzp_test_placeholder
+          RAZORPAY_KEY_SECRET=placeholder
+          RAZORPAY_WEBHOOK_SECRET=placeholder
+          KMS_MASTER_KEY_ID=alias/magicmis-ci
+          AWS_REGION=ap-south-1
+          RESEND_API_KEY=re_ci_placeholder
+          EMAIL_FROM=CI <noreply@ci.test>
+          EOF
+
+      - name: Build web app
+        run: pnpm --filter @magicmis/web build
+
+      - name: Install Chromium
+        run: pnpm --filter @magicmis/web exec playwright install --with-deps chromium
+
+      - name: Run E2E
+        run: pnpm --filter @magicmis/web e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: apps/web/test-results
+          retention-days: 7
+
   audit:
     name: dependency audit
     runs-on: ubuntu-latest

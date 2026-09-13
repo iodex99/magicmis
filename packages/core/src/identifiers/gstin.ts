@@ -15,7 +15,7 @@
  * SPEC §17: a GSTIN embeds a PAN, so it is always tokenised before leaving the browser.
  */
 
-import { PAN_PATTERN } from "./pan.js";
+import { PAN_PATTERN } from "./pan";
 
 /** The check-character alphabet: 0-9 then A-Z, giving modulus 36. */
 const ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";

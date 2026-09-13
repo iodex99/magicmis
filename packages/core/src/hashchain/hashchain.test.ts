@@ -8,7 +8,7 @@ import {
   linkEntry,
   verifyChain,
   type ChainValue,
-} from "./chain.js";
+} from "./chain";
 
 describe("canonicalise", () => {
   it("sorts object keys so insertion order cannot change the hash", () => {

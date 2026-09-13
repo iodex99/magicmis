@@ -18,7 +18,7 @@ import {
 } from "@testcontainers/postgresql";
 import pg from "pg";
 
-import { migrate } from "../src/migrate.js";
+import { migrate } from "../src/migrate";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 

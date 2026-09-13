@@ -7,12 +7,7 @@
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import {
-  seedTwoAccounts,
-  startTestDb,
-  type SeededAccount,
-  type TestDb,
-} from "./harness.js";
+import { seedTwoAccounts, startTestDb, type SeededAccount, type TestDb } from "./harness";
 
 // Undefined until beforeAll completes -- and it stays undefined if beforeAll throws,
 // which is exactly when afterAll still runs. The optional chain below is not defensive

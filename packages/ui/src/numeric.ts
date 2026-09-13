@@ -8,7 +8,7 @@
 import { formatPaise, type NumberFormatOptions } from "@magicmis/core/format";
 import type { Paise } from "@magicmis/core/money";
 
-import { typography, variance } from "./tokens.js";
+import { typography, variance } from "./tokens";
 
 /** The direction a variance points, independent of how it is coloured. */
 export type VarianceDirection = "up" | "down" | "flat";

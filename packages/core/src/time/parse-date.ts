@@ -11,7 +11,7 @@
  * reads `01/04/2025` as 4 January in a US locale.
  */
 
-import { calendarDate, isValidCalendarDate, type CalendarDate } from "./calendar-date.js";
+import { calendarDate, isValidCalendarDate, type CalendarDate } from "./calendar-date";
 
 const MONTH_NAMES: Readonly<Record<string, number>> = {
   jan: 1,

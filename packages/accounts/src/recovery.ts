@@ -14,16 +14,16 @@ import {
   isWellFormedBackupCode,
   normaliseBackupCode,
   verifyBackupCode,
-} from "./backup-codes.js";
-import { sessionClaimsSchema, type AccountContext } from "./claims.js";
-import { enqueueNotification } from "./notifications.js";
-import { type AuthProvider } from "./provider.js";
+} from "./backup-codes";
+import { sessionClaimsSchema, type AccountContext } from "./claims";
+import { enqueueNotification } from "./notifications";
+import { type AuthProvider } from "./provider";
 import {
   checkThrottle,
   clearThrottle,
   registerFailure,
   throttleLimitFor,
-} from "./throttle.js";
+} from "./throttle";
 
 /**
  * Replace the account's backup codes with a new generation and return the plaintext

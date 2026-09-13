@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
-import { calendarDate, daysInMonth, formatIso, isLeapYear } from "./calendar-date.js";
+import { calendarDate, daysInMonth, formatIso, isLeapYear } from "./calendar-date";
 import {
   formatIstDate,
   formatIstDateTime,
@@ -10,14 +10,14 @@ import {
   istCalendarDate,
   IST_OFFSET_MINUTES,
   toIstParts,
-} from "./ist.js";
+} from "./ist";
 import {
   calendarDateToExcelSerial,
   excelSerialToCalendarDate,
   expandTwoDigitYear,
   parseCellDate,
   parseDayFirst,
-} from "./parse-date.js";
+} from "./parse-date";
 import {
   addMonths,
   financialYearLabel,
@@ -32,7 +32,7 @@ import {
   parsePeriodId,
   sameMonthLastYear,
   yearToDate,
-} from "./period.js";
+} from "./period";
 
 describe("day-first parsing (SPEC §2.14 — never month-first)", () => {
   it("reads an ambiguous numeric date as day-first", () => {
