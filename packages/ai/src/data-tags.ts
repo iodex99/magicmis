@@ -9,8 +9,16 @@
 
 const TAG_LIKE = /<(\s*\/?\s*data\b)/giu;
 
+const ENTITY_TAG_LIKE = /&(?:lt|#0*60|#x0*3c);(\s*\/?\s*data\b)/giu;
+
 export function neutraliseDataTags(text: string): string {
-  return text.replace(TAG_LIKE, "‹$1");
+  // Look-alikes first: NFKC folds fullwidth "＜" to "<", and invisible format characters (zero-width
+  // spaces and joiners) are removed, so a tag split by one cannot slip past the match.
+  return text
+    .normalize("NFKC")
+    .replace(/\p{Cf}/gu, "")
+    .replace(TAG_LIKE, "‹$1")
+    .replace(ENTITY_TAG_LIKE, "‹$1");
 }
 
 export function dataBlock(text: string): string {

@@ -450,7 +450,8 @@ export async function runStage<I, O>(
         { role: "assistant", content: text === "" ? "(empty response)" : text },
         {
           role: "user",
-          content: `Your previous response did not satisfy the required schema: ${v.problem.slice(0, 2000)}. Respond again with a corrected JSON object only.`,
+          // Problems can quote input values, so they travel as data like everything else.
+          content: `Your previous response did not satisfy the required schema. The problems are listed in the data block.\n${dataBlock(v.problem.slice(0, 2000))}\nRespond again with a corrected JSON object only.`,
         },
       ];
     }

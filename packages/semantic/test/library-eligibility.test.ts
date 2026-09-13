@@ -33,7 +33,13 @@ describe("global library eligibility (SPEC §18)", () => {
     expect(reason("Shri Ramesh Kumar Salary")).toBe("person_or_party");
     expect(reason("Loan from Mr Mehta")).toBe("person_or_party");
     expect(reason("HDFC Bank 50100234567891")).toBe("digits");
-    expect(reason("Anita Desai")).toBe("not_accounting_vocabulary");
+    expect(reason("Anita Desai")).toBe("unknown_word");
+    // An accounting word next to a name is not enough: every word must be known.
+    expect(reason("Loan from Ramesh Patel")).toBe("unknown_word");
+    expect(reason("Priya Sharma Salary")).toBe("unknown_word");
+    expect(reason("Advance to Suresh")).toBe("unknown_word");
+    expect(reason("Rent Mehta Building")).toBe("unknown_word");
+    expect(reason("and of the")).toBe("not_accounting_vocabulary");
     expect(reason("")).toBe("empty");
     expect(
       reason(

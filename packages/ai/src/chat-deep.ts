@@ -454,7 +454,7 @@ export async function chatDeepStep(ctx: AiContext, rawInput: unknown): Promise<D
                     type: "tool_result",
                     tool_use_id: toolUse.id,
                     is_error: true,
-                    content: `Not accepted: ${problem.slice(0, 2000)}. Call the answer tool with a corrected answer.`,
+                    content: `Not accepted; the problems are in the data block.\n${dataBlock(problem.slice(0, 2000))}\nCall the answer tool with a corrected answer.`,
                   },
                 ],
         },

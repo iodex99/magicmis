@@ -20,7 +20,9 @@ import {
 import { proseNoDigits } from "./schema";
 
 const confidence = z.enum(["high", "medium", "low"]);
-const ref = z.string().min(1).max(40);
+// Refs are ids the browser assigns (s1, c12, l340): no spaces, quotes or tags, so one can never carry
+// text into the prompt or into a repair message outside <data> (SPEC §30).
+const ref = z.string().regex(/^[A-Za-z0-9_-]{1,40}$/u);
 const cell = z.string().max(200);
 
 // ---------------------------------------------------------------------------
@@ -443,7 +445,7 @@ export const extractReferenceLayoutSpec: StageSpec<
     input.sheets
       .map(
         (s) =>
-          `<sheet ref="${s.ref}" name="${s.name}">\ncolumns: ${s.columns.join(" | ")}\n${table(
+          `<sheet ref="${s.ref}" name=${JSON.stringify(s.name)}>\ncolumns: ${s.columns.join(" | ")}\n${table(
             s.rows.map((r) => [
               r.ref,
               `${"  ".repeat(r.indent)}${r.label}`,

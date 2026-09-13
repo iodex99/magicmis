@@ -65,3 +65,25 @@ export function newNonce(): string {
   crypto.getRandomValues(bytes);
   return btoa(String.fromCharCode(...bytes));
 }
+
+/**
+ * The client IP for rate limits, throttles and the admin allowlist (SPEC §30).
+ *
+ * Only proxy-added values are trusted. On Vercel, `x-vercel-forwarded-for` is set by the platform
+ * and cannot be supplied by the client. Elsewhere the right-most `x-forwarded-for` entry is the
+ * one the nearest proxy appended; entries to its left are whatever the client sent. `x-real-ip`
+ * is never read: any client can set it. Returns null when there is no trustworthy value.
+ */
+export function clientIp(get: (name: string) => string | null): string | null {
+  const pick = (value: string | null, side: "first" | "last") => {
+    const parts = (value ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s !== "");
+    const ip = side === "first" ? parts[0] : parts.at(-1);
+    return ip !== undefined && /^[0-9a-fA-F:.]{2,45}$/u.test(ip) ? ip : null;
+  };
+  return (
+    pick(get("x-vercel-forwarded-for"), "first") ?? pick(get("x-forwarded-for"), "last")
+  );
+}
