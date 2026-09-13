@@ -116,6 +116,10 @@ jobs:
       - name: Build web and admin apps
         run: pnpm --filter @magicmis/web --filter @magicmis/admin build
 
+      # SPEC §30 / §2.9: no server secret or server-only module may reach a browser bundle.
+      - name: Scan client bundles for secrets
+        run: node scripts/scan-client-bundles.mjs --env-file apps/web/.env.local --env-file apps/admin/.env.local
+
       - name: Install Chromium
         run: pnpm --filter @magicmis/web exec playwright install --with-deps chromium
 
