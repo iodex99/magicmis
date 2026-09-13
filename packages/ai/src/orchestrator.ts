@@ -39,6 +39,7 @@ import {
   type Stage,
   type Tier,
 } from "./registry";
+import { dataBlock } from "./data-tags";
 import { structuredOutputSchema } from "./schema";
 import {
   errorType,
@@ -247,13 +248,14 @@ export async function prepareStage<I, O>(
     system: await promptText(spec.promptName, promptVersion),
     schema: structuredOutputSchema(spec.output),
     // Most stable first; the cache breakpoint closes the stable prefix (SPEC §14).
+    // Stable blocks carry user-derived text too (company names, chat history, specs): all of it is data.
     userContent: [
       ...stable.map((text, i): Anthropic.TextBlockParam =>
         i === stable.length - 1
-          ? { type: "text", text, cache_control: { type: "ephemeral" } }
-          : { type: "text", text },
+          ? { type: "text", text: dataBlock(text), cache_control: { type: "ephemeral" } }
+          : { type: "text", text: dataBlock(text) },
       ),
-      { type: "text", text: `<data>\n${spec.volatile(input)}\n</data>` },
+      { type: "text", text: dataBlock(spec.volatile(input)) },
     ],
   };
 }
