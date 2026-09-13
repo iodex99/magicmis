@@ -26,7 +26,7 @@ your sign-off · `closed` — resolved, with the resolution noted.
 |---|---|---|---|
 | R-07 | **TallyPrime menu paths** in `docs/help/tally` (one page per report, path marked), and whether real TallyPrime exports match the fixture layouts (`fixtures/generator/src/reports.ts`). §16: do not invent paths that cannot be verified. | Before launch | drafted |
 | R-08 | **Tally predefined group lists.** Names, parents and the 9 Balance Sheet / 6 P&L split verified against Tally.ERP 9 help (`packages/tally/src/groups.ts`); the TallyPrime page confirms 15 + 13 but does not list them. Confirm in TallyPrime, and confirm each group's nature and gross-profit flag. | Phase 5 | drafted |
-| R-09 | **Model prices, IDs, effort parameter, cache multipliers, batch discount** verified against docs. §14 seed values are explicitly unverified. | Phase 4 | open |
+| R-09 | **Model prices, IDs, effort parameter, cache multipliers, batch discount** — verified 2026-09-13 and seeded in migration 0019 (ADR 0019). Still open: tune per-stage effort and `max_tokens` in `tier_routing` from live evals, and re-verify prices before launch (the admin Margin screen flags entries older than `ai.registry_stale_days`). | Before launch | drafted |
 | R-20 | **GSTIN check-character algorithm.** | Phase 2 | **closed** — owner decision 2026-09-13: GSTIN is supplied by the user, and its accuracy is the user's responsibility. No further verification will be pursued. The existing format-and-checksum check stays, since SPEC §8 asks for it and it already reproduces two independent specimens. |
 | R-10 | **Terms of service** — prepaid, non-refundable, non-transferable, no cash-out, 12-month validity, memory fee, lifecycle, professional-review disclaimer, acceptable use. §31: placeholder only, no final legal language. | Phase 9 | open |
 | R-11 | **Privacy notice** — browser processing, what leaves the browser, Anthropic as subprocessor, retention, DPDP rights, grievance contact. §31: placeholder only. | Phase 9 | open |
@@ -46,6 +46,9 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-25 | **Unicode font in invoice PDFs** — standard Helvetica replaces non-Latin characters in business names with `?`. | Before launch | open |
 | R-26 | **Live Razorpay test-mode run** with real test keys, and the dashboard webhook (events `payment.captured`, `order.paid`, `payment.failed`) pointed at `/api/webhooks/razorpay`. Automated tests use a fake gateway. | Before launch | open |
 | R-27 | **Production must set `billing.allow_placeholder_details` to `false`** after R-02/R-03 are filled. | Before launch | open |
+| R-28 | **Live AI evals and prompt activation.** No prompt version is active, so every AI stage refuses. Run `AI_LIVE=1 ANTHROPIC_API_KEY=… DATABASE_URL=… pnpm --filter @magicmis/ai evals -- --stage sheet_classification --tier efficient` (and column_mapping, each tier), commit the recordings, then activate with `activatePromptVersion`. Spends real money on synthetic data only. Thresholds in `ai.eval_thresholds` are placeholders. | Before launch | open |
+| R-29 | **Ledger mapping eval dataset** — needs the canonical heads from the semantic layer. | Phase 5 | open |
+| R-30 | **Estimator heuristics** (`ai.estimator` chars per token, inflation, output ratio, p90 multiplier) are unmeasured seeds; replace with values from live evals and let nightly calibration take over. | Before launch | open |
 
 ## Decisions the spec leaves open
 
