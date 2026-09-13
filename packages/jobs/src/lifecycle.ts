@@ -28,6 +28,7 @@ import {
 import type { Pool } from "pg";
 import { z } from "zod";
 
+import { removeAccountExports } from "./exports";
 import { queueNotification } from "./notify";
 import type { OutputStore } from "./settle";
 
@@ -571,6 +572,7 @@ export async function purgeAccounts(
       [a.id, now],
     );
     await purgeCompanies(pool, store, now);
+    await removeAccountExports(pool, store, a.id);
     await withTransaction(pool, async (tx) => {
       await shredAccountKey(tx, a.id, now);
       await tx.query(

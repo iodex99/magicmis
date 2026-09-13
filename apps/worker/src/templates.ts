@@ -388,6 +388,22 @@ export function renderNotification(
         ctx,
       );
     }
+    case "account.export_ready": {
+      // SPEC §10: the link opens only for the signed-in owner and stops working at expiry.
+      const p = z
+        .object({ export_id: z.uuid(), expires_at: z.string() })
+        .safeParse(payload);
+      if (!p.success) return null;
+      return email(
+        "Your data export is ready",
+        [
+          `The export you requested is ready to download until ${formatIstDate(new Date(p.data.expires_at))}.`,
+          "You will need to sign in to download it. If you did not request it, change your password and contact support.",
+        ],
+        ctx,
+        { label: "Download export", path: "/settings/privacy" },
+      );
+    }
     case "billing.lot_expiry_notice": {
       const p = lotExpirySchema.safeParse(payload);
       if (!p.success) return null;

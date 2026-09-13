@@ -11,6 +11,7 @@ import type { KeyWrapper } from "@magicmis/crypto";
 import {
   commentaryBatchTick,
   debitMemoryFees,
+  processAccountExports,
   purgeAccounts,
   purgeCompanies,
   queueLifecycleNotices,
@@ -43,6 +44,8 @@ export interface TaskDeps {
   readonly outputs?: OutputStore | null;
   /** Commentary batches; absent when the worker has no Anthropic key configured. */
   readonly ai?: { readonly transport: AiTransport; readonly wrapper: KeyWrapper } | null;
+  /** Account and company key access for exports; absent when no master key is configured. */
+  readonly wrapper?: KeyWrapper | null;
 }
 
 export interface MaintenanceTask {
@@ -149,6 +152,16 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     cron: "*/5 * * * *",
     expireInSeconds: 240,
     run: ({ pool }, now) => sweepChatMessages(pool, now),
+  },
+  {
+    // SPEC §10, §31: build requested data exports and expire stale download links.
+    queue: "privacy-exports",
+    cron: "*/2 * * * *",
+    expireInSeconds: 110,
+    run: async ({ pool, outputs, wrapper }, now) =>
+      outputs == null || wrapper == null
+        ? { skipped: "storage or key wrapper not configured" }
+        : processAccountExports(pool, wrapper, outputs, now),
   },
   {
     // SPEC §26: daily margin summary to admins, 08:00 IST.

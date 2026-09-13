@@ -526,6 +526,45 @@ const accountKeyContext = (accountId: string): EncryptionContext => ({
   account_id: accountId,
 });
 
+/** Encrypts bytes under the account's data key (account-level files such as data exports). */
+export async function sealForAccount(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: { accountId: string; purpose: string; id: string; plaintext: Buffer },
+): Promise<Buffer> {
+  return withTransaction(pool, async (tx) => {
+    const dek = await accountDek(tx, wrapper, input.accountId);
+    try {
+      return encryptWithKey(dek, input.plaintext, {
+        purpose: input.purpose,
+        account_id: input.accountId,
+        id: input.id,
+      });
+    } finally {
+      dek.fill(0);
+    }
+  });
+}
+
+export async function openForAccount(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: { accountId: string; purpose: string; id: string; sealed: Uint8Array },
+): Promise<Buffer> {
+  return withTransaction(pool, async (tx) => {
+    const dek = await accountDek(tx, wrapper, input.accountId);
+    try {
+      return decryptWithKey(dek, input.sealed, {
+        purpose: input.purpose,
+        account_id: input.accountId,
+        id: input.id,
+      });
+    } finally {
+      dek.fill(0);
+    }
+  });
+}
+
 async function accountDek(
   db: Queryable,
   wrapper: KeyWrapper,

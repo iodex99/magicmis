@@ -21,7 +21,8 @@ export type NotificationType =
   | "billing.low_balance_before_fee"
   | "reminder.monthly_refresh"
   | "security.break_glass"
-  | "account.deletion_scheduled";
+  | "account.deletion_scheduled"
+  | "account.export_ready";
 
 export async function queueNotification(
   db: Queryable,
