@@ -8,6 +8,7 @@ import {
   aiCostCapPaise,
   computePrice,
   priceFor,
+  priceList,
   PricingError,
   quoteCreditsFor,
   type PriceBookRow,
@@ -264,5 +265,26 @@ describe("quotes (SPEC §12)", () => {
     expect(
       await expireQuotes(pool, new Date("2026-06-03T00:00:00Z")),
     ).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("public price list", () => {
+  it("lists credits per tier, instant prices only where a surcharge exists, and no AI cost", async () => {
+    const list = await priceList(testDb().pool);
+    const setup = list.find((r) => r.actionKey === "company_setup");
+    expect(setup?.standard).toEqual({
+      efficient: 799n,
+      professional: 999n,
+      expert: 2498n,
+    });
+    expect(setup?.instant).toBeNull();
+    const commentary = list.find((r) => r.actionKey === "commentary");
+    expect(commentary?.instant?.professional).toBe(198n);
+    expect(list.find((r) => r.actionKey === "dashboard_refresh")).toBeUndefined(); // disabled above
+    expect(
+      JSON.stringify(list, (_k, v: unknown) =>
+        typeof v === "bigint" ? v.toString() : v,
+      ),
+    ).not.toMatch(/ratio|cap/iu);
   });
 });

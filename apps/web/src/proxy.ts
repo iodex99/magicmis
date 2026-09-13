@@ -48,7 +48,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // Refreshes an expired access token using the refresh token, writing new cookies.
   const { data } = await supabase.auth.getClaims();
 
-  const protectedPath = pathname.startsWith("/app") || pathname.startsWith("/settings");
+  const protectedPath =
+    pathname.startsWith("/app") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/wallet");
   if (protectedPath && data === null) {
     const signIn = new URL("/sign-in", request.url);
     signIn.searchParams.set("next", pathname);

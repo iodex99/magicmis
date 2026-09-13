@@ -194,3 +194,46 @@ export async function priceFor(
     priceBookVersion: own.version,
   };
 }
+
+export interface PriceListRow {
+  readonly actionKey: ActionKey;
+  readonly standard: Readonly<Record<Tier, bigint>>;
+  /** Present only where the action has an instant surcharge. */
+  readonly instant: Readonly<Record<Tier, bigint>> | null;
+}
+
+/**
+ * The public price list (SPEC §2.3: viewing the price book is uncharged). Credits only —
+ * never the AI cost cap or ratio, which users must not see (SPEC §2.5).
+ */
+export async function priceList(db: Queryable, at = new Date()): Promise<PriceListRow[]> {
+  const rows: PriceListRow[] = [];
+  for (const actionKey of ACTION_KEYS) {
+    const entry = await priceBookEntry(db, actionKey, at).catch((error: unknown) => {
+      if (error instanceof PricingError) return null;
+      throw error;
+    });
+    if (entry === null || !entry.enabled) continue;
+    const price = async (tier: Tier, delivery: DeliveryMode) =>
+      (await priceFor(db, { actionKey, tier, delivery, at })).credits;
+    const standard = {
+      efficient: await price("efficient", "standard"),
+      professional: await price("professional", "standard"),
+      expert: await price("expert", "standard"),
+    };
+    const source =
+      entry.price_from_action_key === null
+        ? entry
+        : await priceBookEntry(db, entry.price_from_action_key, at);
+    const instant =
+      source.instant_surcharge_credits > 0n
+        ? {
+            efficient: await price("efficient", "instant"),
+            professional: await price("professional", "instant"),
+            expert: await price("expert", "instant"),
+          }
+        : null;
+    rows.push({ actionKey, standard, instant });
+  }
+  return rows;
+}
