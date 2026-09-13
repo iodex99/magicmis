@@ -24,8 +24,8 @@ your sign-off · `closed` — resolved, with the resolution noted.
 
 | # | Item | Needed by | Status |
 |---|---|---|---|
-| R-07 | **TallyPrime menu paths** in `docs/help`. §16: do not invent paths that cannot be verified — write structure, mark the path. | Phase 3 | open |
-| R-08 | **Tally predefined group lists** (15 primary, 13 sub-groups) verified against Tally documentation before seeding. | Phase 3 | open |
+| R-07 | **TallyPrime menu paths** in `docs/help/tally` (one page per report, path marked), and whether real TallyPrime exports match the fixture layouts (`fixtures/generator/src/reports.ts`). §16: do not invent paths that cannot be verified. | Before launch | drafted |
+| R-08 | **Tally predefined group lists.** Names, parents and the 9 Balance Sheet / 6 P&L split verified against Tally.ERP 9 help (`packages/tally/src/groups.ts`); the TallyPrime page confirms 15 + 13 but does not list them. Confirm in TallyPrime, and confirm each group's nature and gross-profit flag. | Phase 5 | drafted |
 | R-09 | **Model prices, IDs, effort parameter, cache multipliers, batch discount** verified against docs. §14 seed values are explicitly unverified. | Phase 4 | open |
 | R-20 | **GSTIN check-character algorithm.** | Phase 2 | **closed** — owner decision 2026-09-13: GSTIN is supplied by the user, and its accuracy is the user's responsibility. No further verification will be pursued. The existing format-and-checksum check stays, since SPEC §8 asks for it and it already reproduces two independent specimens. |
 | R-10 | **Terms of service** — prepaid, non-refundable, non-transferable, no cash-out, 12-month validity, memory fee, lifecycle, professional-review disclaimer, acceptable use. §31: placeholder only, no final legal language. | Phase 9 | open |

@@ -98,3 +98,56 @@ structure with paths marked `TODO(review)`.
 - Integration: every fixture (clean and messy) parses to ground truth through SheetJS and
   DuckDB-WASM; broken variants produce the expected findings.
 - Performance: 50 MB xlsx through the worker pipeline in a real browser under 60 s (Playwright).
+
+---
+
+## Summary (2026-09-13)
+
+**Acceptance (SPEC §34) — met.**
+
+| Criterion | Evidence |
+|---|---|
+| Every fixture parses to ground truth | `fixtures/generator/test/roundtrip.test.ts`: all 578 generated files (3 companies × 14 months; clean; messy variants for every §16 quirk; broken variants) go through SheetJS/CSV → header detection → report detection → Tally parsers and match ground truth; unbalanced TB, subtotal mismatch, duplicate period and backdated change are detected; a sales register loaded into DuckDB-WASM reproduces its taxable total in SQL |
+| Redaction suite passes | `packages/redact`: 34 tests — positive, negative and false-positive cases per detector, token stability, 100,000-value collision check, payload caps, party columns |
+| 50 MB performance target met | Chromium E2E: a 50.4 MB workbook (370,004 rows) parsed and loaded into DuckDB-WASM in 16–18 s (target < 60 s) |
+
+**Tests added:** ingest 26, tally 9, redact 34, fixtures 6 (covering 578 files), web E2E 4
+(pre-payment view with no network upload, refusal, redacted inspector, 50 MB). Web E2E suite: 12 passing.
+
+**Built**
+
+- `packages/ingest` — grid model, SheetJS reader, CSV sniffing, zip-bomb guard, header detection,
+  type inference, fingerprints and signatures, limits, sheet profiles, DuckDB loader (ADR 0017).
+- `packages/tally` — predefined groups, column roles, report detection, balance reports with
+  hierarchy and subtotal checks, voucher reports, registers, bills, stock, pay sheets, statements.
+- `packages/redact` — detectors, tokens, redactor, outbound payloads and inspector (ADR 0018).
+- `fixtures/generator` — synthetic companies, books, Tally-like layouts, variants, ground truth,
+  the large performance workbook; `pnpm --filter @magicmis/fixtures generate` writes `fixtures/out`.
+- `apps/web` — ingestion worker, Source files page, session hygiene, developer-mode inspector.
+- `docs/help/tally` — one export guide per supported report; menu paths marked R-07.
+- Migration 0018 — ingestion limits and payload caps.
+
+**Defects found by fixtures and fixed:** sparse SheetJS rows surfaced as undefined; row
+properties need `cellStyles`; a party heading absorbed into a two-level header; zero-closing
+ledgers in closing-only layouts misread as wrapped names (generator now omits them, as Tally does);
+labelled UAN/account columns skipped because their digits typed as integers; 12-digit amounts
+matching the Aadhaar pattern; party names in registers/bills not tokenised without a TB.
+
+**New dependencies**
+
+- `xlsx` 0.20.3 from cdn.sheetjs.com — SPEC §5's Excel reader, official distribution.
+- `@duckdb/duckdb-wasm` 1.32.0 — SPEC §5's in-browser SQL engine, self-hosted binaries.
+- `comlink` 4.4.2 — SPEC §5's worker RPC.
+
+**TODO(review) raised or touched:** R-07 (TallyPrime menu paths in help pages and fixture
+layouts), R-08 (group list verified against Tally.ERP 9 help; confirm in TallyPrime; group nature
+and gross-profit flags unverified).
+
+**Known limits**
+
+- Parsed grids live in worker memory; memory-pressure messaging and a streaming reader for sheets
+  beyond browser limits are not built.
+- The company redaction key's storage and delivery arrive with companies; the inspector uses a
+  preview key.
+- Sign-up throttle (10/hour per IP) is shared by E2E runs on one machine; back-to-back local runs
+  need the local throttle row cleared.
