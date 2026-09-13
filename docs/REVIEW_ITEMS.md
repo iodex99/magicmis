@@ -51,6 +51,9 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-31 | **Global library promotion queue** (SPEC §18): candidates from ≥ `semantic.library_promotion_min_accounts` distinct accounts, admin approval, person/party-name exclusion. Account rules are encrypted, so candidate counting needs a keyed digest of the normalised name. | Phase 9 | open |
 | R-32 | **Metric conventions for CA review** (ADR 0020): EBITDA excludes other income; DSO/DPO/inventory days on the month's flow and calendar days; Deposits (Asset) shown as non-current; Sales Accounts default to sale of products. | Before launch | open |
 | R-33 | **Canonical heads, Schedule III references, abbreviation list and library seed** (`packages/semantic`): references are indicative, not verified against the Companies Act text; fuzzy threshold `0.85` is a seed. | Before launch | drafted |
+| R-34 | **HyperFormula licence** (GPL-3.0-only): used only as a test oracle. If in-browser V11 ever needs more than our evaluator's grammar, a commercial licence or another engine is needed. | Only if V11 grows | open |
+| R-35 | **Indian number formats in Excel and LibreOffice** (`render-excel/formats.ts`): digit-placeholder lakh/crore codes, bracketed negatives and zero must be opened and checked in both applications (SPEC §24.1 asks for saved-fixture verification). | Before launch | open |
+| R-36 | **Lifecycle timings**: first memory-fee debit one month after the setup anchor date; `outputs.retention_days` 365; `lifecycle.deletion_purge_delay_days` 30. | Before launch | open |
 | R-30 | **Estimator heuristics** (`ai.estimator` chars per token, inflation, output ratio, p90 multiplier) are unmeasured seeds; replace with values from live evals and let nightly calibration take over. | Before launch | open |
 
 ## Decisions the spec leaves open
