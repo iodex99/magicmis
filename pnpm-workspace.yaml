@@ -16,4 +16,4 @@ allowBuilds:
   protobufjs: false
   # @sentry/nextjs depends on the Sentry CLI for source-map upload, which this build does not use
   # (no withSentryConfig, no auth token; ADR 0024). Its postinstall downloads a binary: declined.
-  '@sentry/cli': false
+  "@sentry/cli": false

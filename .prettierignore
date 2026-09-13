@@ -3,6 +3,8 @@ dist
 .next
 .turbo
 coverage
+# Vendored WebAssembly loaders copied in at build time (gitignored).
+apps/web/public/vendor
 pnpm-lock.yaml
 
 # Markdown is hand-formatted here: the spec, ADRs, rules and review tables are read as

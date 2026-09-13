@@ -96,14 +96,15 @@ jobs:
           NEXT_PUBLIC_ENVIRONMENT=development
           DATABASE_URL=${DB_URL}
           SUPABASE_SECRET_KEY=${SECRET_KEY}
-          ANTHROPIC_API_KEY=sk-ant-ci-placeholder
+          ANTHROPIC_API_KEY=sk-ant-ci-placeholder-not-a-real-key-000000
           RAZORPAY_KEY_ID=rzp_test_placeholder
-          RAZORPAY_KEY_SECRET=placeholder
-          RAZORPAY_WEBHOOK_SECRET=placeholder
+          RAZORPAY_KEY_SECRET=ci-razorpay-key-secret-placeholder-00000
+          RAZORPAY_WEBHOOK_SECRET=ci-razorpay-webhook-secret-placeholder-0
           KMS_MASTER_KEY_ID=alias/magicmis-ci
           AWS_REGION=ap-south-1
-          RESEND_API_KEY=re_ci_placeholder
+          RESEND_API_KEY=re_ci_placeholder_not_a_real_key_0000000000
           EMAIL_FROM=CI <noreply@ci.test>
+          # Placeholders are 32+ characters so the bundle scan checks them by value (scan-client-bundles.mjs).
           EOF
           cat > apps/admin/.env.local <<EOF
           APP_ENVIRONMENT=development

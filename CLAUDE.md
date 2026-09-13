@@ -7,7 +7,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**Phase 9 — Admin console, compliance surfaces, hardening.** Previous: [phase-0](docs/plans/phase-0.md) … [phase-8](docs/plans/phase-8.md)
+**All ten phases built (§34).** Last: [phase-9](docs/plans/phase-9.md), ADR [0024](docs/adr/0024-admin-compliance-hardening.md). Next: the §35 definition of done and the open items in [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) (live evals R-28, legal text, seller details, reconciliation R-51, chain anchoring R-52).
 
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
@@ -16,8 +16,9 @@ Admin E2E (needs `apps/admin/.env.local`, see `.env.example`; `APP_ENVIRONMENT=d
 `pnpm --filter @magicmis/admin build && pnpm --filter @magicmis/admin e2e`. Stop any stray
 server on ports 3000/3001 first — Playwright reuses an existing server.
 Fixtures: `pnpm --filter @magicmis/fixtures generate` (and `generate:large`) write `fixtures/out`;
-web E2E global setup generates them if missing. Local sign-up throttle is 10/hour per IP: clear
-`public.auth_throttle` key `signup:ip:127.0.0.1` in the local DB between back-to-back E2E runs.
+web E2E global setup generates them if missing and clears the local sign-up throttle (10/hour per IP).
+Worker locally: `pnpm --filter @magicmis/worker start` (runs with `--conditions=react-server`).
+Testcontainers connects over `127.0.0.1`: Docker Desktop's IPv6 forwarder drops burst connections.
 Git commits here need `-c user.name=Dwahnil -c user.email=dwahnilbaria19@gmail.com`.
 
 ### Phase 0 record
@@ -73,7 +74,7 @@ everything now"). Plans, summaries and ADRs are still written per phase.
 | 6   | Jobs, Excel output, lifecycle                 | complete (setup→refresh with zero AI calls, UI E2E; §23 charges; V11) |
 | 7   | Dashboard, commentary, reference MIS recreate | complete (V12 post-check; batch commentary; recreated MIS verified by HyperFormula + UI E2E) |
 | 8   | Chat                                          | complete (guard corpus + fuzz; server round cap; charged declines; lineage; UI E2E) |
-| 9   | Admin console, compliance surfaces, hardening | **current** |
+| 9   | Admin console, compliance surfaces, hardening | complete (814 tests + 29 E2E; margin flag E2E; purge shreds every key; cross-tenant, CSP, injection, scrubbing suites; security audit fixed) |
 
 Update this section as each phase completes.
 
