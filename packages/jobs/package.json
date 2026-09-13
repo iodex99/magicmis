@@ -19,6 +19,7 @@
     "@magicmis/crypto": "workspace:*",
     "@magicmis/db": "workspace:*",
     "@magicmis/engine": "workspace:*",
+    "@magicmis/render-dashboard": "workspace:*",
     "@magicmis/wallet": "workspace:*",
     "pg": "^8.16.3",
     "zod": "^4.1.13"

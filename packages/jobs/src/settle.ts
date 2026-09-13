@@ -21,6 +21,7 @@ import { readConfig } from "@magicmis/db/config";
 import { withTransaction } from "@magicmis/db/tx";
 import type { KeyWrapper } from "@magicmis/crypto";
 import {
+  latestBlueprint,
   sealForCompany,
   storeBlueprint,
   storeSnapshot,
@@ -115,7 +116,7 @@ async function release(pool: Pool, job: JobRow, label: string, now: Date): Promi
   });
 }
 
-async function finish(
+export async function finish(
   pool: Pool,
   job: JobRow,
   to: JobState,
@@ -196,11 +197,17 @@ export async function completeJob(
 
   let blueprintVersion = (cp["blueprint_version"] as number | undefined) ?? null;
   if (blueprintVersion === null && input.blueprint !== null) {
+    // A restructure rewrites the template and rules; the company's dashboard carries forward.
+    const dashboardSpec =
+      input.blueprint.dashboardSpec ??
+      (await latestBlueprint(pool, wrapper, { accountId: input.accountId, companyId }))
+        ?.parts.dashboardSpec ??
+      null;
     const b = await storeBlueprint(pool, wrapper, {
       accountId: input.accountId,
       companyId,
       jobId: job.id,
-      parts: input.blueprint,
+      parts: { ...input.blueprint, dashboardSpec },
     });
     blueprintVersion = b.version;
     await checkpoint({ blueprint_version: b.version });
@@ -269,7 +276,7 @@ export async function completeJob(
 }
 
 /** Captures the job's price, or the delivered (lower) tier's price after a model fallback (SPEC §14). */
-async function captureDelivered(pool: Pool, job: JobRow, now: Date): Promise<bigint> {
+export async function captureDelivered(pool: Pool, job: JobRow, now: Date): Promise<bigint> {
   const base = await jobChargeBase(pool, job.id);
   const delivered = job.stage_checkpoints["delivered_tier"] as PricedTier | undefined;
   let amount = base;

@@ -362,16 +362,18 @@ function openBlueprint(
   return { parts, plain };
 }
 
+/** The latest blueprint, or the given version. */
 export async function latestBlueprint(
   pool: Pool,
   wrapper: KeyWrapper,
-  input: { accountId: string; companyId: string },
+  input: { accountId: string; companyId: string; version?: number },
 ): Promise<{ version: number; parts: BlueprintParts } | null> {
   return withTransaction(pool, async (tx) => {
     const r = await tx.query<BlueprintRow>(
       `select version, template_spec, recipe, mapping_rules, dashboard_spec, materiality, source_fingerprints, prev_hash, hash
-       from public.blueprints where company_id = $1 and account_id = $2 order by version desc limit 1`,
-      [input.companyId, input.accountId],
+       from public.blueprints where company_id = $1 and account_id = $2 and ($3::int is null or version = $3)
+       order by version desc limit 1`,
+      [input.companyId, input.accountId, input.version ?? null],
     );
     const row = r.rows[0];
     if (row === undefined) return null;

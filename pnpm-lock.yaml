@@ -619,6 +619,9 @@ importers:
       '@magicmis/engine':
         specifier: workspace:*
         version: link:../engine
+      '@magicmis/render-dashboard':
+        specifier: workspace:*
+        version: link:../render-dashboard
       '@magicmis/wallet':
         specifier: workspace:*
         version: link:../wallet
