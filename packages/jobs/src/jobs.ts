@@ -40,6 +40,32 @@ export type JobType =
 
 export type PricedTier = "efficient" | "professional" | "expert";
 
+/**
+ * The price of a job type. Recreating a reference MIS is "added to setup" (SPEC §12 price book):
+ * a setup that includes one costs the setup price plus the add-on, with both AI cost caps.
+ */
+export async function jobPrice(
+  db: Parameters<typeof priceFor>[0],
+  input: { type: JobType; tier: PricedTier; delivery: DeliveryMode; at: Date },
+): Promise<{ credits: bigint; aiCostCapPaise: bigint }> {
+  const one = (actionKey: ActionKey) =>
+    priceFor(db, {
+      actionKey,
+      tier: input.tier,
+      delivery: input.delivery,
+      at: input.at,
+    });
+  if (input.type !== "reference_mis_recreate") return one(input.type);
+  const [setup, addon] = await Promise.all([
+    one("company_setup"),
+    one("reference_mis_recreate"),
+  ]);
+  return {
+    credits: setup.credits + addon.credits,
+    aiCostCapPaise: setup.aiCostCapPaise + addon.aiCostCapPaise,
+  };
+}
+
 export class JobError extends Error {
   constructor(
     readonly code:
@@ -178,8 +204,8 @@ export async function createJob(
     }
   }
 
-  const price = await priceFor(pool, {
-    actionKey: type,
+  const price = await jobPrice(pool, {
+    type,
     tier: input.tier,
     delivery: input.delivery,
     at: now,

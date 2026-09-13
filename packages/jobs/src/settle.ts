@@ -32,13 +32,12 @@ import {
   captureReservation,
   priceFor,
   releaseReservation,
-  type ActionKey,
 } from "@magicmis/wallet";
 import { createHash } from "node:crypto";
 import type { Pool } from "pg";
 import { z } from "zod";
 
-import { jobChargeBase, type PricedTier } from "./jobs";
+import { jobChargeBase, jobPrice, type JobType, type PricedTier } from "./jobs";
 import { queueNotification } from "./notify";
 import { lockJob, transition, type JobRow, type JobState } from "./states";
 
@@ -276,7 +275,11 @@ export async function completeJob(
 }
 
 /** Captures the job's price, or the delivered (lower) tier's price after a model fallback (SPEC §14). */
-export async function captureDelivered(pool: Pool, job: JobRow, now: Date): Promise<bigint> {
+export async function captureDelivered(
+  pool: Pool,
+  job: JobRow,
+  now: Date,
+): Promise<bigint> {
   const base = await jobChargeBase(pool, job.id);
   const delivered = job.stage_checkpoints["delivered_tier"] as PricedTier | undefined;
   let amount = base;
@@ -284,8 +287,8 @@ export async function captureDelivered(pool: Pool, job: JobRow, now: Date): Prom
     delivered !== undefined &&
     TIER_ORDER.indexOf(delivered) < TIER_ORDER.indexOf(pricedTier(job.tier))
   ) {
-    const lower = await priceFor(pool, {
-      actionKey: job.type as ActionKey,
+    const lower = await jobPrice(pool, {
+      type: job.type as JobType,
       tier: delivered,
       delivery: job.delivery_mode,
       at: now,

@@ -12,6 +12,7 @@ import {
   sealForCompany,
 } from "@magicmis/engine/server";
 import { mappingRulesSchema, type LibraryEntry } from "@magicmis/semantic";
+import { templateSpecSchema, type TemplateSpec } from "@magicmis/templates";
 import type { Pool } from "pg";
 import { z } from "zod";
 
@@ -124,6 +125,8 @@ export interface JobSession {
       closing: string;
     }[];
     readonly sourceFingerprints: Readonly<Record<string, string>>;
+    /** The company's template (built-in or recreated from a reference MIS); null before setup. */
+    readonly templateSpec: TemplateSpec | null;
   };
 }
 
@@ -229,6 +232,10 @@ export async function jobSession(
           closing,
         })) ?? [],
       sourceFingerprints: fingerprints.rows[0]?.source_fingerprints ?? {},
+      templateSpec:
+        blueprint === null
+          ? null
+          : (templateSpecSchema.safeParse(blueprint.parts.templateSpec).data ?? null),
     },
   };
   key.fill(0);

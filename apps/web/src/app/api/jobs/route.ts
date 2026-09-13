@@ -12,6 +12,7 @@ const bodySchema = z.object({
   type: z.enum([
     "data_diagnostic",
     "company_setup",
+    "reference_mis_recreate",
     "monthly_refresh",
     "dashboard_addon",
     "commentary",

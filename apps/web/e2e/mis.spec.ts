@@ -200,3 +200,75 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   expect(versions.rows[0]?.n).toBe(4);
   expect(await aiCallsForAccount()).toBe(0);
 });
+
+test("sets up a company that recreates the user's reference MIS, with binding review and no AI call", async () => {
+  const { referenceMisWorkbook } = await import("@magicmis/fixtures");
+  const { mkdtemp, writeFile } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const dir = await mkdtemp(path.join(tmpdir(), "reference-mis-"));
+  const referencePath = path.join(dir, "Client_MIS.xlsx");
+  await writeFile(referencePath, await referenceMisWorkbook({ rulesOnly: true }));
+
+  await page.goto("/app");
+  await page.getByLabel("Company name").fill("Synthetic Recreated Traders");
+  await page.getByRole("button", { name: "Add company" }).click();
+  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await page.getByLabel("Choose files").setInputFiles(SETUP_MONTHS.map(tb));
+  await page.getByLabel("Choose reference MIS").setInputFiles(referencePath);
+  await expect(page.getByTestId("job-reference")).toContainText("2 sheets");
+  // Before payment, nothing from the reference's rows is shown.
+  await expect(page.locator("main")).not.toContainText(/Sundry Debtors|Net Profit/u);
+
+  await page.getByRole("button", { name: "Get price" }).click();
+  await expect(page.getByTestId("job-price")).toContainText("1,498");
+  await page.getByRole("button", { name: /Confirm —/u }).click();
+
+  await expect(page.getByRole("button", { name: "Confirm mappings" })).toBeVisible({
+    timeout: 120_000,
+  });
+  const accept = page.getByRole("button", { name: "Accept remaining as proposed" });
+  if (await accept.isVisible()) await accept.click();
+  await page.getByRole("button", { name: "Confirm mappings" }).click();
+
+  const review = page.getByTestId("binding-review");
+  await expect(review).toBeVisible();
+  await expect(review).toContainText("Total Income");
+  // The user decides one row has no source in these files.
+  await page
+    .getByLabel("What Interest shows")
+    .selectOption({ label: "Not available from supplied data" });
+  await page.getByRole("button", { name: "Confirm rows" }).click();
+  await expect(page.getByTestId("job-done")).toContainText("1,498 credits charged", {
+    timeout: 180_000,
+  });
+
+  await expect(page.getByTestId("job-checks")).toContainText("V11");
+  const download = page.waitForEvent("download");
+  await page.getByTestId("job-download").click();
+  const workbook = XLSX.read(await readFile(await (await download).path()), {
+    type: "buffer",
+  });
+  expect(workbook.SheetNames).toEqual([
+    "Cover",
+    "Index",
+    "P&L Summary",
+    "Working Capital",
+    "Checks",
+    "Data",
+    "Lineage",
+  ]);
+  const rows = XLSX.utils.sheet_to_json<(string | number)[]>(
+    workbook.Sheets["P&L Summary"] ?? {},
+    { header: 1 },
+  );
+  const interest = rows.find((r) => r[0] === "Interest");
+  expect(interest?.[1]).toBe("Not available from supplied data");
+  const totalIncome = rows.find((r) => r[0] === "Total Income");
+  expect(typeof totalIncome?.[1]).toBe("number");
+
+  const job = await db.query<{ type: string; state: string }>(
+    `select j.type, j.state from jobs j join companies c on c.id = j.company_id where c.name = 'Synthetic Recreated Traders'`,
+  );
+  expect(job.rows).toEqual([{ type: "reference_mis_recreate", state: "completed" }]);
+  expect(await aiCallsForAccount()).toBe(0);
+});

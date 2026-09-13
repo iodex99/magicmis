@@ -7,9 +7,11 @@
  */
 
 import type { ReviewRow } from "@magicmis/semantic";
+import type { RowBinding } from "@magicmis/templates";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { MappingReview } from "@/components/MappingReview";
+import { ReferenceBindingReview } from "@/components/ReferenceBindingReview";
 import { Alert, Button, Panel } from "@/components/ui";
 import {
   ACTION_LABELS,
@@ -19,7 +21,11 @@ import {
 } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 import { clearPipeline, pipelineClient } from "@/lib/pipeline/client";
-import type { ComputeResult, PipelineFileSummary } from "@/lib/pipeline/types";
+import type {
+  ComputeResult,
+  PipelineFileSummary,
+  ReferenceReviewRow,
+} from "@/lib/pipeline/types";
 import type { JobSession } from "@/lib/server/companies";
 
 type Tier = keyof typeof TIER_LABELS;
@@ -40,7 +46,23 @@ type Phase =
   | { kind: "pricing" }
   | { kind: "confirm"; job: CreatedJob }
   | { kind: "running"; jobId: string; step: string }
-  | { kind: "review"; jobId: string; rows: readonly ReviewRow[] }
+  | {
+      kind: "review";
+      jobId: string;
+      rows: readonly ReviewRow[];
+      references: readonly ReferenceReviewRow[] | null;
+    }
+  | {
+      kind: "bindings";
+      jobId: string;
+      rows: readonly ReferenceReviewRow[];
+      confirmed: Parameters<typeof MappingReview>[0] extends {
+        onConfirm: (c: infer C) => void;
+      }
+        ? C
+        : never;
+      unmappedAccepted: boolean;
+    }
   | {
       kind: "done";
       jobId: string;
@@ -72,6 +94,7 @@ export function JobRunner({
   mode: "setup" | "refresh";
 }) {
   const [files, setFiles] = useState<PipelineFileSummary[]>([]);
+  const [reference, setReference] = useState<PipelineFileSummary | null>(null);
   const [tier, setTier] = useState<Tier>("professional");
   const [delivery, setDelivery] = useState<Delivery>("instant");
   const [phase, setPhase] = useState<Phase>({ kind: "files" });
@@ -113,6 +136,20 @@ export function JobRunner({
     setPhase({ kind: "running", jobId, step: to });
   };
 
+  const onReference = async (list: FileList | null) => {
+    const file = list?.[0];
+    if (file === undefined) return;
+    setError(null);
+    const r = await pipelineClient().addReference(file);
+    if (r.summary === null)
+      setError(
+        r.refused === "unsupported_type"
+          ? "The reference MIS must be an .xlsx or .xlsm workbook."
+          : (REFUSALS[r.refused ?? ""] ?? "The reference MIS could not be read."),
+      );
+    setReference(r.summary);
+  };
+
   const onFiles = async (list: FileList | null) => {
     if (list === null || list.length === 0) return;
     setError(null);
@@ -129,7 +166,12 @@ export function JobRunner({
     const r = await api<CreatedJob>("/api/jobs", {
       body: {
         companyId,
-        type: mode === "setup" ? "company_setup" : "monthly_refresh",
+        type:
+          mode === "refresh"
+            ? "monthly_refresh"
+            : reference === null
+              ? "company_setup"
+              : "reference_mis_recreate",
         tier,
         delivery,
         size: inputs.size,
@@ -267,13 +309,42 @@ export function JobRunner({
         }
         mapped = await pipeline.applyAi(ai.data.output.mappings);
       }
-      if (mapped.reviewRows.length === 0) {
+      let references: readonly ReferenceReviewRow[] | null = null;
+      if (reference !== null) {
+        const layout = await pipeline.referenceLayout();
+        const bound = await api<{ bindings: RowBinding[] }>(
+          `/api/jobs/${job.jobId}/ai/reference_layout`,
+          { body: { layout } },
+        );
+        if (!bound.ok) {
+          setPhase({
+            kind: "failed",
+            jobId: job.jobId,
+            message: bound.message,
+            checks: [],
+            captured: "0",
+          });
+          return;
+        }
+        references = await pipeline.referenceReview(bound.data.bindings);
+      }
+      if (mapped.reviewRows.length === 0 && references === null) {
         // SPEC §19: nothing new or changed on refresh — review is skipped.
         await finish(job.jobId, [], false);
         return;
       }
       await advance(job.jobId, "awaiting_review");
-      setPhase({ kind: "review", jobId: job.jobId, rows: mapped.reviewRows });
+      if (mapped.reviewRows.length === 0 && references !== null) {
+        setPhase({
+          kind: "bindings",
+          jobId: job.jobId,
+          rows: references,
+          confirmed: [],
+          unmappedAccepted: false,
+        });
+        return;
+      }
+      setPhase({ kind: "review", jobId: job.jobId, rows: mapped.reviewRows, references });
     } catch (e) {
       await fail(
         job.jobId,
@@ -331,6 +402,30 @@ export function JobRunner({
               </tbody>
             </table>
           )}
+          {mode === "setup" ? (
+            <div className="mt-4 text-sm">
+              <label className="flex flex-col gap-1">
+                <span>
+                  Your current MIS workbook (optional) — we recreate its layout. Only its
+                  layout is read; figures come from your trial balances.
+                </span>
+                <input
+                  type="file"
+                  accept=".xlsx,.xlsm"
+                  aria-label="Choose reference MIS"
+                  disabled={!ready || busy}
+                  onChange={(e) => void onReference(e.target.files)}
+                />
+              </label>
+              {reference === null ? null : (
+                <p className="mt-1 text-neutral-700" data-testid="job-reference">
+                  {reference.name} ·{" "}
+                  {Math.ceil(reference.size / 1024).toLocaleString("en-IN")} KB ·{" "}
+                  {reference.sheets} sheets
+                </p>
+              )}
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap items-end gap-4 text-sm">
             <label className="flex flex-col">
               Intelligence tier
@@ -449,6 +544,16 @@ export function JobRunner({
             rows={phase.rows}
             onConfirm={(confirmed) => {
               const accepted = confirmed.some((c) => c.head === "UNMAPPED");
+              if (phase.references !== null) {
+                setPhase({
+                  kind: "bindings",
+                  jobId: phase.jobId,
+                  rows: phase.references,
+                  confirmed,
+                  unmappedAccepted: accepted,
+                });
+                return;
+              }
               void finish(phase.jobId, confirmed, accepted).catch((e: unknown) =>
                 fail(
                   phase.jobId,
@@ -456,6 +561,26 @@ export function JobRunner({
                   e instanceof Error ? e.message : "The job stopped unexpectedly.",
                 ),
               );
+            }}
+          />
+        </Panel>
+      ) : null}
+
+      {phase.kind === "bindings" ? (
+        <Panel title="Review your MIS rows">
+          <ReferenceBindingReview
+            rows={phase.rows}
+            onConfirm={(bindings) => {
+              void pipelineClient()
+                .useReferenceBindings(bindings)
+                .then(() => finish(phase.jobId, phase.confirmed, phase.unmappedAccepted))
+                .catch((e: unknown) =>
+                  fail(
+                    phase.jobId,
+                    null,
+                    e instanceof Error ? e.message : "The job stopped unexpectedly.",
+                  ),
+                );
             }}
           />
         </Panel>

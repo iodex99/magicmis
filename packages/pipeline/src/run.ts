@@ -50,7 +50,11 @@ import {
   type ReviewRow,
 } from "@magicmis/semantic";
 import { primaryOf } from "@magicmis/tally";
-import { resolveSections, type TemplateSpec } from "@magicmis/templates";
+import {
+  MONTHLY_FINANCIAL_MIS,
+  resolveSections,
+  type TemplateSpec,
+} from "@magicmis/templates";
 
 import type { Prepared } from "./prepare";
 
@@ -237,6 +241,8 @@ export async function computeAndRender(
     snapshotVersion: number;
     generatedAt: Date;
     displayName: (ledgerKey: string) => string;
+    /** Rehydrates redaction tokens in template labels (a recreated reference MIS keeps tokens). */
+    labelText?: (label: string) => string;
     validation: (cube: HeadCube) => CheckResult[];
     ageingBuckets: readonly AgeingBucket[];
   },
@@ -283,12 +289,14 @@ export async function computeAndRender(
     displayName: input.displayName,
     validation: checks,
     extraValues: extra,
+    ...(input.labelText === undefined ? {} : { labelText: input.labelText }),
   });
   const v11 = verifyWorkbook(rendered.workbook, rendered.expectations);
 
   const metricIds = [
     ...new Set(
-      input.template.sections.flatMap((s) =>
+      // The built-in template's metrics too, so dashboards and commentary work on any template.
+      [...input.template.sections, ...MONTHLY_FINANCIAL_MIS.sections].flatMap((s) =>
         s.rows.flatMap((r) => (r.kind === "metric" ? [r.metric] : [])),
       ),
     ),

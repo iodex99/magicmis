@@ -84,15 +84,37 @@ export const REFERENCE_MIS_SHEETS: readonly ReferenceSheetDef[] = [
 
 const colLetter = (n: number) => String.fromCharCode(64 + n);
 
+/**
+ * Rows only analysis can bind (the staff row, the unavailable rows) and the subtotal that depends
+ * on one; without them every row binds by rules, for flows that must make no AI call.
+ */
+const needsAi = (sheet: ReferenceSheetDef, r: RowDef): boolean =>
+  (r.expected.kind === "metric" && r.expected.by === "ai") ||
+  r.expected.kind === "unavailable" ||
+  (r.expected.kind === "subtotal" &&
+    r.expected.of.some((l) => {
+      const term = sheet.rows.find((x) => x.label === l);
+      return term !== undefined && needsAi(sheet, term);
+    }));
+
+/** The sheets of the rules-only variant. */
+export const rulesOnlySheets = (): ReferenceSheetDef[] =>
+  REFERENCE_MIS_SHEETS.map((sheet) => ({
+    ...sheet,
+    rows: sheet.rows.filter((r) => !needsAi(sheet, r)),
+  }));
+
 /** The reference MIS as .xlsx bytes. */
-export async function referenceMisWorkbook(): Promise<Uint8Array> {
+export async function referenceMisWorkbook(
+  options: { rulesOnly?: boolean } = {},
+): Promise<Uint8Array> {
   const wb = new ExcelJS.Workbook();
   let seed = 7;
   const next = () => {
     seed = (seed * 48_271) % 2_147_483_647;
     return seed % 90_000_000;
   };
-  for (const sheet of REFERENCE_MIS_SHEETS) {
+  for (const sheet of options.rulesOnly === true ? rulesOnlySheets() : REFERENCE_MIS_SHEETS) {
     const ws = wb.addWorksheet(sheet.name);
     ws.getCell(1, 1).value = sheet.title;
     ws.getCell(1, 1).font = { bold: true, size: 14 };

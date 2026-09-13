@@ -109,6 +109,40 @@ describe("pricing and reservation", () => {
     });
   });
 
+  it("a setup with a reference MIS costs setup plus the recreate add-on, on completion too", async () => {
+    const { accountId, companyId } = await accountWithCompany(pool(), 5_000n);
+    const job = await createJob(pool(), {
+      accountId,
+      companyId,
+      type: "reference_mis_recreate",
+      tier: "professional",
+      delivery: "instant",
+      idempotencyKey: randomUUID(),
+      size: { ...SMALL, referenceMisSheets: 2 },
+    });
+    const addon = (
+      await priceFor(pool(), {
+        actionKey: "reference_mis_recreate",
+        tier: "professional",
+        delivery: "instant",
+      })
+    ).credits;
+    const total = (await price("company_setup")) + addon;
+    expect(job.priceCredits).toBe(total);
+    await confirmJob(pool(), { accountId, jobId: job.jobId });
+    await advanceJob(pool(), { accountId, jobId: job.jobId, to: "rendering" });
+    const done = await completeJob(pool(), wrapper, {
+      accountId,
+      jobId: job.jobId,
+      snapshot: emptySnapshot("2026-05"),
+      blueprint: null,
+      output: null,
+      outputStore: new MemoryOutputStore(),
+    });
+    expect(done.captured).toBe(total);
+    expect(await wallet(pool(), accountId)).toEqual({ balance: 5_000n - total, held: 0n });
+  });
+
   it("refuses with a shortfall when credits are insufficient, holding nothing", async () => {
     const { accountId, companyId } = await accountWithCompany(pool(), 10n);
     const job = await createJob(pool(), {

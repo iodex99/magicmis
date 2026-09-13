@@ -9,10 +9,12 @@ import { addMonths, type PeriodId } from "@magicmis/core/time";
 import { gateOutcome } from "@magicmis/engine";
 import {
   checkFiles,
+  extractReferenceLayout,
   fileKind,
   inspectZip,
   readCsvGrid,
   readExcel,
+  redactReferenceLayout,
   type DuckConn,
   type IngestLimits,
 } from "@magicmis/ingest";
@@ -26,19 +28,30 @@ import {
   type PipelineFile,
   type Prepared,
 } from "@magicmis/pipeline";
-import { Redactor } from "@magicmis/redact";
+import { Redactor, TOKEN_PATTERN } from "@magicmis/redact";
 import {
   applyAiMappings,
   HEADS_VERSION,
   normaliseName,
   type Mapping,
 } from "@magicmis/semantic";
-import { MONTHLY_FINANCIAL_MIS } from "@magicmis/templates";
+import {
+  buildRecreatedTemplate,
+  MONTHLY_FINANCIAL_MIS,
+  type ReferenceLayout,
+  type TemplateSpec,
+} from "@magicmis/templates";
 import * as Comlink from "comlink";
 
 import type { JobSession } from "../server/companies";
 
-import type { ComputeResult, MapResult, PipelineApi, PipelineFileSummary } from "./types";
+import type {
+  ComputeResult,
+  MapResult,
+  PipelineApi,
+  PipelineFileSummary,
+  ReferenceReviewRow,
+} from "./types";
 
 let session: JobSession | null = null;
 let limits: IngestLimits | null = null;
@@ -48,6 +61,9 @@ let prepared: Prepared | null = null;
 let step: MappingStep | null = null;
 let mappings: Mapping[] = [];
 let duckPromise: Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> | null = null;
+/** The reference MIS (SPEC §22): its layout as read, and as redacted for the server. */
+let reference: { layout: ReferenceLayout; redacted: ReferenceLayout | null } | null = null;
+let referenceTemplate: TemplateSpec | null = null;
 
 async function openDuck(): Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> {
   const base = `${self.location.origin}/vendor/duckdb`;
@@ -87,6 +103,8 @@ const need = <T>(v: T | null, what: string): T => {
 };
 
 const display = (token: string): string => redactor?.rehydrate(token).name ?? token;
+const labelText = (label: string): string =>
+  label.replace(TOKEN_PATTERN, (token) => display(token));
 
 const KEY_TOKEN =
   /^(pan|aadhaar|uan|ifsc|bankac|gstin|email|mobile|person|party|sensitive) ([0-9a-f]{12})$/u;
@@ -182,9 +200,93 @@ const api: PipelineApi = {
     return { added, refused: null };
   },
 
+  async addReference(file) {
+    const lim = need(limits, "limits");
+    const kind = fileKind(file.name);
+    if (kind !== "xlsx" && kind !== "xlsm") return { summary: null, refused: "unsupported_type" };
+    if (file.size > lim.max_file_bytes) return { summary: null, refused: "file_too_large" };
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const zip = inspectZip(bytes, {
+      maxEntries: lim.zip_max_entries,
+      maxUncompressedBytes: lim.zip_max_uncompressed_bytes,
+      maxRatio: lim.zip_max_ratio,
+    });
+    if (!zip.ok) return { summary: null, refused: "unsafe_workbook" };
+    let extracted;
+    try {
+      extracted = await extractReferenceLayout(bytes);
+    } catch {
+      return { summary: null, refused: "unreadable_reference" };
+    }
+    reference = { layout: extracted.layout, redacted: null };
+    referenceTemplate = null;
+    // Before payment: name, size, sheet and row counts only (SPEC §2.3).
+    return {
+      summary: {
+        name: file.name,
+        size: file.size,
+        sheets: extracted.layout.sheets.length,
+        rows: extracted.layout.sheets.reduce((n, sh) => n + sh.rows.length, 0),
+      },
+      refused: null,
+    };
+  },
+
   async pricingInputs() {
     const p = await ensurePrepared();
-    return { size: p.size, fingerprints: p.fingerprints };
+    return {
+      size: { ...p.size, referenceMisSheets: reference?.layout.sheets.length ?? 0 },
+      fingerprints: p.fingerprints,
+    };
+  },
+
+  async referenceLayout() {
+    if (reference === null) return null;
+    // Party names from the loaded books are registered while preparing; redact after that.
+    await ensurePrepared();
+    const r = need(redactor, "session");
+    reference.redacted ??= await redactReferenceLayout(reference.layout, (t) =>
+      r.redactText(t),
+    );
+    return reference.redacted;
+  },
+
+  referenceReview(bindings) {
+    const ref = need(reference, "reference MIS");
+    const byRef = new Map(bindings.map((b) => [b.ref, b]));
+    const labels = new Map(
+      ref.layout.sheets.flatMap((sh) => sh.rows.map((row) => [row.ref, row.label])),
+    );
+    const rows: ReferenceReviewRow[] = [];
+    for (const sh of ref.layout.sheets) {
+      for (const row of sh.rows) {
+        const binding = byRef.get(row.ref);
+        if (binding === undefined || binding.kind === "blank") continue;
+        rows.push({
+          ref: row.ref,
+          sheet: sh.name,
+          label: row.label,
+          bold: row.bold,
+          indent: row.indent,
+          hasValues: row.hasValues,
+          binding,
+          termLabels:
+            binding.kind === "subtotal"
+              ? binding.terms.map(
+                  (t) => `${t.sign === 1 ? "+" : "−"} ${labels.get(t.row) ?? t.row}`,
+                )
+              : [],
+        });
+      }
+    }
+    return Promise.resolve(rows);
+  },
+
+  useReferenceBindings(bindings) {
+    const ref = need(reference, "reference MIS");
+    const redacted = need(ref.redacted, "redacted layout");
+    referenceTemplate = buildRecreatedTemplate(redacted, bindings, { name: "Recreated MIS" });
+    return Promise.resolve();
   },
 
   async unrecognisedSheets() {
@@ -269,13 +371,15 @@ const api: PipelineApi = {
         .map((b) => [b.ledgerKey, BigInt(b.closing)]),
     );
     const namesByKey = new Map(p.facts.map((f) => [f.ledgerKey, f.name]));
+    const template = referenceTemplate ?? s.memory.templateSpec ?? MONTHLY_FINANCIAL_MIS;
     const out = await computeAndRender(conn, p, {
       mappings: finalMappings,
       prior: s.memory.priorBalances,
       fyStartMonth: s.company.fyStartMonth,
       period,
-      template: MONTHLY_FINANCIAL_MIS,
+      template,
       companyName: s.company.name,
+      labelText,
       tierLabel: input.tierLabel,
       snapshotVersion:
         period === s.memory.latestPeriod ? (s.memory.latestVersion ?? 0) + 1 : 1,
@@ -310,6 +414,7 @@ const api: PipelineApi = {
       HEADS_VERSION,
     );
     const changed =
+      referenceTemplate !== null ||
       s.memory.mappingRules === null ||
       JSON.stringify(s.memory.mappingRules.rules) !== JSON.stringify(rules.rules.rules);
     const bytes = new Uint8Array(await out.rendered.workbook.xlsx.writeBuffer());
@@ -323,7 +428,7 @@ const api: PipelineApi = {
       snapshot: out.snapshot,
       blueprint: changed
         ? {
-            templateSpec: MONTHLY_FINANCIAL_MIS,
+            templateSpec: template,
             recipe: {
               schemaVersion: 1,
               sources: Object.entries(p.fingerprints).map(([role, sig], i) => ({
@@ -362,6 +467,8 @@ const api: PipelineApi = {
     mappings = [];
     redactor = null;
     session = null;
+    reference = null;
+    referenceTemplate = null;
   },
 };
 
