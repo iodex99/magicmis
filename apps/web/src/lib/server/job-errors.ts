@@ -1,6 +1,7 @@
 import "server-only";
 
 import { RoutingError, RuntimeCapExceeded, AiStageError } from "@magicmis/ai";
+import { ChatError } from "@magicmis/chat/server";
 import { CompanyKeyDestroyed } from "@magicmis/engine/server";
 import {
   CommentaryError,
@@ -45,6 +46,17 @@ export function jobErrorResponse(error: unknown): Response {
       error.message,
       error.errors.length > 0 ? { operations: error.errors.join("; ") } : undefined,
     );
+  }
+  if (error instanceof ChatError) {
+    const status =
+      error.code === "insufficient_credits"
+        ? 402
+        : error.code === "not_found" || error.code === "company_not_found"
+          ? 404
+          : error.code === "question_too_long" || error.code === "result_invalid"
+            ? 422
+            : 409;
+    return apiError(status, error.code, error.message, error.detail);
   }
   if (error instanceof CommentaryError) {
     return apiError(error.code === "no_snapshot" ? 404 : 409, error.code, error.message);

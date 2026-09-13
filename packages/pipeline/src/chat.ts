@@ -8,7 +8,7 @@
  * result is redacted, stringified and capped to the configured rows and bytes before it is posted.
  */
 
-import { guardSql, loadGuard, SESSION_TABLES } from "@magicmis/chat/guard";
+import { guardSql, loadGuard, SESSION_TABLES } from "@magicmis/sql-guard";
 import type { DuckConn } from "@magicmis/ingest";
 import type { Mapping } from "@magicmis/semantic";
 

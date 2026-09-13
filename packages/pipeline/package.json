@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@magicmis/ai": "workspace:*",
-    "@magicmis/chat": "workspace:*",
     "@magicmis/core": "workspace:*",
     "@magicmis/engine": "workspace:*",
     "@magicmis/ingest": "workspace:*",
@@ -23,7 +22,8 @@
     "@magicmis/render-excel": "workspace:*",
     "@magicmis/semantic": "workspace:*",
     "@magicmis/tally": "workspace:*",
-    "@magicmis/templates": "workspace:*"
+    "@magicmis/templates": "workspace:*",
+    "@magicmis/sql-guard": "workspace:*"
   },
   "devDependencies": {
     "@duckdb/duckdb-wasm": "1.32.0",

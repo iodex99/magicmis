@@ -23,6 +23,7 @@ import {
   queueLotExpiryNotices,
   sweepExpiredReservations,
 } from "@magicmis/wallet";
+import { sweepChatMessages } from "@magicmis/chat/server";
 import type { Pool } from "pg";
 
 import { deliverNotifications } from "./deliver";
@@ -133,6 +134,13 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
       ai == null
         ? { skipped: "no AI configured" }
         : commentaryBatchTick(pool, ai.wrapper, ai.transport, now),
+  },
+  {
+    // SPEC §27: close chat messages left waiting past their hold, releasing the credits.
+    queue: "chat-sweep",
+    cron: "*/5 * * * *",
+    expireInSeconds: 240,
+    run: ({ pool }, now) => sweepChatMessages(pool, now),
   },
   {
     queue: "notifications-deliver",

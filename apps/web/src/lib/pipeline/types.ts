@@ -8,6 +8,7 @@ import type { SizeDescriptors } from "@magicmis/ai/estimator";
 import type { CheckResult, SnapshotPayload } from "@magicmis/engine";
 import type { IngestLimits } from "@magicmis/ingest";
 import type { Confidence, MappingRules, ReviewRow } from "@magicmis/semantic";
+import type { ChatQueryOutcome } from "@magicmis/pipeline";
 import type { ReferenceLayout, RowBinding } from "@magicmis/templates";
 
 import type { JobSession } from "../server/companies";
@@ -94,5 +95,14 @@ export interface PipelineApi {
     unmappedAccepted: boolean;
     tierLabel: string;
   }): Promise<ComputeResult>;
+  /** Deep chat: build the session tables from the loaded files in a locked DuckDB (SPEC §27). */
+  chatStart(): Promise<{ balances: number; bills: number }>;
+  /** Deep chat: guard, run, redact and cap one query. */
+  chatQuery(
+    sql: string,
+    caps: { rowsPerRound: number; bytesPerRound: number; queryTimeoutMs: number },
+  ): Promise<ChatQueryOutcome>;
+  /** Token → name for rendering answers; null when the name is not in the loaded files. */
+  displayNames(tokens: readonly string[]): Promise<Record<string, string | null>>;
   clear(): Promise<void>;
 }

@@ -56,7 +56,7 @@ import {
 import type { Pool } from "pg";
 import { z } from "zod";
 
-import { guardSql, loadGuard, SESSION_TABLES } from "./guard";
+import { guardSql, loadGuard, SESSION_TABLES } from "@magicmis/sql-guard";
 import { retrieveFacts } from "./retriever";
 
 export type MessageType = "quick" | "deep" | "edit" | "investigate";
@@ -1087,4 +1087,27 @@ export async function threadView(
     status: thread.status,
     messages,
   };
+}
+
+/**
+ * Messages left waiting (a Deep question whose browser went away, or a crashed request) are closed
+ * when their hold would expire: the hold is released and the message marked failed. No answer was
+ * delivered, so nothing is charged; the AI cost already spent is absorbed. TODO(review): R-43.
+ */
+export async function sweepChatMessages(pool: Pool, now: Date = new Date()): Promise<number> {
+  const ttl = await readConfig(pool, "wallet.reservation_ttl_seconds", z.object({ chat: z.number().int().positive() }));
+  const stale = await pool.query<{ id: string; reservation_id: string | null }>(
+    `select id, reservation_id from public.chat_messages
+     where role = 'user' and state in ('pending', 'running', 'needs_query') and created_at < $1`,
+    [new Date(now.getTime() - ttl.chat * 1000)],
+  );
+  for (const m of stale.rows) {
+    if (m.reservation_id !== null)
+      await releaseReservation(pool, { reservationId: m.reservation_id, idempotencyKey: `chat:${m.id}:release`, now });
+    await pool.query(
+      `update public.chat_messages set state = 'failed_platform', failure_reason = 'abandoned' where id = $1 and state in ('pending', 'running', 'needs_query')`,
+      [m.id],
+    );
+  }
+  return stale.rows.length;
 }

@@ -4,6 +4,9 @@ const config: NextConfig = {
   // Workspace packages are consumed as TypeScript source (ADR 0001).
   transpilePackages: [
     "@magicmis/ai",
+    "@magicmis/chat",
+    "@magicmis/sql-guard",
+    "@magicmis/render-dashboard",
     "@magicmis/crypto",
     "@magicmis/engine",
     "@magicmis/jobs",
@@ -22,7 +25,8 @@ const config: NextConfig = {
     "@magicmis/ui",
   ],
   // pg loads optional native bindings dynamically; keep it out of the bundle.
-  serverExternalPackages: ["pg", "pdf-lib", "@aws-sdk/client-kms"],
+  // libpg-query loads its WebAssembly relative to its own file, which bundling would move (ADR 0023).
+  serverExternalPackages: ["pg", "pdf-lib", "@aws-sdk/client-kms", "libpg-query"],
   poweredByHeader: false,
   reactStrictMode: true,
 };

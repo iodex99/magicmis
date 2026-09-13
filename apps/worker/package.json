@@ -13,6 +13,7 @@
   "dependencies": {
     "@magicmis/ai": "workspace:*",
     "@magicmis/billing": "workspace:*",
+    "@magicmis/chat": "workspace:*",
     "@magicmis/core": "workspace:*",
     "@magicmis/crypto": "workspace:*",
     "@magicmis/db": "workspace:*",

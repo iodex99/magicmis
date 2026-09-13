@@ -4,6 +4,9 @@
  * review rows, validation results and the finished workbook.
  */
 
+// Must stay first: it redirects the SQL parser's WebAssembly request before that module loads.
+import "./pg-wasm-shim";
+
 import * as duckdb from "@duckdb/duckdb-wasm";
 import { addMonths, type PeriodId } from "@magicmis/core/time";
 import { gateOutcome } from "@magicmis/engine";
@@ -19,7 +22,10 @@ import {
   type IngestLimits,
 } from "@magicmis/ingest";
 import {
+  chatTables,
   computeAndRender,
+  loadChatTables,
+  runChatQuery,
   mapStep,
   nextRules,
   prepare,
@@ -31,7 +37,9 @@ import {
 import { Redactor, TOKEN_PATTERN } from "@magicmis/redact";
 import {
   applyAiMappings,
+  head,
   HEADS_VERSION,
+  isHeadCode,
   normaliseName,
   type Mapping,
 } from "@magicmis/semantic";
@@ -64,8 +72,13 @@ let duckPromise: Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> | null = nu
 /** The reference MIS (SPEC §22): its layout as read, and as redacted for the server. */
 let reference: { layout: ReferenceLayout; redacted: ReferenceLayout | null } | null = null;
 let referenceTemplate: TemplateSpec | null = null;
+/** A separate DuckDB for Deep chat, locked after its tables are loaded. */
+let chatDuck: { db: duckdb.AsyncDuckDB; conn: DuckConn & { cancel: () => Promise<void> } } | null = null;
 
-async function openDuck(): Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> {
+async function openDuck(): Promise<{
+  db: duckdb.AsyncDuckDB;
+  conn: DuckConn & { cancel: () => Promise<void> };
+}> {
   const base = `${self.location.origin}/vendor/duckdb`;
   const bundle = await duckdb.selectBundle({
     mvp: {
@@ -84,7 +97,7 @@ async function openDuck(): Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> {
   );
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
   const connection = await db.connect();
-  const conn: DuckConn = {
+  const conn: DuckConn & { cancel: () => Promise<void> } = {
     query: async (sql) =>
       (await connection.query(sql))
         .toArray()
@@ -92,6 +105,10 @@ async function openDuck(): Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> {
     registerFileText: (name, text) => db.registerFileText(name, text),
     dropFile: async (name) => {
       await db.dropFile(name);
+    },
+    // duckdb-wasm 1.32.0 AsyncDuckDBConnection.cancelSent(): cancels the query in flight.
+    cancel: async () => {
+      await connection.cancelSent();
     },
   };
   return { db, conn };
@@ -455,7 +472,46 @@ const api: PipelineApi = {
     };
   },
 
+  async chatStart() {
+    const s = need(session, "session");
+    const p = await ensurePrepared();
+    const rules = s.memory.mappingRules;
+    const mapped = mapStep(p, {
+      companyRules: rules?.rules ?? [],
+      accountRules: s.memory.accountRules,
+      library: s.library,
+      fuzzyThreshold: s.fuzzyThreshold,
+      previous: rules === null ? null : new Map(rules.rules.map((r) => [r.ledgerKey, r.head])),
+      displayName: display,
+    });
+    const tables = chatTables(p, mapped.mappings, (code) => (isHeadCode(code) ? head(code).name : code));
+    if (chatDuck !== null) await chatDuck.db.terminate();
+    const opened = await openDuck();
+    chatDuck = opened;
+    await loadChatTables(opened.conn, tables);
+    return { balances: tables.balances.length, bills: tables.bills.length };
+  },
+
+  async chatQuery(sql, caps) {
+    const duck = need(chatDuck, "chat session");
+    const r = need(redactor, "session");
+    return runChatQuery(duck.conn, sql, {
+      maxRows: caps.rowsPerRound,
+      maxBytes: caps.bytesPerRound,
+      timeoutMs: caps.queryTimeoutMs,
+      redactText: (t) => r.redactText(t),
+    });
+  },
+
+  displayNames(tokens) {
+    return Promise.resolve(
+      Object.fromEntries(tokens.map((t) => [t, redactor?.rehydrate(t).name ?? null])),
+    );
+  },
+
   async clear() {
+    if (chatDuck !== null) await chatDuck.db.terminate();
+    chatDuck = null;
     if (duckPromise !== null) {
       const { db } = await duckPromise;
       await db.terminate();

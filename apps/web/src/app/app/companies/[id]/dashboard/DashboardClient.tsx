@@ -172,6 +172,13 @@ function WidgetCard({
               <ValueButton value={v} onOpen={onOpen} />
             </div>
           ))}
+          {/* SPEC §27: Investigate sends a Deep question about this metric's movement. */}
+          <a
+            className="mt-1 text-xs text-accent-700 underline"
+            href={`/app/companies/${payload.company.id}/chat?investigate=${encodeURIComponent(widget.metrics[0] ?? "")}&period=${period}`}
+          >
+            Investigate
+          </a>
         </div>
       ) : view.kind === "table" ? (
         <div className="overflow-x-auto">

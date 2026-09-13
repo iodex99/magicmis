@@ -274,3 +274,95 @@ test("sets up a company that recreates the user's reference MIS, with binding re
   expect(job.rows).toEqual([{ type: "reference_mis_recreate", state: "completed" }]);
   expect(await aiCallsForAccount()).toBe(0);
 });
+
+test.describe("chat with the MIS", () => {
+  const CHAT_STAGES = ["chat_quick", "chat_deep", "chat_edit", "thread_summary"];
+  let activated: string[] = [];
+
+  test.beforeAll(async () => {
+    // The local stack has no prompt activated (R-28); these tests drive the fake model.
+    const r = await db.query<{ id: string }>(
+      `update tier_routing set prompt_version = 1 where stage = any($1) and prompt_version is null returning id`,
+      [CHAT_STAGES],
+    );
+    activated = r.rows.map((x) => x.id);
+  });
+  test.afterAll(async () => {
+    await db.query(`update tier_routing set prompt_version = null where id = any($1)`, [activated]);
+  });
+
+  const companyId = async () => {
+    const r = await db.query<{ id: string }>(
+      `select c.id from companies c join accounts a on a.id = c.account_id where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+      [email],
+    );
+    return r.rows[0]?.id ?? "";
+  };
+
+  test("quick answers resolve placeholders with lineage; out-of-scope is declined and charged", async () => {
+    await page.goto(`/app/companies/${await companyId()}/chat`);
+    await expect(page.getByTestId("chat-send")).toContainText("19 credits");
+    await expect(page.getByText("including questions outside this MIS")).toBeVisible();
+    await page.getByLabel("Your question").fill("How did revenue move this month?");
+    await page.getByTestId("chat-send").click();
+    const answer = page.getByTestId("chat-answer").last();
+    await expect(answer).toContainText("The figure you asked about is");
+    await answer.locator("[data-lineage^='revenue']").first().click();
+    await expect(page.getByTestId("lineage-panel")).toContainText("Formula");
+
+    await page.getByLabel("Your question").fill("Write me a poem about the sea.");
+    await page.getByTestId("chat-send").click();
+    await expect(page.getByTestId("chat-user").last()).toContainText("outside this MIS · 19 credits");
+    const states = await db.query<{ state: string; credits_charged: string }>(
+      `select m.state, m.credits_charged::text from chat_messages m join accounts a on a.id = m.account_id
+       where a.email = $1 and m.role = 'user' order by m.created_at`,
+      [email],
+    );
+    expect(states.rows).toEqual([
+      { state: "completed", credits_charged: "19" },
+      { state: "declined_out_of_scope", credits_charged: "19" },
+    ]);
+  });
+
+  test("deep answers query the loaded files in the browser and link cells to their query", async () => {
+    await page.goto(`/app/companies/${await companyId()}/chat`);
+    await page.getByTestId("chat-type").selectOption("deep");
+    await page.getByLabel("Your question").fill("Which head has the largest closing balance?");
+    await expect(page.getByTestId("chat-send")).toBeDisabled();
+    await page.getByLabel("Load files for Deep answers").setInputFiles([...SETUP_MONTHS, "2026-05"].map(tb));
+    await expect(page.getByTestId("chat-session")).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByTestId("chat-send")).toContainText("99 credits");
+    await page.getByTestId("chat-send").click();
+    const answer = page.getByTestId("chat-answer").last();
+    await expect(answer).toContainText("The largest closing balance by head is", { timeout: 60_000 });
+    await answer.locator("[data-lineage='q1']").first().click();
+    await expect(page.getByTestId("query-lineage")).toContainText("closing_paise");
+    await expect(page.getByTestId("query-lineage")).toContainText("balances");
+
+    const steps = await db.query<{ status: string; row_count: number }>(
+      `select s.status, s.row_count from chat_query_steps s join accounts a on a.id = s.account_id where a.email = $1`,
+      [email],
+    );
+    expect(steps.rows).toHaveLength(1);
+    expect(steps.rows[0]?.status).toBe("ok");
+    expect(steps.rows[0]?.row_count).toBeGreaterThan(0);
+  });
+
+  test("edit proposes a patch, applies on confirmation, and undoes; Investigate opens a Deep question", async () => {
+    const id = await companyId();
+    await page.goto(`/app/companies/${id}/chat`);
+    await page.getByTestId("chat-type").selectOption("edit");
+    await page.getByLabel("Your question").fill("Rename the first card to Sales");
+    await page.getByTestId("chat-send").click();
+    await expect(page.getByTestId("chat-edit-preview").last()).toContainText("/widgets/0/title");
+    await page.getByRole("button", { name: "Apply change" }).click();
+    await expect(page.getByTestId("chat-edit").last()).toContainText("Applied to the dashboard");
+    await page.goto(`/app/companies/${id}/dashboard`);
+    await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Sales");
+    await page.getByRole("button", { name: "Undo last change" }).click();
+    await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Revenue");
+    await page.getByTestId("widget-kpi_revenue").getByRole("link", { name: "Investigate" }).click();
+    await expect(page).toHaveURL(/\/chat\?investigate=revenue/u);
+    await expect(page.getByLabel("Your question")).toHaveValue(/Why did Revenue from operations move/u);
+  });
+});

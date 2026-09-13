@@ -7,7 +7,7 @@
 import fc from "fast-check";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { guardSql, loadGuard } from "../src/guard";
+import { guardSql, loadGuard } from "../src/index";
 
 beforeAll(async () => {
   await loadGuard();
