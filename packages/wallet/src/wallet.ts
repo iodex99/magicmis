@@ -25,7 +25,10 @@ import { appendLedger, type WalletState } from "./ledger";
 export type LotSource = "purchase" | "bonus" | "admin_grant" | "goodwill";
 export type ReservationKind = "realtime" | "review" | "batch" | "chat";
 export type ReservationSubject =
-  { readonly jobId: string } | { readonly chatMessageId: string };
+  | { readonly jobId: string }
+  | { readonly chatMessageId: string }
+  /** SPEC §28: the monthly memory fee and restore, which have no job. */
+  | { readonly companyId: string };
 
 // ---------------------------------------------------------------------------
 // Config
@@ -377,11 +380,12 @@ export async function reserveCredits(
     const jobId = "jobId" in input.subject ? input.subject.jobId : null;
     const chatMessageId =
       "chatMessageId" in input.subject ? input.subject.chatMessageId : null;
+    const companyId = "companyId" in input.subject ? input.subject.companyId : null;
     const inserted = await tx.query<{ id: string }>(
       `insert into public.reservations
-         (account_id, job_id, chat_message_id, amount, status, kind, expires_at, heartbeat_at,
+         (account_id, job_id, chat_message_id, company_id, amount, status, kind, expires_at, heartbeat_at,
           idempotency_key, created_at)
-       values ($1, $2, $3, $4, 'held', $5, $6, $7, $8, $7)
+       values ($1, $2, $3, $9, $4, 'held', $5, $6, $7, $8, $7)
        returning id`,
       [
         input.accountId,
@@ -392,6 +396,7 @@ export async function reserveCredits(
         expiresAt,
         now,
         input.idempotencyKey,
+        companyId,
       ],
     );
     const reservationId = inserted.rows[0]?.id;
@@ -765,7 +770,12 @@ export async function sweepExpiredReservations(
   const cutoff = new Date(now.getTime() - stale * 1000);
   const due = await pool.query<{ id: string; job_id: string | null }>(
     `select id, job_id from public.reservations
-     where status = 'held' and expires_at < $1 and (heartbeat_at is null or heartbeat_at < $2)`,
+     where status = 'held' and expires_at < $1 and (heartbeat_at is null or heartbeat_at < $2)
+       -- Jobs awaiting review, or that made an AI call, owe the cancel_after_ai_fee on expiry (SPEC §23);
+       -- @magicmis/jobs settles those, so the plain sweeper leaves them alone.
+       and not exists (
+         select 1 from public.jobs j where j.id = reservations.job_id
+           and (j.state = 'awaiting_review' or exists (select 1 from public.ai_calls c where c.job_id = j.id)))`,
     [now, cutoff],
   );
 

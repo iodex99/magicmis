@@ -424,3 +424,72 @@ export async function verifyBlueprintChain(
     }
   });
 }
+
+// ---------------------------------------------------------------------------
+// General company-scoped sealing (stage checkpoints, output files)
+// ---------------------------------------------------------------------------
+
+/** Encrypts bytes under the company's data key, bound to a purpose and an id. */
+export async function sealForCompany(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    accountId: string;
+    companyId: string;
+    purpose: string;
+    id: string;
+    plaintext: Buffer;
+  },
+): Promise<Buffer> {
+  return withTransaction(pool, async (tx) => {
+    const dek = await companyDek(tx, wrapper, input.accountId, input.companyId);
+    try {
+      return encryptWithKey(dek, input.plaintext, {
+        purpose: input.purpose,
+        account_id: input.accountId,
+        company_id: input.companyId,
+        id: input.id,
+      });
+    } finally {
+      dek.fill(0);
+    }
+  });
+}
+
+export async function openForCompany(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    accountId: string;
+    companyId: string;
+    purpose: string;
+    id: string;
+    sealed: Uint8Array;
+  },
+): Promise<Buffer> {
+  return withTransaction(pool, async (tx) => {
+    const dek = await companyDek(tx, wrapper, input.accountId, input.companyId);
+    try {
+      return decryptWithKey(dek, input.sealed, {
+        purpose: input.purpose,
+        account_id: input.accountId,
+        company_id: input.companyId,
+        id: input.id,
+      });
+    } finally {
+      dek.fill(0);
+    }
+  });
+}
+
+/** SPEC §10 purge: destroy the wrapped data key; every sealed value becomes unreadable. */
+export async function shredCompanyKey(
+  db: Queryable,
+  companyId: string,
+  now: Date,
+): Promise<void> {
+  await db.query(
+    `update public.company_keys set wrapped_dek = null, destroyed_at = $2 where company_id = $1 and destroyed_at is null`,
+    [companyId, now],
+  );
+}

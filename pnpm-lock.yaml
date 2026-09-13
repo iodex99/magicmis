@@ -566,6 +566,104 @@ importers:
         specifier: ^4.5.0
         version: 4.9.0
 
+  packages/jobs:
+    dependencies:
+      '@magicmis/ai':
+        specifier: workspace:*
+        version: link:../ai
+      '@magicmis/core':
+        specifier: workspace:*
+        version: link:../core
+      '@magicmis/crypto':
+        specifier: workspace:*
+        version: link:../crypto
+      '@magicmis/db':
+        specifier: workspace:*
+        version: link:../db
+      '@magicmis/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@magicmis/wallet':
+        specifier: workspace:*
+        version: link:../wallet
+      pg:
+        specifier: ^8.16.3
+        version: 8.23.0
+      zod:
+        specifier: ^4.1.13
+        version: 4.6.1
+    devDependencies:
+      '@duckdb/duckdb-wasm':
+        specifier: 1.32.0
+        version: 1.32.0
+      '@magicmis/fixtures':
+        specifier: workspace:*
+        version: link:../../fixtures/generator
+      '@magicmis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
+      '@magicmis/pipeline':
+        specifier: workspace:*
+        version: link:../pipeline
+      '@magicmis/redact':
+        specifier: workspace:*
+        version: link:../redact
+      '@magicmis/render-excel':
+        specifier: workspace:*
+        version: link:../render-excel
+      '@magicmis/semantic':
+        specifier: workspace:*
+        version: link:../semantic
+      '@magicmis/tally':
+        specifier: workspace:*
+        version: link:../tally
+      '@magicmis/templates':
+        specifier: workspace:*
+        version: link:../templates
+      '@testcontainers/postgresql':
+        specifier: ^11.7.1
+        version: 11.14.0(supports-color@7.2.0)
+      '@types/pg':
+        specifier: ^8.15.6
+        version: 8.23.1
+
+  packages/pipeline:
+    dependencies:
+      '@magicmis/ai':
+        specifier: workspace:*
+        version: link:../ai
+      '@magicmis/core':
+        specifier: workspace:*
+        version: link:../core
+      '@magicmis/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@magicmis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
+      '@magicmis/redact':
+        specifier: workspace:*
+        version: link:../redact
+      '@magicmis/render-excel':
+        specifier: workspace:*
+        version: link:../render-excel
+      '@magicmis/semantic':
+        specifier: workspace:*
+        version: link:../semantic
+      '@magicmis/tally':
+        specifier: workspace:*
+        version: link:../tally
+      '@magicmis/templates':
+        specifier: workspace:*
+        version: link:../templates
+    devDependencies:
+      '@duckdb/duckdb-wasm':
+        specifier: 1.32.0
+        version: 1.32.0
+      '@magicmis/fixtures':
+        specifier: workspace:*
+        version: link:../../fixtures/generator
+
   packages/redact:
     dependencies:
       '@magicmis/core':

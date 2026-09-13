@@ -1,0 +1,31 @@
+{
+  "name": "@magicmis/pipeline",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@magicmis/ai": "workspace:*",
+    "@magicmis/core": "workspace:*",
+    "@magicmis/engine": "workspace:*",
+    "@magicmis/ingest": "workspace:*",
+    "@magicmis/redact": "workspace:*",
+    "@magicmis/render-excel": "workspace:*",
+    "@magicmis/semantic": "workspace:*",
+    "@magicmis/tally": "workspace:*",
+    "@magicmis/templates": "workspace:*"
+  },
+  "devDependencies": {
+    "@duckdb/duckdb-wasm": "1.32.0",
+    "@magicmis/fixtures": "workspace:*"
+  }
+}

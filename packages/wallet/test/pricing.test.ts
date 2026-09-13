@@ -180,8 +180,9 @@ describe("price book in the database", () => {
   it("refuses a disabled action", async () => {
     const pool = testDb().pool;
     await pool.query(
-      `insert into price_book (action_key, base_credits, tier_multipliers, max_ai_cost_ratio, version, enabled)
-       values ('dashboard_refresh', 99, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 2, false)`,
+      // effective_from in the past: the container clock and the test clock can differ slightly.
+      `insert into price_book (action_key, base_credits, tier_multipliers, max_ai_cost_ratio, version, enabled, effective_from)
+       values ('dashboard_refresh', 99, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 2, false, now() - interval '1 minute')`,
     );
     await expect(
       priceFor(pool, {

@@ -9,7 +9,8 @@
     ".": "./src/index.ts",
     "./batch": "./src/batch.ts",
     "./estimator": "./src/estimator.ts",
-    "./margin": "./src/margin.ts"
+    "./margin": "./src/margin.ts",
+    "./job": "./src/job.ts"
   },
   "scripts": {
     "lint": "eslint src test evals",
