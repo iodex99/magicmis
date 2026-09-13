@@ -34,6 +34,9 @@ export const workerEnvSchema = serverEnvSchema
     KMS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_MASTER_KEY_ID.optional(),
     KMS_PREVIOUS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_PREVIOUS_MASTER_KEY_ID,
     AWS_REGION: serverEnvSchema.shape.AWS_REGION.optional(),
+    // Payment reconciliation (R-51): read-only order lookups against Razorpay.
+    RAZORPAY_KEY_ID: serverEnvSchema.shape.RAZORPAY_KEY_ID.optional(),
+    RAZORPAY_KEY_SECRET: serverEnvSchema.shape.RAZORPAY_KEY_SECRET.optional(),
   })
   .superRefine((env, ctx) => {
     if (env.KEY_WRAPPER === "local" && env.APP_ENVIRONMENT !== "development")

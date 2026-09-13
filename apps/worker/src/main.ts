@@ -1,4 +1,5 @@
 import { anthropicTransport } from "@magicmis/ai";
+import { RazorpayGateway } from "@magicmis/billing";
 import { errorReportingDefaults } from "@magicmis/core/error-scrub";
 import { LocalKeyWrapper, RotatingKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
 import { KmsKeyWrapper } from "@magicmis/crypto/kms";
@@ -53,6 +54,10 @@ const boss = await startBoss(
     appUrl: env.APP_URL,
     adminUrl: env.ADMIN_URL ?? env.APP_URL,
     wrapper,
+    gateway:
+      env.RAZORPAY_KEY_ID === undefined || env.RAZORPAY_KEY_SECRET === undefined
+        ? null
+        : new RazorpayGateway(env.RAZORPAY_KEY_ID, env.RAZORPAY_KEY_SECRET),
     reportError:
       env.SENTRY_DSN === undefined
         ? null

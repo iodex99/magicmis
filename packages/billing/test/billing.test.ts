@@ -16,9 +16,15 @@ import {
   listPurchases,
   markBankTransferReceived,
   quotePack,
+  reconcileRazorpayPurchases,
   requestBankTransfer,
 } from "../src/purchases";
-import type { CreateOrderInput, GatewayOrder, PaymentGateway } from "../src/razorpay";
+import type {
+  CreateOrderInput,
+  GatewayOrder,
+  GatewayPayment,
+  PaymentGateway,
+} from "../src/razorpay";
 
 let db: TestDb | undefined;
 beforeAll(async () => {
@@ -39,6 +45,11 @@ const SECRET = "whsec_test_only";
 
 class FakeGateway implements PaymentGateway {
   calls: CreateOrderInput[] = [];
+  /** Payments Razorpay would report per order, for reconciliation tests. */
+  payments = new Map<string, GatewayPayment[]>();
+  fetchOrderPayments(orderId: string): Promise<GatewayPayment[]> {
+    return Promise.resolve(this.payments.get(orderId) ?? []);
+  }
   createOrder(input: CreateOrderInput): Promise<GatewayOrder> {
     this.calls.push(input);
     return Promise.resolve({
@@ -492,5 +503,79 @@ describe("accounting exports", () => {
     await expect(accountingCsv(pool(), "credits_consumed", "2027-13")).rejects.toThrow(
       RangeError,
     );
+  });
+});
+
+describe("Razorpay reconciliation when webhooks never arrive (R-51)", () => {
+  it("credits a captured payment through the webhook path once, leaves unpaid and mismatched orders alone", async () => {
+    const gateway = new FakeGateway();
+    const buy = async () => {
+      const accountId = await account("27");
+      const order = await createRazorpayPurchase(pool(), gateway, {
+        accountId,
+        packId: await packId(1_000_000n),
+        idempotencyKey: randomUUID(),
+        now: NOW,
+      });
+      return { accountId, order };
+    };
+    const paid = await buy();
+    const unpaid = await buy();
+    const wrong = await buy();
+    const payments = (orderId: string, amountPaise: bigint): GatewayPayment[] => [
+      {
+        id: "pay_failedattempt",
+        amountPaise,
+        currency: "INR",
+        status: "failed",
+        orderId,
+      },
+      {
+        id: `pay_${randomUUID().slice(0, 8)}`,
+        amountPaise,
+        currency: "INR",
+        status: "captured",
+        orderId,
+      },
+    ];
+    gateway.payments.set(
+      paid.order.orderId,
+      payments(paid.order.orderId, paid.order.amountPaise),
+    );
+    gateway.payments.set(wrong.order.orderId, payments(wrong.order.orderId, 100n));
+
+    // Too early: the webhook still has time to arrive.
+    const early = await reconcileRazorpayPurchases(
+      pool(),
+      gateway,
+      new Date(NOW.getTime() + 5 * 60_000),
+    );
+    expect(early.credited).toBe(0);
+
+    const later = new Date(NOW.getTime() + 45 * 60_000);
+    const run = await reconcileRazorpayPurchases(pool(), gateway, later);
+    expect(run.credited).toBeGreaterThanOrEqual(1);
+    expect(run.amountMismatches).toBeGreaterThanOrEqual(1);
+    expect((await walletSummary(pool(), paid.accountId)).balance).toBe(10_750n);
+    expect((await walletSummary(pool(), unpaid.accountId)).balance).toBe(0n);
+    expect((await walletSummary(pool(), wrong.accountId)).balance).toBe(0n);
+    const [invoice] = await listInvoices(pool(), paid.accountId);
+    expect(invoice?.type).toBe("tax_invoice");
+    const audited = await pool().query(
+      `select count(*)::int as n from audit_log where action = 'billing.purchase_reconciled' and target_id = $1`,
+      [paid.order.purchaseId],
+    );
+    expect(audited.rows[0]).toEqual({ n: 1 });
+
+    // Again, and then the late webhook: nothing is credited twice.
+    await reconcileRazorpayPurchases(pool(), gateway, new Date(later.getTime() + 60_000));
+    expect(
+      await handleRazorpayWebhook(
+        pool(),
+        webhook("payment.captured", paid.order.orderId, paid.order.amountPaise),
+      ),
+    ).toEqual({ status: "processed", outcome: "already_credited" });
+    expect((await walletSummary(pool(), paid.accountId)).balance).toBe(10_750n);
+    expect(await listInvoices(pool(), paid.accountId)).toHaveLength(1);
   });
 });

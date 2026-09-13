@@ -10,6 +10,10 @@
  *   raw body before parsing; `x-razorpay-event-id` de-duplicates; events may arrive out of
  *   order. https://razorpay.com/docs/webhooks/validate-test/
  * - `payment.captured` and `order.paid` payload shapes: https://razorpay.com/docs/webhooks/payments/
+ * - Payments of an order: `GET https://api.razorpay.com/v1/orders/{order_id}/payments`, basic auth;
+ *   `{ entity: "collection", count, items: [{ id, amount, currency, status, order_id, captured }] }`,
+ *   authorised or failed payments for the order (verified 2026-09-14).
+ *   https://razorpay.com/docs/api/orders/fetch-payments/
  */
 
 import { createHmac, timingSafeEqual } from "node:crypto";
@@ -29,8 +33,18 @@ export interface GatewayOrder {
   readonly status: string;
 }
 
+export interface GatewayPayment {
+  readonly id: string;
+  readonly amountPaise: bigint;
+  readonly currency: string;
+  readonly status: string;
+  readonly orderId: string | null;
+}
+
 export interface PaymentGateway {
   createOrder(input: CreateOrderInput): Promise<GatewayOrder>;
+  /** Payments Razorpay holds for an order, for reconciliation when webhooks did not arrive. */
+  fetchOrderPayments(orderId: string): Promise<GatewayPayment[]>;
 }
 
 export class GatewayError extends Error {
@@ -48,6 +62,21 @@ const orderResponseSchema = z.object({
   amount: z.number().int().positive(),
   currency: z.literal("INR"),
   status: z.string(),
+});
+
+const orderPaymentsSchema = z.object({
+  entity: z.literal("collection"),
+  items: z.array(
+    z
+      .object({
+        id: z.string().min(1),
+        amount: z.number().int().nonnegative(),
+        currency: z.string(),
+        status: z.string(),
+        order_id: z.string().nullable().optional(),
+      })
+      .loose(),
+  ),
 });
 
 export class RazorpayGateway implements PaymentGateway {
@@ -97,6 +126,35 @@ export class RazorpayGateway implements PaymentGateway {
       currency: parsed.data.currency,
       status: parsed.data.status,
     };
+  }
+
+  async fetchOrderPayments(orderId: string): Promise<GatewayPayment[]> {
+    if (!/^order_[A-Za-z0-9]{1,40}$/u.test(orderId))
+      throw new RangeError("not a Razorpay order id");
+    const auth = Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64");
+    const res = await this.fetchImpl(`${this.baseUrl}/v1/orders/${orderId}/payments`, {
+      headers: { authorization: `Basic ${auth}` },
+      signal: AbortSignal.timeout(15_000),
+    });
+    const json: unknown = await res.json().catch(() => null);
+    if (!res.ok)
+      throw new GatewayError(
+        `Razorpay order payments fetch failed (${res.status.toString()})`,
+        res.status,
+      );
+    const parsed = orderPaymentsSchema.safeParse(json);
+    if (!parsed.success)
+      throw new GatewayError(
+        "Razorpay order payments did not match the schema",
+        res.status,
+      );
+    return parsed.data.items.map((p) => ({
+      id: p.id,
+      amountPaise: BigInt(p.amount),
+      currency: p.currency,
+      status: p.status,
+      orderId: p.order_id ?? null,
+    }));
   }
 }
 

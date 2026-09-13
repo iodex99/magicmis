@@ -599,6 +599,94 @@ async function processRazorpayEvent(
   return result.status;
 }
 
+const reconcileConfigSchema = z.object({
+  after_minutes: z.number().int().positive(),
+  max_age_days: z.number().int().positive(),
+  batch_size: z.number().int().positive(),
+});
+
+export interface ReconcileResult {
+  readonly checked: number;
+  readonly credited: number;
+  readonly amountMismatches: number;
+  readonly failures: number;
+}
+
+/**
+ * Worker (R-51, docs/runbooks/payment-webhook-outage.md): Razorpay purchases still unpaid past
+ * `billing.reconcile.after_minutes` are checked against Razorpay directly. A captured INR payment for
+ * the exact total is credited through the same path as the webhook — credits, bonus lot, tax invoice,
+ * audit and notice — so a lost or disabled webhook never leaves a paying customer without credits.
+ * The server trusts only what it fetched from Razorpay, never anything the browser reported.
+ */
+export async function reconcileRazorpayPurchases(
+  pool: Pool,
+  gateway: PaymentGateway,
+  now: Date = new Date(),
+): Promise<ReconcileResult> {
+  const cfg = await readConfig(pool, "billing.reconcile", reconcileConfigSchema, now);
+  const stuck = await pool.query<{ id: string; razorpay_order_id: string }>(
+    `select id, razorpay_order_id from public.purchases
+     where method = 'razorpay' and status in ('created', 'pending', 'paid') and razorpay_order_id is not null
+       and created_at <= $1 and created_at >= $2
+     order by created_at limit $3`,
+    [
+      new Date(now.getTime() - cfg.after_minutes * 60_000),
+      new Date(now.getTime() - cfg.max_age_days * 86_400_000),
+      cfg.batch_size,
+    ],
+  );
+  let credited = 0;
+  let amountMismatches = 0;
+  let failures = 0;
+  for (const row of stuck.rows) {
+    try {
+      const payments = await gateway.fetchOrderPayments(row.razorpay_order_id);
+      const captured = payments.filter(
+        (p) => p.status === "captured" && p.orderId === row.razorpay_order_id,
+      );
+      if (captured.length === 0) continue;
+      const outcome = await withTransaction(pool, async (tx) => {
+        const purchase = await purchaseBy(tx, "id = $1", [row.id], true);
+        if (purchase === null || purchase.status === "credited")
+          return "already_credited";
+        const payment = captured.find(
+          (p) => p.currency === "INR" && p.amountPaise === purchase.totalPaise,
+        );
+        if (payment === undefined) {
+          await appendAudit(tx, {
+            actorType: "system",
+            action: "billing.payment_amount_mismatch",
+            targetType: "purchase",
+            targetId: purchase.id,
+            metadata: { orderId: row.razorpay_order_id, source: "reconciliation" },
+          });
+          return "amount_mismatch";
+        }
+        const result = await creditPurchaseInTx(tx, purchase, {
+          now,
+          razorpayPaymentId: payment.id,
+        });
+        if (result.status === "credited")
+          await appendAudit(tx, {
+            actorType: "system",
+            action: "billing.purchase_reconciled",
+            targetType: "purchase",
+            targetId: purchase.id,
+            metadata: { orderId: row.razorpay_order_id, paymentId: payment.id },
+          });
+        return result.status;
+      });
+      if (outcome === "credited") credited += 1;
+      if (outcome === "amount_mismatch") amountMismatches += 1;
+    } catch {
+      // One unreachable order must not stop the rest; the next run retries it.
+      failures += 1;
+    }
+  }
+  return { checked: stuck.rows.length, credited, amountMismatches, failures };
+}
+
 // ---------------------------------------------------------------------------
 // Bank transfer
 // ---------------------------------------------------------------------------
