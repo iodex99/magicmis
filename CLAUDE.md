@@ -7,7 +7,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**Phase 7 — Dashboard, commentary, reference MIS recreate.** Previous: [phase-0](docs/plans/phase-0.md) … [phase-6](docs/plans/phase-6.md)
+**Phase 8 — Chat.** Previous: [phase-0](docs/plans/phase-0.md) … [phase-7](docs/plans/phase-7.md)
 
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
@@ -71,8 +71,8 @@ everything now"). Plans, summaries and ADRs are still written per phase.
 | 4   | AI layer and margin controls                  | complete (49 ai tests; no prompt activated until live evals, R-28) |
 | 5   | Semantic layer, mapping, engine, validation   | complete (42 monthly TBs to the paisa; V1–V10 proven) |
 | 6   | Jobs, Excel output, lifecycle                 | complete (setup→refresh with zero AI calls, UI E2E; §23 charges; V11) |
-| 7   | Dashboard, commentary, reference MIS recreate | **current** |
-| 8   | Chat                                          |             |
+| 7   | Dashboard, commentary, reference MIS recreate | complete (V12 post-check; batch commentary; recreated MIS verified by HyperFormula + UI E2E) |
+| 8   | Chat                                          | **current** |
 | 9   | Admin console, compliance surfaces, hardening |             |
 
 Update this section as each phase completes.

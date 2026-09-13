@@ -56,6 +56,16 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-36 | **Lifecycle timings**: first memory-fee debit one month after the setup anchor date; `outputs.retention_days` 365; `lifecycle.deletion_purge_delay_days` 30. | Before launch | open |
 | R-30 | **Estimator heuristics** (`ai.estimator` chars per token, inflation, output ratio, p90 multiplier) are unmeasured seeds; replace with values from live evals and let nightly calibration take over. | Before launch | open |
 
+## Raised in Phase 7
+
+| # | Item | Needed by | Status |
+|---|---|---|---|
+| R-37 | **Commentary digit allowlist** (`commentary.digit_allowlist`, migration 0023): phrases such as "Schedule III" or "Ind AS 115" that may keep their digits in commentary. Confirm the list with the CA reviewer; every entry weakens V12. | Before launch | open |
+| R-38 | **Commentary prose review.** The eval scores only the placeholder rule (V12). Before activating `commentary` prompt versions, a CA reads outputs on the synthetic facts packs for tone, neutrality and "insufficient data" behaviour (SPEC §25 style rules). Also covers `reference_layout` live eval accuracy thresholds (R-28). | Before launch | open |
+| R-39 | **Reference MIS vocabulary** (`packages/templates/src/catalog.ts`, `packages/ingest/src/reference-layout.ts`): the label synonyms that bind rows without AI, and the header words that set period patterns (e.g. "Var %" as month-on-month %). Wrong synonyms bind silently (the user still reviews every row). | Before launch | drafted |
+| R-40 | **Uncharged dashboard layout edits.** Renaming, reordering and removing widgets through UI controls stores a new version without a charge (ADR 0022 §1); chat edits are charged per message. Confirm this with the product owner against SPEC §2.3. | Before launch | open |
+| R-41 | **Reference MIS limits and heuristics**: 20 visible sheets, 400 rows and 60 columns per sheet are read; the label column is the text-densest of the first three, the header row the text-densest of the first 15 with values below. Hidden sheets are skipped and listed. Move limits to config if real workbooks need more. | Before launch | open |
+
 ## Decisions the spec leaves open
 
 | # | Item | Needed by | Status |
