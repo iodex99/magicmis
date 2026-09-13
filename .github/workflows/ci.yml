@@ -105,21 +105,32 @@ jobs:
           RESEND_API_KEY=re_ci_placeholder
           EMAIL_FROM=CI <noreply@ci.test>
           EOF
+          cat > apps/admin/.env.local <<EOF
+          APP_ENVIRONMENT=development
+          DATABASE_URL=${DB_URL}
+          ADMIN_ALLOWED_EMAILS=admin@example.test
+          KEY_WRAPPER=local
+          LOCAL_MASTER_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")
+          EOF
 
-      - name: Build web app
-        run: pnpm --filter @magicmis/web build
+      - name: Build web and admin apps
+        run: pnpm --filter @magicmis/web --filter @magicmis/admin build
 
       - name: Install Chromium
         run: pnpm --filter @magicmis/web exec playwright install --with-deps chromium
 
       - name: Run E2E
-        run: pnpm --filter @magicmis/web e2e
+        run: |
+          pnpm --filter @magicmis/web e2e
+          pnpm --filter @magicmis/admin e2e
 
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-traces
-          path: apps/web/test-results
+          path: |
+            apps/web/test-results
+            apps/admin/test-results
           retention-days: 7
 
   audit:

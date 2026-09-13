@@ -1,0 +1,39 @@
+{
+  "name": "@magicmis/admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3001",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 3001",
+    "create-admin": "tsx scripts/create-admin.ts",
+    "lint": "eslint src test scripts e2e",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@magicmis/billing": "workspace:*",
+    "@magicmis/core": "workspace:*",
+    "@magicmis/crypto": "workspace:*",
+    "@magicmis/db": "workspace:*",
+    "@magicmis/wallet": "workspace:*",
+    "next": "16.3.5",
+    "pg": "^8.16.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@testcontainers/postgresql": "^11.7.1",
+    "@types/pg": "^8.15.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.13",
+    "@playwright/test": "1.63.0"
+  }
+}
