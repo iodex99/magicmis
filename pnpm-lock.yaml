@@ -447,6 +447,22 @@ importers:
         specifier: ^4.5.0
         version: 4.9.0
 
+  packages/redact:
+    dependencies:
+      '@magicmis/core':
+        specifier: workspace:*
+        version: link:../core
+      '@magicmis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
+      '@magicmis/tally':
+        specifier: workspace:*
+        version: link:../tally
+    devDependencies:
+      fast-check:
+        specifier: ^4.5.0
+        version: 4.9.0
+
   packages/tally:
     dependencies:
       '@magicmis/core':
