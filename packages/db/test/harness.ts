@@ -22,6 +22,8 @@ import { migrate } from "../src/migrate.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
+export type DbRole = "anon" | "authenticated" | "service_role";
+
 export interface TestDb {
   readonly pool: pg.Pool;
   readonly container: StartedPostgreSqlContainer;
@@ -30,11 +32,16 @@ export interface TestDb {
    * Run `fn` on a connection acting as `role` with the given auth user id, exactly as a
    * PostgREST request would. Settings are LOCAL to a transaction that is always rolled
    * back, so no test can leak state or a role into another.
+   *
+   * By default a known user acts at `aal2` on their account's active session, which is
+   * what an ordinary authenticated request is after Phase 1. Pass `claims` to override
+   * `aal` or `session_id` and test the refusals.
    */
   asUser: <T>(
     authUserId: string | null,
-    role: "anon" | "authenticated" | "service_role",
+    role: DbRole,
     fn: (client: pg.PoolClient) => Promise<T>,
+    claims?: Record<string, string>,
   ) => Promise<T>;
 }
 
@@ -51,13 +58,29 @@ export async function startTestDb(): Promise<TestDb> {
   await pool.query(shim);
   await migrate(pool);
 
-  const asUser: TestDb["asUser"] = async (authUserId, role, fn) => {
+  const asUser: TestDb["asUser"] = async (authUserId, role, fn, overrides = {}) => {
+    let claims: Record<string, string> = {};
+    if (authUserId !== null) {
+      const session = await pool.query<{ active_session_id: string | null }>(
+        "select active_session_id from public.accounts where auth_user_id = $1",
+        [authUserId],
+      );
+      const sessionId = session.rows[0]?.active_session_id ?? null;
+      claims = {
+        sub: authUserId,
+        role,
+        aal: "aal2",
+        ...(sessionId === null ? {} : { session_id: sessionId }),
+      };
+    }
+    claims = { ...claims, ...overrides };
+
     const client = await pool.connect();
     try {
       await client.query("begin");
-      const claims =
-        authUserId === null ? "{}" : JSON.stringify({ sub: authUserId, role });
-      await client.query("select set_config('request.jwt.claims', $1, true)", [claims]);
+      await client.query("select set_config('request.jwt.claims', $1, true)", [
+        JSON.stringify(claims),
+      ]);
       await client.query(`set local role ${role}`);
       return await fn(client);
     } finally {
@@ -82,6 +105,7 @@ export interface SeededAccount {
   readonly accountId: string;
   readonly authUserId: string;
   readonly companyId: string;
+  readonly sessionId: string;
 }
 
 /**
@@ -94,10 +118,15 @@ export async function seedTwoAccounts(
   pool: pg.Pool,
 ): Promise<[SeededAccount, SeededAccount]> {
   const seed = async (label: string, stateCode: string): Promise<SeededAccount> => {
-    const account = await pool.query<{ id: string; auth_user_id: string }>(
-      `insert into public.accounts (auth_user_id, email, business_name, state_code)
-       values (gen_random_uuid(), $1, $2, $3)
-       returning id, auth_user_id`,
+    const account = await pool.query<{
+      id: string;
+      auth_user_id: string;
+      active_session_id: string;
+    }>(
+      `insert into public.accounts
+         (auth_user_id, email, business_name, state_code, active_session_id)
+       values (gen_random_uuid(), $1, $2, $3, gen_random_uuid())
+       returning id, auth_user_id, active_session_id`,
       [`${label}@example.test`, `${label} Advisors LLP`, stateCode],
     );
     const row = account.rows[0];
@@ -115,8 +144,9 @@ export async function seedTwoAccounts(
       [row.id, `${label} Trading Pvt Ltd`],
     );
     const companyRow = company.rows[0];
-    if (companyRow === undefined)
+    if (companyRow === undefined) {
       throw new Error("seed: company insert returned nothing");
+    }
 
     await pool.query(
       `insert into public.snapshots
@@ -125,7 +155,12 @@ export async function seedTwoAccounts(
       [companyRow.id, row.id],
     );
 
-    return { accountId: row.id, authUserId: row.auth_user_id, companyId: companyRow.id };
+    return {
+      accountId: row.id,
+      authUserId: row.auth_user_id,
+      companyId: companyRow.id,
+      sessionId: row.active_session_id,
+    };
   };
 
   return [await seed("alpha", "27"), await seed("beta", "29")];

@@ -72,6 +72,9 @@ const INTERNAL_TABLES = [
   "library_candidates",
   "invoice_counters",
   "audit_log",
+  "backup_codes",
+  "reauth_grants",
+  "auth_throttle",
 ] as const;
 
 describe("every customer table has RLS enabled and forced", () => {
@@ -275,6 +278,91 @@ describe("account A cannot reach account B's data", () => {
     );
     for (const row of rows) {
       expect(row.account_id).toBe(alpha.accountId);
+    }
+  });
+});
+
+describe("SPEC §8 at the database layer: aal2 and the single active session", () => {
+  /** Rows the account can see in every tenant table, under the given claim overrides. */
+  async function visibleRows(claims: Record<string, string>): Promise<number> {
+    let total = 0;
+    for (const table of TENANT_TABLES) {
+      total += await testDb().asUser(
+        alpha.authUserId,
+        "authenticated",
+        async (client) => {
+          const r = await client.query<{ n: string }>(
+            `select count(*)::text as n from public.${table}`,
+          );
+          return Number.parseInt(r.rows[0]?.n ?? "0", 10);
+        },
+        claims,
+      );
+    }
+    return total;
+  }
+
+  it("serves an aal2 token on the active session (control)", async () => {
+    // Without this control, the two refusals below could pass because nothing is visible
+    // to anyone.
+    expect(await visibleRows({})).toBeGreaterThan(0);
+  });
+
+  it("returns nothing to an aal1 token — the app is unusable until 2FA is enrolled", async () => {
+    expect(await visibleRows({ aal: "aal1" })).toBe(0);
+  });
+
+  it("returns nothing when the aal claim is missing entirely", async () => {
+    const count = await testDb().asUser(
+      alpha.authUserId,
+      "authenticated",
+      async (client) => {
+        await client.query(`select set_config('request.jwt.claims', $1, true)`, [
+          JSON.stringify({ sub: alpha.authUserId, session_id: alpha.sessionId }),
+        ]);
+        const r = await client.query<{ n: string }>(
+          `select count(*)::text as n from public.companies`,
+        );
+        return Number.parseInt(r.rows[0]?.n ?? "0", 10);
+      },
+    );
+    expect(count).toBe(0);
+  });
+
+  it("returns nothing to a superseded session — a second login terminates the first", async () => {
+    expect(
+      await visibleRows({ session_id: "00000000-0000-4000-8000-000000000000" }),
+    ).toBe(0);
+  });
+
+  it("stops serving the old session the moment active_session_id moves", async () => {
+    const oldSession = alpha.sessionId;
+    await testDb().pool.query(
+      `update public.accounts set active_session_id = gen_random_uuid() where id = $1`,
+      [alpha.accountId],
+    );
+    try {
+      expect(await visibleRows({ session_id: oldSession })).toBe(0);
+    } finally {
+      await testDb().pool.query(
+        `update public.accounts set active_session_id = $1 where id = $2`,
+        [oldSession, alpha.accountId],
+      );
+    }
+  });
+
+  it("refuses a suspended account even at aal2 on its active session", async () => {
+    await testDb().pool.query(
+      `update public.accounts set status = 'suspended' where id = $1`,
+      [alpha.accountId],
+    );
+    try {
+      expect(await visibleRows({})).toBe(0);
+    } finally {
+      await testDb().pool.query(
+        `update public.accounts set status = 'active' where id = $1`,
+        [alpha.accountId],
+      );
     }
   });
 });

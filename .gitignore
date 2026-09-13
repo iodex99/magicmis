@@ -36,3 +36,7 @@ test-results/
 Thumbs.db
 *.log
 .claude/settings.local.json
+
+# Supabase local stack state
+supabase/.branches
+supabase/.temp

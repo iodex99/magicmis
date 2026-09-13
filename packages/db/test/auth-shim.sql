@@ -1,28 +1,25 @@
 -- Test-only Supabase auth shim.
 --
--- Supabase provides an `auth` schema whose `auth.uid()` the RLS policies call. Plain
+-- Supabase provides an `auth` schema whose functions the RLS policies call. Plain
 -- Postgres does not, so the policies would fail to compile in a Testcontainers database.
 --
 -- Fidelity matters here more than anywhere else in the test suite: if this diverges from
--- the real function, the RLS harness proves something about the shim rather than about
--- production. So it reproduces the documented behaviour and nothing more.
+-- the real functions, the RLS harness proves something about the shim rather than about
+-- production.
 --
--- Verified 2026-09-11:
---   * auth.uid() "Returns the ID of the user making the request", and returns NULL when
---     there is no authenticated user.
---     https://supabase.com/docs/guides/database/postgres/row-level-security
---   * Claims reach SQL through PostgREST's transaction-scoped `request.jwt.claims`
---     setting, read as current_setting('request.jwt.claims', true)::json->>'sub'.
---     https://docs.postgrest.org/en/stable/references/transactions.html
+-- PARITY CHECKED 2026-09-13 against a running Supabase local stack (CLI 2.117.0,
+-- public.ecr.aws/supabase/postgres:17.6.1.167) using pg_get_functiondef. The bodies below
+-- are copied from that output, not reconstructed from documentation.
 --
--- Supabase does not publish auth.uid()'s SQL definition, so the body below is the
--- documented contract implemented over the documented claims mechanism, not a copy of
--- their source. It is deliberately the only function defined here: an earlier draft also
--- defined auth.role(), which is NOT a documented Supabase function and which nothing in
--- the migrations uses. Inventing helpers in a fidelity shim is how it starts to drift.
+-- The check found one real divergence in the earlier, documentation-derived shim: with no
+-- claims set, the real auth.jwt() returns NULL, while the shim returned '{}'. Every policy
+-- here reads claims through coalesce(), so no test outcome changed, but a future policy
+-- written as `auth.jwt() ->> 'x' is null` would have behaved differently under test than
+-- in production. The real functions also fall back to the legacy single-claim settings
+-- (`request.jwt.claim.sub`, `request.jwt.claim`), which the shim now reproduces.
 --
 -- Applied ONLY by the test harness, never by a migration, so it cannot reach a real
--- Supabase database and shadow the genuine function.
+-- Supabase database and shadow the genuine functions.
 
 create schema if not exists auth;
 
@@ -31,8 +28,21 @@ create or replace function auth.uid()
   language sql
   stable
 as $$
-  select nullif(
-    current_setting('request.jwt.claims', true)::json ->> 'sub',
-    ''
+  select
+  coalesce(
+    nullif(current_setting('request.jwt.claim.sub', true), ''),
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
   )::uuid
+$$;
+
+create or replace function auth.jwt()
+  returns jsonb
+  language sql
+  stable
+as $$
+  select
+    coalesce(
+        nullif(current_setting('request.jwt.claim', true), ''),
+        nullif(current_setting('request.jwt.claims', true), '')
+    )::jsonb
 $$;
