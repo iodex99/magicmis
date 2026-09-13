@@ -41,10 +41,33 @@ export const serverEnvSchema = z.object({
   RAZORPAY_KEY_SECRET: nonEmpty,
   RAZORPAY_WEBHOOK_SECRET: nonEmpty,
 
-  /** Wraps the per-company and per-account DEKs (SPEC §10). */
-  KMS_MASTER_KEY_ID: nonEmpty,
+  /**
+   * AWS KMS key that wraps the per-company and per-account DEKs (SPEC §10, ADR 0008).
+   * A key ARN or an `alias/...` name. It must live in AWS_REGION.
+   */
+  KMS_MASTER_KEY_ID: z
+    .string()
+    .regex(/^(arn:aws:kms:[a-z0-9-]+:\d{12}:(key|alias)\/.+|alias\/.+)$/u),
+  /**
+   * Pinned explicitly, never inferred. Vercel sets AWS_REGION to the function's execution
+   * region, which can change under failover and would send KMS calls to a region where
+   * the key does not exist (ADR 0008).
+   */
+  AWS_REGION: z.string().regex(/^[a-z]{2}-[a-z]+-\d$/u),
+  /**
+   * IAM role assumed through Vercel OIDC federation, so no long-lived AWS access key
+   * exists anywhere. Optional because the worker's container host may supply its own
+   * ambient role instead (ADR 0008).
+   */
+  AWS_ROLE_ARN: z
+    .string()
+    .regex(/^arn:aws:iam::\d{12}:role\/.+$/u)
+    .optional(),
 
-  EMAIL_API_KEY: nonEmpty,
+  /** Postmark server API token (ADR 0007). */
+  POSTMARK_SERVER_TOKEN: nonEmpty,
+  /** Transactional stream only. SPEC §29 sends no marketing mail. */
+  POSTMARK_MESSAGE_STREAM: nonEmpty.default("outbound"),
   EMAIL_FROM: z.email(),
 
   SENTRY_DSN: z.url().optional(),

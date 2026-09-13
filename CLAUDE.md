@@ -238,7 +238,7 @@ dashboard specs are data; the chat engine can later query stored data.
 
 ## Toolchain notes (this machine)
 
-- Node **v22.18.0**, npm 10.9.3. **pnpm is not installed** — required by Section 5
-  (pnpm workspaces). Install with `corepack enable pnpm` before Phase 1.
+- Node **v22.18.0**, npm 10.9.3, pnpm 12.3.4 (see the environment notes under
+  "Current phase" for why corepack is not used).
 - Windows 11. Shell is PowerShell; a Git Bash is also available. Large heredocs fail
   under Git Bash here — write files with the editor tools, not `cat <<EOF`.

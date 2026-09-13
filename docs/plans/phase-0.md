@@ -235,10 +235,12 @@ mechanism.
 - **`account_id` added to `blueprints`, `snapshots`, `company_keys`, `chat_messages`,
   `chat_query_steps` and `outputs`**, which §9 lists with only `company_id`. The general
   rule above that list ("all customer tables carry account_id") governs — ADR 0003.
-- **ADRs 0006–0009 not written.** They were planned for the email provider, KMS choice,
-  social login and region. An ADR records a decision taken; none of those has code
-  depending on it yet, and writing one now would record a guess. The region question is
-  resolved and recorded inside ADR 0003.
+- **ADRs 0006–0009 were first held back, then written after review.** You delegated the
+  choices on 2026-09-13, so they were decided on the merits and verified against
+  official docs: hosting in Mumbai throughout (0006), Postmark for email (0007), AWS KMS
+  with Vercel OIDC and no long-lived credentials (0008), and email + password + TOTP with
+  no social sign-in (0009). The server env schema was updated to match: KMS key ARN or
+  alias, a pinned `AWS_REGION`, an optional role ARN, and the Postmark token and stream.
 
 ## New dependencies (§0.10 — one line each)
 
@@ -253,10 +255,12 @@ mechanism.
 
 ## `TODO(review)` raised this phase (§0.6)
 
-One new: **R-20**, the GSTIN check-character algorithm, needing confirmation against
-official GSTN documentation before Phase 2. It reproduces the check character on two
-independent specimen GSTINs and passes a generated-check-character property test, but
-§0.4 does not accept an external fact without a source.
+One raised and then closed: **R-20**, the GSTIN check-character algorithm. On review you
+decided GSTIN accuracy is the user's responsibility, so no official verification will be
+pursued. The existing check stays, since §8 asks for it.
+
+Closed after review: **R-16** email provider, **R-17** social sign-in, **R-18** KMS
+(ADRs 0007–0009).
 
 One closed: **R-19** — Supabase Mumbai (`ap-south-1`) confirmed available.
 
@@ -273,5 +277,14 @@ Two carried-forward obligations:
 
 ## Open, and not blocking
 
-Unchanged from §0.g: product name (R-01), and the email provider (R-16, proceeding with
-Resend unless told otherwise). Neither has code depending on it yet.
+Product name (R-01) only. Nothing depends on it until Phase 1's first customer-facing copy.
+
+## Carried into Phase 1 from the review ADRs
+
+- Enforce `aal2` in the database, by extending `app.current_account_id()` in a **new**
+  migration, so an `aal1` session reads nothing even if a route forgets its check
+  (ADR 0009). Add `auth.jwt()` to the test shim to prove it.
+- Route Supabase Auth email through Postmark via custom SMTP; the built-in sender is
+  non-production and limited to 2 messages an hour (ADR 0007).
+- Commit `"regions": ["bom1"]` in each app's `vercel.json` when the apps are created
+  (ADR 0006).

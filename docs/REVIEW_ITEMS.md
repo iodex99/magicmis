@@ -27,7 +27,7 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-07 | **TallyPrime menu paths** in `docs/help`. §16: do not invent paths that cannot be verified — write structure, mark the path. | Phase 3 | open |
 | R-08 | **Tally predefined group lists** (15 primary, 13 sub-groups) verified against Tally documentation before seeding. | Phase 3 | open |
 | R-09 | **Model prices, IDs, effort parameter, cache multipliers, batch discount** verified against docs. §14 seed values are explicitly unverified. | Phase 4 | open |
-| R-20 | **GSTIN check-character algorithm** verified against official GSTN documentation. Implemented as a mod-36 Luhn-style fold and confirmed against two independent specimen GSTINs plus a generated-check-character property test, but §0.4 forbids relying on an external fact without a doc URL. Tax invoices depend on it, and an invalid GSTIN silently yields no state code — which would misroute CGST/SGST vs IGST. | Phase 2 | open |
+| R-20 | **GSTIN check-character algorithm.** | Phase 2 | **closed** — owner decision 2026-09-13: GSTIN is supplied by the user, and its accuracy is the user's responsibility. No further verification will be pursued. The existing format-and-checksum check stays, since SPEC §8 asks for it and it already reproduces two independent specimens. |
 | R-10 | **Terms of service** — prepaid, non-refundable, non-transferable, no cash-out, 12-month validity, memory fee, lifecycle, professional-review disclaimer, acceptable use. §31: placeholder only, no final legal language. | Phase 9 | open |
 | R-11 | **Privacy notice** — browser processing, what leaves the browser, Anthropic as subprocessor, retention, DPDP rights, grievance contact. §31: placeholder only. | Phase 9 | open |
 | R-12 | **First-upload processing notice** text. §31. | Phase 9 | open |
@@ -39,9 +39,9 @@ your sign-off · `closed` — resolved, with the resolution noted.
 
 | # | Item | Needed by | Status |
 |---|---|---|---|
-| R-16 | **Email provider** — §5 says Resend or Postmark, record in ADR. Proceeding with Resend unless told otherwise. | Phase 0 | drafted |
-| R-17 | **Google / Microsoft sign-in** — §8 says may be offered, decision recorded in ADR. 2FA stays mandatory either way. | Phase 1 | open |
-| R-18 | **KMS vs secrets manager** for the master key — §5 prefers a cloud KMS. | Phase 0 | open |
+| R-16 | **Email provider** — §5 says Resend or Postmark, record in ADR. | Phase 0 | **closed** — Postmark, transactional stream only. Decision delegated to engineering 2026-09-13. See ADR 0007. |
+| R-17 | **Google / Microsoft sign-in** — §8 says may be offered, decision recorded in ADR. | Phase 1 | **closed** — not offered in this build; email + password + mandatory TOTP only. Reversible without a schema change. See ADR 0009. |
+| R-18 | **KMS vs secrets manager** for the master key — §5 prefers a cloud KMS. | Phase 0 | **closed** — AWS KMS customer-managed key in `ap-south-1`, reached via Vercel OIDC with no long-lived credentials. See ADR 0008. |
 | R-19 | **Supabase region** — §5 says use India (Mumbai) if available; confirm in docs. | Phase 0 | **closed** — Mumbai `ap-south-1` ("South Asia (Mumbai)") confirmed available. [Source](https://supabase.com/docs/guides/platform/regions), verified 2026-09-11. See ADR 0003. |
 
 ---

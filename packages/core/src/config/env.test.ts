@@ -10,8 +10,9 @@ const VALID_SERVER = {
   RAZORPAY_KEY_ID: "rzp_test_id",
   RAZORPAY_KEY_SECRET: "rzp_test_secret",
   RAZORPAY_WEBHOOK_SECRET: "whsec",
-  KMS_MASTER_KEY_ID: "kms-key-1",
-  EMAIL_API_KEY: "email-key",
+  KMS_MASTER_KEY_ID: "alias/magicmis-master",
+  AWS_REGION: "ap-south-1",
+  POSTMARK_SERVER_TOKEN: "postmark-test-token",
   EMAIL_FROM: "noreply@example.com",
 } as const;
 
@@ -88,6 +89,48 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
   it("rejects an unknown environment name", () => {
     expect(() =>
       loadPublicEnv({ ...VALID_PUBLIC, NEXT_PUBLIC_ENVIRONMENT: "prod" }),
+    ).toThrow(EnvValidationError);
+  });
+
+  it("applies the transactional Postmark stream by default (ADR 0007)", () => {
+    expect(loadServerEnv({ ...VALID_SERVER })).toMatchObject({
+      POSTMARK_MESSAGE_STREAM: "outbound",
+    });
+  });
+
+  it("accepts a KMS key ARN or alias, and rejects anything else (ADR 0008)", () => {
+    const arn =
+      "arn:aws:kms:ap-south-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab";
+    expect(() =>
+      loadServerEnv({ ...VALID_SERVER, KMS_MASTER_KEY_ID: arn }),
+    ).not.toThrow();
+    expect(() =>
+      loadServerEnv({ ...VALID_SERVER, KMS_MASTER_KEY_ID: "kms-key-1" }),
+    ).toThrow(EnvValidationError);
+  });
+
+  it("requires AWS_REGION to be pinned rather than inferred (ADR 0008)", () => {
+    const { AWS_REGION: _omitted, ...withoutRegion } = VALID_SERVER;
+    expect(() => loadServerEnv(withoutRegion)).toThrow(EnvValidationError);
+    expect(() => loadServerEnv({ ...VALID_SERVER, AWS_REGION: "mumbai" })).toThrow(
+      EnvValidationError,
+    );
+  });
+
+  it("keeps AWS_ROLE_ARN optional but validates it when present", () => {
+    expect(() => loadServerEnv({ ...VALID_SERVER })).not.toThrow();
+    expect(() =>
+      loadServerEnv({
+        ...VALID_SERVER,
+        AWS_ROLE_ARN: "arn:aws:iam::111122223333:role/magicmis-web",
+      }),
+    ).not.toThrow();
+    // A user ARN is not a role: assuming it is how long-lived keys creep back in.
+    expect(() =>
+      loadServerEnv({
+        ...VALID_SERVER,
+        AWS_ROLE_ARN: "arn:aws:iam::111122223333:user/dev",
+      }),
     ).toThrow(EnvValidationError);
   });
 
