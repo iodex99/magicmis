@@ -267,7 +267,9 @@ test("sets up a company that recreates the user's reference MIS, with binding re
   expect(typeof totalIncome?.[1]).toBe("number");
 
   const job = await db.query<{ type: string; state: string }>(
-    `select j.type, j.state from jobs j join companies c on c.id = j.company_id where c.name = 'Synthetic Recreated Traders'`,
+    `select j.type, j.state from jobs j join companies c on c.id = j.company_id join accounts a on a.id = c.account_id
+     where c.name = 'Synthetic Recreated Traders' and a.email = $1`,
+    [email],
   );
   expect(job.rows).toEqual([{ type: "reference_mis_recreate", state: "completed" }]);
   expect(await aiCallsForAccount()).toBe(0);

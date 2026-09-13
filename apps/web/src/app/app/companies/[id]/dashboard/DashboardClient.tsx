@@ -29,7 +29,13 @@ interface Payload {
   company: { id: string; name: string; fyStartMonth: number; money: NumberFormatOptions };
   periods: string[];
   values: MetricValue[];
-  dashboard: { blueprintVersion: number; spec: DashboardSpec; canUndo: boolean } | null;
+  dashboard: {
+    blueprintVersion: number;
+    spec: DashboardSpec;
+    canUndo: boolean;
+    dataThrough: string | null;
+  } | null;
+  latestPeriod: string | null;
 }
 
 type Operation = Record<string, unknown>;
@@ -244,7 +250,9 @@ export function DashboardClient({ companyId }: { companyId: string }) {
       return;
     }
     setPayload(r.data);
-    setPeriod((p) => p ?? ((r.data.periods[0] ?? null) as PeriodId | null));
+    setPeriod((p) =>
+      p !== null && r.data.periods.includes(p) ? p : ((r.data.periods[0] ?? null) as PeriodId | null),
+    );
   }, [companyId]);
 
   useEffect(() => {
@@ -261,7 +269,7 @@ export function DashboardClient({ companyId }: { companyId: string }) {
   if (payload.dashboard === null) {
     return (
       <Panel title="Add a dashboard">
-        {payload.periods.length === 0 ? (
+        {payload.latestPeriod === null ? (
           <p className="text-sm text-neutral-700">
             Run the company setup first; the dashboard shows its figures.
           </p>
@@ -269,7 +277,7 @@ export function DashboardClient({ companyId }: { companyId: string }) {
           <>
             <p className="mb-4 text-sm text-neutral-700">
               The dashboard charts this company's MIS figures, month by month. It is kept
-              with the company and updates with every refresh.
+              with the company; after a monthly refresh, a dashboard refresh brings in the new month.
             </p>
             <PaidJobButton
               companyId={companyId}
@@ -333,6 +341,34 @@ export function DashboardClient({ companyId }: { companyId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {payload.latestPeriod !== null &&
+      (dashboard.dataThrough === null || payload.latestPeriod > dashboard.dataThrough) ? (
+        <Panel title="A newer month is available">
+          <p className="mb-3 text-sm text-neutral-700">
+            The dashboard shows months up to{" "}
+            {dashboard.dataThrough === null
+              ? "—"
+              : companyFormat(payload.company.money).period(dashboard.dataThrough)}
+            . Refresh it to include{" "}
+            {companyFormat(payload.company.money).period(payload.latestPeriod)}.
+          </p>
+          <PaidJobButton
+            companyId={companyId}
+            type="dashboard_refresh"
+            label="Get refresh price"
+            deliveries={["standard"]}
+            onHeld={async (jobId) => {
+              const r = await api(`/api/jobs/${jobId}/deliver-dashboard`, {
+                body: {},
+                idempotencyKey: newIdempotencyKey(),
+              });
+              if (!r.ok) setError(r.message);
+              setPeriod(null);
+              await load();
+            }}
+          />
+        </Panel>
+      ) : null}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <label className="flex flex-col text-sm">
           <span className="text-neutral-700">Month</span>

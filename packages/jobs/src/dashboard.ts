@@ -9,6 +9,10 @@
  *
  * Patches from UI controls are not charged: the dashboard was paid for, and a layout edit reads no
  * data. Patches from chat arrive through a charged chat message (SPEC §27).
+ *
+ * Data: a dashboard shows months up to `dataThrough`, the latest month it was paid for. A monthly
+ * refresh stores a new month for the Excel MIS; the dashboard moves to it only through a paid
+ * `dashboard_refresh` (SPEC §2.3, §23 refresh flow step 5). Edits and undo never change it.
  */
 
 import type { KeyWrapper } from "@magicmis/crypto";
@@ -51,6 +55,10 @@ export class DashboardError extends Error {
 const storedSchema = z.object({
   spec: dashboardSpecSchema,
   parentVersion: z.number().int().positive().nullable(),
+  dataThrough: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/u)
+    .nullable(),
 });
 export type StoredDashboard = z.infer<typeof storedSchema>;
 
@@ -58,7 +66,17 @@ export interface CompanyDashboard {
   readonly blueprintVersion: number;
   readonly spec: DashboardSpec;
   readonly canUndo: boolean;
+  /** The latest month the dashboard may show. */
+  readonly dataThrough: string | null;
 }
+
+const latestPeriod = async (pool: Pool, companyId: string): Promise<string | null> =>
+  (
+    await pool.query<{ period: string | null }>(
+      `select max(period) as period from public.snapshots where company_id = $1`,
+      [companyId],
+    )
+  ).rows[0]?.period ?? null;
 
 async function current(
   pool: Pool,
@@ -106,12 +124,14 @@ export async function companyDashboard(
     blueprintVersion: blueprint.version,
     spec: stored.data.spec,
     canUndo: stored.data.parentVersion !== null,
+    dataThrough: stored.data.dataThrough,
   };
 }
 
 /**
- * Delivers a reserved `dashboard_addon` job: stores the default dashboard as a new blueprint version
- * (once, recorded in the checkpoint), captures and completes. There is no AI stage.
+ * Delivers a reserved dashboard job, once (recorded in the checkpoint), then captures and completes;
+ * there is no AI stage. `dashboard_addon` stores the default dashboard through the latest month;
+ * `dashboard_refresh` moves an existing dashboard to the latest month. Either is a new version.
  */
 export async function completeDashboardAddon(
   pool: Pool,
@@ -121,7 +141,10 @@ export async function completeDashboardAddon(
   const now = input.now ?? new Date();
   const job = await withTransaction(pool, async (tx) => {
     const locked = await lockJob(tx, input.jobId, input.accountId);
-    if (locked.type !== "dashboard_addon" || locked.company_id === null)
+    if (
+      (locked.type !== "dashboard_addon" && locked.type !== "dashboard_refresh") ||
+      locked.company_id === null
+    )
       throw new DashboardError("wrong_job", "This is not a dashboard job.");
     if (locked.state === "reserved") await transition(tx, locked, "rendering");
     else if (locked.state !== "rendering" && locked.state !== "completed")
@@ -137,16 +160,25 @@ export async function completeDashboardAddon(
   let version = job.stage_checkpoints["blueprint_version"] as number | undefined;
   if (version === undefined) {
     const { blueprint, stored } = await current(pool, wrapper, scope);
-    version =
+    const through = await latestPeriod(pool, companyId);
+    if (job.type === "dashboard_refresh" && stored === null)
+      throw new DashboardError("no_dashboard", "Add the dashboard before refreshing it.");
+    const next: StoredDashboard | null =
       stored === null
-        ? await storeDashboard(
+        ? { spec: DEFAULT_DASHBOARD, parentVersion: null, dataThrough: through }
+        : stored.dataThrough === through
+          ? null
+          : { ...stored, dataThrough: through };
+    version =
+      next === null
+        ? blueprint.version
+        : await storeDashboard(
             pool,
             wrapper,
             { ...scope, jobId: job.id },
             blueprint.parts,
-            { spec: DEFAULT_DASHBOARD, parentVersion: null },
-          )
-        : blueprint.version;
+            next,
+          );
     await pool.query(
       `update public.jobs set stage_checkpoints = stage_checkpoints || $2::jsonb where id = $1`,
       [job.id, JSON.stringify({ blueprint_version: version })],
@@ -207,7 +239,9 @@ export async function applyDashboardPatch(
   },
 ): Promise<CompanyDashboard> {
   const { spec } = await previewDashboardPatch(pool, wrapper, input);
-  const { blueprint } = await current(pool, wrapper, input);
+  const { blueprint, stored } = await current(pool, wrapper, input);
+  if (stored === null)
+    throw new DashboardError("no_dashboard", "This company has no dashboard yet.");
   const version = await storeDashboard(
     pool,
     wrapper,
@@ -216,9 +250,15 @@ export async function applyDashboardPatch(
     {
       spec,
       parentVersion: input.baseVersion,
+      dataThrough: stored.dataThrough,
     },
   );
-  return { blueprintVersion: version, spec, canUndo: true };
+  return {
+    blueprintVersion: version,
+    spec,
+    canUndo: true,
+    dataThrough: stored.dataThrough,
+  };
 }
 
 /** Restores the dashboard the current one was made from, as a new blueprint version. */
@@ -251,11 +291,13 @@ export async function undoDashboard(
     wrapper,
     { accountId: input.accountId, companyId: input.companyId, jobId: null },
     blueprint.parts,
-    parent.stored,
+    // The layout goes back; the paid-for data stays.
+    { ...parent.stored, dataThrough: stored.dataThrough },
   );
   return {
     blueprintVersion: version,
     spec: parent.stored.spec,
     canUndo: parent.stored.parentVersion !== null,
+    dataThrough: stored.dataThrough,
   };
 }

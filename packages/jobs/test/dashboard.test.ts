@@ -6,7 +6,7 @@
 import { randomUUID } from "node:crypto";
 
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
-import { latestBlueprint, storeBlueprint } from "@magicmis/engine/server";
+import { latestBlueprint, storeBlueprint, storeSnapshot } from "@magicmis/engine/server";
 import { DEFAULT_DASHBOARD } from "@magicmis/render-dashboard";
 import { priceFor } from "@magicmis/wallet";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -60,6 +60,7 @@ const PARTS = {
 async function companyWithDashboard() {
   const c = await accountWithCompany(pool(), 5_000n);
   await storeBlueprint(pool(), wrapper, { ...c, jobId: null, parts: PARTS });
+  await storeSnapshot(pool(), wrapper, { ...c, jobId: null, payload: emptySnapshot("2026-04") });
   const job = await createJob(pool(), {
     ...c,
     type: "dashboard_addon",
@@ -106,6 +107,7 @@ describe("dashboard add-on", () => {
       blueprintVersion: 2,
       spec: DEFAULT_DASHBOARD,
       canUndo: false,
+      dataThrough: "2026-04",
     });
     // The rest of the blueprint is unchanged.
     expect((await latestBlueprint(pool(), wrapper, c))?.parts.recipe).toEqual({ v: 1 });
@@ -224,5 +226,42 @@ describe("dashboard patches and undo", () => {
       blueprintVersion: 3,
       spec: DEFAULT_DASHBOARD,
     });
+  });
+
+  it("new months reach the dashboard only through a paid dashboard refresh, which edits and undo keep", async () => {
+    const c = await companyWithDashboard();
+    await applyDashboardPatch(pool(), wrapper, { ...c, baseVersion: 2, operations: rename("Sales") });
+    // A monthly refresh stored May; the dashboard still stops at April.
+    await storeSnapshot(pool(), wrapper, { ...c, jobId: null, payload: emptySnapshot("2026-05") });
+    expect((await companyDashboard(pool(), wrapper, c))?.dataThrough).toBe("2026-04");
+
+    const job = await createJob(pool(), {
+      ...c,
+      type: "dashboard_refresh",
+      tier: "professional",
+      delivery: "standard",
+      idempotencyKey: randomUUID(),
+      size: ZERO,
+    });
+    await confirmJob(pool(), { accountId: c.accountId, jobId: job.jobId });
+    const before = await wallet(pool(), c.accountId);
+    const done = await completeDashboardAddon(pool(), wrapper, { accountId: c.accountId, jobId: job.jobId });
+    const price = (await priceFor(pool(), { actionKey: "dashboard_refresh", tier: "professional", delivery: "standard" })).credits;
+    expect(done).toEqual({ captured: price, blueprintVersion: 4 });
+    expect((await wallet(pool(), c.accountId)).balance).toBe(before.balance - price);
+    expect(await companyDashboard(pool(), wrapper, c)).toMatchObject({ dataThrough: "2026-05", canUndo: true });
+
+    // Undo restores the layout, not the old month.
+    const undone = await undoDashboard(pool(), wrapper, { ...c, baseVersion: 4 });
+    expect(undone).toMatchObject({ dataThrough: "2026-05" });
+    expect(undone.spec.widgets[0]?.title).toBe("Revenue");
+  });
+
+  it("a dashboard refresh needs a dashboard", async () => {
+    const c = await accountWithCompany(pool(), 5_000n);
+    await storeBlueprint(pool(), wrapper, { ...c, jobId: null, parts: PARTS });
+    const job = await createJob(pool(), { ...c, type: "dashboard_refresh", tier: "professional", delivery: "standard", idempotencyKey: randomUUID(), size: ZERO });
+    await confirmJob(pool(), { accountId: c.accountId, jobId: job.jobId });
+    await expect(completeDashboardAddon(pool(), wrapper, { accountId: c.accountId, jobId: job.jobId })).rejects.toMatchObject({ code: "no_dashboard" });
   });
 });

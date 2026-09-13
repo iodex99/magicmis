@@ -87,8 +87,14 @@ export async function companyMetrics(
 
 export interface DashboardPayload extends CompanyMetrics {
   readonly dashboard: CompanyDashboard | null;
+  /** The latest stored month, which may be newer than the dashboard's paid-for month. */
+  readonly latestPeriod: string | null;
 }
 
+/**
+ * The dashboard with only the values it has been paid for (SPEC §2.3): nothing before the add-on,
+ * and nothing after `dataThrough` until a dashboard refresh.
+ */
 export async function dashboardPayload(
   pool: Pool,
   accountId: string,
@@ -96,9 +102,15 @@ export async function dashboardPayload(
 ): Promise<DashboardPayload | null> {
   const metrics = await companyMetrics(pool, accountId, companyId);
   if (metrics === null) return null;
+  const dashboard = await companyDashboard(pool, keyWrapper(), { accountId, companyId });
+  const through = dashboard?.dataThrough ?? null;
+  const paid = (period: string) => through !== null && period <= through;
   return {
-    ...metrics,
-    dashboard: await companyDashboard(pool, keyWrapper(), { accountId, companyId }),
+    company: metrics.company,
+    periods: metrics.periods.filter(paid),
+    values: metrics.values.filter((v) => paid(v.period)),
+    dashboard,
+    latestPeriod: metrics.periods[0] ?? null,
   };
 }
 

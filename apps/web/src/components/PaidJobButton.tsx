@@ -39,7 +39,7 @@ export function PaidJobButton({
   onHeld,
 }: {
   companyId: string;
-  type: "dashboard_addon" | "commentary";
+  type: "dashboard_addon" | "dashboard_refresh" | "commentary";
   label: string;
   deliveries: readonly Delivery[];
   onHeld: (jobId: string, delivery: Delivery) => Promise<void>;

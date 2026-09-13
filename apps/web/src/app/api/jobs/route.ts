@@ -15,6 +15,7 @@ const bodySchema = z.object({
     "reference_mis_recreate",
     "monthly_refresh",
     "dashboard_addon",
+    "dashboard_refresh",
     "commentary",
   ]),
   tier: z.enum(["efficient", "professional", "expert"]),
