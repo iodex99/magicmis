@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@magicmis/ai": "workspace:*",
     "@magicmis/billing": "workspace:*",
     "@magicmis/core": "workspace:*",
     "@magicmis/db": "workspace:*",
@@ -19,8 +20,8 @@
     "pg-boss": "12.31.0",
     "pino": "10.3.1",
     "resend": "6.28.0",
-    "zod": "^4.1.13",
-    "tsx": "4.23.13"
+    "tsx": "4.23.13",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^11.7.1",

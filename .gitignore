@@ -40,3 +40,6 @@ Thumbs.db
 # Supabase local stack state
 supabase/.branches
 supabase/.temp
+
+# AI eval reports (recordings are committed; reports are per-run output)
+packages/ai/evals/reports/

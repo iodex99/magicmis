@@ -1,0 +1,76 @@
+/**
+ * Eval CLI.
+ *
+ *   pnpm --filter @magicmis/ai evals -- --stage sheet_classification --tier efficient --version 1
+ *
+ * Replay (default) needs only DATABASE_URL. Live mode additionally needs AI_LIVE=1 and
+ * ANTHROPIC_API_KEY, spends real money on synthetic fixtures, and saves a recording under
+ * evals/recordings/ so the run can be replayed. The report is written to evals/reports/.
+ */
+
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
+
+import pg from "pg";
+
+import type { Tier } from "../src/registry";
+import { anthropicTransport } from "../src/transport";
+import { runEval, STAGE_EVALS, type EvaluableStage } from "./harness";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+
+async function main(): Promise<void> {
+  const { values } = parseArgs({
+    options: {
+      stage: { type: "string", default: "sheet_classification" },
+      tier: { type: "string", default: "efficient" },
+      version: { type: "string", default: "1" },
+      limit: { type: "string", default: "60" },
+    },
+  });
+  const stage = values.stage as EvaluableStage;
+  if (!(stage in STAGE_EVALS)) throw new Error(`no eval for stage ${stage}`);
+  const tier = values.tier as Tier;
+  const promptVersion = Number.parseInt(values.version, 10);
+  const limit = Number.parseInt(values.limit, 10);
+
+  const url = process.env["DATABASE_URL"];
+  if (url === undefined) throw new Error("DATABASE_URL is required");
+  const live = process.env["AI_LIVE"] === "1";
+  const key = process.env["ANTHROPIC_API_KEY"];
+  if (live && key === undefined) throw new Error("AI_LIVE=1 needs ANTHROPIC_API_KEY");
+
+  const pool = new pg.Pool({ connectionString: url });
+  try {
+    const name = `${stage}-v${promptVersion.toString()}-${tier}`;
+    const report = await runEval({
+      pool,
+      stage,
+      tier,
+      promptVersion,
+      limit,
+      mode: live ? "live" : "replay",
+      ...(live && key !== undefined ? { liveTransport: anthropicTransport(key) } : {}),
+      recordingPath: path.join(HERE, "recordings", `${name}.json`),
+    });
+    await mkdir(path.join(HERE, "reports"), { recursive: true });
+    const file = path.join(HERE, "reports", `${name}-${report.mode}.json`);
+    await writeFile(
+      file,
+      JSON.stringify(
+        report,
+        (_k, v: unknown) => (typeof v === "bigint" ? v.toString() : v),
+        2,
+      ),
+    );
+    console.warn(
+      `${name} ${report.mode}${report.oracle ? " (oracle)" : ""}: ${report.correct.toString()}/${report.items.toString()} = ${report.accuracy} → ${file}`,
+    );
+  } finally {
+    await pool.end();
+  }
+}
+
+await main();

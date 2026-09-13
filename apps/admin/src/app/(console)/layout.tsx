@@ -13,6 +13,7 @@ const NAV: [string, string][] = [
   ["/price-book", "Price book"],
   ["/packs", "Credit packs"],
   ["/exports", "Accounting exports"],
+  ["/margin", "Margin"],
   ["/audit", "Audit log"],
 ];
 

@@ -142,6 +142,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@magicmis/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@magicmis/billing':
         specifier: workspace:*
         version: link:../../packages/billing
@@ -288,6 +291,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@magicmis/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@magicmis/billing':
         specifier: workspace:*
         version: link:../../packages/billing
@@ -372,6 +378,52 @@ importers:
       fast-check:
         specifier: ^4.5.0
         version: 4.9.0
+
+  packages/ai:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: 0.125.0
+        version: 0.125.0(zod@4.6.1)
+      '@magicmis/core':
+        specifier: workspace:*
+        version: link:../core
+      '@magicmis/db':
+        specifier: workspace:*
+        version: link:../db
+      '@magicmis/wallet':
+        specifier: workspace:*
+        version: link:../wallet
+      pg:
+        specifier: ^8.16.3
+        version: 8.23.0
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
+      zod:
+        specifier: ^4.1.13
+        version: 4.6.1
+    devDependencies:
+      '@magicmis/fixtures':
+        specifier: workspace:*
+        version: link:../../fixtures/generator
+      '@magicmis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
+      '@magicmis/tally':
+        specifier: workspace:*
+        version: link:../tally
+      '@testcontainers/postgresql':
+        specifier: ^11.7.1
+        version: 11.14.0(supports-color@7.2.0)
+      '@types/pg':
+        specifier: ^8.15.6
+        version: 8.23.1
+      fast-check:
+        specifier: ^4.5.0
+        version: 4.9.0
+      tsx:
+        specifier: 4.23.13
+        version: 4.23.13
 
   packages/billing:
     dependencies:
@@ -531,6 +583,15 @@ packages:
     resolution: {integrity: sha512-U4+70Pc5ZS9osnCBCE5Jha/ciHM+Yp+CNMNC/7HvYbNRk1Ldd+f7qO65W5qfhu/TCv+/ozljlXXe9Nj8419DMA==}
     engines: {node: '>=10'}
 
+  '@anthropic-ai/sdk@0.125.0':
+    resolution: {integrity: sha512-Hq5wYlXupzJ9M1Fzqjqa3hObcuigEXVZJqSYDgeZGM3wF4qrNERM5Z1OOAeoT9rlod8awJ3uYyJjbQXp1ckIGg==}
+    hasBin: true
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
+
   '@aws-sdk/client-kms@3.1131.0':
     resolution: {integrity: sha512-IQ5pG+aY5bM+1tyduaVa0m2AmPa/G9IZKbtAgtBP0pcM6wRkOlM3QyQEmi2UOoGd6L+ma738yOa6MmH6V3OLxw==}
     engines: {node: '>=20.0.0'}
@@ -594,6 +655,10 @@ packages:
   '@aws/lambda-invoke-store@0.3.0':
     resolution: {integrity: sha512-sl4Bm6yiMNYrZKkqqDFWN0UfnWhlS8ivKxrYl+6t0gCLrqr8y3B2IqZZbFRkfaVVp7C/baApyh71P+LeE1A2sQ==}
     engines: {node: '>=18.0.0'}
+
+  '@babel/runtime@7.29.7':
+    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
+    engines: {node: '>=6.9.0'}
 
   '@balena/dockerignore@1.0.2':
     resolution: {integrity: sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==}
@@ -2222,6 +2287,10 @@ packages:
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
+  json-schema-to-ts@3.1.1:
+    resolution: {integrity: sha512-+DWg8jCJG2TEnpy7kOm/7/AxaYoaRbjVB4LFZLySZlWn8exGs3A4OLJR966cVvU26N7X9TWxl+Jsw7dzAqKT6g==}
+    engines: {node: '>=16'}
+
   json-schema-traverse@0.4.1:
     resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
 
@@ -2869,6 +2938,9 @@ packages:
     resolution: {integrity: sha512-e0votIpp4Uo2AJYSzVHV6xCcawuiez3DzqDAbrTc3YxBkplN6e+dM13ZeIcZnDg/QpSuU2zfZ3rzwY8ukEnaXw==}
     engines: {node: '>=14.14'}
 
+  ts-algebra@2.0.0:
+    resolution: {integrity: sha512-FPAhNPFMrkwz76P7cdjdmiShwMynZYN6SgOujD1urY4oNm80Ou9oMdmbR45LotcKOXoy7wSmHkRFE6Mxbrhefw==}
+
   ts-api-utils@2.5.0:
     resolution: {integrity: sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA==}
     engines: {node: '>=18.12'}
@@ -3086,6 +3158,13 @@ snapshots:
 
   '@alloc/quick-lru@5.3.0': {}
 
+  '@anthropic-ai/sdk@0.125.0(zod@4.6.1)':
+    dependencies:
+      json-schema-to-ts: 3.1.1
+      standardwebhooks: 1.0.0
+    optionalDependencies:
+      zod: 4.6.1
+
   '@aws-sdk/client-kms@3.1131.0':
     dependencies:
       '@aws-sdk/core': 3.978.0
@@ -3230,6 +3309,8 @@ snapshots:
       tslib: 2.8.1
 
   '@aws/lambda-invoke-store@0.3.0': {}
+
+  '@babel/runtime@7.29.7': {}
 
   '@balena/dockerignore@1.0.2': {}
 
@@ -4655,6 +4736,11 @@ snapshots:
 
   json-buffer@3.0.1: {}
 
+  json-schema-to-ts@3.1.1:
+    dependencies:
+      '@babel/runtime': 7.29.7
+      ts-algebra: 2.0.0
+
   json-schema-traverse@0.4.1: {}
 
   json-stable-stringify-without-jsonify@1.0.1: {}
@@ -5361,6 +5447,8 @@ snapshots:
   tinyspy@4.0.6: {}
 
   tmp@0.2.7: {}
+
+  ts-algebra@2.0.0: {}
 
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:

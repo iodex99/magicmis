@@ -4,6 +4,8 @@
  * Cron expressions are evaluated in IST so "nightly" means an Indian night.
  */
 
+import { estimatorConfigSchema, recalibrateEstimator } from "@magicmis/ai/estimator";
+import { readConfig } from "@magicmis/db/config";
 import {
   expireLotsSweep,
   expireQuotes,
@@ -59,6 +61,19 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     cron: "*/15 * * * *",
     expireInSeconds: 600,
     run: ({ pool }, now) => expireQuotes(pool, now),
+  },
+  {
+    // SPEC §12: estimator p50/p90 per action, tier and size bucket from actual ai_calls.
+    queue: "ai-estimator-calibration",
+    cron: "30 2 * * *",
+    expireInSeconds: 1800,
+    run: async ({ pool }, now) => {
+      const cfg = await readConfig(pool, "ai.estimator", estimatorConfigSchema);
+      return recalibrateEstimator(
+        pool,
+        new Date(now.getTime() - cfg.calibration_window_days * 86_400_000),
+      );
+    },
   },
   {
     queue: "notifications-deliver",
