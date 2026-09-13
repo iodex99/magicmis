@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@magicmis/ai": "workspace:*",
+    "@magicmis/chat": "workspace:*",
     "@magicmis/core": "workspace:*",
     "@magicmis/engine": "workspace:*",
     "@magicmis/ingest": "workspace:*",
