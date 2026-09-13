@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { idempotent, parseJson, withAccount } from "@/lib/http";
+import { rateLimited } from "@/lib/server/ratelimit";
 import { aiTransport } from "@/lib/server/ai";
 import { progressBody } from "@/lib/server/chat";
 import { jobErrorResponse } from "@/lib/server/job-errors";
@@ -24,6 +25,9 @@ const bodySchema = z.object({
  */
 export async function POST(request: Request): Promise<Response> {
   return withAccount(async (account) => {
+    // SPEC §30: before any work or hold, so a flood cannot run up AI calls.
+    const limited = await rateLimited("chat_per_account", account.accountId);
+    if (limited !== null) return limited;
     const parsed = await parseJson(request, bodySchema);
     if (!parsed.ok) return parsed.response;
     const key = request.headers.get("idempotency-key") ?? "";

@@ -14,6 +14,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { serverEnv } from "@/lib/env";
 import { apiError, ok, parseJson, withAccount } from "@/lib/http";
+import { rateLimited } from "@/lib/server/ratelimit";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 import { keyWrapper } from "@/lib/server/runtime";
 
@@ -46,6 +47,9 @@ export async function POST(
   context: { params: Promise<{ id: string; stage: string }> },
 ): Promise<Response> {
   return withAccount(async (account) => {
+    // SPEC §30: before any work or hold, so a flood cannot run up AI calls.
+    const limited = await rateLimited("ai_per_account", account.accountId);
+    if (limited !== null) return limited;
     const { id, stage } = await context.params;
     if (!z.uuid().safeParse(id).success)
       return apiError(404, "job_not_found", "Job not found.");

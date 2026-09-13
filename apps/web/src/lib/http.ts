@@ -18,6 +18,7 @@ import { NextResponse } from "next/server";
 import type { z } from "zod";
 
 import { db } from "./db";
+import { rateLimited } from "./server/ratelimit";
 import { supabaseForRequest } from "./supabase/server";
 
 /** Every error response has a stable code and says what to do next (SPEC §32). */
@@ -86,6 +87,10 @@ export async function currentClaims(): Promise<unknown> {
 export async function withAccount(
   handler: (account: AccountContext) => Promise<Response>,
 ): Promise<Response> {
+  // SPEC §30: a per-IP ceiling on the authenticated API, before any account lookup.
+  const { ip } = await requestMeta();
+  const limited = await rateLimited("api_per_ip", ip ?? "unknown");
+  if (limited !== null) return limited;
   const decision = await requireAccount(db(), await currentClaims());
   if (!decision.ok) {
     const refusal = REFUSAL[decision.reason];
