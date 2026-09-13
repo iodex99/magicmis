@@ -8,10 +8,12 @@ import { z } from "zod";
 import { Flash, input, num, td, th, type FlashParams } from "@/components/Flash";
 import { Button, Panel } from "@/components/ui";
 import { accountDetail } from "@/server/accounts";
+import { activeGrants } from "@/server/console";
 import { db } from "@/server/runtime";
 import { requireAdmin } from "@/server/session";
 
 import { adjustCreditsAction, setStatusAction } from "../../actions";
+import { grantBreakGlassAction, revokeBreakGlassAction } from "../../console-actions";
 
 export const metadata = { title: "Account" };
 export const dynamic = "force-dynamic";
@@ -60,10 +62,11 @@ export default async function AccountPage({
   const pool = db();
   const detail = await accountDetail(pool, id);
   if (detail === null) notFound();
-  const [wallet, purchases, invoices] = await Promise.all([
+  const [wallet, purchases, invoices, grants] = await Promise.all([
     walletSummary(pool, id),
     listPurchases(pool, id),
     listInvoices(pool, id),
+    activeGrants(pool, id),
   ]);
   const a = detail.account;
 
@@ -196,6 +199,47 @@ export default async function AccountPage({
             i.issuedAt.toISOString().slice(0, 10),
           ])}
         />
+      </Panel>
+      <Panel title="Break-glass access">
+        <p className="mb-3 text-xs text-neutral-600">
+          Customer financial data is not visible by default. Access needs a written reason, lasts a limited time,
+          is recorded for every view, and emails the account holder.
+        </p>
+        {grants.map((g) => (
+          <div key={g.id} className="mb-3 rounded-md border border-neutral-200 p-3 text-sm" data-testid="break-glass-grant">
+            <p>
+              {g.admin_email} until {g.expires_at.toISOString()} — {g.reason}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-3">
+              {detail.companies.map((c) => (
+                <a key={c.id} className="text-accent-700 underline" href={`/accounts/${id}/break-glass?grant=${g.id}&company=${c.id}`}>
+                  View {c.name}
+                </a>
+              ))}
+              <form action={revokeBreakGlassAction}>
+                <input type="hidden" name="accountId" value={id} />
+                <input type="hidden" name="grantId" value={g.id} />
+                <Button type="submit" variant="secondary">
+                  Revoke
+                </Button>
+              </form>
+            </div>
+          </div>
+        ))}
+        <form action={grantBreakGlassAction} className="flex flex-wrap items-end gap-2 text-sm">
+          <input type="hidden" name="accountId" value={id} />
+          <label className="flex flex-col">
+            Reason (at least 20 characters)
+            <textarea name="reason" required minLength={20} className={`${input} h-16 w-96`} />
+          </label>
+          <label className="flex flex-col">
+            Minutes
+            <input name="minutes" defaultValue="15" className={`${input} w-20`} />
+          </label>
+          <Button type="submit" variant="danger">
+            Grant access
+          </Button>
+        </form>
       </Panel>
       <Panel title="Login events">
         <Table

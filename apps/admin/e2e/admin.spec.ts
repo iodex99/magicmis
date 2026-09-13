@@ -147,3 +147,59 @@ test("bank transfer receipt credits the account; adjustment, price version, expo
   await page.goto("/");
   await expect(page).toHaveURL(/\/login$/u);
 });
+
+test("margin dashboard flags a seeded over-ratio action; break-glass, jobs and prompts screens work", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  // Seed an account with a commentary job over its max AI cost ratio: 100 credits captured, ₹30 AI cost.
+  const email = `${randomUUID()}@example.test`;
+  const acct = await pool.query<{ id: string }>(
+    `insert into accounts (auth_user_id, email, business_name, state_code) values (gen_random_uuid(), $1, 'Margin Seed Co', '27') returning id`,
+    [email],
+  );
+  const accountId = acct.rows[0]?.id ?? "";
+  await pool.query(`insert into wallets (account_id) values ($1)`, [accountId]);
+  const company = await pool.query<{ id: string }>(
+    `insert into companies (account_id, name) values ($1, 'Seed Traders') returning id`,
+    [accountId],
+  );
+  const job = await pool.query<{ id: string }>(
+    `insert into jobs (account_id, company_id, type, state, idempotency_key, captured_credits, actual_ai_cost_paise,
+                       stage_checkpoints)
+     values ($1, $2, 'commentary', 'completed', $3, 100, 3000,
+             '{"state_history":[{"from":"reserved","state":"commentary_queued","at":"2026-09-13T10:00:00Z"}]}') returning id`,
+    [accountId, company.rows[0]?.id, randomUUID()],
+  );
+
+  await signIn(page);
+  await page.goto(`/margin?days=1&account=${accountId}`);
+  await expect(page.getByTestId("margin-flags")).toContainText("commentary");
+  await expect(page.getByTestId("margin-action-commentary")).toContainText("over");
+  await expect(page.getByTestId("gross-margin")).toContainText("Gross margin");
+
+  await page.goto(`/jobs/${job.rows[0]?.id ?? ""}`);
+  await expect(page.getByTestId("job-timeline")).toContainText("reserved → commentary_queued");
+
+  await page.goto("/prompts");
+  await expect(page.getByRole("heading", { name: "Prompts and evals" })).toBeVisible();
+  await page.goto("/models");
+  await expect(page.getByRole("heading", { name: "Tier routing" })).toBeVisible();
+
+  await page.goto(`/accounts/${accountId}`);
+  await page.getByLabel("Reason (at least 20 characters)").fill("E2E check of the break-glass flow for support");
+  await page.getByRole("button", { name: "Grant access" }).click();
+  await expect(page.getByTestId("break-glass-grant")).toContainText("E2E check of the break-glass flow");
+  const notice = await pool.query(
+    `select 1 from notifications where account_id = $1 and type = 'security.break_glass'`,
+    [accountId],
+  );
+  expect(notice.rowCount).toBe(1);
+  await page.getByRole("link", { name: "View Seed Traders" }).click();
+  await expect(page.getByRole("heading", { name: "Break-glass view" })).toBeVisible();
+  const viewed = await pool.query(
+    `select 1 from audit_log where action = 'admin.break_glass_viewed' and target_id = $1`,
+    [company.rows[0]?.id],
+  );
+  expect(viewed.rowCount).toBe(1);
+});

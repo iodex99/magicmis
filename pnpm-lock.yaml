@@ -157,6 +157,15 @@ importers:
       '@magicmis/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@magicmis/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
+      '@magicmis/jobs':
+        specifier: workspace:*
+        version: link:../../packages/jobs
+      '@magicmis/semantic':
+        specifier: workspace:*
+        version: link:../../packages/semantic
       '@magicmis/wallet':
         specifier: workspace:*
         version: link:../../packages/wallet

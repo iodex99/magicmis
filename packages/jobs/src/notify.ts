@@ -19,7 +19,9 @@ export type NotificationType =
   | "billing.memory_fee_debited"
   | "billing.memory_fee_failed"
   | "billing.low_balance_before_fee"
-  | "reminder.monthly_refresh";
+  | "reminder.monthly_refresh"
+  | "security.break_glass"
+  | "account.deletion_scheduled";
 
 export async function queueNotification(
   db: Queryable,

@@ -14,6 +14,11 @@ const NAV: [string, string][] = [
   ["/packs", "Credit packs"],
   ["/exports", "Accounting exports"],
   ["/margin", "Margin"],
+  ["/jobs", "Jobs"],
+  ["/models", "Models and routing"],
+  ["/prompts", "Prompts and evals"],
+  ["/library", "Mapping library"],
+  ["/config", "Config"],
   ["/audit", "Audit log"],
 ];
 

@@ -44,8 +44,8 @@ export async function accountDetail(db: Queryable, accountId: string) {
   const row = account.rows[0];
   if (row === undefined) return null;
   const [companies, logins, ledger] = await Promise.all([
-    db.query<{ name: string; lifecycle_state: string }>(
-      `select name, lifecycle_state from public.companies where account_id = $1 and deleted_at is null order by name`,
+    db.query<{ id: string; name: string; lifecycle_state: string }>(
+      `select id, name, lifecycle_state from public.companies where account_id = $1 and deleted_at is null order by name`,
       [accountId],
     ),
     db.query<{

@@ -360,6 +360,34 @@ export function renderNotification(
           },
         ),
       );
+    case "security.break_glass": {
+      // SPEC §26: the account holder is told whenever support opens their data.
+      const p = z
+        .object({ reason: z.string().max(500), expires_at: z.string() })
+        .safeParse(payload);
+      if (!p.success) return null;
+      return email(
+        "Support accessed your account data",
+        [
+          `Our support team was granted temporary access to your company data until ${formatIstDate(new Date(p.data.expires_at))}.`,
+          `Reason given: ${p.data.reason}`,
+          "Every view is recorded. If you did not ask for help, contact us immediately.",
+        ],
+        ctx,
+      );
+    }
+    case "account.deletion_scheduled": {
+      const p = z.object({ purge_after: z.string() }).safeParse(payload);
+      if (!p.success) return null;
+      return email(
+        "Your account is scheduled for deletion",
+        [
+          `Your account has been closed. Its company data will be permanently deleted on ${formatIstDate(new Date(p.data.purge_after))}.`,
+          "Invoices and credit records are kept for the statutory retention period.",
+        ],
+        ctx,
+      );
+    }
     case "billing.lot_expiry_notice": {
       const p = lotExpirySchema.safeParse(payload);
       if (!p.success) return null;

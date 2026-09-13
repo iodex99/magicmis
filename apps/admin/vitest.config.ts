@@ -1,7 +1,15 @@
+import { fileURLToPath } from "node:url";
+
 import { defineConfig } from "vitest/config";
 
 // Server modules only; the Next.js pages are exercised through them.
 export default defineConfig({
+  // `server-only` throws outside a react-server build; tests are server code by definition.
+  resolve: {
+    alias: {
+      "server-only": fileURLToPath(new URL("./test/server-only-stub.ts", import.meta.url)),
+    },
+  },
   test: {
     include: ["test/**/*.test.ts"],
     environment: "node",

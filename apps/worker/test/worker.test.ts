@@ -187,6 +187,8 @@ describe("templates", () => {
       ["security.mfa_reset_with_backup_code", {}],
       ["security.backup_codes_regenerated", {}],
       ["security.password_changed", {}],
+      ["security.break_glass", { reason: "Customer asked for help with a mapping", expires_at: "2027-01-02T00:00:00Z" }],
+      ["account.deletion_scheduled", { purge_after: "2027-02-01T00:00:00Z" }],
       ["security.email_changed", {}],
       ["invoice_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
       ["proforma_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],

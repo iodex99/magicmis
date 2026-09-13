@@ -152,7 +152,10 @@ export async function transition(
   await db.query(
     `update public.jobs set
        state = $2,
-       stage_checkpoints = stage_checkpoints || $3::jsonb,
+       -- The state timeline for the admin jobs inspector (SPEC §26); no content, states and times only.
+       stage_checkpoints = (stage_checkpoints || $3::jsonb) || jsonb_build_object('state_history',
+         coalesce(stage_checkpoints->'state_history', '[]'::jsonb)
+           || jsonb_build_array(jsonb_build_object('from', $9::text, 'state', $2::text, 'at', now()))),
        failure_class = coalesce($4, failure_class),
        failure_code = coalesce($5, failure_code),
        failure_detail = coalesce($6, failure_detail),
@@ -168,6 +171,7 @@ export async function transition(
       patch.failure?.detail ?? null,
       RUNNING,
       [...TERMINAL],
+      job.state,
     ],
   );
 }
