@@ -80,6 +80,100 @@ test("the owner requests a data export and downloads it once the worker has buil
   );
 });
 
+test("another account's resources are unreachable through every id-scoped endpoint (SPEC §30)", async () => {
+  // A second tenant with a company, job, output, chat thread and message, export and invoice.
+  const other = await db.query<{ id: string }>(
+    `insert into accounts (auth_user_id, email, business_name, state_code) values (gen_random_uuid(), $1, 'Other Tenant Co', '27') returning id`,
+    [uniqueEmail()],
+  );
+  const otherId = other.rows[0]?.id ?? "";
+  const one = async (sql: string, params: unknown[]) =>
+    (await db.query<{ id: string }>(sql, params)).rows[0]?.id ?? "";
+  const company = await one(
+    `insert into companies (account_id, name) values ($1, 'Hidden Traders') returning id`,
+    [otherId],
+  );
+  const job = await one(
+    `insert into jobs (account_id, company_id, type, state, idempotency_key) values ($1, $2, 'monthly_refresh', 'classifying', gen_random_uuid()::text) returning id`,
+    [otherId, company],
+  );
+  const output = await one(
+    `insert into outputs (account_id, company_id, job_id, type, storage_path, byte_size) values ($1, $2, $3, 'excel', 'x/y.xlsx', 10) returning id`,
+    [otherId, company, job],
+  );
+  const thread = await one(
+    `insert into chat_threads (account_id, company_id) values ($1, $2) returning id`,
+    [otherId, company],
+  );
+  const message = await one(
+    `insert into chat_messages (thread_id, account_id, role, message_type, content, tier, price_credits, credits_charged, state)
+     values ($1, $2, 'user', 'edit', '\\x', 'professional', 0, 0, 'completed') returning id`,
+    [thread, otherId],
+  );
+  const dataExport = await one(
+    `insert into data_exports (account_id, status) values ($1, 'queued') returning id`,
+    [otherId],
+  );
+  const invoice = await one(`select id from invoices where account_id <> $1 limit 1`, [
+    (await db.query<{ id: string }>(`select id from accounts where lower(email) = lower($1)`, [email]))
+      .rows[0]?.id ?? "",
+  ]);
+
+  const json = { "content-type": "application/json", "idempotency-key": "cross-tenant-probe" };
+  const probes: [string, string, object | undefined][] = [
+    ["GET", `/api/companies/${company}`, undefined],
+    ["DELETE", `/api/companies/${company}`, { confirmName: "Hidden Traders" }],
+    ["GET", `/api/companies/${company}/session`, undefined],
+    ["GET", `/api/companies/${company}/dashboard`, undefined],
+    ["POST", `/api/companies/${company}/dashboard`, { operations: [] }],
+    ["GET", `/api/companies/${company}/chat`, undefined],
+    ["POST", `/api/companies/${company}/template`, { undoTo: 1 }],
+    ["POST", `/api/companies/${company}/restore`, {}],
+    ["GET", `/api/jobs/${job}`, undefined],
+    ["POST", `/api/jobs/${job}/confirm`, {}],
+    ["POST", `/api/jobs/${job}/cancel`, {}],
+    ["POST", `/api/jobs/${job}/ai/sheet_classification`, { sheets: [] }],
+    ["GET", `/api/jobs/${job}/commentary`, undefined],
+    ["GET", `/api/outputs/${output}`, undefined],
+    ["GET", `/api/chat/threads/${thread}`, undefined],
+    ["POST", `/api/chat/messages/${message}/apply`, {}],
+    ["GET", `/api/account/export/${dataExport}`, undefined],
+    ...(invoice === "" ? [] : [["GET", `/api/invoices/${invoice}/pdf`, undefined] as [string, string, undefined]]),
+  ];
+  for (const [method, url, body] of probes) {
+    const response = await page.request.fetch(url, {
+      method,
+      headers: json,
+      ...(body === undefined ? {} : { data: body }),
+    });
+    const text = await response.text();
+    expect(response.status(), `${method} ${url}`).toBeGreaterThanOrEqual(400);
+    expect(response.status(), `${method} ${url}`).not.toBe(500);
+    expect(text, `${method} ${url}`).not.toContain("Hidden Traders");
+  }
+  // Nothing about the other tenant changed.
+  const after = await db.query<{ deleted_at: Date | null; state: string }>(
+    `select c.deleted_at, j.state from companies c join jobs j on j.company_id = c.id where c.id = $1`,
+    [company],
+  );
+  expect(after.rows[0]).toEqual({ deleted_at: null, state: "classifying" });
+});
+
+test("oversize and malformed payloads are refused before any work (SPEC §7, §30)", async () => {
+  const headers = { "content-type": "application/json", "idempotency-key": `oversize-${Date.now().toString()}` };
+  const huge = "x".repeat(6 * 1024 * 1024);
+  for (const url of ["/api/chat/messages", "/api/account/consents", "/api/account/delete"]) {
+    const response = await page.request.post(url, { headers, data: `{"text":"${huge}"}` });
+    expect(response.status(), url).toBeGreaterThanOrEqual(400);
+    expect(response.status(), url).toBeLessThan(500);
+  }
+  const malformed = await page.request.post("/api/account/consents", {
+    headers,
+    data: Buffer.from("{not json"),
+  });
+  expect(malformed.status()).toBe(400);
+});
+
 test("deleting the account needs re-authentication and the email, then signs out for good", async () => {
   await page.goto("/settings/privacy");
   await page.getByRole("button", { name: "Delete account" }).click();
