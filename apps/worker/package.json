@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/main.ts",
-    "start": "tsx src/main.ts",
+    "dev": "tsx watch --conditions=react-server src/main.ts",
+    "start": "tsx --conditions=react-server src/main.ts",
     "lint": "eslint src test",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
@@ -15,7 +15,9 @@
     "@magicmis/billing": "workspace:*",
     "@magicmis/core": "workspace:*",
     "@magicmis/db": "workspace:*",
+    "@magicmis/jobs": "workspace:*",
     "@magicmis/wallet": "workspace:*",
+    "@supabase/supabase-js": "2.116.0",
     "pg": "^8.16.3",
     "pg-boss": "12.31.0",
     "pino": "10.3.1",

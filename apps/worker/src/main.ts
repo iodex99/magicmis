@@ -1,3 +1,5 @@
+import { SupabaseOutputStore } from "@magicmis/jobs";
+import { createClient } from "@supabase/supabase-js";
 import pg from "pg";
 import { pino } from "pino";
 
@@ -20,6 +22,14 @@ const boss = await startBoss(
     pool,
     mail: new ResendMailSender(env.RESEND_API_KEY, env.EMAIL_FROM),
     appUrl: env.APP_URL,
+    outputs:
+      env.NEXT_PUBLIC_SUPABASE_URL !== undefined && env.SUPABASE_SECRET_KEY !== undefined
+        ? new SupabaseOutputStore(
+            createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SECRET_KEY, {
+              auth: { persistSession: false },
+            }).storage.from("outputs"),
+          )
+        : null,
   },
   log,
 );

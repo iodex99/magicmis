@@ -306,9 +306,15 @@ importers:
       '@magicmis/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@magicmis/jobs':
+        specifier: workspace:*
+        version: link:../../packages/jobs
       '@magicmis/wallet':
         specifier: workspace:*
         version: link:../../packages/wallet
+      '@supabase/supabase-js':
+        specifier: 2.116.0
+        version: 2.116.0
       pg:
         specifier: ^8.16.3
         version: 8.23.0

@@ -7,6 +7,14 @@
 import { estimatorConfigSchema, recalibrateEstimator } from "@magicmis/ai/estimator";
 import { readConfig } from "@magicmis/db/config";
 import {
+  debitMemoryFees,
+  purgeCompanies,
+  queueLifecycleNotices,
+  queueRefreshReminders,
+  sweepJobs,
+  type OutputStore,
+} from "@magicmis/jobs";
+import {
   expireLotsSweep,
   expireQuotes,
   queueLotExpiryNotices,
@@ -23,6 +31,8 @@ export interface TaskDeps {
   readonly pool: Pool;
   readonly mail: MailSender;
   readonly appUrl: string;
+  /** Output storage for purges; absent when storage is not configured (sealed files stay unreadable). */
+  readonly outputs?: OutputStore | null;
 }
 
 export interface MaintenanceTask {
@@ -74,6 +84,40 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
         new Date(now.getTime() - cfg.calibration_window_days * 86_400_000),
       );
     },
+  },
+  {
+    // SPEC §19, §23: expire review reservations (cancel-after-AI charge) and remind before expiry.
+    queue: "jobs-sweep",
+    cron: "*/5 * * * *",
+    expireInSeconds: 240,
+    run: ({ pool }, now) => sweepJobs(pool, now),
+  },
+  {
+    // SPEC §28: memory fee on each anchor anniversary, grace and archive. Run early IST.
+    queue: "lifecycle-memory-fee",
+    cron: "15 1 * * *",
+    expireInSeconds: 3600,
+    run: ({ pool }, now) => debitMemoryFees(pool, now),
+  },
+  {
+    queue: "lifecycle-notices",
+    cron: "0 10 * * *",
+    expireInSeconds: 1800,
+    run: ({ pool }, now) => queueLifecycleNotices(pool, now),
+  },
+  {
+    // SPEC §28: crypto-shred archived or deleted companies past their purge date.
+    queue: "lifecycle-purge",
+    cron: "45 2 * * *",
+    expireInSeconds: 3600,
+    run: ({ pool, outputs }, now) => purgeCompanies(pool, outputs ?? null, now),
+  },
+  {
+    // SPEC §29: monthly refresh reminder on each company's reminder day.
+    queue: "reminders-monthly-refresh",
+    cron: "0 9 * * *",
+    expireInSeconds: 1800,
+    run: ({ pool }, now) => queueRefreshReminders(pool, now),
   },
   {
     queue: "notifications-deliver",

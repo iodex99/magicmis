@@ -17,7 +17,12 @@ export const workerEnvSchema = serverEnvSchema
     EMAIL_FROM: true,
     LOG_LEVEL: true,
   })
-  .extend({ APP_URL: publicEnvSchema.shape.NEXT_PUBLIC_APP_URL });
+  .extend({
+    APP_URL: publicEnvSchema.shape.NEXT_PUBLIC_APP_URL,
+    // Optional: output storage for purges (SPEC §28). Without it, purge still destroys the key.
+    NEXT_PUBLIC_SUPABASE_URL: publicEnvSchema.shape.NEXT_PUBLIC_SUPABASE_URL.optional(),
+    SUPABASE_SECRET_KEY: serverEnvSchema.shape.SUPABASE_SECRET_KEY.optional(),
+  });
 
 export type WorkerEnv = ReturnType<typeof workerEnvSchema.parse>;
 

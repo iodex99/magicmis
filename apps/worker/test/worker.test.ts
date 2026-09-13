@@ -190,6 +190,34 @@ describe("templates", () => {
       ["security.email_changed", {}],
       ["invoice_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
       ["proforma_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
+      ["job.awaiting_review", { job_id: randomUUID(), company_id: randomUUID() }],
+      [
+        "job.review_expiring",
+        { job_id: randomUUID(), expires_at: "2027-01-02T00:00:00Z" },
+      ],
+      ["job.completed", { job_id: randomUUID() }],
+      [
+        "job.failed",
+        { job_id: randomUUID(), failure_class: "data_fault", charged: "299" },
+      ],
+      [
+        "job.quote_offered",
+        { job_id: randomUUID(), credits: "1499", expires_at: "2027-01-02T00:00:00Z" },
+      ],
+      ...[
+        "billing.memory_fee_debited",
+        "billing.memory_fee_failed",
+        "billing.low_balance_before_fee",
+        "lifecycle.grace",
+        "lifecycle.archive_notice",
+        "lifecycle.archived",
+        "lifecycle.purge_notice",
+        "lifecycle.purged",
+        "reminder.monthly_refresh",
+      ].map((type): [string, object] => [
+        type,
+        { company_id: randomUUID(), company_name: "Synthetic <Co>", days: 7 },
+      ]),
       [
         "billing.lot_expiry_notice",
         { credits: "750", expires_at: "2027-12-31T10:00:00Z", days: 7 },

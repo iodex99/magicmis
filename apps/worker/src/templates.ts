@@ -69,6 +69,33 @@ const lotExpirySchema = z.object({
   days: z.number().int(),
 });
 
+const jobPayloadSchema = z.object({
+  job_id: z.uuid(),
+  failure_class: z.string().optional(),
+  expires_at: z.string().optional(),
+});
+const companyPayloadSchema = z.object({
+  company_id: z.uuid(),
+  company_name: z.string().max(200),
+  days: z.number().int().optional(),
+});
+
+function withJob(
+  payload: unknown,
+  render: (p: z.infer<typeof jobPayloadSchema>) => RenderedEmail,
+): RenderedEmail | null {
+  const p = jobPayloadSchema.safeParse(payload);
+  return p.success ? render(p.data) : null;
+}
+
+function withCompany(
+  payload: unknown,
+  render: (p: z.infer<typeof companyPayloadSchema>) => RenderedEmail,
+): RenderedEmail | null {
+  const p = companyPayloadSchema.safeParse(payload);
+  return p.success ? render(p.data) : null;
+}
+
 /** Returns null for a type with no template: the row is suppressed, not retried forever. */
 export function renderNotification(
   type: string,
@@ -171,6 +198,168 @@ export function renderNotification(
         attachInvoiceId: p.data.invoiceId,
       };
     }
+    case "job.awaiting_review":
+      return withJob(payload, (p) =>
+        email(
+          "Your mappings are ready to review",
+          [
+            "A job is waiting for you to confirm how your ledgers map to the MIS. Nothing is computed until you confirm.",
+            "The credits for this job stay reserved while it waits.",
+          ],
+          ctx,
+          { label: "Review mappings", path: `/app/jobs/${p.job_id}` },
+        ),
+      );
+    case "job.review_expiring":
+      return withJob(payload, (p) =>
+        email(
+          "Your mapping review expires soon",
+          [
+            `The reservation for this job expires on ${formatIstDate(new Date(p.expires_at ?? ""))}. If it expires after analysis has run, the cancellation fee applies.`,
+          ],
+          ctx,
+          { label: "Review mappings", path: `/app/jobs/${p.job_id}` },
+        ),
+      );
+    case "job.completed":
+      return withJob(payload, (p) =>
+        email(
+          "Your MIS is ready",
+          ["The job has completed. Your workbook is ready to download."],
+          ctx,
+          {
+            label: "Open the job",
+            path: `/app/jobs/${p.job_id}`,
+          },
+        ),
+      );
+    case "job.failed":
+      return withJob(payload, (p) =>
+        email(
+          "A job could not be completed",
+          [
+            p.failure_class === "platform_fault"
+              ? "The job stopped because of a problem on our side. No credits were charged."
+              : "The job stopped because of a problem in the uploaded data. The diagnostic report explains what failed and how to fix it.",
+          ],
+          ctx,
+          { label: "See what happened", path: `/app/jobs/${p.job_id}` },
+        ),
+      );
+    case "job.quote_offered":
+      return withJob(payload, (p) =>
+        email(
+          "A quote is waiting for your approval",
+          [
+            "This job needs more analysis than the standard price covers. Review the quote before it expires; nothing is charged unless you accept.",
+          ],
+          ctx,
+          { label: "Review the quote", path: `/app/jobs/${p.job_id}` },
+        ),
+      );
+    case "billing.memory_fee_debited":
+      return withCompany(payload, (p) =>
+        email(
+          "Company memory fee debited",
+          [`The monthly memory fee for ${p.company_name} was debited from your wallet.`],
+          ctx,
+          {
+            label: "Open wallet",
+            path: "/wallet",
+          },
+        ),
+      );
+    case "billing.memory_fee_failed":
+      return withCompany(payload, (p) =>
+        email(
+          "Company memory fee could not be debited",
+          [
+            `Your wallet did not have enough credits for the monthly memory fee for ${p.company_name}. Buy credits to keep the company active.`,
+          ],
+          ctx,
+          { label: "Buy credits", path: "/wallet" },
+        ),
+      );
+    case "billing.low_balance_before_fee":
+      return withCompany(payload, (p) =>
+        email(
+          "Low balance before your memory fee",
+          [
+            `The monthly memory fee for ${p.company_name} is due in ${String(p.days ?? "")} days and your available credits will not cover it.`,
+          ],
+          ctx,
+          { label: "Buy credits", path: "/wallet" },
+        ),
+      );
+    case "lifecycle.grace":
+      return withCompany(payload, (p) =>
+        email(
+          "Company in grace period",
+          [
+            `${p.company_name} is in its grace period. You can view outputs and history, but new jobs and chat are paused until the fee is paid.`,
+          ],
+          ctx,
+          { label: "Buy credits", path: "/wallet" },
+        ),
+      );
+    case "lifecycle.archive_notice":
+      return withCompany(payload, (p) =>
+        email(
+          "Company will be archived",
+          [
+            `${p.company_name} will be archived in ${String(p.days ?? "")} days unless the memory fee is paid.`,
+          ],
+          ctx,
+          { label: "Buy credits", path: "/wallet" },
+        ),
+      );
+    case "lifecycle.archived":
+      return withCompany(payload, (p) =>
+        email(
+          "Company archived",
+          [
+            `${p.company_name} has been archived. It can be restored for the restore price plus the current month's fee.`,
+          ],
+          ctx,
+          {
+            label: "Open companies",
+            path: "/app/companies",
+          },
+        ),
+      );
+    case "lifecycle.purge_notice":
+      return withCompany(payload, (p) =>
+        email(
+          "Company data will be permanently deleted",
+          [
+            `${p.company_name} and all its stored data will be permanently deleted in ${String(p.days ?? "")} days.`,
+          ],
+          ctx,
+          { label: "Open companies", path: "/app/companies" },
+        ),
+      );
+    case "lifecycle.purged":
+      return withCompany(payload, (p) =>
+        email(
+          "Company data deleted",
+          [
+            `All stored data for ${p.company_name} has been permanently deleted and cannot be recovered.`,
+          ],
+          ctx,
+        ),
+      );
+    case "reminder.monthly_refresh":
+      return withCompany(payload, (p) =>
+        email(
+          "Time for this month's MIS",
+          [`Upload this month's files for ${p.company_name} to refresh its MIS.`],
+          ctx,
+          {
+            label: "Refresh now",
+            path: `/app/companies/${p.company_id}/refresh`,
+          },
+        ),
+      );
     case "billing.lot_expiry_notice": {
       const p = lotExpirySchema.safeParse(payload);
       if (!p.success) return null;

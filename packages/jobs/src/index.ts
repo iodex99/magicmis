@@ -5,3 +5,4 @@ export * from "./lifecycle";
 export * from "./notify";
 export * from "./settle";
 export * from "./states";
+export * from "./storage";
