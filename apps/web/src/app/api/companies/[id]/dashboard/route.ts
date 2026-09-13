@@ -59,7 +59,7 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     try {
       if (body.action === "preview")
         return ok(await previewDashboardPatch(pool, keyWrapper(), { ...scope, ...body }));
-      return await idempotent(request, `dashboard:${id}`, parsed.raw, async () => ({
+      return await idempotent(request, `dashboard:${account.accountId}:${id}`, parsed.raw, async () => ({
         status: 200,
         body:
           body.action === "apply"

@@ -32,7 +32,7 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     const pool = db();
     const base = { accountId: account.accountId, jobId: id };
     try {
-      return await idempotent(request, `job-commentary:${id}`, parsed.raw, async () => {
+      return await idempotent(request, `job-commentary:${account.accountId}:${id}`, parsed.raw, async () => {
         const { delivery } = await queueCommentary(pool, keyWrapper(), { ...base, period });
         if (delivery === "standard")
           return { status: 202, body: { state: "commentary_queued" } };

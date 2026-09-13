@@ -107,7 +107,7 @@ export async function POST(
     }
 
     try {
-      return await idempotent(request, `job-complete:${id}`, { id }, async () => {
+      return await idempotent(request, `job-complete:${account.accountId}:${id}`, { id }, async () => {
         const job = await pool.query<{ company_id: string | null }>(
           `select company_id from jobs where id = $1 and account_id = $2`,
           [id, account.accountId],

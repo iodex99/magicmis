@@ -12,10 +12,11 @@ import {
   idempotencyKeySchema,
   requestHash,
 } from "@magicmis/db/idempotency";
+import { readConfig } from "@magicmis/db/config";
 import type { ChainValue } from "@magicmis/core/hashchain";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import type { z } from "zod";
+import { z } from "zod";
 
 import { db } from "./db";
 import { rateLimited } from "./server/ratelimit";
@@ -99,21 +100,61 @@ export async function withAccount(
   return handler(decision.account);
 }
 
-export async function parseJson<S extends z.ZodType>(
+const tooLarge = () =>
+  apiError(413, "payload_too_large", "The request is larger than the allowed size.");
+
+/**
+ * Read a JSON body, refusing it above `api.max_json_body_bytes` (SPEC §7, §30). The stream is read
+ * incrementally and abandoned as soon as it passes the limit, so an oversize body is never buffered.
+ */
+export async function readJsonBody(
   request: Request,
-  schema: S,
-): Promise<
-  { ok: true; data: z.infer<S>; raw: unknown } | { ok: false; response: Response }
-> {
-  let raw: unknown;
+): Promise<{ ok: true; raw: unknown } | { ok: false; response: Response }> {
+  const max = await readConfig(
+    db(),
+    "api.max_json_body_bytes",
+    z.number().int().positive(),
+  );
+  const declared = request.headers.get("content-length");
+  if (declared !== null && /^\d+$/u.test(declared) && BigInt(declared) > BigInt(max))
+    return { ok: false, response: tooLarge() };
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  if (request.body !== null) {
+    const reader = request.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > max) {
+        await reader.cancel();
+        return { ok: false, response: tooLarge() };
+      }
+      chunks.push(value);
+    }
+  }
   try {
-    raw = await request.json();
+    return {
+      ok: true,
+      raw: JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown,
+    };
   } catch {
     return {
       ok: false,
       response: apiError(400, "invalid_json", "The request body is not valid JSON."),
     };
   }
+}
+
+export async function parseJson<S extends z.ZodType>(
+  request: Request,
+  schema: S,
+): Promise<
+  { ok: true; data: z.infer<S>; raw: unknown } | { ok: false; response: Response }
+> {
+  const body = await readJsonBody(request);
+  if (!body.ok) return body;
+  const raw = body.raw;
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {
     const fields: Record<string, string> = {};

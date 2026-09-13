@@ -3,7 +3,7 @@ import { applyDashboardPatch, applyTemplatePatch } from "@magicmis/jobs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { apiError, idempotent, withAccount } from "@/lib/http";
+import { apiError, idempotent, readJsonBody, withAccount } from "@/lib/http";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 import { keyWrapper } from "@/lib/server/runtime";
 
@@ -20,16 +20,13 @@ export async function POST(
   return withAccount(async (account) => {
     const { id } = await context.params;
     if (!z.uuid().safeParse(id).success) return apiError(404, "not_found", "Message not found.");
-    let raw: unknown;
-    try {
-      raw = await request.json();
-    } catch {
-      return apiError(400, "invalid_json", "The request body is not valid JSON.");
-    }
+    const json = await readJsonBody(request);
+    if (!json.ok) return json.response;
+    const raw = json.raw;
     const body = bodySchema.safeParse(raw);
     if (!body.success) return apiError(422, "validation_failed", "A conversation is required.");
     try {
-      return await idempotent(request, `chat-apply:${id}`, raw, async () => {
+      return await idempotent(request, `chat-apply:${account.accountId}:${id}`, raw, async () => {
         const pool = db();
         const view = await threadView(pool, keyWrapper(), {
           accountId: account.accountId,

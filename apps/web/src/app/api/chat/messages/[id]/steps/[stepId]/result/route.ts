@@ -2,7 +2,7 @@ import { submitStepResult } from "@magicmis/chat/server";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { apiError, idempotent, withAccount } from "@/lib/http";
+import { apiError, idempotent, readJsonBody, withAccount } from "@/lib/http";
 import { aiTransport } from "@/lib/server/ai";
 import { progressBody } from "@/lib/server/chat";
 import { jobErrorResponse } from "@/lib/server/job-errors";
@@ -19,14 +19,11 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     const { id, stepId } = await context.params;
     if (!z.uuid().safeParse(id).success || !z.uuid().safeParse(stepId).success)
       return apiError(404, "not_found", "Message not found.");
-    let raw: unknown;
+    const json = await readJsonBody(request);
+    if (!json.ok) return json.response;
+    const raw = json.raw;
     try {
-      raw = await request.json();
-    } catch {
-      return apiError(400, "invalid_json", "The request body is not valid JSON.");
-    }
-    try {
-      return await idempotent(request, `chat-step:${stepId}`, raw, async () => ({
+      return await idempotent(request, `chat-step:${account.accountId}:${stepId}`, raw, async () => ({
         status: 200,
         body: progressBody(
           await submitStepResult(db(), keyWrapper(), aiTransport(), {

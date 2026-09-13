@@ -50,12 +50,12 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     try {
       switch (action) {
         case "confirm":
-          return await idempotent(request, `job-confirm:${id}`, { id }, async () => ({
+          return await idempotent(request, `job-confirm:${account.accountId}:${id}`, { id }, async () => ({
             status: 200,
             body: await confirmJob(pool, base),
           }));
         case "accept-quote":
-          return await idempotent(request, `job-quote:${id}`, { id }, async () => ({
+          return await idempotent(request, `job-quote:${account.accountId}:${id}`, { id }, async () => ({
             status: 200,
             body: await acceptJobQuote(pool, base),
           }));
@@ -66,7 +66,7 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
           return ok({ state: parsed.data.to });
         }
         case "deliver-dashboard":
-          return await idempotent(request, `job-dashboard:${id}`, { id }, async () => {
+          return await idempotent(request, `job-dashboard:${account.accountId}:${id}`, { id }, async () => {
             const r = await completeDashboardAddon(pool, keyWrapper(), base);
             return {
               status: 200,
@@ -79,7 +79,7 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
         case "heartbeat":
           return ok({ held: await heartbeatJob(pool, base) });
         case "cancel":
-          return await idempotent(request, `job-cancel:${id}`, { id }, async () => {
+          return await idempotent(request, `job-cancel:${account.accountId}:${id}`, { id }, async () => {
             const r = await cancelJob(pool, base);
             return { status: 200, body: { capturedCredits: r.captured.toString() } };
           });

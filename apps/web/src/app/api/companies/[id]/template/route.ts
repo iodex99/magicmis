@@ -19,7 +19,7 @@ export async function POST(
     const parsed = await parseJson(request, bodySchema);
     if (!parsed.ok) return parsed.response;
     try {
-      return await idempotent(request, `template-undo:${id}`, parsed.raw, async () => {
+      return await idempotent(request, `template-undo:${account.accountId}:${id}`, parsed.raw, async () => {
         const r = await undoTemplatePatch(db(), keyWrapper(), {
           accountId: account.accountId,
           companyId: id,
