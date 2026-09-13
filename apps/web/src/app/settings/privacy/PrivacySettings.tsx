@@ -29,6 +29,10 @@ export function PrivacySettings({ email }: { email: string }) {
     text: string;
   } | null>(null);
   const [requesting, setRequesting] = useState(false);
+  // SPEC §8: requesting and downloading an export both need a fresh re-authentication.
+  const [exportAction, setExportAction] = useState<
+    { kind: "request" } | { kind: "download"; id: string } | null
+  >(null);
   const [deleteStep, setDeleteStep] = useState<"idle" | "reauth" | "confirm">("idle");
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -82,13 +86,29 @@ export function PrivacySettings({ email }: { email: string }) {
           are never stored on our servers, so they are not included. The download link
           works only while you are signed in, and for a limited time.
         </p>
-        <Button
-          variant="secondary"
-          onClick={() => void requestExport()}
-          disabled={requesting}
-        >
-          Request export
-        </Button>
+        {exportAction === null ? (
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setExportAction({ kind: "request" });
+            }}
+            disabled={requesting}
+          >
+            Request export
+          </Button>
+        ) : (
+          <ReauthForm
+            actionLabel={
+              exportAction.kind === "request" ? "export your data" : "download your data"
+            }
+            onGranted={() => {
+              const action = exportAction;
+              setExportAction(null);
+              if (action.kind === "request") void requestExport();
+              else window.location.assign(`/api/account/export/${action.id}`);
+            }}
+          />
+        )}
         {exports === null || exports.length === 0 ? null : (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm" data-testid="exports">
@@ -114,9 +134,15 @@ export function PrivacySettings({ email }: { email: string }) {
                     </td>
                     <td className="py-1.5 pr-4">
                       {e.status === "ready" ? (
-                        <a href={`/api/account/export/${e.id}`} className="underline">
+                        <button
+                          type="button"
+                          className="underline"
+                          onClick={() => {
+                            setExportAction({ kind: "download", id: e.id });
+                          }}
+                        >
                           Download
-                        </a>
+                        </button>
                       ) : null}
                     </td>
                   </tr>

@@ -7,7 +7,7 @@ import { templateSpecSchema } from "@magicmis/templates";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { apiError, idempotent, withAccount } from "@/lib/http";
+import { apiError, idempotent, readJsonBody, withAccount } from "@/lib/http";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 import { keyWrapper, outputStore } from "@/lib/server/runtime";
 
@@ -53,24 +53,20 @@ export async function POST(
       ),
       readConfig(pool, "outputs.max_upload_bytes", z.number().int().positive()),
     ]);
-    const text = await request.text();
-    if (
-      new TextEncoder().encode(text).length >
-      caps.snapshot_upload_bytes + Math.ceil((maxOutput * 4) / 3) + 1_000_000
-    ) {
-      return apiError(
-        413,
-        "payload_too_large",
+    // Ownership before reading a large body: another account's job id costs nothing to refuse.
+    const owned = await pool.query(
+      `select 1 from jobs where id = $1 and account_id = $2`,
+      [id, account.accountId],
+    );
+    if (owned.rows.length === 0) return apiError(404, "job_not_found", "Job not found.");
+    // Streamed and abandoned past the limit: snapshot cap + base64 workbook cap + envelope.
+    const json = await readJsonBody(request, {
+      maxBytes: caps.snapshot_upload_bytes + Math.ceil((maxOutput * 4) / 3) + 1_000_000,
+      tooLargeMessage:
         "The completed job is too large to save. Reduce the number of periods and try again.",
-      );
-    }
-    let raw: unknown;
-    try {
-      raw = JSON.parse(text);
-    } catch {
-      return apiError(400, "invalid_json", "The request body is not valid JSON.");
-    }
-    const parsed = bodySchema.safeParse(raw);
+    });
+    if (!json.ok) return json.response;
+    const parsed = bodySchema.safeParse(json.raw);
     if (!parsed.success)
       return apiError(
         422,

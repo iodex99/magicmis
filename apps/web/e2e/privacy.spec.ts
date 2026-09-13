@@ -5,6 +5,8 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
@@ -68,9 +70,25 @@ test.afterAll(async () => {
   await db.end();
 });
 
+async function reauthenticate(): Promise<void> {
+  await nextTotpWindow();
+  await page.getByLabel("Current password").fill(PASSWORD);
+  await page.getByLabel("Authenticator code").fill(totpCode(secret));
+  await page.getByRole("button", { name: "Confirm" }).click();
+}
+
 test("the owner requests a data export and downloads it once the worker has built it", async () => {
+  // SPEC §8: exporting is a re-authentication action, on the server as well as in the UI.
+  const refused = await page.request.post("/api/account/export", {
+    headers: { "idempotency-key": randomUUID() },
+    data: {},
+  });
+  expect(refused.status()).toBe(403);
+  expect(((await refused.json()) as { error: string }).error).toBe("reauth_required");
+
   await page.goto("/settings/privacy");
   await page.getByRole("button", { name: "Request export" }).click();
+  await reauthenticate();
   await expect(page.getByText(/Your export is being prepared/u)).toBeVisible();
   await expect(page.getByTestId("exports")).toContainText("Being prepared");
 
@@ -79,14 +97,11 @@ test("the owner requests a data export and downloads it once the worker has buil
 
   await page.reload();
   await expect(page.getByTestId("exports")).toContainText("Ready");
-  const href = await page
-    .getByRole("link", { name: "Download" })
-    .first()
-    .getAttribute("href");
-  const response = await page.request.get(href ?? "");
-  expect(response.status()).toBe(200);
-  expect(response.headers()["cache-control"]).toContain("no-store");
-  const body = (await response.json()) as {
+  await page.getByRole("button", { name: "Download" }).first().click();
+  const download = page.waitForEvent("download");
+  await reauthenticate();
+  const file = await (await download).path();
+  const body = JSON.parse(readFileSync(file, "utf8")) as {
     profile: { email: string };
     consents: { document: string }[];
   };
@@ -139,48 +154,202 @@ test("another account's resources are unreachable through every id-scoped endpoi
     ).rows[0]?.id ?? "",
   ]);
 
-  const json = {
-    "content-type": "application/json",
-    "idempotency-key": "cross-tenant-probe",
+  const size = {
+    files: 1,
+    sheets: 1,
+    columns: 6,
+    rows: 80,
+    distinctLedgerValues: 40,
+    referenceMisSheets: 0,
   };
-  const probes: [string, string, object | undefined][] = [
-    ["GET", `/api/companies/${company}`, undefined],
-    ["DELETE", `/api/companies/${company}`, { confirmName: "Hidden Traders" }],
-    ["GET", `/api/companies/${company}/session`, undefined],
-    ["GET", `/api/companies/${company}/dashboard`, undefined],
-    ["POST", `/api/companies/${company}/dashboard`, { operations: [] }],
-    ["GET", `/api/companies/${company}/chat`, undefined],
-    ["POST", `/api/companies/${company}/template`, { undoTo: 1 }],
-    ["POST", `/api/companies/${company}/restore`, {}],
-    ["GET", `/api/jobs/${job}`, undefined],
-    ["POST", `/api/jobs/${job}/confirm`, {}],
-    ["POST", `/api/jobs/${job}/cancel`, {}],
-    ["POST", `/api/jobs/${job}/ai/sheet_classification`, { sheets: [] }],
-    ["GET", `/api/jobs/${job}/commentary`, undefined],
-    ["GET", `/api/outputs/${output}`, undefined],
-    ["GET", `/api/chat/threads/${thread}`, undefined],
-    ["POST", `/api/chat/messages/${message}/apply`, {}],
-    ["GET", `/api/account/export/${dataExport}`, undefined],
+  const sheet = {
+    ref: "s1",
+    name: "Sheet1",
+    titleLines: ["Trial Balance"],
+    headers: ["Particulars", "Debit"],
+    types: ["text", "amount"],
+    samples: [["LEDGER_a1b2c3", "1"]],
+  };
+  // Every probe carries a body that passes validation, so a refusal proves ownership was checked
+  // (a 422 would only prove the body was wrong). Route templates are listed to guard coverage.
+  const probes: { route: string; method: string; url: string; body?: object }[] = [
+    { route: "/api/companies/[id]", method: "GET", url: `/api/companies/${company}` },
+    {
+      route: "/api/companies/[id]",
+      method: "DELETE",
+      url: `/api/companies/${company}`,
+      body: { confirmName: "Hidden Traders" },
+    },
+    {
+      route: "/api/companies/[id]/session",
+      method: "GET",
+      url: `/api/companies/${company}/session`,
+    },
+    {
+      route: "/api/companies/[id]/dashboard",
+      method: "GET",
+      url: `/api/companies/${company}/dashboard`,
+    },
+    {
+      route: "/api/companies/[id]/dashboard",
+      method: "POST",
+      url: `/api/companies/${company}/dashboard`,
+      body: { action: "undo", baseVersion: 1 },
+    },
+    {
+      route: "/api/companies/[id]/chat",
+      method: "GET",
+      url: `/api/companies/${company}/chat`,
+    },
+    {
+      route: "/api/companies/[id]/template",
+      method: "POST",
+      url: `/api/companies/${company}/template`,
+      body: { action: "undo", baseVersion: 1 },
+    },
+    {
+      route: "/api/companies/[id]/restore",
+      method: "POST",
+      url: `/api/companies/${company}/restore`,
+      body: {},
+    },
+    { route: "/api/jobs/[id]", method: "GET", url: `/api/jobs/${job}` },
+    ...["confirm", "accept-quote", "deliver-dashboard", "heartbeat", "cancel"].map(
+      (action) => ({
+        route: "/api/jobs/[id]/[action]",
+        method: "POST",
+        url: `/api/jobs/${job}/${action}`,
+        body: {},
+      }),
+    ),
+    {
+      route: "/api/jobs/[id]/[action]",
+      method: "POST",
+      url: `/api/jobs/${job}/advance`,
+      body: { to: "mapping" },
+    },
+    {
+      route: "/api/jobs/[id]/[action]",
+      method: "POST",
+      url: `/api/jobs/${job}/fail`,
+      body: {
+        failureClass: "platform_fault",
+        code: "probe",
+        detail: "cross-tenant probe",
+      },
+    },
+    {
+      route: "/api/jobs/[id]/ai/[stage]",
+      method: "POST",
+      url: `/api/jobs/${job}/ai/sheet_classification`,
+      body: { sheets: [sheet] },
+    },
+    {
+      route: "/api/jobs/[id]/ai/reference_layout",
+      method: "POST",
+      url: `/api/jobs/${job}/ai/reference_layout`,
+      body: { layout: { sheets: [] } },
+    },
+    {
+      route: "/api/jobs/[id]/commentary",
+      method: "GET",
+      url: `/api/jobs/${job}/commentary`,
+    },
+    {
+      route: "/api/jobs/[id]/commentary",
+      method: "POST",
+      url: `/api/jobs/${job}/commentary`,
+      body: { period: "2027-01" },
+    },
+    {
+      route: "/api/jobs/[id]/complete",
+      method: "POST",
+      url: `/api/jobs/${job}/complete`,
+      body: {},
+    },
+    { route: "/api/outputs/[id]", method: "GET", url: `/api/outputs/${output}` },
+    {
+      route: "/api/chat/threads/[id]",
+      method: "GET",
+      url: `/api/chat/threads/${thread}`,
+    },
+    {
+      route: "/api/chat/messages/[id]/apply",
+      method: "POST",
+      url: `/api/chat/messages/${message}/apply`,
+      body: { threadId: thread },
+    },
+    {
+      route: "/api/chat/messages/[id]/steps/[stepId]/result",
+      method: "POST",
+      url: `/api/chat/messages/${message}/steps/${randomUUID()}/result`,
+      body: { status: "ok", columns: ["a"], rows: [["1"]], truncated: false },
+    },
+    {
+      route: "/api/account/export/[id]",
+      method: "GET",
+      url: `/api/account/export/${dataExport}`,
+    },
+    // Another tenant's ids in the body rather than the URL.
+    {
+      route: "/api/jobs",
+      method: "POST",
+      url: "/api/jobs",
+      body: {
+        companyId: company,
+        type: "monthly_refresh",
+        tier: "professional",
+        delivery: "standard",
+        size,
+        fingerprints: {},
+      },
+    },
+    {
+      route: "/api/chat/messages",
+      method: "POST",
+      url: "/api/chat/messages",
+      body: {
+        companyId: company,
+        threadId: thread,
+        type: "quick",
+        tier: "professional",
+        text: "What was revenue?",
+      },
+    },
     ...(invoice === ""
       ? []
       : [
-          ["GET", `/api/invoices/${invoice}/pdf`, undefined] as [
-            string,
-            string,
-            undefined,
-          ],
+          {
+            route: "/api/invoices/[id]/pdf",
+            method: "GET",
+            url: `/api/invoices/${invoice}/pdf`,
+          },
         ]),
   ];
-  for (const [method, url, body] of probes) {
-    const response = await page.request.fetch(url, {
-      method,
-      headers: json,
-      ...(body === undefined ? {} : { data: body }),
+
+  // Coverage guard: every route with an id in its path (and the id-in-body routes above) is probed.
+  const apiRoot = path.resolve(process.cwd(), "src", "app", "api");
+  const idRoutes = readdirSync(apiRoot, { recursive: true, encoding: "utf8" })
+    .filter((f) => f.endsWith("route.ts") && f.includes("["))
+    .map((f) => `/api/${path.dirname(f).split(path.sep).join("/")}`)
+    .filter((r) => r !== "/api/invoices/[id]/pdf" || invoice !== "");
+  const probed = new Set(probes.map((p) => p.route));
+  expect(
+    idRoutes.filter((r) => !probed.has(r)),
+    "id-scoped routes without a probe",
+  ).toEqual([]);
+
+  for (const probe of probes) {
+    const response = await page.request.fetch(probe.url, {
+      method: probe.method,
+      headers: { "content-type": "application/json", "idempotency-key": randomUUID() },
+      ...(probe.body === undefined ? {} : { data: probe.body }),
     });
     const text = await response.text();
-    expect(response.status(), `${method} ${url}`).toBeGreaterThanOrEqual(400);
-    expect(response.status(), `${method} ${url}`).not.toBe(500);
-    expect(text, `${method} ${url}`).not.toContain("Hidden Traders");
+    const label = `${probe.method} ${probe.url} → ${String(response.status())} ${text.slice(0, 120)}`;
+    // Not found, or refused before looking (re-authentication, consent).
+    expect([403, 404], label).toContain(response.status());
+    expect(text, label).not.toContain("Hidden Traders");
   }
   // Nothing about the other tenant changed.
   const after = await db.query<{ deleted_at: Date | null; state: string }>(

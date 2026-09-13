@@ -2,12 +2,13 @@
 
 import { useState, type SyntheticEvent } from "react";
 
+import { ReauthForm } from "@/components/ReauthForm";
 import { Button, Field } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 
 /** SPEC §28: deleting stops the memory fee now; data is crypto-shredded after the purge delay. */
 export function DeleteCompany({ companyId, name }: { companyId: string; name: string }) {
-  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<"idle" | "reauth" | "confirm">("idle");
   const [error, setError] = useState<string | null>(null);
 
   async function submit(event: SyntheticEvent<HTMLFormElement>) {
@@ -30,7 +31,14 @@ export function DeleteCompany({ companyId, name }: { companyId: string; name: st
         snapshots and workbooks are permanently destroyed after the purge period. This
         cannot be undone.
       </p>
-      {open ? (
+      {step === "reauth" ? (
+        <ReauthForm
+          actionLabel="delete this company"
+          onGranted={() => {
+            setStep("confirm");
+          }}
+        />
+      ) : step === "confirm" ? (
         <form
           onSubmit={(e) => {
             void submit(e);
@@ -55,7 +63,7 @@ export function DeleteCompany({ companyId, name }: { companyId: string; name: st
           <Button
             variant="secondary"
             onClick={() => {
-              setOpen(true);
+              setStep("reauth");
             }}
           >
             Delete company

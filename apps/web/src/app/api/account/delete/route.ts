@@ -1,9 +1,9 @@
 import { hasFreshReauth } from "@magicmis/accounts";
-import { deleteAccount } from "@magicmis/jobs";
+import { AccountBusy, deleteAccount } from "@magicmis/jobs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { apiError, ok, parseJson, withAccount } from "@/lib/http";
+import { apiError, idempotent, parseJson, withAccount } from "@/lib/http";
 import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
 
 const bodySchema = z.object({ confirmEmail: z.string().max(320) });
@@ -33,25 +33,35 @@ export async function POST(request: Request): Promise<Response> {
         { confirmEmail: "Does not match" },
       );
     }
-    const pool = db();
-    const held = await pool.query<{ held: string }>(
-      `select held_credits::text as held from public.wallets where account_id = $1`,
-      [account.accountId],
-    );
-    if ((held.rows[0]?.held ?? "0") !== "0") {
+    try {
+      return await idempotent(
+        request,
+        `account-delete:${account.accountId}`,
+        { action: "delete_account" },
+        async () => {
+          const { purgeAfter } = await deleteAccount(db(), {
+            accountId: account.accountId,
+          });
+          // The login goes now; the closed account row can no longer be reached through it.
+          const { error } = await supabaseAdmin().auth.admin.deleteUser(
+            account.authUserId,
+          );
+          if (error !== null)
+            console.error("account delete: auth user removal failed", error.message);
+          await (await supabaseForRequest()).auth.signOut({ scope: "local" });
+          return {
+            status: 200,
+            body: { status: "deleted", purgeAfter: purgeAfter.toISOString() },
+          };
+        },
+      );
+    } catch (error) {
+      if (!(error instanceof AccountBusy)) throw error;
       return apiError(
         409,
         "jobs_in_progress",
         "A job or chat message is still in progress. Wait for it to finish or cancel it, then try again.",
       );
     }
-
-    const { purgeAfter } = await deleteAccount(pool, { accountId: account.accountId });
-    // The login goes now; the closed account row can no longer be reached through it.
-    const { error } = await supabaseAdmin().auth.admin.deleteUser(account.authUserId);
-    if (error !== null)
-      console.error("account delete: auth user removal failed", error.message);
-    await (await supabaseForRequest()).auth.signOut({ scope: "local" });
-    return ok({ status: "deleted", purgeAfter: purgeAfter.toISOString() });
   });
 }

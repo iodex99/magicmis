@@ -1,7 +1,8 @@
+import { hasFreshReauth } from "@magicmis/accounts";
 import { listAccountExports, requestAccountExport } from "@magicmis/jobs";
 
 import { db } from "@/lib/db";
-import { idempotent, ok, requestMeta, withAccount } from "@/lib/http";
+import { apiError, idempotent, ok, requestMeta, withAccount } from "@/lib/http";
 import { rateLimited } from "@/lib/server/ratelimit";
 
 /** GET /api/account/export — recent export requests and their state. */
@@ -29,6 +30,13 @@ export async function POST(request: Request): Promise<Response> {
   return withAccount(async (account) => {
     const limited = await rateLimited("export_per_account", account.accountId);
     if (limited !== null) return limited;
+    // SPEC §8: exporting data is a re-authentication action.
+    if (!(await hasFreshReauth(db(), account)))
+      return apiError(
+        403,
+        "reauth_required",
+        "Confirm your password and authenticator code to export your data.",
+      );
     const { ip } = await requestMeta();
     return idempotent(
       request,

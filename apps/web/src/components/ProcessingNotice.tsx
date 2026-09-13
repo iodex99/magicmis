@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 
-import { api } from "@/lib/client-api";
+import { api, newIdempotencyKey } from "@/lib/client-api";
 
 import { Alert, Button } from "./ui";
 
@@ -35,6 +35,7 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
     setSaving(true);
     const r = await api<{ consents: ConsentState }>("/api/account/consents", {
       body: { document: "processing" },
+      idempotencyKey: newIdempotencyKey(),
     });
     setSaving(false);
     if (r.ok && r.data.consents.processing.current) setState("accepted");

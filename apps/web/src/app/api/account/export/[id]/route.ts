@@ -1,3 +1,4 @@
+import { hasFreshReauth } from "@magicmis/accounts";
 import { ExportUnavailable, openAccountExport } from "@magicmis/jobs";
 import { z } from "zod";
 
@@ -17,6 +18,13 @@ export async function GET(
       return apiError(404, "export_not_found", "Export not found.");
     const limited = await rateLimited("export_per_account", account.accountId);
     if (limited !== null) return limited;
+    // SPEC §8: the download needs a fresh re-authentication too, not only the request.
+    if (!(await hasFreshReauth(db(), account)))
+      return apiError(
+        403,
+        "reauth_required",
+        "Confirm your password and authenticator code to download your data.",
+      );
     try {
       const bytes = await openAccountExport(db(), keyWrapper(), await outputStore(), {
         accountId: account.accountId,

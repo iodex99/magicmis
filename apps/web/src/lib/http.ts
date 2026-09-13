@@ -14,6 +14,7 @@ import {
 } from "@magicmis/db/idempotency";
 import { readConfig } from "@magicmis/db/config";
 import type { ChainValue } from "@magicmis/core/hashchain";
+import { clientIp } from "@magicmis/core/security-headers";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -68,13 +69,8 @@ const REFUSAL: Record<AccountRefusal, { status: number; message: string }> = {
 
 export async function requestMeta(): Promise<{ ip: string | null; userAgent: string }> {
   const h = await headers();
-  // Vercel sets x-forwarded-for; the first entry is the client. Locally it may be absent.
-  const forwarded = h.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const ip =
-    forwarded !== undefined && forwarded !== ""
-      ? forwarded
-      : (h.get("x-real-ip") ?? null);
-  return { ip, userAgent: h.get("user-agent") ?? "" };
+  // Only proxy-added values; never a client-settable header (SPEC §30).
+  return { ip: clientIp((name) => h.get(name)), userAgent: h.get("user-agent") ?? "" };
 }
 
 export async function currentClaims(): Promise<unknown> {
@@ -100,21 +96,24 @@ export async function withAccount(
   return handler(decision.account);
 }
 
-const tooLarge = () =>
-  apiError(413, "payload_too_large", "The request is larger than the allowed size.");
-
 /**
- * Read a JSON body, refusing it above `api.max_json_body_bytes` (SPEC §7, §30). The stream is read
- * incrementally and abandoned as soon as it passes the limit, so an oversize body is never buffered.
+ * Read a JSON body, refusing it above `api.max_json_body_bytes` — or a route's own limit derived from
+ * its config (SPEC §7, §30). The stream is read incrementally and abandoned as soon as it passes the
+ * limit, so an oversize body is never buffered.
  */
 export async function readJsonBody(
   request: Request,
+  options: { maxBytes?: number; tooLargeMessage?: string } = {},
 ): Promise<{ ok: true; raw: unknown } | { ok: false; response: Response }> {
-  const max = await readConfig(
-    db(),
-    "api.max_json_body_bytes",
-    z.number().int().positive(),
-  );
+  const max =
+    options.maxBytes ??
+    (await readConfig(db(), "api.max_json_body_bytes", z.number().int().positive()));
+  const tooLarge = () =>
+    apiError(
+      413,
+      "payload_too_large",
+      options.tooLargeMessage ?? "The request is larger than the allowed size.",
+    );
   const declared = request.headers.get("content-length");
   if (declared !== null && /^\d+$/u.test(declared) && BigInt(declared) > BigInt(max))
     return { ok: false, response: tooLarge() };

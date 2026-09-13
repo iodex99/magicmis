@@ -1,8 +1,9 @@
-import { deleteCompany } from "@magicmis/jobs";
+import { hasFreshReauth } from "@magicmis/accounts";
+import { CompanyBusy, deleteCompany } from "@magicmis/jobs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { apiError, ok, parseJson, withAccount } from "@/lib/http";
+import { apiError, idempotent, ok, parseJson, withAccount } from "@/lib/http";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -84,15 +85,26 @@ export async function GET(_request: Request, context: Ctx): Promise<Response> {
   });
 }
 
-const deleteSchema = z.object({ confirmName: z.string() });
+const deleteSchema = z.object({ confirmName: z.string().max(200) });
 
-/** DELETE /api/companies/:id — stops fees now; data is crypto-shredded after the purge delay (SPEC §28). */
+/**
+ * DELETE /api/companies/:id — stops fees now; data is crypto-shredded after the purge delay (SPEC §28).
+ * Requires re-authentication (SPEC §8) and the company name typed out; audit-logged.
+ */
 export async function DELETE(request: Request, context: Ctx): Promise<Response> {
   return withAccount(async (account) => {
     const { id } = await context.params;
+    if (!z.uuid().safeParse(id).success)
+      return apiError(404, "company_not_found", "Company not found.");
+    const pool = db();
+    if (!(await hasFreshReauth(pool, account)))
+      return apiError(
+        403,
+        "reauth_required",
+        "Confirm your password and authenticator code to delete this company.",
+      );
     const parsed = await parseJson(request, deleteSchema);
     if (!parsed.ok) return parsed.response;
-    const pool = db();
     const c = await pool.query<{ name: string }>(
       `select name from companies where id = $1 and account_id = $2 and deleted_at is null`,
       [id, account.accountId],
@@ -108,7 +120,23 @@ export async function DELETE(request: Request, context: Ctx): Promise<Response> 
         { confirmName: "Does not match" },
       );
     }
-    await deleteCompany(pool, { accountId: account.accountId, companyId: id });
-    return ok({ deleted: true });
+    try {
+      return await idempotent(
+        request,
+        `company-delete:${account.accountId}:${id}`,
+        { id },
+        async () => {
+          await deleteCompany(pool, { accountId: account.accountId, companyId: id });
+          return { status: 200, body: { deleted: true } };
+        },
+      );
+    } catch (error) {
+      if (!(error instanceof CompanyBusy)) throw error;
+      return apiError(
+        409,
+        "jobs_in_progress",
+        "A job or chat message for this company is still in progress. Wait for it to finish or cancel it, then try again.",
+      );
+    }
   });
 }

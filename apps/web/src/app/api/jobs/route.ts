@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { idempotent, parseJson, withAccount } from "@/lib/http";
+import { processingConsentRequired } from "@/lib/server/consent";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 
 const bodySchema = z.object({
@@ -33,6 +34,8 @@ const bodySchema = z.object({
  */
 export async function POST(request: Request): Promise<Response> {
   return withAccount(async (account) => {
+    const consent = await processingConsentRequired(account.accountId);
+    if (consent !== null) return consent;
     const parsed = await parseJson(request, bodySchema);
     if (!parsed.ok) return parsed.response;
     const key = request.headers.get("idempotency-key") ?? "";

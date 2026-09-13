@@ -495,8 +495,12 @@ export async function heartbeatJob(
     `update public.jobs set heartbeat_at = $3 where id = $1 and account_id = $2 returning reservation_id`,
     [input.jobId, input.accountId, now],
   );
-  const reservationId = r.rows[0]?.reservation_id ?? null;
-  return reservationId === null ? false : heartbeatReservation(pool, reservationId, now);
+  const row = r.rows[0];
+  // Another account's job answers exactly like a missing one.
+  if (row === undefined) throw new JobStateError("not_found", "job not found");
+  return row.reservation_id === null
+    ? false
+    : heartbeatReservation(pool, row.reservation_id, now);
 }
 
 export type { ActionKey };

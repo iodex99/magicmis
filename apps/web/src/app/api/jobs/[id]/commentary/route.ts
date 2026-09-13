@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { serverEnv } from "@/lib/env";
 import { apiError, idempotent, ok, parseJson, withAccount } from "@/lib/http";
+import { rateLimited } from "@/lib/server/ratelimit";
 import { commentaryPayload } from "@/lib/server/insights";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 import { keyWrapper } from "@/lib/server/runtime";
@@ -21,6 +22,9 @@ const bodySchema = z.object({ period: z.string().regex(/^\d{4}-\d{2}$/u) });
  */
 export async function POST(request: Request, context: Ctx): Promise<Response> {
   return withAccount(async (account) => {
+    // SPEC §30: Instant commentary calls the model in this request.
+    const limited = await rateLimited("ai_per_account", account.accountId);
+    if (limited !== null) return limited;
     const { id } = await context.params;
     if (!z.uuid().safeParse(id).success)
       return apiError(404, "job_not_found", "Job not found.");

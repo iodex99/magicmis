@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { idempotent, parseJson, withAccount } from "@/lib/http";
+import { processingConsentRequired } from "@/lib/server/consent";
 import { rateLimited } from "@/lib/server/ratelimit";
 import { aiTransport } from "@/lib/server/ai";
 import { progressBody } from "@/lib/server/chat";
@@ -25,6 +26,8 @@ const bodySchema = z.object({
  */
 export async function POST(request: Request): Promise<Response> {
   return withAccount(async (account) => {
+    const consent = await processingConsentRequired(account.accountId);
+    if (consent !== null) return consent;
     // SPEC §30: before any work or hold, so a flood cannot run up AI calls.
     const limited = await rateLimited("chat_per_account", account.accountId);
     if (limited !== null) return limited;

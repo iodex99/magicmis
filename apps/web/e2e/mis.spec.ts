@@ -57,6 +57,7 @@ test.beforeAll(async ({ browser }) => {
   await createVerifiedAccountWithTotp(page, email);
   const consent = await page.request.post("/api/account/consents", {
     data: { document: "processing" },
+    headers: { "idempotency-key": randomUUID() },
   });
   expect(consent.ok()).toBe(true);
   // Fund the wallet the way an admin grant would (Razorpay needs live test keys; ADR 0012).
