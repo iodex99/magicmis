@@ -500,6 +500,27 @@ export async function shredCompanyKey(
 // Account-scoped sealing ("apply to all my companies" rules, SPEC §18)
 // ---------------------------------------------------------------------------
 
+export class AccountKeyDestroyed extends Error {
+  constructor(accountId: string) {
+    super(`account ${accountId} data key has been destroyed`);
+    this.name = "AccountKeyDestroyed";
+  }
+}
+
+/** SPEC §10 crypto-shredding for an erased account: the wrapped DEK is removed, not flagged. */
+export async function shredAccountKey(
+  db: Queryable,
+  accountId: string,
+  now: Date,
+): Promise<void> {
+  await db.query(
+    `insert into public.account_keys (account_id, wrapped_dek, kms_key_version, destroyed_at)
+     values ($1, null, 'destroyed', $2)
+     on conflict (account_id) do update set wrapped_dek = null, destroyed_at = coalesce(public.account_keys.destroyed_at, $2)`,
+    [accountId, now],
+  );
+}
+
 const accountKeyContext = (accountId: string): EncryptionContext => ({
   purpose: "account_dek",
   account_id: accountId,
@@ -510,12 +531,14 @@ async function accountDek(
   wrapper: KeyWrapper,
   accountId: string,
 ): Promise<Buffer> {
-  const r = await db.query<{ wrapped_dek: Buffer; kms_key_version: string }>(
+  const r = await db.query<{ wrapped_dek: Buffer | null; kms_key_version: string }>(
     `select wrapped_dek, kms_key_version from public.account_keys where account_id = $1 for update`,
     [accountId],
   );
   const row = r.rows[0];
   if (row !== undefined) {
+    // A destroyed key is never regenerated: the account's sealed data stays unreadable.
+    if (row.wrapped_dek === null) throw new AccountKeyDestroyed(accountId);
     return wrapper.unwrap(
       { ciphertext: row.wrapped_dek, keyVersion: row.kms_key_version },
       accountKeyContext(accountId),

@@ -68,16 +68,17 @@ export async function deliverNotifications(
       const row = r.rows[0];
       if (row === undefined) return false;
 
-      const rendered =
-        row.account_status === "deleted"
-          ? null
-          : renderNotification(row.type, row.payload, ctx);
+      // A closed account still receives the notice that it is being deleted, until it is purged.
+      const blocked =
+        row.account_status === "deleted" &&
+        !(row.type === "account.deletion_scheduled" && !row.email.endsWith("@invalid"));
+      const rendered = blocked ? null : renderNotification(row.type, row.payload, ctx);
       if (rendered === null) {
         await tx.query(
           `update public.notifications set status = 'suppressed', last_error = $2 where id = $1`,
           [
             row.id,
-            row.account_status === "deleted"
+            blocked
               ? "account deleted"
               : `no template for ${row.type}`,
           ],

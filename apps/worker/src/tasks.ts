@@ -11,6 +11,7 @@ import type { KeyWrapper } from "@magicmis/crypto";
 import {
   commentaryBatchTick,
   debitMemoryFees,
+  purgeAccounts,
   purgeCompanies,
   queueLifecycleNotices,
   queueRefreshReminders,
@@ -119,7 +120,11 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     queue: "lifecycle-purge",
     cron: "45 2 * * *",
     expireInSeconds: 3600,
-    run: ({ pool, outputs }, now) => purgeCompanies(pool, outputs ?? null, now),
+    run: async ({ pool, outputs }, now) => ({
+      companies: await purgeCompanies(pool, outputs ?? null, now),
+      // SPEC §10, §31: erased accounts past their delay; their companies purge with them.
+      accounts: await purgeAccounts(pool, outputs ?? null, now),
+    }),
   },
   {
     // SPEC §29: monthly refresh reminder on each company's reminder day.

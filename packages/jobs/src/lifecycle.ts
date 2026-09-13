@@ -17,7 +17,8 @@
 import { readConfig } from "@magicmis/db/config";
 import { withTransaction, type Queryable } from "@magicmis/db/tx";
 import { toIstParts } from "@magicmis/core/time";
-import { shredCompanyKey } from "@magicmis/engine/server";
+import { shredAccountKey, shredCompanyKey } from "@magicmis/engine/server";
+import { appendAudit } from "@magicmis/db/audit";
 import {
   captureReservation,
   priceFor,
@@ -501,4 +502,96 @@ export async function queueRefreshReminders(
       queued += 1;
   }
   return queued;
+}
+
+/**
+ * Account erasure (SPEC §10, §31). The account closes now: status `deleted`, every company deleted
+ * (fees stop), holds released by the sweepers, and purge scheduled after the configured delay.
+ * Invoices and the credit ledger are statutory records and are kept.
+ */
+export async function deleteAccount(
+  pool: Pool,
+  input: { accountId: string; now?: Date },
+): Promise<{ purgeAfter: Date }> {
+  const now = input.now ?? new Date();
+  const delay = await readConfig(
+    pool,
+    "lifecycle.deletion_purge_delay_days",
+    z.number().int().nonnegative(),
+  );
+  const purgeAfter = new Date(now.getTime() + delay * DAY);
+  await withTransaction(pool, async (tx) => {
+    const r = await tx.query(
+      `update public.accounts set status = 'deleted', deleted_at = coalesce(deleted_at, $2),
+         purge_after = coalesce(purge_after, $3), active_session_id = null
+       where id = $1 and purged_at is null`,
+      [input.accountId, now, purgeAfter],
+    );
+    if (r.rowCount !== 1) throw new Error("account not found");
+    await tx.query(
+      `update public.companies set deleted_at = coalesce(deleted_at, $2), purge_after = least(coalesce(purge_after, $3), $3)
+       where account_id = $1 and lifecycle_state <> 'purged'`,
+      [input.accountId, now, purgeAfter],
+    );
+    await appendAudit(tx, {
+      actorType: "account",
+      actorId: input.accountId,
+      action: "account.deletion_requested",
+      targetType: "account",
+      targetId: input.accountId,
+      metadata: { purgeAfter: purgeAfter.toISOString() },
+    });
+    await queueNotification(tx, {
+      accountId: input.accountId,
+      type: "account.deletion_scheduled",
+      payload: { purge_after: purgeAfter.toISOString() },
+      dedupeKey: `account-deletion:${input.accountId}`,
+    });
+  });
+  return { purgeAfter };
+}
+
+/**
+ * Worker: purge erased accounts whose delay has passed. Their companies are purged (keys destroyed,
+ * outputs removed), the account key is destroyed, and personal fields are overwritten. Rows needed
+ * for invoices and the ledger remain, keyed by an account that no longer identifies anyone.
+ */
+export async function purgeAccounts(
+  pool: Pool,
+  store: OutputStore | null,
+  now: Date = new Date(),
+): Promise<number> {
+  const due = await pool.query<{ id: string }>(
+    `select id from public.accounts where status = 'deleted' and purged_at is null and purge_after is not null and purge_after <= $1`,
+    [now],
+  );
+  for (const a of due.rows) {
+    await pool.query(
+      `update public.companies set purge_after = least(coalesce(purge_after, $2), $2) where account_id = $1 and lifecycle_state <> 'purged'`,
+      [a.id, now],
+    );
+    await purgeCompanies(pool, store, now);
+    await withTransaction(pool, async (tx) => {
+      await shredAccountKey(tx, a.id, now);
+      await tx.query(
+        `update public.account_mapping_rules set deleted_at = coalesce(deleted_at, $2) where account_id = $1`,
+        [a.id, now],
+      );
+      await tx.query(
+        `update public.accounts set email = 'purged-' || id::text || '@invalid', business_name = 'Deleted account',
+           billing_address = '{}'::jsonb, purged_at = $2 where id = $1`,
+        [a.id, now],
+      );
+      await tx.query(`delete from public.login_events where account_id = $1`, [a.id]);
+      await appendAudit(tx, {
+        actorType: "system",
+        actorId: null,
+        action: "account.purged",
+        targetType: "account",
+        targetId: a.id,
+        metadata: {},
+      });
+    });
+  }
+  return due.rows.length;
 }

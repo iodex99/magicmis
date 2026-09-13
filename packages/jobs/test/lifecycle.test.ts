@@ -3,13 +3,20 @@
 import { randomUUID } from "node:crypto";
 
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
-import { latestSnapshot, storeSnapshot } from "@magicmis/engine/server";
+import {
+  latestSnapshot,
+  loadAccountRules,
+  saveAccountRules,
+  storeSnapshot,
+} from "@magicmis/engine/server";
 import { grantCredits, priceFor } from "@magicmis/wallet";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createJob } from "../src/jobs";
 import {
   debitMemoryFees,
+  deleteAccount,
+  purgeAccounts,
   deleteCompany,
   purgeCompanies,
   queueLifecycleNotices,
@@ -221,6 +228,59 @@ describe("deletion and purge", () => {
       latestSnapshot(pool(), wrapper, { accountId, companyId, period: "2027-01" }),
     ).rejects.toThrow(/destroyed/u);
     expect(await notices(accountId)).toContain("lifecycle.purged");
+  });
+});
+
+describe("account erasure (SPEC §10, §31; Phase 9 acceptance: purge verifiably destroys keys)", () => {
+  it("closes the account now and, after the delay, destroys every key so sealed data cannot be opened", async () => {
+    const { accountId, companyId } = await setUpCompany(5_000n);
+    await storeSnapshot(pool(), wrapper, { accountId, companyId, jobId: null, payload: emptySnapshot("2027-01") });
+    await saveAccountRules(pool(), wrapper, { accountId, companyId, rules: [{ pattern: "courier charges", head: "OPEX" }] });
+    expect(await loadAccountRules(pool(), wrapper, accountId)).toHaveLength(1);
+    const ledgerBefore = await pool().query(`select count(*)::int as n from credit_ledger where account_id = $1`, [accountId]);
+
+    const now = new Date("2027-02-01T06:00:00Z");
+    const { purgeAfter } = await deleteAccount(pool(), { accountId, now });
+    const closed = await pool().query(`select status, active_session_id from accounts where id = $1`, [accountId]);
+    expect(closed.rows[0]).toEqual({ status: "deleted", active_session_id: null });
+    expect(await notices(accountId)).toContain("account.deletion_scheduled");
+    // Fees stop with the account.
+    await debitMemoryFees(pool(), new Date("2027-02-15T06:00:00Z"));
+    expect(await wallet(pool(), accountId)).toEqual({ balance: 5_000n, held: 0n });
+
+    const store = new MemoryOutputStore();
+    expect(await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() - 60_000))).toBe(0);
+    expect(await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() + 60_000))).toBe(1);
+
+    const keys = await pool().query<{ wrapped_dek: Buffer | null; destroyed_at: Date | null }>(
+      `select wrapped_dek, destroyed_at from company_keys where company_id = $1
+       union all select wrapped_dek, destroyed_at from account_keys where account_id = $2`,
+      [companyId, accountId],
+    );
+    expect(keys.rows).toHaveLength(2);
+    for (const k of keys.rows) {
+      expect(k.wrapped_dek).toBeNull();
+      expect(k.destroyed_at).not.toBeNull();
+    }
+    // The ciphertext is still in the database, and nothing can read it.
+    const sealed = await pool().query(`select count(*)::int as n from snapshots where company_id = $1`, [companyId]);
+    expect(sealed.rows[0]).toEqual({ n: 1 });
+    await expect(latestSnapshot(pool(), wrapper, { accountId, companyId, period: "2027-01" })).rejects.toThrow(/destroyed/u);
+    expect(await loadAccountRules(pool(), wrapper, accountId)).toEqual([]);
+    // A destroyed account key is never silently replaced.
+    await expect(
+      saveAccountRules(pool(), wrapper, { accountId, companyId: null, rules: [{ pattern: "x", head: "OPEX" }] }),
+    ).rejects.toThrow(/destroyed/u);
+
+    const account = await pool().query<{ email: string; business_name: string }>(
+      `select email, business_name from accounts where id = $1`,
+      [accountId],
+    );
+    expect(account.rows[0]?.email).toBe(`purged-${accountId}@invalid`);
+    expect(account.rows[0]?.business_name).toBe("Deleted account");
+    const ledgerAfter = await pool().query(`select count(*)::int as n from credit_ledger where account_id = $1`, [accountId]);
+    expect(ledgerAfter.rows[0]).toEqual(ledgerBefore.rows[0]);
+    expect(await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() + 120_000))).toBe(0);
   });
 });
 
