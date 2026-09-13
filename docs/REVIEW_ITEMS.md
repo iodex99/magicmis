@@ -39,7 +39,7 @@ your sign-off · `closed` — resolved, with the resolution noted.
 
 | # | Item | Needed by | Status |
 |---|---|---|---|
-| R-16 | **Email provider** — §5 says Resend or Postmark, record in ADR. | Phase 0 | **closed** — Postmark, transactional stream only. Decision delegated to engineering 2026-09-13. See ADR 0007. |
+| R-16 | **Email provider** — §5 says Resend or Postmark, record in ADR. | Phase 0 | **closed** — Resend, directed by the product owner 2026-09-13 (superseding an interim Postmark choice). See ADR 0010. |
 | R-17 | **Google / Microsoft sign-in** — §8 says may be offered, decision recorded in ADR. | Phase 1 | **closed** — not offered in this build; email + password + mandatory TOTP only. Reversible without a schema change. See ADR 0009. |
 | R-18 | **KMS vs secrets manager** for the master key — §5 prefers a cloud KMS. | Phase 0 | **closed** — AWS KMS customer-managed key in `ap-south-1`, reached via Vercel OIDC with no long-lived credentials. See ADR 0008. |
 | R-19 | **Supabase region** — §5 says use India (Mumbai) if available; confirm in docs. | Phase 0 | **closed** — Mumbai `ap-south-1` ("South Asia (Mumbai)") confirmed available. [Source](https://supabase.com/docs/guides/platform/regions), verified 2026-09-11. See ADR 0003. |

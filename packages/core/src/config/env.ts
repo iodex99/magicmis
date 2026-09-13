@@ -64,11 +64,15 @@ export const serverEnvSchema = z.object({
     .regex(/^arn:aws:iam::\d{12}:role\/.+$/u)
     .optional(),
 
-  /** Postmark server API token (ADR 0007). */
-  POSTMARK_SERVER_TOKEN: nonEmpty,
-  /** Transactional stream only. SPEC §29 sends no marketing mail. */
-  POSTMARK_MESSAGE_STREAM: nonEmpty.default("outbound"),
-  EMAIL_FROM: z.email(),
+  /** Resend API key (ADR 0010, superseding 0007). */
+  RESEND_API_KEY: z.string().regex(/^re_[A-Za-z0-9_]+$/u),
+  /**
+   * Sender for every SPEC §29 email, e.g. `Product <noreply@mail.example.com>`. A bare
+   * address is accepted too. Must be on a domain verified in Resend.
+   */
+  EMAIL_FROM: z
+    .string()
+    .regex(/^([^<>]+<[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+>|[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+)$/u),
 
   SENTRY_DSN: z.url().optional(),
   LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]).default("info"),

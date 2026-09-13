@@ -202,7 +202,7 @@ Zustand · Supabase (Postgres, Auth w/ TOTP MFA, Storage, RLS; India/Mumbai regi
 available) · Vercel (functions pinned nearest India) · `pg-boss` worker on a container
 host · `@anthropic-ai/sdk` (server/worker only) · SheetJS (**official distribution, not
 the stale npm registry version**) · DuckDB-WASM · Comlink · OPFS · ExcelJS · Apache
-ECharts · HyperFormula (tests) · Razorpay · Resend _or_ Postmark (ADR) · AES-256-GCM
+ECharts · HyperFormula (tests) · Razorpay · Resend (ADR 0010) · AES-256-GCM
 envelope encryption w/ KMS master key · Vitest + fast-check + Playwright +
 Testcontainers · Sentry (PII scrubbing) + pino · pnpm workspaces (+ Turborepo if useful)
 

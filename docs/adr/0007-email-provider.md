@@ -1,6 +1,6 @@
 # ADR 0007 — Postmark for email
 
-**Status:** accepted · **Date:** 2026-09-13 · **Phase:** 0
+**Status:** superseded by [ADR 0010](0010-email-provider-resend.md) on 2026-09-13 (product owner chose Resend) · **Date:** 2026-09-13 · **Phase:** 0
 
 ## Context
 

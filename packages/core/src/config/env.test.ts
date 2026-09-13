@@ -12,7 +12,7 @@ const VALID_SERVER = {
   RAZORPAY_WEBHOOK_SECRET: "whsec",
   KMS_MASTER_KEY_ID: "alias/magicmis-master",
   AWS_REGION: "ap-south-1",
-  POSTMARK_SERVER_TOKEN: "postmark-test-token",
+  RESEND_API_KEY: "re_test_key_123",
   EMAIL_FROM: "noreply@example.com",
 } as const;
 
@@ -92,10 +92,27 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
     ).toThrow(EnvValidationError);
   });
 
-  it("applies the transactional Postmark stream by default (ADR 0007)", () => {
-    expect(loadServerEnv({ ...VALID_SERVER })).toMatchObject({
-      POSTMARK_MESSAGE_STREAM: "outbound",
-    });
+  it("requires a Resend API key of the right shape (ADR 0010)", () => {
+    const { RESEND_API_KEY: _omitted, ...withoutKey } = VALID_SERVER;
+    expect(() => loadServerEnv(withoutKey)).toThrow(EnvValidationError);
+    expect(() => loadServerEnv({ ...VALID_SERVER, RESEND_API_KEY: "not-a-key" })).toThrow(
+      EnvValidationError,
+    );
+  });
+
+  it("accepts EMAIL_FROM with or without a display name", () => {
+    expect(() =>
+      loadServerEnv({
+        ...VALID_SERVER,
+        EMAIL_FROM: "Product <noreply@mail.example.com>",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      loadServerEnv({ ...VALID_SERVER, EMAIL_FROM: "noreply@example.com" }),
+    ).not.toThrow();
+    expect(() =>
+      loadServerEnv({ ...VALID_SERVER, EMAIL_FROM: "Product <nope>" }),
+    ).toThrow(EnvValidationError);
   });
 
   it("accepts a KMS key ARN or alias, and rejects anything else (ADR 0008)", () => {

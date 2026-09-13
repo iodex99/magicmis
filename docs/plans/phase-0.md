@@ -237,10 +237,10 @@ mechanism.
   rule above that list ("all customer tables carry account_id") governs — ADR 0003.
 - **ADRs 0006–0009 were first held back, then written after review.** You delegated the
   choices on 2026-09-13, so they were decided on the merits and verified against
-  official docs: hosting in Mumbai throughout (0006), Postmark for email (0007), AWS KMS
+  official docs: hosting in Mumbai throughout (0006), Postmark for email (0007, since superseded by Resend in 0010 at the product owner's direction), AWS KMS
   with Vercel OIDC and no long-lived credentials (0008), and email + password + TOTP with
   no social sign-in (0009). The server env schema was updated to match: KMS key ARN or
-  alias, a pinned `AWS_REGION`, an optional role ARN, and the Postmark token and stream.
+  alias, a pinned `AWS_REGION`, an optional role ARN, and the email provider credentials (now `RESEND_API_KEY`).
 
 ## New dependencies (§0.10 — one line each)
 
@@ -284,7 +284,7 @@ Product name (R-01) only. Nothing depends on it until Phase 1's first customer-f
 - Enforce `aal2` in the database, by extending `app.current_account_id()` in a **new**
   migration, so an `aal1` session reads nothing even if a route forgets its check
   (ADR 0009). Add `auth.jwt()` to the test shim to prove it.
-- Route Supabase Auth email through Postmark via custom SMTP; the built-in sender is
+- Route Supabase Auth email through Resend via custom SMTP; the built-in sender is
   non-production and limited to 2 messages an hour (ADR 0007).
 - Commit `"regions": ["bom1"]` in each app's `vercel.json` when the apps are created
   (ADR 0006).
