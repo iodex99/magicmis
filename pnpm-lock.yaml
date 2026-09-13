@@ -460,6 +460,9 @@ importers:
       '@magicmis/tally':
         specifier: workspace:*
         version: link:../tally
+      '@magicmis/templates':
+        specifier: workspace:*
+        version: link:../templates
       '@testcontainers/postgresql':
         specifier: ^11.7.1
         version: 11.14.0(supports-color@7.2.0)

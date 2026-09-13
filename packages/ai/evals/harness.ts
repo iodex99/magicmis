@@ -20,12 +20,24 @@ import type { Pool } from "pg";
 import { recordEvalRun } from "../src/activation";
 import { CostBudget, runStage, type StageSpec } from "../src/orchestrator";
 import type { Stage, Tier } from "../src/registry";
-import { classifySheetsSpec, mapColumnsSpec } from "../src/stages";
+import {
+  classifySheetsSpec,
+  extractReferenceLayoutSpec,
+  generateCommentarySpec,
+  mapColumnsSpec,
+  type ExtractReferenceLayoutInput,
+  type ExtractReferenceLayoutOutput,
+  type GenerateCommentaryInput,
+  type GenerateCommentaryOutput,
+} from "../src/stages";
 import type { AiTransport, CreateParams } from "../src/transport";
 import {
   columnMappingDataset,
+  commentaryDataset,
+  referenceLayoutDataset,
   sheetClassificationDataset,
   type EvalItem,
+  type ReferenceLabel,
 } from "./datasets";
 
 export type Recording = Record<
@@ -112,9 +124,76 @@ const columnEval: StageEval<
   }),
 };
 
+const referenceEval: StageEval<
+  ExtractReferenceLayoutInput,
+  ExtractReferenceLayoutOutput,
+  ReferenceLabel
+> = {
+  spec: extractReferenceLayoutSpec,
+  dataset: referenceLayoutDataset,
+  // Per unbound row: the kind, and for a metric the metric, must match.
+  score: (o, label) => {
+    const got = new Map(o.rows.map((r) => [r.ref, r.kind === "metric" ? r.metric : r.kind]));
+    const refs = Object.keys(label);
+    return {
+      units: refs.length,
+      correct: refs.filter((r) => got.get(r) === label[r]).length,
+    };
+  },
+  oracle: (item) => {
+    const rows = item.input.sheets.flatMap((s) => s.rows);
+    return {
+      rows: Object.entries(item.label).map(([ref, shows]) => {
+        const formula = rows.find((r) => r.ref === ref)?.formula ?? "";
+        return {
+          ref,
+          kind:
+            shows === "unavailable"
+              ? ("unavailable" as const)
+              : shows === "subtotal"
+                ? ("subtotal" as const)
+                : ("metric" as const),
+          metric: shows === "unavailable" || shows === "subtotal" ? null : shows,
+          terms:
+            shows === "subtotal"
+              ? [...formula.matchAll(/([+-]?)(s\d+r\d+)/gu)].map((m) => ({
+                  row: m[2] ?? "",
+                  sign: m[1] === "-" ? (-1 as const) : (1 as const),
+                }))
+              : null,
+          confidence: "high" as const,
+        };
+      }),
+    };
+  },
+};
+
+const commentaryEval: StageEval<GenerateCommentaryInput, GenerateCommentaryOutput, null> =
+  {
+    spec: generateCommentarySpec,
+    dataset: commentaryDataset,
+    // Output reaching the score already passed V12 (a failure never returns); one unit per section.
+    score: (o, _label) => ({ units: 1, correct: o.sections.length > 0 ? 1 : 0 }),
+    oracle: (item) => ({
+      sections: item.input.sections.map((heading) => ({
+        heading,
+        paragraphs: [
+          {
+            text:
+              item.input.factsPack.facts[0] === undefined
+                ? "The data for this month is insufficient to comment."
+                : `${item.input.factsPack.facts[0].label} was {{${item.input.factsPack.facts[0].id}}}.`,
+          },
+        ],
+      })),
+    }),
+  };
+
 export const STAGE_EVALS = {
   sheet_classification: sheetEval,
   column_mapping: columnEval,
+  reference_layout: referenceEval,
+  commentary: commentaryEval,
 } as const;
 export type EvaluableStage = keyof typeof STAGE_EVALS;
 

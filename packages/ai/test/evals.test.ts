@@ -11,7 +11,11 @@ import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { activatePromptVersion } from "../src/activation";
-import { columnMappingDataset, sheetClassificationDataset } from "../evals/datasets";
+import {
+  columnMappingDataset,
+  referenceLayoutDataset,
+  sheetClassificationDataset,
+} from "../evals/datasets";
 import { runEval, type Recording } from "../evals/harness";
 
 let db: TestDb | undefined;
@@ -88,5 +92,39 @@ describe("harness", () => {
     expect(report.oracle).toBe(false);
     expect(report.correct).toBe(0);
     expect(report.failures).toHaveLength(3);
+  });
+
+  it.each(["reference_layout", "commentary"] as const)(
+    "%s: the dataset runs through the stage check and scores in replay",
+    async (stage) => {
+      const report = await runEval({
+        pool: pool(),
+        stage,
+        tier: "professional",
+        promptVersion: 1,
+        mode: "replay",
+      });
+      expect(report.oracle).toBe(true);
+      expect(report.failures).toEqual([]);
+      expect(report.accuracy).toBe("1.0000");
+    },
+  );
+});
+
+describe("reference layout dataset", () => {
+  it("labels only rows the rules leave unbound, including relabelled wording", () => {
+    const items = referenceLayoutDataset();
+    expect(items.length).toBeGreaterThanOrEqual(10);
+    const base = items.find((i) => i.id === "rl-base");
+    expect(Object.values(base?.label ?? {}).sort()).toEqual([
+      "employee_cost",
+      "subtotal",
+      "unavailable",
+      "unavailable",
+    ]);
+    const all = items.find((i) => i.id === "rl-all-relabelled");
+    expect(Object.values(all?.label ?? {})).toEqual(
+      expect.arrayContaining(["revenue", "receivables", "inventory", "finance_cost"]),
+    );
   });
 });
