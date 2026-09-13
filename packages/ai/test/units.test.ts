@@ -9,6 +9,8 @@ import {
   mapColumnsOutput,
   mapLedgersOutput,
   mapColumnsSpec,
+  extractReferenceLayoutSpec,
+  extractReferenceLayoutOutput,
 } from "../src/stages";
 import { sizeBucket } from "../src/estimator";
 
@@ -39,6 +41,7 @@ describe("structured output schemas", () => {
     ["classify", classifySheetsOutput],
     ["columns", mapColumnsOutput],
     ["ledgers", mapLedgersOutput],
+    ["reference layout", extractReferenceLayoutOutput],
   ])(
     "%s: supported subset only, closed objects, every property required",
     (_n, schema) => {
@@ -130,5 +133,58 @@ describe("ratios", () => {
     };
     expect(sizeBucket(s)).toBe("s");
     expect(sizeBucket({ ...s, distinctLedgerValues: 4000 })).toBe("l");
+  });
+});
+
+describe("extractReferenceLayout check", () => {
+  const input = {
+    metrics: [{ id: "revenue", label: "Revenue", unit: "money" as const }],
+    sheets: [
+      {
+        ref: "s1",
+        name: "P&L",
+        columns: ["Current Month"],
+        rows: [
+          { ref: "s1r4", label: "Sales", bold: false, indent: 0, formula: null, bound: "metric:revenue" },
+          { ref: "s1r5", label: "Rent", bold: false, indent: 0, formula: null, bound: null },
+          { ref: "s1r6", label: "Total", bold: true, indent: 0, formula: "s1r4+s1r5", bound: null },
+        ],
+      },
+      {
+        ref: "s2",
+        name: "Other",
+        columns: [],
+        rows: [{ ref: "s2r4", label: "Order book", bold: false, indent: 0, formula: null, bound: null }],
+      },
+    ],
+  };
+
+  it("accepts an answer for every unbound row with allowed metrics and same-sheet terms", () => {
+    expect(
+      extractReferenceLayoutSpec.check?.(input, {
+        rows: [
+          { ref: "s1r5", kind: "unavailable", metric: null, terms: null, confidence: "high" },
+          { ref: "s1r6", kind: "subtotal", metric: null, terms: [{ row: "s1r4", sign: 1 }, { row: "s1r5", sign: 1 }], confidence: "medium" },
+          { ref: "s2r4", kind: "unavailable", metric: null, terms: null, confidence: "high" },
+        ],
+      }),
+    ).toEqual([]);
+  });
+
+  it("lists every problem for the repair turn", () => {
+    const problems = extractReferenceLayoutSpec.check?.(input, {
+      rows: [
+        { ref: "s1r4", kind: "metric", metric: "revenue", terms: null, confidence: "high" },
+        { ref: "s1r5", kind: "metric", metric: "rent", terms: null, confidence: "low" },
+        { ref: "s1r6", kind: "subtotal", metric: null, terms: [{ row: "s1r6", sign: 1 }, { row: "s2r4", sign: 1 }], confidence: "low" },
+      ],
+    });
+    expect(problems).toEqual([
+      "unknown ref s1r4",
+      "missing ref s2r4",
+      "row s1r5: metric rent is not allowed",
+      "row s1r6: a subtotal cannot include itself",
+      "row s1r6: term s2r4 is not a row on the same sheet",
+    ]);
   });
 });

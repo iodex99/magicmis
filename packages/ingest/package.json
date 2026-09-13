@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@magicmis/core": "workspace:*",
+    "@magicmis/templates": "workspace:*",
+    "exceljs": "4.4.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.1.13"
   },

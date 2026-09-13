@@ -23,6 +23,7 @@ const AI_CALLING_EXPORTS = new Set([
   "mapColumns",
   "mapLedgers",
   "generateCommentary",
+  "extractReferenceLayout",
 ]);
 const OTHER_FUNCTION_EXPORTS = new Set([
   "jobAiContext",

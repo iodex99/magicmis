@@ -379,6 +379,9 @@ importers:
       '@magicmis/core':
         specifier: workspace:*
         version: link:../../packages/core
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
       xlsx:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
         version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
@@ -594,6 +597,12 @@ importers:
       '@magicmis/core':
         specifier: workspace:*
         version: link:../core
+      '@magicmis/templates':
+        specifier: workspace:*
+        version: link:../templates
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
       xlsx:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
         version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz

@@ -23,6 +23,7 @@ import {
 import { daysInMonth } from "@magicmis/core/time";
 import type { CheckResult, HeadCube, MetricValue } from "@magicmis/engine";
 import { MetricEngine } from "@magicmis/engine";
+import { divideRounded, formatDecimal } from "@magicmis/core/money";
 import type { ColumnKind, ResolvedSection, TemplateSpec } from "@magicmis/templates";
 import ExcelJS from "exceljs";
 
@@ -80,6 +81,8 @@ export interface RenderInput {
   readonly displayName: (ledgerKey: string) => string;
   readonly validation: readonly CheckResult[];
   readonly extraValues?: Readonly<Record<string, readonly MetricValue[]>>;
+  /** Display text for a template row label: rehydrates redaction tokens in the browser (SPEC §17). */
+  readonly labelText?: (label: string) => string;
 }
 
 export interface RenderedWorkbook {
@@ -293,7 +296,9 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
     ws.getRow(HEADER_ROWS.fy).hidden = true;
     ws.getColumn(1).width = 34;
 
-    const metricRows = section.rows.filter((r) => r.kind === "metric");
+    const metricRows = section.rows.filter(
+      (r) => r.kind === "metric" || r.kind === "subtotal",
+    );
     const hasMetrics = metricRows.length > 0;
     const cols = hasMetrics ? buildColumns(section.columns, period, cube) : [];
     cols.forEach((c, i) => {
@@ -318,10 +323,22 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
       if (r.kind === "metric") rowOf.set(r.metric, HEADER_ROWS.first + i);
     });
 
+    const rowNumber = new Map(section.rows.map((r, i) => [r.id, HEADER_ROWS.first + i]));
+    // Money written per row id and column, for subtotal formulas and their expected values.
+    const money = new Map<string, Map<number, bigint>>();
+    const moneyOf = (id: string) => {
+      let m = money.get(id);
+      if (m === undefined) {
+        m = new Map();
+        money.set(id, m);
+      }
+      return m;
+    };
+
     section.rows.forEach((r, i) => {
       const row = HEADER_ROWS.first + i;
       const label = ws.getCell(row, 1);
-      label.value = r.label;
+      label.value = input.labelText ? input.labelText(r.label) : r.label;
       if (r.kind === "heading") {
         label.font = { bold: true };
         return;
@@ -332,6 +349,10 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
       }
       label.alignment = { indent: r.indent };
       if (r.emphasis) label.font = { bold: true };
+      if (r.kind === "subtotal") {
+        writeSubtotal(r, row);
+        return;
+      }
       const kind = unitKind(r.metric);
 
       cols.forEach((c, ci) => {
@@ -402,8 +423,90 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
           unit,
           value: expected.value,
         });
+        if (unit === "paise" && expected.value !== null && c.kind !== "diff_abs")
+          moneyOf(r.id).set(col, BigInt(expected.value));
       });
     });
+
+    /**
+     * A subtotal rule (SPEC §22): cell arithmetic over its term rows in each value column, and the
+     * usual guarded comparisons on its own cells. Written only where every term has a value.
+     */
+    function writeSubtotal(
+      r: Extract<(typeof section.rows)[number], { kind: "subtotal" }>,
+      row: number,
+    ) {
+      cols.forEach((c, ci) => {
+        const col = ci + 2;
+        const letter = colLetter(col);
+        const cell = ws.getCell(row, col);
+        if (r.emphasis) cell.font = { bold: true };
+        let formula: string;
+        let value: string | null;
+        let unit: Expectation["unit"] = "paise";
+        if (c.kind === "period" || c.kind === "ytd") {
+          const parts: string[] = [];
+          let total = 0n;
+          for (const t of r.terms) {
+            const v = money.get(t.row)?.get(col);
+            const at = rowNumber.get(t.row);
+            if (v === undefined || at === undefined) return;
+            total += t.sign === 1 ? v : -v;
+            parts.push(
+              `${parts.length === 0 ? (t.sign === 1 ? "" : "-") : t.sign === 1 ? "+" : "-"}${letter}${at.toString()}`,
+            );
+          }
+          formula = parts.join("");
+          value = total.toString();
+          moneyOf(r.id).set(col, total);
+        } else {
+          const a = money.get(r.id)?.get(c.a + 2);
+          const b = money.get(r.id)?.get(c.b + 2);
+          if (a === undefined || b === undefined) return;
+          const ac = `${colLetter(c.a + 2)}${row.toString()}`;
+          const bc = `${colLetter(c.b + 2)}${row.toString()}`;
+          if (c.kind === "diff_abs") {
+            formula = `IF(OR(${ac}="",${bc}=""),"",${ac}-${bc})`;
+            value = (a - b).toString();
+          } else {
+            formula = `IF(OR(${ac}="",${bc}=""),"",IF(${bc}=0,"",(${ac}-${bc})/ABS(${bc})*100))`;
+            unit = "decimal";
+            value =
+              b === 0n
+                ? null
+                : formatDecimal({
+                    unscaled: divideRounded(
+                      (a - b) * 100n * 1_000_000n,
+                      b < 0n ? -b : b,
+                      "half_even",
+                    ),
+                    scale: 6,
+                  });
+          }
+        }
+        cell.value = {
+          formula,
+          result:
+            value === null
+              ? ""
+              : unit === "paise"
+                ? Number.parseInt(value, 10) / 100
+                : Number.parseFloat(value),
+        };
+        cell.numFmt =
+          unit === "decimal"
+            ? PERCENT_FORMAT
+            : moneyFormat(BigInt(value ?? "0"), nf.style, nf.decimals, nf.negativesInBrackets);
+        expectations.push({
+          sheet: section.sheet,
+          row,
+          col,
+          metricId: `subtotal:${r.id}@${c.header}`,
+          unit,
+          value,
+        });
+      });
+    }
 
     // Extra value tables (ageing, payroll) are written as values with lineage, not formulas.
     const extra = input.extraValues?.[section.id] ?? [];
@@ -489,7 +592,25 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
   let lineageRow = 2;
   const seen = new Set<string>();
   for (const { section } of included) {
+    const labelOf = new Map(section.rows.map((r) => [r.id, r.label]));
+    const text = (l: string) => (input.labelText ? input.labelText(l) : l);
     for (const r of section.rows) {
+      if (r.kind === "subtotal") {
+        const formula = r.terms
+          .map(
+            (t, i) =>
+              `${i === 0 ? (t.sign === 1 ? "" : "− ") : t.sign === 1 ? "+ " : "− "}${text(labelOf.get(t.row) ?? t.row)}`,
+          )
+          .join(" ");
+        [
+          `subtotal:${r.id}@${period}`,
+          text(r.label),
+          `${text(r.label)} = ${formula}`,
+          `${section.sheet} rows`,
+        ].forEach((x, i) => (lineage.getCell(lineageRow, i + 1).value = x));
+        lineageRow += 1;
+        continue;
+      }
       if (r.kind !== "metric" || seen.has(r.metric) || !cube.periods.includes(period))
         continue;
       seen.add(r.metric);

@@ -11,7 +11,7 @@ import { buildFixtureSet } from "@magicmis/fixtures";
 import { detectHeader, readExcel } from "@magicmis/ingest";
 import { GLOBAL_LIBRARY_SEED, indexLibrary, runCascade } from "@magicmis/semantic";
 import { parseBalanceReport } from "@magicmis/tally";
-import { MONTHLY_FINANCIAL_MIS, resolveSections } from "@magicmis/templates";
+import { METRIC_CATALOG, MONTHLY_FINANCIAL_MIS, resolveSections } from "@magicmis/templates";
 import { HyperFormula } from "hyperformula";
 import * as XLSX from "xlsx";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -88,6 +88,8 @@ function hyperFormulaFor(wb: ReturnType<typeof renderWorkbook>["workbook"]) {
 describe("formula definitions", () => {
   it("cover exactly the engine's metric library", () => {
     expect(Object.keys(FORMULA_DEFS).sort()).toEqual(Object.keys(METRIC_DEFS).sort());
+    // The template catalogue a reference MIS binds to is the same library.
+    expect(METRIC_CATALOG.map((m) => m.id).sort()).toEqual(Object.keys(METRIC_DEFS).sort());
   });
 
   it("lakh and crore format codes follow the digit count, with bracketed negatives", () => {

@@ -47,6 +47,21 @@ export const templateRowSchema = z.discriminatedUnion("kind", [
     label: z.string().min(1).max(120),
   }),
   z.object({
+    kind: z.literal("subtotal"),
+    id: rowId,
+    label: z.string().min(1).max(120),
+    /**
+     * SPEC §22 subtotal rule: signed sum of other money rows in the same section (metric or
+     * subtotal rows above it, by row id). Written as cell arithmetic so a reviewer can trace it.
+     */
+    terms: z
+      .array(z.object({ row: rowId, sign: z.union([z.literal(1), z.literal(-1)]) }))
+      .min(1)
+      .max(40),
+    indent: z.number().int().min(0).max(4).default(0),
+    emphasis: z.boolean().default(false),
+  }),
+  z.object({
     kind: z.literal("unavailable"),
     id: rowId,
     label: z.string().min(1).max(120),
@@ -56,15 +71,34 @@ export const templateRowSchema = z.discriminatedUnion("kind", [
 ]);
 export type TemplateRow = z.infer<typeof templateRowSchema>;
 
-export const templateSectionSchema = z.object({
-  id: rowId,
-  title: z.string().min(1).max(80),
-  /** Sheet name in the workbook (Excel limit 31 characters). */
-  sheet: z.string().min(1).max(31),
-  requires: z.array(z.enum(DATA_REQUIREMENTS)),
-  columns: z.array(z.enum(COLUMN_KINDS)).min(1),
-  rows: z.array(templateRowSchema).min(1),
-});
+export const templateSectionSchema = z
+  .object({
+    id: rowId,
+    title: z.string().min(1).max(80),
+    /** Sheet name in the workbook (Excel limit 31 characters). */
+    sheet: z.string().min(1).max(31),
+    requires: z.array(z.enum(DATA_REQUIREMENTS)),
+    columns: z.array(z.enum(COLUMN_KINDS)).min(1),
+    rows: z.array(templateRowSchema).min(1),
+  })
+  .superRefine((section, ctx) => {
+    const seen = new Set<string>();
+    for (const r of section.rows) {
+      if (seen.has(r.id))
+        ctx.addIssue({ code: "custom", message: `duplicate row id ${r.id}` });
+      if (r.kind === "subtotal") {
+        // Terms refer to rows above, so a subtotal never depends on itself or on a later row.
+        for (const t of r.terms) {
+          if (!seen.has(t.row))
+            ctx.addIssue({
+              code: "custom",
+              message: `subtotal ${r.id} refers to ${t.row}, which is not a row above it`,
+            });
+        }
+      }
+      seen.add(r.id);
+    }
+  });
 export type TemplateSection = z.infer<typeof templateSectionSchema>;
 
 export const templateSpecSchema = z.object({
