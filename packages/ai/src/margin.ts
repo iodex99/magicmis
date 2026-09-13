@@ -16,7 +16,14 @@
 import { divideRounded, percentOf } from "@magicmis/core/money";
 import { readConfig } from "@magicmis/db/config";
 import type { Queryable } from "@magicmis/db/tx";
-import { priceBookEntry, type ActionKey } from "@magicmis/wallet";
+import {
+  computePrice,
+  priceBookEntry,
+  type ActionKey,
+  type DeliveryMode,
+  type PriceBookRow,
+  type Tier,
+} from "@magicmis/wallet";
 import { z } from "zod";
 
 export interface ActionMargin {
@@ -389,4 +396,140 @@ export async function modelRegistryView(
     verifiedAt: m.verified_at,
     stale: now.getTime() - m.verified_at.getTime() > staleDays * 86_400_000,
   }));
+}
+
+export interface PriceProposal {
+  readonly actionKey: ActionKey;
+  readonly baseCredits: bigint;
+  readonly multipliers: Readonly<Record<Tier, string>>;
+  readonly instantSurchargeCredits: bigint;
+  readonly maxAiCostRatio: string;
+  readonly priceFromActionKey: ActionKey | null;
+}
+
+export interface PriceImpact {
+  readonly actionKey: string;
+  readonly days: number;
+  /** Captured items priced from the book (quoted jobs keep their quote and are counted separately). */
+  readonly items: number;
+  readonly quotedItems: number;
+  readonly aiCostPaise: bigint;
+  readonly currentCredits: bigint;
+  readonly proposedCredits: bigint;
+  readonly currentRatio: string | null;
+  readonly proposedRatio: string | null;
+  readonly proposedMaxRatio: string;
+  /** Items whose own AI cost would exceed the proposed price × proposed ratio. */
+  readonly itemsOverProposedCap: number;
+  readonly flagged: boolean;
+}
+
+/**
+ * SPEC §26 price book editor: what the last `days` of captured usage would have earned under a
+ * proposed version. Each item keeps its tier and delivery and its captured credits change by exactly
+ * (proposed − current) book price, so setup add-ons priced elsewhere carry over unchanged. AI cost is
+ * what was actually spent.
+ */
+export async function priceImpactPreview(
+  db: Queryable,
+  proposal: PriceProposal,
+  now: Date = new Date(),
+  days = 30,
+): Promise<PriceImpact> {
+  const from = new Date(now.getTime() - days * 86_400_000);
+  const chatTypes = Object.entries(CHAT_ACTION)
+    .filter(([, action]) => action === proposal.actionKey)
+    .map(([type]) => type);
+  const items = await db.query<{
+    tier: Tier;
+    delivery: DeliveryMode;
+    captured: string;
+    ai_paise: string;
+    quoted: boolean;
+  }>(
+    `select j.tier, j.delivery_mode as delivery, j.captured_credits::text as captured,
+            j.actual_ai_cost_paise::text as ai_paise, j.quote_id is not null as quoted
+     from public.jobs j
+     where j.type = $1 and j.created_at >= $2 and j.created_at < $3
+       and j.captured_credits is not null and j.captured_credits > 0 and j.tier <> 'expert_plus'
+     union all
+     select m.tier, 'standard', m.credits_charged::text,
+            (select coalesce(sum(c.inr_cost_paise), 0) from public.ai_calls c where c.chat_message_id = m.id)::text,
+            false
+     from public.chat_messages m
+     where m.role = 'user' and m.message_type = any($4::text[]) and m.created_at >= $2 and m.created_at < $3
+       and m.credits_charged > 0`,
+    [proposal.actionKey, from, now, chatTypes],
+  );
+  const rounding = await readConfig(
+    db,
+    "pricing.rounding_mode",
+    z.enum(["half_up", "half_even", "ceil", "floor", "trunc", "expand"]),
+    now,
+  );
+  const resolve = async (row: PriceBookRow): Promise<PriceBookRow> =>
+    row.price_from_action_key === null
+      ? row
+      : priceBookEntry(db, row.price_from_action_key, now);
+  let current: PriceBookRow | null = null;
+  try {
+    current = await resolve(await priceBookEntry(db, proposal.actionKey, now));
+  } catch {
+    current = null;
+  }
+  const proposedRow = await resolve({
+    action_key: proposal.actionKey,
+    base_credits: proposal.baseCredits,
+    tier_multipliers: proposal.multipliers,
+    instant_surcharge_credits: proposal.instantSurchargeCredits,
+    max_ai_cost_ratio: proposal.maxAiCostRatio,
+    reservation_mode: "fixed",
+    price_from_action_key: proposal.priceFromActionKey,
+    enabled: true,
+    version: 0,
+  });
+
+  let n = 0;
+  let quoted = 0;
+  let ai = 0n;
+  let currentCredits = 0n;
+  let proposedCredits = 0n;
+  let over = 0;
+  const capBp = toBp(proposal.maxAiCostRatio);
+  for (const item of items.rows) {
+    const captured = BigInt(item.captured);
+    const itemAi = BigInt(item.ai_paise);
+    ai += itemAi;
+    currentCredits += captured;
+    if (item.quoted || current === null) {
+      quoted += item.quoted ? 1 : 0;
+      proposedCredits += captured;
+      continue;
+    }
+    n += 1;
+    const delta =
+      computePrice(proposedRow, item.tier, item.delivery, rounding) -
+      computePrice(current, item.tier, item.delivery, rounding);
+    const proposed = captured + delta > 0n ? captured + delta : 0n;
+    proposedCredits += proposed;
+    if (proposed === 0n ? itemAi > 0n : itemAi * 10_000n > proposed * 100n * capBp) over += 1;
+  }
+  const currentRatio = currentCredits === 0n ? null : ratio4(ai, currentCredits * 100n);
+  const proposedRatio = proposedCredits === 0n ? null : ratio4(ai, proposedCredits * 100n);
+  return {
+    actionKey: proposal.actionKey,
+    days,
+    items: n,
+    quotedItems: quoted,
+    aiCostPaise: ai,
+    currentCredits,
+    proposedCredits,
+    currentRatio,
+    proposedRatio,
+    proposedMaxRatio: proposal.maxAiCostRatio,
+    itemsOverProposedCap: over,
+    flagged:
+      (proposedCredits === 0n && ai > 0n) ||
+      (proposedRatio !== null && toBp(proposedRatio) > capBp),
+  };
 }

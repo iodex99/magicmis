@@ -33,6 +33,10 @@ let totpSecret = "";
 
 test.beforeAll(async () => {
   // A fresh admin per run: remove the previous run's row (sessions cascade).
+  await pool.query(
+    `delete from break_glass_grants where admin_user_id in (select id from admin_users where lower(email) = $1)`,
+    [ADMIN_EMAIL],
+  );
   await pool.query(`delete from admin_users where lower(email) = $1`, [ADMIN_EMAIL]);
   const created = await createAdmin(
     pool,
@@ -125,6 +129,11 @@ test("bank transfer receipt credits the account; adjustment, price version, expo
   await page.getByRole("link", { name: "Price book" }).click();
   await page.locator("select[name=actionKey]").selectOption("chat_edit");
   await page.getByLabel("Base credits").fill("21");
+  // SPEC §26: the margin impact on the last 30 days shows before anything is published.
+  await page.getByRole("button", { name: "Preview impact" }).click();
+  await expect(page.getByText("Margin impact preview — chat_edit, last 30 days")).toBeVisible();
+  await expect(page.getByTestId("price-impact")).toContainText("Credits captured — proposed");
+  await expect(page.getByLabel("Base credits")).toHaveValue("21");
   await page.getByLabel("Effective from (IST; blank = now)").fill("2099-01-01T00:00");
   await page.getByRole("button", { name: "Publish version" }).click();
   await expect(page.getByRole("status")).toContainText(
@@ -179,7 +188,9 @@ test("margin dashboard flags a seeded over-ratio action; break-glass, jobs and p
   await expect(page.getByTestId("gross-margin")).toContainText("Gross margin");
 
   await page.goto(`/jobs/${job.rows[0]?.id ?? ""}`);
-  await expect(page.getByTestId("job-timeline")).toContainText("reserved → commentary_queued");
+  await expect(page.getByTestId("job-timeline")).toContainText(
+    "reserved → commentary_queued",
+  );
 
   await page.goto("/prompts");
   await expect(page.getByRole("heading", { name: "Prompts and evals" })).toBeVisible();
@@ -187,9 +198,13 @@ test("margin dashboard flags a seeded over-ratio action; break-glass, jobs and p
   await expect(page.getByRole("heading", { name: "Tier routing" })).toBeVisible();
 
   await page.goto(`/accounts/${accountId}`);
-  await page.getByLabel("Reason (at least 20 characters)").fill("E2E check of the break-glass flow for support");
+  await page
+    .getByLabel("Reason (at least 20 characters)")
+    .fill("E2E check of the break-glass flow for support");
   await page.getByRole("button", { name: "Grant access" }).click();
-  await expect(page.getByTestId("break-glass-grant")).toContainText("E2E check of the break-glass flow");
+  await expect(page.getByTestId("break-glass-grant")).toContainText(
+    "E2E check of the break-glass flow",
+  );
   const notice = await pool.query(
     `select 1 from notifications where account_id = $1 and type = 'security.break_glass'`,
     [accountId],
