@@ -9,6 +9,7 @@ const config: NextConfig = {
     "@magicmis/db",
     "@magicmis/ingest",
     "@magicmis/redact",
+    "@magicmis/semantic",
     "@magicmis/tally",
     "@magicmis/wallet",
     "@magicmis/ui",

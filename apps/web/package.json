@@ -22,6 +22,7 @@
     "@magicmis/db": "workspace:*",
     "@magicmis/ingest": "workspace:*",
     "@magicmis/redact": "workspace:*",
+    "@magicmis/semantic": "workspace:*",
     "@magicmis/tally": "workspace:*",
     "@magicmis/ui": "workspace:*",
     "@magicmis/wallet": "workspace:*",
