@@ -27,6 +27,11 @@ export type DbRole = "anon" | "authenticated" | "service_role";
 export interface TestDb {
   readonly pool: pg.Pool;
   readonly container: StartedPostgreSqlContainer;
+  /**
+   * The URI to connect with. Use this, never `container.getConnectionUri()`: see
+   * `ipv4ConnectionUri` for why.
+   */
+  readonly connectionUri: string;
   stop: () => Promise<void>;
   /**
    * Run `fn` on a connection acting as `role` with the given auth user id, exactly as a
@@ -45,6 +50,21 @@ export interface TestDb {
   ) => Promise<T>;
 }
 
+/**
+ * The container URI with `localhost` pinned to IPv4.
+ *
+ * Testcontainers reports the host as `localhost`, which Node on Windows resolves to `::1`
+ * first. Docker Desktop's IPv6 port forwarder accepts a burst of concurrent connections
+ * but silently never hands some of them to Postgres; they hang until it resets them with
+ * ECONNRESET about 30 s later. 127.0.0.1 has no such loss, so every test that opens
+ * connections concurrently (audit chain, notification delivery, wallet) goes through it.
+ */
+function ipv4ConnectionUri(container: StartedPostgreSqlContainer): string {
+  const url = new URL(container.getConnectionUri());
+  if (url.hostname === "localhost") url.hostname = "127.0.0.1";
+  return url.toString();
+}
+
 export async function startTestDb(): Promise<TestDb> {
   const container = await new PostgreSqlContainer("postgres:17-alpine")
     .withDatabase("magicmis_test")
@@ -52,7 +72,8 @@ export async function startTestDb(): Promise<TestDb> {
     .withPassword("postgres")
     .start();
 
-  const pool = new pg.Pool({ connectionString: container.getConnectionUri(), max: 12 });
+  const connectionUri = ipv4ConnectionUri(container);
+  const pool = new pg.Pool({ connectionString: connectionUri, max: 12 });
 
   const shim = await readFile(path.join(HERE, "auth-shim.sql"), "utf8");
   await pool.query(shim);
@@ -93,6 +114,7 @@ export async function startTestDb(): Promise<TestDb> {
   return {
     pool,
     container,
+    connectionUri,
     asUser,
     stop: async () => {
       await pool.end();

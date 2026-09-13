@@ -263,7 +263,7 @@ describe("pg-boss wiring", () => {
       },
     };
     const boss: PgBoss = await startBoss(
-      testDb().container.getConnectionUri(),
+      testDb().connectionUri,
       { pool: testDb().pool, mail: new RecordingSender(), appUrl: CTX.appUrl },
       silent,
       [
