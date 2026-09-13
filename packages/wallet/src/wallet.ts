@@ -238,62 +238,76 @@ async function consumeLotsFifo(
 // ---------------------------------------------------------------------------
 
 export type GrantResult =
-  | { readonly status: "granted"; readonly lotId: string; readonly state: WalletState }
+  | {
+      readonly status: "granted";
+      readonly lotId: string;
+      readonly expiresAt: Date;
+      readonly state: WalletState;
+    }
   | { readonly status: "duplicate" };
 
-export async function grantCredits(
-  pool: Pool,
-  input: {
-    accountId: string;
-    credits: bigint;
-    source: LotSource;
-    idempotencyKey: string;
-    purchaseId?: string | null;
-    /** Defaults to now + `wallet.lot_validity_months`. Bonus lots pass the purchase's expiry. */
-    expiresAt?: Date;
-    now?: Date;
-  },
+export interface GrantInput {
+  readonly accountId: string;
+  readonly credits: bigint;
+  readonly source: LotSource;
+  readonly idempotencyKey: string;
+  readonly purchaseId?: string | null;
+  /** Defaults to now + `wallet.lot_validity_months`. Bonus lots pass the purchase's expiry. */
+  readonly expiresAt?: Date;
+  readonly now?: Date;
+}
+
+export async function grantCredits(pool: Pool, input: GrantInput): Promise<GrantResult> {
+  return withTransaction(pool, (tx) => grantCreditsInTx(tx, input));
+}
+
+/**
+ * Grant inside a caller's transaction, so a purchase can grant credits, issue its tax
+ * invoice and mark itself credited atomically (SPEC §13). Lock order: the caller's own
+ * rows first, then the wallet, then the audit log.
+ */
+export async function grantCreditsInTx(
+  tx: PoolClient,
+  input: GrantInput,
 ): Promise<GrantResult> {
   if (input.credits <= 0n) throw new RangeError("grantCredits: credits must be positive");
   const now = input.now ?? new Date();
 
-  return withTransaction(pool, async (tx) => {
-    let state = await lockWallet(tx, input.accountId);
-    if (await keyAlreadyApplied(tx, input.idempotencyKey)) return { status: "duplicate" };
-    state = await expireDueLots(tx, input.accountId, state, now);
+  let state = await lockWallet(tx, input.accountId);
+  if (await keyAlreadyApplied(tx, input.idempotencyKey)) return { status: "duplicate" };
+  state = await expireDueLots(tx, input.accountId, state, now);
 
-    const expiresAt =
-      input.expiresAt ?? addCalendarMonthsUtc(now, await lotValidityMonths(tx));
-    const lot = await tx.query<{ id: string }>(
-      `insert into public.credit_lots
-         (account_id, source, credits_granted, credits_remaining, expires_at, purchase_id, created_at)
-       values ($1, $2, $3, $3, $4, $5, $6)
-       returning id`,
-      [
-        input.accountId,
-        input.source,
-        input.credits.toString(),
-        expiresAt,
-        input.purchaseId ?? null,
-        now,
-      ],
-    );
-    const lotId = lot.rows[0]?.id;
-    if (lotId === undefined) throw new Error("grantCredits: lot insert returned no id");
+  const expiresAt =
+    input.expiresAt ?? addCalendarMonthsUtc(now, await lotValidityMonths(tx));
+  const lot = await tx.query<{ id: string }>(
+    `insert into public.credit_lots
+       (account_id, source, credits_granted, credits_remaining, expires_at, purchase_id, created_at)
+     values ($1, $2, $3, $3, $4, $5, $6)
+     returning id, expires_at`,
+    [
+      input.accountId,
+      input.source,
+      input.credits.toString(),
+      expiresAt,
+      input.purchaseId ?? null,
+      now,
+    ],
+  );
+  const lotId = lot.rows[0]?.id;
+  if (lotId === undefined) throw new Error("grantCredits: lot insert returned no id");
 
-    state = { balance: state.balance + input.credits, held: state.held };
-    await appendLedger(tx, {
-      accountId: input.accountId,
-      entryType: "grant",
-      amount: input.credits,
-      lotId,
-      balanceAfter: state.balance,
-      heldAfter: state.held,
-      idempotencyKey: input.idempotencyKey,
-    });
-    await saveWallet(tx, input.accountId, state);
-    return { status: "granted", lotId, state };
+  state = { balance: state.balance + input.credits, held: state.held };
+  await appendLedger(tx, {
+    accountId: input.accountId,
+    entryType: "grant",
+    amount: input.credits,
+    lotId,
+    balanceAfter: state.balance,
+    heldAfter: state.held,
+    idempotencyKey: input.idempotencyKey,
   });
+  await saveWallet(tx, input.accountId, state);
+  return { status: "granted", lotId, expiresAt, state };
 }
 
 // ---------------------------------------------------------------------------
