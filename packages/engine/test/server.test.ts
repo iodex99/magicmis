@@ -14,6 +14,8 @@ import {
   CompanyKeyDestroyed,
   latestBlueprint,
   latestSnapshot,
+  loadAccountRules,
+  saveAccountRules,
   storeBlueprint,
   storeSnapshot,
   verifyBlueprintChain,
@@ -205,5 +207,38 @@ describe("blueprints", () => {
       ok: false,
       version: 1,
     });
+  });
+});
+
+describe("account rules", () => {
+  it("stores patterns encrypted, replaces a pattern, and reads back only for the account", async () => {
+    const c = await company();
+    await saveAccountRules(pool(), wrapper, {
+      accountId: c.accountId,
+      companyId: c.companyId,
+      rules: [
+        { pattern: "godown rent", head: "OPEX_RENT" },
+        { pattern: "staff tea", head: "EMP_WELFARE" },
+      ],
+    });
+    await saveAccountRules(pool(), wrapper, {
+      accountId: c.accountId,
+      companyId: null,
+      rules: [{ pattern: "godown rent", head: "COGS_DIRECT" }],
+    });
+    const rules = await loadAccountRules(pool(), wrapper, c.accountId);
+    expect(rules.map((r) => [r.pattern, r.head]).sort()).toEqual([
+      ["godown rent", "COGS_DIRECT"],
+      ["staff tea", "EMP_WELFARE"],
+    ]);
+    const raw = await pool().query<{ normalized_pattern: Buffer }>(
+      `select normalized_pattern from account_mapping_rules where account_id = $1`,
+      [c.accountId],
+    );
+    expect(
+      raw.rows.every((r) => !r.normalized_pattern.toString("utf8").includes("rent")),
+    ).toBe(true);
+    const other = await company();
+    expect(await loadAccountRules(pool(), wrapper, other.accountId)).toEqual([]);
   });
 });

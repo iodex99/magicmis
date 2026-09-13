@@ -43,3 +43,6 @@ supabase/.temp
 
 # AI eval reports (recordings are committed; reports are per-run output)
 packages/ai/evals/reports/
+
+# Development output store (OUTPUT_STORE=local)
+apps/web/.data/

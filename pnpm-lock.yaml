@@ -212,27 +212,48 @@ importers:
       '@magicmis/accounts':
         specifier: workspace:*
         version: link:../../packages/accounts
+      '@magicmis/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@magicmis/billing':
         specifier: workspace:*
         version: link:../../packages/billing
       '@magicmis/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@magicmis/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
       '@magicmis/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@magicmis/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
       '@magicmis/ingest':
         specifier: workspace:*
         version: link:../../packages/ingest
+      '@magicmis/jobs':
+        specifier: workspace:*
+        version: link:../../packages/jobs
+      '@magicmis/pipeline':
+        specifier: workspace:*
+        version: link:../../packages/pipeline
       '@magicmis/redact':
         specifier: workspace:*
         version: link:../../packages/redact
+      '@magicmis/render-excel':
+        specifier: workspace:*
+        version: link:../../packages/render-excel
       '@magicmis/semantic':
         specifier: workspace:*
         version: link:../../packages/semantic
       '@magicmis/tally':
         specifier: workspace:*
         version: link:../../packages/tally
+      '@magicmis/templates':
+        specifier: workspace:*
+        version: link:../../packages/templates
       '@magicmis/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -291,6 +312,9 @@ importers:
       tailwindcss:
         specifier: 4.3.3
         version: 4.3.3
+      xlsx:
+        specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+        version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
 
   apps/worker:
     dependencies:

@@ -23,6 +23,13 @@ export default defineConfig({
     command: "pnpm start",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: true,
+    // Company memory in local runs: the local key wrapper and file output store are accepted only
+    // in development (the local Supabase stack runs without Storage). A fixed, test-only key.
+    env: {
+      KEY_WRAPPER: "local",
+      LOCAL_MASTER_KEY: Buffer.from("0123456789abcdef0123456789abcdef").toString("base64"),
+      OUTPUT_STORE: "local",
+    },
     timeout: 120_000,
   },
 });

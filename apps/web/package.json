@@ -17,13 +17,20 @@
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.32.0",
     "@magicmis/accounts": "workspace:*",
+    "@magicmis/ai": "workspace:*",
     "@magicmis/billing": "workspace:*",
     "@magicmis/core": "workspace:*",
+    "@magicmis/crypto": "workspace:*",
     "@magicmis/db": "workspace:*",
+    "@magicmis/engine": "workspace:*",
     "@magicmis/ingest": "workspace:*",
+    "@magicmis/jobs": "workspace:*",
+    "@magicmis/pipeline": "workspace:*",
     "@magicmis/redact": "workspace:*",
+    "@magicmis/render-excel": "workspace:*",
     "@magicmis/semantic": "workspace:*",
     "@magicmis/tally": "workspace:*",
+    "@magicmis/templates": "workspace:*",
     "@magicmis/ui": "workspace:*",
     "@magicmis/wallet": "workspace:*",
     "@supabase/ssr": "0.12.7",
@@ -44,6 +51,7 @@
     "@types/react-dom": "^19.2.0",
     "otpauth": "9.5.2",
     "tailwindcss": "4.3.3",
-    "@magicmis/fixtures": "workspace:*"
+    "@magicmis/fixtures": "workspace:*",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

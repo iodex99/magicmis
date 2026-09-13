@@ -493,3 +493,117 @@ export async function shredCompanyKey(
     [companyId, now],
   );
 }
+
+// ---------------------------------------------------------------------------
+// Account-scoped sealing ("apply to all my companies" rules, SPEC §18)
+// ---------------------------------------------------------------------------
+
+const accountKeyContext = (accountId: string): EncryptionContext => ({
+  purpose: "account_dek",
+  account_id: accountId,
+});
+
+async function accountDek(
+  db: Queryable,
+  wrapper: KeyWrapper,
+  accountId: string,
+): Promise<Buffer> {
+  const r = await db.query<{ wrapped_dek: Buffer; kms_key_version: string }>(
+    `select wrapped_dek, kms_key_version from public.account_keys where account_id = $1 for update`,
+    [accountId],
+  );
+  const row = r.rows[0];
+  if (row !== undefined) {
+    return wrapper.unwrap(
+      { ciphertext: row.wrapped_dek, keyVersion: row.kms_key_version },
+      accountKeyContext(accountId),
+    );
+  }
+  const { plaintext, wrapped } = await wrapper.generateDataKey(
+    accountKeyContext(accountId),
+  );
+  await db.query(
+    `insert into public.account_keys (account_id, wrapped_dek, kms_key_version) values ($1, $2, $3)`,
+    [accountId, Buffer.from(wrapped.ciphertext), wrapped.keyVersion],
+  );
+  return plaintext;
+}
+
+export interface StoredAccountRule {
+  readonly pattern: string;
+  readonly head: string;
+}
+
+/** Adds account rules, replacing any earlier rule for the same pattern. */
+export async function saveAccountRules(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    accountId: string;
+    companyId: string | null;
+    rules: readonly StoredAccountRule[];
+    now?: Date;
+  },
+): Promise<number> {
+  if (input.rules.length === 0) return 0;
+  const existing = await loadAccountRules(pool, wrapper, input.accountId);
+  const replace = new Set(input.rules.map((r) => r.pattern));
+  return withTransaction(pool, async (tx) => {
+    const dek = await accountDek(tx, wrapper, input.accountId);
+    try {
+      for (const e of existing.filter((x) => replace.has(x.pattern))) {
+        await tx.query(
+          `update public.account_mapping_rules set deleted_at = $2 where id = $1`,
+          [e.id, input.now ?? new Date()],
+        );
+      }
+      for (const rule of input.rules) {
+        const id = await tx.query<{ id: string }>(`select gen_random_uuid() as id`);
+        const ruleId = id.rows[0]?.id ?? "";
+        const sealed = encryptWithKey(dek, Buffer.from(rule.pattern), {
+          purpose: "account_rule",
+          account_id: input.accountId,
+          id: ruleId,
+        });
+        await tx.query(
+          `insert into public.account_mapping_rules (id, account_id, normalized_pattern, mis_head_id, created_from_company_id)
+           values ($1, $2, $3, (select id from public.mis_heads where code = $4), $5)`,
+          [ruleId, input.accountId, sealed, rule.head, input.companyId],
+        );
+      }
+      return input.rules.length;
+    } finally {
+      dek.fill(0);
+    }
+  });
+}
+
+export async function loadAccountRules(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  accountId: string,
+): Promise<(StoredAccountRule & { id: string })[]> {
+  const r = await pool.query<{ id: string; normalized_pattern: Buffer; code: string }>(
+    `select r.id, r.normalized_pattern, h.code from public.account_mapping_rules r
+     join public.mis_heads h on h.id = r.mis_head_id
+     where r.account_id = $1 and r.deleted_at is null order by r.created_at`,
+    [accountId],
+  );
+  if (r.rows.length === 0) return [];
+  return withTransaction(pool, async (tx) => {
+    const dek = await accountDek(tx, wrapper, accountId);
+    try {
+      return r.rows.map((row) => ({
+        id: row.id,
+        head: row.code,
+        pattern: decryptWithKey(dek, row.normalized_pattern, {
+          purpose: "account_rule",
+          account_id: accountId,
+          id: row.id,
+        }).toString("utf8"),
+      }));
+    } finally {
+      dek.fill(0);
+    }
+  });
+}
