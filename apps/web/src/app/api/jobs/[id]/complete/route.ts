@@ -1,7 +1,7 @@
 import { readConfig } from "@magicmis/db/config";
 import { recipeSchema, snapshotPayloadSchema } from "@magicmis/engine";
 import { saveAccountRules } from "@magicmis/engine/server";
-import { completeJob } from "@magicmis/jobs";
+import { completeJob, recordLibraryVotes } from "@magicmis/jobs";
 import { accountRuleSchema, mappingRulesSchema } from "@magicmis/semantic";
 import { templateSpecSchema } from "@magicmis/templates";
 import { z } from "zod";
@@ -137,6 +137,11 @@ export async function POST(
         await saveAccountRules(pool, keyWrapper(), {
           accountId: account.accountId,
           companyId,
+          rules: body.accountRules,
+        });
+        // SPEC §18: eligible generic names count toward global library candidates (digests only).
+        await recordLibraryVotes(pool, keyWrapper(), {
+          accountId: account.accountId,
           rules: body.accountRules,
         });
         return {

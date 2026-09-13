@@ -2,6 +2,7 @@ export * from "./cascade";
 export * from "./fuzzy";
 export * from "./heads";
 export * from "./library";
+export * from "./library-eligibility";
 export * from "./normalise";
 export * from "./review";
 export * from "./rules";

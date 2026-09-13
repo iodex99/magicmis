@@ -19,6 +19,7 @@ import { withTransaction, type Queryable } from "@magicmis/db/tx";
 import { toIstParts } from "@magicmis/core/time";
 import { shredAccountKey, shredCompanyKey } from "@magicmis/engine/server";
 import { appendAudit } from "@magicmis/db/audit";
+import type { KeyWrapper } from "@magicmis/crypto";
 import {
   captureReservation,
   priceFor,
@@ -29,6 +30,7 @@ import type { Pool } from "pg";
 import { z } from "zod";
 
 import { removeAccountExports } from "./exports";
+import { removeLibraryVotes } from "./library";
 import { queueNotification } from "./notify";
 import type { OutputStore } from "./settle";
 
@@ -561,6 +563,8 @@ export async function purgeAccounts(
   pool: Pool,
   store: OutputStore | null,
   now: Date = new Date(),
+  /** Removes the account library votes; without it they stay, counted by digest only. */
+  wrapper: KeyWrapper | null = null,
 ): Promise<number> {
   const due = await pool.query<{ id: string }>(
     `select id from public.accounts where status = 'deleted' and purged_at is null and purge_after is not null and purge_after <= $1`,
@@ -573,6 +577,7 @@ export async function purgeAccounts(
     );
     await purgeCompanies(pool, store, now);
     await removeAccountExports(pool, store, a.id);
+    if (wrapper !== null) await removeLibraryVotes(pool, wrapper, a.id);
     await withTransaction(pool, async (tx) => {
       await shredAccountKey(tx, a.id, now);
       await tx.query(

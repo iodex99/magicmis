@@ -20,6 +20,7 @@
     "@magicmis/db": "workspace:*",
     "@magicmis/engine": "workspace:*",
     "@magicmis/render-dashboard": "workspace:*",
+    "@magicmis/semantic": "workspace:*",
     "@magicmis/wallet": "workspace:*",
     "pg": "^8.16.3",
     "zod": "^4.1.13"
@@ -29,7 +30,6 @@
     "@magicmis/fixtures": "workspace:*",
     "@magicmis/ingest": "workspace:*",
     "@magicmis/render-excel": "workspace:*",
-    "@magicmis/semantic": "workspace:*",
     "@magicmis/tally": "workspace:*",
     "@magicmis/templates": "workspace:*",
     "@testcontainers/postgresql": "^11.7.1",

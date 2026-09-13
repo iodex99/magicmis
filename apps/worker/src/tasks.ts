@@ -16,6 +16,7 @@ import {
   purgeCompanies,
   queueLifecycleNotices,
   queueRefreshReminders,
+  refreshLibraryCandidates,
   sweepJobs,
   type OutputStore,
 } from "@magicmis/jobs";
@@ -123,10 +124,10 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     queue: "lifecycle-purge",
     cron: "45 2 * * *",
     expireInSeconds: 3600,
-    run: async ({ pool, outputs }, now) => ({
+    run: async ({ pool, outputs, wrapper }, now) => ({
       companies: await purgeCompanies(pool, outputs ?? null, now),
       // SPEC §10, §31: erased accounts past their delay; their companies purge with them.
-      accounts: await purgeAccounts(pool, outputs ?? null, now),
+      accounts: await purgeAccounts(pool, outputs ?? null, now, wrapper ?? null),
     }),
   },
   {
@@ -162,6 +163,16 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
       outputs == null || wrapper == null
         ? { skipped: "storage or key wrapper not configured" }
         : processAccountExports(pool, wrapper, outputs, now),
+  },
+  {
+    // SPEC §18: names mapped to the same head in enough distinct accounts become admin candidates.
+    queue: "library-candidates",
+    cron: "0 3 * * *",
+    expireInSeconds: 1800,
+    run: async ({ pool, wrapper }) =>
+      wrapper == null
+        ? { skipped: "key wrapper not configured" }
+        : refreshLibraryCandidates(pool, wrapper),
   },
   {
     // SPEC §26: daily margin summary to admins, 08:00 IST.

@@ -710,6 +710,9 @@ importers:
       '@magicmis/render-dashboard':
         specifier: workspace:*
         version: link:../render-dashboard
+      '@magicmis/semantic':
+        specifier: workspace:*
+        version: link:../semantic
       '@magicmis/wallet':
         specifier: workspace:*
         version: link:../wallet
@@ -738,9 +741,6 @@ importers:
       '@magicmis/render-excel':
         specifier: workspace:*
         version: link:../render-excel
-      '@magicmis/semantic':
-        specifier: workspace:*
-        version: link:../semantic
       '@magicmis/tally':
         specifier: workspace:*
         version: link:../tally
