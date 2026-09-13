@@ -7,7 +7,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**Phase 5 — Semantic layer, mapping, engine, validation.** Previous: [phase-0](docs/plans/phase-0.md), [phase-1](docs/plans/phase-1.md), [phase-2](docs/plans/phase-2.md), [phase-3](docs/plans/phase-3.md), [phase-4](docs/plans/phase-4.md)
+**Phase 6 — Jobs, Excel output, lifecycle.** Previous: [phase-0](docs/plans/phase-0.md) … [phase-5](docs/plans/phase-5.md)
 
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
@@ -69,8 +69,8 @@ everything now"). Plans, summaries and ADRs are still written per phase.
 | 2   | Wallet, pricing, payments, GST                | complete (374 tests + 10 E2E) |
 | 3   | Ingestion, Tally, redaction, fixtures         | complete (578 fixtures to ground truth; 50 MB in ~17 s) |
 | 4   | AI layer and margin controls                  | complete (49 ai tests; no prompt activated until live evals, R-28) |
-| 5   | Semantic layer, mapping, engine, validation   | **current** |
-| 6   | Jobs, Excel output, lifecycle                 |             |
+| 5   | Semantic layer, mapping, engine, validation   | complete (42 monthly TBs to the paisa; V1–V10 proven) |
+| 6   | Jobs, Excel output, lifecycle                 | **current** |
 | 7   | Dashboard, commentary, reference MIS recreate |             |
 | 8   | Chat                                          |             |
 | 9   | Admin console, compliance surfaces, hardening |             |

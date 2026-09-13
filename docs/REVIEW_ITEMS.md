@@ -48,6 +48,9 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-27 | **Production must set `billing.allow_placeholder_details` to `false`** after R-02/R-03 are filled. | Before launch | open |
 | R-28 | **Live AI evals and prompt activation.** No prompt version is active, so every AI stage refuses. Run `AI_LIVE=1 ANTHROPIC_API_KEY=… DATABASE_URL=… pnpm --filter @magicmis/ai evals -- --stage sheet_classification --tier efficient` (and column_mapping, each tier), commit the recordings, then activate with `activatePromptVersion`. Spends real money on synthetic data only. Thresholds in `ai.eval_thresholds` are placeholders. | Before launch | open |
 | R-29 | **Ledger mapping eval dataset** — needs the canonical heads from the semantic layer. | Phase 5 | open |
+| R-31 | **Global library promotion queue** (SPEC §18): candidates from ≥ `semantic.library_promotion_min_accounts` distinct accounts, admin approval, person/party-name exclusion. Account rules are encrypted, so candidate counting needs a keyed digest of the normalised name. | Phase 9 | open |
+| R-32 | **Metric conventions for CA review** (ADR 0020): EBITDA excludes other income; DSO/DPO/inventory days on the month's flow and calendar days; Deposits (Asset) shown as non-current; Sales Accounts default to sale of products. | Before launch | open |
+| R-33 | **Canonical heads, Schedule III references, abbreviation list and library seed** (`packages/semantic`): references are indicative, not verified against the Companies Act text; fuzzy threshold `0.85` is a seed. | Before launch | drafted |
 | R-30 | **Estimator heuristics** (`ai.estimator` chars per token, inflation, output ratio, p90 multiplier) are unmeasured seeds; replace with values from live evals and let nightly calibration take over. | Before launch | open |
 
 ## Decisions the spec leaves open
