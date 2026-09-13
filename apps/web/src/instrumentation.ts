@@ -1,4 +1,5 @@
 import { errorReportingDefaults } from "@magicmis/core/error-scrub";
+import type * as SentryNext from "@sentry/nextjs";
 
 /**
  * Server-side error reporting (SPEC §5 Sentry with PII scrubbing, §30). Initialised only when
@@ -22,7 +23,7 @@ export async function register(): Promise<void> {
 }
 
 export async function onRequestError(
-  ...args: Parameters<typeof import("@sentry/nextjs").captureRequestError>
+  ...args: Parameters<typeof SentryNext.captureRequestError>
 ): Promise<void> {
   const dsn = process.env["SENTRY_DSN"];
   if (dsn === undefined || dsn === "") return;
