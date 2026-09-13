@@ -3,11 +3,20 @@
  * ledger replays to the wallet row). Walks the whole audit log and every account's credit ledger;
  * on any mismatch it emails every active admin once per IST day and records the failure in the audit
  * log. The email carries row ids and sequence numbers only — no amounts, no customer names.
+ *
+ * With the key wrapper it also anchors both chains (keyed digests, R-52) and verifies every anchor,
+ * which catches whole-chain rewrites, trimmed tails and timestamp edits the row hashes cannot.
  * Response steps: docs/runbooks/breach-response.md.
  */
 
 import { appendAudit, verifyAuditChain } from "@magicmis/db/audit";
 import { withTransaction } from "@magicmis/db/tx";
+import type { KeyWrapper } from "@magicmis/crypto";
+import {
+  createIntegrityAnchors,
+  verifyIntegrityAnchors,
+  type AnchorFailure,
+} from "@magicmis/jobs";
 import { readLedger, replayLedger } from "@magicmis/wallet";
 import type { Pool } from "pg";
 
@@ -22,6 +31,8 @@ export interface IntegrityResult {
     brokenSeqs: string[];
     walletMismatch: boolean;
   }[];
+  /** Null when no key wrapper is configured: anchors are neither written nor checked. */
+  readonly anchorFailures: AnchorFailure[] | null;
   readonly alerted: number;
 }
 
@@ -30,8 +41,15 @@ export async function verifyIntegrity(
   mail: MailSender,
   adminUrl: string,
   now: Date,
+  wrapper: KeyWrapper | null = null,
 ): Promise<IntegrityResult> {
   const audit = await verifyAuditChain(pool);
+  // Anchor first (new settled history), then verify every anchor against the live tables.
+  let anchorFailures: AnchorFailure[] | null = null;
+  if (wrapper !== null) {
+    await createIntegrityAnchors(pool, wrapper, now);
+    anchorFailures = (await verifyIntegrityAnchors(pool, wrapper, now)).failures;
+  }
   // Every account with a ledger or a wallet: a wallet row deleted to hide a ledger is itself a failure.
   const accounts = await pool.query<{
     account_id: string;
@@ -64,9 +82,12 @@ export async function verifyIntegrity(
     auditFailures: audit.failures.length,
     accountsChecked: accounts.rows.length,
     ledgerFailures,
+    anchorFailures,
     alerted: 0,
   };
-  if (audit.failures.length === 0 && ledgerFailures.length === 0) return result;
+  const anchorsFailing = anchorFailures?.length ?? 0;
+  if (audit.failures.length === 0 && ledgerFailures.length === 0 && anchorsFailing === 0)
+    return result;
 
   await withTransaction(pool, (tx) =>
     appendAudit(tx, {
@@ -77,6 +98,7 @@ export async function verifyIntegrity(
       metadata: {
         audit_failures: audit.failures.length,
         ledger_accounts: ledgerFailures.length,
+        anchor_failures: anchorsFailing,
       },
     }),
   );
@@ -93,6 +115,10 @@ export async function verifyIntegrity(
         (f) =>
           `  account ${f.accountId}: seqs ${f.brokenSeqs.slice(0, 10).join(", ") || "none"}${f.walletMismatch ? "; wallet row differs from replay" : ""}`,
       ),
+    `Integrity anchors failing: ${String(anchorsFailing)}`,
+    ...(anchorFailures ?? [])
+      .slice(0, 20)
+      .map((f) => `  ${f.chain} anchor ${f.anchorId ?? "(none)"}: ${f.reason}`),
     "",
     "Follow docs/runbooks/breach-response.md.",
     `${adminUrl}/audit?verify=1`,

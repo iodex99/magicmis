@@ -14,30 +14,11 @@ import { libraryIneligibleReason, normaliseName } from "@magicmis/semantic";
 import type { Pool } from "pg";
 import { z } from "zod";
 
-const KEY_CONTEXT = { purpose: "platform_library_key" } as const;
+import { platformKey } from "./platform-keys";
 
 /** The platform library key, created on first use. Caller must zero the returned buffer. */
-async function libraryKey(db: Queryable, wrapper: KeyWrapper): Promise<Buffer> {
-  const r = await db.query<{ wrapped_dek: Buffer; kms_key_version: string }>(
-    `select wrapped_dek, kms_key_version from public.platform_keys where purpose = 'library'`,
-  );
-  const row = r.rows[0];
-  if (row !== undefined)
-    return wrapper.unwrap(
-      { ciphertext: row.wrapped_dek, keyVersion: row.kms_key_version },
-      KEY_CONTEXT,
-    );
-  const { plaintext, wrapped } = await wrapper.generateDataKey(KEY_CONTEXT);
-  const inserted = await db.query(
-    `insert into public.platform_keys (purpose, wrapped_dek, kms_key_version) values ('library', $1, $2)
-     on conflict (purpose) do nothing`,
-    [Buffer.from(wrapped.ciphertext), wrapped.keyVersion],
-  );
-  if (inserted.rowCount === 1) return plaintext;
-  // Another process created it first; use theirs.
-  plaintext.fill(0);
-  return libraryKey(db, wrapper);
-}
+const libraryKey = (db: Queryable, wrapper: KeyWrapper) =>
+  platformKey(db, wrapper, "library");
 
 const digest = (key: Buffer, label: string, value: string) =>
   createHmac("sha256", key).update(`${label}:${value}`).digest();

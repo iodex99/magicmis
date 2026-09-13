@@ -1,14 +1,15 @@
 import { verifyAuditChain } from "@magicmis/db/audit";
+import { verifyIntegrityAnchors } from "@magicmis/jobs";
 
 import { td, th } from "@/components/Flash";
 import { Alert, Panel } from "@/components/ui";
-import { db } from "@/server/runtime";
+import { db, keyWrapper } from "@/server/runtime";
 import { requireAdmin } from "@/server/session";
 
 export const metadata = { title: "Audit log" };
 export const dynamic = "force-dynamic";
 
-/** SPEC §26: audit log viewer with hash-chain verification. */
+/** SPEC §26: audit log viewer with hash-chain and keyed-anchor verification (R-52). */
 export default async function AuditPage({
   searchParams,
 }: {
@@ -17,7 +18,7 @@ export default async function AuditPage({
   await requireAdmin();
   const params = await searchParams;
   const pool = db();
-  const [entries, verification] = await Promise.all([
+  const [entries, verification, anchors] = await Promise.all([
     pool.query<{
       seq_text: string;
       actor_type: string;
@@ -32,6 +33,9 @@ export default async function AuditPage({
        from public.audit_log order by seq desc limit 200`,
     ),
     params.verify === "1" ? verifyAuditChain(pool) : Promise.resolve(null),
+    params.verify === "1"
+      ? verifyIntegrityAnchors(pool, keyWrapper())
+      : Promise.resolve(null),
   ]);
   return (
     <div className="flex flex-col gap-6">
@@ -52,6 +56,20 @@ export default async function AuditPage({
           {verification.failures
             .slice(0, 5)
             .map((f) => `${f.id} (${f.reason})`)
+            .join(", ")}
+        </Alert>
+      )}
+      {anchors === null ? null : anchors.failures.length === 0 ? (
+        <Alert tone="success">
+          Anchors verified: {anchors.anchorsChecked} anchors over the audit log and credit
+          ledger.
+        </Alert>
+      ) : (
+        <Alert tone="error">
+          Anchor verification FAILED:{" "}
+          {anchors.failures
+            .slice(0, 5)
+            .map((f) => `${f.chain} ${f.anchorId ?? ""} (${f.reason})`)
             .join(", ")}
         </Alert>
       )}

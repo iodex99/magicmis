@@ -5,6 +5,7 @@
  */
 
 import { marginReport } from "@magicmis/ai/margin";
+import { latestAnchors } from "@magicmis/jobs";
 import type { Pool } from "pg";
 
 import type { MailSender } from "./mail";
@@ -50,6 +51,9 @@ export async function sendAdminMarginDigest(
       : `OVER MAX AI COST RATIO: ${flagged.map((a) => `${a.actionKey} (${a.ratio ?? "no capture"} > ${a.maxRatio ?? "?"})`).join(", ")}`,
     "",
     `Audit chain head: seq ${head.rows[0]?.seq ?? "0"} hash ${head.rows[0]?.hash ?? "none"}`,
+    ...(await latestAnchors(pool)).map(
+      (a) => `Anchor ${a.chain}: through ${a.throughSeq} digest ${a.digest} mac ${a.mac}`,
+    ),
     "",
     `${appUrl}/margin?days=1`,
   ];
