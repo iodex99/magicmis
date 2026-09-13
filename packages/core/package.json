@@ -15,7 +15,8 @@
     "./config": "./src/config/index.ts",
     "./brand": "./src/brand.ts",
     "./json-patch": "./src/json-patch/index.ts",
-    "./security-headers": "./src/security-headers.ts"
+    "./security-headers": "./src/security-headers.ts",
+    "./error-scrub": "./src/error-scrub.ts"
   },
   "scripts": {
     "lint": "eslint src",

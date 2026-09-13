@@ -48,6 +48,8 @@ export interface TaskDeps {
   readonly ai?: { readonly transport: AiTransport; readonly wrapper: KeyWrapper } | null;
   /** Account and company key access for exports; absent when no master key is configured. */
   readonly wrapper?: KeyWrapper | null;
+  /** Error reporting (Sentry, scrubbed); absent when SENTRY_DSN is not set. */
+  readonly reportError?: ((error: unknown, queue: string) => void) | null;
 }
 
 export interface MaintenanceTask {

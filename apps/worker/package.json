@@ -20,6 +20,7 @@
     "@magicmis/db": "workspace:*",
     "@magicmis/jobs": "workspace:*",
     "@magicmis/wallet": "workspace:*",
+    "@sentry/node": "10.74.0",
     "@supabase/supabase-js": "2.116.0",
     "pg": "^8.16.3",
     "pg-boss": "12.31.0",

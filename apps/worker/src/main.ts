@@ -1,7 +1,9 @@
 import { anthropicTransport } from "@magicmis/ai";
+import { errorReportingDefaults } from "@magicmis/core/error-scrub";
 import { LocalKeyWrapper, RotatingKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
 import { KmsKeyWrapper } from "@magicmis/crypto/kms";
 import { SupabaseOutputStore } from "@magicmis/jobs";
+import * as Sentry from "@sentry/node";
 import { createClient } from "@supabase/supabase-js";
 import pg from "pg";
 import { pino } from "pino";
@@ -12,6 +14,14 @@ import { ResendMailSender } from "./mail";
 
 const env = loadWorkerEnv();
 const log = pino({ level: env.LOG_LEVEL, base: { service: "worker" } });
+
+// SPEC §5, §30: errors only, every event scrubbed to type, masked message and stack locations.
+if (env.SENTRY_DSN !== undefined)
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: env.NODE_ENV,
+    ...errorReportingDefaults,
+  });
 
 // Same connection shape as the web server (ADR 0003): service_role, never a customer role.
 const pool = new pg.Pool({
@@ -43,6 +53,12 @@ const boss = await startBoss(
     appUrl: env.APP_URL,
     adminUrl: env.ADMIN_URL ?? env.APP_URL,
     wrapper,
+    reportError:
+      env.SENTRY_DSN === undefined
+        ? null
+        : (error, queue) => {
+            Sentry.captureException(error, { tags: { service: "worker", queue } });
+          },
     outputs:
       env.NEXT_PUBLIC_SUPABASE_URL !== undefined && env.SUPABASE_SECRET_KEY !== undefined
         ? new SupabaseOutputStore(

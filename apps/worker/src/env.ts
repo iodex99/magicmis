@@ -17,6 +17,7 @@ export const workerEnvSchema = serverEnvSchema
     RESEND_API_KEY: true,
     EMAIL_FROM: true,
     LOG_LEVEL: true,
+    SENTRY_DSN: true,
   })
   .extend({
     APP_URL: publicEnvSchema.shape.NEXT_PUBLIC_APP_URL,

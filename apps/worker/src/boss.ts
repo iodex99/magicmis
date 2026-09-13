@@ -52,7 +52,22 @@ export async function startBoss(
     await boss.work(task.queue, async (jobs) => {
       for (const job of jobs) {
         const started = Date.now();
-        const result = await task.run(deps, new Date());
+        let result: unknown;
+        try {
+          result = await task.run(deps, new Date());
+        } catch (error) {
+          log.error(
+            {
+              queue: task.queue,
+              jobId: job.id,
+              err: error instanceof Error ? error.name : "error",
+            },
+            "task failed",
+          );
+          deps.reportError?.(error, task.queue);
+          // pg-boss retries the job (retryLimit) and records the failure.
+          throw error;
+        }
         log.info(
           { queue: task.queue, jobId: job.id, ms: Date.now() - started, result },
           "task complete",
