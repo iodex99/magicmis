@@ -9,11 +9,19 @@ import { Flash, input, num, td, th, type FlashParams } from "@/components/Flash"
 import { Button, Panel } from "@/components/ui";
 import { accountDetail } from "@/server/accounts";
 import { activeGrants } from "@/server/console";
+import { recoveriesFor } from "@/server/recovery";
 import { db } from "@/server/runtime";
 import { requireAdmin } from "@/server/session";
 
 import { adjustCreditsAction, setStatusAction } from "../../actions";
-import { grantBreakGlassAction, revokeBreakGlassAction } from "../../console-actions";
+import {
+  approveBreakGlassAction,
+  cancelRecoveryAction,
+  completeRecoveryAction,
+  grantBreakGlassAction,
+  requestRecoveryAction,
+  revokeBreakGlassAction,
+} from "../../console-actions";
 
 export const metadata = { title: "Account" };
 export const dynamic = "force-dynamic";
@@ -56,18 +64,22 @@ export default async function AccountPage({
   params: Promise<{ id: string }>;
   searchParams: FlashParams;
 }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
   const pool = db();
   const detail = await accountDetail(pool, id);
   if (detail === null) notFound();
-  const [wallet, purchases, invoices, grants] = await Promise.all([
+  const [wallet, purchases, invoices, grants, recoveries] = await Promise.all([
     walletSummary(pool, id),
     listPurchases(pool, id),
     listInvoices(pool, id),
     activeGrants(pool, id),
+    recoveriesFor(pool, id),
   ]);
+  const openRecovery = recoveries.find(
+    (r) => r.cancelled_at === null && r.completed_at === null,
+  );
   const a = detail.account;
 
   return (
@@ -202,9 +214,10 @@ export default async function AccountPage({
       </Panel>
       <Panel title="Break-glass access">
         <p className="mb-3 text-xs text-neutral-600">
-          Customer financial data is not visible by default. Access needs a written
-          reason, lasts a limited time, is recorded for every view, and emails the account
-          holder.
+          Customer financial data is not visible by default. Access covers one company,
+          needs a written reason and a current authenticator code, lasts a limited time,
+          is recorded for every view, and emails the account holder when it starts and
+          each day it is used.
         </p>
         {grants.map((g) => (
           <div
@@ -213,51 +226,197 @@ export default async function AccountPage({
             data-testid="break-glass-grant"
           >
             <p>
-              {g.admin_email} until {g.expires_at.toISOString()} — {g.reason}
+              {g.admin_email} · {g.company_name ?? "all companies (legacy)"} ·{" "}
+              {g.approved_at === null || g.expires_at === null
+                ? `awaiting a second admin (${g.minutes.toString()} minutes once approved)`
+                : `until ${g.expires_at.toISOString()}`}{" "}
+              — {g.reason}
             </p>
-            <div className="mt-2 flex flex-wrap gap-3">
-              {detail.companies.map((c) => (
-                <a
-                  key={c.id}
-                  className="text-accent-700 underline"
-                  href={`/accounts/${id}/break-glass?grant=${g.id}&company=${c.id}`}
-                >
-                  View {c.name}
-                </a>
-              ))}
+            <div className="mt-2 flex flex-wrap items-end gap-3">
+              {g.approved_at === null ? (
+                g.admin_user_id === admin.adminId ? null : (
+                  <form action={approveBreakGlassAction} className="flex items-end gap-2">
+                    <input type="hidden" name="accountId" value={id} />
+                    <input type="hidden" name="grantId" value={g.id} />
+                    <label className="flex flex-col">
+                      Your authenticator code
+                      <input
+                        name="code"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        className={`${input} w-28`}
+                        required
+                      />
+                    </label>
+                    <Button type="submit" variant="danger">
+                      Approve
+                    </Button>
+                  </form>
+                )
+              ) : (
+                detail.companies
+                  .filter((c) => g.company_id === null || c.id === g.company_id)
+                  .map((c) => (
+                    <a
+                      key={c.id}
+                      className="text-accent-700 underline"
+                      href={`/accounts/${id}/break-glass?grant=${g.id}&company=${c.id}`}
+                    >
+                      View {c.name}
+                    </a>
+                  ))
+              )}
               <form action={revokeBreakGlassAction}>
                 <input type="hidden" name="accountId" value={id} />
                 <input type="hidden" name="grantId" value={g.id} />
                 <Button type="submit" variant="secondary">
-                  Revoke
+                  {g.approved_at === null ? "Withdraw" : "Revoke"}
                 </Button>
               </form>
             </div>
           </div>
         ))}
-        <form
-          action={grantBreakGlassAction}
-          className="flex flex-wrap items-end gap-2 text-sm"
-        >
-          <input type="hidden" name="accountId" value={id} />
-          <label className="flex flex-col">
-            Reason (20 to 500 characters)
-            <textarea
-              name="reason"
-              required
-              minLength={20}
-              maxLength={500}
-              className={`${input} h-16 w-96`}
-            />
-          </label>
-          <label className="flex flex-col">
-            Minutes
-            <input name="minutes" defaultValue="15" className={`${input} w-20`} />
-          </label>
-          <Button type="submit" variant="danger">
-            Grant access
-          </Button>
-        </form>
+        {detail.companies.length === 0 ? (
+          <p className="text-sm text-neutral-600">This account has no companies.</p>
+        ) : (
+          <form
+            action={grantBreakGlassAction}
+            className="flex flex-wrap items-end gap-2 text-sm"
+          >
+            <input type="hidden" name="accountId" value={id} />
+            <label className="flex flex-col">
+              Company
+              <select name="companyId" className={input} required>
+                {detail.companies.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col">
+              Reason (20 to 500 characters)
+              <textarea
+                name="reason"
+                required
+                minLength={20}
+                maxLength={500}
+                className={`${input} h-16 w-96`}
+              />
+            </label>
+            <label className="flex flex-col">
+              Minutes
+              <input name="minutes" defaultValue="15" className={`${input} w-20`} />
+            </label>
+            <label className="flex flex-col">
+              Authenticator code
+              <input
+                name="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                className={`${input} w-28`}
+                required
+              />
+            </label>
+            <Button type="submit" variant="danger">
+              Grant access
+            </Button>
+          </form>
+        )}
+      </Panel>
+      <Panel title="Account recovery">
+        <p className="mb-3 text-xs text-neutral-600">
+          Only for a customer who has lost both their authenticator and their backup
+          codes, after the checks in docs/runbooks/account-recovery.md. The customer is
+          emailed and has a hold period to cancel; the second factor is removed only after
+          it.
+        </p>
+        {recoveries.map((r) => (
+          <div
+            key={r.id}
+            className="mb-3 rounded-md border border-neutral-200 p-3 text-sm"
+            data-testid="account-recovery"
+          >
+            <p>
+              {r.ticket_ref} · requested by {r.requested_email} at{" "}
+              {r.requested_at.toISOString()} ·{" "}
+              {r.completed_at !== null
+                ? `completed ${r.completed_at.toISOString()} (${String(r.factors_removed ?? 0)} factors removed)`
+                : r.cancelled_at !== null
+                  ? `cancelled ${r.cancelled_at.toISOString()}`
+                  : `hold until ${r.hold_until.toISOString()}`}
+            </p>
+            <p className="text-xs text-neutral-600">{r.reason}</p>
+            {r.cancelled_at === null && r.completed_at === null ? (
+              <div className="mt-2 flex flex-wrap items-end gap-3">
+                <form action={completeRecoveryAction} className="flex items-end gap-2">
+                  <input type="hidden" name="accountId" value={id} />
+                  <input type="hidden" name="recoveryId" value={r.id} />
+                  <label className="flex flex-col">
+                    Your authenticator code
+                    <input
+                      name="code"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      className={`${input} w-28`}
+                      required
+                    />
+                  </label>
+                  <Button type="submit" variant="danger">
+                    Remove second factor
+                  </Button>
+                </form>
+                <form action={cancelRecoveryAction}>
+                  <input type="hidden" name="accountId" value={id} />
+                  <input type="hidden" name="recoveryId" value={r.id} />
+                  <Button type="submit" variant="secondary">
+                    Cancel request
+                  </Button>
+                </form>
+              </div>
+            ) : null}
+          </div>
+        ))}
+        {openRecovery === undefined ? (
+          <form
+            action={requestRecoveryAction}
+            className="flex flex-wrap items-end gap-2 text-sm"
+          >
+            <input type="hidden" name="accountId" value={id} />
+            <label className="flex flex-col">
+              Ticket reference
+              <input
+                name="ticketRef"
+                className={`${input} w-40`}
+                required
+                maxLength={100}
+              />
+            </label>
+            <label className="flex flex-col">
+              Verification done (20 to 500 characters, no answers)
+              <textarea
+                name="reason"
+                required
+                minLength={20}
+                maxLength={500}
+                className={`${input} h-16 w-96`}
+              />
+            </label>
+            <label className="flex flex-col">
+              Authenticator code
+              <input
+                name="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                className={`${input} w-28`}
+                required
+              />
+            </label>
+            <Button type="submit" variant="danger">
+              Request recovery
+            </Button>
+          </form>
+        ) : null}
       </Panel>
       <Panel title="Login events">
         <Table

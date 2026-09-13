@@ -34,7 +34,14 @@ let totpSecret = "";
 test.beforeAll(async () => {
   // A fresh admin per run: remove the previous run's row (sessions cascade).
   await pool.query(
-    `delete from break_glass_grants where admin_user_id in (select id from admin_users where lower(email) = $1)`,
+    `delete from break_glass_grants where admin_user_id in (select id from admin_users where lower(email) = $1)
+        or approved_by in (select id from admin_users where lower(email) = $1)`,
+    [ADMIN_EMAIL],
+  );
+  await pool.query(
+    `delete from account_recoveries where requested_by in (select id from admin_users where lower(email) = $1)
+        or cancelled_by in (select id from admin_users where lower(email) = $1)
+        or completed_by in (select id from admin_users where lower(email) = $1)`,
     [ADMIN_EMAIL],
   );
   await pool.query(`delete from admin_users where lower(email) = $1`, [ADMIN_EMAIL]);
@@ -151,7 +158,7 @@ test("bank transfer receipt credits the account; adjustment, price version, expo
   expect(await csv.text()).toContain(proforma?.number ?? "missing");
 
   await page.goto("/audit?verify=1");
-  await expect(page.getByRole("status")).toContainText("Chain verified");
+  await expect(page.getByText(/Chain verified/u)).toBeVisible();
   await expect(page.getByText("billing.bank_transfer_received").first()).toBeVisible();
   await expect(page.getByText("wallet.admin_adjust").first()).toBeVisible();
 
@@ -205,6 +212,13 @@ test("margin dashboard flags a seeded over-ratio action; break-glass, jobs and p
   await page
     .getByLabel("Reason (20 to 500 characters)")
     .fill("E2E check of the break-glass flow for support");
+  await page.getByLabel("Company").selectOption({ label: "Seed Traders" });
+  // R-53 step-up: a fresh code, never the one used to sign in.
+  await page.waitForTimeout(30_000 - (Date.now() % 30_000) + 500);
+  await page
+    .locator("form", { has: page.getByRole("button", { name: "Grant access" }) })
+    .getByLabel("Authenticator code")
+    .fill(hotp(base32Decode(totpSecret), timeStep(new Date())));
   await page.getByRole("button", { name: "Grant access" }).click();
   await expect(page.getByTestId("break-glass-grant")).toContainText(
     "E2E check of the break-glass flow",

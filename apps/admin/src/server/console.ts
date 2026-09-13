@@ -19,6 +19,8 @@ import { normaliseName } from "@magicmis/semantic";
 import type { Pool } from "pg";
 import { z } from "zod";
 
+import { verifyAdminStepUp } from "./identity";
+
 // ---------------------------------------------------------------------------
 // Model registry and tier routing
 // ---------------------------------------------------------------------------
@@ -539,23 +541,38 @@ export async function activatePrompt(
 // Break-glass
 // ---------------------------------------------------------------------------
 
+export class StepUpRequired extends Error {
+  constructor() {
+    super("enter a current authenticator code to confirm");
+    this.name = "StepUpRequired";
+  }
+}
+
+/**
+ * Request break-glass access to one company (SPEC §26, R-53). The admin re-authenticates with a
+ * current TOTP code. With `admin.break_glass_second_admin` on, the grant waits for another admin's
+ * approval and its clock starts then; otherwise it is active at once. The account holder is emailed
+ * when access starts, and daily while it is used.
+ */
 export async function grantBreakGlass(
   pool: Pool,
+  wrapper: KeyWrapper,
   input: {
     adminId: string;
     ip: string | null;
     accountId: string;
+    companyId: string;
     reason: string;
     minutes: number;
+    code: string;
     now?: Date;
   },
 ) {
   const now = input.now ?? new Date();
-  const max = await readConfig(
-    pool,
-    "admin.break_glass_max_minutes",
-    z.number().int().positive(),
-  );
+  const [max, secondAdmin] = await Promise.all([
+    readConfig(pool, "admin.break_glass_max_minutes", z.number().int().positive(), now),
+    readConfig(pool, "admin.break_glass_second_admin", z.boolean(), now),
+  ]);
   const reason = input.reason.trim();
   if (reason.length < 20)
     throw new RangeError("give a written reason of at least 20 characters");
@@ -565,38 +582,131 @@ export async function grantBreakGlass(
     throw new RangeError("keep the reason to 500 characters or fewer");
   if (!Number.isInteger(input.minutes) || input.minutes < 1 || input.minutes > max)
     throw new RangeError(`access lasts between 1 and ${max.toString()} minutes`);
-  const expiresAt = new Date(now.getTime() + input.minutes * 60_000);
   return withTransaction(pool, async (tx) => {
+    if (
+      !(await verifyAdminStepUp(tx, wrapper, {
+        adminId: input.adminId,
+        code: input.code,
+        now,
+      }))
+    )
+      throw new StepUpRequired();
     // A purged account has no data to view and no address to notify. A closed account awaiting
     // purge may be viewed, and its holder is still emailed (worker CLOSED_ACCOUNT_TYPES).
-    const acct = await tx.query<{ purged_at: Date | null }>(
-      `select purged_at from public.accounts where id = $1 for share`,
-      [input.accountId],
+    const target = await tx.query<{
+      purged_at: Date | null;
+      company_purged: Date | null;
+    }>(
+      `select a.purged_at, c.purged_at as company_purged from public.accounts a
+       join public.companies c on c.account_id = a.id where a.id = $1 and c.id = $2 for share of a`,
+      [input.accountId, input.companyId],
     );
-    const account = acct.rows[0];
-    if (account === undefined) throw new RangeError("account not found");
-    if (account.purged_at !== null) throw new RangeError("this account has been purged");
+    const row = target.rows[0];
+    if (row === undefined) throw new RangeError("company not found for this account");
+    if (row.purged_at !== null || row.company_purged !== null)
+      throw new RangeError("this account or company has been purged");
+    const expiresAt = secondAdmin
+      ? null
+      : new Date(now.getTime() + input.minutes * 60_000);
     const g = await tx.query<{ id: string }>(
-      `insert into public.break_glass_grants (admin_user_id, account_id, reason, expires_at, created_at) values ($1, $2, $3, $4, $5) returning id`,
-      [input.adminId, input.accountId, reason, expiresAt, now],
+      `insert into public.break_glass_grants
+         (admin_user_id, account_id, company_id, reason, minutes, expires_at, approved_at, created_at)
+       values ($1, $2, $3, $4, $5, $6, $7, $8) returning id`,
+      [
+        input.adminId,
+        input.accountId,
+        input.companyId,
+        reason,
+        input.minutes,
+        expiresAt,
+        secondAdmin ? null : now,
+        now,
+      ],
     );
     const grantId = g.rows[0]?.id ?? "";
     await appendAudit(tx, {
       actorType: "admin",
       actorId: input.adminId,
-      action: "admin.break_glass_granted",
-      targetType: "account",
-      targetId: input.accountId,
-      metadata: { grantId, reason, expiresAt: expiresAt.toISOString() },
+      action: secondAdmin ? "admin.break_glass_requested" : "admin.break_glass_granted",
+      targetType: "company",
+      targetId: input.companyId,
+      metadata: {
+        grantId,
+        reason,
+        minutes: input.minutes,
+        expiresAt: expiresAt?.toISOString() ?? null,
+      },
+      ip: input.ip,
+    });
+    if (expiresAt !== null)
+      await queueNotification(tx, {
+        accountId: input.accountId,
+        type: "security.break_glass",
+        payload: { reason, expires_at: expiresAt.toISOString() },
+        dedupeKey: `break_glass:${grantId}`,
+      });
+    return { grantId, expiresAt, pending: secondAdmin };
+  });
+}
+
+/** A second admin approves a pending grant with their own TOTP code; the clock starts now. */
+export async function approveBreakGlass(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    adminId: string;
+    ip: string | null;
+    grantId: string;
+    code: string;
+    now?: Date;
+  },
+) {
+  const now = input.now ?? new Date();
+  return withTransaction(pool, async (tx) => {
+    const g = await tx.query<{
+      admin_user_id: string;
+      account_id: string;
+      company_id: string | null;
+      reason: string;
+      minutes: number;
+    }>(
+      `select admin_user_id, account_id, company_id, reason, minutes from public.break_glass_grants
+       where id = $1 and approved_at is null and revoked_at is null for update`,
+      [input.grantId],
+    );
+    const grant = g.rows[0];
+    if (grant === undefined) throw new RangeError("no pending grant to approve");
+    if (grant.admin_user_id === input.adminId)
+      throw new RangeError("a different admin must approve this request");
+    if (
+      !(await verifyAdminStepUp(tx, wrapper, {
+        adminId: input.adminId,
+        code: input.code,
+        now,
+      }))
+    )
+      throw new StepUpRequired();
+    const expiresAt = new Date(now.getTime() + grant.minutes * 60_000);
+    await tx.query(
+      `update public.break_glass_grants set approved_by = $2, approved_at = $3, expires_at = $4 where id = $1`,
+      [input.grantId, input.adminId, now, expiresAt],
+    );
+    await appendAudit(tx, {
+      actorType: "admin",
+      actorId: input.adminId,
+      action: "admin.break_glass_approved",
+      targetType: "company",
+      targetId: grant.company_id,
+      metadata: { grantId: input.grantId, requestedBy: grant.admin_user_id },
       ip: input.ip,
     });
     await queueNotification(tx, {
-      accountId: input.accountId,
+      accountId: grant.account_id,
       type: "security.break_glass",
-      payload: { reason, expires_at: expiresAt.toISOString() },
-      dedupeKey: `break_glass:${grantId}`,
+      payload: { reason: grant.reason, expires_at: expiresAt.toISOString() },
+      dedupeKey: `break_glass:${input.grantId}`,
     });
-    return { grantId, expiresAt };
+    return { expiresAt };
   });
 }
 
@@ -605,8 +715,9 @@ export async function revokeBreakGlass(
   input: { adminId: string; ip: string | null; grantId: string },
 ) {
   return withTransaction(pool, async (tx) => {
-    const r = await tx.query<{ account_id: string }>(
-      `update public.break_glass_grants set revoked_at = now() where id = $1 and revoked_at is null returning account_id`,
+    const r = await tx.query<{ account_id: string; company_id: string | null }>(
+      `update public.break_glass_grants set revoked_at = now() where id = $1 and revoked_at is null
+       returning account_id, company_id`,
       [input.grantId],
     );
     if (r.rowCount !== 1) throw new RangeError("grant not found or already revoked");
@@ -614,14 +725,15 @@ export async function revokeBreakGlass(
       actorType: "admin",
       actorId: input.adminId,
       action: "admin.break_glass_revoked",
-      targetType: "account",
-      targetId: r.rows[0]?.account_id ?? null,
-      metadata: { grantId: input.grantId },
+      targetType: "company",
+      targetId: r.rows[0]?.company_id ?? null,
+      metadata: { grantId: input.grantId, accountId: r.rows[0]?.account_id ?? null },
       ip: input.ip,
     });
   });
 }
 
+/** Active and pending (not yet approved) grants for an account. */
 export async function activeGrants(
   pool: Pool,
   accountId: string,
@@ -629,14 +741,24 @@ export async function activeGrants(
 ) {
   const r = await pool.query<{
     id: string;
+    admin_user_id: string;
     admin_email: string;
+    company_id: string | null;
+    company_name: string | null;
     reason: string;
-    expires_at: Date;
+    minutes: number;
+    expires_at: Date | null;
+    approved_at: Date | null;
     created_at: Date;
   }>(
-    `select g.id, a.email as admin_email, g.reason, g.expires_at, g.created_at
-     from public.break_glass_grants g join public.admin_users a on a.id = g.admin_user_id
-     where g.account_id = $1 and g.revoked_at is null and g.expires_at > $2 order by g.created_at desc`,
+    `select g.id, g.admin_user_id, a.email as admin_email, g.company_id, c.name as company_name, g.reason,
+            g.minutes, g.expires_at, g.approved_at, g.created_at
+     from public.break_glass_grants g
+     join public.admin_users a on a.id = g.admin_user_id
+     left join public.companies c on c.id = g.company_id
+     where g.account_id = $1 and g.revoked_at is null
+       and (g.approved_at is null or g.expires_at > $2)
+     order by g.created_at desc`,
     [accountId, now],
   );
   return r.rows;
@@ -650,8 +772,9 @@ export class BreakGlassRequired extends Error {
 }
 
 /**
- * Decrypted company memory under an active grant held by this admin: the template name and the
- * latest month's metric values. Each view is audit-logged with the grant.
+ * Decrypted company memory under an active, approved grant for exactly this company, held by this
+ * admin: the template name and the latest month's metric values. Each view is audit-logged, and the
+ * account holder gets one "support viewed your data" email per grant per IST day.
  */
 export async function breakGlassView(
   pool: Pool,
@@ -665,15 +788,25 @@ export async function breakGlassView(
   },
 ): Promise<{ template: string; period: string | null; values: MetricValue[] }> {
   const now = input.now ?? new Date();
-  const grant = await pool.query<{ account_id: string }>(
-    `select g.account_id from public.break_glass_grants g join public.companies c on c.account_id = g.account_id
-     where g.id = $1 and g.admin_user_id = $2 and g.revoked_at is null and g.expires_at > $3 and c.id = $4`,
+  const grant = await pool.query<{
+    account_id: string;
+    company_name: string;
+    reason: string;
+  }>(
+    `select g.account_id, c.name as company_name, g.reason
+     from public.break_glass_grants g
+     join public.companies c on c.account_id = g.account_id
+     where g.id = $1 and g.admin_user_id = $2 and g.revoked_at is null
+       and g.approved_at is not null and g.expires_at > $3
+       and c.id = $4 and (g.company_id = c.id or g.account_wide)`,
     [input.grantId, input.adminId, now, input.companyId],
   );
-  const accountId = grant.rows[0]?.account_id;
-  if (accountId === undefined) throw new BreakGlassRequired();
-  await withTransaction(pool, (tx) =>
-    appendAudit(tx, {
+  const row = grant.rows[0];
+  if (row === undefined) throw new BreakGlassRequired();
+  const accountId = row.account_id;
+  const day = new Date(now.getTime() + 5.5 * 3_600_000).toISOString().slice(0, 10);
+  await withTransaction(pool, async (tx) => {
+    await appendAudit(tx, {
       actorType: "admin",
       actorId: input.adminId,
       action: "admin.break_glass_viewed",
@@ -681,8 +814,14 @@ export async function breakGlassView(
       targetId: input.companyId,
       metadata: { grantId: input.grantId },
       ip: input.ip,
-    }),
-  );
+    });
+    await queueNotification(tx, {
+      accountId,
+      type: "security.break_glass_viewed",
+      payload: { company_name: row.company_name, day, reason: row.reason },
+      dedupeKey: `break_glass_viewed:${input.grantId}:${day}`,
+    });
+  });
   const scope = { accountId, companyId: input.companyId };
   const blueprint = await latestBlueprint(pool, wrapper, scope);
   const period = await pool.query<{ period: string | null }>(

@@ -17,6 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
   activeGrants,
+  approveBreakGlass,
   breakGlassView,
   decideCandidate,
   grantBreakGlass,
@@ -29,6 +30,7 @@ import {
   revokeBreakGlass,
 } from "../src/server/console";
 import { createAdmin } from "../src/server/identity";
+import { base32Decode, hotp, timeStep } from "../src/server/totp";
 import { emptySnapshot } from "../../../packages/jobs/test/helpers";
 
 let db: TestDb | undefined;
@@ -247,10 +249,27 @@ describe("library curation", () => {
 });
 
 describe("break-glass", () => {
-  it("needs a reason and a bounded time, notifies the holder, audits every view, and ends on revoke", async () => {
-    const adminId = await admin();
-    const other = await admin();
-    const c = await customer();
+  // Each step-up code is single-use, so the test walks a timeline one TOTP period at a time.
+  const T0 = Date.now();
+  let tick = 0;
+  const next = () => new Date(T0 + (tick++ + 1) * 31_000);
+  const codeAt = (secret: string, at: Date) => hotp(base32Decode(secret), timeStep(at));
+
+  async function adminWithSecret(): Promise<{
+    adminId: string;
+    secret: string;
+  }> {
+    const email = `${randomUUID()}@admin.example.test`;
+    const a = await createAdmin(pool(), wrapper, {
+      email,
+      password: "correct-horse-battery-staple",
+      allowlist: new Set([email]),
+      issuer: "Test",
+    });
+    return { adminId: a.adminId, secret: a.totpSecret };
+  }
+
+  async function withRevenue(c: { accountId: string; companyId: string }) {
     const snap = emptySnapshot("2026-05");
     await storeSnapshot(pool(), wrapper, {
       ...c,
@@ -274,79 +293,142 @@ describe("break-glass", () => {
         },
       },
     });
+  }
 
+  it("needs a reason, a bounded time and a fresh code; is scoped to one company; notifies, audits every view, ends on revoke", async () => {
+    const { adminId, secret } = await adminWithSecret();
+    const other = await adminWithSecret();
+    const c = await customer();
+    await withRevenue(c);
+    const second = await pool().query<{ id: string }>(
+      `insert into companies (account_id, name) values ($1, 'Second Co') returning id`,
+      [c.accountId],
+    );
+    const base = {
+      adminId,
+      ip: null,
+      accountId: c.accountId,
+      companyId: c.companyId,
+      reason: "Customer asked us to check a mapping",
+      minutes: 15,
+    };
+
+    const at = next();
     await expect(
-      grantBreakGlass(pool(), {
-        adminId,
-        ip: null,
-        accountId: c.accountId,
+      grantBreakGlass(pool(), wrapper, {
+        ...base,
         reason: "help",
-        minutes: 10,
+        code: codeAt(secret, at),
+        now: at,
       }),
     ).rejects.toThrow(/at least 20 characters/u);
     await expect(
-      grantBreakGlass(pool(), {
-        adminId,
-        ip: null,
-        accountId: c.accountId,
-        reason: "Customer asked us to check a mapping",
+      grantBreakGlass(pool(), wrapper, {
+        ...base,
         minutes: 600,
+        code: codeAt(secret, at),
+        now: at,
       }),
     ).rejects.toThrow(/between 1 and 60 minutes/u);
     // A reason the customer notice cannot carry would leave the grant unannounced: refused.
     await expect(
-      grantBreakGlass(pool(), {
-        adminId,
-        ip: null,
-        accountId: c.accountId,
+      grantBreakGlass(pool(), wrapper, {
+        ...base,
         reason: "x".repeat(501),
-        minutes: 10,
+        code: codeAt(secret, at),
+        now: at,
       }),
     ).rejects.toThrow(/500 characters/u);
-    const purged = await pool().query<{ id: string }>(
-      `insert into accounts (auth_user_id, email, business_name, state_code, status, purged_at)
-       values (gen_random_uuid(), $1, 'Deleted account', '27', 'deleted', now()) returning id`,
+    // Step-up: a wrong code, or another admin's code, is refused.
+    await expect(
+      grantBreakGlass(pool(), wrapper, { ...base, code: "000000", now: at }),
+    ).rejects.toThrow(/authenticator code/u);
+    await expect(
+      grantBreakGlass(pool(), wrapper, {
+        ...base,
+        code: codeAt(other.secret, at),
+        now: at,
+      }),
+    ).rejects.toThrow(/authenticator code/u);
+    const purged = await pool().query<{ id: string; company: string }>(
+      `with a as (insert into accounts (auth_user_id, email, business_name, state_code, status, purged_at)
+         values (gen_random_uuid(), $1, 'Deleted account', '27', 'deleted', now()) returning id)
+       insert into companies (account_id, name) select id, 'Gone Co' from a returning account_id as id, id as company`,
       [`purged-${String(Date.now())}@invalid`],
     );
     await expect(
-      grantBreakGlass(pool(), {
-        adminId,
-        ip: null,
+      grantBreakGlass(pool(), wrapper, {
+        ...base,
         accountId: purged.rows[0]?.id ?? "",
-        reason: "Customer asked us to check a mapping",
-        minutes: 10,
+        companyId: purged.rows[0]?.company ?? "",
+        code: codeAt(secret, at),
+        now: at,
       }),
     ).rejects.toThrow(/purged/u);
 
-    const { grantId } = await grantBreakGlass(pool(), {
-      adminId,
+    const { grantId, pending } = await grantBreakGlass(pool(), wrapper, {
+      ...base,
       ip: "10.0.0.1",
-      accountId: c.accountId,
-      reason: "Customer asked us to check a mapping",
-      minutes: 15,
+      code: codeAt(secret, at),
+      now: at,
     });
+    expect(pending).toBe(false);
+    // The same code cannot be used twice.
+    await expect(
+      grantBreakGlass(pool(), wrapper, {
+        ...base,
+        code: codeAt(secret, at),
+        now: at,
+      }),
+    ).rejects.toThrow(/authenticator code/u);
     const notice = await pool().query(
       `select type from notifications where account_id = $1 and type = 'security.break_glass'`,
       [c.accountId],
     );
     expect(notice.rowCount).toBe(1);
-    expect(await activeGrants(pool(), c.accountId)).toHaveLength(1);
+    expect(await activeGrants(pool(), c.accountId, at)).toHaveLength(1);
 
     const view = await breakGlassView(pool(), wrapper, {
       adminId,
       ip: null,
       grantId,
       companyId: c.companyId,
+      now: at,
     });
     expect(view.period).toBe("2026-05");
     expect(view.values.map((v) => v.metricId)).toContain("revenue");
+    // Viewing again the same day sends no second customer notice.
+    await breakGlassView(pool(), wrapper, {
+      adminId,
+      ip: null,
+      grantId,
+      companyId: c.companyId,
+      now: at,
+    });
+    const viewed = await pool().query(
+      `select 1 from notifications where account_id = $1 and type = 'security.break_glass_viewed'`,
+      [c.accountId],
+    );
+    expect(viewed.rowCount).toBe(1);
+
+    // Scoped: the grant does not open the account's other company.
+    await expect(
+      breakGlassView(pool(), wrapper, {
+        adminId,
+        ip: null,
+        grantId,
+        companyId: second.rows[0]?.id ?? "",
+        now: at,
+      }),
+    ).rejects.toThrow(/active break-glass grant/u);
     // Another admin cannot use this grant; nothing is viewable after it expires or is revoked.
     await expect(
       breakGlassView(pool(), wrapper, {
-        adminId: other,
+        adminId: other.adminId,
         ip: null,
         grantId,
         companyId: c.companyId,
+        now: at,
       }),
     ).rejects.toThrow(/active break-glass grant/u);
     await expect(
@@ -355,7 +437,7 @@ describe("break-glass", () => {
         ip: null,
         grantId,
         companyId: c.companyId,
-        now: new Date(Date.now() + 16 * 60_000),
+        now: new Date(at.getTime() + 16 * 60_000),
       }),
     ).rejects.toThrow(/active break-glass grant/u);
     await revokeBreakGlass(pool(), { adminId, ip: null, grantId });
@@ -365,18 +447,99 @@ describe("break-glass", () => {
         ip: null,
         grantId,
         companyId: c.companyId,
+        now: at,
       }),
     ).rejects.toThrow(/active break-glass grant/u);
 
     const audit = await pool().query<{ action: string }>(
-      `select action from audit_log where target_id = $1 or metadata->>'grantId' = $2 order by seq`,
-      [c.accountId, grantId],
+      `select action from audit_log where metadata->>'grantId' = $1 order by seq`,
+      [grantId],
     );
     expect(audit.rows.map((r) => r.action)).toEqual([
       "admin.break_glass_granted",
       "admin.break_glass_viewed",
+      "admin.break_glass_viewed",
       "admin.break_glass_revoked",
     ]);
     expect((await verifyAuditChain(pool())).ok).toBe(true);
+  });
+
+  it("with the two-admin rule on, access waits for a different admin's approval and its clock starts then", async () => {
+    const requester = await adminWithSecret();
+    const approver = await adminWithSecret();
+    const c = await customer();
+    await withRevenue(c);
+    const cfg = await pool().query<{ version: number }>(
+      `insert into app_config (key, value, version, effective_from)
+       select 'admin.break_glass_second_admin', 'true'::jsonb, coalesce(max(version), 0) + 1, now() - interval '1 second'
+       from app_config where key = 'admin.break_glass_second_admin' returning version`,
+    );
+    try {
+      const at = next();
+      const { grantId, pending, expiresAt } = await grantBreakGlass(pool(), wrapper, {
+        adminId: requester.adminId,
+        ip: null,
+        accountId: c.accountId,
+        companyId: c.companyId,
+        reason: "Customer asked us to check a mapping",
+        minutes: 10,
+        code: codeAt(requester.secret, at),
+        now: at,
+      });
+      expect(pending).toBe(true);
+      expect(expiresAt).toBeNull();
+      // Pending: not viewable, no customer notice yet.
+      await expect(
+        breakGlassView(pool(), wrapper, {
+          adminId: requester.adminId,
+          ip: null,
+          grantId,
+          companyId: c.companyId,
+          now: at,
+        }),
+      ).rejects.toThrow(/active break-glass grant/u);
+      const early = await pool().query(
+        `select 1 from notifications where account_id = $1 and type = 'security.break_glass'`,
+        [c.accountId],
+      );
+      expect(early.rowCount).toBe(0);
+
+      const later = next();
+      await expect(
+        approveBreakGlass(pool(), wrapper, {
+          adminId: requester.adminId,
+          ip: null,
+          grantId,
+          code: codeAt(requester.secret, later),
+          now: later,
+        }),
+      ).rejects.toThrow(/different admin/u);
+      const approved = await approveBreakGlass(pool(), wrapper, {
+        adminId: approver.adminId,
+        ip: null,
+        grantId,
+        code: codeAt(approver.secret, later),
+        now: later,
+      });
+      expect(approved.expiresAt.getTime()).toBe(later.getTime() + 10 * 60_000);
+      const view = await breakGlassView(pool(), wrapper, {
+        adminId: requester.adminId,
+        ip: null,
+        grantId,
+        companyId: c.companyId,
+        now: later,
+      });
+      expect(view.period).toBe("2026-05");
+      const notices = await pool().query(
+        `select 1 from notifications where account_id = $1 and type = 'security.break_glass'`,
+        [c.accountId],
+      );
+      expect(notices.rowCount).toBe(1);
+    } finally {
+      await pool().query(
+        `delete from app_config where key = 'admin.break_glass_second_admin' and version = $1`,
+        [cfg.rows[0]?.version],
+      );
+    }
   });
 });

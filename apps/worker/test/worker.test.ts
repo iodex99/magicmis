@@ -194,6 +194,16 @@ describe("templates", () => {
           expires_at: "2027-01-02T00:00:00Z",
         },
       ],
+      [
+        "security.break_glass_viewed",
+        {
+          company_name: "Synthetic Traders",
+          day: "2027-01-02",
+          reason: "Customer asked for help with a mapping",
+        },
+      ],
+      ["security.recovery_requested", { hold_until: "2027-01-02T00:00:00Z" }],
+      ["security.mfa_reset_by_admin", {}],
       ["account.deletion_scheduled", { purge_after: "2027-02-01T00:00:00Z" }],
       [
         "account.export_ready",
@@ -329,7 +339,8 @@ describe("admin margin digest (SPEC §26)", () => {
       [a.id, randomUUID()],
     );
     const mail = new RecordingSender();
-    const now = new Date();
+    // The job's created_at comes from the database clock, which can run ahead of this process.
+    const now = new Date(Date.now() + 60_000);
     const first = await sendAdminMarginDigest(
       pool,
       mail,

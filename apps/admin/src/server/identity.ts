@@ -318,3 +318,48 @@ export async function signOut(
     });
   }
 }
+
+/**
+ * Step-up re-authentication for a sensitive admin action (R-53: break-glass grants and approvals):
+ * a current TOTP code for this admin, inside the caller's transaction. Codes are single-use, the
+ * same as at sign-in (`totp_last_step`), so a code seen over a shoulder cannot be replayed.
+ */
+export async function verifyAdminStepUp(
+  tx: Queryable,
+  wrapper: KeyWrapper,
+  input: { adminId: string; code: string; now: Date },
+): Promise<boolean> {
+  const r = await tx.query<{
+    totp_secret_enc: Buffer;
+    totp_key_wrapped: Buffer;
+    totp_key_version: string;
+    totp_last_step: string;
+    status: string;
+  }>(
+    `select totp_secret_enc, totp_key_wrapped, totp_key_version, totp_last_step::text as totp_last_step, status
+     from public.admin_users where id = $1 for update`,
+    [input.adminId],
+  );
+  const admin = r.rows[0];
+  if (admin === undefined || admin.status !== "active") return false;
+  const secret = (
+    await openWithWrappedKey(
+      wrapper,
+      admin.totp_secret_enc,
+      { ciphertext: admin.totp_key_wrapped, keyVersion: admin.totp_key_version },
+      totpContext(input.adminId),
+    )
+  ).toString("utf8");
+  const step = verifyTotp(
+    secret,
+    input.code.trim(),
+    input.now,
+    BigInt(admin.totp_last_step),
+  );
+  if (step === null) return false;
+  await tx.query(`update public.admin_users set totp_last_step = $2 where id = $1`, [
+    input.adminId,
+    step.toString(),
+  ]);
+  return true;
+}

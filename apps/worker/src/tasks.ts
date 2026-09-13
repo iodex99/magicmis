@@ -8,6 +8,7 @@ import { estimatorConfigSchema, recalibrateEstimator } from "@magicmis/ai/estima
 import { readConfig } from "@magicmis/db/config";
 import { pruneRateLimits } from "@magicmis/db/ratelimit";
 import type { AiTransport } from "@magicmis/ai";
+import { reconcileRazorpayPurchases, type PaymentGateway } from "@magicmis/billing";
 import type { KeyWrapper } from "@magicmis/crypto";
 import {
   commentaryBatchTick,
@@ -51,6 +52,8 @@ export interface TaskDeps {
   readonly wrapper?: KeyWrapper | null;
   /** Error reporting (Sentry, scrubbed); absent when SENTRY_DSN is not set. */
   readonly reportError?: ((error: unknown, queue: string) => void) | null;
+  /** Razorpay lookups for payment reconciliation; absent when keys are not configured. */
+  readonly gateway?: PaymentGateway | null;
 }
 
 export interface MaintenanceTask {
@@ -182,6 +185,16 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
         : refreshLibraryCandidates(pool, wrapper),
   },
   {
+    // R-51: purchases paid on Razorpay whose webhook never arrived are credited from Razorpay's record.
+    queue: "billing-reconcile",
+    cron: "*/15 * * * *",
+    expireInSeconds: 600,
+    run: async ({ pool, gateway }, now) =>
+      gateway == null
+        ? { skipped: "Razorpay keys not configured" }
+        : reconcileRazorpayPurchases(pool, gateway, now),
+  },
+  {
     // SPEC §30: rate-limit counters for finished windows, kept off the request path.
     queue: "ratelimit-prune",
     cron: "*/10 * * * *",
@@ -193,8 +206,8 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     queue: "integrity-verify",
     cron: "30 3 * * *",
     expireInSeconds: 3600,
-    run: ({ pool, mail, appUrl, adminUrl }, now) =>
-      verifyIntegrity(pool, mail, adminUrl ?? appUrl, now),
+    run: ({ pool, mail, appUrl, adminUrl, wrapper }, now) =>
+      verifyIntegrity(pool, mail, adminUrl ?? appUrl, now, wrapper ?? null),
   },
   {
     // SPEC §26: daily margin summary to admins, 08:00 IST.

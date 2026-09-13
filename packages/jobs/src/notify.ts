@@ -21,6 +21,9 @@ export type NotificationType =
   | "billing.low_balance_before_fee"
   | "reminder.monthly_refresh"
   | "security.break_glass"
+  | "security.break_glass_viewed"
+  | "security.recovery_requested"
+  | "security.mfa_reset_by_admin"
   | "account.deletion_scheduled"
   | "account.export_ready";
 

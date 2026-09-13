@@ -123,6 +123,9 @@ export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
   "lifecycle.purged",
   "reminder.monthly_refresh",
   "security.break_glass",
+  "security.break_glass_viewed",
+  "security.recovery_requested",
+  "security.mfa_reset_by_admin",
   "account.deletion_scheduled",
   "account.export_ready",
   "billing.lot_expiry_notice",
@@ -132,6 +135,7 @@ export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
 export const CLOSED_ACCOUNT_TYPES: ReadonlySet<string> = new Set([
   "account.deletion_scheduled",
   "security.break_glass",
+  "security.break_glass_viewed",
 ]);
 
 /** Returns null for a type with no template, or a payload the template rejects. */
@@ -408,6 +412,51 @@ export function renderNotification(
         "Support accessed your account data",
         [
           `Our support team was granted temporary access to your company data until ${formatIstDate(new Date(p.data.expires_at))}.`,
+          `Reason given: ${p.data.reason}`,
+          "Every view is recorded. If you did not ask for help, contact us immediately.",
+        ],
+        ctx,
+      );
+    }
+    case "security.recovery_requested": {
+      // SPEC §8 / R-21: the registered address hears first and can stop it during the hold.
+      const p = z.object({ hold_until: z.string() }).safeParse(payload);
+      if (!p.success) return null;
+      return email(
+        "Account recovery requested",
+        [
+          "Our support team received a request to reset two-factor authentication on your account.",
+          `Nothing will change before ${formatIstDate(new Date(p.data.hold_until))}. If you did not ask for this, reply to this email before then and we will cancel it.`,
+          IF_NOT_YOU,
+        ],
+        ctx,
+      );
+    }
+    case "security.mfa_reset_by_admin":
+      return email(
+        "Two-factor authentication was reset by support",
+        [
+          "As you requested, support removed the authenticator from your account and revoked your old backup codes.",
+          "Sign in with your password: you will be asked to set up a new authenticator app, and new backup codes are issued when you do. We recommend changing your password afterwards.",
+          IF_NOT_YOU,
+        ],
+        ctx,
+        { label: "Sign in", path: "/sign-in" },
+      );
+    case "security.break_glass_viewed": {
+      // R-53: one notice per grant per day while support looks at the data.
+      const p = z
+        .object({
+          company_name: z.string().max(200),
+          day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
+          reason: z.string().max(500),
+        })
+        .safeParse(payload);
+      if (!p.success) return null;
+      return email(
+        "Support viewed your company data",
+        [
+          `On ${p.data.day}, our support team viewed stored data for ${p.data.company_name} under the access you were told about.`,
           `Reason given: ${p.data.reason}`,
           "Every view is recorded. If you did not ask for help, contact us immediately.",
         ],
