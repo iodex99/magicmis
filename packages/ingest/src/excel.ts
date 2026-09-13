@@ -78,7 +78,9 @@ export function readExcel(
   const sheets: SheetGrid[] = wb.SheetNames.map((name, index) => {
     const ws = wb.Sheets[name] as unknown as DenseSheet | undefined;
     const data = ws?.["!data"] ?? [];
-    const rows = data.map((row) => (row ?? []).map(toCell));
+    // Array.from, not map: dense rows and cells have holes for empty rows and cells, and
+    // map preserves holes, which would surface as undefined rows downstream.
+    const rows = Array.from(data, (row) => Array.from(row ?? [], toCell));
     const hiddenRows: number[] = [];
     const outlineLevels: (number | undefined)[] = [];
     (ws?.["!rows"] ?? []).forEach((r, i) => {

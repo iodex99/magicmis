@@ -226,12 +226,18 @@ export function detectHeader(sheet: SheetGrid): HeaderDetection | null {
       (t, c) => t === "" || classifyCell(cellAt(sheet, childRow, c)) === "text",
     );
     if (childFilled.length === 0 || !childText) return null;
-    // Parent must label at least one column the child also labels (a real two-level header),
-    // and must not simply repeat the child.
-    const overlaps = child.some(
-      (t, c) => t !== "" && (parent[c] ?? "") !== "" && parent[c] !== t,
-    );
-    if (!overlaps) return null;
+    // A real two-level header has a parent label spanning at least two adjacent columns that
+    // carry distinct sub-labels ("Closing Balance" over "Debit | Credit"). A lone text row
+    // under a single-column label is a body row (e.g. a party heading), not a header level.
+    let spans = false;
+    for (let c = 0; c + 1 < width; c += 1) {
+      const p = parent[c] ?? "";
+      const a = child[c] ?? "";
+      const b = child[c + 1] ?? "";
+      if (p !== "" && parent[c + 1] === p && a !== "" && b !== "" && a !== b)
+        spans = true;
+    }
+    if (!spans) return null;
     return parent.map((p, c) =>
       [p, child[c] ?? ""]
         .filter(Boolean)

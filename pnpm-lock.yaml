@@ -308,6 +308,28 @@ importers:
         specifier: ^8.15.6
         version: 8.23.1
 
+  fixtures/generator:
+    dependencies:
+      '@magicmis/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      xlsx:
+        specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+        version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+    devDependencies:
+      '@duckdb/duckdb-wasm':
+        specifier: 1.32.0
+        version: 1.32.0
+      '@magicmis/ingest':
+        specifier: workspace:*
+        version: link:../../packages/ingest
+      '@magicmis/tally':
+        specifier: workspace:*
+        version: link:../../packages/tally
+      tsx:
+        specifier: 4.23.13
+        version: 4.23.13
+
   packages/accounts:
     dependencies:
       '@magicmis/core':
@@ -421,6 +443,19 @@ importers:
       '@duckdb/duckdb-wasm':
         specifier: 1.32.0
         version: 1.32.0
+      fast-check:
+        specifier: ^4.5.0
+        version: 4.9.0
+
+  packages/tally:
+    dependencies:
+      '@magicmis/core':
+        specifier: workspace:*
+        version: link:../core
+      '@magicmis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
+    devDependencies:
       fast-check:
         specifier: ^4.5.0
         version: 4.9.0

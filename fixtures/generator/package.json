@@ -1,0 +1,27 @@
+{
+  "name": "@magicmis/fixtures",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "tsx bin/generate.ts",
+    "lint": "eslint src test bin",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@magicmis/core": "workspace:*",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@duckdb/duckdb-wasm": "1.32.0",
+    "@magicmis/ingest": "workspace:*",
+    "@magicmis/tally": "workspace:*",
+    "tsx": "4.23.13"
+  }
+}
