@@ -176,11 +176,12 @@ describe("redactor", () => {
   });
 
   it("refuses to let a payload with a raw identifier through", () => {
-    expect(() => { assertNoRawIdentifiers(JSON.stringify({ note: "AAACN1234K" })); }).toThrow(
-      /PAN/u,
-    );
-    expect(() => { assertNoRawIdentifiers(JSON.stringify({ note: "PAN_1a2b3c4d5e6f" })); },
-    ).not.toThrow();
+    expect(() => {
+      assertNoRawIdentifiers(JSON.stringify({ note: "AAACN1234K" }));
+    }).toThrow(/PAN/u);
+    expect(() => {
+      assertNoRawIdentifiers(JSON.stringify({ note: "PAN_1a2b3c4d5e6f" }));
+    }).not.toThrow();
   });
 });
 
