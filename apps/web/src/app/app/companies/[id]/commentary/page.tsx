@@ -11,7 +11,11 @@ import { CommentaryClient } from "./CommentaryClient";
 export const metadata = { title: "Commentary" };
 export const dynamic = "force-dynamic";
 
-export default async function CommentaryPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CommentaryPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const account = await accountOrRedirect(`/app/companies/${id}/commentary`);
   if (!z.uuid().safeParse(id).success) notFound();
@@ -37,7 +41,9 @@ export default async function CommentaryPage({ params }: { params: Promise<{ id:
   return (
     <AppFrame businessName={account.businessName}>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">{company.name} — Commentary</h1>
+        <h1 className="text-xl font-semibold text-neutral-900">
+          {company.name} — Commentary
+        </h1>
         <Link href={`/app/companies/${id}`} className="text-accent-700 underline">
           Back to company
         </Link>

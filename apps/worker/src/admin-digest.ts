@@ -16,7 +16,8 @@ const rupees = (paise: bigint): string => {
   return `${neg ? "-" : ""}₹${s.slice(0, -2)}.${s.slice(-2)}`;
 };
 
-const escape = (s: string) => s.replace(/&/gu, "&amp;").replace(/</gu, "&lt;").replace(/>/gu, "&gt;");
+const escape = (s: string) =>
+  s.replace(/&/gu, "&amp;").replace(/</gu, "&lt;").replace(/>/gu, "&gt;");
 
 export async function sendAdminMarginDigest(
   pool: Pool,

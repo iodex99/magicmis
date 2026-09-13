@@ -61,5 +61,10 @@ export {
   type ChatEditInput,
   type ChatQuickInput,
 } from "./chat-stages";
-export { chatDeepStep, type ChatDeepInput, type DeepStep, type StepOutcome } from "./chat-deep";
+export {
+  chatDeepStep,
+  type ChatDeepInput,
+  type DeepStep,
+  type StepOutcome,
+} from "./chat-deep";
 export { chatAiContext } from "./chat-context";

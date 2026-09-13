@@ -27,7 +27,9 @@ export default defineConfig({
     // in development (the local Supabase stack runs without Storage). A fixed, test-only key.
     env: {
       KEY_WRAPPER: "local",
-      LOCAL_MASTER_KEY: Buffer.from("0123456789abcdef0123456789abcdef").toString("base64"),
+      LOCAL_MASTER_KEY: Buffer.from("0123456789abcdef0123456789abcdef").toString(
+        "base64",
+      ),
       OUTPUT_STORE: "local",
       // Chat E2E drives a deterministic fake model; refused outside development (lib/server/ai.ts).
       AI_TRANSPORT: "fake",

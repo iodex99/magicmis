@@ -11,7 +11,11 @@ import {
 } from "../src/reference";
 import { templateSectionSchema } from "../src/spec";
 
-const row = (ref: string, label: string, extra: Partial<ReferenceLayout["sheets"][number]["rows"][number]> = {}) => ({
+const row = (
+  ref: string,
+  label: string,
+  extra: Partial<ReferenceLayout["sheets"][number]["rows"][number]> = {},
+) => ({
   ref,
   label,
   bold: false,
@@ -36,7 +40,12 @@ const layout: ReferenceLayout = {
         row("s1r3", "Revenue", { hasValues: false, bold: true }),
         row("s1r4", "1. Net Sales"),
         row("s1r5", "Rent"),
-        row("s1r6", "Total", { sumOf: [{ row: "s1r4", sign: 1 }, { row: "s1r5", sign: 1 }] }),
+        row("s1r6", "Total", {
+          sumOf: [
+            { row: "s1r4", sign: 1 },
+            { row: "s1r5", sign: 1 },
+          ],
+        }),
         row("s1r7", "", { hasValues: true }),
       ],
     },
@@ -56,23 +65,41 @@ describe("label binding", () => {
 describe("bindings", () => {
   it("binds rules, holds a subtotal until its terms are money, and rejects bad AI subtotals", () => {
     const rules = bindReferenceLayout(layout);
-    expect(rules.map((b) => b.kind)).toEqual(["heading", "metric", "unbound", "unbound", "blank"]);
-    expect(referenceLayoutAiInput(layout, rules).sheets[0]?.rows.map((r) => r.bound)).toEqual([
+    expect(rules.map((b) => b.kind)).toEqual([
       "heading",
-      "metric:revenue",
-      null,
-      null,
+      "metric",
+      "unbound",
+      "unbound",
+      "blank",
     ]);
+    expect(
+      referenceLayoutAiInput(layout, rules).sheets[0]?.rows.map((r) => r.bound),
+    ).toEqual(["heading", "metric:revenue", null, null]);
     // A subtotal proposed over a heading row is not money: it stays unbound.
     const bad = applyAiBindings(layout, rules, [
-      { ref: "s1r6", kind: "subtotal", metric: null, terms: [{ row: "s1r3", sign: 1 }], confidence: "high" },
+      {
+        ref: "s1r6",
+        kind: "subtotal",
+        metric: null,
+        terms: [{ row: "s1r3", sign: 1 }],
+        confidence: "high",
+      },
     ]);
     expect(bad.find((b) => b.ref === "s1r6")?.kind).toBe("unbound");
     // Once Rent is bound to money, the formula subtotal resolves by rule.
     const good = applyAiBindings(layout, rules, [
-      { ref: "s1r5", kind: "metric", metric: "other_opex", terms: null, confidence: "medium" },
+      {
+        ref: "s1r5",
+        kind: "metric",
+        metric: "other_opex",
+        terms: null,
+        confidence: "medium",
+      },
     ]);
-    expect(good.find((b) => b.ref === "s1r6")).toMatchObject({ kind: "subtotal", source: "rule" });
+    expect(good.find((b) => b.ref === "s1r6")).toMatchObject({
+      kind: "subtotal",
+      source: "rule",
+    });
 
     const template = buildRecreatedTemplate(layout, bad, { name: "Client MIS" });
     const section = template.sections[0];

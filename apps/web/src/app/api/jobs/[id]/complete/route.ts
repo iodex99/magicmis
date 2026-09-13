@@ -107,53 +107,58 @@ export async function POST(
     }
 
     try {
-      return await idempotent(request, `job-complete:${account.accountId}:${id}`, { id }, async () => {
-        const job = await pool.query<{ company_id: string | null }>(
-          `select company_id from jobs where id = $1 and account_id = $2`,
-          [id, account.accountId],
-        );
-        const companyId = job.rows[0]?.company_id ?? null;
-        const result = await completeJob(pool, keyWrapper(), {
-          accountId: account.accountId,
-          jobId: id,
-          snapshot: body.snapshot,
-          blueprint:
-            body.blueprint === null
-              ? null
-              : {
-                  templateSpec: body.blueprint.templateSpec,
-                  recipe: body.blueprint.recipe,
-                  mappingRules: body.blueprint.mappingRules,
-                  dashboardSpec: null,
-                  materiality: {
-                    pct: body.blueprint.templateSpec.materiality.pct,
-                    absPaise: body.blueprint.templateSpec.materiality.absPaise,
+      return await idempotent(
+        request,
+        `job-complete:${account.accountId}:${id}`,
+        { id },
+        async () => {
+          const job = await pool.query<{ company_id: string | null }>(
+            `select company_id from jobs where id = $1 and account_id = $2`,
+            [id, account.accountId],
+          );
+          const companyId = job.rows[0]?.company_id ?? null;
+          const result = await completeJob(pool, keyWrapper(), {
+            accountId: account.accountId,
+            jobId: id,
+            snapshot: body.snapshot,
+            blueprint:
+              body.blueprint === null
+                ? null
+                : {
+                    templateSpec: body.blueprint.templateSpec,
+                    recipe: body.blueprint.recipe,
+                    mappingRules: body.blueprint.mappingRules,
+                    dashboardSpec: null,
+                    materiality: {
+                      pct: body.blueprint.templateSpec.materiality.pct,
+                      absPaise: body.blueprint.templateSpec.materiality.absPaise,
+                    },
+                    sourceFingerprints: body.blueprint.sourceFingerprints,
                   },
-                  sourceFingerprints: body.blueprint.sourceFingerprints,
-                },
-          output: { fileName: body.output.fileName, bytes },
-          outputStore: await outputStore(),
-        });
-        await saveAccountRules(pool, keyWrapper(), {
-          accountId: account.accountId,
-          companyId,
-          rules: body.accountRules,
-        });
-        // SPEC §18: eligible generic names count toward global library candidates (digests only).
-        await recordLibraryVotes(pool, keyWrapper(), {
-          accountId: account.accountId,
-          rules: body.accountRules,
-        });
-        return {
-          status: 200,
-          body: {
-            capturedCredits: result.captured.toString(),
-            snapshotVersion: result.snapshotVersion,
-            blueprintVersion: result.blueprintVersion,
-            outputId: result.outputId,
-          },
-        };
-      });
+            output: { fileName: body.output.fileName, bytes },
+            outputStore: await outputStore(),
+          });
+          await saveAccountRules(pool, keyWrapper(), {
+            accountId: account.accountId,
+            companyId,
+            rules: body.accountRules,
+          });
+          // SPEC §18: eligible generic names count toward global library candidates (digests only).
+          await recordLibraryVotes(pool, keyWrapper(), {
+            accountId: account.accountId,
+            rules: body.accountRules,
+          });
+          return {
+            status: 200,
+            body: {
+              capturedCredits: result.captured.toString(),
+              snapshotVersion: result.snapshotVersion,
+              blueprintVersion: result.blueprintVersion,
+              outputId: result.outputId,
+            },
+          };
+        },
+      );
     } catch (error) {
       return jobErrorResponse(error);
     }

@@ -19,7 +19,9 @@ if (
   env.KMS_PREVIOUS_MASTER_KEY_ID === undefined ||
   env.AWS_REGION === undefined
 )
-  throw new Error("KMS_MASTER_KEY_ID, KMS_PREVIOUS_MASTER_KEY_ID and AWS_REGION are required");
+  throw new Error(
+    "KMS_MASTER_KEY_ID, KMS_PREVIOUS_MASTER_KEY_ID and AWS_REGION are required",
+  );
 
 const pool = new pg.Pool({
   connectionString: env.DATABASE_URL,

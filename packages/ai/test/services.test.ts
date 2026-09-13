@@ -328,11 +328,21 @@ describe("margin report", () => {
 
     const report = await marginReport(pool(), from, to, { accountId: account });
     const quick = report.actions.find((a) => a.actionKey === "chat_quick");
-    expect(quick).toMatchObject({ jobs: 2, capturedCredits: 38n, aiCostPaise: 760n, ratio: "0.2000", overCap: false });
+    expect(quick).toMatchObject({
+      jobs: 2,
+      capturedCredits: 38n,
+      aiCostPaise: 760n,
+      ratio: "0.2000",
+      overCap: false,
+    });
     expect(quick?.p50).toBe("0.1000");
     expect(quick?.p90).toBe("0.3000");
 
-    const flagged = await marginReport(pool(), from, to, { accountId: account, actionKey: "chat_quick", tier: "professional" });
+    const flagged = await marginReport(pool(), from, to, {
+      accountId: account,
+      actionKey: "chat_quick",
+      tier: "professional",
+    });
     expect(flagged.actions).toHaveLength(1);
     // Adding a second over-ratio message pushes the action over its cap.
     const m3 = await pool().query<{ id: string }>(
@@ -345,19 +355,30 @@ describe("margin report", () => {
        values ($1, $2, 'chat_quick', 'chat_quick/v1', 'claude-sonnet-5', 'claude-sonnet-5', 1500, 1000, 50000, 1900, 97.85)`,
       [account, m3.rows[0]?.id],
     );
-    const over = await marginReport(pool(), from, to, { accountId: account, actionKey: "chat_quick" });
+    const over = await marginReport(pool(), from, to, {
+      accountId: account,
+      actionKey: "chat_quick",
+    });
     expect(over.actions[0]).toMatchObject({ actionKey: "chat_quick", overCap: true });
 
     const refresh = report.actions.find((a) => a.actionKey === "monthly_refresh");
     expect(refresh).toMatchObject({ jobs: 2, capturedCredits: 598n, aiCostPaise: 1000n });
-    expect(report.estimator).toEqual({ jobs: 1, actualToEstimate: "1.5000", underestimated: 1 });
-    expect(report.failures).toEqual([{ failureClass: "data_fault", jobs: 1, rate: "0.5000" }]);
+    expect(report.estimator).toEqual({
+      jobs: 1,
+      actualToEstimate: "1.5000",
+      underestimated: 1,
+    });
+    expect(report.failures).toEqual([
+      { failureClass: "data_fault", jobs: 1, rate: "0.5000" },
+    ]);
     const captured = (38n + 598n) * 100n;
     expect(report.grossMargin.capturedValuePaise).toBe(captured);
     expect(report.grossMargin.aiCostPaise).toBe(1760n);
     // Payment fee config "2.00" percent, rounded up; infra cost 0.
     expect(report.grossMargin.paymentFeesPaise).toBe((captured * 2n + 99n) / 100n);
-    expect(report.grossMargin.marginPaise).toBe(captured - 1760n - report.grossMargin.paymentFeesPaise);
+    expect(report.grossMargin.marginPaise).toBe(
+      captured - 1760n - report.grossMargin.paymentFeesPaise,
+    );
   });
 
   it("flags stale registry entries", async () => {

@@ -496,7 +496,12 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
         cell.numFmt =
           unit === "decimal"
             ? PERCENT_FORMAT
-            : moneyFormat(BigInt(value ?? "0"), nf.style, nf.decimals, nf.negativesInBrackets);
+            : moneyFormat(
+                BigInt(value ?? "0"),
+                nf.style,
+                nf.decimals,
+                nf.negativesInBrackets,
+              );
         expectations.push({
           sheet: section.sheet,
           row,

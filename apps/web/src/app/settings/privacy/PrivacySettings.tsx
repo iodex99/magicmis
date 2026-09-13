@@ -24,9 +24,10 @@ const STATUS_LABEL: Record<ExportRow["status"], string> = {
 
 export function PrivacySettings({ email }: { email: string }) {
   const [exports, setExports] = useState<ExportRow[] | null>(null);
-  const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string } | null>(
-    null,
-  );
+  const [notice, setNotice] = useState<{
+    tone: "success" | "error";
+    text: string;
+  } | null>(null);
   const [requesting, setRequesting] = useState(false);
   const [deleteStep, setDeleteStep] = useState<"idle" | "reauth" | "confirm">("idle");
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -76,10 +77,10 @@ export function PrivacySettings({ email }: { email: string }) {
 
       <Panel title="Export your data">
         <p className="mb-3 max-w-2xl text-sm text-neutral-700">
-          A JSON file with your profile, companies, their stored memory and monthly snapshots,
-          jobs, credit ledger, invoices and consent records. Your source files are never stored
-          on our servers, so they are not included. The download link works only while you are
-          signed in, and for a limited time.
+          A JSON file with your profile, companies, their stored memory and monthly
+          snapshots, jobs, credit ledger, invoices and consent records. Your source files
+          are never stored on our servers, so they are not included. The download link
+          works only while you are signed in, and for a limited time.
         </p>
         <Button
           variant="secondary"
@@ -128,8 +129,8 @@ export function PrivacySettings({ email }: { email: string }) {
 
       <Panel title="Delete a company">
         <p className="text-sm text-neutral-700">
-          Open the company and use Delete company. Its memory fee stops at once and its data is
-          permanently destroyed after the purge period.{" "}
+          Open the company and use Delete company. Its memory fee stops at once and its
+          data is permanently destroyed after the purge period.{" "}
           <Link href="/app" className="underline">
             Go to companies
           </Link>
@@ -139,10 +140,10 @@ export function PrivacySettings({ email }: { email: string }) {
       <Panel title="Delete your account">
         <div className="flex max-w-2xl flex-col gap-3 text-sm text-neutral-700">
           <p>
-            Your account closes immediately and you are signed out. All companies and their
-            stored data are permanently destroyed after the purge period, and cannot be
-            recovered. Unused credits are forfeited. Invoices and credit records are kept for
-            the statutory retention period with personal details removed.
+            Your account closes immediately and you are signed out. All companies and
+            their stored data are permanently destroyed after the purge period, and cannot
+            be recovered. Unused credits are forfeited. Invoices and credit records are
+            kept for the statutory retention period with personal details removed.
           </p>
           <p>Export your data first if you want a copy.</p>
           {deleteStep === "idle" ? (

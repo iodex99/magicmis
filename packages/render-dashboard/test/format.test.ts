@@ -7,7 +7,9 @@ const LAKHS = { style: "lakhs_crores", decimals: 2 } as const;
 describe("formatValue", () => {
   it("formats money from paise strings with Indian grouping", () => {
     expect(formatValue("7455550000", "paise", LAKHS)).toBe("₹7,45,55,500.00");
-    expect(formatValue("-120000000", "paise", { ...LAKHS, negativesInBrackets: true })).toContain("(");
+    expect(
+      formatValue("-120000000", "paise", { ...LAKHS, negativesInBrackets: true }),
+    ).toContain("(");
   });
 
   it("rounds decimals at the display boundary only", () => {
@@ -21,7 +23,9 @@ describe("formatValue", () => {
 describe("labels", () => {
   it("names metrics and variance forms", () => {
     expect(metricLabel("revenue")).toBe("Revenue from operations");
-    expect(metricLabel("revenue.mom_pct")).toBe("Revenue from operations, % change on last month");
+    expect(metricLabel("revenue.mom_pct")).toBe(
+      "Revenue from operations, % change on last month",
+    );
     expect(periodLabel("2026-05")).toBe("May 2026");
   });
 });

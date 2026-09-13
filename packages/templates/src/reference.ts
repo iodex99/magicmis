@@ -424,7 +424,10 @@ export const unboundRefs = (bindings: readonly RowBinding[]): string[] =>
  * The `extractReferenceLayout` input for a redacted layout and its rule bindings: the catalogue as
  * the allowed metrics, and every row with what rules decided, so unbound rows are read in context.
  */
-export function referenceLayoutAiInput(layout: ReferenceLayout, bindings: readonly RowBinding[]) {
+export function referenceLayoutAiInput(
+  layout: ReferenceLayout,
+  bindings: readonly RowBinding[],
+) {
   const byRef = new Map(bindings.map((b) => [b.ref, b]));
   const bound = (b: RowBinding | undefined): string | null => {
     if (b === undefined || b.kind === "unbound") return null;

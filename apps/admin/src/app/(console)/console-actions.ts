@@ -31,15 +31,22 @@ const text = (form: FormData, name: string): string => {
 };
 
 const back = (path: string, message: string): never =>
-  redirect(`${path}${path.includes("?") ? "&" : "?"}${new URLSearchParams({ error: message }).toString()}`);
+  redirect(
+    `${path}${path.includes("?") ? "&" : "?"}${new URLSearchParams({ error: message }).toString()}`,
+  );
 
 const done = (path: string, message: string): never => {
   revalidatePath(path.split("?")[0] ?? path);
-  return redirect(`${path}${path.includes("?") ? "&" : "?"}${new URLSearchParams({ ok: message }).toString()}`);
+  return redirect(
+    `${path}${path.includes("?") ? "&" : "?"}${new URLSearchParams({ ok: message }).toString()}`,
+  );
 };
 
 const message = (error: unknown, fallback: string) =>
-  error instanceof RangeError || (error instanceof Error && error.name === "ActivationError") ? error.message : fallback;
+  error instanceof RangeError ||
+  (error instanceof Error && error.name === "ActivationError")
+    ? error.message
+    : fallback;
 
 export async function publishRouteAction(form: FormData): Promise<void> {
   const admin = await requireAdmin();
@@ -54,14 +61,22 @@ export async function publishRouteAction(form: FormData): Promise<void> {
       .map((s) => s.trim())
       .filter((s) => s !== ""),
   });
-  if (!parsed.success) return back("/models", parsed.error.issues[0]?.message ?? "Invalid route");
+  if (!parsed.success)
+    return back("/models", parsed.error.issues[0]?.message ?? "Invalid route");
   let version: number;
   try {
-    ({ version } = await publishRoute(db(), { adminId: admin.adminId, ip: admin.ip, route: parsed.data }));
+    ({ version } = await publishRoute(db(), {
+      adminId: admin.adminId,
+      ip: admin.ip,
+      route: parsed.data,
+    }));
   } catch (error) {
     return back("/models", message(error, "Could not publish the route"));
   }
-  done("/models", `Published ${parsed.data.tier}/${parsed.data.stage} version ${version.toString()}`);
+  done(
+    "/models",
+    `Published ${parsed.data.tier}/${parsed.data.stage} version ${version.toString()}`,
+  );
 }
 
 export async function publishModelAction(form: FormData): Promise<void> {
@@ -73,10 +88,15 @@ export async function publishModelAction(form: FormData): Promise<void> {
     available: text(form, "available") === "on",
     sourceUrl: text(form, "sourceUrl"),
   });
-  if (!parsed.success) return back("/models", parsed.error.issues[0]?.message ?? "Invalid model");
+  if (!parsed.success)
+    return back("/models", parsed.error.issues[0]?.message ?? "Invalid model");
   let version: number;
   try {
-    ({ version } = await publishModel(db(), { adminId: admin.adminId, ip: admin.ip, model: parsed.data }));
+    ({ version } = await publishModel(db(), {
+      adminId: admin.adminId,
+      ip: admin.ip,
+      model: parsed.data,
+    }));
   } catch (error) {
     return back("/models", message(error, "Could not update the model"));
   }
@@ -88,7 +108,12 @@ export async function publishConfigAction(form: FormData): Promise<void> {
   const key = text(form, "key");
   let version: number;
   try {
-    ({ version } = await publishConfig(db(), { adminId: admin.adminId, ip: admin.ip, key, valueJson: text(form, "value") }));
+    ({ version } = await publishConfig(db(), {
+      adminId: admin.adminId,
+      ip: admin.ip,
+      key,
+      valueJson: text(form, "value"),
+    }));
   } catch (error) {
     return back("/config", message(error, "Could not publish the value"));
   }
@@ -101,11 +126,19 @@ export async function decideCandidateAction(form: FormData): Promise<void> {
   const decision = z.enum(["approved", "rejected"]).safeParse(text(form, "decision"));
   if (!id.success || !decision.success) return back("/library", "Invalid request");
   try {
-    await decideCandidate(db(), { adminId: admin.adminId, ip: admin.ip, candidateId: id.data, decision: decision.data });
+    await decideCandidate(db(), {
+      adminId: admin.adminId,
+      ip: admin.ip,
+      candidateId: id.data,
+      decision: decision.data,
+    });
   } catch (error) {
     return back("/library", message(error, "Could not record the decision"));
   }
-  done("/library", decision.data === "approved" ? "Added to the library" : "Candidate rejected");
+  done(
+    "/library",
+    decision.data === "approved" ? "Added to the library" : "Candidate rejected",
+  );
 }
 
 export async function removeLibraryEntryAction(form: FormData): Promise<void> {
@@ -113,7 +146,11 @@ export async function removeLibraryEntryAction(form: FormData): Promise<void> {
   const id = z.uuid().safeParse(text(form, "entryId"));
   if (!id.success) return back("/library", "Invalid request");
   try {
-    await removeLibraryEntry(db(), { adminId: admin.adminId, ip: admin.ip, entryId: id.data });
+    await removeLibraryEntry(db(), {
+      adminId: admin.adminId,
+      ip: admin.ip,
+      entryId: id.data,
+    });
   } catch (error) {
     return back("/library", message(error, "Could not remove the entry"));
   }
@@ -123,15 +160,30 @@ export async function removeLibraryEntryAction(form: FormData): Promise<void> {
 export async function activatePromptAction(form: FormData): Promise<void> {
   const admin = await requireAdmin();
   const stage = z.enum(STAGES).safeParse(text(form, "stage"));
-  const tier = z.enum(["efficient", "professional", "expert", "expert_plus"]).safeParse(text(form, "tier"));
-  const version = z.coerce.number().int().positive().safeParse(text(form, "promptVersion"));
-  if (!stage.success || !tier.success || !version.success) return back("/prompts", "Invalid request");
+  const tier = z
+    .enum(["efficient", "professional", "expert", "expert_plus"])
+    .safeParse(text(form, "tier"));
+  const version = z.coerce
+    .number()
+    .int()
+    .positive()
+    .safeParse(text(form, "promptVersion"));
+  if (!stage.success || !tier.success || !version.success)
+    return back("/prompts", "Invalid request");
   try {
-    await activatePrompt(db(), { adminId: admin.adminId, stage: stage.data, tier: tier.data, promptVersion: version.data });
+    await activatePrompt(db(), {
+      adminId: admin.adminId,
+      stage: stage.data,
+      tier: tier.data,
+      promptVersion: version.data,
+    });
   } catch (error) {
     return back("/prompts", message(error, "Activation refused"));
   }
-  done("/prompts", `Activated ${stage.data} v${version.data.toString()} for ${tier.data}`);
+  done(
+    "/prompts",
+    `Activated ${stage.data} v${version.data.toString()} for ${tier.data}`,
+  );
 }
 
 export async function grantBreakGlassAction(form: FormData): Promise<void> {
@@ -159,7 +211,11 @@ export async function revokeBreakGlassAction(form: FormData): Promise<void> {
   const grantId = z.uuid().safeParse(text(form, "grantId"));
   if (!grantId.success) return back(`/accounts/${accountId}`, "Invalid request");
   try {
-    await revokeBreakGlass(db(), { adminId: admin.adminId, ip: admin.ip, grantId: grantId.data });
+    await revokeBreakGlass(db(), {
+      adminId: admin.adminId,
+      ip: admin.ip,
+      grantId: grantId.data,
+    });
   } catch (error) {
     return back(`/accounts/${accountId}`, message(error, "Could not revoke"));
   }

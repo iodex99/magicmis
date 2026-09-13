@@ -130,7 +130,9 @@ export function ChatClient({
   money: NumberFormatOptions;
   prefill: { type: MessageType; text: string } | null;
 }) {
-  const [threads, setThreads] = useState<{ id: string; status: string; createdAt: string }[]>([]);
+  const [threads, setThreads] = useState<
+    { id: string; status: string; createdAt: string }[]
+  >([]);
   const [thread, setThread] = useState<ThreadView | null>(null);
   const [type, setType] = useState<MessageType>(prefill?.type ?? "quick");
   const [tier, setTier] = useState<Tier>("professional");
@@ -139,16 +141,26 @@ export function ChatClient({
   const [price, setPrice] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [session, setSession] = useState<{ loaded: boolean; balances: number } | null>(null);
+  const [session, setSession] = useState<{ loaded: boolean; balances: number } | null>(
+    null,
+  );
   const [caps, setCaps] = useState<ChatCaps | null>(null);
   const [names, setNames] = useState<Record<string, string | null>>({});
-  const [lineage, setLineage] = useState<{ kind: "metric"; key: string; values: MetricValue[] } | { kind: "query"; query: AnswerQuery } | null>(null);
-  const [applied, setApplied] = useState<Record<string, { target: string; blueprintVersion: number; undone: boolean }>>({});
+  const [lineage, setLineage] = useState<
+    | { kind: "metric"; key: string; values: MetricValue[] }
+    | { kind: "query"; query: AnswerQuery }
+    | null
+  >(null);
+  const [applied, setApplied] = useState<
+    Record<string, { target: string; blueprintVersion: number; undone: boolean }>
+  >({});
 
   const format = useMemo(() => companyFormat(money), [money]);
 
   const loadThreads = useCallback(async () => {
-    const r = await api<{ threads: { id: string; status: string; createdAt: string }[] }>(`/api/companies/${companyId}/chat`);
+    const r = await api<{ threads: { id: string; status: string; createdAt: string }[] }>(
+      `/api/companies/${companyId}/chat`,
+    );
     if (r.ok) setThreads(r.data.threads);
   }, [companyId]);
 
@@ -201,9 +213,12 @@ export function ChatClient({
     try {
       const [s, config] = await Promise.all([
         api<JobSession>(`/api/companies/${companyId}/session`),
-        api<{ limits: Parameters<ReturnType<typeof pipelineClient>["start"]>[1] }>("/api/ingest/config"),
+        api<{ limits: Parameters<ReturnType<typeof pipelineClient>["start"]>[1] }>(
+          "/api/ingest/config",
+        ),
       ]);
-      if (!s.ok || !config.ok) throw new Error(s.ok ? "Could not load limits." : s.message);
+      if (!s.ok || !config.ok)
+        throw new Error(s.ok ? "Could not load limits." : s.message);
       const pipeline = pipelineClient();
       await pipeline.start(s.data, config.data.limits);
       const added = await pipeline.addFiles([...list]);
@@ -222,17 +237,20 @@ export function ChatClient({
     setError(null);
     setBusy("Sending…");
     try {
-      const r = await api<{ messageId: string; threadId: string; progress: Progress }>("/api/chat/messages", {
-        body: {
-          companyId,
-          threadId: thread?.status === "open" ? thread.threadId : null,
-          type,
-          tier,
-          text,
-          ...(type === "edit" ? { editTarget } : {}),
+      const r = await api<{ messageId: string; threadId: string; progress: Progress }>(
+        "/api/chat/messages",
+        {
+          body: {
+            companyId,
+            threadId: thread?.status === "open" ? thread.threadId : null,
+            type,
+            tier,
+            text,
+            ...(type === "edit" ? { editTarget } : {}),
+          },
+          idempotencyKey: newIdempotencyKey(),
         },
-        idempotencyKey: newIdempotencyKey(),
-      });
+      );
       if (!r.ok) {
         setError(r.message);
         return;
@@ -241,7 +259,8 @@ export function ChatClient({
       let rounds = 0;
       while (progress.status === "needs_query") {
         rounds += 1;
-        if (caps === null || session?.loaded !== true) throw new Error("Load this company's files to answer Deep questions.");
+        if (caps === null || session?.loaded !== true)
+          throw new Error("Load this company's files to answer Deep questions.");
         setBusy(`Running query ${rounds.toString()} in your browser…`);
         const outcome = await pipelineClient().chatQuery(progress.sql, caps);
         const step: Awaited<ReturnType<typeof api<Progress>>> = await api<Progress>(
@@ -251,7 +270,8 @@ export function ChatClient({
         if (!step.ok) throw new Error(step.message);
         progress = step.data;
       }
-      if (progress.status === "failed") setError("This message could not be answered. No credits were charged.");
+      if (progress.status === "failed")
+        setError("This message could not be answered. No credits were charged.");
       setText("");
       await openThread(r.data.threadId);
       await loadThreads();
@@ -264,10 +284,13 @@ export function ChatClient({
 
   const apply = async (m: MessageView) => {
     if (thread === null) return;
-    const r = await api<{ target: string; blueprintVersion: number }>(`/api/chat/messages/${m.id}/apply`, {
-      body: { threadId: thread.threadId },
-      idempotencyKey: newIdempotencyKey(),
-    });
+    const r = await api<{ target: string; blueprintVersion: number }>(
+      `/api/chat/messages/${m.id}/apply`,
+      {
+        body: { threadId: thread.threadId },
+        idempotencyKey: newIdempotencyKey(),
+      },
+    );
     if (r.ok) setApplied((a) => ({ ...a, [m.id]: { ...r.data, undone: false } }));
     else setError(r.message);
   };
@@ -276,14 +299,20 @@ export function ChatClient({
     const done = applied[m.id];
     if (done === undefined) return;
     const r = await api(
-      done.target === "dashboard" ? `/api/companies/${companyId}/dashboard` : `/api/companies/${companyId}/template`,
-      { body: { action: "undo", baseVersion: done.blueprintVersion }, idempotencyKey: newIdempotencyKey() },
+      done.target === "dashboard"
+        ? `/api/companies/${companyId}/dashboard`
+        : `/api/companies/${companyId}/template`,
+      {
+        body: { action: "undo", baseVersion: done.blueprintVersion },
+        idempotencyKey: newIdempotencyKey(),
+      },
     );
     if (r.ok) setApplied((a) => ({ ...a, [m.id]: { ...done, undone: true } }));
     else setError(r.message);
   };
 
-  const deepDisabled = (type === "deep" || type === "investigate") && session?.loaded !== true;
+  const deepDisabled =
+    (type === "deep" || type === "investigate") && session?.loaded !== true;
 
   return (
     <div className="flex gap-4">
@@ -305,7 +334,9 @@ export function ChatClient({
                 className={`text-left underline ${thread?.threadId === t.id ? "font-semibold" : ""}`}
                 onClick={() => void openThread(t.id)}
               >
-                {new Date(t.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
+                {new Date(t.createdAt).toLocaleString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                })}
                 {t.status === "capped" ? " (continued)" : ""}
               </button>
             ))}
@@ -317,12 +348,19 @@ export function ChatClient({
         <Panel title={thread === null ? "New conversation" : "Conversation"}>
           <div className="flex flex-col gap-3 text-sm" data-testid="chat-messages">
             {thread === null || thread.messages.length === 0 ? (
-              <p className="text-neutral-700">Ask about this company's MIS: figures, movements, ratios and what the ledgers show.</p>
+              <p className="text-neutral-700">
+                Ask about this company's MIS: figures, movements, ratios and what the
+                ledgers show.
+              </p>
             ) : (
               thread.messages.map((m) => {
                 if (m.role === "user")
                   return (
-                    <div key={m.id} className="rounded-md bg-neutral-50 p-3" data-testid="chat-user">
+                    <div
+                      key={m.id}
+                      className="rounded-md bg-neutral-50 p-3"
+                      data-testid="chat-user"
+                    >
                       <p>{m.text}</p>
                       <p className="mt-1 text-xs text-neutral-600">
                         {m.type} ·{" "}
@@ -338,11 +376,18 @@ export function ChatClient({
                 if (reply?.kind === "edit") {
                   const done = applied[m.id];
                   return (
-                    <div key={m.id} className="rounded-md border border-neutral-200 p-3" data-testid="chat-edit">
+                    <div
+                      key={m.id}
+                      className="rounded-md border border-neutral-200 p-3"
+                      data-testid="chat-edit"
+                    >
                       <p>{reply.summary}</p>
                       {reply.scope === "in_scope" ? (
                         <>
-                          <pre className="mt-2 overflow-x-auto rounded bg-neutral-50 p-2 text-xs" data-testid="chat-edit-preview">
+                          <pre
+                            className="mt-2 overflow-x-auto rounded bg-neutral-50 p-2 text-xs"
+                            data-testid="chat-edit-preview"
+                          >
                             {JSON.stringify(reply.operations, null, 2)}
                           </pre>
                           <div className="mt-2 flex gap-2">
@@ -352,7 +397,9 @@ export function ChatClient({
                               <span className="text-neutral-700">Undone.</span>
                             ) : (
                               <>
-                                <span className="text-neutral-700">Applied to the {done.target}.</span>
+                                <span className="text-neutral-700">
+                                  Applied to the {done.target}.
+                                </span>
                                 <Button variant="secondary" onClick={() => void undo(m)}>
                                   Undo
                                 </Button>
@@ -367,14 +414,26 @@ export function ChatClient({
                 const rendered =
                   reply?.output === undefined
                     ? null
-                    : renderAnswer(reply.output.paragraphs, m.values, m.queries, thread.allowlist, {
-                        ...format,
-                        name: (token) => names[token] ?? null,
-                      });
+                    : renderAnswer(
+                        reply.output.paragraphs,
+                        m.values,
+                        m.queries,
+                        thread.allowlist,
+                        {
+                          ...format,
+                          name: (token) => names[token] ?? null,
+                        },
+                      );
                 return (
-                  <div key={m.id} className="rounded-md border border-neutral-200 p-3" data-testid="chat-answer">
+                  <div
+                    key={m.id}
+                    className="rounded-md border border-neutral-200 p-3"
+                    data-testid="chat-answer"
+                  >
                     {rendered === null ? null : !rendered.ok ? (
-                      <Alert tone="error">This answer did not pass the figure check, so it is not shown.</Alert>
+                      <Alert tone="error">
+                        This answer did not pass the figure check, so it is not shown.
+                      </Alert>
                     ) : (
                       rendered.paragraphs.map((p, i) => (
                         <p key={i} className="mb-2 leading-6">
@@ -385,7 +444,8 @@ export function ChatClient({
                             }}
                             onQuery={(ref) => {
                               const q = m.queries.find((x) => x.ref === ref);
-                              if (q !== undefined) setLineage({ kind: "query", query: q });
+                              if (q !== undefined)
+                                setLineage({ kind: "query", query: q });
                             }}
                           />
                         </p>
@@ -453,19 +513,25 @@ export function ChatClient({
             {type === "deep" || type === "investigate" ? (
               <div className="rounded-md bg-neutral-50 p-3">
                 {session?.loaded === true ? (
-                  <p data-testid="chat-session">Files loaded in this browser ({session.balances} ledger lines). Queries run here; only redacted results are sent.</p>
+                  <p data-testid="chat-session">
+                    Files loaded in this browser ({session.balances} ledger lines).
+                    Queries run here; only redacted results are sent.
+                  </p>
                 ) : (
                   <ProcessingNotice>
-                  <label className="flex flex-col gap-1">
-                    <span>Deep answers query this company's files, which must be loaded in this browser. They are not uploaded.</span>
-                    <input
-                      type="file"
-                      multiple
-                      accept=".xlsx,.xlsm,.xls,.csv"
-                      aria-label="Load files for Deep answers"
-                      onChange={(e) => void loadFiles(e.target.files)}
-                    />
-                  </label>
+                    <label className="flex flex-col gap-1">
+                      <span>
+                        Deep answers query this company's files, which must be loaded in
+                        this browser. They are not uploaded.
+                      </span>
+                      <input
+                        type="file"
+                        multiple
+                        accept=".xlsx,.xlsm,.xls,.csv"
+                        aria-label="Load files for Deep answers"
+                        onChange={(e) => void loadFiles(e.target.files)}
+                      />
+                    </label>
                   </ProcessingNotice>
                 )}
               </div>
@@ -480,13 +546,22 @@ export function ChatClient({
               }}
             />
             <p className="text-xs text-neutral-600">
-              Every message is charged at its type's price, including questions outside this MIS, which are declined in one sentence.
+              Every message is charged at its type's price, including questions outside
+              this MIS, which are declined in one sentence.
             </p>
             <div className="flex items-center gap-3">
-              <Button onClick={() => void send()} disabled={busy !== null || deepDisabled || text.trim() === ""} data-testid="chat-send">
+              <Button
+                onClick={() => void send()}
+                disabled={busy !== null || deepDisabled || text.trim() === ""}
+                data-testid="chat-send"
+              >
                 {price === null ? "Send" : `Send — ${formatCredits(price)} credits`}
               </Button>
-              {busy === null ? null : <span className="text-neutral-700" role="status">{busy}</span>}
+              {busy === null ? null : (
+                <span className="text-neutral-700" role="status">
+                  {busy}
+                </span>
+              )}
             </div>
             {error === null ? null : <Alert tone="error">{error}</Alert>}
           </div>
@@ -500,7 +575,9 @@ export function ChatClient({
               selected={lineage.key}
               values={lineage.values}
               label={format.label}
-              display={(v) => (v.value === null ? "—" : formatValue(v.value, v.unit, money))}
+              display={(v) =>
+                v.value === null ? "—" : formatValue(v.value, v.unit, money)
+              }
               onSelect={(key) => {
                 setLineage({ ...lineage, key });
               }}
@@ -509,9 +586,14 @@ export function ChatClient({
               }}
             />
           ) : (
-            <aside className="rounded-lg border border-neutral-200 bg-white p-4 text-sm" data-testid="query-lineage">
+            <aside
+              className="rounded-lg border border-neutral-200 bg-white p-4 text-sm"
+              data-testid="query-lineage"
+            >
               <div className="mb-3 flex items-start justify-between gap-2">
-                <h2 className="font-semibold text-neutral-900">From query {lineage.query.ref}</h2>
+                <h2 className="font-semibold text-neutral-900">
+                  From query {lineage.query.ref}
+                </h2>
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -522,8 +604,12 @@ export function ChatClient({
                 </Button>
               </div>
               <p className="mb-2 text-neutral-700">{lineage.query.purpose}</p>
-              <p className="text-neutral-600">Tables: {lineage.query.tables.join(", ")}</p>
-              <pre className="my-2 overflow-x-auto rounded bg-neutral-50 p-2 text-xs">{lineage.query.sql}</pre>
+              <p className="text-neutral-600">
+                Tables: {lineage.query.tables.join(", ")}
+              </p>
+              <pre className="my-2 overflow-x-auto rounded bg-neutral-50 p-2 text-xs">
+                {lineage.query.sql}
+              </pre>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>

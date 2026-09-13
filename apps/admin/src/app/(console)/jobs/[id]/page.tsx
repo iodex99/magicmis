@@ -28,8 +28,16 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
     ["Quote", job.quote_id ?? "—"],
     ["Captured", job.captured_credits ?? "—"],
     ["Estimated AI cost (µ$)", job.estimated_ai_cost_micro_usd ?? "—"],
-    ["Actual AI cost (µ$ / paise)", `${job.actual_ai_cost_micro_usd} / ${job.actual_ai_cost_paise}`],
-    ["Failure", job.failure_class === null ? "—" : `${job.failure_class} · ${job.failure_code ?? ""}`],
+    [
+      "Actual AI cost (µ$ / paise)",
+      `${job.actual_ai_cost_micro_usd} / ${job.actual_ai_cost_paise}`,
+    ],
+    [
+      "Failure",
+      job.failure_class === null
+        ? "—"
+        : `${job.failure_class} · ${job.failure_code ?? ""}`,
+    ],
     ["Checkpoints", job.checkpointKeys.join(", ")],
   ];
   return (
@@ -44,7 +52,9 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
             </div>
           ))}
         </dl>
-        {job.failure_detail === null ? null : <p className="mt-3 text-sm text-neutral-700">{job.failure_detail}</p>}
+        {job.failure_detail === null ? null : (
+          <p className="mt-3 text-sm text-neutral-700">{job.failure_detail}</p>
+        )}
       </Panel>
       <Panel title="State timeline">
         <ol className="flex flex-col gap-1 text-sm" data-testid="job-timeline">
@@ -61,19 +71,34 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
           <table className="w-full">
             <thead>
               <tr>
-                {["At", "Stage", "Prompt", "Requested", "Used", "Fallback", "In", "Out", "Cache read", "Cache write", "µ$", "Paise", "Batch", "Status"].map(
-                  (h) => (
-                    <th key={h} className={th}>
-                      {h}
-                    </th>
-                  ),
-                )}
+                {[
+                  "At",
+                  "Stage",
+                  "Prompt",
+                  "Requested",
+                  "Used",
+                  "Fallback",
+                  "In",
+                  "Out",
+                  "Cache read",
+                  "Cache write",
+                  "µ$",
+                  "Paise",
+                  "Batch",
+                  "Status",
+                ].map((h) => (
+                  <th key={h} className={th}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {calls.map((c, i) => (
                 <tr key={i} className="border-t border-neutral-100">
-                  <td className={`${td} text-xs`}>{c.created_at.toISOString().slice(11, 19)}</td>
+                  <td className={`${td} text-xs`}>
+                    {c.created_at.toISOString().slice(11, 19)}
+                  </td>
                   <td className={td}>{c.stage}</td>
                   <td className={`${td} text-xs`}>{c.prompt_version}</td>
                   <td className={`${td} font-mono text-xs`}>{c.model_requested}</td>

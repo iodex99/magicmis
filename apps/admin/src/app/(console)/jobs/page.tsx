@@ -18,7 +18,11 @@ export default async function JobsPage({
 }) {
   await requireAdmin();
   const p = await searchParams;
-  const account = z.uuid().optional().catch(undefined).parse(p.account || undefined);
+  const account = z
+    .uuid()
+    .optional()
+    .catch(undefined)
+    .parse(p.account || undefined);
   const jobs = await listJobs(db(), {
     ...(p.state ? { state: p.state } : {}),
     ...(p.type ? { type: p.type } : {}),
@@ -38,7 +42,11 @@ export default async function JobsPage({
         </label>
         <label className="flex flex-col">
           Account ID
-          <input name="account" defaultValue={account ?? ""} className={`${input} w-80 font-mono`} />
+          <input
+            name="account"
+            defaultValue={account ?? ""}
+            className={`${input} w-80 font-mono`}
+          />
         </label>
         <button type="submit" className="h-8 rounded-md bg-neutral-900 px-3 text-white">
           Filter
@@ -49,7 +57,16 @@ export default async function JobsPage({
           <table className="w-full">
             <thead>
               <tr>
-                {["Created", "Type", "Tier", "State", "Price", "Captured", "AI cost (paise)", "Failure"].map((h) => (
+                {[
+                  "Created",
+                  "Type",
+                  "Tier",
+                  "State",
+                  "Price",
+                  "Captured",
+                  "AI cost (paise)",
+                  "Failure",
+                ].map((h) => (
                   <th key={h} className={th}>
                     {h}
                   </th>

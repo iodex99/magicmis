@@ -43,10 +43,14 @@ export async function POST(
     if (!z.uuid().safeParse(id).success)
       return apiError(404, "job_not_found", "Job not found.");
     const pool = db();
-    const job = await pool.query<{ company_id: string | null; state: string; type: string }>(
-      `select company_id, state, type from jobs where id = $1 and account_id = $2`,
-      [id, account.accountId],
-    );
+    const job = await pool.query<{
+      company_id: string | null;
+      state: string;
+      type: string;
+    }>(`select company_id, state, type from jobs where id = $1 and account_id = $2`, [
+      id,
+      account.accountId,
+    ]);
     const row = job.rows[0];
     if (row === undefined || row.company_id === null)
       return apiError(404, "job_not_found", "Job not found.");
@@ -64,7 +68,8 @@ export async function POST(
     const cached = (await loadStageOutput(pool, keyWrapper(), scope)) as {
       bindings: RowBinding[];
     } | null;
-    if (cached !== null) return ok({ bindings: cached.bindings, reused: true, aiRows: 0 });
+    if (cached !== null)
+      return ok({ bindings: cached.bindings, reused: true, aiRows: 0 });
 
     const parsed = await parseJson(request, z.object({ layout: referenceLayoutSchema }));
     if (!parsed.ok) return parsed.response;

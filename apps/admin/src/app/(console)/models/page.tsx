@@ -15,11 +15,22 @@ export const metadata = { title: "Models and routing" };
 export const dynamic = "force-dynamic";
 
 /** SPEC §26: model registry (with source and verification age) and tier routing editor. */
-export default async function ModelsPage({ searchParams }: { searchParams: FlashParams }) {
+export default async function ModelsPage({
+  searchParams,
+}: {
+  searchParams: FlashParams;
+}) {
   await requireAdmin();
   const pool = db();
-  const staleDays = await readConfig(pool, "ai.registry_stale_days", z.number().int().positive());
-  const [registry, routing] = await Promise.all([modelRegistryView(pool, staleDays), listRouting(pool)]);
+  const staleDays = await readConfig(
+    pool,
+    "ai.registry_stale_days",
+    z.number().int().positive(),
+  );
+  const [registry, routing] = await Promise.all([
+    modelRegistryView(pool, staleDays),
+    listRouting(pool),
+  ]);
   const stale = registry.filter((m) => m.stale);
   return (
     <div className="flex flex-col gap-6">
@@ -36,7 +47,16 @@ export default async function ModelsPage({ searchParams }: { searchParams: Flash
           <table className="w-full">
             <thead>
               <tr>
-                {["Model", "Input µ$/MTok", "Output µ$/MTok", "Available", "Version", "Verified", "Source", ""].map((h) => (
+                {[
+                  "Model",
+                  "Input µ$/MTok",
+                  "Output µ$/MTok",
+                  "Available",
+                  "Version",
+                  "Verified",
+                  "Source",
+                  "",
+                ].map((h) => (
                   <th key={h} className={th}>
                     {h}
                   </th>
@@ -48,19 +68,41 @@ export default async function ModelsPage({ searchParams }: { searchParams: Flash
                 <tr key={m.modelId} className="border-t border-neutral-100 align-top">
                   <td className={`${td} font-mono`}>{m.modelId}</td>
                   <td colSpan={7} className={td}>
-                    <form action={publishModelAction} className="flex flex-wrap items-center gap-2">
+                    <form
+                      action={publishModelAction}
+                      className="flex flex-wrap items-center gap-2"
+                    >
                       <input type="hidden" name="modelId" value={m.modelId} />
-                      <input name="input" defaultValue={m.inputPricePerMTokMicroUsd.toString()} className={`${input} w-28`} />
-                      <input name="output" defaultValue={m.outputPricePerMTokMicroUsd.toString()} className={`${input} w-28`} />
+                      <input
+                        name="input"
+                        defaultValue={m.inputPricePerMTokMicroUsd.toString()}
+                        className={`${input} w-28`}
+                      />
+                      <input
+                        name="output"
+                        defaultValue={m.outputPricePerMTokMicroUsd.toString()}
+                        className={`${input} w-28`}
+                      />
                       <label className="flex items-center gap-1 text-xs">
-                        <input type="checkbox" name="available" defaultChecked={m.available} /> available
+                        <input
+                          type="checkbox"
+                          name="available"
+                          defaultChecked={m.available}
+                        />{" "}
+                        available
                       </label>
                       <span className={num}>v{m.version}</span>
                       <span className="text-xs">
                         {m.verifiedAt.toISOString().slice(0, 10)}
-                        {m.stale ? <strong className="ml-1 text-red-700">stale</strong> : null}
+                        {m.stale ? (
+                          <strong className="ml-1 text-red-700">stale</strong>
+                        ) : null}
                       </span>
-                      <input name="sourceUrl" defaultValue={m.sourceUrl} className={`${input} w-72`} />
+                      <input
+                        name="sourceUrl"
+                        defaultValue={m.sourceUrl}
+                        className={`${input} w-72`}
+                      />
                       <Button type="submit" variant="secondary">
                         Re-verify
                       </Button>
@@ -74,7 +116,10 @@ export default async function ModelsPage({ searchParams }: { searchParams: Flash
       </Panel>
 
       <Panel title="Tier routing">
-        <form action={publishRouteAction} className="mb-4 flex flex-wrap items-end gap-2 text-sm">
+        <form
+          action={publishRouteAction}
+          className="mb-4 flex flex-wrap items-end gap-2 text-sm"
+        >
           <label className="flex flex-col">
             Tier
             <select name="tier" className={input}>
@@ -122,7 +167,16 @@ export default async function ModelsPage({ searchParams }: { searchParams: Flash
           <table className="w-full">
             <thead>
               <tr>
-                {["Tier", "Stage", "Model", "Effort", "max_tokens", "Fallbacks", "Prompt", "Version"].map((h) => (
+                {[
+                  "Tier",
+                  "Stage",
+                  "Model",
+                  "Effort",
+                  "max_tokens",
+                  "Fallbacks",
+                  "Prompt",
+                  "Version",
+                ].map((h) => (
                   <th key={h} className={th}>
                     {h}
                   </th>
@@ -137,8 +191,16 @@ export default async function ModelsPage({ searchParams }: { searchParams: Flash
                   <td className={`${td} font-mono`}>{r.model_id}</td>
                   <td className={td}>{r.effort ?? "—"}</td>
                   <td className={num}>{r.max_tokens}</td>
-                  <td className={`${td} font-mono text-xs`}>{r.fallback_chain.join(", ") || "—"}</td>
-                  <td className={td}>{r.prompt_version === null ? <span className="text-red-700">not activated</span> : `v${r.prompt_version.toString()}`}</td>
+                  <td className={`${td} font-mono text-xs`}>
+                    {r.fallback_chain.join(", ") || "—"}
+                  </td>
+                  <td className={td}>
+                    {r.prompt_version === null ? (
+                      <span className="text-red-700">not activated</span>
+                    ) : (
+                      `v${r.prompt_version.toString()}`
+                    )}
+                  </td>
                   <td className={num}>{r.version}</td>
                 </tr>
               ))}

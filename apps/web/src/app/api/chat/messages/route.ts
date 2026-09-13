@@ -32,32 +32,39 @@ export async function POST(request: Request): Promise<Response> {
     if (!parsed.ok) return parsed.response;
     const key = request.headers.get("idempotency-key") ?? "";
     try {
-      return await idempotent(request, `chat:${account.accountId}`, parsed.raw, async () => {
-        const pool = db();
-        const sent = await sendMessage(pool, keyWrapper(), {
-          accountId: account.accountId,
-          companyId: parsed.data.companyId,
-          threadId: parsed.data.threadId,
-          type: parsed.data.type,
-          tier: parsed.data.tier,
-          text: parsed.data.text,
-          ...(parsed.data.editTarget === undefined ? {} : { editTarget: parsed.data.editTarget }),
-          idempotencyKey: key,
-        });
-        const progress = await processMessage(pool, keyWrapper(), aiTransport(), {
-          accountId: account.accountId,
-          messageId: sent.messageId,
-        });
-        return {
-          status: 200,
-          body: {
+      return await idempotent(
+        request,
+        `chat:${account.accountId}`,
+        parsed.raw,
+        async () => {
+          const pool = db();
+          const sent = await sendMessage(pool, keyWrapper(), {
+            accountId: account.accountId,
+            companyId: parsed.data.companyId,
+            threadId: parsed.data.threadId,
+            type: parsed.data.type,
+            tier: parsed.data.tier,
+            text: parsed.data.text,
+            ...(parsed.data.editTarget === undefined
+              ? {}
+              : { editTarget: parsed.data.editTarget }),
+            idempotencyKey: key,
+          });
+          const progress = await processMessage(pool, keyWrapper(), aiTransport(), {
+            accountId: account.accountId,
             messageId: sent.messageId,
-            threadId: sent.threadId,
-            priceCredits: sent.priceCredits.toString(),
-            progress: progressBody(progress),
-          },
-        };
-      });
+          });
+          return {
+            status: 200,
+            body: {
+              messageId: sent.messageId,
+              threadId: sent.threadId,
+              priceCredits: sent.priceCredits.toString(),
+              progress: progressBody(progress),
+            },
+          };
+        },
+      );
     } catch (error) {
       return jobErrorResponse(error);
     }

@@ -276,10 +276,9 @@ describe("Deep", () => {
       type: "any",
       disable_parallel_tool_use: true,
     });
-    expect(t.created[0]?.tools?.map((tool) => ("name" in tool ? tool.name : ""))).toEqual([
-      "run_query",
-      "answer",
-    ]);
+    expect(t.created[0]?.tools?.map((tool) => ("name" in tool ? tool.name : ""))).toEqual(
+      ["run_query", "answer"],
+    );
 
     t.push(
       {
@@ -637,15 +636,30 @@ describe("sweep", () => {
     const c = await company();
     const sent = await send(c, "deep", "Which ledgers moved?");
     const t = new ScriptedTransport([
-      { kind: "message", message: toolMessage("run_query", { sql: "SELECT ledger FROM balances", purpose: "ledgers" }) },
+      {
+        kind: "message",
+        message: toolMessage("run_query", {
+          sql: "SELECT ledger FROM balances",
+          purpose: "ledgers",
+        }),
+      },
     ]);
-    const p = await processMessage(pool(), wrapper, t, { accountId: c.accountId, messageId: sent.messageId });
+    const p = await processMessage(pool(), wrapper, t, {
+      accountId: c.accountId,
+      messageId: sent.messageId,
+    });
     expect(p.status).toBe("needs_query");
     expect(await sweepChatMessages(pool(), new Date())).toBe(0);
     const later = new Date(Date.now() + 3 * 3600 * 1000);
     expect(await sweepChatMessages(pool(), later)).toBeGreaterThanOrEqual(1);
-    const row = await pool().query(`select state, failure_reason from chat_messages where id = $1`, [sent.messageId]);
-    expect(row.rows[0]).toEqual({ state: "failed_platform", failure_reason: "abandoned" });
+    const row = await pool().query(
+      `select state, failure_reason from chat_messages where id = $1`,
+      [sent.messageId],
+    );
+    expect(row.rows[0]).toEqual({
+      state: "failed_platform",
+      failure_reason: "abandoned",
+    });
     expect(await wallet(pool(), c.accountId)).toEqual({ balance: 5_000n, held: 0n });
   });
 });

@@ -28,22 +28,32 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     if (!parsed.ok) return parsed.response;
     const period = parsePeriodId(parsed.data.period);
     if (period === null)
-      return apiError(422, "validation_failed", "Choose a month.", { period: "Invalid month" });
+      return apiError(422, "validation_failed", "Choose a month.", {
+        period: "Invalid month",
+      });
     const pool = db();
     const base = { accountId: account.accountId, jobId: id };
     try {
-      return await idempotent(request, `job-commentary:${account.accountId}:${id}`, parsed.raw, async () => {
-        const { delivery } = await queueCommentary(pool, keyWrapper(), { ...base, period });
-        if (delivery === "standard")
-          return { status: 202, body: { state: "commentary_queued" } };
-        const state = await runInstantCommentary(
-          pool,
-          keyWrapper(),
-          anthropicTransport(serverEnv().ANTHROPIC_API_KEY),
-          base,
-        );
-        return { status: 200, body: { state } };
-      });
+      return await idempotent(
+        request,
+        `job-commentary:${account.accountId}:${id}`,
+        parsed.raw,
+        async () => {
+          const { delivery } = await queueCommentary(pool, keyWrapper(), {
+            ...base,
+            period,
+          });
+          if (delivery === "standard")
+            return { status: 202, body: { state: "commentary_queued" } };
+          const state = await runInstantCommentary(
+            pool,
+            keyWrapper(),
+            anthropicTransport(serverEnv().ANTHROPIC_API_KEY),
+            base,
+          );
+          return { status: 200, body: { state } };
+        },
+      );
     } catch (error) {
       return jobErrorResponse(error);
     }

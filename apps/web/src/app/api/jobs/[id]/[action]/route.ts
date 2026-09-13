@@ -50,15 +50,25 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     try {
       switch (action) {
         case "confirm":
-          return await idempotent(request, `job-confirm:${account.accountId}:${id}`, { id }, async () => ({
-            status: 200,
-            body: await confirmJob(pool, base),
-          }));
+          return await idempotent(
+            request,
+            `job-confirm:${account.accountId}:${id}`,
+            { id },
+            async () => ({
+              status: 200,
+              body: await confirmJob(pool, base),
+            }),
+          );
         case "accept-quote":
-          return await idempotent(request, `job-quote:${account.accountId}:${id}`, { id }, async () => ({
-            status: 200,
-            body: await acceptJobQuote(pool, base),
-          }));
+          return await idempotent(
+            request,
+            `job-quote:${account.accountId}:${id}`,
+            { id },
+            async () => ({
+              status: 200,
+              body: await acceptJobQuote(pool, base),
+            }),
+          );
         case "advance": {
           const parsed = await parseJson(request, advanceSchema);
           if (!parsed.ok) return parsed.response;
@@ -66,23 +76,33 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
           return ok({ state: parsed.data.to });
         }
         case "deliver-dashboard":
-          return await idempotent(request, `job-dashboard:${account.accountId}:${id}`, { id }, async () => {
-            const r = await completeDashboardAddon(pool, keyWrapper(), base);
-            return {
-              status: 200,
-              body: {
-                capturedCredits: r.captured.toString(),
-                blueprintVersion: r.blueprintVersion,
-              },
-            };
-          });
+          return await idempotent(
+            request,
+            `job-dashboard:${account.accountId}:${id}`,
+            { id },
+            async () => {
+              const r = await completeDashboardAddon(pool, keyWrapper(), base);
+              return {
+                status: 200,
+                body: {
+                  capturedCredits: r.captured.toString(),
+                  blueprintVersion: r.blueprintVersion,
+                },
+              };
+            },
+          );
         case "heartbeat":
           return ok({ held: await heartbeatJob(pool, base) });
         case "cancel":
-          return await idempotent(request, `job-cancel:${account.accountId}:${id}`, { id }, async () => {
-            const r = await cancelJob(pool, base);
-            return { status: 200, body: { capturedCredits: r.captured.toString() } };
-          });
+          return await idempotent(
+            request,
+            `job-cancel:${account.accountId}:${id}`,
+            { id },
+            async () => {
+              const r = await cancelJob(pool, base);
+              return { status: 200, body: { capturedCredits: r.captured.toString() } };
+            },
+          );
         case "fail": {
           const parsed = await parseJson(request, failSchema);
           if (!parsed.ok) return parsed.response;

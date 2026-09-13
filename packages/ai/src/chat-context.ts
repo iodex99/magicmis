@@ -36,7 +36,12 @@ export async function chatAiContext(
   );
   const row = r.rows[0];
   const action = ACTION[row?.message_type ?? ""];
-  if (row === undefined || action === undefined || row.tier === null || row.price_credits === null)
+  if (
+    row === undefined ||
+    action === undefined ||
+    row.tier === null ||
+    row.price_credits === null
+  )
     throw new Error(`chat message ${chatMessageId} is not a priced user message`);
   const entry = await priceBookEntry(pool, action);
   return {

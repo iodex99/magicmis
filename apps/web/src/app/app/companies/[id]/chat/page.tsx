@@ -24,14 +24,21 @@ export default async function ChatPage({
   const { investigate, period } = await searchParams;
   const account = await accountOrRedirect(`/app/companies/${id}/chat`);
   if (!z.uuid().safeParse(id).success) notFound();
-  const r = await db().query<{ name: string; number_format: NumberFormatOptions["style"]; decimals: number }>(
+  const r = await db().query<{
+    name: string;
+    number_format: NumberFormatOptions["style"];
+    decimals: number;
+  }>(
     `select name, number_format, decimals from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
   const company = r.rows[0];
   if (company === undefined) notFound();
   // An Investigate button opens a Deep question about that metric's movement, priced as chat_deep.
-  const metric = investigate !== undefined && /^[a-z_]{1,60}(\.[a-z_]{1,20})?$/u.test(investigate) ? investigate : null;
+  const metric =
+    investigate !== undefined && /^[a-z_]{1,60}(\.[a-z_]{1,20})?$/u.test(investigate)
+      ? investigate
+      : null;
   const month = period !== undefined && /^\d{4}-\d{2}$/u.test(period) ? period : null;
   const prefill =
     metric === null
@@ -50,7 +57,11 @@ export default async function ChatPage({
       </div>
       <ChatClient
         companyId={id}
-        money={{ style: company.number_format, decimals: company.decimals, negativesInBrackets: true }}
+        money={{
+          style: company.number_format,
+          decimals: company.decimals,
+          negativesInBrackets: true,
+        }}
         prefill={prefill}
       />
     </AppFrame>

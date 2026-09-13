@@ -145,16 +145,46 @@ describe("extractReferenceLayout check", () => {
         name: "P&L",
         columns: ["Current Month"],
         rows: [
-          { ref: "s1r4", label: "Sales", bold: false, indent: 0, formula: null, bound: "metric:revenue" },
-          { ref: "s1r5", label: "Rent", bold: false, indent: 0, formula: null, bound: null },
-          { ref: "s1r6", label: "Total", bold: true, indent: 0, formula: "s1r4+s1r5", bound: null },
+          {
+            ref: "s1r4",
+            label: "Sales",
+            bold: false,
+            indent: 0,
+            formula: null,
+            bound: "metric:revenue",
+          },
+          {
+            ref: "s1r5",
+            label: "Rent",
+            bold: false,
+            indent: 0,
+            formula: null,
+            bound: null,
+          },
+          {
+            ref: "s1r6",
+            label: "Total",
+            bold: true,
+            indent: 0,
+            formula: "s1r4+s1r5",
+            bound: null,
+          },
         ],
       },
       {
         ref: "s2",
         name: "Other",
         columns: [],
-        rows: [{ ref: "s2r4", label: "Order book", bold: false, indent: 0, formula: null, bound: null }],
+        rows: [
+          {
+            ref: "s2r4",
+            label: "Order book",
+            bold: false,
+            indent: 0,
+            formula: null,
+            bound: null,
+          },
+        ],
       },
     ],
   };
@@ -163,9 +193,30 @@ describe("extractReferenceLayout check", () => {
     expect(
       extractReferenceLayoutSpec.check?.(input, {
         rows: [
-          { ref: "s1r5", kind: "unavailable", metric: null, terms: null, confidence: "high" },
-          { ref: "s1r6", kind: "subtotal", metric: null, terms: [{ row: "s1r4", sign: 1 }, { row: "s1r5", sign: 1 }], confidence: "medium" },
-          { ref: "s2r4", kind: "unavailable", metric: null, terms: null, confidence: "high" },
+          {
+            ref: "s1r5",
+            kind: "unavailable",
+            metric: null,
+            terms: null,
+            confidence: "high",
+          },
+          {
+            ref: "s1r6",
+            kind: "subtotal",
+            metric: null,
+            terms: [
+              { row: "s1r4", sign: 1 },
+              { row: "s1r5", sign: 1 },
+            ],
+            confidence: "medium",
+          },
+          {
+            ref: "s2r4",
+            kind: "unavailable",
+            metric: null,
+            terms: null,
+            confidence: "high",
+          },
         ],
       }),
     ).toEqual([]);
@@ -174,9 +225,24 @@ describe("extractReferenceLayout check", () => {
   it("lists every problem for the repair turn", () => {
     const problems = extractReferenceLayoutSpec.check?.(input, {
       rows: [
-        { ref: "s1r4", kind: "metric", metric: "revenue", terms: null, confidence: "high" },
+        {
+          ref: "s1r4",
+          kind: "metric",
+          metric: "revenue",
+          terms: null,
+          confidence: "high",
+        },
         { ref: "s1r5", kind: "metric", metric: "rent", terms: null, confidence: "low" },
-        { ref: "s1r6", kind: "subtotal", metric: null, terms: [{ row: "s1r6", sign: 1 }, { row: "s2r4", sign: 1 }], confidence: "low" },
+        {
+          ref: "s1r6",
+          kind: "subtotal",
+          metric: null,
+          terms: [
+            { row: "s1r6", sign: 1 },
+            { row: "s2r4", sign: 1 },
+          ],
+          confidence: "low",
+        },
       ],
     });
     expect(problems).toEqual([

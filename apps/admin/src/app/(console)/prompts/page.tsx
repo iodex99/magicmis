@@ -13,7 +13,11 @@ export const dynamic = "force-dynamic";
  * SPEC §14, §26: eval results per stage, tier and prompt version, and the activation gate. A version
  * activates only with a live eval at or above the configured threshold; replays never count.
  */
-export default async function PromptsPage({ searchParams }: { searchParams: FlashParams }) {
+export default async function PromptsPage({
+  searchParams,
+}: {
+  searchParams: FlashParams;
+}) {
   await requireAdmin();
   const pool = db();
   const [runs, routing] = await Promise.all([evalRuns(pool), listRouting(pool)]);
@@ -37,7 +41,13 @@ export default async function PromptsPage({ searchParams }: { searchParams: Flas
               <tr key={`${r.tier}:${r.stage}`} className="border-t border-neutral-100">
                 <td className={td}>{r.tier}</td>
                 <td className={td}>{r.stage}</td>
-                <td className={td}>{r.prompt_version === null ? <span className="text-red-700">none</span> : `v${r.prompt_version.toString()}`}</td>
+                <td className={td}>
+                  {r.prompt_version === null ? (
+                    <span className="text-red-700">none</span>
+                  ) : (
+                    `v${r.prompt_version.toString()}`
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -47,7 +57,17 @@ export default async function PromptsPage({ searchParams }: { searchParams: Flas
         <table className="w-full">
           <thead>
             <tr>
-              {["When", "Stage", "Tier", "Prompt", "Mode", "Items", "Accuracy", "Cost µ$", ""].map((h) => (
+              {[
+                "When",
+                "Stage",
+                "Tier",
+                "Prompt",
+                "Mode",
+                "Items",
+                "Accuracy",
+                "Cost µ$",
+                "",
+              ].map((h) => (
                 <th key={h} className={th}>
                   {h}
                 </th>
@@ -57,7 +77,9 @@ export default async function PromptsPage({ searchParams }: { searchParams: Flas
           <tbody>
             {runs.map((r) => (
               <tr key={r.id} className="border-t border-neutral-100">
-                <td className={`${td} text-xs`}>{r.created_at.toISOString().slice(0, 16).replace("T", " ")}</td>
+                <td className={`${td} text-xs`}>
+                  {r.created_at.toISOString().slice(0, 16).replace("T", " ")}
+                </td>
                 <td className={td}>{r.stage}</td>
                 <td className={td}>{r.tier}</td>
                 <td className={td}>v{r.prompt_version}</td>
@@ -72,7 +94,11 @@ export default async function PromptsPage({ searchParams }: { searchParams: Flas
                     <form action={activatePromptAction}>
                       <input type="hidden" name="stage" value={r.stage} />
                       <input type="hidden" name="tier" value={r.tier} />
-                      <input type="hidden" name="promptVersion" value={r.prompt_version} />
+                      <input
+                        type="hidden"
+                        name="promptVersion"
+                        value={r.prompt_version}
+                      />
                       <Button type="submit" variant="secondary">
                         Activate
                       </Button>

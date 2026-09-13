@@ -19,33 +19,51 @@ export async function POST(
 ): Promise<Response> {
   return withAccount(async (account) => {
     const { id } = await context.params;
-    if (!z.uuid().safeParse(id).success) return apiError(404, "not_found", "Message not found.");
+    if (!z.uuid().safeParse(id).success)
+      return apiError(404, "not_found", "Message not found.");
     const json = await readJsonBody(request);
     if (!json.ok) return json.response;
     const raw = json.raw;
     const body = bodySchema.safeParse(raw);
-    if (!body.success) return apiError(422, "validation_failed", "A conversation is required.");
+    if (!body.success)
+      return apiError(422, "validation_failed", "A conversation is required.");
     try {
-      return await idempotent(request, `chat-apply:${account.accountId}:${id}`, raw, async () => {
-        const pool = db();
-        const view = await threadView(pool, keyWrapper(), {
-          accountId: account.accountId,
-          threadId: body.data.threadId,
-        });
-        const reply = view?.messages.find((m) => m.id === id)?.reply;
-        if (view === null || reply?.kind !== "edit" || reply.scope !== "in_scope")
-          return { status: 404, body: { error: "not_found", message: "There is no change to apply." } };
-        const scope = { accountId: account.accountId, companyId: view.companyId };
-        const input = { ...scope, baseVersion: reply.baseVersion, operations: reply.operations };
-        const result =
-          reply.target === "dashboard"
-            ? await applyDashboardPatch(pool, keyWrapper(), input)
-            : await applyTemplatePatch(pool, keyWrapper(), input);
-        return {
-          status: 200,
-          body: { target: reply.target, blueprintVersion: result.blueprintVersion, canUndo: result.canUndo },
-        };
-      });
+      return await idempotent(
+        request,
+        `chat-apply:${account.accountId}:${id}`,
+        raw,
+        async () => {
+          const pool = db();
+          const view = await threadView(pool, keyWrapper(), {
+            accountId: account.accountId,
+            threadId: body.data.threadId,
+          });
+          const reply = view?.messages.find((m) => m.id === id)?.reply;
+          if (view === null || reply?.kind !== "edit" || reply.scope !== "in_scope")
+            return {
+              status: 404,
+              body: { error: "not_found", message: "There is no change to apply." },
+            };
+          const scope = { accountId: account.accountId, companyId: view.companyId };
+          const input = {
+            ...scope,
+            baseVersion: reply.baseVersion,
+            operations: reply.operations,
+          };
+          const result =
+            reply.target === "dashboard"
+              ? await applyDashboardPatch(pool, keyWrapper(), input)
+              : await applyTemplatePatch(pool, keyWrapper(), input);
+          return {
+            status: 200,
+            body: {
+              target: reply.target,
+              blueprintVersion: result.blueprintVersion,
+              canUndo: result.canUndo,
+            },
+          };
+        },
+      );
     } catch (error) {
       return jobErrorResponse(error);
     }

@@ -4,7 +4,12 @@ import { describe, expect, it } from "vitest";
 
 import { metricsIn, periodsIn, retrieveFacts } from "../src/retriever";
 
-const v = (metricId: string, period: string, value: string, unit: MetricValue["unit"] = "paise"): MetricValue => ({
+const v = (
+  metricId: string,
+  period: string,
+  value: string,
+  unit: MetricValue["unit"] = "paise",
+): MetricValue => ({
   metricId,
   period: period as PeriodId,
   dims: {},
@@ -31,7 +36,10 @@ const available = new Set(store.map((s) => s.period));
 
 describe("retriever", () => {
   it("finds metrics by their MIS vocabulary, longest phrase first", () => {
-    expect(metricsIn("How did sales and gross margin % move?")).toEqual(["gross_margin_pct", "revenue"]);
+    expect(metricsIn("How did sales and gross margin % move?")).toEqual([
+      "gross_margin_pct",
+      "revenue",
+    ]);
     expect(metricsIn("What are sundry debtors now?")).toEqual(["receivables"]);
     expect(metricsIn("hello")).toEqual([]);
   });
@@ -47,7 +55,9 @@ describe("retriever", () => {
   });
 
   it("returns facts with the facts-pack placeholder IDs and caps them", () => {
-    const r = retrieveFacts("Why did sales change this month, and year to date?", store, { maxFacts: 20 });
+    const r = retrieveFacts("Why did sales change this month, and year to date?", store, {
+      maxFacts: 20,
+    });
     expect(r.facts.map((f) => f.id)).toEqual([
       "m:revenue@2026-05",
       "mv:revenue.mom@2026-05:abs",

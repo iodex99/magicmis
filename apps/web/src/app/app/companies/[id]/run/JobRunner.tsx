@@ -363,112 +363,114 @@ export function JobRunner({
 
       {phase.kind === "files" || phase.kind === "pricing" ? (
         <ProcessingNotice>
-        <Panel
-          title={mode === "setup" ? "Upload trial balances" : "Upload this month's files"}
-        >
-          <p className="mb-3 text-sm text-neutral-700">
-            Files are read in your browser and never uploaded.{" "}
-            {mode === "setup"
-              ? "Include every month you want in the MIS."
-              : "Include the new month."}
-          </p>
-          <input
-            type="file"
-            multiple
-            accept=".xlsx,.xlsm,.xls,.csv"
-            aria-label="Choose files"
-            disabled={!ready || busy}
-            onChange={(e) => void onFiles(e.target.files)}
-          />
-          {files.length === 0 ? null : (
-            <table className="mt-4 w-full text-sm" data-testid="job-files">
-              <thead>
-                <tr className="text-left text-xs text-neutral-600">
-                  <th className="py-1">File</th>
-                  <th className="py-1 text-right">Size</th>
-                  <th className="py-1 text-right">Sheets</th>
-                  <th className="py-1 text-right">Rows</th>
-                </tr>
-              </thead>
-              <tbody>
-                {files.map((f) => (
-                  <tr key={f.name} className="border-t border-neutral-100">
-                    <td className="py-1">{f.name}</td>
-                    <td className="py-1 text-right tabular-nums">
-                      {Math.ceil(f.size / 1024).toLocaleString("en-IN")} KB
-                    </td>
-                    <td className="py-1 text-right tabular-nums">{f.sheets}</td>
-                    <td className="py-1 text-right tabular-nums">{f.rows}</td>
+          <Panel
+            title={
+              mode === "setup" ? "Upload trial balances" : "Upload this month's files"
+            }
+          >
+            <p className="mb-3 text-sm text-neutral-700">
+              Files are read in your browser and never uploaded.{" "}
+              {mode === "setup"
+                ? "Include every month you want in the MIS."
+                : "Include the new month."}
+            </p>
+            <input
+              type="file"
+              multiple
+              accept=".xlsx,.xlsm,.xls,.csv"
+              aria-label="Choose files"
+              disabled={!ready || busy}
+              onChange={(e) => void onFiles(e.target.files)}
+            />
+            {files.length === 0 ? null : (
+              <table className="mt-4 w-full text-sm" data-testid="job-files">
+                <thead>
+                  <tr className="text-left text-xs text-neutral-600">
+                    <th className="py-1">File</th>
+                    <th className="py-1 text-right">Size</th>
+                    <th className="py-1 text-right">Sheets</th>
+                    <th className="py-1 text-right">Rows</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {mode === "setup" ? (
-            <div className="mt-4 text-sm">
-              <label className="flex flex-col gap-1">
-                <span>
-                  Your current MIS workbook (optional) — we recreate its layout. Only its
-                  layout is read; figures come from your trial balances.
-                </span>
-                <input
-                  type="file"
-                  accept=".xlsx,.xlsm"
-                  aria-label="Choose reference MIS"
-                  disabled={!ready || busy}
-                  onChange={(e) => void onReference(e.target.files)}
-                />
+                </thead>
+                <tbody>
+                  {files.map((f) => (
+                    <tr key={f.name} className="border-t border-neutral-100">
+                      <td className="py-1">{f.name}</td>
+                      <td className="py-1 text-right tabular-nums">
+                        {Math.ceil(f.size / 1024).toLocaleString("en-IN")} KB
+                      </td>
+                      <td className="py-1 text-right tabular-nums">{f.sheets}</td>
+                      <td className="py-1 text-right tabular-nums">{f.rows}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {mode === "setup" ? (
+              <div className="mt-4 text-sm">
+                <label className="flex flex-col gap-1">
+                  <span>
+                    Your current MIS workbook (optional) — we recreate its layout. Only
+                    its layout is read; figures come from your trial balances.
+                  </span>
+                  <input
+                    type="file"
+                    accept=".xlsx,.xlsm"
+                    aria-label="Choose reference MIS"
+                    disabled={!ready || busy}
+                    onChange={(e) => void onReference(e.target.files)}
+                  />
+                </label>
+                {reference === null ? null : (
+                  <p className="mt-1 text-neutral-700" data-testid="job-reference">
+                    {reference.name} ·{" "}
+                    {Math.ceil(reference.size / 1024).toLocaleString("en-IN")} KB ·{" "}
+                    {reference.sheets} sheets
+                  </p>
+                )}
+              </div>
+            ) : null}
+            <div className="mt-4 flex flex-wrap items-end gap-4 text-sm">
+              <label className="flex flex-col">
+                Intelligence tier
+                <select
+                  className="rounded border px-2 py-1"
+                  value={tier}
+                  onChange={(e) => {
+                    setTier(e.target.value as Tier);
+                  }}
+                >
+                  {Object.entries(TIER_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
               </label>
-              {reference === null ? null : (
-                <p className="mt-1 text-neutral-700" data-testid="job-reference">
-                  {reference.name} ·{" "}
-                  {Math.ceil(reference.size / 1024).toLocaleString("en-IN")} KB ·{" "}
-                  {reference.sheets} sheets
-                </p>
-              )}
+              <label className="flex flex-col">
+                Delivery
+                <select
+                  className="rounded border px-2 py-1"
+                  value={delivery}
+                  onChange={(e) => {
+                    setDelivery(e.target.value as Delivery);
+                  }}
+                >
+                  {Object.entries(DELIVERY_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Button
+                disabled={!ready || files.length === 0 || busy}
+                onClick={() => void getPrice()}
+              >
+                {phase.kind === "pricing" ? "Pricing…" : "Get price"}
+              </Button>
             </div>
-          ) : null}
-          <div className="mt-4 flex flex-wrap items-end gap-4 text-sm">
-            <label className="flex flex-col">
-              Intelligence tier
-              <select
-                className="rounded border px-2 py-1"
-                value={tier}
-                onChange={(e) => {
-                  setTier(e.target.value as Tier);
-                }}
-              >
-                {Object.entries(TIER_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col">
-              Delivery
-              <select
-                className="rounded border px-2 py-1"
-                value={delivery}
-                onChange={(e) => {
-                  setDelivery(e.target.value as Delivery);
-                }}
-              >
-                {Object.entries(DELIVERY_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Button
-              disabled={!ready || files.length === 0 || busy}
-              onClick={() => void getPrice()}
-            >
-              {phase.kind === "pricing" ? "Pricing…" : "Get price"}
-            </Button>
-          </div>
-        </Panel>
+          </Panel>
         </ProcessingNotice>
       ) : null}
 

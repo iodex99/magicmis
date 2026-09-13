@@ -22,7 +22,10 @@ for (const f of [
 
 // The SQL guard's parser (libpg-query 17.7.4, used by @magicmis/sql-guard), for Deep chat.
 const chatRequire = require;
-const pgWasm = path.join(path.dirname(chatRequire.resolve("libpg-query")), "libpg-query.wasm");
+const pgWasm = path.join(
+  path.dirname(chatRequire.resolve("libpg-query")),
+  "libpg-query.wasm",
+);
 const pgOut = path.join(here, "..", "public", "vendor", "pg");
 await mkdir(pgOut, { recursive: true });
 await copyFile(pgWasm, path.join(pgOut, "libpg-query.wasm"));

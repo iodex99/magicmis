@@ -1,4 +1,8 @@
-import { applyDashboardPatch, previewDashboardPatch, undoDashboard } from "@magicmis/jobs";
+import {
+  applyDashboardPatch,
+  previewDashboardPatch,
+  undoDashboard,
+} from "@magicmis/jobs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
@@ -59,16 +63,21 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     try {
       if (body.action === "preview")
         return ok(await previewDashboardPatch(pool, keyWrapper(), { ...scope, ...body }));
-      return await idempotent(request, `dashboard:${account.accountId}:${id}`, parsed.raw, async () => ({
-        status: 200,
-        body:
-          body.action === "apply"
-            ? await applyDashboardPatch(pool, keyWrapper(), { ...scope, ...body })
-            : await undoDashboard(pool, keyWrapper(), {
-                ...scope,
-                baseVersion: body.baseVersion,
-              }),
-      }));
+      return await idempotent(
+        request,
+        `dashboard:${account.accountId}:${id}`,
+        parsed.raw,
+        async () => ({
+          status: 200,
+          body:
+            body.action === "apply"
+              ? await applyDashboardPatch(pool, keyWrapper(), { ...scope, ...body })
+              : await undoDashboard(pool, keyWrapper(), {
+                  ...scope,
+                  baseVersion: body.baseVersion,
+                }),
+        }),
+      );
     } catch (error) {
       return jobErrorResponse(error);
     }

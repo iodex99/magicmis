@@ -23,13 +23,26 @@ const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 const MASTER_KEY = Buffer.from("0123456789abcdef0123456789abcdef").toString("base64");
 const OUTPUT_ROOT = path.resolve(process.cwd(), ".data", "outputs");
 
-const TSX = path.resolve(process.cwd(), "..", "worker", "node_modules", ".bin", process.platform === "win32" ? "tsx.cmd" : "tsx");
+const TSX = path.resolve(
+  process.cwd(),
+  "..",
+  "worker",
+  "node_modules",
+  ".bin",
+  process.platform === "win32" ? "tsx.cmd" : "tsx",
+);
 
 /** One tick of the worker export task (support/run-exports.ts). */
 function runExportTick(): { built: number } {
   const out = execFileSync(
     TSX,
-    ["--conditions=react-server", path.join("e2e", "support", "run-exports.ts"), LOCAL_DB, MASTER_KEY, OUTPUT_ROOT],
+    [
+      "--conditions=react-server",
+      path.join("e2e", "support", "run-exports.ts"),
+      LOCAL_DB,
+      MASTER_KEY,
+      OUTPUT_ROOT,
+    ],
     { encoding: "utf8", shell: process.platform === "win32" },
   );
   return JSON.parse(out) as { built: number };
@@ -66,7 +79,10 @@ test("the owner requests a data export and downloads it once the worker has buil
 
   await page.reload();
   await expect(page.getByTestId("exports")).toContainText("Ready");
-  const href = await page.getByRole("link", { name: "Download" }).first().getAttribute("href");
+  const href = await page
+    .getByRole("link", { name: "Download" })
+    .first()
+    .getAttribute("href");
   const response = await page.request.get(href ?? "");
   expect(response.status()).toBe(200);
   expect(response.headers()["cache-control"]).toContain("no-store");
@@ -115,11 +131,18 @@ test("another account's resources are unreachable through every id-scoped endpoi
     [otherId],
   );
   const invoice = await one(`select id from invoices where account_id <> $1 limit 1`, [
-    (await db.query<{ id: string }>(`select id from accounts where lower(email) = lower($1)`, [email]))
-      .rows[0]?.id ?? "",
+    (
+      await db.query<{ id: string }>(
+        `select id from accounts where lower(email) = lower($1)`,
+        [email],
+      )
+    ).rows[0]?.id ?? "",
   ]);
 
-  const json = { "content-type": "application/json", "idempotency-key": "cross-tenant-probe" };
+  const json = {
+    "content-type": "application/json",
+    "idempotency-key": "cross-tenant-probe",
+  };
   const probes: [string, string, object | undefined][] = [
     ["GET", `/api/companies/${company}`, undefined],
     ["DELETE", `/api/companies/${company}`, { confirmName: "Hidden Traders" }],
@@ -138,7 +161,15 @@ test("another account's resources are unreachable through every id-scoped endpoi
     ["GET", `/api/chat/threads/${thread}`, undefined],
     ["POST", `/api/chat/messages/${message}/apply`, {}],
     ["GET", `/api/account/export/${dataExport}`, undefined],
-    ...(invoice === "" ? [] : [["GET", `/api/invoices/${invoice}/pdf`, undefined] as [string, string, undefined]]),
+    ...(invoice === ""
+      ? []
+      : [
+          ["GET", `/api/invoices/${invoice}/pdf`, undefined] as [
+            string,
+            string,
+            undefined,
+          ],
+        ]),
   ];
   for (const [method, url, body] of probes) {
     const response = await page.request.fetch(url, {
@@ -160,10 +191,20 @@ test("another account's resources are unreachable through every id-scoped endpoi
 });
 
 test("oversize and malformed payloads are refused before any work (SPEC §7, §30)", async () => {
-  const headers = { "content-type": "application/json", "idempotency-key": `oversize-${Date.now().toString()}` };
+  const headers = {
+    "content-type": "application/json",
+    "idempotency-key": `oversize-${Date.now().toString()}`,
+  };
   const huge = "x".repeat(6 * 1024 * 1024);
-  for (const url of ["/api/chat/messages", "/api/account/consents", "/api/account/delete"]) {
-    const response = await page.request.post(url, { headers, data: `{"text":"${huge}"}` });
+  for (const url of [
+    "/api/chat/messages",
+    "/api/account/consents",
+    "/api/account/delete",
+  ]) {
+    const response = await page.request.post(url, {
+      headers,
+      data: `{"text":"${huge}"}`,
+    });
     expect(response.status(), url).toBeGreaterThanOrEqual(400);
     expect(response.status(), url).toBeLessThan(500);
   }

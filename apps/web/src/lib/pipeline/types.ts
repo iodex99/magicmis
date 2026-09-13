@@ -77,7 +77,9 @@ export interface PipelineApi {
   pricingInputs(): Promise<PricingInputs>;
   /** After reservation: the reference layout with labels redacted, for the server. */
   referenceLayout(): Promise<ReferenceLayout | null>;
-  referenceReview(bindings: readonly RowBinding[]): Promise<readonly ReferenceReviewRow[]>;
+  referenceReview(
+    bindings: readonly RowBinding[],
+  ): Promise<readonly ReferenceReviewRow[]>;
   /** The reviewed bindings become this job's template. */
   useReferenceBindings(bindings: readonly RowBinding[]): Promise<void>;
   /** After reservation: redacted structures for sheets deterministic detection could not read. */

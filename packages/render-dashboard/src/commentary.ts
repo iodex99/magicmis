@@ -5,16 +5,30 @@
  * as the token with a hint.
  */
 
-import { checkCommentary, PLACEHOLDER, type CommentaryOutput, type FactsPack, type MetricValue } from "@magicmis/engine";
+import {
+  checkCommentary,
+  PLACEHOLDER,
+  type CommentaryOutput,
+  type FactsPack,
+  type MetricValue,
+} from "@magicmis/engine";
 
 import { metricKey } from "./views";
 
 export type Segment =
   | { readonly kind: "text"; readonly text: string }
-  | { readonly kind: "value"; readonly display: string; readonly metricKey: string | null; readonly hint: string | null };
+  | {
+      readonly kind: "value";
+      readonly display: string;
+      readonly metricKey: string | null;
+      readonly hint: string | null;
+    };
 
 export interface RenderedCommentary {
-  readonly sections: readonly { readonly heading: readonly Segment[]; readonly paragraphs: readonly (readonly Segment[])[] }[];
+  readonly sections: readonly {
+    readonly heading: readonly Segment[];
+    readonly paragraphs: readonly (readonly Segment[])[];
+  }[];
 }
 
 export interface CommentaryFormat {
@@ -24,7 +38,9 @@ export interface CommentaryFormat {
   readonly name: (token: string) => string | null;
 }
 
-export type CommentaryRenderResult = { readonly ok: true; readonly commentary: RenderedCommentary } | { readonly ok: false; readonly problems: readonly string[] };
+export type CommentaryRenderResult =
+  | { readonly ok: true; readonly commentary: RenderedCommentary }
+  | { readonly ok: false; readonly problems: readonly string[] };
 
 export function renderCommentary(
   output: CommentaryOutput,
@@ -46,18 +62,38 @@ export function renderCommentary(
       const kind = m[1] ?? "";
       const body = m[2] ?? "";
       if (kind === "p") {
-        out.push({ kind: "value", display: format.period(body), metricKey: null, hint: null });
+        out.push({
+          kind: "value",
+          display: format.period(body),
+          metricKey: null,
+          hint: null,
+        });
       } else if (kind === "d") {
         const name = format.name(body);
-        out.push({ kind: "value", display: name ?? body, metricKey: null, hint: name === null ? "name not in loaded files" : null });
+        out.push({
+          kind: "value",
+          display: name ?? body,
+          metricKey: null,
+          hint: name === null ? "name not in loaded files" : null,
+        });
       } else {
         // m:metric@period  |  mv:metric.kind@period:abs|pct  →  store key metric[.kind_abs|pct]@period
         const [idPeriod = "", form] = body.split(":");
         const [id = "", period = ""] = idPeriod.split("@");
         const key = metricKey(kind === "mv" ? `${id}_${form ?? "abs"}` : id, period);
         const v = byKey.get(key);
-        const display = v?.value == null ? "—" : v.unit === "paise" ? format.money(v.value) : format.decimal(v.value, v.unit);
-        out.push({ kind: "value", display, metricKey: key, hint: v === undefined ? "value not available" : null });
+        const display =
+          v?.value == null
+            ? "—"
+            : v.unit === "paise"
+              ? format.money(v.value)
+              : format.decimal(v.value, v.unit);
+        out.push({
+          kind: "value",
+          display,
+          metricKey: key,
+          hint: v === undefined ? "value not available" : null,
+        });
       }
     }
     if (cursor < text.length) out.push({ kind: "text", text: text.slice(cursor) });
@@ -67,7 +103,10 @@ export function renderCommentary(
   return {
     ok: true,
     commentary: {
-      sections: output.sections.map((s) => ({ heading: segments(s.heading), paragraphs: s.paragraphs.map((p) => segments(p.text)) })),
+      sections: output.sections.map((s) => ({
+        heading: segments(s.heading),
+        paragraphs: s.paragraphs.map((p) => segments(p.text)),
+      })),
     },
   };
 }

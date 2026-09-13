@@ -469,7 +469,8 @@ export const extractReferenceLayoutSpec: StageSpec<
         if (o.terms === null || o.terms.length === 0)
           problems.push(`row ${o.ref}: a subtotal needs terms`);
         for (const t of o.terms ?? []) {
-          if (t.row === o.ref) problems.push(`row ${o.ref}: a subtotal cannot include itself`);
+          if (t.row === o.ref)
+            problems.push(`row ${o.ref}: a subtotal cannot include itself`);
           else if (sheetOf.get(t.row) !== sheetOf.get(o.ref))
             problems.push(`row ${o.ref}: term ${t.row} is not a row on the same sheet`);
         }

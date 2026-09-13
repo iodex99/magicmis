@@ -26,8 +26,9 @@ export function DeleteCompany({ companyId, name }: { companyId: string; name: st
   return (
     <div className="flex max-w-2xl flex-col gap-3 text-sm text-neutral-700">
       <p>
-        The monthly memory fee stops immediately. The company&apos;s stored memory, snapshots
-        and workbooks are permanently destroyed after the purge period. This cannot be undone.
+        The monthly memory fee stops immediately. The company&apos;s stored memory,
+        snapshots and workbooks are permanently destroyed after the purge period. This
+        cannot be undone.
       </p>
       {open ? (
         <form

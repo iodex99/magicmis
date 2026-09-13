@@ -71,7 +71,10 @@ export default async function CompanyPage({
                 >
                   Commentary
                 </Link>
-                <Link href={`/app/companies/${id}/chat`} className="text-accent-700 underline">
+                <Link
+                  href={`/app/companies/${id}/chat`}
+                  className="text-accent-700 underline"
+                >
                   Chat
                 </Link>
               </>

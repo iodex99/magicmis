@@ -131,8 +131,12 @@ test("bank transfer receipt credits the account; adjustment, price version, expo
   await page.getByLabel("Base credits").fill("21");
   // SPEC §26: the margin impact on the last 30 days shows before anything is published.
   await page.getByRole("button", { name: "Preview impact" }).click();
-  await expect(page.getByText("Margin impact preview — chat_edit, last 30 days")).toBeVisible();
-  await expect(page.getByTestId("price-impact")).toContainText("Credits captured — proposed");
+  await expect(
+    page.getByText("Margin impact preview — chat_edit, last 30 days"),
+  ).toBeVisible();
+  await expect(page.getByTestId("price-impact")).toContainText(
+    "Credits captured — proposed",
+  );
   await expect(page.getByLabel("Base credits")).toHaveValue("21");
   await page.getByLabel("Effective from (IST; blank = now)").fill("2099-01-01T00:00");
   await page.getByRole("button", { name: "Publish version" }).click();

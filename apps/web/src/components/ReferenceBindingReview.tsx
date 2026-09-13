@@ -17,7 +17,11 @@ const HEADING = "heading";
 const SUBTOTAL = "subtotal";
 
 const valueOf = (b: RowBinding): string =>
-  b.kind === "metric" ? `metric:${b.metric}` : b.kind === "unbound" ? UNAVAILABLE : b.kind;
+  b.kind === "metric"
+    ? `metric:${b.metric}`
+    : b.kind === "unbound"
+      ? UNAVAILABLE
+      : b.kind;
 
 const SOURCE: Record<string, string> = {
   rule: "Matched by label",
@@ -39,19 +43,28 @@ export function ReferenceBindingReview({
 
   const bindingFor = (r: ReferenceReviewRow): RowBinding => {
     const v = choice[r.ref] ?? valueOf(r.binding);
-    if (v === valueOf(r.binding)) return r.binding.kind === "unbound" ? { ref: r.ref, kind: "unavailable", source: "user" } : r.binding;
+    if (v === valueOf(r.binding))
+      return r.binding.kind === "unbound"
+        ? { ref: r.ref, kind: "unavailable", source: "user" }
+        : r.binding;
     if (v === HEADING) return { ref: r.ref, kind: "heading" };
     if (v === UNAVAILABLE) return { ref: r.ref, kind: "unavailable", source: "user" };
     if (v === SUBTOTAL && r.binding.kind === "subtotal") return r.binding;
-    return { ref: r.ref, kind: "metric", metric: v.slice("metric:".length), source: "user", confidence: "high" };
+    return {
+      ref: r.ref,
+      kind: "metric",
+      metric: v.slice("metric:".length),
+      source: "user",
+      confidence: "high",
+    };
   };
 
   const available = rows.filter((r) => (choice[r.ref] ?? "") === UNAVAILABLE).length;
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-neutral-700">
-        Your MIS is recreated row by row. Check what each row will show. Rows marked not available stay in the workbook
-        with that note; they never get numbers.
+        Your MIS is recreated row by row. Check what each row will show. Rows marked not
+        available stay in the workbook with that note; they never get numbers.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm" data-testid="binding-review">
@@ -65,9 +78,16 @@ export function ReferenceBindingReview({
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.ref} className="border-t border-neutral-100 align-top" data-ref={r.ref}>
+              <tr
+                key={r.ref}
+                className="border-t border-neutral-100 align-top"
+                data-ref={r.ref}
+              >
                 <td className="py-1 text-neutral-600">{r.sheet}</td>
-                <td className={`py-1 ${r.bold ? "font-semibold" : ""}`} style={{ paddingLeft: `${(r.indent * 1).toString()}rem` }}>
+                <td
+                  className={`py-1 ${r.bold ? "font-semibold" : ""}`}
+                  style={{ paddingLeft: `${(r.indent * 1).toString()}rem` }}
+                >
                   {r.label}
                 </td>
                 <td className="py-1">
@@ -94,8 +114,12 @@ export function ReferenceBindingReview({
                   </select>
                 </td>
                 <td className="py-1 text-xs text-neutral-600">
-                  {r.binding.kind === "metric" || r.binding.kind === "subtotal" || r.binding.kind === "unavailable"
-                    ? SOURCE[choice[r.ref] === valueOf(r.binding) ? r.binding.source : "user"]
+                  {r.binding.kind === "metric" ||
+                  r.binding.kind === "subtotal" ||
+                  r.binding.kind === "unavailable"
+                    ? SOURCE[
+                        choice[r.ref] === valueOf(r.binding) ? r.binding.source : "user"
+                      ]
                     : r.binding.kind === "unbound"
                       ? "No match"
                       : ""}
@@ -106,7 +130,9 @@ export function ReferenceBindingReview({
         </table>
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-sm text-neutral-700">{available} rows not available from supplied data</span>
+        <span className="text-sm text-neutral-700">
+          {available} rows not available from supplied data
+        </span>
         <Button
           disabled={submitting}
           onClick={() => {

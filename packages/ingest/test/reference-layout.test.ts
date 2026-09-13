@@ -55,9 +55,20 @@ describe("redactReferenceLayout", () => {
         {
           ref: "s1",
           name: "Asha Traders MIS",
-          columns: [{ ref: "s1c2", header: "Current Month", pattern: "current" as const }],
+          columns: [
+            { ref: "s1c2", header: "Current Month", pattern: "current" as const },
+          ],
           rows: [
-            { ref: "s1r4", label: "Due from Asha Traders", bold: false, indent: 0, hasValues: true, formula: null, sumOf: null, numberFormat: null },
+            {
+              ref: "s1r4",
+              label: "Due from Asha Traders",
+              bold: false,
+              indent: 0,
+              hasValues: true,
+              formula: null,
+              sumOf: null,
+              numberFormat: null,
+            },
           ],
         },
       ],

@@ -11,7 +11,11 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 import { FIXTURES_OUT } from "./fixtures-setup";
-import { createVerifiedAccountWithTotp, uniqueEmail, watchCspViolations } from "./helpers";
+import {
+  createVerifiedAccountWithTotp,
+  uniqueEmail,
+  watchCspViolations,
+} from "./helpers";
 
 const fixture = (...parts: string[]) => path.join(FIXTURES_OUT, ...parts);
 
@@ -154,7 +158,9 @@ test("pages carry a per-request nonce CSP and hardening headers (SPEC §30)", as
   expect(first.headers()["x-frame-options"]).toBe("DENY");
   expect(first.headers()["x-content-type-options"]).toBe("nosniff");
   const wallet = await page.request.get("/wallet");
-  expect(wallet.headers()["content-security-policy"]).toContain("frame-src https://*.razorpay.com");
+  expect(wallet.headers()["content-security-policy"]).toContain(
+    "frame-src https://*.razorpay.com",
+  );
 });
 
 test("no Content Security Policy violations anywhere in the flow (SPEC §30)", () => {

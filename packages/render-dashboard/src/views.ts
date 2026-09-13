@@ -20,8 +20,18 @@ export interface ValueRef {
 
 export type WidgetView =
   | { readonly kind: "kpi"; readonly title: string; readonly values: readonly ValueRef[] }
-  | { readonly kind: "chart"; readonly title: string; readonly option: EChartsOption; readonly points: readonly (readonly ValueRef[])[] }
-  | { readonly kind: "table"; readonly title: string; readonly columns: readonly string[]; readonly rows: readonly { label: string; cells: readonly ValueRef[] }[] }
+  | {
+      readonly kind: "chart";
+      readonly title: string;
+      readonly option: EChartsOption;
+      readonly points: readonly (readonly ValueRef[])[];
+    }
+  | {
+      readonly kind: "table";
+      readonly title: string;
+      readonly columns: readonly string[];
+      readonly rows: readonly { label: string; cells: readonly ValueRef[] }[];
+    }
   | { readonly kind: "empty"; readonly title: string; readonly reason: string };
 
 export interface ViewFormat {
@@ -31,13 +41,22 @@ export interface ViewFormat {
   readonly label: (metricId: string) => string;
 }
 
-export const metricKey = (metricId: string, period: string, dims: Readonly<Record<string, string>> = {}): string =>
+export const metricKey = (
+  metricId: string,
+  period: string,
+  dims: Readonly<Record<string, string>> = {},
+): string =>
   `${metricId}@${period}${Object.keys(dims)
     .sort()
     .map((k) => `|${k}=${dims[k] ?? ""}`)
     .join("")}`;
 
-function periodsFor(widget: Widget, period: PeriodId, fyStartMonth: number, available: ReadonlySet<string>): PeriodId[] {
+function periodsFor(
+  widget: Widget,
+  period: PeriodId,
+  fyStartMonth: number,
+  available: ReadonlySet<string>,
+): PeriodId[] {
   const list =
     widget.periods.kind === "current"
       ? [period]
@@ -57,36 +76,67 @@ const plotted = (v: MetricValue | undefined): number | null => {
 export function buildWidgetView(
   widget: Widget,
   store: readonly MetricValue[],
-  input: { period: PeriodId; fyStartMonth: number; format: ViewFormat; dimensionFilter: string | null },
+  input: {
+    period: PeriodId;
+    fyStartMonth: number;
+    format: ViewFormat;
+    dimensionFilter: string | null;
+  },
 ): WidgetView {
   const byKey = new Map(store.map((v) => [metricKey(v.metricId, v.period, v.dims), v]));
   const available = new Set(store.map((v) => v.period));
-  const ref = (metricId: string, period: string, dims: Record<string, string> = {}): ValueRef => {
+  const ref = (
+    metricId: string,
+    period: string,
+    dims: Record<string, string> = {},
+  ): ValueRef => {
     const key = metricKey(metricId, period, dims);
     const v = byKey.get(key);
     const display =
-      v === undefined || v.value === null ? "—" : v.unit === "paise" ? input.format.money(v.value) : input.format.decimal(v.value, v.unit);
+      v === undefined || v.value === null
+        ? "—"
+        : v.unit === "paise"
+          ? input.format.money(v.value)
+          : input.format.decimal(v.value, v.unit);
     return { metricKey: key, display, unit: v?.unit ?? null };
   };
   const periods = periodsFor(widget, input.period, input.fyStartMonth, available);
-  if (periods.length === 0) return { kind: "empty", title: widget.title, reason: "No data for these months." };
+  if (periods.length === 0)
+    return { kind: "empty", title: widget.title, reason: "No data for these months." };
 
   switch (widget.kind) {
     case "kpi_card":
-      return { kind: "kpi", title: widget.title, values: widget.metrics.map((m) => ref(m, input.period)) };
+      return {
+        kind: "kpi",
+        title: widget.title,
+        values: widget.metrics.map((m) => ref(m, input.period)),
+      };
 
     case "table":
       return {
         kind: "table",
         title: widget.title,
         columns: periods.map((p) => input.format.period(p)),
-        rows: widget.metrics.map((m) => ({ label: input.format.label(m), cells: periods.map((p) => ref(m, p)) })),
+        rows: widget.metrics.map((m) => ({
+          label: input.format.label(m),
+          cells: periods.map((p) => ref(m, p)),
+        })),
       };
 
     case "ageing_chart": {
       const metric = widget.metrics[0] ?? "receivables_ageing";
-      const buckets = store.filter((v) => v.metricId === metric && v.period === input.period && v.dims["bucket"] !== undefined);
-      if (buckets.length === 0) return { kind: "empty", title: widget.title, reason: "No bills were loaded for this month." };
+      const buckets = store.filter(
+        (v) =>
+          v.metricId === metric &&
+          v.period === input.period &&
+          v.dims["bucket"] !== undefined,
+      );
+      if (buckets.length === 0)
+        return {
+          kind: "empty",
+          title: widget.title,
+          reason: "No bills were loaded for this month.",
+        };
       return {
         kind: "chart",
         title: widget.title,
@@ -94,7 +144,9 @@ export function buildWidgetView(
           tooltip: { trigger: "axis" },
           xAxis: { type: "category", data: buckets.map((b) => b.dims["bucket"] ?? "") },
           yAxis: { type: "value" },
-          series: [{ type: "bar", name: input.format.label(metric), data: buckets.map(plotted) }],
+          series: [
+            { type: "bar", name: input.format.label(metric), data: buckets.map(plotted) },
+          ],
         },
         points: [buckets.map((b) => ref(metric, input.period, b.dims))],
       };
@@ -105,9 +157,15 @@ export function buildWidgetView(
       const [first, ...rest] = widget.metrics;
       const result = rest.at(-1);
       const steps = rest.slice(0, -1);
-      if (first === undefined || result === undefined) return { kind: "empty", title: widget.title, reason: "The bridge needs a start and a result." };
+      if (first === undefined || result === undefined)
+        return {
+          kind: "empty",
+          title: widget.title,
+          reason: "The bridge needs a start and a result.",
+        };
       const start = plotted(byKey.get(metricKey(first, input.period)));
-      if (start === null) return { kind: "empty", title: widget.title, reason: "No data for this month." };
+      if (start === null)
+        return { kind: "empty", title: widget.title, reason: "No data for this month." };
       const base: (number | null)[] = [0];
       const bars: (number | null)[] = [start];
       let running = start;
@@ -128,11 +186,20 @@ export function buildWidgetView(
           xAxis: { type: "category", data: labels },
           yAxis: { type: "value" },
           series: [
-            { type: "bar", stack: "bridge", silent: true, itemStyle: { color: "transparent" }, data: base },
+            {
+              type: "bar",
+              stack: "bridge",
+              silent: true,
+              itemStyle: { color: "transparent" },
+              data: base,
+            },
             { type: "bar", stack: "bridge", name: widget.title, data: bars },
           ],
         },
-        points: [widget.metrics.map(() => ({ metricKey: "", display: "", unit: null })), widget.metrics.map((m) => ref(m, input.period))],
+        points: [
+          widget.metrics.map(() => ({ metricKey: "", display: "", unit: null })),
+          widget.metrics.map((m) => ref(m, input.period)),
+        ],
       };
     }
 

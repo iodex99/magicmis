@@ -9,7 +9,12 @@
 import { useState } from "react";
 
 import { Alert, Button } from "@/components/ui";
-import { ACTION_LABELS, DELIVERY_LABELS, formatCredits, TIER_LABELS } from "@/lib/actions";
+import {
+  ACTION_LABELS,
+  DELIVERY_LABELS,
+  formatCredits,
+  TIER_LABELS,
+} from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
 type Tier = keyof typeof TIER_LABELS;
@@ -66,7 +71,9 @@ export function PaidJobButton({
     setBusy(true);
     setError(null);
     const hold = await api(
-      j.quote === null ? `/api/jobs/${j.jobId}/confirm` : `/api/jobs/${j.jobId}/accept-quote`,
+      j.quote === null
+        ? `/api/jobs/${j.jobId}/confirm`
+        : `/api/jobs/${j.jobId}/accept-quote`,
       { body: {}, idempotencyKey: newIdempotencyKey() },
     );
     if (!hold.ok) {
@@ -127,7 +134,10 @@ export function PaidJobButton({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <dl className="grid max-w-md grid-cols-2 gap-y-2 text-sm" data-testid="job-price">
+          <dl
+            className="grid max-w-md grid-cols-2 gap-y-2 text-sm"
+            data-testid="job-price"
+          >
             <dt className="text-neutral-600">Action</dt>
             <dd className="text-right font-medium">{ACTION_LABELS[type]}</dd>
             <dt className="text-neutral-600">Intelligence tier</dt>
@@ -135,7 +145,9 @@ export function PaidJobButton({
             <dt className="text-neutral-600">Delivery</dt>
             <dd className="text-right font-medium">{DELIVERY_LABELS[delivery]}</dd>
             <dt className="text-neutral-600">{job.quote === null ? "Price" : "Quote"}</dt>
-            <dd className="text-right font-medium tabular-nums">{formatCredits(credits)} credits</dd>
+            <dd className="text-right font-medium tabular-nums">
+              {formatCredits(credits)} credits
+            </dd>
             <dt className="text-neutral-600">Available after</dt>
             <dd className="text-right tabular-nums">
               {formatCredits((BigInt(job.available) - BigInt(credits)).toString())}
@@ -151,7 +163,9 @@ export function PaidJobButton({
             </Alert>
           ) : null}
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => {
+            <Button
+              variant="secondary"
+              onClick={() => {
                 setJob(null);
               }}
               disabled={busy}

@@ -13,9 +13,15 @@ export const dynamic = "force-dynamic";
  * SPEC §26 config editor: limits, retention, lifecycle, FX, GST, seller details and the rest. Each
  * change is a new version effective now, keeping the value's shape; every change is audited.
  */
-export default async function ConfigPage({ searchParams }: { searchParams: FlashParams }) {
+export default async function ConfigPage({
+  searchParams,
+}: {
+  searchParams: FlashParams;
+}) {
   await requireAdmin();
-  const rows = (await listConfig(db())).filter((r) => EDITABLE_CONFIG_PREFIXES.some((p) => r.key.startsWith(p)));
+  const rows = (await listConfig(db())).filter((r) =>
+    EDITABLE_CONFIG_PREFIXES.some((p) => r.key.startsWith(p)),
+  );
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-neutral-900">Config</h1>

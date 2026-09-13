@@ -258,7 +258,9 @@ export function DashboardClient({ companyId }: { companyId: string }) {
     }
     setPayload(r.data);
     setPeriod((p) =>
-      p !== null && r.data.periods.includes(p) ? p : ((r.data.periods[0] ?? null) as PeriodId | null),
+      p !== null && r.data.periods.includes(p)
+        ? p
+        : ((r.data.periods[0] ?? null) as PeriodId | null),
     );
   }, [companyId]);
 
@@ -284,7 +286,8 @@ export function DashboardClient({ companyId }: { companyId: string }) {
           <>
             <p className="mb-4 text-sm text-neutral-700">
               The dashboard charts this company's MIS figures, month by month. It is kept
-              with the company; after a monthly refresh, a dashboard refresh brings in the new month.
+              with the company; after a monthly refresh, a dashboard refresh brings in the
+              new month.
             </p>
             <PaidJobButton
               companyId={companyId}

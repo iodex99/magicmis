@@ -70,10 +70,14 @@ let step: MappingStep | null = null;
 let mappings: Mapping[] = [];
 let duckPromise: Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> | null = null;
 /** The reference MIS (SPEC §22): its layout as read, and as redacted for the server. */
-let reference: { layout: ReferenceLayout; redacted: ReferenceLayout | null } | null = null;
+let reference: { layout: ReferenceLayout; redacted: ReferenceLayout | null } | null =
+  null;
 let referenceTemplate: TemplateSpec | null = null;
 /** A separate DuckDB for Deep chat, locked after its tables are loaded. */
-let chatDuck: { db: duckdb.AsyncDuckDB; conn: DuckConn & { cancel: () => Promise<void> } } | null = null;
+let chatDuck: {
+  db: duckdb.AsyncDuckDB;
+  conn: DuckConn & { cancel: () => Promise<void> };
+} | null = null;
 
 async function openDuck(): Promise<{
   db: duckdb.AsyncDuckDB;
@@ -220,8 +224,10 @@ const api: PipelineApi = {
   async addReference(file) {
     const lim = need(limits, "limits");
     const kind = fileKind(file.name);
-    if (kind !== "xlsx" && kind !== "xlsm") return { summary: null, refused: "unsupported_type" };
-    if (file.size > lim.max_file_bytes) return { summary: null, refused: "file_too_large" };
+    if (kind !== "xlsx" && kind !== "xlsm")
+      return { summary: null, refused: "unsupported_type" };
+    if (file.size > lim.max_file_bytes)
+      return { summary: null, refused: "file_too_large" };
     const bytes = new Uint8Array(await file.arrayBuffer());
     const zip = inspectZip(bytes, {
       maxEntries: lim.zip_max_entries,
@@ -302,7 +308,9 @@ const api: PipelineApi = {
   useReferenceBindings(bindings) {
     const ref = need(reference, "reference MIS");
     const redacted = need(ref.redacted, "redacted layout");
-    referenceTemplate = buildRecreatedTemplate(redacted, bindings, { name: "Recreated MIS" });
+    referenceTemplate = buildRecreatedTemplate(redacted, bindings, {
+      name: "Recreated MIS",
+    });
     return Promise.resolve();
   },
 
@@ -481,10 +489,13 @@ const api: PipelineApi = {
       accountRules: s.memory.accountRules,
       library: s.library,
       fuzzyThreshold: s.fuzzyThreshold,
-      previous: rules === null ? null : new Map(rules.rules.map((r) => [r.ledgerKey, r.head])),
+      previous:
+        rules === null ? null : new Map(rules.rules.map((r) => [r.ledgerKey, r.head])),
       displayName: display,
     });
-    const tables = chatTables(p, mapped.mappings, (code) => (isHeadCode(code) ? head(code).name : code));
+    const tables = chatTables(p, mapped.mappings, (code) =>
+      isHeadCode(code) ? head(code).name : code,
+    );
     if (chatDuck !== null) await chatDuck.db.terminate();
     const opened = await openDuck();
     chatDuck = opened;

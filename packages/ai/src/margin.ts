@@ -178,8 +178,7 @@ export async function marginReport(
   )) {
     let maxRatio: string | null = null;
     try {
-      maxRatio = (await priceBookEntry(db, actionKey as ActionKey, to))
-        .max_ai_cost_ratio;
+      maxRatio = (await priceBookEntry(db, actionKey as ActionKey, to)).max_ai_cost_ratio;
     } catch {
       maxRatio = null;
     }
@@ -274,24 +273,12 @@ export async function marginReport(
   const memoryFeeCredits = BigInt(money.rows[0]?.fees ?? "0");
 
   const [feePercent, infraPerDay] = await Promise.all([
-    readConfig(
-      db,
-      "admin.payment_fee_percent",
-      z.string().regex(/^\d+(\.\d+)?$/u),
-    ),
-    readConfig(
-      db,
-      "admin.infra_cost_paise_per_day",
-      z.number().int().nonnegative(),
-    ),
+    readConfig(db, "admin.payment_fee_percent", z.string().regex(/^\d+(\.\d+)?$/u)),
+    readConfig(db, "admin.infra_cost_paise_per_day", z.number().int().nonnegative()),
   ]);
-  const days = Math.max(
-    1,
-    Math.ceil((to.getTime() - from.getTime()) / 86_400_000),
-  );
+  const days = Math.max(1, Math.ceil((to.getTime() - from.getTime()) / 86_400_000));
   const capturedValuePaise =
-    (actions.reduce((s, a) => s + a.capturedCredits, 0n) + memoryFeeCredits) *
-    100n;
+    (actions.reduce((s, a) => s + a.capturedCredits, 0n) + memoryFeeCredits) * 100n;
   const aiCostPaise = actions.reduce((s, a) => s + a.aiCostPaise, 0n);
   const paymentFeesPaise = percentOf(capturedValuePaise, feePercent, "ceil");
   const infraCostPaise = BigInt(infraPerDay) * BigInt(days);
@@ -320,10 +307,7 @@ export async function marginReport(
     absorbed: ev("platform_absorbed"),
     estimator: {
       jobs: jf?.estimated_jobs ?? 0,
-      actualToEstimate: ratio4(
-        BigInt(jf?.actual ?? "0"),
-        BigInt(jf?.estimated ?? "0"),
-      ),
+      actualToEstimate: ratio4(BigInt(jf?.actual ?? "0"), BigInt(jf?.estimated ?? "0")),
       underestimated: jf?.under ?? 0,
     },
     quotes: {
@@ -512,10 +496,12 @@ export async function priceImpactPreview(
       computePrice(current, item.tier, item.delivery, rounding);
     const proposed = captured + delta > 0n ? captured + delta : 0n;
     proposedCredits += proposed;
-    if (proposed === 0n ? itemAi > 0n : itemAi * 10_000n > proposed * 100n * capBp) over += 1;
+    if (proposed === 0n ? itemAi > 0n : itemAi * 10_000n > proposed * 100n * capBp)
+      over += 1;
   }
   const currentRatio = currentCredits === 0n ? null : ratio4(ai, currentCredits * 100n);
-  const proposedRatio = proposedCredits === 0n ? null : ratio4(ai, proposedCredits * 100n);
+  const proposedRatio =
+    proposedCredits === 0n ? null : ratio4(ai, proposedCredits * 100n);
   return {
     actionKey: proposal.actionKey,
     days,

@@ -69,7 +69,8 @@ export class KmsKeyWrapper implements KeyWrapper {
         EncryptionContext: { ...context },
       }),
     );
-    if (result.CiphertextBlob === undefined) throw new Error("KMS Encrypt returned no ciphertext");
+    if (result.CiphertextBlob === undefined)
+      throw new Error("KMS Encrypt returned no ciphertext");
     return { ciphertext: result.CiphertextBlob, keyVersion: result.KeyId ?? this.keyId };
   }
 

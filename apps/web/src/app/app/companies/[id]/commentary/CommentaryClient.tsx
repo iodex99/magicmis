@@ -38,14 +38,24 @@ interface Payload {
   values: MetricValue[];
 }
 
-function Segments({ segments, onOpen }: { segments: readonly Segment[]; onOpen: (key: string) => void }) {
+function Segments({
+  segments,
+  onOpen,
+}: {
+  segments: readonly Segment[];
+  onOpen: (key: string) => void;
+}) {
   return (
     <>
       {segments.map((s, i) =>
         s.kind === "text" ? (
           <span key={i}>{s.text}</span>
         ) : s.metricKey === null ? (
-          <span key={i} title={s.hint ?? undefined} className={s.hint === null ? "" : "text-warning"}>
+          <span
+            key={i}
+            title={s.hint ?? undefined}
+            className={s.hint === null ? "" : "text-warning"}
+          >
             {s.display}
           </span>
         ) : (
@@ -81,16 +91,30 @@ function CommentaryView({ jobId }: { jobId: string }) {
   const rendered = useMemo(() => {
     if (payload === null) return null;
     const format = { ...companyFormat(payload.company.money), name: () => null };
-    return renderCommentary(payload.output, payload.pack, payload.values, payload.allowlist, format);
+    return renderCommentary(
+      payload.output,
+      payload.pack,
+      payload.values,
+      payload.allowlist,
+      format,
+    );
   }, [payload]);
 
   if (error !== null) return <Alert tone="error">{error}</Alert>;
-  if (payload === null || rendered === null) return <p className="text-sm text-neutral-700">Loading…</p>;
+  if (payload === null || rendered === null)
+    return <p className="text-sm text-neutral-700">Loading…</p>;
   if (!rendered.ok)
-    return <Alert tone="error">This commentary did not pass the figure check, so it is not shown.</Alert>;
+    return (
+      <Alert tone="error">
+        This commentary did not pass the figure check, so it is not shown.
+      </Alert>
+    );
   return (
     <div className="flex gap-4">
-      <article className="flex flex-1 flex-col gap-4 text-sm leading-6 text-neutral-900" data-testid="commentary">
+      <article
+        className="flex flex-1 flex-col gap-4 text-sm leading-6 text-neutral-900"
+        data-testid="commentary"
+      >
         {rendered.commentary.sections.map((s, i) => (
           <section key={i}>
             <h3 className="mb-1 font-semibold">
@@ -110,7 +134,9 @@ function CommentaryView({ jobId }: { jobId: string }) {
             selected={selected}
             values={payload.values}
             label={companyFormat(payload.company.money).label}
-            display={(v) => (v.value === null ? "—" : formatValue(v.value, v.unit, payload.company.money))}
+            display={(v) =>
+              v.value === null ? "—" : formatValue(v.value, v.unit, payload.company.money)
+            }
             onSelect={setSelected}
             onClose={() => {
               setSelected(null);
@@ -134,14 +160,19 @@ export function CommentaryClient({
   const router = useRouter();
   const [period, setPeriod] = useState(periods[0] ?? "");
   const [open, setOpen] = useState<string | null>(null);
-  const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string } | null>(null);
+  const [notice, setNotice] = useState<{
+    tone: "success" | "error";
+    text: string;
+  } | null>(null);
   const label = companyFormat({ style: "lakhs_crores", decimals: 2 }).period;
 
   return (
     <div className="flex flex-col gap-6">
       <Panel title="Order commentary">
         {periods.length === 0 ? (
-          <p className="text-sm text-neutral-700">Run the company setup first; commentary discusses its figures.</p>
+          <p className="text-sm text-neutral-700">
+            Run the company setup first; commentary discusses its figures.
+          </p>
         ) : (
           <div className="flex flex-col gap-3">
             <label className="flex max-w-xs flex-col text-sm">
@@ -175,7 +206,10 @@ export function CommentaryClient({
                   setNotice({ tone: "success", text: "Commentary is ready." });
                   setOpen(jobId);
                 } else if (r.data.state === "failed")
-                  setNotice({ tone: "error", text: "Commentary could not be generated. No credits were charged." });
+                  setNotice({
+                    tone: "error",
+                    text: "Commentary could not be generated. No credits were charged.",
+                  });
                 else
                   setNotice({
                     tone: "success",

@@ -8,7 +8,8 @@
 const originalFetch = self.fetch.bind(self);
 
 self.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-  const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+  const url =
+    typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
   // Bundled, the module's own directory resolves to nothing, so the request is often the bare name.
   if (url.endsWith("libpg-query.wasm") && !url.includes("/vendor/pg/"))
     return originalFetch(`${self.location.origin}/vendor/pg/libpg-query.wasm`, init);

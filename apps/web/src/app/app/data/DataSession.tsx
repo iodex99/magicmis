@@ -104,33 +104,36 @@ export function DataSession({
 
       <Panel title="Add files">
         <ProcessingNotice>
-        <div
-          className="flex flex-col items-start gap-3 rounded-md border border-dashed border-neutral-300 p-6"
-          onDragOver={(e) => {
-            e.preventDefault();
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            void add(e.dataTransfer.files);
-          }}
-        >
-          <label htmlFor="source-files" className="text-sm font-medium text-neutral-800">
-            Excel or CSV exports (.xlsx, .xlsm, .xls, .csv)
-          </label>
-          <input
-            ref={input}
-            id="source-files"
-            type="file"
-            multiple
-            accept=".xlsx,.xlsm,.xls,.csv"
-            disabled={!ready || busy}
-            onChange={(e) => void add(e.target.files)}
-            className="text-sm"
-          />
-          <p className="text-xs text-neutral-600">
-            Drag files here, or choose them. Macros are never run.
-          </p>
-        </div>
+          <div
+            className="flex flex-col items-start gap-3 rounded-md border border-dashed border-neutral-300 p-6"
+            onDragOver={(e) => {
+              e.preventDefault();
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              void add(e.dataTransfer.files);
+            }}
+          >
+            <label
+              htmlFor="source-files"
+              className="text-sm font-medium text-neutral-800"
+            >
+              Excel or CSV exports (.xlsx, .xlsm, .xls, .csv)
+            </label>
+            <input
+              ref={input}
+              id="source-files"
+              type="file"
+              multiple
+              accept=".xlsx,.xlsm,.xls,.csv"
+              disabled={!ready || busy}
+              onChange={(e) => void add(e.target.files)}
+              className="text-sm"
+            />
+            <p className="text-xs text-neutral-600">
+              Drag files here, or choose them. Macros are never run.
+            </p>
+          </div>
         </ProcessingNotice>
         {inFlight.length > 0 ? (
           <ul

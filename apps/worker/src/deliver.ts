@@ -76,12 +76,7 @@ export async function deliverNotifications(
       if (rendered === null) {
         await tx.query(
           `update public.notifications set status = 'suppressed', last_error = $2 where id = $1`,
-          [
-            row.id,
-            blocked
-              ? "account deleted"
-              : `no template for ${row.type}`,
-          ],
+          [row.id, blocked ? "account deleted" : `no template for ${row.type}`],
         );
         stats.suppressed += 1;
         return true;

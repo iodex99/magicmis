@@ -7,7 +7,9 @@ export default defineConfig({
   // `server-only` throws outside a react-server build; tests are server code by definition.
   resolve: {
     alias: {
-      "server-only": fileURLToPath(new URL("./test/server-only-stub.ts", import.meta.url)),
+      "server-only": fileURLToPath(
+        new URL("./test/server-only-stub.ts", import.meta.url),
+      ),
     },
   },
   test: {

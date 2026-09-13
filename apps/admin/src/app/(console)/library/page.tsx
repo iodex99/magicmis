@@ -24,8 +24,15 @@ export default async function LibraryPage({
   await requireAdmin();
   const p = await searchParams;
   const pool = db();
-  const min = await readConfig(pool, "semantic.library_promotion_min_accounts", z.number().int().positive());
-  const [candidates, entries] = await Promise.all([libraryCandidates(pool, min), librarySearch(pool, p.q ?? "")]);
+  const min = await readConfig(
+    pool,
+    "semantic.library_promotion_min_accounts",
+    z.number().int().positive(),
+  );
+  const [candidates, entries] = await Promise.all([
+    libraryCandidates(pool, min),
+    librarySearch(pool, p.q ?? ""),
+  ]);
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-neutral-900">Mapping library</h1>
@@ -58,7 +65,12 @@ export default async function LibraryPage({
                       <Button type="submit" name="decision" value="approved">
                         Approve
                       </Button>
-                      <Button type="submit" name="decision" value="rejected" variant="secondary">
+                      <Button
+                        type="submit"
+                        name="decision"
+                        value="rejected"
+                        variant="secondary"
+                      >
                         Reject
                       </Button>
                     </form>
@@ -71,7 +83,12 @@ export default async function LibraryPage({
       </Panel>
       <Panel title="Library">
         <form method="get" className="mb-3 flex gap-2 text-sm">
-          <input name="q" defaultValue={p.q ?? ""} placeholder="Name or head code" className={input} />
+          <input
+            name="q"
+            defaultValue={p.q ?? ""}
+            placeholder="Name or head code"
+            className={input}
+          />
           <button type="submit" className="h-8 rounded-md bg-neutral-900 px-3 text-white">
             Search
           </button>

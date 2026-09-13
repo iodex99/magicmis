@@ -202,17 +202,26 @@ export default async function AccountPage({
       </Panel>
       <Panel title="Break-glass access">
         <p className="mb-3 text-xs text-neutral-600">
-          Customer financial data is not visible by default. Access needs a written reason, lasts a limited time,
-          is recorded for every view, and emails the account holder.
+          Customer financial data is not visible by default. Access needs a written
+          reason, lasts a limited time, is recorded for every view, and emails the account
+          holder.
         </p>
         {grants.map((g) => (
-          <div key={g.id} className="mb-3 rounded-md border border-neutral-200 p-3 text-sm" data-testid="break-glass-grant">
+          <div
+            key={g.id}
+            className="mb-3 rounded-md border border-neutral-200 p-3 text-sm"
+            data-testid="break-glass-grant"
+          >
             <p>
               {g.admin_email} until {g.expires_at.toISOString()} — {g.reason}
             </p>
             <div className="mt-2 flex flex-wrap gap-3">
               {detail.companies.map((c) => (
-                <a key={c.id} className="text-accent-700 underline" href={`/accounts/${id}/break-glass?grant=${g.id}&company=${c.id}`}>
+                <a
+                  key={c.id}
+                  className="text-accent-700 underline"
+                  href={`/accounts/${id}/break-glass?grant=${g.id}&company=${c.id}`}
+                >
                   View {c.name}
                 </a>
               ))}
@@ -226,11 +235,19 @@ export default async function AccountPage({
             </div>
           </div>
         ))}
-        <form action={grantBreakGlassAction} className="flex flex-wrap items-end gap-2 text-sm">
+        <form
+          action={grantBreakGlassAction}
+          className="flex flex-wrap items-end gap-2 text-sm"
+        >
           <input type="hidden" name="accountId" value={id} />
           <label className="flex flex-col">
             Reason (at least 20 characters)
-            <textarea name="reason" required minLength={20} className={`${input} h-16 w-96`} />
+            <textarea
+              name="reason"
+              required
+              minLength={20}
+              className={`${input} h-16 w-96`}
+            />
           </label>
           <label className="flex flex-col">
             Minutes

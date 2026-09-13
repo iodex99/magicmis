@@ -230,7 +230,11 @@ export async function extractReferenceLayout(
       const firstValue = valueCols.find((c) => isValue(at(r, c)));
       if (label.trim() === "" && firstValue === undefined) continue;
       const leading = /^\s*/u.exec(label)?.[0].length ?? 0;
-      const indent = Math.min(4, (labelCell.alignment as Partial<ExcelJS.Alignment> | undefined)?.indent ?? Math.floor(leading / 2));
+      const indent = Math.min(
+        4,
+        (labelCell.alignment as Partial<ExcelJS.Alignment> | undefined)?.indent ??
+          Math.floor(leading / 2),
+      );
       let formula: string | null = null;
       let sumOf: { row: string; sign: 1 | -1 }[] | null = null;
       let numberFormat: string | null = null;

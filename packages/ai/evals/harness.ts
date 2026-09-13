@@ -149,7 +149,9 @@ const referenceEval: StageEval<
   dataset: referenceLayoutDataset,
   // Per unbound row: the kind, and for a metric the metric, must match.
   score: (o, label) => {
-    const got = new Map(o.rows.map((r) => [r.ref, r.kind === "metric" ? r.metric : r.kind]));
+    const got = new Map(
+      o.rows.map((r) => [r.ref, r.kind === "metric" ? r.metric : r.kind]),
+    );
     const refs = Object.keys(label);
     return {
       units: refs.length,
@@ -212,7 +214,10 @@ const chatQuickEval: StageEval<ChatQuickInput, ChatAnswerOutput, ScopeLabel> = {
   score: (o, label) => ({ units: 1, correct: o.scope === label ? 1 : 0 }),
   oracle: (item) =>
     item.label === "out_of_scope"
-      ? { scope: "out_of_scope", paragraphs: [{ text: "I can only answer questions about this MIS." }] }
+      ? {
+          scope: "out_of_scope",
+          paragraphs: [{ text: "I can only answer questions about this MIS." }],
+        }
       : {
           scope: "in_scope",
           paragraphs: [
@@ -232,16 +237,30 @@ const chatEditEval: StageEval<ChatEditInput, ChatEditOutput, EditLabel> = {
   // The proposal passed patch validation; it must change what was asked for.
   score: (o, label) => ({
     units: 1,
-    correct: o.operations.some((op) => op.path === label.path || op.path.startsWith(`${label.path}/`)) ? 1 : 0,
+    correct: o.operations.some(
+      (op) => op.path === label.path || op.path.startsWith(`${label.path}/`),
+    )
+      ? 1
+      : 0,
   }),
   oracle: (item) => ({
     scope: "in_scope",
     summary: "Makes the requested change.",
     operations: [
       item.label.path.endsWith("/title")
-        ? { op: "replace", path: item.label.path, from: null, value_json: JSON.stringify("Sales") }
+        ? {
+            op: "replace",
+            path: item.label.path,
+            from: null,
+            value_json: JSON.stringify("Sales"),
+          }
         : item.label.path.endsWith("/periods")
-          ? { op: "replace", path: item.label.path, from: null, value_json: JSON.stringify({ kind: "last_n", n: 6 }) }
+          ? {
+              op: "replace",
+              path: item.label.path,
+              from: null,
+              value_json: JSON.stringify({ kind: "last_n", n: 6 }),
+            }
           : { op: "remove", path: item.label.path, from: null, value_json: null },
     ],
   }),
@@ -251,7 +270,10 @@ const threadSummaryEval: StageEval<SummariseThreadInput, SummariseThreadOutput, 
   spec: summariseThreadSpec,
   dataset: threadSummaryDataset,
   score: (o) => ({ units: 1, correct: o.summary.length > 0 ? 1 : 0 }),
-  oracle: () => ({ summary: "The user asked about revenue, which was {{m:revenue@2026-05}}, and about receivables." }),
+  oracle: () => ({
+    summary:
+      "The user asked about revenue, which was {{m:revenue@2026-05}}, and about receivables.",
+  }),
 };
 
 export const STAGE_EVALS = {

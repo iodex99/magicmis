@@ -11,10 +11,19 @@ import { dashboardSpecSchema } from "@magicmis/render-dashboard";
 import { templateSpecSchema } from "@magicmis/templates";
 import { z } from "zod";
 
-import { runStage, type AiContext, type StageResult, type StageSpec } from "./orchestrator";
+import {
+  runStage,
+  type AiContext,
+  type StageResult,
+  type StageSpec,
+} from "./orchestrator";
 
 const text = z.string().max(4000);
-const fact = z.object({ id: z.string().max(120), label: z.string().max(200), text: z.string().max(60) });
+const fact = z.object({
+  id: z.string().max(120),
+  label: z.string().max(200),
+  text: z.string().max(60),
+});
 
 export const historyTurn = z.object({
   role: z.enum(["user", "assistant"]),
@@ -24,17 +33,24 @@ export const historyTurn = z.object({
 const table = (rows: readonly (readonly string[])[]): string =>
   rows.map((r) => r.map((c) => c.replace(/[\t\n\r]/gu, " ")).join("\t")).join("\n");
 
-const historyBlock = (summary: string | null, history: readonly z.infer<typeof historyTurn>[]) =>
+const historyBlock = (
+  summary: string | null,
+  history: readonly z.infer<typeof historyTurn>[],
+) =>
   [
     summary === null ? "" : `Summary of the earlier conversation:\n${summary}`,
-    history.length === 0 ? "No earlier messages in this thread." : history.map((h) => `${h.role}: ${h.text}`).join("\n"),
+    history.length === 0
+      ? "No earlier messages in this thread."
+      : history.map((h) => `${h.role}: ${h.text}`).join("\n"),
   ]
     .filter((s) => s !== "")
     .join("\n\n");
 
 /** Placeholder bodies mentioned in earlier turns stay valid in later answers. */
 export const placeholderIdsIn = (texts: readonly string[]): string[] =>
-  [...texts.join("\n").matchAll(/\{\{\s*(m|mv|d|p):([^{}\s]+)\s*\}\}/gu)].map((m) => `${m[1] ?? ""}:${m[2] ?? ""}`);
+  [...texts.join("\n").matchAll(/\{\{\s*(m|mv|d|p):([^{}\s]+)\s*\}\}/gu)].map(
+    (m) => `${m[1] ?? ""}:${m[2] ?? ""}`,
+  );
 
 // ---------------------------------------------------------------------------
 // Quick
@@ -59,9 +75,16 @@ export type ChatAnswerOutput = z.infer<typeof chatAnswerOutput>;
 
 /** Out-of-scope declines are one sentence (SPEC §27). */
 export function scopeProblems(o: ChatAnswerOutput): string[] {
-  if (o.scope === "in_scope") return o.paragraphs.length === 0 ? ["an answer needs at least one paragraph"] : [];
-  const sentences = o.paragraphs.map((p) => p.text).join(" ").split(/[.!?](\s|$)/u).filter((s) => s.trim().length > 1);
-  return o.paragraphs.length === 1 && sentences.length <= 1 ? [] : ["an out-of-scope decline must be one sentence"];
+  if (o.scope === "in_scope")
+    return o.paragraphs.length === 0 ? ["an answer needs at least one paragraph"] : [];
+  const sentences = o.paragraphs
+    .map((p) => p.text)
+    .join(" ")
+    .split(/[.!?](\s|$)/u)
+    .filter((s) => s.trim().length > 1);
+  return o.paragraphs.length === 1 && sentences.length <= 1
+    ? []
+    : ["an out-of-scope decline must be one sentence"];
 }
 
 export const chatQuickSpec: StageSpec<ChatQuickInput, ChatAnswerOutput> = {
@@ -70,7 +93,10 @@ export const chatQuickSpec: StageSpec<ChatQuickInput, ChatAnswerOutput> = {
   input: chatQuickInput,
   output: chatAnswerOutput,
   maxInputBytes: 64_000,
-  stable: (input) => [`Company: ${input.companyName}`, historyBlock(input.summary, input.history)],
+  stable: (input) => [
+    `Company: ${input.companyName}`,
+    historyBlock(input.summary, input.history),
+  ],
   volatile: (input) =>
     [
       "facts:",
@@ -82,15 +108,25 @@ export const chatQuickSpec: StageSpec<ChatQuickInput, ChatAnswerOutput> = {
   check: (input, output) => [
     ...scopeProblems(output),
     ...checkPlaceholderTexts(
-      output.paragraphs.map((p, i) => ({ where: `paragraph ${(i + 1).toString()}`, text: p.text })),
-      new Set([...input.facts.map((f) => f.id), ...input.periods, ...placeholderIdsIn(input.history.map((h) => h.text))]),
+      output.paragraphs.map((p, i) => ({
+        where: `paragraph ${(i + 1).toString()}`,
+        text: p.text,
+      })),
+      new Set([
+        ...input.facts.map((f) => f.id),
+        ...input.periods,
+        ...placeholderIdsIn(input.history.map((h) => h.text)),
+      ]),
       input.allowlist,
       [],
     ),
   ],
 };
 
-export function chatQuick(ctx: AiContext, input: ChatQuickInput): Promise<StageResult<ChatAnswerOutput>> {
+export function chatQuick(
+  ctx: AiContext,
+  input: ChatQuickInput,
+): Promise<StageResult<ChatAnswerOutput>> {
   return runStage(ctx, chatQuickSpec, input);
 }
 
@@ -102,7 +138,15 @@ export const chatEditInput = z.object({
   target: z.enum(["dashboard", "template"]),
   /** The current spec, as stored. */
   spec: z.json(),
-  metrics: z.array(z.object({ id: z.string().max(60), label: z.string().max(120), unit: z.string().max(20) })).max(100),
+  metrics: z
+    .array(
+      z.object({
+        id: z.string().max(60),
+        label: z.string().max(120),
+        unit: z.string().max(20),
+      }),
+    )
+    .max(100),
   summary: z.string().max(6000).nullable(),
   history: z.array(historyTurn).max(40),
   request: z.string().min(1).max(2000),
@@ -128,7 +172,10 @@ export const chatEditOutput = z.object({
 export type ChatEditOutput = z.infer<typeof chatEditOutput>;
 
 /** The model's operations as RFC 6902 operations, or the problems with them. */
-export function editOperations(o: ChatEditOutput): { ops: unknown[]; problems: string[] } {
+export function editOperations(o: ChatEditOutput): {
+  ops: unknown[];
+  problems: string[];
+} {
   const problems: string[] = [];
   const ops = o.operations.map((op, i) => {
     const base: Record<string, unknown> = { op: op.op, path: op.path };
@@ -156,15 +203,25 @@ export const chatEditStageSpec: StageSpec<ChatEditInput, ChatEditOutput> = {
     historyBlock(input.summary, input.history),
   ],
   volatile: (input) =>
-    [`target: ${input.target}`, "current spec (JSON):", JSON.stringify(input.spec), "request:", input.request].join("\n"),
+    [
+      `target: ${input.target}`,
+      "current spec (JSON):",
+      JSON.stringify(input.spec),
+      "request:",
+      input.request,
+    ].join("\n"),
   check: (input, output) => {
     if (output.scope === "out_of_scope")
-      return output.operations.length === 0 ? [] : ["an out-of-scope reply must have no operations"];
-    if (output.operations.length === 0) return ["an in-scope edit needs at least one operation"];
+      return output.operations.length === 0
+        ? []
+        : ["an out-of-scope reply must have no operations"];
+    if (output.operations.length === 0)
+      return ["an in-scope edit needs at least one operation"];
     const { ops, problems } = editOperations(output);
     if (problems.length > 0) return problems;
     if (/\p{Nd}/u.test(output.summary)) problems.push("summary: must not contain digits");
-    const schema = input.target === "dashboard" ? dashboardSpecSchema : templateSpecSchema;
+    const schema =
+      input.target === "dashboard" ? dashboardSpecSchema : templateSpecSchema;
     const r = patchDocument(input.spec, ops, schema);
     if (!r.ok) problems.push(...r.errors.map((e) => `patch: ${e}`));
     const known = new Set(input.metrics.map((m) => m.id));
@@ -174,7 +231,10 @@ export const chatEditStageSpec: StageSpec<ChatEditInput, ChatEditOutput> = {
   },
 };
 
-export function chatEditSpec(ctx: AiContext, input: ChatEditInput): Promise<StageResult<ChatEditOutput>> {
+export function chatEditSpec(
+  ctx: AiContext,
+  input: ChatEditInput,
+): Promise<StageResult<ChatEditOutput>> {
   return runStage(ctx, chatEditStageSpec, input);
 }
 
@@ -191,23 +251,32 @@ export type SummariseThreadInput = z.infer<typeof summariseThreadInput>;
 export const summariseThreadOutput = z.object({ summary: z.string().max(3000) });
 export type SummariseThreadOutput = z.infer<typeof summariseThreadOutput>;
 
-export const summariseThreadSpec: StageSpec<SummariseThreadInput, SummariseThreadOutput> = {
-  stage: "thread_summary",
-  promptName: "thread_summary",
-  input: summariseThreadInput,
-  output: summariseThreadOutput,
-  maxInputBytes: 128_000,
-  stable: () => ["Summarise the conversation for the next thread."],
-  volatile: (input) => historyBlock(input.previousSummary, input.history),
-  check: (input, output) =>
-    checkPlaceholderTexts(
-      [{ where: "summary", text: output.summary }],
-      new Set(placeholderIdsIn([input.previousSummary ?? "", ...input.history.map((h) => h.text)])),
-      [],
-      [],
-    ),
-};
+export const summariseThreadSpec: StageSpec<SummariseThreadInput, SummariseThreadOutput> =
+  {
+    stage: "thread_summary",
+    promptName: "thread_summary",
+    input: summariseThreadInput,
+    output: summariseThreadOutput,
+    maxInputBytes: 128_000,
+    stable: () => ["Summarise the conversation for the next thread."],
+    volatile: (input) => historyBlock(input.previousSummary, input.history),
+    check: (input, output) =>
+      checkPlaceholderTexts(
+        [{ where: "summary", text: output.summary }],
+        new Set(
+          placeholderIdsIn([
+            input.previousSummary ?? "",
+            ...input.history.map((h) => h.text),
+          ]),
+        ),
+        [],
+        [],
+      ),
+  };
 
-export function summariseThread(ctx: AiContext, input: SummariseThreadInput): Promise<StageResult<SummariseThreadOutput>> {
+export function summariseThread(
+  ctx: AiContext,
+  input: SummariseThreadInput,
+): Promise<StageResult<SummariseThreadOutput>> {
   return runStage(ctx, summariseThreadSpec, input);
 }

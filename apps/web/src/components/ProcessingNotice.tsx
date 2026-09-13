@@ -19,7 +19,9 @@ interface ConsentState {
  * TODO(review): R-11 — notice wording pending legal review.
  */
 export function ProcessingNotice({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<"loading" | "needed" | "accepted" | "error">("loading");
+  const [state, setState] = useState<"loading" | "needed" | "accepted" | "error">(
+    "loading",
+  );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -56,16 +58,16 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
       <ul className="list-disc space-y-1 pl-5">
         <li>Files are read in this browser. They are not uploaded to our servers.</li>
         <li>
-          Before anything is sent, names, PAN, GSTIN, bank details and similar identifiers are
-          replaced with tokens in your browser.
+          Before anything is sent, names, PAN, GSTIN, bank details and similar identifiers
+          are replaced with tokens in your browser.
         </li>
         <li>
-          Only structural profiles, a small capped sample of redacted rows, and computed totals
-          are sent — and only for a paid action you start.
+          Only structural profiles, a small capped sample of redacted rows, and computed
+          totals are sent — and only for a paid action you start.
         </li>
         <li>
-          AI requests are processed by Anthropic as our subprocessor. Company memory is stored
-          encrypted until you delete the company or your account.
+          AI requests are processed by Anthropic as our subprocessor. Company memory is
+          stored encrypted until you delete the company or your account.
         </li>
       </ul>
       <p>

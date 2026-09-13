@@ -6,7 +6,9 @@ export default defineConfig({
   // `server-only` marks server modules; the worker is server code (it runs with --conditions=react-server).
   resolve: {
     alias: {
-      "server-only": fileURLToPath(new URL("./test/server-only-stub.ts", import.meta.url)),
+      "server-only": fileURLToPath(
+        new URL("./test/server-only-stub.ts", import.meta.url),
+      ),
     },
   },
   test: {

@@ -9,7 +9,11 @@
 
 import type { PeriodId } from "@magicmis/core/time";
 import { computeCube, type HeadCube } from "@magicmis/engine";
-import { buildFixtureSet, REFERENCE_MIS_SHEETS, referenceMisWorkbook } from "@magicmis/fixtures";
+import {
+  buildFixtureSet,
+  REFERENCE_MIS_SHEETS,
+  referenceMisWorkbook,
+} from "@magicmis/fixtures";
 import { detectHeader, extractReferenceLayout, readExcel } from "@magicmis/ingest";
 import { GLOBAL_LIBRARY_SEED, indexLibrary, runCascade } from "@magicmis/semantic";
 import { parseBalanceReport } from "@magicmis/tally";
@@ -42,12 +46,18 @@ async function tradingCube(): Promise<HeadCube> {
   const set = buildFixtureSet();
   const library = indexLibrary(GLOBAL_LIBRARY_SEED);
   const facts = set.files
-    .filter((f) => f.company === "trading" && f.report === "trial_balance" && f.variant === "clean")
+    .filter(
+      (f) =>
+        f.company === "trading" && f.report === "trial_balance" && f.variant === "clean",
+    )
     .flatMap((f) => {
       const sheet = readExcel(f.bytes()).sheets[0];
       const header = sheet === undefined ? null : detectHeader(sheet);
       if (sheet === undefined || header === null) throw new Error("unreadable fixture");
-      return ledgerFactsFromReport(parseBalanceReport(sheet, header), { fileId: f.name, sheet: sheet.name });
+      return ledgerFactsFromReport(parseBalanceReport(sheet, header), {
+        fileId: f.name,
+        sheet: sheet.name,
+      });
     });
   const { mappings } = runCascade(
     facts.map((f) => ({ groupPath: f.groupPath, name: f.name })),
@@ -64,14 +74,33 @@ const refOf = (layout: ReferenceLayout, label: string) => {
 
 describe("reference MIS recreate", () => {
   it("extracts the layout without values", async () => {
-    const { layout, hiddenSheets } = await extractReferenceLayout(await referenceMisWorkbook());
+    const { layout, hiddenSheets } = await extractReferenceLayout(
+      await referenceMisWorkbook(),
+    );
     expect(hiddenSheets).toEqual(["Workings"]);
-    expect(layout.sheets.map((s) => s.name)).toEqual(REFERENCE_MIS_SHEETS.map((s) => s.name));
+    expect(layout.sheets.map((s) => s.name)).toEqual(
+      REFERENCE_MIS_SHEETS.map((s) => s.name),
+    );
     const pl = layout.sheets[0];
-    expect(pl?.rows.map((r) => r.label)).toEqual(REFERENCE_MIS_SHEETS[0]?.rows.map((r) => r.label));
-    expect(pl?.columns.map((c) => c.pattern)).toEqual(["month", "month", "current", "previous", "variance", "mom_pct", "ytd"]);
+    expect(pl?.rows.map((r) => r.label)).toEqual(
+      REFERENCE_MIS_SHEETS[0]?.rows.map((r) => r.label),
+    );
+    expect(pl?.columns.map((c) => c.pattern)).toEqual([
+      "month",
+      "month",
+      "current",
+      "previous",
+      "variance",
+      "mom_pct",
+      "ytd",
+    ]);
     const sales = pl?.rows.find((r) => r.label === "Sales");
-    expect(sales).toMatchObject({ bold: false, indent: 1, hasValues: true, formula: null });
+    expect(sales).toMatchObject({
+      bold: false,
+      indent: 1,
+      hasValues: true,
+      formula: null,
+    });
     expect(sales?.numberFormat).toContain("#,##,##0");
     const totalIncome = pl?.rows.find((r) => r.label === "Total Income");
     expect(totalIncome).toMatchObject({ bold: true, formula: "s1r5+s1r6" });
@@ -79,7 +108,10 @@ describe("reference MIS recreate", () => {
       { row: "s1r5", sign: 1 },
       { row: "s1r6", sign: 1 },
     ]);
-    expect(pl?.rows.find((r) => r.label === "INCOME")).toMatchObject({ bold: true, hasValues: false });
+    expect(pl?.rows.find((r) => r.label === "INCOME")).toMatchObject({
+      bold: true,
+      hasValues: false,
+    });
     // No value from the workbook appears anywhere in the layout.
     expect(JSON.stringify(layout)).not.toMatch(/\d{4,}/u);
   });
@@ -91,22 +123,55 @@ describe("reference MIS recreate", () => {
     const rules = bindReferenceLayout(layout);
     const expected = REFERENCE_MIS_SHEETS.flatMap((s) => s.rows);
     const needAi = expected
-      .filter((r) => (r.expected.kind === "metric" && r.expected.by === "ai") || r.expected.kind === "unavailable")
+      .filter(
+        (r) =>
+          (r.expected.kind === "metric" && r.expected.by === "ai") ||
+          r.expected.kind === "unavailable",
+      )
       .map((r) => refOf(layout, r.label));
     // "Total Expenses" waits for its Staff term, which only AI can bind.
-    expect(unboundRefs(rules).sort()).toEqual([...needAi, refOf(layout, "Total Expenses")].sort());
+    expect(unboundRefs(rules).sort()).toEqual(
+      [...needAi, refOf(layout, "Total Expenses")].sort(),
+    );
 
     // The scripted extractReferenceLayout answer.
     const bindings = applyAiBindings(layout, rules, [
-      { ref: refOf(layout, "Staff Salaries & Welfare"), kind: "metric", metric: "employee_cost", terms: null, confidence: "high" },
-      { ref: refOf(layout, "Marketing spend vs budget"), kind: "unavailable", metric: null, terms: null, confidence: "high" },
-      { ref: refOf(layout, "Order book"), kind: "unavailable", metric: null, terms: null, confidence: "high" },
-      { ref: refOf(layout, "Total Expenses"), kind: "metric", metric: "not_a_metric", terms: null, confidence: "low" },
+      {
+        ref: refOf(layout, "Staff Salaries & Welfare"),
+        kind: "metric",
+        metric: "employee_cost",
+        terms: null,
+        confidence: "high",
+      },
+      {
+        ref: refOf(layout, "Marketing spend vs budget"),
+        kind: "unavailable",
+        metric: null,
+        terms: null,
+        confidence: "high",
+      },
+      {
+        ref: refOf(layout, "Order book"),
+        kind: "unavailable",
+        metric: null,
+        terms: null,
+        confidence: "high",
+      },
+      {
+        ref: refOf(layout, "Total Expenses"),
+        kind: "metric",
+        metric: "not_a_metric",
+        terms: null,
+        confidence: "low",
+      },
     ]);
     expect(unboundRefs(bindings)).toEqual([]);
 
     const template = buildRecreatedTemplate(layout, bindings, { name: "Client MIS" });
-    expect(template.sections.map((s) => s.sheet)).toEqual(["P&L Summary", "Working Capital"]);
+    expect(template.sections.map((s) => s.sheet)).toEqual([
+      "P&L Summary",
+      "Working Capital",
+    ]);
     template.sections.forEach((section, si) => {
       const def = REFERENCE_MIS_SHEETS[si];
       const defRows = (def?.rows ?? []).filter((r) => r.label !== "");
@@ -114,7 +179,8 @@ describe("reference MIS recreate", () => {
       section.rows.forEach((row, ri) => {
         const want = defRows[ri]?.expected;
         expect(row.kind, row.label).toBe(want?.kind);
-        if (row.kind === "metric" && want?.kind === "metric") expect(row.metric).toBe(want.metric);
+        if (row.kind === "metric" && want?.kind === "metric")
+          expect(row.metric).toBe(want.metric);
         if (row.kind === "subtotal" && want?.kind === "subtotal") {
           const labelOf = new Map(section.rows.map((r) => [r.id, r.label]));
           expect(row.terms.map((t) => labelOf.get(t.row))).toEqual(want.of);
@@ -125,8 +191,19 @@ describe("reference MIS recreate", () => {
         }
       });
     });
-    expect(template.sections[0]?.columns).toEqual(["fy_months", "current", "previous", "variance", "mom_pct", "ytd"]);
-    expect(template.numberFormat).toMatchObject({ style: "lakhs_crores", decimals: 2, negativesInBrackets: true });
+    expect(template.sections[0]?.columns).toEqual([
+      "fy_months",
+      "current",
+      "previous",
+      "variance",
+      "mom_pct",
+      "ytd",
+    ]);
+    expect(template.numberFormat).toMatchObject({
+      style: "lakhs_crores",
+      decimals: 2,
+      negativesInBrackets: true,
+    });
 
     const cube = await tradingCube();
     const period = "2026-05" as PeriodId;
@@ -159,19 +236,30 @@ describe("reference MIS recreate", () => {
     REFERENCE_MIS_SHEETS[0]?.rows.forEach((r, i) => {
       const cell = ws?.getCell(firstRow + i, 1);
       expect(cell?.value).toBe(r.label);
-      expect((cell?.font as { bold?: boolean } | undefined)?.bold === true, r.label).toBe(r.bold === true);
+      expect((cell?.font as { bold?: boolean } | undefined)?.bold === true, r.label).toBe(
+        r.bold === true,
+      );
     });
-    const marketing = firstRow + (REFERENCE_MIS_SHEETS[0]?.rows.findIndex((r) => r.label === "Marketing spend vs budget") ?? 0);
+    const marketing =
+      firstRow +
+      (REFERENCE_MIS_SHEETS[0]?.rows.findIndex(
+        (r) => r.label === "Marketing spend vs budget",
+      ) ?? 0);
     expect(ws?.getCell(marketing, 2).value).toBe("Not available from supplied data");
     expect(ws?.getCell(marketing, 3).value ?? null).toBeNull();
 
     // Subtotals are cell arithmetic over their term rows.
-    const totalIncome = expectations.find((e) => e.metricId === "subtotal:total_income@Current month");
+    const totalIncome = expectations.find(
+      (e) => e.metricId === "subtotal:total_income@Current month",
+    );
     const salesRow = firstRow + 1;
     const otherIncomeRow = firstRow + 2;
-    const cell = ws?.getCell(totalIncome?.row ?? 0, totalIncome?.col ?? 0).value as { formula: string } | undefined;
+    const cell = ws?.getCell(totalIncome?.row ?? 0, totalIncome?.col ?? 0).value as
+      { formula: string } | undefined;
     const letter = String.fromCharCode(64 + (totalIncome?.col ?? 0));
-    expect(cell?.formula).toBe(`${letter}${salesRow.toString()}+${letter}${otherIncomeRow.toString()}`);
+    expect(cell?.formula).toBe(
+      `${letter}${salesRow.toString()}+${letter}${otherIncomeRow.toString()}`,
+    );
 
     // Every figure and subtotal matches the engine in HyperFormula and in V11.
     const sheets: Record<string, (string | number | boolean | null)[][]> = {};
@@ -205,9 +293,15 @@ describe("reference MIS recreate", () => {
       if (id === undefined) throw new Error(`no sheet ${e.sheet}`);
       const raw = hf.getCellValue({ sheet: id, row: e.row - 1, col: e.col - 1 });
       const value = raw === null ? "" : typeof raw === "object" ? `#${raw.type}` : raw;
-      expect(matches(value, e), `${e.sheet} ${e.metricId}: ${String(value)} vs ${String(e.value)}`).toBe(true);
+      expect(
+        matches(value, e),
+        `${e.sheet} ${e.metricId}: ${String(value)} vs ${String(e.value)}`,
+      ).toBe(true);
     }
     hf.destroy();
-    expect(verifyWorkbook(workbook, expectations)).toMatchObject({ id: "V11", status: "pass" });
+    expect(verifyWorkbook(workbook, expectations)).toMatchObject({
+      id: "V11",
+      status: "pass",
+    });
   });
 });

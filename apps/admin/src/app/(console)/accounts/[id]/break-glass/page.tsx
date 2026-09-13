@@ -40,7 +40,9 @@ export default async function BreakGlassPage({
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-neutral-900">Break-glass view</h1>
-      <Alert tone="warning">This view was recorded in the audit log under your grant.</Alert>
+      <Alert tone="warning">
+        This view was recorded in the audit log under your grant.
+      </Alert>
       <Panel title={`${view.template} — ${view.period ?? "no months stored"}`}>
         <table className="w-full">
           <thead>
@@ -54,7 +56,10 @@ export default async function BreakGlassPage({
           </thead>
           <tbody>
             {view.values.map((v) => (
-              <tr key={`${v.metricId}@${v.period}`} className="border-t border-neutral-100">
+              <tr
+                key={`${v.metricId}@${v.period}`}
+                className="border-t border-neutral-100"
+              >
                 <td className={`${td} font-mono`}>{v.metricId}</td>
                 <td className={td}>{v.period}</td>
                 <td className={num}>{v.value ?? v.nullReason ?? ""}</td>

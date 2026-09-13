@@ -140,7 +140,10 @@ describe("pricing and reservation", () => {
       outputStore: new MemoryOutputStore(),
     });
     expect(done.captured).toBe(total);
-    expect(await wallet(pool(), accountId)).toEqual({ balance: 5_000n - total, held: 0n });
+    expect(await wallet(pool(), accountId)).toEqual({
+      balance: 5_000n - total,
+      held: 0n,
+    });
   });
 
   it("refuses with a shortfall when credits are insufficient, holding nothing", async () => {

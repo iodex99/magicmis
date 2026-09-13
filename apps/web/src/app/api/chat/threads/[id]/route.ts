@@ -14,14 +14,22 @@ export async function GET(
 ): Promise<Response> {
   return withAccount(async (account) => {
     const { id } = await context.params;
-    if (!z.uuid().safeParse(id).success) return apiError(404, "not_found", "Conversation not found.");
+    if (!z.uuid().safeParse(id).success)
+      return apiError(404, "not_found", "Conversation not found.");
     try {
       const pool = db();
-      const view = await threadView(pool, keyWrapper(), { accountId: account.accountId, threadId: id });
+      const view = await threadView(pool, keyWrapper(), {
+        accountId: account.accountId,
+        threadId: id,
+      });
       if (view === null) return apiError(404, "not_found", "Conversation not found.");
       return ok({
         ...view,
-        allowlist: await readConfig(pool, "commentary.digit_allowlist", z.array(z.string())),
+        allowlist: await readConfig(
+          pool,
+          "commentary.digit_allowlist",
+          z.array(z.string()),
+        ),
       });
     } catch (error) {
       return jobErrorResponse(error);

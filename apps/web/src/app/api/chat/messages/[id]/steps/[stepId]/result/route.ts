@@ -23,17 +23,22 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     if (!json.ok) return json.response;
     const raw = json.raw;
     try {
-      return await idempotent(request, `chat-step:${account.accountId}:${stepId}`, raw, async () => ({
-        status: 200,
-        body: progressBody(
-          await submitStepResult(db(), keyWrapper(), aiTransport(), {
-            accountId: account.accountId,
-            messageId: id,
-            stepId,
-            result: raw,
-          }),
-        ),
-      }));
+      return await idempotent(
+        request,
+        `chat-step:${account.accountId}:${stepId}`,
+        raw,
+        async () => ({
+          status: 200,
+          body: progressBody(
+            await submitStepResult(db(), keyWrapper(), aiTransport(), {
+              accountId: account.accountId,
+              messageId: id,
+              stepId,
+              result: raw,
+            }),
+          ),
+        }),
+      );
     } catch (error) {
       return jobErrorResponse(error);
     }

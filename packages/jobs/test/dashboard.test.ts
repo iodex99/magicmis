@@ -60,7 +60,11 @@ const PARTS = {
 async function companyWithDashboard() {
   const c = await accountWithCompany(pool(), 5_000n);
   await storeBlueprint(pool(), wrapper, { ...c, jobId: null, parts: PARTS });
-  await storeSnapshot(pool(), wrapper, { ...c, jobId: null, payload: emptySnapshot("2026-04") });
+  await storeSnapshot(pool(), wrapper, {
+    ...c,
+    jobId: null,
+    payload: emptySnapshot("2026-04"),
+  });
   const job = await createJob(pool(), {
     ...c,
     type: "dashboard_addon",
@@ -200,7 +204,9 @@ describe("dashboard patches and undo", () => {
 
   it("a restructure that stores a new blueprint keeps the dashboard", async () => {
     const c = await companyWithDashboard();
-    await pool().query(`update companies set first_setup_at = now() where id = $1`, [c.companyId]);
+    await pool().query(`update companies set first_setup_at = now() where id = $1`, [
+      c.companyId,
+    ]);
     const job = await createJob(pool(), {
       ...c,
       type: "refresh_with_restructure",
@@ -210,7 +216,11 @@ describe("dashboard patches and undo", () => {
       size: ZERO,
     });
     await confirmJob(pool(), { accountId: c.accountId, jobId: job.jobId });
-    await advanceJob(pool(), { accountId: c.accountId, jobId: job.jobId, to: "rendering" });
+    await advanceJob(pool(), {
+      accountId: c.accountId,
+      jobId: job.jobId,
+      to: "rendering",
+    });
     const done = await completeJob(pool(), wrapper, {
       accountId: c.accountId,
       jobId: job.jobId,
@@ -230,9 +240,17 @@ describe("dashboard patches and undo", () => {
 
   it("new months reach the dashboard only through a paid dashboard refresh, which edits and undo keep", async () => {
     const c = await companyWithDashboard();
-    await applyDashboardPatch(pool(), wrapper, { ...c, baseVersion: 2, operations: rename("Sales") });
+    await applyDashboardPatch(pool(), wrapper, {
+      ...c,
+      baseVersion: 2,
+      operations: rename("Sales"),
+    });
     // A monthly refresh stored May; the dashboard still stops at April.
-    await storeSnapshot(pool(), wrapper, { ...c, jobId: null, payload: emptySnapshot("2026-05") });
+    await storeSnapshot(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      payload: emptySnapshot("2026-05"),
+    });
     expect((await companyDashboard(pool(), wrapper, c))?.dataThrough).toBe("2026-04");
 
     const job = await createJob(pool(), {
@@ -245,11 +263,23 @@ describe("dashboard patches and undo", () => {
     });
     await confirmJob(pool(), { accountId: c.accountId, jobId: job.jobId });
     const before = await wallet(pool(), c.accountId);
-    const done = await completeDashboardAddon(pool(), wrapper, { accountId: c.accountId, jobId: job.jobId });
-    const price = (await priceFor(pool(), { actionKey: "dashboard_refresh", tier: "professional", delivery: "standard" })).credits;
+    const done = await completeDashboardAddon(pool(), wrapper, {
+      accountId: c.accountId,
+      jobId: job.jobId,
+    });
+    const price = (
+      await priceFor(pool(), {
+        actionKey: "dashboard_refresh",
+        tier: "professional",
+        delivery: "standard",
+      })
+    ).credits;
     expect(done).toEqual({ captured: price, blueprintVersion: 4 });
     expect((await wallet(pool(), c.accountId)).balance).toBe(before.balance - price);
-    expect(await companyDashboard(pool(), wrapper, c)).toMatchObject({ dataThrough: "2026-05", canUndo: true });
+    expect(await companyDashboard(pool(), wrapper, c)).toMatchObject({
+      dataThrough: "2026-05",
+      canUndo: true,
+    });
 
     // Undo restores the layout, not the old month.
     const undone = await undoDashboard(pool(), wrapper, { ...c, baseVersion: 4 });
@@ -260,8 +290,20 @@ describe("dashboard patches and undo", () => {
   it("a dashboard refresh needs a dashboard", async () => {
     const c = await accountWithCompany(pool(), 5_000n);
     await storeBlueprint(pool(), wrapper, { ...c, jobId: null, parts: PARTS });
-    const job = await createJob(pool(), { ...c, type: "dashboard_refresh", tier: "professional", delivery: "standard", idempotencyKey: randomUUID(), size: ZERO });
+    const job = await createJob(pool(), {
+      ...c,
+      type: "dashboard_refresh",
+      tier: "professional",
+      delivery: "standard",
+      idempotencyKey: randomUUID(),
+      size: ZERO,
+    });
     await confirmJob(pool(), { accountId: c.accountId, jobId: job.jobId });
-    await expect(completeDashboardAddon(pool(), wrapper, { accountId: c.accountId, jobId: job.jobId })).rejects.toMatchObject({ code: "no_dashboard" });
+    await expect(
+      completeDashboardAddon(pool(), wrapper, {
+        accountId: c.accountId,
+        jobId: job.jobId,
+      }),
+    ).rejects.toMatchObject({ code: "no_dashboard" });
   });
 });

@@ -64,14 +64,14 @@ export async function verifyIntegrity(
 
   await withTransaction(pool, (tx) =>
     appendAudit(tx, {
-    actorType: "system",
-    actorId: null,
-    action: "integrity.check_failed",
-    targetType: "system",
-    metadata: {
-      audit_failures: audit.failures.length,
-      ledger_accounts: ledgerFailures.length,
-    },
+      actorType: "system",
+      actorId: null,
+      action: "integrity.check_failed",
+      targetType: "system",
+      metadata: {
+        audit_failures: audit.failures.length,
+        ledger_accounts: ledgerFailures.length,
+      },
     }),
   );
   const day = new Date(now.getTime() + 5.5 * 3_600_000).toISOString().slice(0, 10);

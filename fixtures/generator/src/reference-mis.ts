@@ -35,35 +35,122 @@ export const REFERENCE_MIS_SHEETS: readonly ReferenceSheetDef[] = [
   {
     name: "P&L Summary",
     title: "Synthetic Hardware Traders - Monthly MIS",
-    headers: ["Apr-26", "May-26", "Current Month", "Previous Month", "Variance", "Var %", "YTD"],
+    headers: [
+      "Apr-26",
+      "May-26",
+      "Current Month",
+      "Previous Month",
+      "Variance",
+      "Var %",
+      "YTD",
+    ],
     rows: [
       { label: "INCOME", bold: true, expected: { kind: "heading" } },
-      { label: "Sales", indent: 1, values: "number", expected: { kind: "metric", metric: "revenue", by: "rule" } },
-      { label: "Other Income", indent: 1, values: "number", expected: { kind: "metric", metric: "other_income", by: "rule" } },
+      {
+        label: "Sales",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "revenue", by: "rule" },
+      },
+      {
+        label: "Other Income",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "other_income", by: "rule" },
+      },
       {
         label: "Total Income",
         bold: true,
-        values: { sumOf: [[1, "Sales"], [1, "Other Income"]] },
+        values: {
+          sumOf: [
+            [1, "Sales"],
+            [1, "Other Income"],
+          ],
+        },
         expected: { kind: "subtotal", of: ["Sales", "Other Income"], by: "rule" },
       },
       { label: "EXPENSES", bold: true, expected: { kind: "heading" } },
-      { label: "Cost of Goods Sold", indent: 1, values: "number", expected: { kind: "metric", metric: "direct_costs", by: "rule" } },
-      { label: "Staff Salaries & Welfare", indent: 1, values: "number", expected: { kind: "metric", metric: "employee_cost", by: "ai" } },
-      { label: "Other Expenses", indent: 1, values: "number", expected: { kind: "metric", metric: "other_opex", by: "rule" } },
+      {
+        label: "Cost of Goods Sold",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "direct_costs", by: "rule" },
+      },
+      {
+        label: "Staff Salaries & Welfare",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "employee_cost", by: "ai" },
+      },
+      {
+        label: "Other Expenses",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "other_opex", by: "rule" },
+      },
       {
         label: "Total Expenses",
         bold: true,
-        values: { sumOf: [[1, "Cost of Goods Sold"], [1, "Staff Salaries & Welfare"], [1, "Other Expenses"]] },
-        expected: { kind: "subtotal", of: ["Cost of Goods Sold", "Staff Salaries & Welfare", "Other Expenses"], by: "rule" },
+        values: {
+          sumOf: [
+            [1, "Cost of Goods Sold"],
+            [1, "Staff Salaries & Welfare"],
+            [1, "Other Expenses"],
+          ],
+        },
+        expected: {
+          kind: "subtotal",
+          of: ["Cost of Goods Sold", "Staff Salaries & Welfare", "Other Expenses"],
+          by: "rule",
+        },
       },
-      { label: "EBITDA", bold: true, values: "number", expected: { kind: "metric", metric: "ebitda", by: "rule" } },
-      { label: "Depreciation", indent: 1, values: "number", expected: { kind: "metric", metric: "depreciation", by: "rule" } },
-      { label: "Interest", indent: 1, values: "number", expected: { kind: "metric", metric: "finance_cost", by: "rule" } },
-      { label: "Profit Before Tax", bold: true, values: "number", expected: { kind: "metric", metric: "pbt", by: "rule" } },
-      { label: "Provision for Tax", indent: 1, values: "number", expected: { kind: "metric", metric: "tax", by: "rule" } },
-      { label: "Net Profit", bold: true, values: "number", expected: { kind: "metric", metric: "pat", by: "rule" } },
-      { label: "Net Profit %", indent: 1, values: "number", expected: { kind: "metric", metric: "pat_pct", by: "rule" } },
-      { label: "Marketing spend vs budget", values: "number", expected: { kind: "unavailable" } },
+      {
+        label: "EBITDA",
+        bold: true,
+        values: "number",
+        expected: { kind: "metric", metric: "ebitda", by: "rule" },
+      },
+      {
+        label: "Depreciation",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "depreciation", by: "rule" },
+      },
+      {
+        label: "Interest",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "finance_cost", by: "rule" },
+      },
+      {
+        label: "Profit Before Tax",
+        bold: true,
+        values: "number",
+        expected: { kind: "metric", metric: "pbt", by: "rule" },
+      },
+      {
+        label: "Provision for Tax",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "tax", by: "rule" },
+      },
+      {
+        label: "Net Profit",
+        bold: true,
+        values: "number",
+        expected: { kind: "metric", metric: "pat", by: "rule" },
+      },
+      {
+        label: "Net Profit %",
+        indent: 1,
+        values: "number",
+        expected: { kind: "metric", metric: "pat_pct", by: "rule" },
+      },
+      {
+        label: "Marketing spend vs budget",
+        values: "number",
+        expected: { kind: "unavailable" },
+      },
     ],
   },
   {
@@ -71,12 +158,37 @@ export const REFERENCE_MIS_SHEETS: readonly ReferenceSheetDef[] = [
     title: "Working capital position",
     headers: ["Current Month", "Previous Month"],
     rows: [
-      { label: "Sundry Debtors", values: "number", expected: { kind: "metric", metric: "receivables", by: "rule" } },
-      { label: "Closing Stock", values: "number", expected: { kind: "metric", metric: "inventory", by: "rule" } },
-      { label: "Sundry Creditors", values: "number", expected: { kind: "metric", metric: "payables", by: "rule" } },
-      { label: "Net Working Capital", bold: true, values: "number", expected: { kind: "metric", metric: "working_capital", by: "rule" } },
-      { label: "Debtor Days", values: "number", expected: { kind: "metric", metric: "dso", by: "rule" } },
-      { label: "Creditor Days", values: "number", expected: { kind: "metric", metric: "dpo", by: "rule" } },
+      {
+        label: "Sundry Debtors",
+        values: "number",
+        expected: { kind: "metric", metric: "receivables", by: "rule" },
+      },
+      {
+        label: "Closing Stock",
+        values: "number",
+        expected: { kind: "metric", metric: "inventory", by: "rule" },
+      },
+      {
+        label: "Sundry Creditors",
+        values: "number",
+        expected: { kind: "metric", metric: "payables", by: "rule" },
+      },
+      {
+        label: "Net Working Capital",
+        bold: true,
+        values: "number",
+        expected: { kind: "metric", metric: "working_capital", by: "rule" },
+      },
+      {
+        label: "Debtor Days",
+        values: "number",
+        expected: { kind: "metric", metric: "dso", by: "rule" },
+      },
+      {
+        label: "Creditor Days",
+        values: "number",
+        expected: { kind: "metric", metric: "dpo", by: "rule" },
+      },
       { label: "Order book", values: "number", expected: { kind: "unavailable" } },
     ],
   },
@@ -114,7 +226,9 @@ export async function referenceMisWorkbook(
     seed = (seed * 48_271) % 2_147_483_647;
     return seed % 90_000_000;
   };
-  for (const sheet of options.rulesOnly === true ? rulesOnlySheets() : REFERENCE_MIS_SHEETS) {
+  for (const sheet of options.rulesOnly === true
+    ? rulesOnlySheets()
+    : REFERENCE_MIS_SHEETS) {
     const ws = wb.addWorksheet(sheet.name);
     ws.getCell(1, 1).value = sheet.title;
     ws.getCell(1, 1).font = { bold: true, size: 14 };
@@ -143,7 +257,10 @@ export async function referenceMisWorkbook(
           cell.value = next() / 100;
         } else {
           const formula = values.sumOf
-            .map(([sign, l], k) => `${k === 0 ? (sign === 1 ? "" : "-") : sign === 1 ? "+" : "-"}${colLetter(col)}${(rowOf.get(l) ?? 0).toString()}`)
+            .map(
+              ([sign, l], k) =>
+                `${k === 0 ? (sign === 1 ? "" : "-") : sign === 1 ? "+" : "-"}${colLetter(col)}${(rowOf.get(l) ?? 0).toString()}`,
+            )
             .join("");
           cell.value = { formula, result: 0 };
         }

@@ -88,8 +88,14 @@ describe("chat session queries", () => {
   });
 
   it("once locked, DuckDB itself refuses file access and unlocking", async () => {
-    await expect(async () => conn().query("SELECT * FROM read_csv('secret.csv')")).rejects.toThrow();
-    await expect(async () => conn().query("SET enable_external_access = true")).rejects.toThrow();
-    await expect(async () => conn().query("COPY balances TO 'out.csv'")).rejects.toThrow();
+    await expect(async () =>
+      conn().query("SELECT * FROM read_csv('secret.csv')"),
+    ).rejects.toThrow();
+    await expect(async () =>
+      conn().query("SET enable_external_access = true"),
+    ).rejects.toThrow();
+    await expect(async () =>
+      conn().query("COPY balances TO 'out.csv'"),
+    ).rejects.toThrow();
   });
 });
