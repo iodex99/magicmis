@@ -1,0 +1,35 @@
+{
+  "name": "@magicmis/engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "lint": "eslint src test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@magicmis/core": "workspace:*",
+    "@magicmis/crypto": "workspace:*",
+    "@magicmis/db": "workspace:*",
+    "@magicmis/ingest": "workspace:*",
+    "@magicmis/semantic": "workspace:*",
+    "@magicmis/tally": "workspace:*",
+    "pg": "^8.16.3",
+    "server-only": "0.0.1",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@duckdb/duckdb-wasm": "1.32.0",
+    "@magicmis/fixtures": "workspace:*",
+    "@testcontainers/postgresql": "^11.7.1",
+    "@types/pg": "^8.15.6",
+    "fast-check": "^4.5.0"
+  }
+}
