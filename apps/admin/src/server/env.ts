@@ -37,6 +37,7 @@ export const adminEnvSchema = z
       .refine((v) => Buffer.from(v, "base64").length === 32, "base64 of 32 bytes")
       .optional(),
     KMS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_MASTER_KEY_ID.optional(),
+    KMS_PREVIOUS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_PREVIOUS_MASTER_KEY_ID,
     AWS_REGION: serverEnvSchema.shape.AWS_REGION.optional(),
   })
   .superRefine((env, ctx) => {

@@ -31,6 +31,7 @@ export const workerEnvSchema = serverEnvSchema
     KEY_WRAPPER: z.enum(["kms", "local"]).default("kms"),
     LOCAL_MASTER_KEY: z.string().optional(),
     KMS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_MASTER_KEY_ID.optional(),
+    KMS_PREVIOUS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_PREVIOUS_MASTER_KEY_ID,
     AWS_REGION: serverEnvSchema.shape.AWS_REGION.optional(),
   })
   .superRefine((env, ctx) => {

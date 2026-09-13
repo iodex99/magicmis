@@ -3,7 +3,7 @@ import "server-only";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { LocalKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
+import { LocalKeyWrapper, RotatingKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
 import { KmsKeyWrapper } from "@magicmis/crypto/kms";
 import { SupabaseOutputStore, type OutputStore } from "@magicmis/jobs";
 import { createClient } from "@supabase/supabase-js";
@@ -51,7 +51,14 @@ export function keyWrapper(): KeyWrapper {
     wrapper = LocalKeyWrapper.fromBase64(env.LOCAL_MASTER_KEY);
   } else {
     const s = serverEnv();
-    wrapper = new KmsKeyWrapper(s.KMS_MASTER_KEY_ID, { region: s.AWS_REGION });
+    const current = new KmsKeyWrapper(s.KMS_MASTER_KEY_ID, { region: s.AWS_REGION });
+    wrapper =
+      s.KMS_PREVIOUS_MASTER_KEY_ID === undefined
+        ? current
+        : new RotatingKeyWrapper(
+            current,
+            new KmsKeyWrapper(s.KMS_PREVIOUS_MASTER_KEY_ID, { region: s.AWS_REGION }),
+          );
   }
   return wrapper;
 }

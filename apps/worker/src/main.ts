@@ -1,5 +1,5 @@
 import { anthropicTransport } from "@magicmis/ai";
-import { LocalKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
+import { LocalKeyWrapper, RotatingKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
 import { KmsKeyWrapper } from "@magicmis/crypto/kms";
 import { SupabaseOutputStore } from "@magicmis/jobs";
 import { createClient } from "@supabase/supabase-js";
@@ -26,7 +26,12 @@ function keyWrapper(): KeyWrapper | null {
       : LocalKeyWrapper.fromBase64(env.LOCAL_MASTER_KEY);
   return env.KMS_MASTER_KEY_ID === undefined || env.AWS_REGION === undefined
     ? null
-    : new KmsKeyWrapper(env.KMS_MASTER_KEY_ID, { region: env.AWS_REGION });
+    : env.KMS_PREVIOUS_MASTER_KEY_ID === undefined
+      ? new KmsKeyWrapper(env.KMS_MASTER_KEY_ID, { region: env.AWS_REGION })
+      : new RotatingKeyWrapper(
+          new KmsKeyWrapper(env.KMS_MASTER_KEY_ID, { region: env.AWS_REGION }),
+          new KmsKeyWrapper(env.KMS_PREVIOUS_MASTER_KEY_ID, { region: env.AWS_REGION }),
+        );
 }
 const wrapper = keyWrapper();
 

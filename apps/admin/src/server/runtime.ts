@@ -1,6 +1,6 @@
 import "server-only";
 
-import { LocalKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
+import { LocalKeyWrapper, RotatingKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
 import { KmsKeyWrapper } from "@magicmis/crypto/kms";
 import { headers } from "next/headers";
 import pg from "pg";
@@ -34,11 +34,20 @@ export function keyWrapper(): KeyWrapper {
   wrapper =
     e.KEY_WRAPPER === "local"
       ? LocalKeyWrapper.fromBase64(e.LOCAL_MASTER_KEY ?? "")
-      : new KmsKeyWrapper(
-          e.KMS_MASTER_KEY_ID ?? "",
-          e.AWS_REGION === undefined ? {} : { region: e.AWS_REGION },
-        );
+      : kmsWrapper(e.KMS_MASTER_KEY_ID ?? "", e.KMS_PREVIOUS_MASTER_KEY_ID, e.AWS_REGION);
   return wrapper;
+}
+
+function kmsWrapper(
+  keyId: string,
+  previousKeyId: string | undefined,
+  region: string | undefined,
+): KeyWrapper {
+  const config = region === undefined ? {} : { region };
+  const current = new KmsKeyWrapper(keyId, config);
+  return previousKeyId === undefined
+    ? current
+    : new RotatingKeyWrapper(current, new KmsKeyWrapper(previousKeyId, config));
 }
 
 export const allowlist = (): ReadonlySet<string> =>

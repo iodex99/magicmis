@@ -5,6 +5,8 @@
  * Shapes verified 2026-09-13:
  *   https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKey.html
  *   https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/kms/command/DecryptCommand/
+ *   `Encrypt` (re-wrap onto a new key): KeyId, Plaintext, EncryptionContext → CiphertextBlob, KeyId, per
+ *   @aws-sdk/client-kms 3.1131.0 typings and https://docs.aws.amazon.com/kms/latest/APIReference/API_Encrypt.html
  *
  * NOT exercised against a live KMS key in this build -- there is no AWS account yet. The
  * `KeyWrapper` contract it implements is fully tested through `LocalKeyWrapper`, which
@@ -13,6 +15,7 @@
 
 import {
   DecryptCommand,
+  EncryptCommand,
   GenerateDataKeyCommand,
   KMSClient,
   type KMSClientConfig,
@@ -56,6 +59,18 @@ export class KmsKeyWrapper implements KeyWrapper {
         keyVersion: result.KeyMaterialId ?? result.KeyId ?? this.keyId,
       },
     };
+  }
+
+  async wrap(plaintext: Buffer, context: EncryptionContext): Promise<WrappedKey> {
+    const result = await this.client.send(
+      new EncryptCommand({
+        KeyId: this.keyId,
+        Plaintext: plaintext,
+        EncryptionContext: { ...context },
+      }),
+    );
+    if (result.CiphertextBlob === undefined) throw new Error("KMS Encrypt returned no ciphertext");
+    return { ciphertext: result.CiphertextBlob, keyVersion: result.KeyId ?? this.keyId };
   }
 
   async unwrap(wrapped: WrappedKey, context: EncryptionContext): Promise<Buffer> {

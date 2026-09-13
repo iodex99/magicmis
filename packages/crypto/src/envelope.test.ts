@@ -124,3 +124,24 @@ describe("envelope with a key wrapper", () => {
     expect(() => new LocalKeyWrapper(randomBytes(16))).toThrow(RangeError);
   });
 });
+
+describe("master key replacement (ADR 0008)", () => {
+  it("re-wraps a DEK onto a new master key; the rotating wrapper opens both until the move ends", async () => {
+    const { LocalKeyWrapper, RotatingKeyWrapper } = await import("./envelope");
+    const { randomBytes } = await import("node:crypto");
+    const oldKey = new LocalKeyWrapper(randomBytes(32), "old");
+    const newKey = new LocalKeyWrapper(randomBytes(32), "new");
+    const ctx = { purpose: "company_dek", company_id: "c1" };
+    const { plaintext, wrapped } = await oldKey.generateDataKey(ctx);
+
+    const rotating = new RotatingKeyWrapper(newKey, oldKey);
+    expect(await rotating.unwrap(wrapped, ctx)).toEqual(plaintext);
+    const moved = await newKey.wrap(await oldKey.unwrap(wrapped, ctx), ctx);
+    expect(moved.keyVersion).toBe("new");
+    expect(await newKey.unwrap(moved, ctx)).toEqual(plaintext);
+    await expect(oldKey.unwrap(moved, ctx)).rejects.toThrow();
+    // Context still binds after the move.
+    await expect(rotating.unwrap(moved, { ...ctx, company_id: "c2" })).rejects.toThrow();
+    expect((await rotating.generateDataKey(ctx)).wrapped.keyVersion).toBe("new");
+  });
+});

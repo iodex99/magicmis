@@ -60,6 +60,14 @@ export const serverEnvSchema = z.object({
     .string()
     .regex(/^(arn:aws:kms:[a-z0-9-]+:\d{12}:(key|alias)\/.+|alias\/.+)$/u),
   /**
+   * Set only while moving to a new master key (docs/runbooks/key-rotation.md): DEKs still wrapped
+   * under this key keep opening until the re-wrap job has moved them.
+   */
+  KMS_PREVIOUS_MASTER_KEY_ID: z
+    .string()
+    .regex(/^(arn:aws:kms:[a-z0-9-]+:\d{12}:(key|alias)\/.+|alias\/.+)$/u)
+    .optional(),
+  /**
    * Pinned explicitly, never inferred. Vercel sets AWS_REGION to the function's execution
    * region, which can change under failover and would send KMS calls to a region where
    * the key does not exist (ADR 0008).

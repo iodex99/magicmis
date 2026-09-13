@@ -2,6 +2,7 @@ export * from "./checkpoints";
 export * from "./drift";
 export * from "./jobs";
 export * from "./library";
+export * from "./rewrap";
 export * from "./lifecycle";
 export * from "./notify";
 export * from "./settle";

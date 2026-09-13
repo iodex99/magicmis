@@ -34,6 +34,8 @@ export interface KeyWrapper {
   ): Promise<{ plaintext: Buffer; wrapped: WrappedKey }>;
   /** Unwrap a stored DEK. Must fail if the context differs from the one used to wrap. */
   unwrap(wrapped: WrappedKey, context: EncryptionContext): Promise<Buffer>;
+  /** Wrap an existing DEK under this master key: re-wrapping when moving to a new master key (ADR 0008). */
+  wrap(plaintext: Buffer, context: EncryptionContext): Promise<WrappedKey>;
 }
 
 export class DecryptionError extends Error {
@@ -132,6 +134,13 @@ export class LocalKeyWrapper implements KeyWrapper {
     });
   }
 
+  wrap(plaintext: Buffer, context: EncryptionContext): Promise<WrappedKey> {
+    return Promise.resolve({
+      ciphertext: encryptWithKey(this.masterKey, plaintext, context),
+      keyVersion: this.keyVersion,
+    });
+  }
+
   unwrap(wrapped: WrappedKey, context: EncryptionContext): Promise<Buffer> {
     try {
       return Promise.resolve(decryptWithKey(this.masterKey, wrapped.ciphertext, context));
@@ -172,4 +181,38 @@ export async function openWithWrappedKey(
 /** Constant-time buffer equality, for callers comparing secrets. */
 export function safeEqual(a: Uint8Array, b: Uint8Array): boolean {
   return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/**
+ * Master-key replacement (ADR 0008): new DEKs are generated and wrapped under `current`, while DEKs
+ * still wrapped under `previous` keep opening until the re-wrap job has moved them. Run the app with
+ * this wrapper for the length of the migration, then with `current` alone.
+ */
+export class RotatingKeyWrapper implements KeyWrapper {
+  constructor(
+    private readonly current: KeyWrapper,
+    private readonly previous: KeyWrapper,
+  ) {}
+
+  generateDataKey(
+    context: EncryptionContext,
+  ): Promise<{ plaintext: Buffer; wrapped: WrappedKey }> {
+    return this.current.generateDataKey(context);
+  }
+
+  wrap(plaintext: Buffer, context: EncryptionContext): Promise<WrappedKey> {
+    return this.current.wrap(plaintext, context);
+  }
+
+  async unwrap(wrapped: WrappedKey, context: EncryptionContext): Promise<Buffer> {
+    try {
+      return await this.current.unwrap(wrapped, context);
+    } catch (currentError) {
+      try {
+        return await this.previous.unwrap(wrapped, context);
+      } catch {
+        throw currentError;
+      }
+    }
+  }
 }

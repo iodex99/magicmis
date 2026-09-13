@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch --conditions=react-server src/main.ts",
     "start": "tsx --conditions=react-server src/main.ts",
+    "rewrap-keys": "tsx --conditions=react-server src/rewrap-keys.ts",
     "lint": "eslint src test",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
