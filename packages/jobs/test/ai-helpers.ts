@@ -13,24 +13,21 @@ import type {
 
 // The SDK types via the transport module: only packages/ai imports the SDK itself.
 type Message = CreateResult["message"];
-declare namespace Anthropic {
-  type Message = CreateResult["message"];
-  type StopReason = NonNullable<Message["stop_reason"]>;
-  type Usage = Message["usage"];
-}
+type StopReason = NonNullable<Message["stop_reason"]>;
+type Usage = Message["usage"];
 
 export type Step =
-  | { readonly kind: "message"; readonly message: Anthropic.Message }
+  | { readonly kind: "message"; readonly message: Message }
   | { readonly kind: "error"; readonly error: Error };
 
 export function message(
   text: string,
   over: {
     model?: string;
-    stop_reason?: Anthropic.StopReason;
-    usage?: Partial<Anthropic.Usage>;
+    stop_reason?: StopReason;
+    usage?: Partial<Usage>;
   } = {},
-): Anthropic.Message {
+): Message {
   return {
     id: `msg_${randomUUID()}`,
     type: "message",
@@ -51,7 +48,7 @@ export function message(
       service_tier: "standard",
       ...over.usage,
     },
-  } as unknown as Anthropic.Message;
+  } as unknown as Message;
 }
 
 /** A transport that replays scripted responses and records every request. */

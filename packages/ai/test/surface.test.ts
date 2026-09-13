@@ -18,7 +18,12 @@ import * as ai from "../src/index";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
-const AI_CALLING_EXPORTS = new Set(["classifySheets", "mapColumns", "mapLedgers"]);
+const AI_CALLING_EXPORTS = new Set([
+  "classifySheets",
+  "mapColumns",
+  "mapLedgers",
+  "generateCommentary",
+]);
 const OTHER_FUNCTION_EXPORTS = new Set([
   "jobAiContext",
   "runJobAiStage",

@@ -6,6 +6,7 @@
 
 import { randomUUID } from "node:crypto";
 
+import type { PeriodId } from "@magicmis/core/time";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import { storeSnapshot } from "@magicmis/engine/server";
 import { priceFor } from "@magicmis/wallet";
@@ -37,7 +38,7 @@ const pool = () => {
   return db.pool;
 };
 
-const PERIOD = "2026-05";
+const PERIOD = "2026-05" as PeriodId;
 const ZERO = {
   files: 0,
   sheets: 0,
