@@ -32,18 +32,24 @@ export async function verifyIntegrity(
   now: Date,
 ): Promise<IntegrityResult> {
   const audit = await verifyAuditChain(pool);
+  // Every account with a ledger or a wallet: a wallet row deleted to hide a ledger is itself a failure.
   const accounts = await pool.query<{
     account_id: string;
-    balance: string;
-    held: string;
+    balance: string | null;
+    held: string | null;
   }>(
-    `select account_id, balance_credits::text as balance, held_credits::text as held from public.wallets`,
+    `select k.account_id, w.balance_credits::text as balance, w.held_credits::text as held
+     from (select account_id from public.credit_ledger union select account_id from public.wallets) k
+     left join public.wallets w on w.account_id = k.account_id`,
   );
   const ledgerFailures: IntegrityResult["ledgerFailures"] = [];
   for (const w of accounts.rows) {
     const replay = replayLedger(w.account_id, await readLedger(pool, w.account_id));
     const walletMismatch =
-      replay.state.balance !== BigInt(w.balance) || replay.state.held !== BigInt(w.held);
+      w.balance === null ||
+      w.held === null ||
+      replay.state.balance !== BigInt(w.balance) ||
+      replay.state.held !== BigInt(w.held);
     const broken = [...replay.brokenChainSeqs, ...replay.inconsistentSeqs].map(String);
     if (walletMismatch || broken.length > 0)
       ledgerFailures.push({

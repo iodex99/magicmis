@@ -6,6 +6,7 @@
 
 import { estimatorConfigSchema, recalibrateEstimator } from "@magicmis/ai/estimator";
 import { readConfig } from "@magicmis/db/config";
+import { pruneRateLimits } from "@magicmis/db/ratelimit";
 import type { AiTransport } from "@magicmis/ai";
 import type { KeyWrapper } from "@magicmis/crypto";
 import {
@@ -130,7 +131,10 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     run: async ({ pool, outputs, wrapper }, now) => ({
       companies: await purgeCompanies(pool, outputs ?? null, now),
       // SPEC §10, §31: erased accounts past their delay; their companies purge with them.
-      accounts: await purgeAccounts(pool, outputs ?? null, now, wrapper ?? null),
+      accounts:
+        wrapper == null
+          ? { skipped: "key wrapper not configured" }
+          : await purgeAccounts(pool, outputs ?? null, now, wrapper),
     }),
   },
   {
@@ -176,6 +180,13 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
       wrapper == null
         ? { skipped: "key wrapper not configured" }
         : refreshLibraryCandidates(pool, wrapper),
+  },
+  {
+    // SPEC §30: rate-limit counters for finished windows, kept off the request path.
+    queue: "ratelimit-prune",
+    cron: "*/10 * * * *",
+    expireInSeconds: 300,
+    run: ({ pool }, now) => pruneRateLimits(pool, now),
   },
   {
     // SPEC §30: audit chain and every ledger verified nightly; admins alerted on any mismatch.

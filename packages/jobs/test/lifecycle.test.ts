@@ -14,6 +14,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createJob } from "../src/jobs";
 import {
+  AccountBusy,
+  CompanyBusy,
   debitMemoryFees,
   deleteAccount,
   purgeAccounts,
@@ -216,7 +218,27 @@ describe("deletion and purge", () => {
       payload: emptySnapshot("2027-01"),
     });
     const now = new Date("2027-02-01T06:00:00Z");
+    // A job holding credits blocks deletion until it finishes.
+    const job = await pool().query<{ id: string }>(
+      `insert into jobs (account_id, company_id, type, state, idempotency_key) values ($1, $2, 'monthly_refresh', 'classifying', gen_random_uuid()::text) returning id`,
+      [accountId, companyId],
+    );
+    const hold = await pool().query<{ id: string }>(
+      `insert into reservations (account_id, job_id, amount, expires_at) values ($1, $2, 10, now() + interval '1 hour') returning id`,
+      [accountId, job.rows[0]?.id],
+    );
+    await expect(
+      deleteCompany(pool(), { accountId, companyId, now }),
+    ).rejects.toBeInstanceOf(CompanyBusy);
+    await pool().query(`update reservations set status = 'released' where id = $1`, [
+      hold.rows[0]?.id,
+    ]);
     await deleteCompany(pool(), { accountId, companyId, now });
+    const audited = await pool().query(
+      `select count(*)::int as n from audit_log where action = 'company.deletion_requested' and target_id = $1`,
+      [companyId],
+    );
+    expect(audited.rows[0]).toEqual({ n: 1 });
     await debitMemoryFees(pool(), new Date("2027-02-15T06:00:00Z"));
     expect(await wallet(pool(), accountId)).toEqual({ balance: 5_000n, held: 0n });
 
@@ -224,6 +246,10 @@ describe("deletion and purge", () => {
     expect(await purgeCompanies(pool(), store, new Date("2027-02-20T06:00:00Z"))).toBe(0);
     expect(await purgeCompanies(pool(), store, new Date("2027-03-05T06:00:00Z"))).toBe(1);
     expect((await company(companyId))?.lifecycle_state).toBe("purged");
+    const renamed = await pool().query(`select name from companies where id = $1`, [
+      companyId,
+    ]);
+    expect(renamed.rows[0]).toEqual({ name: "Deleted company" });
     await expect(
       latestSnapshot(pool(), wrapper, { accountId, companyId, period: "2027-01" }),
     ).rejects.toThrow(/destroyed/u);
@@ -251,6 +277,33 @@ describe("account erasure (SPEC §10, §31; Phase 9 acceptance: purge verifiably
       [accountId],
     );
 
+    // Personal data in the places a purge must reach: GSTIN, a consent IP, a notice naming the company.
+    await pool().query(`update accounts set gstin = '27ABCDE1234F1Z5' where id = $1`, [
+      accountId,
+    ]);
+    await pool().query(
+      `insert into consents (account_id, document, version, ip) values ($1, 'processing', 'v', '203.0.113.9')`,
+      [accountId],
+    );
+    await pool().query(
+      `insert into notifications (account_id, type, payload, dedupe_key) values ($1, 'lifecycle.grace', $2, gen_random_uuid()::text)`,
+      [
+        accountId,
+        JSON.stringify({ company_id: companyId, company_name: "Synthetic Traders" }),
+      ],
+    );
+
+    // Work in progress blocks closing the account: nothing is held when it closes.
+    await pool().query(`update wallets set held_credits = 1 where account_id = $1`, [
+      accountId,
+    ]);
+    await expect(
+      deleteAccount(pool(), { accountId, now: new Date("2027-02-01T06:00:00Z") }),
+    ).rejects.toBeInstanceOf(AccountBusy);
+    await pool().query(`update wallets set held_credits = 0 where account_id = $1`, [
+      accountId,
+    ]);
+
     const now = new Date("2027-02-01T06:00:00Z");
     const { purgeAfter } = await deleteAccount(pool(), { accountId, now });
     const closed = await pool().query(
@@ -265,10 +318,20 @@ describe("account erasure (SPEC §10, §31; Phase 9 acceptance: purge verifiably
 
     const store = new MemoryOutputStore();
     expect(
-      await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() - 60_000)),
+      await purgeAccounts(
+        pool(),
+        store,
+        new Date(purgeAfter.getTime() - 60_000),
+        wrapper,
+      ),
     ).toBe(0);
     expect(
-      await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() + 60_000)),
+      await purgeAccounts(
+        pool(),
+        store,
+        new Date(purgeAfter.getTime() + 60_000),
+        wrapper,
+      ),
     ).toBe(1);
 
     const keys = await pool().query<{
@@ -314,8 +377,36 @@ describe("account erasure (SPEC §10, §31; Phase 9 acceptance: purge verifiably
       [accountId],
     );
     expect(ledgerAfter.rows[0]).toEqual(ledgerBefore.rows[0]);
+    const scrubbed = await pool().query<{
+      gstin: string | null;
+      company: string;
+      ips: number;
+      payloads: number;
+    }>(
+      `select a.gstin, c.name as company,
+         (select count(*)::int from consents where account_id = $1 and ip is not null) as ips,
+         (select count(*)::int from notifications where account_id = $1 and payload <> '{}'::jsonb) as payloads
+       from accounts a join companies c on c.account_id = a.id where a.id = $1`,
+      [accountId],
+    );
+    expect(scrubbed.rows[0]).toEqual({
+      gstin: null,
+      company: "Deleted company",
+      ips: 0,
+      payloads: 0,
+    });
+    const audit = await pool().query(
+      `select count(*)::int as n from audit_log where target_id = $1 and action in ('account.deletion_requested', 'account.purged')`,
+      [accountId],
+    );
+    expect(audit.rows[0]).toEqual({ n: 2 });
     expect(
-      await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() + 120_000)),
+      await purgeAccounts(
+        pool(),
+        store,
+        new Date(purgeAfter.getTime() + 120_000),
+        wrapper,
+      ),
     ).toBe(0);
   });
 });

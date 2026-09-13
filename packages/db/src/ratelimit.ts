@@ -1,7 +1,7 @@
 /**
  * Fixed-window rate limits in Postgres (SPEC §30): per-account limits on AI and export endpoints
  * and a per-IP ceiling on the API. One atomic upsert per request; counters for past windows are
- * pruned opportunistically. Works across serverless instances because the counter is shared.
+ * pruned by a scheduled task, never on the request path. Works across serverless instances because the counter is shared.
  */
 
 import { z } from "zod";
@@ -48,14 +48,23 @@ export async function consumeRateLimit(
     [`${name}:${subject}`, windowStart],
   );
   const count = r.rows[0]?.count ?? 1;
-  if (count === 1)
-    await db.query(`delete from public.rate_limit_counters where window_start < $1`, [
-      new Date(windowStart.getTime() - windowMs),
-    ]);
   return {
     allowed: count <= limit,
     limit,
     remaining: Math.max(0, limit - count),
     retryAfter: Math.ceil((windowStart.getTime() + windowMs - now.getTime()) / 1000),
   };
+}
+
+/** Worker: drop counters from windows that ended more than `keepSeconds` ago. */
+export async function pruneRateLimits(
+  db: Queryable,
+  now: Date = new Date(),
+  keepSeconds = 3600,
+): Promise<number> {
+  const r = await db.query(
+    `delete from public.rate_limit_counters where window_start < $1`,
+    [new Date(now.getTime() - keepSeconds * 1000)],
+  );
+  return r.rowCount ?? 0;
 }

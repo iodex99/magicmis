@@ -203,7 +203,7 @@ test("margin dashboard flags a seeded over-ratio action; break-glass, jobs and p
 
   await page.goto(`/accounts/${accountId}`);
   await page
-    .getByLabel("Reason (at least 20 characters)")
+    .getByLabel("Reason (20 to 500 characters)")
     .fill("E2E check of the break-glass flow for support");
   await page.getByRole("button", { name: "Grant access" }).click();
   await expect(page.getByTestId("break-glass-grant")).toContainText(

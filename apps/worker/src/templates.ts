@@ -96,7 +96,45 @@ function withCompany(
   return p.success ? render(p.data) : null;
 }
 
-/** Returns null for a type with no template: the row is suppressed, not retried forever. */
+/**
+ * Every type with a template. A known type whose payload the template rejects is a defect, not a
+ * suppressible notice: delivery marks it failed and reports it (a security notice must never vanish).
+ */
+export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
+  "security.new_device_login",
+  "security.mfa_reset_with_backup_code",
+  "security.backup_codes_regenerated",
+  "security.password_changed",
+  "security.email_changed",
+  "invoice_issued",
+  "proforma_issued",
+  "job.awaiting_review",
+  "job.review_expiring",
+  "job.completed",
+  "job.failed",
+  "job.quote_offered",
+  "billing.memory_fee_debited",
+  "billing.memory_fee_failed",
+  "billing.low_balance_before_fee",
+  "lifecycle.grace",
+  "lifecycle.archive_notice",
+  "lifecycle.archived",
+  "lifecycle.purge_notice",
+  "lifecycle.purged",
+  "reminder.monthly_refresh",
+  "security.break_glass",
+  "account.deletion_scheduled",
+  "account.export_ready",
+  "billing.lot_expiry_notice",
+]);
+
+/** Notices a closed (deleted, not yet purged) account still receives: its deletion and any access to its data. */
+export const CLOSED_ACCOUNT_TYPES: ReadonlySet<string> = new Set([
+  "account.deletion_scheduled",
+  "security.break_glass",
+]);
+
+/** Returns null for a type with no template, or a payload the template rejects. */
 export function renderNotification(
   type: string,
   payload: unknown,

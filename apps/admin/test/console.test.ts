@@ -293,6 +293,30 @@ describe("break-glass", () => {
         minutes: 600,
       }),
     ).rejects.toThrow(/between 1 and 60 minutes/u);
+    // A reason the customer notice cannot carry would leave the grant unannounced: refused.
+    await expect(
+      grantBreakGlass(pool(), {
+        adminId,
+        ip: null,
+        accountId: c.accountId,
+        reason: "x".repeat(501),
+        minutes: 10,
+      }),
+    ).rejects.toThrow(/500 characters/u);
+    const purged = await pool().query<{ id: string }>(
+      `insert into accounts (auth_user_id, email, business_name, state_code, status, purged_at)
+       values (gen_random_uuid(), $1, 'Deleted account', '27', 'deleted', now()) returning id`,
+      [`purged-${String(Date.now())}@invalid`],
+    );
+    await expect(
+      grantBreakGlass(pool(), {
+        adminId,
+        ip: null,
+        accountId: purged.rows[0]?.id ?? "",
+        reason: "Customer asked us to check a mapping",
+        minutes: 10,
+      }),
+    ).rejects.toThrow(/purged/u);
 
     const { grantId } = await grantBreakGlass(pool(), {
       adminId,

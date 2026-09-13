@@ -559,10 +559,23 @@ export async function grantBreakGlass(
   const reason = input.reason.trim();
   if (reason.length < 20)
     throw new RangeError("give a written reason of at least 20 characters");
+  // The customer notice template and the database check accept at most 500: a longer reason would
+  // leave the grant working while the account holder is never told (migration 0029).
+  if (reason.length > 500)
+    throw new RangeError("keep the reason to 500 characters or fewer");
   if (!Number.isInteger(input.minutes) || input.minutes < 1 || input.minutes > max)
     throw new RangeError(`access lasts between 1 and ${max.toString()} minutes`);
   const expiresAt = new Date(now.getTime() + input.minutes * 60_000);
   return withTransaction(pool, async (tx) => {
+    // A purged account has no data to view and no address to notify. A closed account awaiting
+    // purge may be viewed, and its holder is still emailed (worker CLOSED_ACCOUNT_TYPES).
+    const acct = await tx.query<{ purged_at: Date | null }>(
+      `select purged_at from public.accounts where id = $1 for share`,
+      [input.accountId],
+    );
+    const account = acct.rows[0];
+    if (account === undefined) throw new RangeError("account not found");
+    if (account.purged_at !== null) throw new RangeError("this account has been purged");
     const g = await tx.query<{ id: string }>(
       `insert into public.break_glass_grants (admin_user_id, account_id, reason, expires_at, created_at) values ($1, $2, $3, $4, $5) returning id`,
       [input.adminId, input.accountId, reason, expiresAt, now],

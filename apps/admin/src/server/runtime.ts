@@ -1,6 +1,7 @@
 import "server-only";
 
 import { LocalKeyWrapper, RotatingKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
+import { clientIp } from "@magicmis/core/security-headers";
 import { KmsKeyWrapper } from "@magicmis/crypto/kms";
 import { headers } from "next/headers";
 import pg from "pg";
@@ -66,12 +67,6 @@ export function ipAllowlist(): ReadonlySet<string> | null {
 
 export async function requestMeta(): Promise<{ ip: string | null; userAgent: string }> {
   const h = await headers();
-  const forwarded = h.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return {
-    ip:
-      forwarded !== undefined && forwarded !== ""
-        ? forwarded
-        : (h.get("x-real-ip") ?? null),
-    userAgent: h.get("user-agent") ?? "",
-  };
+  // Only proxy-added values; an unknown IP fails the allowlist closed (SPEC §30).
+  return { ip: clientIp((name) => h.get(name)), userAgent: h.get("user-agent") ?? "" };
 }

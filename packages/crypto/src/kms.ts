@@ -55,8 +55,9 @@ export class KmsKeyWrapper implements KeyWrapper {
       plaintext: Buffer.from(result.Plaintext),
       wrapped: {
         ciphertext: result.CiphertextBlob,
-        // KeyMaterialId identifies the rotated key material that wrapped this DEK.
-        keyVersion: result.KeyMaterialId ?? result.KeyId ?? this.keyId,
+        // The key ARN, the same value Encrypt reports: one version string per master key, so the
+        // re-wrap job can tell which key a DEK is under. KMS rotation inside a key needs no tracking.
+        keyVersion: result.KeyId ?? this.keyId,
       },
     };
   }

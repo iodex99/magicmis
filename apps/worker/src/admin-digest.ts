@@ -26,6 +26,11 @@ export async function sendAdminMarginDigest(
   now: Date,
 ): Promise<{ sent: number; flagged: number }> {
   const report = await marginReport(pool, new Date(now.getTime() - 86_400_000), now);
+  // SPEC §30: the audit chain head, recorded outside the database every day. A later rewrite of the
+  // chain cannot also rewrite the copies already in admins' inboxes (ADR 0024, R-52).
+  const head = await pool.query<{ seq: string; hash: string }>(
+    `select seq::text as seq, hash from public.audit_log order by seq desc limit 1`,
+  );
   const flagged = report.actions.filter((a) => a.overCap);
   const day = new Date(now.getTime() + 5.5 * 3_600_000).toISOString().slice(0, 10);
   const gm = report.grossMargin;
@@ -43,6 +48,8 @@ export async function sendAdminMarginDigest(
     flagged.length === 0
       ? "No action is over its max AI cost ratio."
       : `OVER MAX AI COST RATIO: ${flagged.map((a) => `${a.actionKey} (${a.ratio ?? "no capture"} > ${a.maxRatio ?? "?"})`).join(", ")}`,
+    "",
+    `Audit chain head: seq ${head.rows[0]?.seq ?? "0"} hash ${head.rows[0]?.hash ?? "none"}`,
     "",
     `${appUrl}/margin?days=1`,
   ];

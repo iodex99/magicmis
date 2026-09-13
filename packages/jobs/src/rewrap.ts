@@ -77,16 +77,33 @@ export async function rewrapDataKeys(
       if (r.rows.length === 0) break;
       for (const row of r.rows) {
         const context = table.context(row);
-        const dek = await from.unwrap(
-          { ciphertext: row.wrapped, keyVersion: row.version },
-          context,
-        );
+        const stored = { ciphertext: row.wrapped, keyVersion: row.version };
+        let dek: Buffer;
+        try {
+          dek = await from.unwrap(stored, context);
+        } catch (fromError) {
+          // Already under the new key (created during the rotation window with a version string that
+          // differs from toVersion): record its version and move on, never abort the run.
+          const already = await to.unwrap(stored, context).catch(() => null);
+          if (already === null) throw fromError;
+          already.fill(0);
+          const u = await db.query(table.update, [
+            row.id,
+            row.wrapped,
+            toVersion,
+            row.version,
+          ]);
+          count += u.rowCount ?? 0;
+          after = row.id;
+          continue;
+        }
         try {
           const wrapped = await to.wrap(dek, context);
           const u = await db.query(table.update, [
             row.id,
             Buffer.from(wrapped.ciphertext),
-            wrapped.keyVersion,
+            // One version string per master key, whatever the wrapper reports (see kms.ts).
+            toVersion,
             row.version,
           ]);
           count += u.rowCount ?? 0;

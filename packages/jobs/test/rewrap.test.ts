@@ -31,7 +31,8 @@ const pool = () => {
 describe("re-wrap onto a new master key", () => {
   it("moves company, account and platform keys; data opens under the new key only; reruns are no-ops", async () => {
     const oldKey = new LocalKeyWrapper(randomBytes(32), "master-old");
-    const newKey = new LocalKeyWrapper(randomBytes(32), "master-new");
+    const newKeyBytes = randomBytes(32);
+    const newKey = new LocalKeyWrapper(newKeyBytes, "master-new");
     const { accountId, companyId } = await accountWithCompany(pool(), 0n);
     await storeSnapshot(pool(), oldKey, {
       accountId,
@@ -54,6 +55,16 @@ describe("re-wrap onto a new master key", () => {
     expect(
       await latestSnapshot(pool(), rotating, { accountId, companyId, period: "2027-01" }),
     ).not.toBeNull();
+    // A company set up during the rotation window gets its DEK from the new key, under a version
+    // string the new wrapper reports differently: the run must record it, not abort on it.
+    const newMaterial = new LocalKeyWrapper(newKeyBytes, "master-new-material-2");
+    const late = await accountWithCompany(pool(), 0n);
+    await storeSnapshot(pool(), newMaterial, {
+      accountId: late.accountId,
+      companyId: late.companyId,
+      jobId: null,
+      payload: emptySnapshot("2027-02"),
+    });
 
     const moved = await rewrapDataKeys(pool(), oldKey, newKey, "master-new", 1);
     expect(moved["company_keys"]).toBeGreaterThanOrEqual(1);

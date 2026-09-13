@@ -14,7 +14,12 @@ import type { Pool } from "pg";
 import { z } from "zod";
 
 import type { MailSender } from "./mail";
-import { renderNotification, type TemplateContext } from "./templates";
+import {
+  CLOSED_ACCOUNT_TYPES,
+  renderNotification,
+  TEMPLATE_TYPES,
+  type TemplateContext,
+} from "./templates";
 
 export interface DeliveryStats {
   sent: number;
@@ -68,11 +73,20 @@ export async function deliverNotifications(
       const row = r.rows[0];
       if (row === undefined) return false;
 
-      // A closed account still receives the notice that it is being deleted, until it is purged.
+      // A closed account still receives its deletion notice and any break-glass notice, until purged.
       const blocked =
         row.account_status === "deleted" &&
-        !(row.type === "account.deletion_scheduled" && !row.email.endsWith("@invalid"));
+        !(CLOSED_ACCOUNT_TYPES.has(row.type) && !row.email.endsWith("@invalid"));
       const rendered = blocked ? null : renderNotification(row.type, row.payload, ctx);
+      if (rendered === null && !blocked && TEMPLATE_TYPES.has(row.type)) {
+        // A known type with a payload its template rejects: fail loudly, never suppress silently.
+        await tx.query(
+          `update public.notifications set status = 'failed', last_error = $2 where id = $1`,
+          [row.id, `payload rejected by the ${row.type} template`],
+        );
+        stats.failed += 1;
+        return true;
+      }
       if (rendered === null) {
         await tx.query(
           `update public.notifications set status = 'suppressed', last_error = $2 where id = $1`,

@@ -129,7 +129,7 @@ describe("data export (SPEC §10, §31)", () => {
     expect([...store.files.keys()].some((k) => k.startsWith(path))).toBe(true);
 
     const { purgeAfter } = await deleteAccount(pool(), { accountId, now });
-    await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() + 60_000));
+    await purgeAccounts(pool(), store, new Date(purgeAfter.getTime() + 60_000), wrapper);
     expect([...store.files.keys()].some((k) => k.startsWith(path))).toBe(false);
     const [row] = await listAccountExports(pool(), accountId);
     expect(row?.status).toBe("expired");

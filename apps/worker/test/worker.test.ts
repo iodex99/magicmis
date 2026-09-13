@@ -11,7 +11,7 @@ import { deliverNotifications } from "../src/deliver";
 import { loadWorkerEnv } from "../src/env";
 import type { MailSender, OutboundEmail, SendResult } from "../src/mail";
 import { MAINTENANCE_TASKS } from "../src/tasks";
-import { renderNotification } from "../src/templates";
+import { renderNotification, TEMPLATE_TYPES } from "../src/templates";
 
 let db: TestDb | undefined;
 beforeAll(async () => {
@@ -247,6 +247,29 @@ describe("templates", () => {
     expect(
       renderNotification("invoice_issued", { invoiceId: "not-a-uuid" }, CTX),
     ).toBeNull();
+    // The known-type list delivery relies on matches the templates exactly.
+    expect([...TEMPLATE_TYPES].sort()).toEqual(types.map(([t]) => t).sort());
+  });
+
+  it("fails, never suppresses, a known notice whose payload its template rejects; closed accounts still get break-glass notices", async () => {
+    const pool = testDb().pool;
+    await deliverNotifications(pool, new RecordingSender(), CTX, later(1));
+    const a = await account();
+    const tooLong = await queue(a.id, "security.break_glass", {
+      reason: "x".repeat(501),
+      expires_at: "2027-01-02T00:00:00Z",
+    });
+    const closed = await account("deleted");
+    const notice = await queue(closed.id, "security.break_glass", {
+      reason: "Customer asked for help with a mapping",
+      expires_at: "2027-01-02T00:00:00Z",
+    });
+    const sender = new RecordingSender();
+    await deliverNotifications(pool, sender, CTX, later(1));
+    expect(await status(tooLong)).toMatchObject({ status: "failed" });
+    expect((await status(tooLong)).last_error).toContain("payload rejected");
+    expect((await status(notice)).status).toBe("sent");
+    expect(sender.sent.map((m) => m.to)).toContain(closed.email);
   });
 });
 

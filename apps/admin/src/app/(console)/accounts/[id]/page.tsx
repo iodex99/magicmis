@@ -241,11 +241,12 @@ export default async function AccountPage({
         >
           <input type="hidden" name="accountId" value={id} />
           <label className="flex flex-col">
-            Reason (at least 20 characters)
+            Reason (20 to 500 characters)
             <textarea
               name="reason"
               required
               minLength={20}
+              maxLength={500}
               className={`${input} h-16 w-96`}
             />
           </label>

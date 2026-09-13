@@ -373,35 +373,53 @@ export async function purgeCompanies(
   pool: Pool,
   store: OutputStore | null,
   now: Date = new Date(),
+  /** Limit to one account's companies (account purge), which also skips the customer notice. */
+  accountId: string | null = null,
 ): Promise<number> {
   let purged = 0;
+  const failures: unknown[] = [];
   for (const c of await companies(
     pool,
-    "lifecycle_state <> 'purged' and purge_after is not null and purge_after <= $1",
-    [now],
+    "lifecycle_state <> 'purged' and purge_after is not null and purge_after <= $1 and ($2::uuid is null or account_id = $2)",
+    [now, accountId],
   )) {
-    const outputs = await pool.query<{ storage_path: string }>(
-      `select storage_path from public.outputs where company_id = $1`,
-      [c.id],
-    );
-    if (store !== null && outputs.rows.length > 0)
-      await store.remove(outputs.rows.map((o) => o.storage_path).filter((p) => p !== ""));
-    await withTransaction(pool, async (tx) => {
-      await shredCompanyKey(tx, c.id, now);
-      await tx.query(`delete from public.outputs where company_id = $1`, [c.id]);
-      await tx.query(
-        `update public.companies set lifecycle_state = 'purged', purged_at = $2, wrapped_redaction_key = null where id = $1`,
-        [c.id, now],
+    // One failing company (e.g. storage unavailable) must not block every other purge.
+    try {
+      const outputs = await pool.query<{ storage_path: string }>(
+        `select storage_path from public.outputs where company_id = $1`,
+        [c.id],
       );
-      await queueNotification(tx, {
-        accountId: c.account_id,
-        type: "lifecycle.purged",
-        payload: { company_id: c.id, company_name: c.name },
-        dedupeKey: `purged:${c.id}`,
+      if (store !== null && outputs.rows.length > 0)
+        await store.remove(
+          outputs.rows.map((o) => o.storage_path).filter((p) => p !== ""),
+        );
+      await withTransaction(pool, async (tx) => {
+        await shredCompanyKey(tx, c.id, now);
+        await tx.query(`delete from public.outputs where company_id = $1`, [c.id]);
+        // The name is the customer's data too: it goes with the key.
+        await tx.query(
+          `update public.companies set lifecycle_state = 'purged', purged_at = $2, wrapped_redaction_key = null,
+             name = 'Deleted company' where id = $1`,
+          [c.id, now],
+        );
+        if (accountId === null)
+          await queueNotification(tx, {
+            accountId: c.account_id,
+            type: "lifecycle.purged",
+            payload: { company_id: c.id, company_name: c.name },
+            dedupeKey: `purged:${c.id}`,
+          });
       });
-    });
-    purged += 1;
+      purged += 1;
+    } catch (error) {
+      failures.push(error);
+    }
   }
+  if (failures.length > 0)
+    throw new AggregateError(
+      failures,
+      `${String(failures.length)} company purge(s) failed`,
+    );
   return purged;
 }
 
@@ -416,18 +434,59 @@ export async function deleteCompany(
     "lifecycle.deletion_purge_delay_days",
     z.number().int().nonnegative(),
   );
-  const r = await pool.query(
-    `update public.companies set deleted_at = coalesce(deleted_at, $3), purge_after = coalesce(purge_after, $4)
-     where id = $1 and account_id = $2 and lifecycle_state <> 'purged'`,
-    [input.companyId, input.accountId, now, new Date(now.getTime() + delay * DAY)],
-  );
-  if (r.rowCount !== 1) throw new Error("company not found");
+  const purgeAfter = new Date(now.getTime() + delay * DAY);
+  await withTransaction(pool, async (tx) => {
+    const locked = await tx.query(
+      `select 1 from public.companies where id = $1 and account_id = $2 and lifecycle_state <> 'purged' for update`,
+      [input.companyId, input.accountId],
+    );
+    if (locked.rows.length === 0) throw new Error("company not found");
+    // A running job or chat message holds credits against this company: finish or cancel it first.
+    const held = await tx.query(
+      `select 1 from public.reservations r
+         left join public.jobs j on j.id = r.job_id
+         left join public.chat_messages m on m.id = r.chat_message_id
+         left join public.chat_threads t on t.id = m.thread_id
+       where r.status = 'held' and (j.company_id = $1 or t.company_id = $1) limit 1`,
+      [input.companyId],
+    );
+    if (held.rows.length > 0) throw new CompanyBusy(input.companyId);
+    await tx.query(
+      `update public.companies set deleted_at = coalesce(deleted_at, $2), purge_after = coalesce(purge_after, $3)
+       where id = $1`,
+      [input.companyId, now, purgeAfter],
+    );
+    // SPEC §4: deletions are audit-logged.
+    await appendAudit(tx, {
+      actorType: "account",
+      actorId: input.accountId,
+      action: "company.deletion_requested",
+      targetType: "company",
+      targetId: input.companyId,
+      metadata: { purgeAfter: purgeAfter.toISOString() },
+    });
+  });
+}
+
+export class AccountBusy extends Error {
+  constructor(accountId: string) {
+    super(`account ${accountId} holds credits for work in progress`);
+    this.name = "AccountBusy";
+  }
+}
+
+export class CompanyBusy extends Error {
+  constructor(companyId: string) {
+    super(`company ${companyId} has a job or chat message in progress`);
+    this.name = "CompanyBusy";
+  }
 }
 
 export type RestoreResult =
   | { readonly status: "restored"; readonly credits: bigint }
   | { readonly status: "insufficient_credits"; readonly credits: bigint }
-  | { readonly status: "not_archived" };
+  | { readonly status: "not_archived" }
+  | { readonly status: "not_found" };
 
 /** Restore an archived company: `company_restore` price plus the current month's fee (SPEC §28). */
 export async function restoreCompany(
@@ -440,7 +499,9 @@ export async function restoreCompany(
     "id = $1 and account_id = $2 and deleted_at is null",
     [input.companyId, input.accountId],
   );
-  if (company?.lifecycle_state !== "archived") return { status: "not_archived" };
+  // Another account's company is indistinguishable from one that does not exist.
+  if (company === undefined) return { status: "not_found" };
+  if (company.lifecycle_state !== "archived") return { status: "not_archived" };
   const t = istToday(now);
   const month = monthKey(t.year, t.month);
   const credits =
@@ -524,6 +585,12 @@ export async function deleteAccount(
   );
   const purgeAfter = new Date(now.getTime() + delay * DAY);
   await withTransaction(pool, async (tx) => {
+    // Checked under the wallet lock, so no reservation can start between the check and the close.
+    const wallet = await tx.query<{ held: string }>(
+      `select held_credits::text as held from public.wallets where account_id = $1 for update`,
+      [input.accountId],
+    );
+    if ((wallet.rows[0]?.held ?? "0") !== "0") throw new AccountBusy(input.accountId);
     const r = await tx.query(
       `update public.accounts set status = 'deleted', deleted_at = coalesce(deleted_at, $2),
          purge_after = coalesce(purge_after, $3), active_session_id = null
@@ -562,43 +629,69 @@ export async function deleteAccount(
 export async function purgeAccounts(
   pool: Pool,
   store: OutputStore | null,
-  now: Date = new Date(),
-  /** Removes the account library votes; without it they stay, counted by digest only. */
-  wrapper: KeyWrapper | null = null,
+  now: Date,
+  /** Needed to remove the account's library votes; purging without it would leave them behind. */
+  wrapper: KeyWrapper | null,
 ): Promise<number> {
+  if (wrapper === null)
+    throw new Error("purgeAccounts needs the key wrapper to remove library votes");
   const due = await pool.query<{ id: string }>(
     `select id from public.accounts where status = 'deleted' and purged_at is null and purge_after is not null and purge_after <= $1`,
     [now],
   );
+  let purged = 0;
+  const failures: unknown[] = [];
   for (const a of due.rows) {
-    await pool.query(
-      `update public.companies set purge_after = least(coalesce(purge_after, $2), $2) where account_id = $1 and lifecycle_state <> 'purged'`,
-      [a.id, now],
-    );
-    await purgeCompanies(pool, store, now);
-    await removeAccountExports(pool, store, a.id);
-    if (wrapper !== null) await removeLibraryVotes(pool, wrapper, a.id);
-    await withTransaction(pool, async (tx) => {
-      await shredAccountKey(tx, a.id, now);
-      await tx.query(
-        `update public.account_mapping_rules set deleted_at = coalesce(deleted_at, $2) where account_id = $1`,
+    try {
+      await pool.query(
+        `update public.companies set purge_after = least(coalesce(purge_after, $2), $2) where account_id = $1 and lifecycle_state <> 'purged'`,
         [a.id, now],
       );
-      await tx.query(
-        `update public.accounts set email = 'purged-' || id::text || '@invalid', business_name = 'Deleted account',
-           billing_address = '{}'::jsonb, purged_at = $2 where id = $1`,
-        [a.id, now],
-      );
-      await tx.query(`delete from public.login_events where account_id = $1`, [a.id]);
-      await appendAudit(tx, {
-        actorType: "system",
-        actorId: null,
-        action: "account.purged",
-        targetType: "account",
-        targetId: a.id,
-        metadata: {},
+      await purgeCompanies(pool, store, now, a.id);
+      await removeAccountExports(pool, store, a.id);
+      await removeLibraryVotes(pool, wrapper, a.id);
+      await withTransaction(pool, async (tx) => {
+        await shredAccountKey(tx, a.id, now);
+        await tx.query(
+          `update public.account_mapping_rules set deleted_at = coalesce(deleted_at, $2) where account_id = $1`,
+          [a.id, now],
+        );
+        // Personal fields go; the account row, invoices and ledger stay for the statutory period
+        // (invoices keep their own buyer snapshot).
+        await tx.query(
+          `update public.accounts set email = 'purged-' || id::text || '@invalid', business_name = 'Deleted account',
+             billing_address = '{}'::jsonb, gstin = null, purged_at = $2 where id = $1`,
+          [a.id, now],
+        );
+        await tx.query(`delete from public.login_events where account_id = $1`, [a.id]);
+        await tx.query(`update public.consents set ip = null where account_id = $1`, [
+          a.id,
+        ]);
+        // Notice payloads can carry company names; delivered or not, they are no longer needed.
+        await tx.query(
+          `update public.notifications set payload = '{}'::jsonb,
+             status = case when status = 'queued' then 'suppressed' else status end
+           where account_id = $1`,
+          [a.id],
+        );
+        await appendAudit(tx, {
+          actorType: "system",
+          actorId: null,
+          action: "account.purged",
+          targetType: "account",
+          targetId: a.id,
+          metadata: {},
+        });
       });
-    });
+      purged += 1;
+    } catch (error) {
+      failures.push(error);
+    }
   }
-  return due.rows.length;
+  if (failures.length > 0)
+    throw new AggregateError(
+      failures,
+      `${String(failures.length)} account purge(s) failed`,
+    );
+  return purged;
 }
