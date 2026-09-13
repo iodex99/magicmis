@@ -12,7 +12,8 @@
     "./format": "./src/format/index.ts",
     "./identifiers": "./src/identifiers/index.ts",
     "./hashchain": "./src/hashchain/index.ts",
-    "./config": "./src/config/index.ts"
+    "./config": "./src/config/index.ts",
+    "./brand": "./src/brand.ts"
   },
   "scripts": {
     "lint": "eslint src",

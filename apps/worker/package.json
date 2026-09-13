@@ -1,0 +1,29 @@
+{
+  "name": "@magicmis/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts",
+    "lint": "eslint src test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@magicmis/billing": "workspace:*",
+    "@magicmis/core": "workspace:*",
+    "@magicmis/db": "workspace:*",
+    "@magicmis/wallet": "workspace:*",
+    "pg": "^8.16.3",
+    "pg-boss": "12.31.0",
+    "pino": "10.3.1",
+    "resend": "6.28.0",
+    "zod": "^4.1.13",
+    "tsx": "4.23.13"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^11.7.1",
+    "@types/pg": "^8.15.6"
+  }
+}
