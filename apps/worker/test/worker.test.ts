@@ -331,6 +331,64 @@ describe("admin margin digest (SPEC §26)", () => {
   });
 });
 
+describe("nightly integrity check (SPEC §30)", () => {
+  it("passes a consistent ledger silently and alerts admins when a wallet row no longer replays", async () => {
+    const { verifyIntegrity } = await import("../src/integrity");
+    const { grantCredits } = await import("@magicmis/wallet");
+    const pool = testDb().pool;
+    await pool.query(
+      `insert into admin_users (email, password_hash, totp_secret_enc, totp_key_wrapped, totp_key_version, status)
+       values ($1, 'x', '\\x00', '\\x00', 'test', 'active')`,
+      [`${randomUUID()}@admin.example.test`],
+    );
+    const a = await account();
+    await pool.query(
+      `insert into wallets (account_id) values ($1) on conflict do nothing`,
+      [a.id],
+    );
+    await grantCredits(pool, {
+      accountId: a.id,
+      credits: 700n,
+      source: "admin_grant",
+      idempotencyKey: randomUUID(),
+    });
+
+    const quiet = new RecordingSender();
+    const clean = await verifyIntegrity(
+      pool,
+      quiet,
+      "https://admin.example.test",
+      new Date(),
+    );
+    expect(clean.auditFailures).toBe(0);
+    expect(clean.ledgerFailures.find((f) => f.accountId === a.id)).toBeUndefined();
+
+    // Tamper with the wallet outside the ledger.
+    await pool.query(
+      `update wallets set balance_credits = balance_credits + 1 where account_id = $1`,
+      [a.id],
+    );
+    const mail = new RecordingSender();
+    const now = new Date();
+    const failed = await verifyIntegrity(pool, mail, "https://admin.example.test", now);
+    expect(failed.ledgerFailures.find((f) => f.accountId === a.id)?.walletMismatch).toBe(
+      true,
+    );
+    expect(failed.alerted).toBeGreaterThanOrEqual(1);
+    expect(mail.sent[0]?.subject).toMatch(/^\[Integrity alert\]/u);
+    expect(mail.sent[0]?.text).toContain(a.id);
+    expect(mail.sent[0]?.text).not.toContain("700");
+    const logged = await pool.query(
+      `select count(*)::int as n from audit_log where action = 'integrity.check_failed'`,
+    );
+    expect((logged.rows[0] as { n: number }).n).toBeGreaterThanOrEqual(1);
+    await pool.query(
+      `update wallets set balance_credits = balance_credits - 1 where account_id = $1`,
+      [a.id],
+    );
+  });
+});
+
 describe("worker env", () => {
   it("refuses to start without its variables, naming them but not their values", () => {
     try {

@@ -31,6 +31,7 @@ import type { Pool } from "pg";
 
 import { sendAdminMarginDigest } from "./admin-digest";
 import { deliverNotifications } from "./deliver";
+import { verifyIntegrity } from "./integrity";
 import type { MailSender } from "./mail";
 
 export const SCHEDULE_TZ = "Asia/Kolkata";
@@ -173,6 +174,14 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
       wrapper == null
         ? { skipped: "key wrapper not configured" }
         : refreshLibraryCandidates(pool, wrapper),
+  },
+  {
+    // SPEC §30: audit chain and every ledger verified nightly; admins alerted on any mismatch.
+    queue: "integrity-verify",
+    cron: "30 3 * * *",
+    expireInSeconds: 3600,
+    run: ({ pool, mail, appUrl, adminUrl }, now) =>
+      verifyIntegrity(pool, mail, adminUrl ?? appUrl, now),
   },
   {
     // SPEC §26: daily margin summary to admins, 08:00 IST.
