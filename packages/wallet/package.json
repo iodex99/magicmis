@@ -9,9 +9,10 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "eslint src test",
+    "lint": "eslint src test scripts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "load": "tsx scripts/load.ts"
   },
   "dependencies": {
     "@magicmis/core": "workspace:*",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@testcontainers/postgresql": "^11.7.1",
     "@types/pg": "^8.15.6",
-    "fast-check": "^4.5.0"
+    "fast-check": "^4.5.0",
+    "tsx": "4.23.13"
   }
 }

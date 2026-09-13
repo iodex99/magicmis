@@ -950,6 +950,9 @@ importers:
       fast-check:
         specifier: ^4.5.0
         version: 4.9.0
+      tsx:
+        specifier: 4.23.13
+        version: 4.23.13
 
 packages:
 
