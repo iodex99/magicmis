@@ -12,7 +12,8 @@
     "./config": "./src/config.ts",
     "./audit": "./src/audit.ts",
     "./test-harness": "./test/harness.ts",
-    "./idempotency": "./src/idempotency.ts"
+    "./idempotency": "./src/idempotency.ts",
+    "./ratelimit": "./src/ratelimit.ts"
   },
   "scripts": {
     "lint": "eslint src test",
