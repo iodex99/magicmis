@@ -8,3 +8,4 @@ export * from "./states";
 export * from "./storage";
 export * from "./commentary";
 export * from "./dashboard";
+export * from "./template-edits";

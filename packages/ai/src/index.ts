@@ -49,3 +49,17 @@ export {
   type EvalRecord,
 } from "./activation";
 export { AiLimiter, Semaphore } from "./semaphore";
+export {
+  chatQuick,
+  chatEditSpec,
+  summariseThread,
+  chatQuickInput,
+  chatEditInput,
+  editOperations,
+  type ChatAnswerOutput,
+  type ChatEditOutput,
+  type ChatEditInput,
+  type ChatQuickInput,
+} from "./chat-stages";
+export { chatDeepStep, type ChatDeepInput, type DeepStep, type StepOutcome } from "./chat-deep";
+export { chatAiContext } from "./chat-context";

@@ -134,7 +134,7 @@ export interface StageResult<O> {
   readonly costMicroUsd: MicroUsd;
 }
 
-async function promptText(name: string, version: number): Promise<string> {
+export async function promptText(name: string, version: number): Promise<string> {
   const [rules, body] = await Promise.all([
     readFile(path.join(PROMPTS_DIR, "_rules", "v1.md"), "utf8"),
     readFile(path.join(PROMPTS_DIR, name, `v${version.toString()}.md`), "utf8"),

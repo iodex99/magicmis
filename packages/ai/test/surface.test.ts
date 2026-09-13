@@ -24,6 +24,10 @@ const AI_CALLING_EXPORTS = new Set([
   "mapLedgers",
   "generateCommentary",
   "extractReferenceLayout",
+  "chatQuick",
+  "chatEditSpec",
+  "chatDeepStep",
+  "summariseThread",
 ]);
 const OTHER_FUNCTION_EXPORTS = new Set([
   "jobAiContext",
@@ -32,6 +36,8 @@ const OTHER_FUNCTION_EXPORTS = new Set([
   "anthropicTransport",
   "activatePromptVersion",
   "recordEvalRun",
+  "chatAiContext",
+  "editOperations",
 ]);
 const FORBIDDEN_NAME =
   /prompt(?!Version)|passthrough|complete|send|raw|generic|message/iu;

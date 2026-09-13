@@ -119,6 +119,8 @@ export const templateSpecSchema = z.object({
     pct: z.string().regex(/^\d+(\.\d+)?$/u),
     absPaise: z.string().regex(/^\d+$/u),
   }),
+  /** Blueprint version this template was edited from (chat edits, SPEC §27); undo restores it. */
+  editedFrom: z.number().int().positive().nullable().optional(),
 });
 export type TemplateSpec = z.infer<typeof templateSpecSchema>;
 

@@ -288,6 +288,10 @@ function walk(
   for (const [key, value] of Object.entries(node)) {
     // AST node wrappers are PascalCase keys; everything else is a field of the enclosing node.
     if (/^[A-Z]/u.test(key)) {
+      if (key === "RangeFunction")
+        reject(
+          "table functions (such as read_csv or glob) are not allowed; query the session tables",
+        );
       if (!ALLOWED_NODES.has(key)) reject(`${key} is not allowed`);
       const n = isObject(value) ? value : {};
       switch (key) {
@@ -378,7 +382,8 @@ export function guardSql(
     if (sql.includes(";")) reject("exactly one statement is allowed");
     for (let i = 0; i < sql.length; i += 1) {
       const c = sql.charCodeAt(i);
-      if (c < 32 && c !== 9 && c !== 10 && c !== 13) reject("control characters are not allowed");
+      if (c < 32 && c !== 9 && c !== 10 && c !== 13)
+        reject("control characters are not allowed");
     }
 
     const stmt = parseOne(sql);

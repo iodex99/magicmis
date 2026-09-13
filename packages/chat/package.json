@@ -7,7 +7,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./guard": "./src/guard.ts"
+    "./guard": "./src/guard.ts",
+    "./server": "./src/server.ts"
   },
   "scripts": {
     "lint": "eslint src test",
@@ -19,9 +20,18 @@
     "@magicmis/engine": "workspace:*",
     "@magicmis/templates": "workspace:*",
     "libpg-query": "17.7.4",
-    "zod": "^4.1.13"
+    "zod": "^4.1.13",
+    "@magicmis/ai": "workspace:*",
+    "@magicmis/crypto": "workspace:*",
+    "@magicmis/db": "workspace:*",
+    "@magicmis/jobs": "workspace:*",
+    "@magicmis/redact": "workspace:*",
+    "@magicmis/wallet": "workspace:*",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
-    "fast-check": "^4.5.0"
+    "fast-check": "^4.5.0",
+    "@types/pg": "^8.15.6",
+    "@anthropic-ai/sdk": "0.125.0"
   }
 }

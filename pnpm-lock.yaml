@@ -438,6 +438,12 @@ importers:
       '@magicmis/engine':
         specifier: workspace:*
         version: link:../engine
+      '@magicmis/render-dashboard':
+        specifier: workspace:*
+        version: link:../render-dashboard
+      '@magicmis/templates':
+        specifier: workspace:*
+        version: link:../templates
       '@magicmis/wallet':
         specifier: workspace:*
         version: link:../wallet
@@ -460,9 +466,6 @@ importers:
       '@magicmis/tally':
         specifier: workspace:*
         version: link:../tally
-      '@magicmis/templates':
-        specifier: workspace:*
-        version: link:../templates
       '@testcontainers/postgresql':
         specifier: ^11.7.1
         version: 11.14.0(supports-color@7.2.0)
@@ -509,22 +512,49 @@ importers:
 
   packages/chat:
     dependencies:
+      '@magicmis/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@magicmis/core':
         specifier: workspace:*
         version: link:../core
+      '@magicmis/crypto':
+        specifier: workspace:*
+        version: link:../crypto
+      '@magicmis/db':
+        specifier: workspace:*
+        version: link:../db
       '@magicmis/engine':
         specifier: workspace:*
         version: link:../engine
+      '@magicmis/jobs':
+        specifier: workspace:*
+        version: link:../jobs
+      '@magicmis/redact':
+        specifier: workspace:*
+        version: link:../redact
       '@magicmis/templates':
         specifier: workspace:*
         version: link:../templates
+      '@magicmis/wallet':
+        specifier: workspace:*
+        version: link:../wallet
       libpg-query:
         specifier: 17.7.4
         version: 17.7.4
+      pg:
+        specifier: ^8.16.3
+        version: 8.23.0
       zod:
         specifier: ^4.1.13
         version: 4.6.1
     devDependencies:
+      '@anthropic-ai/sdk':
+        specifier: 0.125.0
+        version: 0.125.0
+      '@types/pg':
+        specifier: ^8.15.6
+        version: 8.23.1
       fast-check:
         specifier: ^4.5.0
         version: 4.9.0

@@ -24,6 +24,8 @@
     "@magicmis/core": "workspace:*",
     "@magicmis/db": "workspace:*",
     "@magicmis/engine": "workspace:*",
+    "@magicmis/render-dashboard": "workspace:*",
+    "@magicmis/templates": "workspace:*",
     "@magicmis/wallet": "workspace:*",
     "pg": "^8.16.3",
     "server-only": "0.0.1",
@@ -36,7 +38,6 @@
     "fast-check": "^4.5.0",
     "tsx": "4.23.13",
     "@magicmis/ingest": "workspace:*",
-    "@magicmis/tally": "workspace:*",
-    "@magicmis/templates": "workspace:*"
+    "@magicmis/tally": "workspace:*"
   }
 }
