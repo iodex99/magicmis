@@ -89,6 +89,9 @@ jobs:
       - name: Write app environment from the running stack
         run: |
           eval "$(npx supabase status -o env | sed 's/^/export /')"
+          # Throwaway values generated per run: never committed (gitleaks), and 48 characters so the
+          # client bundle scan checks each one by value (scan-client-bundles.mjs).
+          rand() { node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"; }
           cat > apps/web/.env.local <<EOF
           NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000
           NEXT_PUBLIC_SUPABASE_URL=${API_URL}
@@ -96,15 +99,14 @@ jobs:
           NEXT_PUBLIC_ENVIRONMENT=development
           DATABASE_URL=${DB_URL}
           SUPABASE_SECRET_KEY=${SECRET_KEY}
-          ANTHROPIC_API_KEY=sk-ant-ci-placeholder-not-a-real-key-000000
-          RAZORPAY_KEY_ID=rzp_test_placeholder
-          RAZORPAY_KEY_SECRET=ci-razorpay-key-secret-placeholder-00000
-          RAZORPAY_WEBHOOK_SECRET=ci-razorpay-webhook-secret-placeholder-0
+          ANTHROPIC_API_KEY=ci-$(rand)
+          RAZORPAY_KEY_ID=rzp_test_ci
+          RAZORPAY_KEY_SECRET=ci-$(rand)
+          RAZORPAY_WEBHOOK_SECRET=ci-$(rand)
           KMS_MASTER_KEY_ID=alias/magicmis-ci
           AWS_REGION=ap-south-1
-          RESEND_API_KEY=re_ci_placeholder_not_a_real_key_0000000000
+          RESEND_API_KEY=re_ci_$(rand)
           EMAIL_FROM=CI <noreply@ci.test>
-          # Placeholders are 32+ characters so the bundle scan checks them by value (scan-client-bundles.mjs).
           EOF
           cat > apps/admin/.env.local <<EOF
           APP_ENVIRONMENT=development

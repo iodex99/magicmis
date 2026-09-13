@@ -1,0 +1,3 @@
+# Reviewed false positives (gitleaks fingerprint: commit:file:rule:line).
+# CI placeholder values committed in 64fd368, replaced by per-run random values in the next commit.
+64fd368beca1e360b457d7855618f9e6aacb920d:.github/workflows/ci.yml:generic-api-key:101
