@@ -30,10 +30,26 @@ import {
   type GenerateCommentaryInput,
   type GenerateCommentaryOutput,
 } from "../src/stages";
+import {
+  chatEditStageSpec,
+  chatQuickSpec,
+  summariseThreadSpec,
+  type ChatAnswerOutput,
+  type ChatEditInput,
+  type ChatEditOutput,
+  type ChatQuickInput,
+  type SummariseThreadInput,
+  type SummariseThreadOutput,
+} from "../src/chat-stages";
 import type { AiTransport, CreateParams } from "../src/transport";
 import {
+  chatEditDataset,
+  chatQuickDataset,
   columnMappingDataset,
   commentaryDataset,
+  threadSummaryDataset,
+  type EditLabel,
+  type ScopeLabel,
   referenceLayoutDataset,
   sheetClassificationDataset,
   type EvalItem,
@@ -189,7 +205,59 @@ const commentaryEval: StageEval<GenerateCommentaryInput, GenerateCommentaryOutpu
     }),
   };
 
+const chatQuickEval: StageEval<ChatQuickInput, ChatAnswerOutput, ScopeLabel> = {
+  spec: chatQuickSpec,
+  dataset: chatQuickDataset,
+  // Output that reaches scoring passed the placeholder check; the scope must match.
+  score: (o, label) => ({ units: 1, correct: o.scope === label ? 1 : 0 }),
+  oracle: (item) =>
+    item.label === "out_of_scope"
+      ? { scope: "out_of_scope", paragraphs: [{ text: "I can only answer questions about this MIS." }] }
+      : {
+          scope: "in_scope",
+          paragraphs: [
+            {
+              text:
+                item.input.facts[0] === undefined
+                  ? "The stored MIS does not cover that question."
+                  : `The figure is {{${item.input.facts[0].id}}}.`,
+            },
+          ],
+        },
+};
+
+const chatEditEval: StageEval<ChatEditInput, ChatEditOutput, EditLabel> = {
+  spec: chatEditStageSpec,
+  dataset: chatEditDataset,
+  // The proposal passed patch validation; it must change what was asked for.
+  score: (o, label) => ({
+    units: 1,
+    correct: o.operations.some((op) => op.path === label.path || op.path.startsWith(`${label.path}/`)) ? 1 : 0,
+  }),
+  oracle: (item) => ({
+    scope: "in_scope",
+    summary: "Makes the requested change.",
+    operations: [
+      item.label.path.endsWith("/title")
+        ? { op: "replace", path: item.label.path, from: null, value_json: JSON.stringify("Sales") }
+        : item.label.path.endsWith("/periods")
+          ? { op: "replace", path: item.label.path, from: null, value_json: JSON.stringify({ kind: "last_n", n: 6 }) }
+          : { op: "remove", path: item.label.path, from: null, value_json: null },
+    ],
+  }),
+};
+
+const threadSummaryEval: StageEval<SummariseThreadInput, SummariseThreadOutput, null> = {
+  spec: summariseThreadSpec,
+  dataset: threadSummaryDataset,
+  score: (o) => ({ units: 1, correct: o.summary.length > 0 ? 1 : 0 }),
+  oracle: () => ({ summary: "The user asked about revenue, which was {{m:revenue@2026-05}}, and about receivables." }),
+};
+
 export const STAGE_EVALS = {
+  chat_quick: chatQuickEval,
+  chat_edit: chatEditEval,
+  thread_summary: threadSummaryEval,
   sheet_classification: sheetEval,
   column_mapping: columnEval,
   reference_layout: referenceEval,

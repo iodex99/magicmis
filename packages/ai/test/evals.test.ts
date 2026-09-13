@@ -94,7 +94,7 @@ describe("harness", () => {
     expect(report.failures).toHaveLength(3);
   });
 
-  it.each(["reference_layout", "commentary"] as const)(
+  it.each(["reference_layout", "commentary", "chat_quick", "chat_edit", "thread_summary"] as const)(
     "%s: the dataset runs through the stage check and scores in replay",
     async (stage) => {
       const report = await runEval({
