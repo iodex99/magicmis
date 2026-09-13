@@ -58,13 +58,11 @@ Our handler returns:
 1. Fix the cause: correct the secret and redeploy, or restore the database or deployment.
 2. If Razorpay disabled the webhook, re-enable it in the Dashboard.
 3. For events inside the 24-hour window, Razorpay's retries deliver them. The handler de-duplicates by event id, so nothing is credited twice.
-4. For payments older than the retry window:
-   - Confirm each stuck purchase is `captured` in the Razorpay Dashboard. Match on `razorpay_order_id`.
-   - Do **not** use an admin credit adjustment for these payments. An adjustment grants credits without the purchase's tax invoice, and the purchase stays unreconciled.
-   - Never insert ledger or invoice rows by hand.
-   - Escalate to engineering to re-run the webhook grant path for that purchase (the same code that issues the invoice).
-
-   > TODO(review): R-51 — build a reconciliation job that fetches payment status from the Razorpay API for stuck purchases and runs the webhook grant path. Until then, step 4 needs an engineer.
+4. Let reconciliation catch up. The worker task `billing-reconcile` (every 15 minutes) checks each Razorpay purchase that is still unpaid after `billing.reconcile.after_minutes` directly with Razorpay (`GET /v1/orders/{id}/payments`). A captured INR payment for the exact total is credited through the webhook path: credits, bonus lot, tax invoice, audit (`billing.purchase_reconciled`) and customer notice. A late webhook afterwards is a no-op.
+   - The task needs `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` in the worker environment; without them its result says `skipped`.
+   - Check progress: `select action, target_id, created_at from audit_log where action in ('billing.purchase_reconciled', 'billing.payment_amount_mismatch') order by seq desc limit 50;`
+   - An `amount_mismatch` is never credited automatically. Compare the order and payment in the Razorpay Dashboard and refund or escalate.
+   - Purchases older than `billing.reconcile.max_age_days` are not checked. For those, confirm the capture in the Razorpay Dashboard and escalate to engineering; do **not** use an admin credit adjustment (it grants credits without the purchase's tax invoice), and never insert ledger or invoice rows by hand.
 5. Tell affected customers their credits are now available.
 
 ## Prevent

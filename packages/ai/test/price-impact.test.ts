@@ -53,7 +53,10 @@ describe("price book impact preview", () => {
       maxAiCostRatio: book.max_ai_cost_ratio,
       priceFromActionKey: null,
     };
-    const same = await priceImpactPreview(pool(), proposal);
+    // Rows get created_at from the database clock, which can run ahead of this process; look from a
+    // minute later so the jobs just inserted are always inside the window.
+    const at = new Date(Date.now() + 60_000);
+    const same = await priceImpactPreview(pool(), proposal, at);
     expect(same.items).toBe(2);
     expect(same.quotedItems).toBe(1);
     expect(same.proposedCredits).toBe(same.currentCredits);
@@ -62,20 +65,28 @@ describe("price book impact preview", () => {
     expect(same.itemsOverProposedCap).toBe(0);
 
     // Halving the base doubles the ratio on the two book-priced jobs (15% → 30%, over 20%).
-    const half = await priceImpactPreview(pool(), {
-      ...proposal,
-      baseCredits: base / 2n,
-    });
+    const half = await priceImpactPreview(
+      pool(),
+      {
+        ...proposal,
+        baseCredits: base / 2n,
+      },
+      at,
+    );
     expect(half.proposedCredits).toBe(same.currentCredits - 2n * (base - base / 2n));
     expect(half.itemsOverProposedCap).toBe(2);
     expect(half.aiCostPaise).toBe(same.aiCostPaise);
 
     // Raising the cap to 0.35 clears the per-item flags at the halved price.
-    const relaxed = await priceImpactPreview(pool(), {
-      ...proposal,
-      baseCredits: base / 2n,
-      maxAiCostRatio: "0.35",
-    });
+    const relaxed = await priceImpactPreview(
+      pool(),
+      {
+        ...proposal,
+        baseCredits: base / 2n,
+        maxAiCostRatio: "0.35",
+      },
+      at,
+    );
     expect(relaxed.itemsOverProposedCap).toBe(0);
   });
 });

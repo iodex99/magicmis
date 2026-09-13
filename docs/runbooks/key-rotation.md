@@ -10,7 +10,7 @@
 |---|---|---|
 | `company_keys` | `wrapped_dek`, `kms_key_version` | `purpose=company_dek, account_id, company_id` |
 | `account_keys` | `wrapped_dek`, `kms_key_version` | `purpose=account_dek, account_id` |
-| `platform_keys` | `wrapped_dek`, `kms_key_version` | `purpose=platform_<purpose>_key` |
+| `platform_keys` (`library`, `audit_anchor`) | `wrapped_dek`, `kms_key_version` | `purpose=platform_<purpose>_key` |
 | `admin_users` | `totp_key_wrapped`, `totp_key_version` | `purpose=admin_totp, admin_id` |
 
 Everything else is encrypted under one of those DEKs:

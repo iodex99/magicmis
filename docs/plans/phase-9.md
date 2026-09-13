@@ -124,8 +124,14 @@ R-47 through R-55 (see [REVIEW_ITEMS.md](../REVIEW_ITEMS.md)).
 
 R-24 is closed. R-10, R-11 and R-12 are drafted. R-31 is built pending CA review of the vocabulary.
 
+### Follow-ups built (2026-09-14, ADR 0025)
+
+- **R-51 payment reconciliation:** worker `billing-reconcile` credits Razorpay purchases whose webhook never arrived, from Razorpay's record and through the webhook path (migration 0030).
+- **R-52 integrity anchors:** keyed digests over the audit log and credit ledger, written and verified nightly, shown on `/audit?verify=1`, emailed daily (migration 0031).
+- **R-53 break-glass scope:** grants cover one company, need a fresh admin TOTP code, can require a second admin, and notify the customer daily while used (migration 0032).
+- **R-21 account recovery:** request, hold, cancel and complete in the admin console; completion removes Supabase TOTP factors, revokes backup codes and ends the session (migration 0033).
+- **CI:** first GitHub Actions run fixed. gitleaks flagged a committed CI placeholder, now generated per run; DuckDB-WASM `beforeAll` hooks needed a longer timeout on the runner. All four jobs green.
+
 ### Not done in this phase
 
 - **Browser error reporting:** deliberately absent (ADR 0024 §9).
-- **Admin MFA reset action (R-21):** still the witnessed SQL insert from the runbook.
-- **Tamper-evident chain anchoring (R-52)** and the **payment reconciliation job (R-51):** recorded.

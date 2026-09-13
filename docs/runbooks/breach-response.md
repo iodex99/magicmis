@@ -33,7 +33,12 @@ Do not delete anything. Rows, logs and the audit chain are the evidence.
 
 ## 2. Assess
 
-1. **Verify the audit chain.** Run `/audit?verify=1` in the admin console. Note the first failing row id.
+1. **Verify the audit chain and the anchors.** Run `/audit?verify=1` in the admin console. Note the first failing row id, and any anchor failures:
+   - `digest_mismatch`: rows inside an anchored range were edited, inserted, deleted or re-timestamped, even if the row hash chain still verifies (a whole-chain rewrite).
+   - `chain_truncated`: the newest rows were removed.
+   - `bad_mac` or `broken_link`: an anchor itself was forged, edited or removed.
+   - `stale` or `missing`: anchoring stopped; check the worker `integrity-verify` task and its key wrapper.
+   - Compare the latest anchors with the copies in the daily admin emails (`Anchor audit_log: through … digest … mac …`). Those copies live outside the database.
 2. **Check the ledgers.** The alert email lists accounts whose ledger does not replay to the wallet row. Do not "fix" balances until you understand the cause. Ledger and audit tables have no UPDATE or DELETE grant, so a mismatch means one of these:
    - direct database access with an owner role;
    - a `wallets` row altered outside the wallet functions.

@@ -35,35 +35,35 @@ reveal any of these values in your questions — ask the requester to supply the
 **Proceed only if all supplied details match.** One mismatch: refuse, record the attempt,
 and do not say which detail was wrong.
 
-## 3. Hold for 24 hours and notify
+## 3. Record the request (starts the hold)
 
-- Email the registered address: a recovery was requested, and if they did not request it
-  they must reply within 24 hours to cancel.
-- Record the request in the audit log (admin console → Accounts → Security →
-  "Recovery requested", with a written reason). TODO(review): the admin action is built in
-  Phase 9; until then record it with a service-role SQL insert into `audit_log`, and have a
-  second admin witness it.
-- Do nothing further for **24 hours**. A cancellation reply ends the process.
+In the admin console, open **Accounts → the account → Account recovery** and fill in:
+- the **ticket reference**;
+- **what was verified** (20 to 500 characters): which details matched, never the answers themselves;
+- your **authenticator code**.
 
-## 4. Reset the second factor
+**Request recovery** records `auth.recovery_requested` in the audit log and emails the registered address (`security.recovery_requested`): a reset was requested, nothing changes before the hold ends, and they must reply to cancel if they did not ask. The hold is `admin.recovery_hold_hours` (config, default 24).
 
-After the hold, with a second admin reviewing:
+- A cancellation reply ends the process: press **Cancel request** (`auth.recovery_cancelled`).
+- Only one open request per account is allowed.
 
-1. Remove the user's TOTP factors through the Supabase Auth admin API
-   (`auth.admin.mfa.listFactors({ userId })`, then `deleteFactor({ id, userId })`). This
-   also signs the user out of every session.
-2. Revoke all remaining backup codes:
-   `update backup_codes set revoked_at = now() where account_id = … and used_at is null and revoked_at is null`
-   (as `service_role`).
-3. Clear `accounts.active_session_id` for the account.
-4. Record `auth.mfa_reset_by_admin` in the audit log with both admins' ids and the ticket
-   reference. Metadata carries ids only, never the verification answers.
+## 4. Remove the second factor (after the hold)
+
+With a second admin reviewing (required by the console when `admin.recovery_second_admin` is on):
+
+1. Open the same panel and enter your authenticator code on the open request. **Remove second factor** is refused before the hold ends, and, with the two-admin rule on, refused for the admin who made the request.
+2. In one step, the console:
+   - removes the user's TOTP factors through the Supabase Auth admin API (`auth.admin.mfa.listFactors`, `deleteFactor`), which needs `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SECRET_KEY` in the admin environment;
+   - revokes every unused backup code;
+   - ends the active session;
+   - records `auth.mfa_reset_by_admin` with the ticket, the requesting and completing admins, and the number of factors removed (ids only, never the verification answers);
+   - emails the registered address (`security.mfa_reset_by_admin`) with sign-in instructions.
 
 ## 5. Tell the customer
 
-Email the registered address: sign in with your password, and you will be asked to set up
-a new authenticator app; new backup codes are issued when you do. Recommend changing the
-password afterwards from Security settings.
+The console emails the registered address automatically. If they reply with questions: sign in
+with your password, and you will be asked to set up a new authenticator app; new backup codes
+are issued when you do. Recommend changing the password afterwards from Security settings.
 
 ## 6. Afterwards
 

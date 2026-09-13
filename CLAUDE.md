@@ -7,7 +7,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**All ten phases built (§34).** Last: [phase-9](docs/plans/phase-9.md), ADR [0024](docs/adr/0024-admin-compliance-hardening.md). Next: the §35 definition of done and the open items in [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) (live evals R-28, legal text, seller details, reconciliation R-51, chain anchoring R-52).
+**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)). Last: [phase-9](docs/plans/phase-9.md). What remains needs owner input: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) (live evals R-28, legal text, seller details, final prices).
 
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
