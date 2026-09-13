@@ -60,10 +60,18 @@ export async function buildOutboundSheet(input: {
   caps: PayloadCaps;
   sheetKind: "payroll" | "other";
   sensitiveColumns?: ReadonlySet<number>;
+  /** Columns whose values are party names (e.g. a register or bills report's party column). */
+  partyColumns?: ReadonlySet<number>;
   includeDistinctValuesFor?: ReadonlySet<number>;
 }): Promise<OutboundSheet> {
   const { grid, profile, redactor, caps } = input;
   const header = profile.header;
+  const partyCell = async (c: number, text: string): Promise<string | null> =>
+    input.partyColumns?.has(c) === true &&
+    text !== "" &&
+    !TYPED.has(profile.columns[c]?.type ?? "text")
+      ? redactor.token("PARTY", text)
+      : null;
   const redactColumn = (c: number) => ({
     header: profile.columns[c]?.header ?? "",
     sheetKind: input.sheetKind,
@@ -95,7 +103,10 @@ export async function buildOutboundSheet(input: {
       }
       const values: string[] = [];
       for (const v of seen)
-        values.push(await redactor.redactCell(v, redactColumn(col.index)));
+        values.push(
+          (await partyCell(col.index, v)) ??
+            (await redactor.redactCell(v, redactColumn(col.index))),
+        );
       columns.push({ ...base, values, valuesTruncated: Math.max(0, total - seen.size) });
     } else {
       columns.push(base);
@@ -114,7 +125,10 @@ export async function buildOutboundSheet(input: {
       const cell = cellAt(grid, r, col.index);
       const text = cell.text.trim();
       row.push(
-        text === "" ? null : await redactor.redactCell(text, redactColumn(col.index)),
+        text === ""
+          ? null
+          : ((await partyCell(col.index, text)) ??
+              (await redactor.redactCell(text, redactColumn(col.index)))),
       );
     }
     sample.push(row);

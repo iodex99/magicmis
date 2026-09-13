@@ -225,3 +225,31 @@ describe("outbound payload and inspector", () => {
     expect(redactor.stats().collisions).toBe(0);
   });
 });
+
+describe("party columns", () => {
+  it("tokenises a register's party column even when no trial balance named the parties", async () => {
+    const grid = gridFromText("Bills Payable", [
+      ["Synthetic Hardware Traders Pvt Ltd"],
+      ["Bills Payable"],
+      ["as at 30-Jun-25"],
+      ["Date", "Ref. No.", "Party's Name", "Pending Amount", "Due on", "Overdue by days"],
+      ["2-May-25", "C2-202505-2", "Greenfield Metals", "48,844.92 Cr", "16-Jun-25", "14"],
+      ["20-Jun-25", "C3-202506-1", "Harbor Logistics", "67,829.94 Cr", "4-Aug-25", "0"],
+    ]);
+    const profile = await profileSheet(grid);
+    const payload = await buildOutboundSheet({
+      fileId: "f2",
+      grid,
+      profile,
+      redactor: await Redactor.create(KEY_A),
+      caps: { sampleRowsPerSheet: 15, distinctValuesPerColumn: 500 },
+      sheetKind: "other",
+      partyColumns: new Set([2]),
+    });
+    const json = inspectPayload(payload);
+    expect(json).not.toContain("Greenfield");
+    expect(json).not.toContain("Harbor");
+    expect(payload.sample[0]?.[2]).toMatch(/^PARTY_[0-9a-f]{12}$/u);
+    expect(payload.sample[0]?.[1]).toBe("C2-202505-2");
+  });
+});

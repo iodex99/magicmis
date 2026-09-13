@@ -12,7 +12,8 @@
     "generate": "tsx bin/generate.ts",
     "lint": "eslint src test bin",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "generate:large": "tsx bin/large.ts"
   },
   "dependencies": {
     "@magicmis/core": "workspace:*",

@@ -10,17 +10,24 @@
     "lint": "eslint src e2e",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "predev": "node scripts/copy-duckdb-assets.mjs",
+    "prebuild": "node scripts/copy-duckdb-assets.mjs"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "1.32.0",
     "@magicmis/accounts": "workspace:*",
     "@magicmis/billing": "workspace:*",
     "@magicmis/core": "workspace:*",
     "@magicmis/db": "workspace:*",
+    "@magicmis/ingest": "workspace:*",
+    "@magicmis/redact": "workspace:*",
+    "@magicmis/tally": "workspace:*",
     "@magicmis/ui": "workspace:*",
     "@magicmis/wallet": "workspace:*",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.116.0",
+    "comlink": "4.4.2",
     "next": "16.3.5",
     "pg": "^8.16.3",
     "react": "19.3.0",
@@ -35,6 +42,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "otpauth": "9.5.2",
-    "tailwindcss": "4.3.3"
+    "tailwindcss": "4.3.3",
+    "@magicmis/fixtures": "workspace:*"
   }
 }

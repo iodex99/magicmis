@@ -1,0 +1,2 @@
+# Copied from node_modules at build time (scripts/copy-duckdb-assets.mjs).
+public/vendor/

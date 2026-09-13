@@ -6,6 +6,7 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/fixtures-setup.ts",
   // Flows share one Auth server and one Mailpit inbox; run them one at a time.
   workers: 1,
   fullyParallel: false,

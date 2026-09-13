@@ -24,6 +24,9 @@ export function AppFrame({
           <Link href="/app" className="text-neutral-700 hover:text-neutral-900">
             Companies
           </Link>
+          <Link href="/app/data" className="text-neutral-700 hover:text-neutral-900">
+            Source files
+          </Link>
           <Link href="/wallet" className="text-neutral-700 hover:text-neutral-900">
             Wallet
           </Link>

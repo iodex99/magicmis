@@ -41,6 +41,9 @@ export function formatCredits(value: string): string {
   return negative ? `-${grouped}` : grouped;
 }
 
+/** Indian digit grouping for any whole count held as a decimal string. */
+export const formatCount = (value: string): string => formatCredits(value);
+
 /** Paise (decimal string) as rupees with Indian grouping: "236000" → "₹2,360.00". */
 export function formatRupees(paise: string): string {
   const padded = paise.padStart(3, "0");

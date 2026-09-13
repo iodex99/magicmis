@@ -203,6 +203,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@duckdb/duckdb-wasm':
+        specifier: 1.32.0
+        version: 1.32.0
       '@magicmis/accounts':
         specifier: workspace:*
         version: link:../../packages/accounts
@@ -215,6 +218,15 @@ importers:
       '@magicmis/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@magicmis/ingest':
+        specifier: workspace:*
+        version: link:../../packages/ingest
+      '@magicmis/redact':
+        specifier: workspace:*
+        version: link:../../packages/redact
+      '@magicmis/tally':
+        specifier: workspace:*
+        version: link:../../packages/tally
       '@magicmis/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -227,6 +239,9 @@ importers:
       '@supabase/supabase-js':
         specifier: 2.116.0
         version: 2.116.0
+      comlink:
+        specifier: 4.4.2
+        version: 4.4.2
       next:
         specifier: 16.3.5
         version: 16.3.5(@playwright/test@1.63.0)(@types/node@22.20.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -246,6 +261,9 @@ importers:
         specifier: ^4.1.13
         version: 4.6.1
     devDependencies:
+      '@magicmis/fixtures':
+        specifier: workspace:*
+        version: link:../../fixtures/generator
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
@@ -1859,6 +1877,9 @@ packages:
 
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+
+  comlink@4.4.2:
+    resolution: {integrity: sha512-OxGdvBmJuNKSCMO4NTl1L47VRp6xn2wG4F/2hYzB6tiCb709otOxtEYCSvK80PtjODfXXZu8ds+Nw5kVCjqd2g==}
 
   command-line-args@5.2.1:
     resolution: {integrity: sha512-H4UfQhZyakIjC74I9d34fGYDwk3XpSr17QhEd0Q3I9Xq1CETHo4Hcuo87WyWHpAF1aSLjLRf5lD9ZGX2qStUvg==}
@@ -4274,6 +4295,8 @@ snapshots:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
+
+  comlink@4.4.2: {}
 
   command-line-args@5.2.1:
     dependencies:

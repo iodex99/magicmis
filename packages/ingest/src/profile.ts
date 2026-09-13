@@ -11,9 +11,13 @@ import { cellAt, columnCount, isBlankRow, type SheetGrid } from "./grid";
 import { headerSignature } from "./fingerprint";
 import { inferColumn, type ColumnInference } from "./infer";
 
+export const INFERENCE_SAMPLE_ROWS = 10_000;
+
 export interface ColumnProfile extends ColumnInference {
   readonly index: number;
   readonly header: string;
+  /** Body rows the type (and `fitting`, `distinct`) was inferred from; `nonBlank` covers all rows. */
+  readonly sampledRows: number;
 }
 
 export interface SheetProfile {
@@ -47,15 +51,27 @@ export async function profileSheet(
   for (let r = bodyStart; r < sheet.rows.length; r += 1)
     if (!isBlankRow(sheet.rows[r])) bodyRows += 1;
 
+  // Types are inferred from the first INFERENCE_SAMPLE_ROWS body rows: enough to type a column
+  // reliably, and it keeps profiling linear in columns rather than cells for very large sheets
+  // (SPEC §33: 50 MB in under 60 s). Non-blank counts cover every row.
+  const sampleEnd = Math.min(sheet.rows.length, bodyStart + INFERENCE_SAMPLE_ROWS);
   const columns: ColumnProfile[] = [];
   for (let c = 0; c < width; c += 1) {
     const cells = [];
-    for (let r = bodyStart; r < sheet.rows.length; r += 1)
-      cells.push(cellAt(sheet, r, c));
+    for (let r = bodyStart; r < sampleEnd; r += 1) cells.push(cellAt(sheet, r, c));
+    const inferred = inferColumn(cells);
+    let nonBlank = inferred.nonBlank;
+    for (let r = sampleEnd; r < sheet.rows.length; r += 1) {
+      const cell = sheet.rows[r]?.[c];
+      if (cell !== undefined && cell.value !== null && cell.text.trim() !== "")
+        nonBlank += 1;
+    }
     columns.push({
       index: c,
       header: header?.headers[c] ?? `Column ${(c + 1).toString()}`,
-      ...inferColumn(cells),
+      ...inferred,
+      nonBlank,
+      sampledRows: sampleEnd - bodyStart,
     });
   }
   const reportType = detectReport(sheet, header, columns);
