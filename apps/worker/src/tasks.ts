@@ -6,7 +6,10 @@
 
 import { estimatorConfigSchema, recalibrateEstimator } from "@magicmis/ai/estimator";
 import { readConfig } from "@magicmis/db/config";
+import type { AiTransport } from "@magicmis/ai";
+import type { KeyWrapper } from "@magicmis/crypto";
 import {
+  commentaryBatchTick,
   debitMemoryFees,
   purgeCompanies,
   queueLifecycleNotices,
@@ -33,6 +36,8 @@ export interface TaskDeps {
   readonly appUrl: string;
   /** Output storage for purges; absent when storage is not configured (sealed files stay unreadable). */
   readonly outputs?: OutputStore | null;
+  /** Commentary batches; absent when the worker has no Anthropic key configured. */
+  readonly ai?: { readonly transport: AiTransport; readonly wrapper: KeyWrapper } | null;
 }
 
 export interface MaintenanceTask {
@@ -118,6 +123,16 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     cron: "0 9 * * *",
     expireInSeconds: 1800,
     run: ({ pool }, now) => queueRefreshReminders(pool, now),
+  },
+  {
+    // SPEC §14, §25: Standard-delivery commentary through Message Batches; polls every 2 minutes.
+    queue: "commentary-batches",
+    cron: "*/2 * * * *",
+    expireInSeconds: 110,
+    run: async ({ pool, ai }, now) =>
+      ai == null
+        ? { skipped: "no AI configured" }
+        : commentaryBatchTick(pool, ai.wrapper, ai.transport, now),
   },
   {
     queue: "notifications-deliver",

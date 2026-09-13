@@ -10,7 +10,8 @@
     "./batch": "./src/batch.ts",
     "./estimator": "./src/estimator.ts",
     "./margin": "./src/margin.ts",
-    "./job": "./src/job.ts"
+    "./job": "./src/job.ts",
+    "./transport": "./src/transport.ts"
   },
   "scripts": {
     "lint": "eslint src test evals",
@@ -22,6 +23,7 @@
     "@anthropic-ai/sdk": "0.125.0",
     "@magicmis/core": "workspace:*",
     "@magicmis/db": "workspace:*",
+    "@magicmis/engine": "workspace:*",
     "@magicmis/wallet": "workspace:*",
     "pg": "^8.16.3",
     "server-only": "0.0.1",

@@ -244,23 +244,7 @@ export async function completeJob(
     await checkpoint({ output_id: id });
   }
 
-  // Price of the tier actually delivered (SPEC §14: a fallback to a lower tier's model).
-  const base = await jobChargeBase(pool, job.id);
-  const delivered = cp["delivered_tier"] as PricedTier | undefined;
-  let amount = base;
-  if (
-    delivered !== undefined &&
-    TIER_ORDER.indexOf(delivered) < TIER_ORDER.indexOf(pricedTier(job.tier))
-  ) {
-    const lower = await priceFor(pool, {
-      actionKey: job.type as ActionKey,
-      tier: delivered,
-      delivery: job.delivery_mode,
-      at: now,
-    });
-    amount = min(base, lower.credits);
-  }
-  const captured = await capture(pool, job, amount, "capture", now);
+  const captured = await captureDelivered(pool, job, now);
 
   await withTransaction(pool, async (tx) => {
     await tx.query(
@@ -282,6 +266,62 @@ export async function completeJob(
   });
   await finish(pool, job, "completed", captured);
   return { captured, snapshotVersion, blueprintVersion, outputId };
+}
+
+/** Captures the job's price, or the delivered (lower) tier's price after a model fallback (SPEC §14). */
+async function captureDelivered(pool: Pool, job: JobRow, now: Date): Promise<bigint> {
+  const base = await jobChargeBase(pool, job.id);
+  const delivered = job.stage_checkpoints["delivered_tier"] as PricedTier | undefined;
+  let amount = base;
+  if (
+    delivered !== undefined &&
+    TIER_ORDER.indexOf(delivered) < TIER_ORDER.indexOf(pricedTier(job.tier))
+  ) {
+    const lower = await priceFor(pool, {
+      actionKey: job.type as ActionKey,
+      tier: delivered,
+      delivery: job.delivery_mode,
+      at: now,
+    });
+    amount = min(base, lower.credits);
+  }
+  return capture(pool, job, amount, "capture", now);
+}
+
+/**
+ * Commentary completion (SPEC §25): the output is already stored as the job's checkpoint; move
+ * commentary_queued → commentary_done → completed, capture and notify.
+ */
+export async function completeCommentaryJob(
+  pool: Pool,
+  input: { accountId: string; jobId: string; now?: Date },
+): Promise<{ captured: bigint }> {
+  const now = input.now ?? new Date();
+  const job = await withTransaction(pool, async (tx) => {
+    const locked = await lockJob(tx, input.jobId, input.accountId);
+    if (locked.state === "commentary_queued")
+      await transition(tx, locked, "commentary_done");
+    return locked;
+  });
+  if (job.state === "completed") return { captured: BigInt(job.captured_credits ?? "0") };
+  const captured = await captureDelivered(pool, job, now);
+  await queueNotification(pool, {
+    accountId: input.accountId,
+    type: "job.completed",
+    payload: { job_id: job.id, company_id: job.company_id, job_type: job.type },
+    dedupeKey: `completed:${job.id}`,
+  });
+  await withTransaction(pool, async (tx) => {
+    const locked = await lockJob(tx, job.id, job.account_id);
+    if (locked.state === "completed") return;
+    await transition(tx, locked, "completed");
+    await tx.query(`update public.jobs set captured_credits = $2 where id = $1`, [
+      job.id,
+      captured.toString(),
+    ]);
+  });
+  await syncJobAiCost(pool, job.id);
+  return { captured };
 }
 
 export type FailureReporter = "browser" | "server";

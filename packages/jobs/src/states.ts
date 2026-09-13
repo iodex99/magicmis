@@ -68,7 +68,7 @@ export function allowedNext(from: JobState): readonly JobState[] {
     case "quote_accepted":
       return ["reserved", "cancelled"];
     case "commentary_queued":
-      return ["commentary_done", "failed_platform"];
+      return ["commentary_done", "failed_platform", "needs_quote", "cancelled"];
     case "commentary_done":
       return ["completed"];
     default: {
@@ -83,6 +83,8 @@ export function allowedNext(from: JobState): readonly JobState[] {
       ];
       if (from === "awaiting_review") settle.push("expired");
       if (from === "rendering") settle.push("completed", "commentary_queued");
+      // A commentary job has no browser stages: once credits are held it is queued for analysis.
+      if (from === "reserved") settle.push("commentary_queued");
       return [...forward, ...settle];
     }
   }

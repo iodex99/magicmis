@@ -53,6 +53,8 @@ const STAGE_CHARS: Partial<Record<Stage, (s: SizeDescriptors) => number>> = {
   column_mapping: (s) =>
     2_000 + s.sheets * 300 + Math.min(s.columns, s.sheets * 80) * 24 * 16,
   ledger_mapping: (s) => 4_000 + 8_000 + Math.min(s.distinctLedgerValues, 2000) * 90,
+  // Commentary reads a bounded facts pack, not the files: a fixed size.
+  commentary: () => 24_000,
   reference_layout: (s) =>
     s.referenceMisSheets === 0 ? 0 : 4_000 + s.referenceMisSheets * 6_000,
 };

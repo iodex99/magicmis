@@ -1,3 +1,6 @@
+import { anthropicTransport } from "@magicmis/ai";
+import { LocalKeyWrapper, type KeyWrapper } from "@magicmis/crypto";
+import { KmsKeyWrapper } from "@magicmis/crypto/kms";
 import { SupabaseOutputStore } from "@magicmis/jobs";
 import { createClient } from "@supabase/supabase-js";
 import pg from "pg";
@@ -16,6 +19,17 @@ const pool = new pg.Pool({
   max: 5,
   options: "-c role=service_role",
 });
+function keyWrapper(): KeyWrapper | null {
+  if (env.KEY_WRAPPER === "local")
+    return env.LOCAL_MASTER_KEY === undefined
+      ? null
+      : LocalKeyWrapper.fromBase64(env.LOCAL_MASTER_KEY);
+  return env.KMS_MASTER_KEY_ID === undefined || env.AWS_REGION === undefined
+    ? null
+    : new KmsKeyWrapper(env.KMS_MASTER_KEY_ID, { region: env.AWS_REGION });
+}
+const wrapper = keyWrapper();
+
 const boss = await startBoss(
   env.DATABASE_URL,
   {
@@ -29,6 +43,10 @@ const boss = await startBoss(
               auth: { persistSession: false },
             }).storage.from("outputs"),
           )
+        : null,
+    ai:
+      env.ANTHROPIC_API_KEY !== undefined && wrapper !== null
+        ? { transport: anthropicTransport(env.ANTHROPIC_API_KEY), wrapper }
         : null,
   },
   log,

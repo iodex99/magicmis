@@ -327,6 +327,9 @@ importers:
       '@magicmis/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@magicmis/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
       '@magicmis/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -423,6 +426,9 @@ importers:
       '@magicmis/db':
         specifier: workspace:*
         version: link:../db
+      '@magicmis/engine':
+        specifier: workspace:*
+        version: link:../engine
       '@magicmis/wallet':
         specifier: workspace:*
         version: link:../wallet

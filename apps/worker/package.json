@@ -14,6 +14,7 @@
     "@magicmis/ai": "workspace:*",
     "@magicmis/billing": "workspace:*",
     "@magicmis/core": "workspace:*",
+    "@magicmis/crypto": "workspace:*",
     "@magicmis/db": "workspace:*",
     "@magicmis/jobs": "workspace:*",
     "@magicmis/wallet": "workspace:*",

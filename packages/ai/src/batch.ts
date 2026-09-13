@@ -27,6 +27,11 @@ import {
   type StageSpec,
 } from "./orchestrator";
 import { loadModel } from "./registry";
+import {
+  generateCommentarySpec,
+  type GenerateCommentaryInput,
+  type GenerateCommentaryOutput,
+} from "./stages";
 import type { BatchRequest } from "./transport";
 
 const CUSTOM_ID = /^[a-zA-Z0-9_-]{1,64}$/u;
@@ -184,3 +189,14 @@ export async function collectStageBatch<I, O>(
   }
   return out;
 }
+
+/** Commentary on Standard delivery goes through Message Batches (SPEC §14, §25). */
+export const submitCommentaryBatch = (
+  items: readonly BatchItem<GenerateCommentaryInput>[],
+): Promise<SubmittedBatch> => submitStageBatch(generateCommentarySpec, items);
+
+export const collectCommentaryBatch = (
+  batchId: string,
+  items: readonly BatchItem<GenerateCommentaryInput>[],
+): Promise<BatchItemResult<GenerateCommentaryOutput>[] | null> =>
+  collectStageBatch(generateCommentarySpec, batchId, items);

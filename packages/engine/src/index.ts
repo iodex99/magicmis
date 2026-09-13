@@ -7,3 +7,4 @@ export * from "./snapshot";
 export * from "./store";
 export * from "./validation";
 export * from "./values";
+export * from "./commentary";

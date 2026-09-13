@@ -8,6 +8,7 @@ import {
   publicEnvSchema,
   serverEnvSchema,
 } from "@magicmis/core/config";
+import { z } from "zod";
 
 export const workerEnvSchema = serverEnvSchema
   .pick({
@@ -22,6 +23,21 @@ export const workerEnvSchema = serverEnvSchema
     // Optional: output storage for purges (SPEC §28). Without it, purge still destroys the key.
     NEXT_PUBLIC_SUPABASE_URL: publicEnvSchema.shape.NEXT_PUBLIC_SUPABASE_URL.optional(),
     SUPABASE_SECRET_KEY: serverEnvSchema.shape.SUPABASE_SECRET_KEY.optional(),
+    // Commentary batches (SPEC §14): the worker calls Anthropic and opens job checkpoints.
+    ANTHROPIC_API_KEY: serverEnvSchema.shape.ANTHROPIC_API_KEY.optional(),
+    APP_ENVIRONMENT: publicEnvSchema.shape.NEXT_PUBLIC_ENVIRONMENT.default("production"),
+    KEY_WRAPPER: z.enum(["kms", "local"]).default("kms"),
+    LOCAL_MASTER_KEY: z.string().optional(),
+    KMS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_MASTER_KEY_ID.optional(),
+    AWS_REGION: serverEnvSchema.shape.AWS_REGION.optional(),
+  })
+  .superRefine((env, ctx) => {
+    if (env.KEY_WRAPPER === "local" && env.APP_ENVIRONMENT !== "development")
+      ctx.addIssue({
+        code: "custom",
+        path: ["KEY_WRAPPER"],
+        message: "local key wrapper is allowed only in development",
+      });
   });
 
 export type WorkerEnv = ReturnType<typeof workerEnvSchema.parse>;

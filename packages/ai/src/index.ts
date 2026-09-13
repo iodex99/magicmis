@@ -10,6 +10,10 @@ import "server-only";
 
 export {
   classifySheets,
+  generateCommentary,
+  generateCommentaryInput,
+  type GenerateCommentaryInput,
+  type GenerateCommentaryOutput,
   mapColumns,
   mapLedgers,
   REPORT_TYPES,

@@ -8,6 +8,7 @@
  * column) and are enforced again here in bytes.
  */
 
+import { checkCommentary } from "@magicmis/engine";
 import { z } from "zod";
 
 import {
@@ -294,4 +295,73 @@ export function mapLedgers(
   input: MapLedgersInput,
 ): Promise<StageResult<MapLedgersOutput>> {
   return runStage(ctx, mapLedgersSpec, input);
+}
+
+// ---------------------------------------------------------------------------
+// Commentary (SPEC §25)
+// ---------------------------------------------------------------------------
+
+export const generateCommentaryInput = z.object({
+  factsPack: z.object({
+    period: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/u),
+    facts: z
+      .array(
+        z.object({
+          id: z.string().max(120),
+          label: z.string().max(200),
+          text: z.string().max(60),
+        }),
+      )
+      .max(400),
+    dimensions: z
+      .array(z.object({ id: z.string().max(80), label: z.string().max(200) }))
+      .max(100),
+    periods: z.array(z.string().max(20)).max(40),
+    warnings: z.array(z.string().max(300)).max(50),
+  }),
+  sections: z.array(z.string().min(1).max(80)).min(1).max(8),
+  /** Server config `commentary.digit_allowlist`, never from the browser. */
+  allowlist: z.array(z.string().max(40)).max(50),
+});
+export type GenerateCommentaryInput = z.infer<typeof generateCommentaryInput>;
+
+export const generateCommentaryOutput = z.object({
+  sections: z.array(
+    z.object({
+      heading: z.string().max(120),
+      paragraphs: z.array(z.object({ text: z.string().max(1200) })).max(6),
+    }),
+  ),
+});
+export type GenerateCommentaryOutput = z.infer<typeof generateCommentaryOutput>;
+
+export const generateCommentarySpec: StageSpec<
+  GenerateCommentaryInput,
+  GenerateCommentaryOutput
+> = {
+  stage: "commentary",
+  promptName: "commentary",
+  input: generateCommentaryInput,
+  output: generateCommentaryOutput,
+  maxInputBytes: 96_000,
+  stable: (input) => [`Sections to write, in order: ${input.sections.join("; ")}.`],
+  volatile: (input) =>
+    [
+      "facts:",
+      table(input.factsPack.facts.map((f) => [f.id, f.label, f.text])),
+      "dimension values:",
+      table(input.factsPack.dimensions.map((d) => [d.id, d.label])),
+      `periods: ${input.factsPack.periods.join(", ")}`,
+      "validation warnings:",
+      input.factsPack.warnings.join("\n"),
+    ].join("\n"),
+  // V12: placeholders must resolve and no digit may remain outside them; failures get one repair.
+  check: (input, output) => checkCommentary(output, input.factsPack, input.allowlist),
+};
+
+export function generateCommentary(
+  ctx: AiContext,
+  input: GenerateCommentaryInput,
+): Promise<StageResult<GenerateCommentaryOutput>> {
+  return runStage(ctx, generateCommentarySpec, input);
 }
