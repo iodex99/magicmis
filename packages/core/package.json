@@ -14,7 +14,8 @@
     "./hashchain": "./src/hashchain/index.ts",
     "./config": "./src/config/index.ts",
     "./brand": "./src/brand.ts",
-    "./json-patch": "./src/json-patch/index.ts"
+    "./json-patch": "./src/json-patch/index.ts",
+    "./security-headers": "./src/security-headers.ts"
   },
   "scripts": {
     "lint": "eslint src",

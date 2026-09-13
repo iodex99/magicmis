@@ -11,16 +11,18 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 import { FIXTURES_OUT } from "./fixtures-setup";
-import { createVerifiedAccountWithTotp, uniqueEmail } from "./helpers";
+import { createVerifiedAccountWithTotp, uniqueEmail, watchCspViolations } from "./helpers";
 
 const fixture = (...parts: string[]) => path.join(FIXTURES_OUT, ...parts);
 
 // One account for the whole file: sign-ups are rate-limited by the local Auth server.
 test.describe.configure({ mode: "serial" });
 let page: Page;
+let csp: string[] = [];
 
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
+  csp = watchCspViolations(page);
   await createVerifiedAccountWithTotp(page, uniqueEmail());
   // SPEC §31: the first upload in an account waits for the processing notice to be accepted.
   await page.goto("/app/data");
@@ -140,4 +142,21 @@ test("a 50 MB workbook is parsed and loaded into DuckDB in under 60 seconds (SPE
   console.warn(`50 MB workbook loaded in ${(elapsed / 1000).toFixed(1)} s`);
   await expect(page.getByTestId("loaded-files")).toContainText("3,70,004");
   expect(elapsed).toBeLessThan(60_000);
+});
+
+test("pages carry a per-request nonce CSP and hardening headers (SPEC §30)", async () => {
+  const first = await page.request.get("/app/data");
+  const second = await page.request.get("/app/data");
+  const policy = first.headers()["content-security-policy"] ?? "";
+  expect(policy).toMatch(/script-src [^;]*'nonce-[A-Za-z0-9+/=]+'/u);
+  expect(policy).not.toContain("razorpay");
+  expect(policy).not.toBe(second.headers()["content-security-policy"]);
+  expect(first.headers()["x-frame-options"]).toBe("DENY");
+  expect(first.headers()["x-content-type-options"]).toBe("nosniff");
+  const wallet = await page.request.get("/wallet");
+  expect(wallet.headers()["content-security-policy"]).toContain("frame-src https://*.razorpay.com");
+});
+
+test("no Content Security Policy violations anywhere in the flow (SPEC §30)", () => {
+  expect(csp).toEqual([]);
 });

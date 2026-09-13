@@ -14,7 +14,7 @@ import pg from "pg";
 import * as XLSX from "xlsx";
 
 import { FIXTURES_OUT } from "./fixtures-setup";
-import { createVerifiedAccountWithTotp, uniqueEmail } from "./helpers";
+import { createVerifiedAccountWithTotp, uniqueEmail, watchCspViolations } from "./helpers";
 
 // The local Supabase stack's database (supabase/config.toml defaults; not a secret).
 const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
@@ -23,6 +23,7 @@ test.describe.configure({ mode: "serial" });
 test.setTimeout(300_000);
 
 let page: Page;
+let csp: string[] = [];
 let db: pg.Pool;
 let email: string;
 
@@ -47,6 +48,7 @@ const SETUP_MONTHS = [
 test.beforeAll(async ({ browser }) => {
   db = new pg.Pool({ connectionString: LOCAL_DB, max: 2 });
   page = await browser.newPage();
+  csp = watchCspViolations(page);
   email = uniqueEmail();
   await createVerifiedAccountWithTotp(page, email);
   const consent = await page.request.post("/api/account/consents", {
@@ -369,4 +371,8 @@ test.describe("chat with the MIS", () => {
     await expect(page).toHaveURL(/\/chat\?investigate=revenue/u);
     await expect(page.getByLabel("Your question")).toHaveValue(/Why did Revenue from operations move/u);
   });
+});
+
+test("no Content Security Policy violations anywhere in the flow (SPEC §30)", () => {
+  expect(csp).toEqual([]);
 });

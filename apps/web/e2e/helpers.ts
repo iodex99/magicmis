@@ -121,3 +121,16 @@ export async function signInWithTotp(
   await page.getByRole("button", { name: "Verify" }).click();
   await expect(page).toHaveURL(/\/app$/u);
 }
+
+/**
+ * SPEC §30: collects Content Security Policy violations reported to the console, so a flow that
+ * works only because the policy was bypassed still fails. Assert the array is empty at the end.
+ */
+export function watchCspViolations(page: Page): string[] {
+  const violations: string[] = [];
+  page.on("console", (message) => {
+    const text = message.text();
+    if (/Content Security Policy/iu.test(text)) violations.push(text);
+  });
+  return violations;
+}
