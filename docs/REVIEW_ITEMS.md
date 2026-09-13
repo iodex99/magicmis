@@ -13,12 +13,12 @@ your sign-off · `closed` — resolved, with the resolution noted.
 
 | # | Item | Needed by | Status |
 |---|---|---|---|
-| R-01 | **Product name.** Spec says `[PRODUCT_NAME]`; directory is `magicmis`. Note §32 forbids "magic" wording in customer UI, which sits awkwardly with MagicMIS as a brand. Held as a single constant (`apps/web/src/lib/brand.ts`), currently the placeholder "MIS Studio", so the real name is a one-line change. | Before launch | open |
-| R-02 | **Seller legal name, address, GSTIN** for tax invoices (§13). | Phase 2 | open |
-| R-03 | **SAC code** for the service. Spec marks this `TODO(review)` explicitly. Needs CA confirmation. | Phase 2 | open |
+| R-01 | **Product name.** Spec says `[PRODUCT_NAME]`; directory is `magicmis`. Note §32 forbids "magic" wording in customer UI, which sits awkwardly with MagicMIS as a brand. Held as a single constant (`packages/core/src/brand.ts`, used by web, admin and email), currently the placeholder "MIS Studio", so the real name is a one-line change. | Before launch | open |
+| R-02 | **Seller legal name, address, GSTIN** for tax invoices (§13). Placeholders in `app_config.billing.seller`; invoice issue refuses them once `billing.allow_placeholder_details` is false (R-27). Also confirm whether turnover requires e-invoicing (IRN). | Before launch | drafted |
+| R-03 | **SAC code** for the service. Spec marks this `TODO(review)` explicitly. Needs CA confirmation. Placeholder `PENDING-REVIEW` in `billing.sac_code`, guarded as R-02. | Before launch | drafted |
 | R-04 | **Final price book.** §12's table is explicitly illustrative. Seeded as given, admin-editable. Margin dashboard will show whether seed prices hold under `max_ai_cost_ratio`. | Phase 2 seeds; confirm before launch | open |
 | R-05 | **Final credit packs and bonus tiers.** §12, same status as R-04. | Phase 2 seeds; confirm before launch | open |
-| R-06 | **Invoice template text** — §13 marks it `TODO(review)` for CA verification. | Phase 2 | open |
+| R-06 | **Invoice template text** — §13 marks it `TODO(review)` for CA verification. Drafted in `packages/billing/src/pdf.ts` (layout per Rule 46 particulars) and `words.ts` ("Rupees … and … Paise Only"). | Before launch | drafted |
 
 ## Deferred to their phase
 
@@ -36,6 +36,16 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-15 | **Statutory retention period** for financial records — seeded at §10's 8-year default; confirm. | Before launch | open |
 | R-21 | **Admin MFA reset recording** — the account-recovery runbook records the reset with a witnessed SQL insert into `audit_log` until the Phase 9 admin console provides the action. | Phase 9 | open |
 | R-22 | **Production Supabase Auth settings** must mirror `supabase/config.toml`: email confirmations on, TOTP on, 12-character mixed-case-and-digit passwords, secure password change, Resend SMTP, and the token-hash confirmation template in `supabase/templates/confirmation.html`. | Before launch | open |
+
+## Raised in Phase 2
+
+| # | Item | Needed by | Status |
+|---|---|---|---|
+| R-23 | **Email wording** for every SPEC §29 notice (`apps/worker/src/templates.ts`). | Before launch | drafted |
+| R-24 | **Price book margin-impact preview** (SPEC §26) against the last 30 days of usage — needs `ai_calls`. | Phase 9 | open |
+| R-25 | **Unicode font in invoice PDFs** — standard Helvetica replaces non-Latin characters in business names with `?`. | Before launch | open |
+| R-26 | **Live Razorpay test-mode run** with real test keys, and the dashboard webhook (events `payment.captured`, `order.paid`, `payment.failed`) pointed at `/api/webhooks/razorpay`. Automated tests use a fake gateway. | Before launch | open |
+| R-27 | **Production must set `billing.allow_placeholder_details` to `false`** after R-02/R-03 are filled. | Before launch | open |
 
 ## Decisions the spec leaves open
 

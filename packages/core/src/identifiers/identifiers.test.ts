@@ -26,9 +26,8 @@ import { isValidPan, panHolderType } from "./pan";
  * together with the generated-check-character property below is the evidence that it
  * is right.
  *
- * TODO(review): confirm the mod-36 check-character algorithm against official GSTN
- * documentation before Phase 2, where tax invoices depend on it (SPEC §0.4 forbids
- * relying on an unverified external fact). Tracked as R-20 in docs/REVIEW_ITEMS.md.
+ * R-20 (closed 2026-09-13): the GSTIN is user-supplied and its accuracy is the user's
+ * responsibility; no further verification of the algorithm will be pursued.
  * A third specimen was dropped from this list because its check character could not be
  * reproduced and could not be sourced -- it was more likely misremembered than evidence
  * against two independent confirmations, but it is not evidence *for* anything either.

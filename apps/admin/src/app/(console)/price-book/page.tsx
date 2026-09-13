@@ -20,7 +20,7 @@ const ist = (d: Date) =>
 
 /**
  * Versioned price book (SPEC §12, §26). A change is always a new version with an effective
- * date. TODO(review): margin-impact preview against the last 30 days of usage needs
+ * date. TODO(review): R-24 — margin-impact preview against the last 30 days of usage needs
  * `ai_calls` data and lands with the margin dashboard (Phase 4/9).
  */
 export default async function PriceBookPage({

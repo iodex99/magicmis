@@ -6,7 +6,7 @@
  * same bytes every time — the PDF is regenerated on download rather than stored.
  *
  * The standard Helvetica font covers WinAnsi only; characters outside it are replaced.
- * TODO(review): R-06 — invoice template wording pending CA review; a Unicode font for
+ * TODO(review): R-06 — invoice template wording pending CA review. TODO(review): R-25 — a Unicode font for
  * non-Latin business names is a follow-up.
  */
 

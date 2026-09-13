@@ -3,7 +3,7 @@
  * customer data. Payloads hold ids and labels only; anything needed beyond that is looked
  * up by the sender (e.g. the invoice PDF attachment).
  *
- * TODO(review): R-10 — email wording pending legal/product review.
+ * TODO(review): R-23 — email wording pending product and legal review.
  */
 
 import { PRODUCT_NAME } from "@magicmis/core/brand";

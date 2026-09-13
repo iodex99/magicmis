@@ -75,3 +75,63 @@ config-driven, and the configured pattern is validated against Rule 46 at issue 
   16 characters; amount in words; Razorpay signature verification; duplicate and
   out-of-order webhooks credit exactly once; purchase → credits + invoice + PDF.
 - Admin: authentication (password + TOTP + allowlist), session expiry, adjustment audit.
+
+---
+
+## Summary (2026-09-13)
+
+**Acceptance (SPEC §34) — met.**
+
+| Criterion | Evidence |
+|---|---|
+| Property and concurrency tests pass | `packages/wallet/test/wallet.test.ts`: fast-check replay/never-negative property; 50 parallel reservations → exactly 10; parallel capture/release |
+| Test-mode purchase produces correct credits and invoice PDF | `packages/billing/test/billing.test.ts`: order → signed `payment.captured` webhook → 10,000 + 750 bonus credits in two lots with one expiry, one Rule 46 tax invoice, deterministic 1-page PDF; duplicates, `order.paid` and concurrent events credit once. Uses a fake gateway: a live Razorpay test-mode run needs test keys (R-26) |
+| Time-travel expiry tests pass | wallet tests for lot expiry, reservation sweeper, shrink-then-capture, notices; worker delivery backoff |
+
+**Tests:** 374 unit/integration (core 145, db 62, accounts 48, wallet 34, billing 39, crypto 13,
+ui 15, worker 7, admin 11) and 10 E2E (web 8, admin 2) against the local Supabase stack.
+Typecheck, lint and format clean.
+
+**Built**
+
+- `packages/wallet` — lots, reservations, capture/release, expiry-first operations, admin
+  adjustment, sweepers, notices, pricing, quotes, public price list (ADR 0014).
+- `packages/crypto` — AES-256-GCM envelope encryption, local and AWS KMS wrappers.
+- `packages/billing` — GST, Rule 46 numbering, Razorpay gateway and webhook crediting, bank
+  transfer, invoice snapshots and PDF, accounting CSVs (ADR 0013).
+- `apps/worker` — pg-boss schedules and Resend delivery (ADR 0016).
+- `apps/admin` — separate identity and Phase 2 screens (ADR 0015); runbook `admin-access.md`.
+- `apps/web` — Wallet, public Pricing, price preview + confirmation dialog, purchase/verify/
+  bank-transfer/invoice-PDF routes, Razorpay webhook route.
+- Migrations 0014–0017.
+
+**Deviations from the SPEC, recorded**
+
+- Invoice number example `INV/2026-27/000123` breaks CGST Rule 46's 16-character limit; default
+  is `INV/26-27/000123` (ADR 0013).
+- Invoice PDFs are regenerated from the immutable row instead of stored at `pdf_path`.
+- Price book editor ships without the margin-impact preview, which needs `ai_calls` (R-24).
+
+**New dependencies**
+
+- `pdf-lib` 1.17.1 — invoice PDFs; bundled types, pure JS, deterministic output (ADR 0013).
+- `@aws-sdk/client-kms` 3.1131.0 — KMS key wrapping (ADR 0008).
+- `pg-boss` 12.31.0 — the SPEC §5 worker queue.
+- `resend` 6.28.0 — email (ADR 0010).
+- `pino` 10.3.1 — structured worker logs (SPEC §5).
+- `tsx` 4.23.13 — runs the TypeScript worker and admin bootstrap script without a bundler.
+
+**TODO(review) raised this phase:** R-02, R-03 (placeholder guard), R-04, R-05 (seeds), R-06
+(invoice wording, amount in words), R-13, R-23 (email wording), R-24 (margin-impact preview),
+R-25 (Unicode PDF font), R-26 (live Razorpay test-mode run and dashboard webhook), R-27
+(production `billing.allow_placeholder_details=false`).
+
+**Known issues**
+
+- One full-suite run failed a `packages/db` audit-chain test after 35 s (normally 5 s) while
+  Docker was also running the Supabase stack; three further full and isolated runs passed and
+  the error text was not captured. Treated as resource contention under a 3.7 GiB Docker VM;
+  watch for recurrence in CI.
+- Resend webhook route (bounce/complaint suppression) not built: its signature API is unverified
+  (ADR 0010).
+- Break-glass access, margin dashboard, model registry editor: Phase 4/9 per SPEC §34.

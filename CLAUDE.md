@@ -7,11 +7,15 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**Phase 2 — Wallet, pricing, payments, GST.** Previous: [phase-0](docs/plans/phase-0.md), [phase-1](docs/plans/phase-1.md)
+**Phase 3 — Ingestion, Tally, redaction, fixtures.** Previous: [phase-0](docs/plans/phase-0.md), [phase-1](docs/plans/phase-1.md), [phase-2](docs/plans/phase-2.md)
 
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
-Phase 6 and its container fails a health check on first boot here). Web E2E:
-`pnpm --filter @magicmis/web build && pnpm --filter @magicmis/web e2e`.
+Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
+Web E2E: `pnpm --filter @magicmis/web build && pnpm --filter @magicmis/web e2e`.
+Admin E2E (needs `apps/admin/.env.local`, see `.env.example`; `APP_ENVIRONMENT=development`):
+`pnpm --filter @magicmis/admin build && pnpm --filter @magicmis/admin e2e`. Stop any stray
+server on ports 3000/3001 first — Playwright reuses an existing server.
+Git commits here need `-c user.name=Dwahnil -c user.email=dwahnilbaria19@gmail.com`.
 
 ### Phase 0 record
 
@@ -59,8 +63,8 @@ everything now"). Plans, summaries and ADRs are still written per phase.
 | --- | --------------------------------------------- | ----------- |
 | 0   | Foundations                                   | complete |
 | 1   | Accounts and security                         | complete (275 tests incl. 5 E2E) |
-| 2   | Wallet, pricing, payments, GST                | **current** |
-| 3   | Ingestion, Tally, redaction, fixtures         |             |
+| 2   | Wallet, pricing, payments, GST                | complete (374 tests + 10 E2E) |
+| 3   | Ingestion, Tally, redaction, fixtures         | **current** |
 | 4   | AI layer and margin controls                  |             |
 | 5   | Semantic layer, mapping, engine, validation   |             |
 | 6   | Jobs, Excel output, lifecycle                 |             |
