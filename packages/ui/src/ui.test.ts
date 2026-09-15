@@ -107,8 +107,8 @@ describe("design tokens honour the SPEC §32 prohibitions", () => {
     // "restrained neutral palette with one accent colour". `ink` is the dark navigation
     // surface, not a second accent: it must stay close to the neutral ramp's hue.
     const chromatic = (hex: string) => {
-      const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
-      return Math.max(r!, g!, b!) - Math.min(r!, g!, b!);
+      const channels = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+      return Math.max(...channels) - Math.min(...channels);
     };
     expect(chromatic(tokens.accent[500])).toBeGreaterThan(100);
     for (const value of Object.values(tokens.ink)) {
