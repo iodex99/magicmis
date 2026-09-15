@@ -39,7 +39,9 @@ export default async function BreakGlassPage({
   }
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Break-glass view</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Break-glass view
+      </h1>
       <Alert tone="warning">
         This view was recorded in the audit log under your grant.
       </Alert>
@@ -58,7 +60,7 @@ export default async function BreakGlassPage({
             {view.values.map((v) => (
               <tr
                 key={`${v.metricId}@${v.period}`}
-                className="border-t border-neutral-100"
+                className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
               >
                 <td className={`${td} font-mono`}>{v.metricId}</td>
                 <td className={td}>{v.period}</td>

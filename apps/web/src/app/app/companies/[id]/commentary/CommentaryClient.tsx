@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { LineagePanel } from "@/components/LineagePanel";
 import { PaidJobButton } from "@/components/PaidJobButton";
-import { Alert, Panel } from "@/components/ui";
+import { Alert, Badge, EmptyState, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
 export interface CommentaryJobRow {
@@ -102,7 +102,7 @@ function CommentaryView({ jobId }: { jobId: string }) {
 
   if (error !== null) return <Alert tone="error">{error}</Alert>;
   if (payload === null || rendered === null)
-    return <p className="text-sm text-neutral-700">Loading…</p>;
+    return <p className="text-sm text-neutral-600">Loading…</p>;
   if (!rendered.ok)
     return (
       <Alert tone="error">
@@ -168,17 +168,21 @@ export function CommentaryClient({
 
   return (
     <div className="flex flex-col gap-6">
-      <Panel title="Order commentary">
+      <Panel
+        title="Order commentary"
+        icon="document"
+        description="Pick a month and confirm the price. Every figure in the text is computed, not written."
+      >
         {periods.length === 0 ? (
-          <p className="text-sm text-neutral-700">
+          <p className="text-sm text-neutral-600">
             Run the company setup first; commentary discusses its figures.
           </p>
         ) : (
           <div className="flex flex-col gap-3">
-            <label className="flex max-w-xs flex-col text-sm">
-              <span className="text-neutral-700">Month</span>
+            <label className="flex max-w-xs flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
+              <span>Month</span>
               <select
-                className="h-9 rounded-md border border-neutral-300 px-2"
+                className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
                 value={period}
                 onChange={(e) => {
                   setPeriod(e.target.value);
@@ -226,19 +230,30 @@ export function CommentaryClient({
         {notice === null ? null : <Alert tone={notice.tone}>{notice.text}</Alert>}
       </Panel>
 
-      <Panel title="Commentaries">
+      <Panel title="Commentaries" icon="clock" padding="none">
         {jobs.length === 0 ? (
-          <p className="text-sm text-neutral-700">None yet.</p>
+          <EmptyState icon="document" title="No commentary yet">
+            Order one above. It is written for a single month and kept with the company.
+          </EmptyState>
         ) : (
-          <ul className="flex flex-col gap-1 text-sm" data-testid="commentary-jobs">
+          <ul
+            className="flex flex-col divide-y divide-neutral-100 px-2 pb-2"
+            data-testid="commentary-jobs"
+          >
             {jobs.map((j) => (
-              <li key={j.id} className="flex gap-3">
-                <span className="w-24">{j.period === null ? "—" : label(j.period)}</span>
-                <span className="w-40">{j.state.replace(/_/gu, " ")}</span>
+              <li key={j.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                <span className="w-28 font-medium text-neutral-900">
+                  {j.period === null ? "—" : label(j.period)}
+                </span>
+                <span className="flex-1">
+                  <Badge tone={j.state === "completed" ? "positive" : "neutral"} dot>
+                    {j.state.replace(/_/gu, " ")}
+                  </Badge>
+                </span>
                 {j.state === "completed" ? (
                   <button
                     type="button"
-                    className="text-accent-700 underline"
+                    className="font-medium text-accent-700 hover:underline"
                     onClick={() => {
                       setOpen(j.id);
                     }}
@@ -253,7 +268,7 @@ export function CommentaryClient({
       </Panel>
 
       {open === null ? null : (
-        <Panel title="Commentary">
+        <Panel title="Commentary" icon="document">
           <CommentaryView key={open} jobId={open} />
         </Panel>
       )}

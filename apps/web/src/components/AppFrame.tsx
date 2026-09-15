@@ -1,48 +1,51 @@
-import Link from "next/link";
+import "server-only";
+
+import { walletSummary } from "@magicmis/wallet";
 import type { ReactNode } from "react";
 
-import { PRODUCT_NAME } from "@/lib/brand";
+import { formatCredits } from "@/lib/actions";
+import { db } from "@/lib/db";
 
 import { SessionWatcher } from "./SessionWatcher";
+import { Sidebar } from "./Sidebar";
 import { SignOutButton } from "./SignOutButton";
 
-export function AppFrame({
+/**
+ * The signed-in shell: a dark navigation rail against the light working surface.
+ *
+ * The available balance sits in the rail on every page because this is a prepaid product
+ * (SPEC §2.4) -- knowing what is left is part of deciding whether to start a paid action,
+ * and hunting for it on the Wallet page each time is the wrong answer.
+ */
+export async function AppFrame({
+  accountId,
   businessName,
+  company,
   children,
 }: {
+  /** Omit only where the caller has no account context; the rail then shows a dash. */
+  accountId?: string;
   businessName: string;
+  company?: { id: string; name: string };
   children: ReactNode;
 }) {
+  const available =
+    accountId === undefined
+      ? "—"
+      : formatCredits((await walletSummary(db(), accountId)).available.toString());
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen">
       <SessionWatcher />
-      <header className="flex h-12 items-center justify-between border-b border-neutral-200 bg-white px-6">
-        <nav aria-label="Main" className="flex items-center gap-6 text-sm">
-          <Link href="/app" className="font-semibold text-neutral-900">
-            {PRODUCT_NAME}
-          </Link>
-          <Link href="/app" className="text-neutral-700 hover:text-neutral-900">
-            Companies
-          </Link>
-          <Link href="/app/data" className="text-neutral-700 hover:text-neutral-900">
-            Source files
-          </Link>
-          <Link href="/wallet" className="text-neutral-700 hover:text-neutral-900">
-            Wallet
-          </Link>
-          <Link
-            href="/settings/security"
-            className="text-neutral-700 hover:text-neutral-900"
-          >
-            Settings
-          </Link>
-        </nav>
-        <div className="flex items-center gap-4 text-sm text-neutral-700">
-          <span>{businessName}</span>
-          <SignOutButton />
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">{children}</main>
+      <Sidebar
+        businessName={businessName}
+        availableCredits={available}
+        {...(company === undefined ? {} : { company })}
+        onSignOut={<SignOutButton />}
+      />
+      <main className="min-w-0 flex-1 px-8 py-7">
+        <div className="mx-auto w-full max-w-[1180px]">{children}</div>
+      </main>
     </div>
   );
 }

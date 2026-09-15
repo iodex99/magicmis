@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { AppFrame } from "@/components/AppFrame";
+import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 
 import { PrivacySettings } from "./PrivacySettings";
@@ -11,16 +10,11 @@ export const dynamic = "force-dynamic";
 export default async function PrivacyPage() {
   const account = await accountOrRedirect("/settings/privacy");
   return (
-    <AppFrame businessName={account.businessName}>
-      <div className="mb-6 flex items-baseline gap-6">
-        <h1 className="text-xl font-semibold text-neutral-900">Privacy and data</h1>
-        <Link href="/settings/profile" className="text-sm text-neutral-700 underline">
-          Business profile
-        </Link>
-        <Link href="/settings/security" className="text-sm text-neutral-700 underline">
-          Security
-        </Link>
-      </div>
+    <AppFrame accountId={account.accountId} businessName={account.businessName}>
+      <PageHeader
+        title="Privacy and data"
+        description="What is stored, how to take a copy of it, and how to have it destroyed."
+      />
       <PrivacySettings email={account.email} />
     </AppFrame>
   );

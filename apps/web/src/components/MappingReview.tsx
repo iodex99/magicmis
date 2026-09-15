@@ -83,8 +83,11 @@ export function MappingReview({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-end gap-3 text-sm" role="search">
-        <label className="flex items-center gap-2">
+      <div
+        className="flex flex-wrap items-end gap-3 rounded-xl border border-neutral-200 bg-neutral-25 p-3"
+        role="search"
+      >
+        <label className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[0.8125rem] font-medium text-neutral-700">
           <input
             type="checkbox"
             checked={filter.needsReviewOnly === true}
@@ -94,7 +97,7 @@ export function MappingReview({
           />
           Needs review only
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[0.8125rem] font-medium text-neutral-700">
           <input
             type="checkbox"
             checked={filter.unmappedOnly === true}
@@ -104,10 +107,10 @@ export function MappingReview({
           />
           Unmapped only
         </label>
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
           Head
           <select
-            className="rounded border px-2 py-1"
+            className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
             value={filter.head ?? ""}
             onChange={(e) => {
               setFilter({
@@ -124,10 +127,10 @@ export function MappingReview({
             ))}
           </select>
         </label>
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
           Source
           <select
-            className="rounded border px-2 py-1"
+            className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
             value={filter.source ?? ""}
             onChange={(e) => {
               setFilter({
@@ -145,10 +148,10 @@ export function MappingReview({
             ))}
           </select>
         </label>
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
           Search
           <input
-            className="rounded border px-2 py-1"
+            className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
             type="search"
             value={filter.search ?? ""}
             onChange={(e) => {
@@ -158,11 +161,11 @@ export function MappingReview({
         </label>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3 text-sm">
-        <label className="flex flex-col">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
           Reassign selected to
           <select
-            className="rounded border px-2 py-1"
+            className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
             value={bulkHead}
             onChange={(e) => {
               setBulkHead(e.target.value);
@@ -188,36 +191,45 @@ export function MappingReview({
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table ref={tableRef} className="w-full text-sm" onKeyDown={onKeyDown}>
-          <thead>
-            <tr className="text-left text-xs text-neutral-600">
-              <th className="px-2 py-1">
+      <div className="scroll-slim max-h-[34rem] overflow-auto rounded-xl border border-neutral-200">
+        <table
+          ref={tableRef}
+          className="w-full border-collapse text-sm"
+          onKeyDown={onKeyDown}
+        >
+          <thead className="sticky top-0 z-10 bg-white">
+            <tr className="border-b border-neutral-200 text-left text-[0.6875rem] font-semibold tracking-[0.06em] text-neutral-500 uppercase">
+              <th className="px-3 py-2">
                 <span className="sr-only">Select</span>
               </th>
-              <th className="px-2 py-1">Ledger or column</th>
-              <th className="px-2 py-1">Parent group</th>
-              <th className="px-2 py-1">File and sheet</th>
-              <th className="px-2 py-1 text-right">Period amount (₹)</th>
-              <th className="px-2 py-1">Head</th>
-              <th className="px-2 py-1">Source</th>
-              <th className="px-2 py-1">Confidence</th>
-              <th className="px-2 py-1">All my companies</th>
+              <th className="px-3 py-2">Ledger or column</th>
+              <th className="px-3 py-2">Parent group</th>
+              <th className="px-3 py-2">File and sheet</th>
+              <th className="px-3 py-2 text-right">Period amount (₹)</th>
+              <th className="px-3 py-2">Head</th>
+              <th className="px-3 py-2">Source</th>
+              <th className="px-3 py-2">Confidence</th>
+              <th className="px-3 py-2">All my companies</th>
             </tr>
           </thead>
           {groups.map((g) => (
             <tbody key={g.head}>
               <tr>
-                <th colSpan={9} className="bg-neutral-50 px-2 py-1 text-left font-medium">
+                <th
+                  colSpan={9}
+                  className="sticky top-9 bg-neutral-50 px-3 py-1.5 text-left text-[0.75rem] font-semibold text-neutral-700"
+                >
                   {g.name} ({g.rows.length})
                 </th>
               </tr>
               {g.rows.map((r) => (
                 <tr
                   key={r.ledgerKey}
-                  className={rowNeedsReview(state, r) ? "bg-amber-50" : ""}
+                  className={`border-b border-neutral-100 last:border-0 ${
+                    rowNeedsReview(state, r) ? "bg-warning-subtle" : "hover:bg-neutral-25"
+                  }`}
                 >
-                  <td className="px-2 py-1">
+                  <td className="px-3 py-2">
                     <input
                       data-row
                       type="checkbox"
@@ -228,28 +240,28 @@ export function MappingReview({
                       }}
                     />
                   </td>
-                  <td className="px-2 py-1">
+                  <td className="px-3 py-2">
                     {r.displayName}
                     {rowNeedsReview(state, r) && r.proposed.reason !== null ? (
-                      <span className="block text-xs text-amber-800">
+                      <span className="block text-[0.75rem] text-warning">
                         {r.proposed.reason}
                       </span>
                     ) : null}
                   </td>
-                  <td className="px-2 py-1">{r.parentGroup}</td>
-                  <td className="px-2 py-1">
+                  <td className="px-3 py-2">{r.parentGroup}</td>
+                  <td className="px-3 py-2">
                     {r.sourceFile} · {r.sourceSheet}
                   </td>
-                  <td className="px-2 py-1 text-right font-mono tabular-nums">
+                  <td className="num px-3 py-2 font-mono">
                     {formatPaise(paise(BigInt(r.amountPaise)), {
                       decimals: 2,
                       style: "lakhs_crores",
                     })}
                   </td>
-                  <td className="px-2 py-1">
+                  <td className="px-3 py-2">
                     <select
                       aria-label={`Head for ${r.displayName}`}
-                      className="rounded border px-1 py-0.5"
+                      className="h-8 w-full max-w-52 rounded-md border border-neutral-200 bg-white px-2 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
                       value={currentHead(state, r)}
                       onChange={(e) => {
                         setState((s) => reassign(s, [r.ledgerKey], e.target.value));
@@ -262,9 +274,9 @@ export function MappingReview({
                       ))}
                     </select>
                   </td>
-                  <td className="px-2 py-1">{SOURCE_LABELS[r.proposed.source]}</td>
-                  <td className="px-2 py-1">{r.proposed.confidence}</td>
-                  <td className="px-2 py-1">
+                  <td className="px-3 py-2">{SOURCE_LABELS[r.proposed.source]}</td>
+                  <td className="px-3 py-2">{r.proposed.confidence}</td>
+                  <td className="px-3 py-2">
                     <input
                       type="checkbox"
                       aria-label={`Apply ${r.displayName} to all my companies`}

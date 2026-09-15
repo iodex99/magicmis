@@ -99,20 +99,20 @@ function WidgetCard({
   const path = `/widgets/${index.toString()}`;
   return (
     <section
-      className="flex flex-col rounded-lg border border-neutral-200 bg-white p-4"
+      className="flex flex-col rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm"
       style={{
         gridColumn: `span ${widget.layout.w.toString()} / span ${widget.layout.w.toString()}`,
         minHeight: `${(widget.layout.h * 4).toString()}rem`,
       }}
       data-testid={`widget-${widget.id}`}
     >
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <h3 className="text-sm font-semibold text-neutral-900">{widget.title}</h3>
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <h3 className="eyebrow">{widget.title}</h3>
         {editing ? (
-          <div className="flex gap-1 text-xs">
+          <div className="-mt-1 -mr-1 flex gap-0.5">
             <button
               type="button"
-              className="underline"
+              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
               onClick={() => {
                 const title = window.prompt("Widget title", widget.title);
                 if (title !== null && title.trim() !== "")
@@ -123,7 +123,7 @@ function WidgetCard({
             </button>
             <button
               type="button"
-              className="underline disabled:text-neutral-400"
+              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
               disabled={index === 0}
               onClick={() => {
                 onEdit([
@@ -135,7 +135,7 @@ function WidgetCard({
             </button>
             <button
               type="button"
-              className="underline disabled:text-neutral-400"
+              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
               disabled={index === count - 1}
               onClick={() => {
                 onEdit([
@@ -147,7 +147,7 @@ function WidgetCard({
             </button>
             <button
               type="button"
-              className="underline"
+              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
               onClick={() => {
                 onEdit([
                   { op: "test", path: `${path}/id`, value: widget.id },
@@ -161,20 +161,24 @@ function WidgetCard({
         ) : null}
       </div>
       {view.kind === "empty" ? (
-        <p className="text-sm text-neutral-600">{view.reason}</p>
+        <p className="text-[0.8125rem] text-neutral-500">{view.reason}</p>
       ) : view.kind === "kpi" ? (
         <div className="flex flex-col gap-1">
           {view.values.map((v, i) => (
             <div
               key={v.metricKey}
-              className={i === 0 ? "text-2xl font-semibold" : "text-sm text-neutral-700"}
+              className={
+                i === 0
+                  ? "text-[1.75rem] leading-none font-semibold tracking-tight text-neutral-900"
+                  : "text-[0.8125rem] text-neutral-500"
+              }
             >
               <ValueButton value={v} onOpen={onOpen} />
             </div>
           ))}
           {/* SPEC §27: Investigate sends a Deep question about this metric's movement. */}
           <a
-            className="mt-1 text-xs text-accent-700 underline"
+            className="mt-3 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
             href={`/app/companies/${payload.company.id}/chat?investigate=${encodeURIComponent(widget.metrics[0] ?? "")}&period=${period}`}
           >
             Investigate
@@ -184,10 +188,10 @@ function WidgetCard({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs text-neutral-600">
-                <th className="py-1" />
+              <tr className="border-b border-neutral-200 text-left text-[0.6875rem] font-semibold tracking-[0.06em] text-neutral-500 uppercase">
+                <th className="py-1.5" />
                 {view.columns.map((c) => (
-                  <th key={c} className="py-1 text-right">
+                  <th key={c} className="py-1.5 text-right">
                     {c}
                   </th>
                 ))}
@@ -195,10 +199,10 @@ function WidgetCard({
             </thead>
             <tbody>
               {view.rows.map((r) => (
-                <tr key={r.label} className="border-t border-neutral-100">
-                  <td className="py-1">{r.label}</td>
+                <tr key={r.label} className="border-b border-neutral-100 last:border-0">
+                  <td className="py-1.5 text-neutral-700">{r.label}</td>
                   {r.cells.map((c) => (
-                    <td key={c.metricKey} className="py-1 text-right">
+                    <td key={c.metricKey} className="num py-1.5">
                       <ValueButton value={c} onOpen={onOpen} />
                     </td>
                   ))}
@@ -218,8 +222,10 @@ function WidgetCard({
             }}
           />
           {/* The same values as text: every charted number is reachable without a pointer. */}
-          <details className="mt-2 text-xs text-neutral-700">
-            <summary>Values</summary>
+          <details className="mt-3 text-[0.75rem] text-neutral-600">
+            <summary className="cursor-pointer select-none hover:text-neutral-900">
+              Values
+            </summary>
             <ul className="mt-1 flex flex-col gap-1">
               {view.points
                 .flat()
@@ -270,21 +276,25 @@ export function DashboardClient({ companyId }: { companyId: string }) {
 
   if (payload === null)
     return error === null ? (
-      <p className="text-sm text-neutral-700">Loading…</p>
+      <p className="text-sm text-neutral-500">Loading…</p>
     ) : (
       <Alert tone="error">{error}</Alert>
     );
 
   if (payload.dashboard === null) {
     return (
-      <Panel title="Add a dashboard">
+      <Panel
+        title="Add a dashboard"
+        icon="chart"
+        description="Charts and KPIs over the months this company already has."
+      >
         {payload.latestPeriod === null ? (
-          <p className="text-sm text-neutral-700">
+          <p className="text-sm text-neutral-600">
             Run the company setup first; the dashboard shows its figures.
           </p>
         ) : (
           <>
-            <p className="mb-4 text-sm text-neutral-700">
+            <p className="mb-4 text-sm text-neutral-600">
               The dashboard charts this company's MIS figures, month by month. It is kept
               with the company; after a monthly refresh, a dashboard refresh brings in the
               new month.
@@ -353,8 +363,8 @@ export function DashboardClient({ companyId }: { companyId: string }) {
     <div className="flex flex-col gap-4">
       {payload.latestPeriod !== null &&
       (dashboard.dataThrough === null || payload.latestPeriod > dashboard.dataThrough) ? (
-        <Panel title="A newer month is available">
-          <p className="mb-3 text-sm text-neutral-700">
+        <Panel title="A newer month is available" icon="refresh">
+          <p className="mb-3 text-sm text-neutral-600">
             The dashboard shows months up to{" "}
             {dashboard.dataThrough === null
               ? "—"
@@ -379,11 +389,11 @@ export function DashboardClient({ companyId }: { companyId: string }) {
           />
         </Panel>
       ) : null}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <label className="flex flex-col text-sm">
-          <span className="text-neutral-700">Month</span>
+      <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 shadow-sm">
+        <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
+          <span>Month</span>
           <select
-            className="h-9 rounded-md border border-neutral-300 px-2"
+            className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
             value={current}
             onChange={(e) => {
               setPeriod(e.target.value as PeriodId);
@@ -419,28 +429,31 @@ export function DashboardClient({ companyId }: { companyId: string }) {
       </div>
 
       {pending === null ? null : (
-        <Alert tone="warning">
-          <span data-testid="patch-preview">
-            Previewing {pending.ops.length} change{pending.ops.length === 1 ? "" : "s"}.
-            Nothing is saved until you apply.
-          </span>{" "}
-          <button
-            type="button"
-            className="underline"
-            disabled={busy}
-            onClick={() => void commit({ action: "apply", operations: pending.ops })}
-          >
-            Apply
-          </button>{" "}
-          <button
-            type="button"
-            className="underline"
-            onClick={() => {
-              setPending(null);
-            }}
-          >
-            Discard
-          </button>
+        <Alert tone="warning" title="Unsaved layout changes">
+          <div className="flex flex-wrap items-center gap-3">
+            <span data-testid="patch-preview">
+              Previewing {pending.ops.length} change{pending.ops.length === 1 ? "" : "s"}.
+              Nothing is saved until you apply.
+            </span>
+            <span className="flex gap-2">
+              <Button
+                size="sm"
+                disabled={busy}
+                onClick={() => void commit({ action: "apply", operations: pending.ops })}
+              >
+                Apply
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setPending(null);
+                }}
+              >
+                Discard
+              </Button>
+            </span>
+          </div>
         </Alert>
       )}
       {error === null ? null : <Alert tone="error">{error}</Alert>}

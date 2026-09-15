@@ -1,9 +1,21 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
 import { AppFrame } from "@/components/AppFrame";
-import { Panel } from "@/components/ui";
+import { Icon } from "@/components/Icon";
+import {
+  Badge,
+  ButtonLink,
+  DataTable,
+  EmptyState,
+  PageHeader,
+  Panel,
+  StatCard,
+  Td,
+  Th,
+  Tr,
+  type BadgeTone,
+} from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
@@ -12,6 +24,34 @@ import { DeleteCompany } from "./DeleteCompany";
 
 export const metadata = { title: "Company" };
 export const dynamic = "force-dynamic";
+
+const LIFECYCLE: Record<string, { label: string; tone: BadgeTone }> = {
+  active: { label: "Active", tone: "positive" },
+  grace: { label: "Grace period", tone: "warning" },
+  archived: { label: "Archived", tone: "muted" },
+  purged: { label: "Deleted", tone: "muted" },
+};
+
+/** Job states as words a customer can act on (SPEC §32: no raw identifiers in the UI). */
+const JOB_STATE: Record<string, { label: string; tone: BadgeTone }> = {
+  completed: { label: "Completed", tone: "positive" },
+  failed: { label: "Failed", tone: "negative" },
+  cancelled: { label: "Cancelled", tone: "muted" },
+  paused: { label: "Paused", tone: "warning" },
+  awaiting_confirmation: { label: "Awaiting confirmation", tone: "warning" },
+  awaiting_review: { label: "Awaiting review", tone: "warning" },
+  running: { label: "Running", tone: "accent" },
+  queued: { label: "Queued", tone: "accent" },
+};
+
+const ist = (d: Date, withTime = true) =>
+  d.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
+  });
 
 export default async function CompanyPage({
   params,
@@ -32,7 +72,7 @@ export default async function CompanyPage({
   );
   const company = c.rows[0];
   if (company === undefined) notFound();
-  const [jobs, outputs] = await Promise.all([
+  const [jobs, outputs, latest] = await Promise.all([
     pool.query<{
       id: string;
       type: string;
@@ -47,95 +87,190 @@ export default async function CompanyPage({
       `select id, file_name, created_at from outputs where company_id = $1 order by created_at desc limit 50`,
       [id],
     ),
+    pool.query<{ period: string | null }>(
+      `select max(period) as period from snapshots where company_id = $1`,
+      [id],
+    ),
   ]);
+
+  const state = LIFECYCLE[company.lifecycle_state] ?? {
+    label: company.lifecycle_state,
+    tone: "neutral" as BadgeTone,
+  };
+  const isSetUp = company.first_setup_at !== null;
+  const active = company.lifecycle_state === "active";
+  const spent = jobs.rows.reduce((sum, j) => sum + BigInt(j.captured_credits ?? "0"), 0n);
+
   return (
-    <AppFrame businessName={account.businessName}>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">{company.name}</h1>
-        {company.lifecycle_state === "active" ? (
-          <nav className="flex gap-4">
-            <Link href={`/app/companies/${id}/run`} className="text-accent-700 underline">
-              {company.first_setup_at === null ? "Set up MIS" : "Run monthly refresh"}
-            </Link>
-            {company.first_setup_at === null ? null : (
-              <>
-                <Link
-                  href={`/app/companies/${id}/dashboard`}
-                  className="text-accent-700 underline"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href={`/app/companies/${id}/commentary`}
-                  className="text-accent-700 underline"
-                >
-                  Commentary
-                </Link>
-                <Link
-                  href={`/app/companies/${id}/chat`}
-                  className="text-accent-700 underline"
-                >
-                  Chat
-                </Link>
-              </>
-            )}
-          </nav>
-        ) : null}
-      </div>
-      <div className="flex flex-col gap-6">
-        <Panel title="Workbooks">
+    <AppFrame
+      accountId={account.accountId}
+      businessName={account.businessName}
+      company={{ id, name: company.name }}
+    >
+      <PageHeader
+        title={company.name}
+        back={{ href: "/app", label: "All companies" }}
+        description={
+          isSetUp
+            ? "Its workbooks, everything that has run, and what each action cost."
+            : "Not set up yet. Run the first setup to build the MIS and its mappings."
+        }
+        meta={
+          <Badge tone={state.tone} dot>
+            {state.label}
+          </Badge>
+        }
+        actions={
+          active ? (
+            <ButtonLink
+              href={`/app/companies/${id}/run`}
+              icon={isSetUp ? "refresh" : "play"}
+            >
+              {isSetUp ? "Run monthly refresh" : "Set up MIS"}
+            </ButtonLink>
+          ) : undefined
+        }
+      />
+
+      {isSetUp ? (
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            label="Latest period"
+            value={latest.rows[0]?.period ?? "—"}
+            icon="calendar"
+            tone="accent"
+            hint="Months are added by a refresh"
+          />
+          <StatCard
+            label="Workbooks"
+            value={outputs.rows.length.toString()}
+            icon="document"
+            hint="Every version is kept"
+          />
+          <StatCard
+            label="Actions run"
+            value={jobs.rows.length.toString()}
+            icon="clock"
+            hint="Setup, refreshes, commentary and chat"
+          />
+          <StatCard
+            label="Credits spent here"
+            value={formatCredits(spent.toString())}
+            icon="wallet"
+            hint="Charged on completion, never before"
+          />
+        </div>
+      ) : null}
+
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]">
+        <Panel title="Workbooks" icon="download" padding="none">
           {outputs.rows.length === 0 ? (
-            <p className="text-sm text-neutral-700">No workbooks yet.</p>
+            <EmptyState icon="document" title="No workbooks yet">
+              A workbook appears here once a setup or refresh completes.
+            </EmptyState>
           ) : (
-            <ul className="flex flex-col gap-1 text-sm" data-testid="company-outputs">
+            <ul
+              className="flex flex-col divide-y divide-neutral-100 px-2 pb-2"
+              data-testid="company-outputs"
+            >
               {outputs.rows.map((o) => (
                 <li key={o.id}>
-                  <a href={`/api/outputs/${o.id}`} className="text-accent-700 underline">
-                    {o.file_name ?? "Workbook"}
-                  </a>{" "}
-                  <span className="text-neutral-600">
-                    {o.created_at.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
-                  </span>
+                  <a
+                    href={`/api/outputs/${o.id}`}
+                    className="group flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-neutral-25"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-positive-subtle text-positive">
+                      <Icon name="file" size={15} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[0.8125rem] font-medium text-neutral-900">
+                        {o.file_name ?? "Workbook"}
+                      </span>
+                      <span className="block text-[0.75rem] text-neutral-500">
+                        {ist(o.created_at)} IST
+                      </span>
+                    </span>
+                    <Icon
+                      name="download"
+                      size={15}
+                      className="text-neutral-300 group-hover:text-accent-600"
+                    />
+                  </a>
                 </li>
               ))}
             </ul>
           )}
         </Panel>
-        <Panel title="Jobs">
+
+        <Panel
+          title="Activity"
+          description="Every action run for this company, newest first."
+          icon="clock"
+          padding="none"
+        >
           {jobs.rows.length === 0 ? (
-            <p className="text-sm text-neutral-700">No jobs yet.</p>
+            <EmptyState
+              icon="clock"
+              title="Nothing has run yet"
+              action={
+                active ? (
+                  <ButtonLink href={`/app/companies/${id}/run`} size="sm" icon="play">
+                    {isSetUp ? "Run monthly refresh" : "Set up MIS"}
+                  </ButtonLink>
+                ) : undefined
+              }
+            >
+              Load this month&rsquo;s files, then run a setup or a refresh. You see the
+              price and confirm it before anything is charged.
+            </EmptyState>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-neutral-600">
-                  <th className="py-1">Started (IST)</th>
-                  <th className="py-1">Action</th>
-                  <th className="py-1">Status</th>
-                  <th className="py-1 text-right">Credits charged</th>
-                </tr>
-              </thead>
-              <tbody>
-                {jobs.rows.map((j) => (
-                  <tr key={j.id} className="border-t border-neutral-100">
-                    <td className="py-1">
-                      {j.created_at.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
-                    </td>
-                    <td className="py-1">
+            <DataTable
+              className="px-2 pb-2"
+              maxHeight="28rem"
+              head={
+                <>
+                  <Th>Started (IST)</Th>
+                  <Th>Action</Th>
+                  <Th>Status</Th>
+                  <Th numeric>Credits charged</Th>
+                </>
+              }
+            >
+              {jobs.rows.map((j) => {
+                const js = JOB_STATE[j.state] ?? {
+                  label: j.state.replace(/_/gu, " "),
+                  tone: "neutral" as BadgeTone,
+                };
+                return (
+                  <Tr key={j.id}>
+                    <Td className="whitespace-nowrap">{ist(j.created_at)}</Td>
+                    <Td className="font-medium text-neutral-900">
                       {ACTION_LABELS[j.type as keyof typeof ACTION_LABELS]}
-                    </td>
-                    <td className="py-1">{j.state.replace(/_/gu, " ")}</td>
-                    <td className="py-1 text-right tabular-nums">
+                    </Td>
+                    <Td>
+                      <Badge tone={js.tone} dot>
+                        {js.label}
+                      </Badge>
+                    </Td>
+                    <Td numeric>
                       {j.captured_credits === null
                         ? "—"
                         : formatCredits(j.captured_credits)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </DataTable>
           )}
         </Panel>
-        <Panel title="Delete company">
+      </div>
+
+      <div className="mt-5">
+        <Panel
+          title="Delete company"
+          description="Stops the monthly memory fee now; stored data is destroyed after the purge period."
+          icon="trash"
+        >
           <DeleteCompany companyId={id} name={company.name} />
         </Panel>
       </div>

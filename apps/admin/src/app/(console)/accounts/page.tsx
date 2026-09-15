@@ -19,7 +19,9 @@ export default async function AccountsPage({
   const accounts = await searchAccounts(db(), q);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Accounts</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Accounts
+      </h1>
       <Flash searchParams={searchParams} />
       <form className="flex gap-2" role="search">
         <input
@@ -45,9 +47,15 @@ export default async function AccountsPage({
           </thead>
           <tbody>
             {accounts.map((a) => (
-              <tr key={a.id} className="border-t border-neutral-100">
+              <tr
+                key={a.id}
+                className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+              >
                 <td className={td}>
-                  <Link href={`/accounts/${a.id}`} className="text-accent-700 underline">
+                  <Link
+                    href={`/accounts/${a.id}`}
+                    className="font-medium text-accent-700 hover:underline"
+                  >
                     {a.business_name}
                   </Link>
                 </td>

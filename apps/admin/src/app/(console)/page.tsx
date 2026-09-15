@@ -28,7 +28,9 @@ export default async function OverviewPage() {
   ];
   return (
     <>
-      <h1 className="mb-6 text-xl font-semibold text-neutral-900">Overview</h1>
+      <h1 className="mb-6 text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Overview
+      </h1>
       <div className="grid grid-cols-4 gap-4">
         {cards.map(([label, value]) => (
           <Panel key={label}>

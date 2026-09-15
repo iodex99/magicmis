@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
 import { AppFrame } from "@/components/AppFrame";
+import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { db } from "@/lib/db";
 
@@ -39,15 +39,16 @@ export default async function CommentaryPage({
     ),
   ]);
   return (
-    <AppFrame businessName={account.businessName}>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">
-          {company.name} — Commentary
-        </h1>
-        <Link href={`/app/companies/${id}`} className="text-accent-700 underline">
-          Back to company
-        </Link>
-      </div>
+    <AppFrame
+      accountId={account.accountId}
+      businessName={account.businessName}
+      company={{ id, name: company.name }}
+    >
+      <PageHeader
+        title="Commentary"
+        description="A written explanation of what moved and why. Figures come from the engine, never from the model."
+        back={{ href: `/app/companies/${id}`, label: company.name }}
+      />
       <CommentaryClient
         companyId={id}
         periods={periods.rows.map((p) => p.period)}

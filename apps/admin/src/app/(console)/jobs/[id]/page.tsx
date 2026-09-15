@@ -42,7 +42,9 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
   ];
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Job {job.id}</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Job {job.id}
+      </h1>
       <Panel>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
           {facts.map(([k, v]) => (
@@ -95,7 +97,10 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
             </thead>
             <tbody>
               {calls.map((c, i) => (
-                <tr key={i} className="border-t border-neutral-100">
+                <tr
+                  key={i}
+                  className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+                >
                   <td className={`${td} text-xs`}>
                     {c.created_at.toISOString().slice(11, 19)}
                   </td>

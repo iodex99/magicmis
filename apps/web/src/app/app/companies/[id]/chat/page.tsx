@@ -1,10 +1,10 @@
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { metricLabel } from "@magicmis/render-dashboard";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
 import { AppFrame } from "@/components/AppFrame";
+import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { db } from "@/lib/db";
 
@@ -48,13 +48,16 @@ export default async function ChatPage({
           text: `Why did ${metricLabel(metric.split(".")[0] ?? metric)} move${month === null ? "" : ` in ${month}`}? Which ledgers drove the change?`,
         };
   return (
-    <AppFrame businessName={account.businessName}>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">{company.name} — Chat</h1>
-        <Link href={`/app/companies/${id}`} className="text-accent-700 underline">
-          Back to company
-        </Link>
-      </div>
+    <AppFrame
+      accountId={account.accountId}
+      businessName={account.businessName}
+      company={{ id, name: company.name }}
+    >
+      <PageHeader
+        title="Chat"
+        description="Ask about this MIS. Each message is priced before you send it, and every figure carries its lineage."
+        back={{ href: `/app/companies/${id}`, label: company.name }}
+      />
       <ChatClient
         companyId={id}
         money={{

@@ -2,7 +2,20 @@
 
 import { useCallback, useState } from "react";
 
-import { Alert, Button, Panel } from "@/components/ui";
+import { Donut, sharePercent } from "@/components/Charts";
+import { Icon } from "@/components/Icon";
+import {
+  Alert,
+  Badge,
+  Button,
+  DataTable,
+  EmptyState,
+  Panel,
+  StatCard,
+  Td,
+  Th,
+  Tr,
+} from "@/components/ui";
 import { formatCredits, formatRupees } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { api, newIdempotencyKey } from "@/lib/client-api";
@@ -77,6 +90,10 @@ const istDate = (iso: string): string =>
     month: "short",
     year: "numeric",
   }).format(new Date(iso));
+
+/** Days until a lot expires, for the "expiring soon" warning. */
+const daysUntil = (iso: string): number =>
+  Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
 
 export function WalletClient({
   initial,
@@ -215,182 +232,272 @@ export function WalletClient({
     });
   }
 
+  const available = BigInt(view.available);
+  const held = BigInt(view.held);
+  const expiringSoon = view.lots.filter((l) => daysUntil(l.expiresAt) <= 30);
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
 
-      <Panel title="Balance">
-        <dl className="grid grid-cols-3 gap-6" data-testid="wallet-balance">
-          {[
-            ["Available", view.available],
-            ["Held for running actions", view.held],
-            ["Total balance", view.balance],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <dt className="text-xs text-neutral-600">{label}</dt>
-              <dd className="font-mono text-2xl tabular-nums text-neutral-900">
-                {formatCredits(value ?? "0")}
-              </dd>
-            </div>
+      <div className="grid gap-4 sm:grid-cols-3" data-testid="wallet-balance">
+        <StatCard
+          label="Available"
+          value={formatCredits(view.available)}
+          unit="credits"
+          icon="wallet"
+          tone="accent"
+          hint="Ready to spend on an action"
+        />
+        <StatCard
+          label="Held for running actions"
+          value={formatCredits(view.held)}
+          unit="credits"
+          icon="lock"
+          hint={
+            held === 0n
+              ? "Nothing is held right now"
+              : "Released or charged when the action finishes"
+          }
+        />
+        <StatCard
+          label="Total balance"
+          value={formatCredits(view.balance)}
+          unit="credits"
+          icon="bank"
+          hint={`Credits expire ${String(view.lotValidityMonths)} months after purchase`}
+          chart={
+            available + held === 0n ? undefined : (
+              <div className="flex items-center gap-3">
+                <Donut
+                  parts={[
+                    {
+                      percent: sharePercent(available, available + held),
+                      tone: "accent",
+                    },
+                    { percent: sharePercent(held, available + held), tone: "warning" },
+                  ]}
+                />
+                <span className="flex flex-col gap-1 text-[0.75rem] text-neutral-500">
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 rounded-full bg-accent-500"
+                    />
+                    Available
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 rounded-full bg-warning"
+                    />
+                    Held
+                  </span>
+                </span>
+              </div>
+            )
+          }
+        />
+      </div>
+
+      {expiringSoon.length === 0 ? null : (
+        <Alert tone="warning" title="Credits expiring within 30 days">
+          {formatCredits(
+            expiringSoon.reduce((sum, l) => sum + BigInt(l.remaining), 0n).toString(),
+          )}{" "}
+          credits expire by {istDate(expiringSoon.at(-1)?.expiresAt ?? "")}. Oldest
+          credits are always spent first.
+        </Alert>
+      )}
+
+      <Panel
+        title="Buy credits"
+        description="1 credit = ₹1 before GST. Prepaid and non-refundable; there is no free tier."
+        icon="plus"
+        padding="none"
+      >
+        <DataTable
+          className="px-2 pb-2"
+          head={
+            <>
+              <Th>Credits</Th>
+              <Th numeric>Price (ex-GST)</Th>
+              <Th numeric>GST</Th>
+              <Th numeric>Total</Th>
+              <Th />
+            </>
+          }
+        >
+          {view.packs.map((p) => (
+            <Tr key={p.packId}>
+              <Td>
+                <span className="num text-[0.9375rem] font-semibold text-neutral-900">
+                  {formatCredits(p.credits)}
+                </span>
+                {p.bonusCredits !== "0" ? (
+                  <Badge tone="positive" className="ml-2">
+                    +{formatCredits(p.bonusCredits)} bonus
+                  </Badge>
+                ) : null}
+              </Td>
+              <Td numeric>{formatRupees(p.taxablePaise)}</Td>
+              <Td numeric className="text-[0.75rem] text-neutral-500">
+                {p.supply === "intra_state"
+                  ? `CGST ${formatRupees(p.cgstPaise)} + SGST ${formatRupees(p.sgstPaise)}`
+                  : `IGST ${formatRupees(p.igstPaise)}`}
+              </Td>
+              <Td numeric className="font-semibold">
+                {formatRupees(p.totalPaise)}
+              </Td>
+              <Td className="text-right whitespace-nowrap">
+                <Button
+                  size="sm"
+                  disabled={busy !== null}
+                  onClick={() => void buy(p.packId)}
+                >
+                  Pay {formatRupees(p.totalPaise)}
+                </Button>
+                {p.bankTransferEligible ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="ml-2"
+                    disabled={busy !== null}
+                    onClick={() => void bankTransfer(p.packId)}
+                  >
+                    Bank transfer
+                  </Button>
+                ) : null}
+              </Td>
+            </Tr>
           ))}
-        </dl>
-        <p className="mt-3 text-xs text-neutral-600">
-          1 credit = ₹1 before GST. Credits are prepaid, non-refundable and expire{" "}
-          {view.lotValidityMonths} months after purchase.
-        </p>
+        </DataTable>
       </Panel>
 
-      <Panel title="Buy credits">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs text-neutral-600">
-              <tr>
-                <th className="py-2 pr-4 font-medium">Credits</th>
-                <th className="py-2 pr-4 text-right font-medium">Price (ex-GST)</th>
-                <th className="py-2 pr-4 text-right font-medium">GST</th>
-                <th className="py-2 pr-4 text-right font-medium">Total</th>
-                <th className="py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {view.packs.map((p) => (
-                <tr key={p.packId} className="border-t border-neutral-100">
-                  <td className="py-2 pr-4 tabular-nums">
-                    {formatCredits(p.credits)}
-                    {p.bonusCredits !== "0" ? (
-                      <span className="ml-2 text-xs text-positive">
-                        +{formatCredits(p.bonusCredits)} bonus
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="py-2 pr-4 text-right font-mono tabular-nums">
-                    {formatRupees(p.taxablePaise)}
-                  </td>
-                  <td className="py-2 pr-4 text-right font-mono tabular-nums text-neutral-700">
-                    {p.supply === "intra_state"
-                      ? `CGST ${formatRupees(p.cgstPaise)} + SGST ${formatRupees(p.sgstPaise)}`
-                      : `IGST ${formatRupees(p.igstPaise)}`}
-                  </td>
-                  <td className="py-2 pr-4 text-right font-mono tabular-nums font-medium">
-                    {formatRupees(p.totalPaise)}
-                  </td>
-                  <td className="py-2 text-right whitespace-nowrap">
-                    <Button disabled={busy !== null} onClick={() => void buy(p.packId)}>
-                      Pay {formatRupees(p.totalPaise)}
-                    </Button>
-                    {p.bankTransferEligible ? (
-                      <Button
-                        variant="secondary"
-                        className="ml-2"
-                        disabled={busy !== null}
-                        onClick={() => void bankTransfer(p.packId)}
-                      >
-                        Bank transfer
-                      </Button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
-
-      <Panel title="Credit lots">
-        {view.lots.length === 0 ? (
-          <p className="text-sm text-neutral-700">No credits yet.</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs text-neutral-600">
-              <tr>
-                <th className="py-2 font-medium">Source</th>
-                <th className="py-2 text-right font-medium">Remaining</th>
-                <th className="py-2 text-right font-medium">Expires</th>
-              </tr>
-            </thead>
-            <tbody>
+      <div className="grid items-start gap-5 lg:grid-cols-2">
+        <Panel
+          title="Credit lots"
+          description="Spent oldest first."
+          icon="archive"
+          padding="none"
+        >
+          {view.lots.length === 0 ? (
+            <EmptyState icon="wallet" title="No credits yet">
+              Buy a pack above. Credits appear here as lots, each with its own expiry.
+            </EmptyState>
+          ) : (
+            <DataTable
+              className="px-2 pb-2"
+              head={
+                <>
+                  <Th>Source</Th>
+                  <Th numeric>Remaining</Th>
+                  <Th numeric>Expires</Th>
+                </>
+              }
+            >
               {view.lots.map((l) => (
-                <tr key={l.id} className="border-t border-neutral-100">
-                  <td className="py-2">{SOURCE_LABELS[l.source] ?? l.source}</td>
-                  <td className="py-2 text-right font-mono tabular-nums">
-                    {formatCredits(l.remaining)}
-                  </td>
-                  <td className="py-2 text-right">{istDate(l.expiresAt)}</td>
-                </tr>
+                <Tr key={l.id}>
+                  <Td>{SOURCE_LABELS[l.source] ?? l.source}</Td>
+                  <Td numeric>{formatCredits(l.remaining)}</Td>
+                  <Td numeric className="whitespace-nowrap">
+                    {istDate(l.expiresAt)}
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
-        )}
-      </Panel>
+            </DataTable>
+          )}
+        </Panel>
 
-      <Panel title="Invoices">
-        {view.invoices.length === 0 ? (
-          <p className="text-sm text-neutral-700">No invoices yet.</p>
-        ) : (
-          <table className="w-full text-sm" data-testid="invoices">
-            <thead className="text-left text-xs text-neutral-600">
-              <tr>
-                <th className="py-2 font-medium">Number</th>
-                <th className="py-2 font-medium">Type</th>
-                <th className="py-2 font-medium">Date</th>
-                <th className="py-2 text-right font-medium">Total</th>
-                <th className="py-2" />
-              </tr>
-            </thead>
-            <tbody>
+        <Panel title="Invoices" icon="document" padding="none">
+          {view.invoices.length === 0 ? (
+            <EmptyState icon="document" title="No invoices yet">
+              A tax invoice is issued the moment a payment is confirmed, and a proforma
+              when you request a bank transfer.
+            </EmptyState>
+          ) : (
+            <DataTable
+              testId="invoices"
+              className="px-2 pb-2"
+              head={
+                <>
+                  <Th>Number</Th>
+                  <Th>Type</Th>
+                  <Th>Date</Th>
+                  <Th numeric>Total</Th>
+                  <Th />
+                </>
+              }
+            >
               {view.invoices.map((i) => (
-                <tr key={i.id} className="border-t border-neutral-100">
-                  <td className="py-2 font-mono">{i.number}</td>
-                  <td className="py-2">
-                    {i.type === "tax_invoice" ? "Tax invoice" : "Proforma"}
-                  </td>
-                  <td className="py-2">{istDate(i.issuedAt)}</td>
-                  <td className="py-2 text-right font-mono tabular-nums">
-                    {formatRupees(i.totalPaise)}
-                  </td>
-                  <td className="py-2 text-right">
+                <Tr key={i.id}>
+                  <Td className="font-mono text-[0.8125rem] text-neutral-900">
+                    {i.number}
+                  </Td>
+                  <Td>
+                    <Badge tone={i.type === "tax_invoice" ? "accent" : "neutral"}>
+                      {i.type === "tax_invoice" ? "Tax invoice" : "Proforma"}
+                    </Badge>
+                  </Td>
+                  <Td className="whitespace-nowrap">{istDate(i.issuedAt)}</Td>
+                  <Td numeric>{formatRupees(i.totalPaise)}</Td>
+                  <Td className="text-right">
                     <a
-                      className="text-accent-700 underline"
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.8125rem] font-medium text-accent-700 hover:bg-accent-50"
                       href={`/api/invoices/${i.id}/pdf`}
                     >
+                      <Icon name="download" size={13} />
                       Download PDF
                     </a>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
-        )}
-      </Panel>
+            </DataTable>
+          )}
+        </Panel>
+      </div>
 
-      <Panel title="History">
+      <Panel
+        title="History"
+        description="Every movement of credits, newest first."
+        icon="clock"
+        padding="none"
+      >
         {view.ledger.length === 0 ? (
-          <p className="text-sm text-neutral-700">No activity yet.</p>
+          <EmptyState icon="clock" title="No activity yet">
+            Buying credits and running actions both appear here, with the balance after
+            each movement.
+          </EmptyState>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs text-neutral-600">
-              <tr>
-                <th className="py-2 font-medium">Date</th>
-                <th className="py-2 font-medium">Activity</th>
-                <th className="py-2 text-right font-medium">Credits</th>
-                <th className="py-2 text-right font-medium">Balance after</th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.ledger.map((e) => (
-                <tr key={e.seq} className="border-t border-neutral-100">
-                  <td className="py-2">{istDate(e.createdAt)}</td>
-                  <td className="py-2">{ENTRY_LABELS[e.entryType] ?? e.entryType}</td>
-                  <td className="py-2 text-right font-mono tabular-nums">
+          <DataTable
+            className="px-2 pb-2"
+            maxHeight="26rem"
+            head={
+              <>
+                <Th>Date</Th>
+                <Th>Activity</Th>
+                <Th numeric>Credits</Th>
+                <Th numeric>Balance after</Th>
+              </>
+            }
+          >
+            {view.ledger.map((e) => {
+              const negative = e.amount.startsWith("-");
+              return (
+                <Tr key={e.seq}>
+                  <Td className="whitespace-nowrap">{istDate(e.createdAt)}</Td>
+                  <Td className="text-neutral-900">
+                    {ENTRY_LABELS[e.entryType] ?? e.entryType}
+                  </Td>
+                  <Td numeric className={negative ? "text-negative" : "text-positive"}>
+                    {negative ? "" : "+"}
                     {formatCredits(e.amount)}
-                  </td>
-                  <td className="py-2 text-right font-mono tabular-nums">
-                    {formatCredits(e.balanceAfter)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </Td>
+                  <Td numeric>{formatCredits(e.balanceAfter)}</Td>
+                </Tr>
+              );
+            })}
+          </DataTable>
         )}
       </Panel>
     </div>

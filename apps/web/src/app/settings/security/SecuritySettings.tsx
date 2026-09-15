@@ -4,7 +4,18 @@ import { formatIstDateTime } from "@magicmis/core/time";
 import { useEffect, useState, type SyntheticEvent } from "react";
 
 import { ReauthForm } from "@/components/ReauthForm";
-import { Alert, Button, Field, Panel } from "@/components/ui";
+import {
+  Alert,
+  Badge,
+  Button,
+  DataTable,
+  EmptyState,
+  Field,
+  Panel,
+  Td,
+  Th,
+  Tr,
+} from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 
 import { BackupCodesNotice } from "../../sign-in/BackupCodesNotice";
@@ -106,9 +117,16 @@ export function SecuritySettings() {
     <div className="flex flex-col gap-6">
       {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
 
-      <Panel title="Backup codes">
-        <p className="mb-3 text-sm text-neutral-700">
-          <span className="num">{remaining ?? "—"}</span> unused backup codes remain.
+      <Panel
+        title="Backup codes"
+        icon="key"
+        description="Single-use codes that sign you in if you lose your authenticator. Regenerating invalidates the old set."
+      >
+        <p className="mb-4 flex items-center gap-2 text-sm text-neutral-700">
+          <Badge tone={remaining !== null && remaining <= 3 ? "warning" : "neutral"}>
+            {remaining ?? "—"} remaining
+          </Badge>
+          unused backup codes.
         </p>
         {pending === "regenerate" && granted !== "regenerate" ? (
           <ReauthForm
@@ -130,7 +148,7 @@ export function SecuritySettings() {
         )}
       </Panel>
 
-      <Panel title="Password">
+      <Panel title="Password" icon="lock">
         {pending !== "password" ? (
           <Button
             variant="secondary"
@@ -169,46 +187,50 @@ export function SecuritySettings() {
         )}
       </Panel>
 
-      <Panel title="Sign-in history">
+      <Panel
+        title="Sign-in history"
+        icon="clock"
+        description="Every sign-in, sign-out and identity confirmation on this account."
+        padding="none"
+      >
         {events === null ? (
-          <p className="text-sm text-neutral-600">Loading…</p>
+          <p className="px-5 py-6 text-sm text-neutral-500">Loading…</p>
         ) : events.length === 0 ? (
-          <p className="text-sm text-neutral-600">No sign-in activity yet.</p>
+          <EmptyState icon="clock" title="No sign-in activity yet">
+            Sign-ins appear here as soon as they happen, with the device and IP address
+            they came from.
+          </EmptyState>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-white text-left text-neutral-600">
-                <tr>
-                  <th className="py-2 pr-4 font-medium">When (IST)</th>
-                  <th className="py-2 pr-4 font-medium">Event</th>
-                  <th className="py-2 pr-4 font-medium">Device</th>
-                  <th className="py-2 pr-4 font-medium">IP address</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((e, i) => (
-                  <tr
-                    key={`${e.at}-${String(i)}`}
-                    className="border-t border-neutral-100"
-                  >
-                    <td className="num py-1.5 pr-4 text-left">
-                      {formatIstDateTime(new Date(e.at))}
-                    </td>
-                    <td className="py-1.5 pr-4">
-                      {EVENT_LABEL[e.type] ?? e.type}
-                      {e.newDevice ? (
-                        <span className="ml-2 rounded-sm bg-warning-subtle px-1.5 text-xs text-warning">
-                          New device
-                        </span>
-                      ) : null}
-                    </td>
-                    <td className="py-1.5 pr-4">{e.device ?? "—"}</td>
-                    <td className="num py-1.5 pr-4 text-left">{e.ip ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            className="px-2 pb-2"
+            maxHeight="26rem"
+            head={
+              <>
+                <Th>When (IST)</Th>
+                <Th>Event</Th>
+                <Th>Device</Th>
+                <Th>IP address</Th>
+              </>
+            }
+          >
+            {events.map((e, i) => (
+              <Tr key={`${e.at}-${String(i)}`}>
+                <Td className="font-mono text-[0.8125rem] whitespace-nowrap text-neutral-900">
+                  {formatIstDateTime(new Date(e.at))}
+                </Td>
+                <Td>
+                  {EVENT_LABEL[e.type] ?? e.type}
+                  {e.newDevice ? (
+                    <Badge tone="warning" className="ml-2">
+                      New device
+                    </Badge>
+                  ) : null}
+                </Td>
+                <Td>{e.device ?? "—"}</Td>
+                <Td className="font-mono text-[0.8125rem]">{e.ip ?? "—"}</Td>
+              </Tr>
+            ))}
+          </DataTable>
         )}
       </Panel>
     </div>

@@ -94,10 +94,10 @@ export function PaidJobButton({
     <div className="flex flex-col gap-3">
       {job === null ? (
         <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col text-sm">
-            <span className="text-neutral-700">Intelligence tier</span>
+          <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
+            <span>Intelligence tier</span>
             <select
-              className="h-9 rounded-md border border-neutral-300 px-2"
+              className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
               value={tier}
               onChange={(e) => {
                 setTier(e.target.value as Tier);
@@ -111,10 +111,10 @@ export function PaidJobButton({
             </select>
           </label>
           {deliveries.length > 1 ? (
-            <label className="flex flex-col text-sm">
-              <span className="text-neutral-700">Delivery</span>
+            <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
+              <span>Delivery</span>
               <select
-                className="h-9 rounded-md border border-neutral-300 px-2"
+                className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
                 value={delivery}
                 onChange={(e) => {
                   setDelivery(e.target.value as Delivery);

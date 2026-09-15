@@ -30,7 +30,9 @@ export default async function JobsPage({
   });
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Jobs</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Jobs
+      </h1>
       <form method="get" className="flex flex-wrap items-end gap-2 text-sm">
         <label className="flex flex-col">
           State
@@ -75,9 +77,15 @@ export default async function JobsPage({
             </thead>
             <tbody>
               {jobs.map((j) => (
-                <tr key={j.id} className="border-t border-neutral-100">
+                <tr
+                  key={j.id}
+                  className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+                >
                   <td className={td}>
-                    <Link href={`/jobs/${j.id}`} className="text-accent-700 underline">
+                    <Link
+                      href={`/jobs/${j.id}`}
+                      className="font-medium text-accent-700 hover:underline"
+                    >
                       {j.created_at.toISOString().slice(0, 16).replace("T", " ")}
                     </Link>
                   </td>

@@ -317,8 +317,8 @@ export function ChatClient({
   return (
     <div className="flex gap-4">
       <aside className="w-56 shrink-0">
-        <Panel title="Conversations">
-          <div className="flex flex-col gap-2 text-sm">
+        <Panel title="Conversations" icon="chat">
+          <div className="flex flex-col gap-2">
             <Button
               variant="secondary"
               onClick={() => {
@@ -331,7 +331,11 @@ export function ChatClient({
               <button
                 key={t.id}
                 type="button"
-                className={`text-left underline ${thread?.threadId === t.id ? "font-semibold" : ""}`}
+                className={`rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
+                  thread?.threadId === t.id
+                    ? "bg-accent-50 font-semibold text-accent-800"
+                    : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                }`}
                 onClick={() => void openThread(t.id)}
               >
                 {new Date(t.createdAt).toLocaleString("en-IN", {
@@ -345,10 +349,10 @@ export function ChatClient({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <Panel title={thread === null ? "New conversation" : "Conversation"}>
+        <Panel title={thread === null ? "New conversation" : "Conversation"} icon="chat">
           <div className="flex flex-col gap-3 text-sm" data-testid="chat-messages">
             {thread === null || thread.messages.length === 0 ? (
-              <p className="text-neutral-700">
+              <p className="rounded-xl bg-neutral-25 px-4 py-5 text-center text-neutral-500">
                 Ask about this company's MIS: figures, movements, ratios and what the
                 ledgers show.
               </p>
@@ -358,11 +362,11 @@ export function ChatClient({
                   return (
                     <div
                       key={m.id}
-                      className="rounded-md bg-neutral-50 p-3"
+                      className="ml-auto max-w-[85%] rounded-xl rounded-br-sm bg-accent-600 px-4 py-3 text-white"
                       data-testid="chat-user"
                     >
                       <p>{m.text}</p>
-                      <p className="mt-1 text-xs text-neutral-600">
+                      <p className="mt-1.5 text-[0.75rem] text-accent-100">
                         {m.type} ·{" "}
                         {m.state === "failed_platform"
                           ? "not answered, not charged"
@@ -378,14 +382,14 @@ export function ChatClient({
                   return (
                     <div
                       key={m.id}
-                      className="rounded-md border border-neutral-200 p-3"
+                      className="max-w-[92%] rounded-xl rounded-bl-sm border border-neutral-200 bg-white p-4 shadow-sm"
                       data-testid="chat-edit"
                     >
                       <p>{reply.summary}</p>
                       {reply.scope === "in_scope" ? (
                         <>
                           <pre
-                            className="mt-2 overflow-x-auto rounded bg-neutral-50 p-2 text-xs"
+                            className="scroll-slim mt-2 overflow-x-auto rounded-lg bg-neutral-900 p-3 text-[0.75rem] text-neutral-100"
                             data-testid="chat-edit-preview"
                           >
                             {JSON.stringify(reply.operations, null, 2)}
@@ -427,7 +431,7 @@ export function ChatClient({
                 return (
                   <div
                     key={m.id}
-                    className="rounded-md border border-neutral-200 p-3"
+                    className="max-w-[92%] rounded-xl rounded-bl-sm border border-neutral-200 bg-white p-4 shadow-sm"
                     data-testid="chat-answer"
                   >
                     {rendered === null ? null : !rendered.ok ? (
@@ -436,7 +440,7 @@ export function ChatClient({
                       </Alert>
                     ) : (
                       rendered.paragraphs.map((p, i) => (
-                        <p key={i} className="mb-2 leading-6">
+                        <p key={i} className="mb-2 leading-7 text-neutral-800 last:mb-0">
                           <Segments
                             segments={p}
                             onMetric={(key) => {
@@ -458,13 +462,13 @@ export function ChatClient({
           </div>
         </Panel>
 
-        <Panel title="Ask">
+        <Panel title="Ask" icon="chat">
           <div className="flex flex-col gap-3 text-sm">
-            <div className="flex flex-wrap items-end gap-3">
-              <label className="flex flex-col">
-                <span className="text-neutral-700">Message type</span>
+            <div className="flex flex-wrap items-end gap-3 rounded-xl border border-neutral-200 bg-neutral-25 p-3">
+              <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
+                <span>Message type</span>
                 <select
-                  className="h-9 rounded-md border border-neutral-300 px-2"
+                  className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
                   value={type === "investigate" ? "deep" : type}
                   onChange={(e) => {
                     setType(e.target.value as MessageType);
@@ -478,10 +482,10 @@ export function ChatClient({
                   ))}
                 </select>
               </label>
-              <label className="flex flex-col">
-                <span className="text-neutral-700">Intelligence tier</span>
+              <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
+                <span>Intelligence tier</span>
                 <select
-                  className="h-9 rounded-md border border-neutral-300 px-2"
+                  className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
                   value={tier}
                   onChange={(e) => {
                     setTier(e.target.value as Tier);
@@ -495,10 +499,10 @@ export function ChatClient({
                 </select>
               </label>
               {type === "edit" ? (
-                <label className="flex flex-col">
-                  <span className="text-neutral-700">Change</span>
+                <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
+                  <span>Change</span>
                   <select
-                    className="h-9 rounded-md border border-neutral-300 px-2"
+                    className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
                     value={editTarget}
                     onChange={(e) => {
                       setEditTarget(e.target.value as "dashboard" | "template");
@@ -511,7 +515,7 @@ export function ChatClient({
               ) : null}
             </div>
             {type === "deep" || type === "investigate" ? (
-              <div className="rounded-md bg-neutral-50 p-3">
+              <div className="rounded-xl border border-neutral-200 bg-white p-3">
                 {session?.loaded === true ? (
                   <p data-testid="chat-session">
                     Files loaded in this browser ({session.balances} ledger lines).
@@ -537,7 +541,7 @@ export function ChatClient({
               </div>
             ) : null}
             <textarea
-              className="min-h-20 rounded-md border border-neutral-300 p-2"
+              className="min-h-24 rounded-lg border border-neutral-200 bg-white p-3 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300"
               aria-label="Your question"
               maxLength={2000}
               value={text}
@@ -545,7 +549,7 @@ export function ChatClient({
                 setText(e.target.value);
               }}
             />
-            <p className="text-xs text-neutral-600">
+            <p className="text-[0.75rem] text-neutral-500">
               Every message is charged at its type's price, including questions outside
               this MIS, which are declined in one sentence.
             </p>
@@ -587,7 +591,7 @@ export function ChatClient({
             />
           ) : (
             <aside
-              className="rounded-lg border border-neutral-200 bg-white p-4 text-sm"
+              className="rounded-xl border border-neutral-200/80 bg-white p-4 text-sm shadow-sm"
               data-testid="query-lineage"
             >
               <div className="mb-3 flex items-start justify-between gap-2">
@@ -607,7 +611,7 @@ export function ChatClient({
               <p className="text-neutral-600">
                 Tables: {lineage.query.tables.join(", ")}
               </p>
-              <pre className="my-2 overflow-x-auto rounded bg-neutral-50 p-2 text-xs">
+              <pre className="scroll-slim my-2 overflow-x-auto rounded-lg bg-neutral-900 p-3 text-[0.75rem] text-neutral-100">
                 {lineage.query.sql}
               </pre>
               <div className="overflow-x-auto">

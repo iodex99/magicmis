@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { AppFrame } from "@/components/AppFrame";
+import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 
 import { SecuritySettings } from "./SecuritySettings";
@@ -11,16 +10,11 @@ export const dynamic = "force-dynamic";
 export default async function SecurityPage() {
   const account = await accountOrRedirect("/settings/security");
   return (
-    <AppFrame businessName={account.businessName}>
-      <div className="mb-6 flex items-baseline gap-6">
-        <h1 className="text-xl font-semibold text-neutral-900">Security</h1>
-        <Link href="/settings/profile" className="text-sm text-neutral-700 underline">
-          Business profile
-        </Link>
-        <Link href="/settings/privacy" className="text-sm text-neutral-700 underline">
-          Privacy and data
-        </Link>
-      </div>
+    <AppFrame accountId={account.accountId} businessName={account.businessName}>
+      <PageHeader
+        title="Security"
+        description="Your password, two-factor authentication, backup codes and recent sign-ins."
+      />
       <SecuritySettings />
     </AppFrame>
   );

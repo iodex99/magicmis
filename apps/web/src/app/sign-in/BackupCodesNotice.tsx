@@ -26,16 +26,22 @@ export function BackupCodesNotice({
         Use one if you lose access to your authenticator app.
       </Alert>
       <ol
-        className="grid grid-cols-2 gap-2 rounded-md border border-neutral-200 bg-neutral-50 p-4 font-mono text-sm"
+        className="grid grid-cols-2 gap-1.5 rounded-xl border border-neutral-200 bg-neutral-25 p-3"
         data-testid="backup-codes"
       >
         {codes.map((code) => (
-          <li key={code}>{code}</li>
+          <li
+            key={code}
+            className="rounded-md bg-white px-2.5 py-1.5 text-center font-mono text-[0.8125rem] tracking-wide text-neutral-900 ring-1 ring-neutral-200"
+          >
+            {code}
+          </li>
         ))}
       </ol>
       <Button
         type="button"
         variant="secondary"
+        icon={copied ? "check" : "document"}
         onClick={() => {
           void navigator.clipboard.writeText(codes.join("\n")).then(() => {
             setCopied(true);
@@ -44,17 +50,24 @@ export function BackupCodesNotice({
       >
         {copied ? "Copied" : "Copy codes"}
       </Button>
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2.5 text-[0.8125rem] text-neutral-700">
         <input
           type="checkbox"
           checked={confirmed}
+          className="h-4 w-4 accent-[#5846d2]"
           onChange={(e) => {
             setConfirmed(e.target.checked);
           }}
         />
         I have saved my backup codes somewhere safe.
       </label>
-      <Button type="button" disabled={!confirmed} onClick={onDone}>
+      <Button
+        type="button"
+        disabled={!confirmed}
+        size="lg"
+        className="w-full"
+        onClick={onDone}
+      >
         Continue
       </Button>
     </div>

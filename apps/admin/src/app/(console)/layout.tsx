@@ -6,7 +6,12 @@ import { requireAdmin } from "@/server/session";
 
 import { signOutAction } from "../login/actions";
 
-const NAV: [string, string][] = [
+/**
+ * The console shell (ADR 0026): the same dark navigation rail as the customer app, so an
+ * operator moving between the two is not moving between two products.
+ */
+
+const NAV: readonly (readonly [string, string])[] = [
   ["/", "Overview"],
   ["/accounts", "Accounts"],
   ["/bank-transfers", "Bank transfers"],
@@ -26,31 +31,54 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
   const admin = await requireAdmin();
   return (
     <div className="flex min-h-screen">
-      <aside className="w-56 shrink-0 border-r border-neutral-200 bg-white px-4 py-6">
-        <p className="mb-6 text-sm font-semibold text-neutral-900">
-          {PRODUCT_NAME} Admin
+      <aside className="on-ink sticky top-0 flex h-screen w-60 shrink-0 flex-col bg-ink-900 px-3 py-4">
+        <p className="mb-6 flex items-center gap-2.5 px-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[28%] bg-accent-600">
+            <svg
+              width={16}
+              height={16}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={2.4}
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M7 16.5V11m5 5.5V6m5 10.5v-3.5M4.5 20.5h15" />
+            </svg>
+          </span>
+          <span className="text-[0.9375rem] font-semibold tracking-tight text-white">
+            {PRODUCT_NAME} Admin
+          </span>
         </p>
-        <nav aria-label="Admin" className="flex flex-col gap-1 text-sm">
+        <nav aria-label="Admin" className="flex flex-col gap-0.5 overflow-y-auto">
           {NAV.map(([href, label]) => (
             <Link
               key={href}
               href={href}
-              className="rounded px-2 py-1 text-neutral-700 hover:bg-neutral-100"
+              className="rounded-lg px-3 py-2 text-[0.8125rem] font-medium text-neutral-300 transition-colors hover:bg-ink-700 hover:text-white"
             >
               {label}
             </Link>
           ))}
         </nav>
-        <div className="mt-8 border-t border-neutral-200 pt-4 text-xs text-neutral-600">
-          <p className="mb-2 truncate">{admin.email}</p>
+        <div className="mt-auto border-t border-ink-700 pt-4">
+          <p className="mb-2 truncate px-1 text-[0.75rem] text-neutral-400">
+            {admin.email}
+          </p>
           <form action={signOutAction}>
-            <button type="submit" className="underline">
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-ink-700 px-3 py-2 text-left text-[0.8125rem] font-medium text-neutral-200 transition-colors hover:bg-ink-600 hover:text-white"
+            >
               Sign out
             </button>
           </form>
         </div>
       </aside>
-      <main className="flex-1 px-8 py-8">{children}</main>
+      <main className="min-w-0 flex-1 px-8 py-7">
+        <div className="mx-auto w-full max-w-[1180px]">{children}</div>
+      </main>
     </div>
   );
 }

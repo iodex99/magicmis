@@ -31,7 +31,9 @@ export default async function ExportsPage({
       : now.toISOString().slice(0, 7);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Accounting exports</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Accounting exports
+      </h1>
       <form className="flex items-end gap-2 text-sm">
         <label className="flex flex-col gap-1">
           Month
@@ -46,7 +48,7 @@ export default async function ExportsPage({
           {ACCOUNTING_REPORTS.map((r) => (
             <li key={r}>
               <a
-                className="text-accent-700 underline"
+                className="font-medium text-accent-700 hover:underline"
                 href={`/exports/${r}?month=${selected}`}
               >
                 {LABELS[r] ?? r}

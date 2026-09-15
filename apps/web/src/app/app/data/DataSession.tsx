@@ -3,8 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import * as Comlink from "comlink";
 
+import { Icon } from "@/components/Icon";
 import { ProcessingNotice } from "@/components/ProcessingNotice";
-import { Alert, Button, Panel } from "@/components/ui";
+import {
+  Alert,
+  Button,
+  DataTable,
+  EmptyState,
+  Panel,
+  Progress,
+  Td,
+  Th,
+  Tr,
+} from "@/components/ui";
 import { formatCount } from "@/lib/actions";
 import { api } from "@/lib/client-api";
 import {
@@ -102,10 +113,14 @@ export function DataSession({
     <div className="flex flex-col gap-6">
       {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <Panel title="Add files">
+      <Panel
+        title="Add files"
+        icon="upload"
+        description="Trial balances, ledgers, registers. Nothing leaves this tab."
+      >
         <ProcessingNotice>
           <div
-            className="flex flex-col items-start gap-3 rounded-md border border-dashed border-neutral-300 p-6"
+            className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-neutral-200 bg-neutral-25 px-6 py-8 text-center transition-colors hover:border-accent-300"
             onDragOver={(e) => {
               e.preventDefault();
             }}
@@ -114,9 +129,12 @@ export function DataSession({
               void add(e.dataTransfer.files);
             }}
           >
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-50 text-accent-600">
+              <Icon name="upload" size={20} />
+            </span>
             <label
               htmlFor="source-files"
-              className="text-sm font-medium text-neutral-800"
+              className="text-[0.9375rem] font-semibold text-neutral-900"
             >
               Excel or CSV exports (.xlsx, .xlsm, .xls, .csv)
             </label>
@@ -128,9 +146,9 @@ export function DataSession({
               accept=".xlsx,.xlsm,.xls,.csv"
               disabled={!ready || busy}
               onChange={(e) => void add(e.target.files)}
-              className="text-sm"
+              className="text-[0.8125rem] text-neutral-600 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-accent-600 file:px-3.5 file:py-2 file:text-[0.8125rem] file:font-medium file:text-white hover:file:bg-accent-700"
             />
-            <p className="text-xs text-neutral-600">
+            <p className="text-[0.75rem] text-neutral-500">
               Drag files here, or choose them. Macros are never run.
             </p>
           </div>
@@ -143,16 +161,15 @@ export function DataSession({
           >
             {inFlight.map((p) => (
               <li key={p.name} className="flex items-center gap-3">
-                <span className="w-64 truncate">{p.name}</span>
+                <span className="w-64 truncate text-[0.8125rem] text-neutral-700">
+                  {p.name}
+                </span>
                 {p.stage === "error" ? (
-                  <span className="text-negative">{p.message}</span>
+                  <span className="text-[0.8125rem] text-negative">{p.message}</span>
                 ) : (
-                  <progress
-                    max={100}
-                    value={p.percent}
-                    className="h-2 w-48"
-                    aria-label={`${p.name} progress`}
-                  />
+                  <span className="w-48">
+                    <Progress value={p.percent} label={`${p.name} progress`} />
+                  </span>
                 )}
               </li>
             ))}
@@ -160,67 +177,82 @@ export function DataSession({
         ) : null}
       </Panel>
 
-      <Panel title="Loaded in this session">
-        {files.length === 0 ? (
-          <p className="text-sm text-neutral-700">No files loaded.</p>
-        ) : (
-          <table className="w-full text-sm" data-testid="loaded-files">
-            <thead className="text-left text-xs text-neutral-600">
-              <tr>
-                <th className="py-2 font-medium">File</th>
-                <th className="py-2 text-right font-medium">Size</th>
-                <th className="py-2 text-right font-medium">Sheets</th>
-                <th className="py-2 text-right font-medium">Rows</th>
-                {developerMode ? <th className="py-2" /> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {files.map((f) => (
-                <tr key={f.fileId} className="border-t border-neutral-100">
-                  <td className="py-2">{f.name}</td>
-                  <td className="py-2 text-right tabular-nums">{bytes(f.size)}</td>
-                  <td className="py-2 text-right tabular-nums">{f.sheets.length}</td>
-                  <td className="py-2 text-right tabular-nums">
-                    {f.sheets.map((s) => formatCount(s.rows.toString())).join(" / ")}
-                  </td>
-                  {developerMode ? (
-                    <td className="py-2 text-right">
-                      <button
-                        type="button"
-                        className="text-xs text-accent-700 underline"
-                        onClick={() => {
-                          void ingestClient()
-                            .inspect(f.fileId)
-                            .then(setInspection)
-                            .catch(() => {
-                              setInspection("Inspection failed.");
-                            });
-                        }}
-                      >
-                        Inspect payload
-                      </button>
-                    </td>
-                  ) : null}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <div className="mt-4">
-          <Button variant="secondary" onClick={() => void clear()} disabled={busy}>
+      <Panel
+        title="Loaded in this session"
+        icon="file"
+        description="Cleared when you sign out or close the tab."
+        actions={
+          <Button
+            variant="secondary"
+            size="sm"
+            icon="trash"
+            onClick={() => void clear()}
+            disabled={busy}
+          >
             Clear session data
           </Button>
-        </div>
+        }
+        padding="none"
+      >
+        {files.length === 0 ? (
+          <EmptyState icon="file" title="No files loaded">
+            Add this month&rsquo;s exports above. Until you run a paid action you see only
+            names, sizes, sheet counts and row counts.
+          </EmptyState>
+        ) : (
+          <DataTable
+            testId="loaded-files"
+            className="px-2 pb-2"
+            head={
+              <>
+                <Th>File</Th>
+                <Th numeric>Size</Th>
+                <Th numeric>Sheets</Th>
+                <Th numeric>Rows</Th>
+                {developerMode ? <Th /> : null}
+              </>
+            }
+          >
+            {files.map((f) => (
+              <Tr key={f.fileId}>
+                <Td className="font-medium text-neutral-900">{f.name}</Td>
+                <Td numeric>{bytes(f.size)}</Td>
+                <Td numeric>{f.sheets.length}</Td>
+                <Td numeric>
+                  {f.sheets.map((s) => formatCount(s.rows.toString())).join(" / ")}
+                </Td>
+                {developerMode ? (
+                  <Td className="text-right">
+                    <button
+                      type="button"
+                      className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
+                      onClick={() => {
+                        void ingestClient()
+                          .inspect(f.fileId)
+                          .then(setInspection)
+                          .catch(() => {
+                            setInspection("Inspection failed.");
+                          });
+                      }}
+                    >
+                      Inspect payload
+                    </button>
+                  </Td>
+                ) : null}
+              </Tr>
+            ))}
+          </DataTable>
+        )}
       </Panel>
 
       {developerMode && inspection !== null ? (
-        <Panel title="Payload inspector (developer mode)">
-          <p className="mb-2 text-xs text-neutral-600">
+        <Panel title="Payload inspector (developer mode)" icon="search">
+          <p className="mb-2 text-[0.75rem] text-neutral-500">
             Exactly what a paid action would send for this file, redacted with a preview
             key. Not shown to customers.
           </p>
           <pre
-            className="max-h-96 overflow-auto rounded bg-neutral-50 p-3 text-xs"
+            className="scroll-slim max-h-96 overflow-auto rounded-lg bg-neutral-900 p-3 text-[0.75rem] text-neutral-100"
             data-testid="payload-inspector"
           >
             {inspection}

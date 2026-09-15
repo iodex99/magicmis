@@ -6,7 +6,7 @@ import { useRef, useState, type SyntheticEvent } from "react";
 
 import { GST_STATE_CODES } from "@magicmis/accounts/state-codes";
 
-import { Alert, AuthShell, Button, Field } from "@/components/ui";
+import { Alert, AuthShell, Button, Field, SelectField } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 
 export default function SignUpPage() {
@@ -54,7 +54,19 @@ export default function SignUpPage() {
   }
 
   return (
-    <AuthShell title="Create your account">
+    <AuthShell
+      title="Create your account"
+      description="Free to create. You buy credits when you are ready to run something."
+      width="wide"
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link href="/sign-in" className="font-medium text-accent-700 hover:underline">
+            Sign in
+          </Link>
+        </>
+      }
+    >
       <form
         onSubmit={(e) => {
           void onSubmit(e);
@@ -98,8 +110,8 @@ export default function SignUpPage() {
           error={fields["gstin"]}
         />
 
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-1 text-sm font-medium text-neutral-800">
+        <fieldset className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4">
+          <legend className="px-1.5 text-[0.8125rem] font-semibold text-neutral-900">
             Billing address
           </legend>
           <Field
@@ -135,40 +147,35 @@ export default function SignUpPage() {
               error={fields["billingAddress.pincode"]}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="stateCode" className="text-sm font-medium text-neutral-800">
-              State
-            </label>
-            <select
-              id="stateCode"
-              name="stateCode"
-              required
-              defaultValue=""
-              className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm"
-            >
-              <option value="" disabled>
-                Choose a state
+          <SelectField
+            id="stateCode"
+            name="stateCode"
+            label="State"
+            required
+            defaultValue=""
+            error={fields["billingAddress.stateCode"]}
+          >
+            <option value="" disabled>
+              Choose a state
+            </option>
+            {Object.entries(GST_STATE_CODES).map(([code, name]) => (
+              <option key={code} value={code}>
+                {name}
               </option>
-              {Object.entries(GST_STATE_CODES).map(([code, name]) => (
-                <option key={code} value={code}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            {fields["billingAddress.stateCode"] ? (
-              <p className="text-xs text-negative">
-                {fields["billingAddress.stateCode"]}
-              </p>
-            ) : null}
-          </div>
+            ))}
+          </SelectField>
         </fieldset>
 
         {/* TODO(review): R-10/R-11 — link targets are placeholder legal pages until drafted. */}
-        <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" name="acceptTerms" className="mt-0.5" />
+        <label className="flex items-start gap-2.5 text-[0.8125rem] text-neutral-700">
+          <input
+            type="checkbox"
+            name="acceptTerms"
+            className="mt-0.5 h-4 w-4 accent-[#5846d2]"
+          />
           <span>
             I accept the{" "}
-            <Link href="/legal/terms" className="underline">
+            <Link href="/legal/terms" className="font-medium text-accent-700 underline">
               Terms
             </Link>
             .
@@ -177,11 +184,15 @@ export default function SignUpPage() {
         {fields["acceptTerms"] ? (
           <p className="-mt-3 text-xs text-negative">{fields["acceptTerms"]}</p>
         ) : null}
-        <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" name="acceptPrivacy" className="mt-0.5" />
+        <label className="flex items-start gap-2.5 text-[0.8125rem] text-neutral-700">
+          <input
+            type="checkbox"
+            name="acceptPrivacy"
+            className="mt-0.5 h-4 w-4 accent-[#5846d2]"
+          />
           <span>
             I have read the{" "}
-            <Link href="/legal/privacy" className="underline">
+            <Link href="/legal/privacy" className="font-medium text-accent-700 underline">
               Privacy notice
             </Link>
             .
@@ -191,15 +202,9 @@ export default function SignUpPage() {
           <p className="-mt-3 text-xs text-negative">{fields["acceptPrivacy"]}</p>
         ) : null}
 
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting} size="lg" className="mt-1 w-full">
           {submitting ? "Creating account…" : "Create account"}
         </Button>
-        <p className="text-sm text-neutral-600">
-          Already have an account?{" "}
-          <Link href="/sign-in" className="underline">
-            Sign in
-          </Link>
-        </p>
       </form>
     </AuthShell>
   );

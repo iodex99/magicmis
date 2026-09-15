@@ -40,7 +40,10 @@ function Table({ head, rows }: { head: string[]; rows: (string | number)[][] }) 
       </thead>
       <tbody>
         {rows.map((r, i) => (
-          <tr key={i} className="border-t border-neutral-100">
+          <tr
+            key={i}
+            className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+          >
             {r.map((c, j) => (
               <td
                 key={j}
@@ -84,7 +87,9 @@ export default async function AccountPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">{a.business_name}</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        {a.business_name}
+      </h1>
       <Flash searchParams={searchParams} />
 
       <div className="grid grid-cols-2 gap-6">
@@ -259,7 +264,7 @@ export default async function AccountPage({
                   .map((c) => (
                     <a
                       key={c.id}
-                      className="text-accent-700 underline"
+                      className="font-medium text-accent-700 hover:underline"
                       href={`/accounts/${id}/break-glass?grant=${g.id}&company=${c.id}`}
                     >
                       View {c.name}

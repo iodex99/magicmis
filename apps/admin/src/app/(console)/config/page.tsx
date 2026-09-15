@@ -24,7 +24,9 @@ export default async function ConfigPage({
   );
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Config</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Config
+      </h1>
       <Flash searchParams={searchParams} />
       <Panel>
         <div className="overflow-x-auto">

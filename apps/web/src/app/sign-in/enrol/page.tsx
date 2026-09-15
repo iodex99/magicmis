@@ -60,7 +60,10 @@ export default function EnrolPage() {
 
   if (codes !== null) {
     return (
-      <AuthShell title="Save your backup codes">
+      <AuthShell
+        title="Save your backup codes"
+        description="Ten single-use codes. This is the only time they are shown."
+      >
         <BackupCodesNotice
           codes={codes}
           onDone={() => {
@@ -72,29 +75,32 @@ export default function EnrolPage() {
   }
 
   return (
-    <AuthShell title="Set up two-factor authentication">
+    <AuthShell
+      title="Set up two-factor authentication"
+      description="Required on every account. Scan the code with an authenticator app such as Google Authenticator or Microsoft Authenticator, then enter the 6-digit code it shows."
+    >
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-neutral-700">
-          Two-factor authentication is required. Scan this code with an authenticator app
-          such as Google Authenticator or Microsoft Authenticator, then enter the 6-digit
-          code it shows.
-        </p>
         {message ? <Alert tone="error">{message}</Alert> : null}
         {enrolment ? (
           <>
-            <img
-              src={enrolment.qrCode}
-              alt="QR code for your authenticator app"
-              width={180}
-              height={180}
-              className="self-center"
-            />
-            <p className="text-xs text-neutral-600">
-              Can't scan? Enter this key manually:{" "}
-              <code className="font-mono" data-testid="totp-secret">
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-25 p-5">
+              <img
+                src={enrolment.qrCode}
+                alt="QR code for your authenticator app"
+                width={180}
+                height={180}
+                className="rounded-lg bg-white p-2"
+              />
+              <p className="text-center text-[0.75rem] text-neutral-500">
+                Can't scan? Enter this key manually
+              </p>
+              <code
+                className="block w-full rounded-md bg-white px-3 py-2 text-center font-mono text-[0.8125rem] break-all text-neutral-900 ring-1 ring-neutral-200"
+                data-testid="totp-secret"
+              >
                 {enrolment.secret}
               </code>
-            </p>
+            </div>
             <form
               onSubmit={(e) => {
                 void onSubmit(e);
@@ -111,13 +117,13 @@ export default function EnrolPage() {
                 maxLength={6}
                 required
               />
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting} size="lg" className="w-full">
                 {submitting ? "Verifying…" : "Verify and continue"}
               </Button>
             </form>
           </>
         ) : message === null ? (
-          <p className="text-sm text-neutral-600">Preparing your QR code…</p>
+          <p className="text-sm text-neutral-500">Preparing your QR code…</p>
         ) : null}
       </div>
     </AuthShell>

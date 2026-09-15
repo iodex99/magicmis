@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { Alert, Button, Field } from "@/components/ui";
+import { Alert, Button, Field, SelectField } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 
 const MONTHS = [
@@ -29,7 +29,7 @@ export function NewCompanyForm() {
 
   return (
     <form
-      className="flex max-w-md flex-col gap-4"
+      className="flex flex-col gap-4"
       onSubmit={(e) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
@@ -56,26 +56,26 @@ export function NewCompanyForm() {
         id="company-name"
         name="name"
         label="Company name"
+        placeholder="Northwind Traders Pvt Ltd"
         required
         minLength={2}
         maxLength={120}
         error={fields["name"]}
       />
-      <label className="flex flex-col gap-1 text-sm font-medium text-neutral-800">
-        Financial year starts in
-        <select
-          name="fyStartMonth"
-          defaultValue="4"
-          className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm"
-        >
-          {MONTHS.map((m, i) => (
-            <option key={m} value={(i + 1).toString()}>
-              {m}
-            </option>
-          ))}
-        </select>
-      </label>
-      <Button type="submit" disabled={busy}>
+      <SelectField
+        id="company-fy-start"
+        name="fyStartMonth"
+        label="Financial year starts in"
+        defaultValue="4"
+        hint="April for most Indian companies. It can be changed later."
+      >
+        {MONTHS.map((m, i) => (
+          <option key={m} value={(i + 1).toString()}>
+            {m}
+          </option>
+        ))}
+      </SelectField>
+      <Button type="submit" disabled={busy} icon="plus" className="w-full">
         {busy ? "Adding…" : "Add company"}
       </Button>
     </form>

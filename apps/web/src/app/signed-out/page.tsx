@@ -1,6 +1,4 @@
-import Link from "next/link";
-
-import { AuthShell } from "@/components/ui";
+import { AuthShell, ButtonLink } from "@/components/ui";
 
 export const metadata = { title: "Signed out" };
 
@@ -14,7 +12,7 @@ export default async function SignedOutPage({
   const deleted = reason === "deleted";
   return (
     <AuthShell title="Signed out">
-      <div className="flex flex-col gap-3 text-sm text-neutral-700">
+      <div className="flex flex-col gap-3 text-sm text-neutral-600">
         {/* SPEC §8: the exact explanation for a superseded session. */}
         <p data-testid="signed-out-reason">
           {elsewhere
@@ -29,12 +27,9 @@ export default async function SignedOutPage({
             sign in and change your password from Security settings.
           </p>
         ) : null}
-        <Link
-          href="/sign-in"
-          className="inline-flex h-9 w-fit items-center rounded-md bg-accent-600 px-4 text-sm font-medium text-white"
-        >
+        <ButtonLink href="/sign-in" size="lg" className="mt-1 w-full">
           Sign in
-        </Link>
+        </ButtonLink>
       </div>
     </AuthShell>
   );

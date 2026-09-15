@@ -35,7 +35,9 @@ export default async function LibraryPage({
   ]);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Mapping library</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Mapping library
+      </h1>
       <Flash searchParams={Promise.resolve(p)} />
       <Panel title={`Candidates (seen in at least ${min.toString()} accounts)`}>
         {candidates.length === 0 ? (
@@ -53,7 +55,10 @@ export default async function LibraryPage({
             </thead>
             <tbody>
               {candidates.map((c) => (
-                <tr key={c.id} className="border-t border-neutral-100">
+                <tr
+                  key={c.id}
+                  className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+                >
                   <td className={`${td} font-mono`}>{c.normalized_name}</td>
                   <td className={td}>
                     {c.head_code} · {c.head_name}
@@ -105,7 +110,10 @@ export default async function LibraryPage({
           </thead>
           <tbody>
             {entries.map((e) => (
-              <tr key={e.id} className="border-t border-neutral-100">
+              <tr
+                key={e.id}
+                className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+              >
                 <td className={`${td} font-mono`}>{e.normalized_name}</td>
                 <td className={`${td} text-xs`}>{e.aliases.join(", ")}</td>
                 <td className={td}>{e.head_code}</td>

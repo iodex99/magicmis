@@ -86,7 +86,7 @@ test("files load in the browser and only names, sizes, sheets and rows are shown
   expect(requests.filter((r) => !r.includes("/_next/"))).toEqual([]);
 
   await page.getByRole("button", { name: "Clear session data" }).click();
-  await expect(page.getByText("No files loaded.")).toBeVisible();
+  await expect(page.getByText("No files loaded")).toBeVisible();
 });
 
 test("unsupported files are refused with a clear message", async () => {

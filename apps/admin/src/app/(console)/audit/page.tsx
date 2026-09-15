@@ -40,7 +40,9 @@ export default async function AuditPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">Audit log</h1>
+        <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+          Audit log
+        </h1>
         <a href="/audit?verify=1" className="text-sm text-accent-700 underline">
           Verify hash chain
         </a>

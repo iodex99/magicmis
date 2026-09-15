@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
+import { Icon } from "./Icon";
 import { Alert, Button } from "./ui";
 
 interface ConsentState {
@@ -43,7 +44,7 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
   }
 
   if (state === "accepted") return <>{children}</>;
-  if (state === "loading") return <p className="text-sm text-neutral-600">Loading…</p>;
+  if (state === "loading") return <p className="text-sm text-neutral-500">Loading…</p>;
   if (state === "error")
     return (
       <Alert tone="error">
@@ -52,11 +53,14 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
     );
   return (
     <div
-      className="flex flex-col gap-3 rounded-md border border-neutral-300 bg-neutral-50 p-4 text-sm text-neutral-800"
+      className="flex flex-col gap-3 rounded-xl border border-accent-100 bg-accent-50/60 p-5 text-[0.8125rem] text-neutral-700"
       data-testid="processing-notice"
     >
-      <p className="font-medium text-neutral-900">How your files are processed</p>
-      <ul className="list-disc space-y-1 pl-5">
+      <p className="flex items-center gap-2 text-[0.9375rem] font-semibold text-neutral-900">
+        <Icon name="shield" size={17} className="text-accent-600" />
+        How your files are processed
+      </p>
+      <ul className="list-disc space-y-1.5 pl-5 leading-relaxed">
         <li>Files are read in this browser. They are not uploaded to our servers.</li>
         <li>
           Before anything is sent, names, PAN, GSTIN, bank details and similar identifiers
@@ -73,13 +77,13 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
       </ul>
       <p>
         Read the full{" "}
-        <Link href="/legal/privacy" className="underline">
+        <Link href="/legal/privacy" className="font-medium text-accent-700 underline">
           privacy notice
         </Link>
         .
       </p>
       <div>
-        <Button onClick={() => void accept()} disabled={saving}>
+        <Button onClick={() => void accept()} disabled={saving} icon="check">
           I understand — continue
         </Button>
       </div>

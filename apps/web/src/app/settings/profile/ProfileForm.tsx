@@ -3,7 +3,7 @@
 import { GST_STATE_CODES } from "@magicmis/accounts/state-codes";
 import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 
-import { Alert, Button, Field, Panel } from "@/components/ui";
+import { Alert, Button, Field, Panel, SelectField } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 
 interface Profile {
@@ -63,11 +63,20 @@ export function ProfileForm() {
     }
   }
 
-  if (profile === null) return <p className="text-sm text-neutral-600">Loading…</p>;
+  if (profile === null)
+    return (
+      <Panel>
+        <p className="text-sm text-neutral-500">Loading…</p>
+      </Panel>
+    );
   const address = profile.billingAddress;
 
   return (
-    <Panel>
+    <Panel
+      title="Invoice details"
+      icon="document"
+      description="These appear on every tax invoice. GSTIN is optional, and we take it exactly as you enter it."
+    >
       <form
         onSubmit={(e) => {
           void onSubmit(e);
@@ -76,8 +85,9 @@ export function ProfileForm() {
         noValidate
       >
         {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
-        <p className="text-sm text-neutral-700">
-          Signed in as <span className="font-medium">{profile.email}</span>
+        <p className="rounded-lg bg-neutral-50 px-3 py-2 text-[0.8125rem] text-neutral-600">
+          Signed in as{" "}
+          <span className="font-medium text-neutral-900">{profile.email}</span>
         </p>
         <Field
           id="businessName"
@@ -122,24 +132,20 @@ export function ProfileForm() {
             error={fields["billingAddress.pincode"]}
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="stateCode" className="text-sm font-medium text-neutral-800">
-            State
-          </label>
-          <select
-            id="stateCode"
-            name="stateCode"
-            defaultValue={address?.stateCode ?? ""}
-            className="h-9 rounded-md border border-neutral-300 bg-white px-2 text-sm"
-          >
-            {Object.entries(GST_STATE_CODES).map(([code, name]) => (
-              <option key={code} value={code}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Button type="submit" className="w-fit">
+        <SelectField
+          id="stateCode"
+          name="stateCode"
+          label="State"
+          defaultValue={address?.stateCode ?? ""}
+          hint="Decides whether GST is charged as CGST + SGST or as IGST."
+        >
+          {Object.entries(GST_STATE_CODES).map(([code, name]) => (
+            <option key={code} value={code}>
+              {name}
+            </option>
+          ))}
+        </SelectField>
+        <Button type="submit" className="w-fit" icon="check">
           Save
         </Button>
       </form>

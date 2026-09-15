@@ -85,7 +85,9 @@ export default async function MarginPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Margin</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Margin
+      </h1>
 
       <form className="flex flex-wrap items-end gap-3 text-sm" method="get">
         <label className="flex flex-col">
@@ -277,7 +279,10 @@ export default async function MarginPage({
             </thead>
             <tbody>
               {report.stages.map((s) => (
-                <tr key={s.stage} className="border-t border-neutral-100">
+                <tr
+                  key={s.stage}
+                  className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+                >
                   <td className={td}>{s.stage}</td>
                   <td className={num}>{s.calls}</td>
                   <td className={num}>{usd(s.costMicroUsd)}</td>

@@ -22,7 +22,9 @@ export default async function BankTransfersPage({
   const pending = await pendingBankTransfers(db());
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Bank transfers</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Bank transfers
+      </h1>
       <Flash searchParams={searchParams} />
       <Panel>
         {pending.length === 0 ? (
@@ -47,12 +49,15 @@ export default async function BankTransfersPage({
             </thead>
             <tbody>
               {pending.map((p) => (
-                <tr key={p.id} className="border-t border-neutral-100">
+                <tr
+                  key={p.id}
+                  className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+                >
                   <td className={`${td} font-mono`}>{p.proforma_number ?? "—"}</td>
                   <td className={td}>
                     <Link
                       href={`/accounts/${p.account_id}`}
-                      className="text-accent-700 underline"
+                      className="font-medium text-accent-700 hover:underline"
                     >
                       {p.business_name}
                     </Link>

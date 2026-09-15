@@ -57,9 +57,6 @@ function VerifyForm() {
       className="flex flex-col gap-4"
       noValidate
     >
-      <p className="text-sm text-neutral-700">
-        Enter the 6-digit code from your authenticator app.
-      </p>
       {message ? <Alert tone="error">{message}</Alert> : null}
       <Field
         id="code"
@@ -70,22 +67,35 @@ function VerifyForm() {
         maxLength={6}
         required
       />
-      <Button type="submit" disabled={submitting || factorId === null}>
+      <Button
+        type="submit"
+        disabled={submitting || factorId === null}
+        size="lg"
+        className="mt-1 w-full"
+      >
         {submitting ? "Verifying…" : "Verify"}
       </Button>
-      <p className="text-sm text-neutral-600">
-        Lost your authenticator?{" "}
-        <Link href="/sign-in/recover" className="underline">
-          Use a backup code
-        </Link>
-      </p>
     </form>
   );
 }
 
 export default function MfaPage() {
   return (
-    <AuthShell title="Two-factor authentication">
+    <AuthShell
+      title="Two-factor authentication"
+      description="Enter the 6-digit code from your authenticator app."
+      footer={
+        <>
+          Lost your authenticator?{" "}
+          <Link
+            href="/sign-in/recover"
+            className="font-medium text-accent-700 hover:underline"
+          >
+            Use a backup code
+          </Link>
+        </>
+      }
+    >
       <Suspense>
         <VerifyForm />
       </Suspense>

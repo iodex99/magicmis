@@ -1,78 +1,241 @@
 import Link from "next/link";
 
 import { AppFrame } from "@/components/AppFrame";
-import { Panel } from "@/components/ui";
+import { MiniBars } from "@/components/Charts";
+import { Icon } from "@/components/Icon";
+import {
+  Badge,
+  ButtonLink,
+  DataTable,
+  EmptyState,
+  PageHeader,
+  Panel,
+  StatCard,
+  Td,
+  Th,
+  Tr,
+  type BadgeTone,
+} from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
+import { formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { listCompanies } from "@/lib/server/companies";
+import { accountOverview } from "@/lib/server/overview";
 
 import { NewCompanyForm } from "./NewCompanyForm";
 
 export const metadata = { title: "Companies" };
 export const dynamic = "force-dynamic";
 
-const STATE_LABEL: Record<string, string> = {
-  active: "Active",
-  grace: "Grace period",
-  archived: "Archived",
-  purged: "Deleted",
+const STATE: Record<string, { label: string; tone: BadgeTone }> = {
+  active: { label: "Active", tone: "positive" },
+  grace: { label: "Grace period", tone: "warning" },
+  archived: { label: "Archived", tone: "muted" },
+  purged: { label: "Deleted", tone: "muted" },
 };
+
+/** "2026-04" as "April 2026". A period is a month, so the day is never shown. */
+function period(value: string | null): string {
+  if (value === null) return "—";
+  const [year, month] = value.split("-");
+  const date = new Date(
+    Date.UTC(Number.parseInt(year ?? "", 10), Number.parseInt(month ?? "", 10) - 1, 1),
+  );
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString("en-IN", {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      });
+}
 
 export default async function AppHomePage() {
   const account = await accountOrRedirect("/app");
-  const companies = await listCompanies(db(), account.accountId);
+  const pool = db();
+  const [companies, overview] = await Promise.all([
+    listCompanies(pool, account.accountId),
+    accountOverview(pool, account.accountId),
+  ]);
+  const jobsThisMonth = overview.jobsByMonth.at(-1) ?? 0;
+  const jobsLastMonth = overview.jobsByMonth.at(-2) ?? 0;
+
   return (
-    <AppFrame businessName={account.businessName}>
-      <h1 className="mb-6 text-xl font-semibold text-neutral-900">Companies</h1>
-      <div className="flex flex-col gap-6">
-        <Panel>
+    <AppFrame accountId={account.accountId} businessName={account.businessName}>
+      <PageHeader
+        title="Companies"
+        description="Every company you keep an MIS for, and what it last produced."
+      />
+
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Active companies"
+          value={overview.activeCompanies.toString()}
+          icon="building"
+          tone="accent"
+          hint={
+            overview.archivedCompanies === 0
+              ? "None archived"
+              : `${String(overview.archivedCompanies)} archived`
+          }
+        />
+        <StatCard
+          label="Workbooks produced"
+          value={overview.workbooks.toString()}
+          icon="document"
+          hint={
+            overview.latestWorkbookAt === null
+              ? "Nothing yet"
+              : `Latest ${overview.latestWorkbookAt.toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                  timeZone: "Asia/Kolkata",
+                })}`
+          }
+        />
+        <StatCard
+          label="Completed this month"
+          value={jobsThisMonth.toString()}
+          icon="check-circle"
+          delta={
+            jobsLastMonth === 0
+              ? undefined
+              : {
+                  direction:
+                    jobsThisMonth === jobsLastMonth
+                      ? "flat"
+                      : jobsThisMonth > jobsLastMonth
+                        ? "up"
+                        : "down",
+                  text: `${String(Math.abs(jobsThisMonth - jobsLastMonth))} vs last month`,
+                }
+          }
+          chart={<MiniBars values={overview.jobsByMonth} />}
+        />
+        <StatCard
+          label="Credits spent, 90 days"
+          value={formatCredits(overview.creditsSpent90Days)}
+          icon="wallet"
+          hint="Across every completed action"
+        />
+      </div>
+
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
+        <Panel
+          title="Your companies"
+          description={
+            companies.length === 0
+              ? undefined
+              : `${String(companies.length)} ${companies.length === 1 ? "company" : "companies"}`
+          }
+          padding="none"
+        >
           {companies.length === 0 ? (
-            <p className="text-sm text-neutral-700" data-testid="app-home">
-              No companies yet. Add one below; creating a company is free.
-            </p>
+            <EmptyState
+              icon="building"
+              title="No companies yet"
+              testId="app-home"
+              action={
+                <p className="text-[0.8125rem] text-neutral-500">
+                  Use the form beside this list. Creating a company is free.
+                </p>
+              }
+            >
+              A company holds one MIS: its mappings, its months, and everything it has
+              produced. Add one to start.
+            </EmptyState>
           ) : (
-            <table className="w-full text-sm" data-testid="company-list">
-              <thead>
-                <tr className="text-left text-xs text-neutral-600">
-                  <th className="py-1">Company</th>
-                  <th className="py-1">Status</th>
-                  <th className="py-1">Latest period</th>
-                  <th className="py-1" />
-                </tr>
-              </thead>
-              <tbody>
-                {companies.map((c) => (
-                  <tr key={c.id} className="border-t border-neutral-100">
-                    <td className="py-2">
+            <DataTable
+              testId="company-list"
+              className="px-2 pb-2"
+              head={
+                <>
+                  <Th>Company</Th>
+                  <Th>Status</Th>
+                  <Th>Latest period</Th>
+                  <Th className="text-right">Action</Th>
+                </>
+              }
+            >
+              {companies.map((c) => {
+                const state = STATE[c.lifecycleState] ?? {
+                  label: c.lifecycleState,
+                  tone: "neutral" as BadgeTone,
+                };
+                return (
+                  <Tr key={c.id}>
+                    <Td>
                       <Link
                         href={`/app/companies/${c.id}`}
-                        className="text-accent-700 underline"
+                        className="group flex items-center gap-2.5"
                       >
-                        {c.name}
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-50 text-accent-600">
+                          <Icon name="building" size={15} />
+                        </span>
+                        <span>
+                          <span className="block font-medium text-neutral-900 group-hover:text-accent-700">
+                            {c.name}
+                          </span>
+                          <span className="block text-[0.75rem] text-neutral-500">
+                            {c.firstSetupAt === null ? "Not set up" : "Set up"}
+                          </span>
+                        </span>
                       </Link>
-                    </td>
-                    <td className="py-2">
-                      {STATE_LABEL[c.lifecycleState] ?? c.lifecycleState}
-                    </td>
-                    <td className="py-2 tabular-nums">{c.latestPeriod ?? "—"}</td>
-                    <td className="py-2 text-right">
+                    </Td>
+                    <Td>
+                      <Badge tone={state.tone} dot>
+                        {state.label}
+                      </Badge>
+                    </Td>
+                    <Td className="text-neutral-700">{period(c.latestPeriod)}</Td>
+                    <Td className="text-right">
                       {c.lifecycleState === "active" ? (
                         <Link
                           href={`/app/companies/${c.id}/run`}
-                          className="text-accent-700 underline"
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.8125rem] font-medium text-accent-700 hover:bg-accent-50"
                         >
                           {c.firstSetupAt === null ? "Set up" : "Refresh"}
+                          <Icon name="arrow-right" size={13} />
                         </Link>
                       ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </DataTable>
           )}
         </Panel>
-        <Panel title="Add a company">
+
+        <Panel
+          title="Add a company"
+          description="Free. You are charged when you run an action."
+          icon="plus"
+        >
           <NewCompanyForm />
+        </Panel>
+      </div>
+
+      <div className="mt-5">
+        <Panel padding="sm">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
+                <Icon name="file" size={16} />
+              </span>
+              <div>
+                <p className="text-[0.8125rem] font-semibold text-neutral-900">
+                  Load this month&rsquo;s exports first
+                </p>
+                <p className="mt-0.5 text-[0.8125rem] text-neutral-500">
+                  Files are read in your browser and never uploaded. Loading them costs
+                  nothing.
+                </p>
+              </div>
+            </div>
+            <ButtonLink href="/app/data" variant="secondary" size="sm" icon="upload">
+              Source files
+            </ButtonLink>
+          </div>
         </Panel>
       </div>
     </AppFrame>

@@ -28,7 +28,7 @@ export function LineagePanel({
   const value = values.find((v) => metricKey(v.metricId, v.period, v.dims) === selected);
   return (
     <aside
-      className="rounded-lg border border-neutral-200 bg-white p-4 text-sm"
+      className="rounded-xl border border-neutral-200/80 bg-white p-4 text-sm shadow-sm"
       data-testid="lineage-panel"
       aria-label="Lineage"
     >
@@ -86,7 +86,7 @@ export function LineagePanel({
                       {input.kind === "metric" ? (
                         <button
                           type="button"
-                          className="text-accent-700 underline"
+                          className="font-medium text-accent-700 hover:underline"
                           onClick={() => {
                             onSelect(metricKey(input.metricId, input.period));
                           }}

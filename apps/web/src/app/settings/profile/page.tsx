@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { AppFrame } from "@/components/AppFrame";
+import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 
 import { ProfileForm } from "./ProfileForm";
@@ -11,16 +10,11 @@ export const dynamic = "force-dynamic";
 export default async function ProfilePage() {
   const account = await accountOrRedirect("/settings/profile");
   return (
-    <AppFrame businessName={account.businessName}>
-      <div className="mb-6 flex items-baseline gap-6">
-        <h1 className="text-xl font-semibold text-neutral-900">Business profile</h1>
-        <Link href="/settings/security" className="text-sm text-neutral-700 underline">
-          Security
-        </Link>
-        <Link href="/settings/privacy" className="text-sm text-neutral-700 underline">
-          Privacy and data
-        </Link>
-      </div>
+    <AppFrame accountId={account.accountId} businessName={account.businessName}>
+      <PageHeader
+        title="Business profile"
+        description="The name, GSTIN and billing address printed on your tax invoices."
+      />
       <ProfileForm />
     </AppFrame>
   );

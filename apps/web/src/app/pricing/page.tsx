@@ -1,10 +1,10 @@
 import { readConfig } from "@magicmis/db/config";
 import { priceList } from "@magicmis/wallet";
-import Link from "next/link";
 import { z } from "zod";
 
+import { PublicShell } from "@/components/PublicShell";
+import { Badge, ButtonLink, DataTable, Panel, Td, Th, Tr } from "@/components/ui";
 import { ACTION_LABELS, formatCredits, formatRupees } from "@/lib/actions";
-import { PRODUCT_NAME } from "@/lib/brand";
 import { db } from "@/lib/db";
 
 export const metadata = { title: "Pricing" };
@@ -29,91 +29,137 @@ export default async function PricingPage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <header className="mb-10 flex items-center justify-between">
-        <Link href="/" className="font-semibold text-neutral-900">
-          {PRODUCT_NAME}
-        </Link>
-        <Link href="/sign-up" className="text-sm text-accent-700 underline">
-          Create an account
-        </Link>
-      </header>
+    <PublicShell>
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-14">
+        <header className="max-w-2xl">
+          <Badge tone="accent">Prepaid credits</Badge>
+          <h1 className="mt-4 text-[2.25rem] leading-tight font-semibold tracking-tight text-neutral-900">
+            One credit is one rupee, before GST.
+          </h1>
+          <p className="mt-4 text-[1.0625rem] leading-relaxed text-neutral-600">
+            Every action has a fixed price from a published price book. You see it and
+            confirm it before anything runs, and you are never billed by the minute or by
+            how much work it took.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <ButtonLink href="/sign-up" iconAfter="arrow-right">
+              Create an account
+            </ButtonLink>
+          </div>
+        </header>
 
-      <h1 className="mb-2 text-2xl font-semibold text-neutral-900">Pricing</h1>
-      <p className="mb-8 max-w-2xl text-sm text-neutral-700">
-        Prepaid credits. 1 credit = ₹1 before GST. Every action has a fixed price, shown
-        and confirmed before anything is charged. Prices below are in credits.
-      </p>
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              title: "Three intelligence tiers",
+              body: "Efficient, Professional and Expert. You pick the tier; we pick everything behind it.",
+            },
+            {
+              title: "Nothing recurring but usage",
+              body: `Each active company carries a monthly memory fee. Credits expire ${String(validityMonths)} months after purchase.`,
+            },
+            {
+              title: "No free tier",
+              body: "Creating an account, adding a company and reading this page are free. Analysis is not.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm"
+            >
+              <h2 className="text-[0.875rem] font-semibold text-neutral-900">
+                {item.title}
+              </h2>
+              <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-neutral-600">
+                {item.body}
+              </p>
+            </div>
+          ))}
+        </div>
 
-      <section className="mb-12 overflow-x-auto rounded-lg border border-neutral-200 bg-white">
-        <table className="w-full text-sm" data-testid="price-list">
-          <thead className="bg-neutral-50 text-left text-xs text-neutral-600">
-            <tr>
-              <th className="px-4 py-2 font-medium">Action</th>
-              <th className="px-4 py-2 text-right font-medium">Efficient</th>
-              <th className="px-4 py-2 text-right font-medium">Professional</th>
-              <th className="px-4 py-2 text-right font-medium">Expert</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.actionKey} className="border-t border-neutral-100">
-                <td className="px-4 py-2">
-                  {ACTION_LABELS[r.actionKey]}
-                  {r.instant ? (
-                    <span className="block text-xs text-neutral-600">
-                      Instant delivery: {formatCredits(r.instant.efficient.toString())} /{" "}
-                      {formatCredits(r.instant.professional.toString())} /{" "}
-                      {formatCredits(r.instant.expert.toString())}
-                    </span>
-                  ) : null}
-                </td>
-                <td className="px-4 py-2 text-right font-mono tabular-nums">
-                  {formatCredits(r.standard.efficient.toString())}
-                </td>
-                <td className="px-4 py-2 text-right font-mono tabular-nums">
-                  {formatCredits(r.standard.professional.toString())}
-                </td>
-                <td className="px-4 py-2 text-right font-mono tabular-nums">
-                  {formatCredits(r.standard.expert.toString())}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+        <div className="mt-10">
+          <Panel
+            title="Price book"
+            description="Credits per action, by intelligence tier."
+            icon="table"
+            padding="none"
+          >
+            <DataTable
+              testId="price-list"
+              className="px-2 pb-2"
+              head={
+                <>
+                  <Th>Action</Th>
+                  <Th numeric>Efficient</Th>
+                  <Th numeric>Professional</Th>
+                  <Th numeric>Expert</Th>
+                </>
+              }
+            >
+              {rows.map((r) => (
+                <Tr key={r.actionKey}>
+                  <Td className="text-neutral-900">
+                    <span className="font-medium">{ACTION_LABELS[r.actionKey]}</span>
+                    {r.instant ? (
+                      <span className="mt-0.5 block text-[0.75rem] text-neutral-500">
+                        Instant delivery: {formatCredits(r.instant.efficient.toString())}{" "}
+                        / {formatCredits(r.instant.professional.toString())} /{" "}
+                        {formatCredits(r.instant.expert.toString())}
+                      </span>
+                    ) : null}
+                  </Td>
+                  <Td numeric>{formatCredits(r.standard.efficient.toString())}</Td>
+                  <Td numeric>{formatCredits(r.standard.professional.toString())}</Td>
+                  <Td numeric>{formatCredits(r.standard.expert.toString())}</Td>
+                </Tr>
+              ))}
+            </DataTable>
+          </Panel>
+        </div>
 
-      <h2 className="mb-4 text-lg font-semibold text-neutral-900">Credit packs</h2>
-      <section className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-neutral-50 text-left text-xs text-neutral-600">
-            <tr>
-              <th className="px-4 py-2 font-medium">Price (ex-GST)</th>
-              <th className="px-4 py-2 text-right font-medium">Credits</th>
-              <th className="px-4 py-2 text-right font-medium">Bonus credits</th>
-            </tr>
-          </thead>
-          <tbody>
-            {packs.rows.map((p) => (
-              <tr key={p.price_paise_ex_gst} className="border-t border-neutral-100">
-                <td className="px-4 py-2 font-mono tabular-nums">
-                  {formatRupees(p.price_paise_ex_gst)}
-                </td>
-                <td className="px-4 py-2 text-right font-mono tabular-nums">
-                  {formatCredits(p.credits_granted)}
-                </td>
-                <td className="px-4 py-2 text-right font-mono tabular-nums">
-                  {formatCredits(p.bonus_credits)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-      <p className="mt-4 text-xs text-neutral-600">
-        GST at {gstRate}% is added at checkout. Credits expire {validityMonths} months
-        after purchase and are non-refundable. There is no free tier or trial.
-      </p>
-    </main>
+        <div className="mt-6">
+          <Panel
+            title="Credit packs"
+            description="Larger packs carry bonus credits. Oldest credits are spent first."
+            icon="wallet"
+            padding="none"
+          >
+            <DataTable
+              className="px-2 pb-2"
+              head={
+                <>
+                  <Th numeric>Price (ex-GST)</Th>
+                  <Th numeric>Credits</Th>
+                  <Th numeric>Bonus credits</Th>
+                </>
+              }
+            >
+              {packs.rows.map((p) => (
+                <Tr key={p.price_paise_ex_gst}>
+                  <Td numeric className="font-semibold">
+                    {formatRupees(p.price_paise_ex_gst)}
+                  </Td>
+                  <Td numeric>{formatCredits(p.credits_granted)}</Td>
+                  <Td numeric>
+                    {p.bonus_credits === "0" ? (
+                      <span className="text-neutral-400">—</span>
+                    ) : (
+                      <span className="text-positive">
+                        +{formatCredits(p.bonus_credits)}
+                      </span>
+                    )}
+                  </Td>
+                </Tr>
+              ))}
+            </DataTable>
+          </Panel>
+        </div>
+
+        <p className="mt-5 text-[0.8125rem] text-neutral-500">
+          GST at {gstRate}% is added at checkout. Credits expire {validityMonths} months
+          after purchase and are non-refundable. There is no free tier or trial.
+        </p>
+      </div>
+    </PublicShell>
   );
 }

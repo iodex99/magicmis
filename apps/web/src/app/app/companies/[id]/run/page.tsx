@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 
 import { AppFrame } from "@/components/AppFrame";
+import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { db } from "@/lib/db";
 
@@ -34,10 +35,20 @@ export default async function RunJobPage({
   const runMode =
     company.first_setup_at === null ? "setup" : mode === "setup" ? "setup" : "refresh";
   return (
-    <AppFrame businessName={account.businessName}>
-      <h1 className="mb-6 text-xl font-semibold text-neutral-900">
-        {company.name} — {runMode === "setup" ? "Set up MIS" : "Monthly refresh"}
-      </h1>
+    <AppFrame
+      accountId={account.accountId}
+      businessName={account.businessName}
+      company={{ id, name: company.name }}
+    >
+      <PageHeader
+        title={runMode === "setup" ? "Set up MIS" : "Monthly refresh"}
+        description={
+          runMode === "setup"
+            ? "Load every month you have. The first run learns the mappings and builds the workbook."
+            : "Load this month's export. On unchanged structure the refresh needs no review and makes no AI calls."
+        }
+        back={{ href: `/app/companies/${id}`, label: company.name }}
+      />
       <JobRunner companyId={id} mode={runMode} />
     </AppFrame>
   );

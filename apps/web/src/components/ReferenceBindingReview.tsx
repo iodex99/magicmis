@@ -62,14 +62,14 @@ export function ReferenceBindingReview({
   const available = rows.filter((r) => (choice[r.ref] ?? "") === UNAVAILABLE).length;
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-neutral-700">
+      <p className="text-sm text-neutral-600">
         Your MIS is recreated row by row. Check what each row will show. Rows marked not
         available stay in the workbook with that note; they never get numbers.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm" data-testid="binding-review">
           <thead>
-            <tr className="text-left text-xs text-neutral-600">
+            <tr className="border-b border-neutral-200 text-left text-[0.6875rem] font-semibold tracking-[0.06em] text-neutral-500 uppercase">
               <th className="py-1">Sheet</th>
               <th className="py-1">Row in your MIS</th>
               <th className="py-1">Shows</th>
@@ -93,7 +93,7 @@ export function ReferenceBindingReview({
                 <td className="py-1">
                   <select
                     aria-label={`What ${r.label} shows`}
-                    className="h-8 max-w-72 rounded-md border border-neutral-300 px-1"
+                    className="h-8 max-w-72 rounded-md border border-neutral-200 bg-white px-2 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
                     value={choice[r.ref] ?? valueOf(r.binding)}
                     onChange={(e) => {
                       setChoice((c) => ({ ...c, [r.ref]: e.target.value }));
@@ -130,7 +130,7 @@ export function ReferenceBindingReview({
         </table>
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-sm text-neutral-700">
+        <span className="text-sm text-neutral-600">
           {available} rows not available from supplied data
         </span>
         <Button

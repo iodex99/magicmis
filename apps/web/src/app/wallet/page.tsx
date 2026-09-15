@@ -1,4 +1,5 @@
 import { AppFrame } from "@/components/AppFrame";
+import { ButtonLink, PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { walletView } from "@/lib/billing";
 
@@ -11,8 +12,16 @@ export default async function WalletPage() {
   const account = await accountOrRedirect("/wallet");
   const view = await walletView(account.accountId);
   return (
-    <AppFrame businessName={account.businessName}>
-      <h1 className="mb-6 text-xl font-semibold text-neutral-900">Wallet</h1>
+    <AppFrame accountId={account.accountId} businessName={account.businessName}>
+      <PageHeader
+        title="Wallet"
+        description="Prepaid credits, the lots they came in, your invoices and every movement."
+        actions={
+          <ButtonLink href="/pricing" variant="secondary" icon="table">
+            Price book
+          </ButtonLink>
+        }
+      />
       <WalletClient initial={view} businessName={account.businessName} />
     </AppFrame>
   );

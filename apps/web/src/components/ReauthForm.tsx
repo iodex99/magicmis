@@ -42,7 +42,7 @@ export function ReauthForm({
       className="flex flex-col gap-3"
       noValidate
     >
-      <p className="text-sm text-neutral-700">Confirm it's you to {actionLabel}.</p>
+      <p className="text-sm text-neutral-600">Confirm it's you to {actionLabel}.</p>
       {message ? <Alert tone="error">{message}</Alert> : null}
       <Field
         id="reauth-password"

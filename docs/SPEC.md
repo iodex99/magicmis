@@ -1330,8 +1330,10 @@ All legal text is a placeholder for professional review; mark `TODO(review)`. Do
 
 - Precise, calm, professional.
 - No emojis anywhere.
-- No generic AI aesthetics: no sparkle icons, no purple-blue gradients, no "magic" wording, no glowing effects.
+- No generic AI aesthetics: no sparkle icons, no gradients of any kind, no "magic" wording, no glowing effects.
 - No rounded gradient blobs.
+- Depth is carried by layered, offset shadows and by one dark navigation surface. The dark surface frames the working area and never sits under dense figures.
+- Every screen opens with a summary layer: the figures a reader would otherwise hunt for, each with its movement and, where it helps, a small inline chart.
 - Marketing site is not a single long scrolling page; use distinct pages (Product, Pricing, How it works, Security, Help).
 
 **Typography**
@@ -1340,7 +1342,9 @@ All legal text is a placeholder for professional review; mark `TODO(review)`. Do
 - Tabular numerals for every figure; numbers right-aligned.
 - Indian digit grouping per company setting.
 
-**Colour:** restrained neutral palette with one accent colour. Red/green used only for variance meaning, always paired with sign or arrow so meaning never relies on colour alone.
+**Colour:** restrained neutral palette with one accent colour -- indigo (ADR 0026). Red/green used only for variance meaning, always paired with sign or arrow so meaning never relies on colour alone.
+
+**Shape:** corner radii are generous enough to read as finished -- cards at 16px, controls at 10px, pills fully round. A radius is not a blob; the prohibition above is on the decorative gradient shape, not on rounding.
 
 **Density:** compact tables with sticky headers, keyboard navigation, resizable columns.
 
@@ -1348,7 +1352,8 @@ All legal text is a placeholder for professional review; mark `TODO(review)`. Do
 
 - Never mention tokens, model names or "Claude" in the customer UI, except in the Privacy notice subprocessor list.
 - Call tiers "Intelligence tier: Efficient / Professional / Expert".
-- Every error and empty state says what to do next.
+- Every error and empty state says what to do next, and carries the control that does it.
+- A status is a word first. A pill's colour and dot only reinforce the word; no state is ever colour alone, and no raw identifier (`awaiting_review`, `grace`) reaches the customer.
 
 **Customer app screens**
 

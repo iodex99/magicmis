@@ -11,6 +11,7 @@ import {
 } from "@/lib/actions";
 import { api } from "@/lib/client-api";
 
+import { Icon } from "./Icon";
 import { Alert, Button } from "./ui";
 
 interface Preview {
@@ -85,47 +86,59 @@ export function PriceConfirmDialog({
         e.preventDefault();
         onCancel();
       }}
-      className="w-full max-w-md rounded-lg border border-neutral-200 p-6 backdrop:bg-neutral-900/30"
+      className="w-full max-w-md rounded-2xl border border-neutral-200/80 p-0 shadow-xl backdrop:bg-ink-900/40"
       aria-labelledby="price-confirm-title"
     >
-      <h2
-        id="price-confirm-title"
-        className="mb-4 text-base font-semibold text-neutral-900"
+      <div className="p-6">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-50 text-accent-600">
+          <Icon name="wallet" size={18} />
+        </span>
+        <h2
+          id="price-confirm-title"
+          className="mt-3 text-[1.0625rem] font-semibold text-neutral-900"
+        >
+          Confirm price
+        </h2>
+        <p className="mt-1 text-[0.8125rem] text-neutral-500">
+          Nothing is charged until you confirm.
+        </p>
+      </div>
+      <dl
+        className="grid grid-cols-2 gap-y-2.5 border-y border-neutral-100 bg-neutral-25 px-6 py-4 text-sm"
+        data-testid="price-confirm"
       >
-        Confirm price
-      </h2>
-      <dl className="mb-4 grid grid-cols-2 gap-y-2 text-sm" data-testid="price-confirm">
-        {rows.map(([label, value]) => (
+        {rows.map(([label, value], i) => (
           <div key={label} className="contents">
-            <dt className="text-neutral-600">{label}</dt>
-            <dd className="text-right font-medium tabular-nums text-neutral-900">
-              {value}
-            </dd>
+            <dt className={i === 3 ? "font-medium text-neutral-900" : "text-neutral-500"}>
+              {label}
+            </dt>
+            <dd className="num font-medium text-neutral-900">{value}</dd>
           </div>
         ))}
       </dl>
-      {error ? <Alert tone="error">{error}</Alert> : null}
-      {preview && !preview.sufficient ? (
-        <Alert tone="warning">
-          Not enough credits.{" "}
-          <a href="/wallet" className="underline">
-            Buy credits
-          </a>{" "}
-          to continue.
-        </Alert>
-      ) : null}
-      <div className="mt-6 flex justify-end gap-2">
-        <Button variant="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button
-          disabled={preview === null || !preview.sufficient}
-          onClick={() => {
-            if (preview) onConfirm(preview);
-          }}
-        >
-          {preview ? `Confirm — ${formatCredits(preview.credits)} credits` : "Confirm"}
-        </Button>
+      <div className="p-6">
+        {error ? <Alert tone="error">{error}</Alert> : null}
+        {preview && !preview.sufficient ? (
+          <Alert tone="warning" title="Not enough credits">
+            <a href="/wallet" className="font-medium underline">
+              Buy credits
+            </a>{" "}
+            to continue. Nothing has been charged.
+          </Alert>
+        ) : null}
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            disabled={preview === null || !preview.sufficient}
+            onClick={() => {
+              if (preview) onConfirm(preview);
+            }}
+          >
+            {preview ? `Confirm — ${formatCredits(preview.credits)} credits` : "Confirm"}
+          </Button>
+        </div>
       </div>
     </dialog>
   );

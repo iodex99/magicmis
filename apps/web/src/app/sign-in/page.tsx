@@ -65,22 +65,27 @@ function SignInForm() {
         autoComplete="current-password"
         required
       />
-      <Button type="submit" disabled={submitting}>
+      <Button type="submit" disabled={submitting} size="lg" className="mt-1 w-full">
         {submitting ? "Signing in…" : "Continue"}
       </Button>
-      <p className="text-sm text-neutral-600">
-        No account?{" "}
-        <Link href="/sign-up" className="underline">
-          Create one
-        </Link>
-      </p>
     </form>
   );
 }
 
 export default function SignInPage() {
   return (
-    <AuthShell title="Sign in">
+    <AuthShell
+      title="Sign in"
+      description="Your password, then the code from your authenticator app."
+      footer={
+        <>
+          No account?{" "}
+          <Link href="/sign-up" className="font-medium text-accent-700 hover:underline">
+            Create one
+          </Link>
+        </>
+      }
+    >
       <Suspense>
         <SignInForm />
       </Suspense>

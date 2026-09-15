@@ -91,17 +91,32 @@ describe("design tokens honour the SPEC §32 prohibitions", () => {
     }
   });
 
-  it("keeps radii small enough that nothing reads as a blob", () => {
-    for (const value of Object.values(tokens.radius)) {
+  it("keeps corner radii bounded, with the pill step reserved for pills", () => {
+    // SPEC §32 prohibits "rounded gradient blobs" -- a decorative shape, not a corner
+    // radius. Corners stay within a card-sized bound; `full` exists for pills and
+    // avatars, which have no corners to soften (ADR 0026).
+    const { full, ...corners } = tokens.radius;
+    expect(full).toBe("9999px");
+    for (const value of Object.values(corners)) {
       const px = Number.parseInt(value.replace("px", ""), 10);
-      expect(Number.isNaN(px) ? 0 : px).toBeLessThanOrEqual(6);
+      expect(Number.isNaN(px) ? 0 : px).toBeLessThanOrEqual(20);
     }
   });
 
-  it("has exactly one accent family", () => {
-    // "restrained neutral palette with one accent colour"
-    const families = Object.keys(tokens).filter((k) => ["accent", "neutral"].includes(k));
-    expect(families).toHaveLength(2);
+  it("has exactly one chromatic accent family", () => {
+    // "restrained neutral palette with one accent colour". `ink` is the dark navigation
+    // surface, not a second accent: it must stay close to the neutral ramp's hue.
+    const chromatic = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+      return Math.max(r!, g!, b!) - Math.min(r!, g!, b!);
+    };
+    expect(chromatic(tokens.accent[500])).toBeGreaterThan(100);
+    for (const value of Object.values(tokens.ink)) {
+      expect(chromatic(value)).toBeLessThan(80);
+    }
+    for (const value of Object.values(tokens.neutral)) {
+      expect(chromatic(value)).toBeLessThan(30);
+    }
   });
 
   it("separates variance colours from status colours", () => {

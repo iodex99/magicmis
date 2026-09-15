@@ -10,10 +10,22 @@ import type { ReviewRow } from "@magicmis/semantic";
 import type { RowBinding } from "@magicmis/templates";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { Icon } from "@/components/Icon";
 import { MappingReview } from "@/components/MappingReview";
 import { ProcessingNotice } from "@/components/ProcessingNotice";
 import { ReferenceBindingReview } from "@/components/ReferenceBindingReview";
-import { Alert, Button, Panel } from "@/components/ui";
+import {
+  Alert,
+  Badge,
+  Button,
+  DataTable,
+  Panel,
+  SelectField,
+  Td,
+  Th,
+  Tr,
+  type BadgeTone,
+} from "@/components/ui";
 import {
   ACTION_LABELS,
   DELIVERY_LABELS,
@@ -356,86 +368,117 @@ export function JobRunner({
   };
 
   const busy = phase.kind === "pricing" || phase.kind === "running";
+  const step: 1 | 2 | 3 | 4 =
+    phase.kind === "files" || phase.kind === "pricing"
+      ? 1
+      : phase.kind === "confirm"
+        ? 2
+        : phase.kind === "done" || phase.kind === "failed"
+          ? 4
+          : 3;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
+      <Steps current={step} />
+
       {error === null ? null : <Alert tone="error">{error}</Alert>}
 
       {phase.kind === "files" || phase.kind === "pricing" ? (
         <ProcessingNotice>
-          <Panel
-            title={
-              mode === "setup" ? "Upload trial balances" : "Upload this month's files"
-            }
-          >
-            <p className="mb-3 text-sm text-neutral-700">
-              Files are read in your browser and never uploaded.{" "}
-              {mode === "setup"
-                ? "Include every month you want in the MIS."
-                : "Include the new month."}
-            </p>
-            <input
-              type="file"
-              multiple
-              accept=".xlsx,.xlsm,.xls,.csv"
-              aria-label="Choose files"
-              disabled={!ready || busy}
-              onChange={(e) => void onFiles(e.target.files)}
-            />
-            {files.length === 0 ? null : (
-              <table className="mt-4 w-full text-sm" data-testid="job-files">
-                <thead>
-                  <tr className="text-left text-xs text-neutral-600">
-                    <th className="py-1">File</th>
-                    <th className="py-1 text-right">Size</th>
-                    <th className="py-1 text-right">Sheets</th>
-                    <th className="py-1 text-right">Rows</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {files.map((f) => (
-                    <tr key={f.name} className="border-t border-neutral-100">
-                      <td className="py-1">{f.name}</td>
-                      <td className="py-1 text-right tabular-nums">
-                        {Math.ceil(f.size / 1024).toLocaleString("en-IN")} KB
-                      </td>
-                      <td className="py-1 text-right tabular-nums">{f.sheets}</td>
-                      <td className="py-1 text-right tabular-nums">{f.rows}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-            {mode === "setup" ? (
-              <div className="mt-4 text-sm">
-                <label className="flex flex-col gap-1">
-                  <span>
-                    Your current MIS workbook (optional) — we recreate its layout. Only
-                    its layout is read; figures come from your trial balances.
-                  </span>
-                  <input
-                    type="file"
-                    accept=".xlsx,.xlsm"
-                    aria-label="Choose reference MIS"
-                    disabled={!ready || busy}
-                    onChange={(e) => void onReference(e.target.files)}
-                  />
-                </label>
-                {reference === null ? null : (
-                  <p className="mt-1 text-neutral-700" data-testid="job-reference">
-                    {reference.name} ·{" "}
-                    {Math.ceil(reference.size / 1024).toLocaleString("en-IN")} KB ·{" "}
-                    {reference.sheets} sheets
-                  </p>
-                )}
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <Panel
+              title={
+                mode === "setup" ? "Upload trial balances" : "Upload this month's files"
+              }
+              icon="upload"
+              description={
+                mode === "setup"
+                  ? "Include every month you want in the MIS. Files are read in your browser and never uploaded."
+                  : "Include the new month. Files are read in your browser and never uploaded."
+              }
+            >
+              <div className="rounded-xl border-2 border-dashed border-neutral-200 bg-neutral-25 px-5 py-6 text-center">
+                <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-accent-50 text-accent-600">
+                  <Icon name="upload" size={20} />
+                </span>
+                <input
+                  type="file"
+                  multiple
+                  accept=".xlsx,.xlsm,.xls,.csv"
+                  aria-label="Choose files"
+                  disabled={!ready || busy}
+                  onChange={(e) => void onFiles(e.target.files)}
+                  className="mt-3 text-[0.8125rem] text-neutral-600 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-accent-600 file:px-3.5 file:py-2 file:text-[0.8125rem] file:font-medium file:text-white hover:file:bg-accent-700"
+                />
               </div>
-            ) : null}
-            <div className="mt-4 flex flex-wrap items-end gap-4 text-sm">
-              <label className="flex flex-col">
-                Intelligence tier
-                <select
-                  className="rounded border px-2 py-1"
+              {files.length === 0 ? null : (
+                <div className="mt-4">
+                  <DataTable
+                    testId="job-files"
+                    maxHeight="18rem"
+                    head={
+                      <>
+                        <Th>File</Th>
+                        <Th numeric>Size</Th>
+                        <Th numeric>Sheets</Th>
+                        <Th numeric>Rows</Th>
+                      </>
+                    }
+                  >
+                    {files.map((f) => (
+                      <Tr key={f.name}>
+                        <Td className="font-medium text-neutral-900">{f.name}</Td>
+                        <Td numeric>
+                          {Math.ceil(f.size / 1024).toLocaleString("en-IN")} KB
+                        </Td>
+                        <Td numeric>{f.sheets}</Td>
+                        <Td numeric>{f.rows}</Td>
+                      </Tr>
+                    ))}
+                  </DataTable>
+                </div>
+              )}
+              {mode === "setup" ? (
+                <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-25 p-4">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[0.8125rem] font-medium text-neutral-800">
+                      Your current MIS workbook (optional)
+                    </span>
+                    <span className="text-[0.75rem] text-neutral-500">
+                      We recreate its layout. Only the layout is read; every figure comes
+                      from your trial balances.
+                    </span>
+                    <input
+                      type="file"
+                      accept=".xlsx,.xlsm"
+                      aria-label="Choose reference MIS"
+                      disabled={!ready || busy}
+                      onChange={(e) => void onReference(e.target.files)}
+                      className="mt-1.5 text-[0.8125rem] text-neutral-600 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-neutral-200 file:bg-white file:px-3 file:py-1.5 file:text-[0.8125rem] file:font-medium file:text-neutral-800"
+                    />
+                  </label>
+                  {reference === null ? null : (
+                    <p
+                      className="mt-2 flex items-center gap-1.5 text-[0.8125rem] text-neutral-700"
+                      data-testid="job-reference"
+                    >
+                      <Icon name="check" size={14} className="text-positive" />
+                      {reference.name} ·{" "}
+                      {Math.ceil(reference.size / 1024).toLocaleString("en-IN")} KB ·{" "}
+                      {reference.sheets} sheets
+                    </p>
+                  )}
+                </div>
+              ) : null}
+            </Panel>
+
+            <Panel title="Options" icon="sliders">
+              <div className="flex flex-col gap-4">
+                <SelectField
+                  id="job-tier"
+                  label="Intelligence tier"
                   value={tier}
+                  hint="A higher tier reasons harder on unfamiliar data. It never changes the figures."
                   onChange={(e) => {
                     setTier(e.target.value as Tier);
                   }}
@@ -445,12 +488,10 @@ export function JobRunner({
                       {v}
                     </option>
                   ))}
-                </select>
-              </label>
-              <label className="flex flex-col">
-                Delivery
-                <select
-                  className="rounded border px-2 py-1"
+                </SelectField>
+                <SelectField
+                  id="job-delivery"
+                  label="Delivery"
                   value={delivery}
                   onChange={(e) => {
                     setDelivery(e.target.value as Delivery);
@@ -461,43 +502,47 @@ export function JobRunner({
                       {v}
                     </option>
                   ))}
-                </select>
-              </label>
-              <Button
-                disabled={!ready || files.length === 0 || busy}
-                onClick={() => void getPrice()}
-              >
-                {phase.kind === "pricing" ? "Pricing…" : "Get price"}
-              </Button>
-            </div>
-          </Panel>
+                </SelectField>
+                <Button
+                  disabled={!ready || files.length === 0 || busy}
+                  onClick={() => void getPrice()}
+                  size="lg"
+                  className="w-full"
+                  iconAfter="arrow-right"
+                >
+                  {phase.kind === "pricing" ? "Pricing…" : "Get price"}
+                </Button>
+                <p className="text-[0.75rem] text-neutral-500">
+                  You see the exact price and confirm it before anything is charged.
+                </p>
+              </div>
+            </Panel>
+          </div>
         </ProcessingNotice>
       ) : null}
 
       {phase.kind === "confirm" ? (
-        <Panel title="Confirm price">
+        <Panel title="Confirm price" icon="wallet" padding="none">
           <dl
-            className="mb-4 grid max-w-md grid-cols-2 gap-y-2 text-sm"
+            className="grid max-w-lg grid-cols-2 gap-y-2.5 px-5 pb-5 text-sm"
             data-testid="job-price"
           >
-            <dt className="text-neutral-600">Action</dt>
+            <dt className="text-neutral-500">Action</dt>
             <dd className="text-right font-medium">{ACTION_LABELS[phase.job.type]}</dd>
-            <dt className="text-neutral-600">Intelligence tier</dt>
+            <dt className="text-neutral-500">Intelligence tier</dt>
             <dd className="text-right font-medium">{TIER_LABELS[tier]}</dd>
-            <dt className="text-neutral-600">Delivery</dt>
+            <dt className="text-neutral-500">Delivery</dt>
             <dd className="text-right font-medium">{DELIVERY_LABELS[delivery]}</dd>
-            <dt className="text-neutral-600">
+            <dt className="pt-1 font-medium text-neutral-900">
               {phase.job.quote === null ? "Price" : "Quote"}
             </dt>
-            <dd className="text-right font-medium tabular-nums">
+            <dd className="num pt-1 text-[1.125rem] font-semibold">
               {formatCredits(phase.job.quote?.credits ?? phase.job.priceCredits)} credits
             </dd>
-            <dt className="text-neutral-600">Available now</dt>
-            <dd className="text-right tabular-nums">
-              {formatCredits(phase.job.available)}
-            </dd>
-            <dt className="text-neutral-600">Available after</dt>
-            <dd className="text-right tabular-nums">
+            <dt className="text-neutral-500">Available now</dt>
+            <dd className="num">{formatCredits(phase.job.available)}</dd>
+            <dt className="text-neutral-500">Available after</dt>
+            <dd className="num">
               {formatCredits(
                 (
                   BigInt(phase.job.available) -
@@ -506,45 +551,62 @@ export function JobRunner({
               )}
             </dd>
           </dl>
-          {phase.job.restructure ? (
-            <Alert tone="warning">
-              This month's files are structured differently from last time, so the
-              restructure price applies.
-            </Alert>
-          ) : null}
-          {phase.job.quote === null ? null : (
-            <Alert tone="warning">
-              This job needs more analysis than the standard price covers. The quote is
-              valid until {new Date(phase.job.quote.expiresAt).toLocaleString("en-IN")}.
-            </Alert>
-          )}
-          <div className="mt-4 flex gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setPhase({ kind: "files" });
-              }}
-            >
-              Back
-            </Button>
-            <Button onClick={() => void run(phase.job)}>
-              Confirm —{" "}
-              {formatCredits(phase.job.quote?.credits ?? phase.job.priceCredits)} credits
-            </Button>
+          <div className="flex flex-col gap-3 border-t border-neutral-100 bg-neutral-25 p-5">
+            {phase.job.restructure ? (
+              <Alert tone="warning" title="Structure has changed">
+                This month&rsquo;s files are structured differently from last time, so the
+                restructure price applies.
+              </Alert>
+            ) : null}
+            {phase.job.quote === null ? null : (
+              <Alert tone="warning" title="A quote was needed">
+                This job needs more analysis than the standard price covers. The quote is
+                valid until {new Date(phase.job.quote.expiresAt).toLocaleString("en-IN")}.
+              </Alert>
+            )}
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setPhase({ kind: "files" });
+                }}
+              >
+                Back
+              </Button>
+              <Button onClick={() => void run(phase.job)} size="lg">
+                Confirm —{" "}
+                {formatCredits(phase.job.quote?.credits ?? phase.job.priceCredits)}{" "}
+                credits
+              </Button>
+            </div>
           </div>
         </Panel>
       ) : null}
 
       {phase.kind === "running" ? (
-        <Panel title="Working">
-          <p className="text-sm text-neutral-700" role="status" data-testid="job-step">
-            {phase.step.replace(/_/gu, " ")}…
+        <Panel title="Working" icon="loader">
+          <div className="flex items-center gap-3">
+            <Icon
+              name="loader"
+              size={18}
+              className="animate-spin text-accent-600 [animation-duration:1.6s]"
+            />
+            <p className="text-sm text-neutral-700" role="status" data-testid="job-step">
+              {phase.step.replace(/_/gu, " ")}…
+            </p>
+          </div>
+          <p className="mt-2 text-[0.8125rem] text-neutral-500">
+            Keep this tab open. Your files are being processed here in the browser.
           </p>
         </Panel>
       ) : null}
 
       {phase.kind === "review" ? (
-        <Panel title="Review mappings">
+        <Panel
+          title="Review mappings"
+          icon="table"
+          description="Confirm how your ledgers map to the MIS schema. This is learned once and reused every month."
+        >
           <MappingReview
             rows={phase.rows}
             onConfirm={(confirmed) => {
@@ -572,7 +634,11 @@ export function JobRunner({
       ) : null}
 
       {phase.kind === "bindings" ? (
-        <Panel title="Review your MIS rows">
+        <Panel
+          title="Review your MIS rows"
+          icon="table"
+          description="Tell us what each row of your own workbook shows, so the recreated layout means the same thing."
+        >
           <ReferenceBindingReview
             rows={phase.rows}
             onConfirm={(bindings) => {
@@ -592,32 +658,49 @@ export function JobRunner({
       ) : null}
 
       {phase.kind === "done" ? (
-        <Panel title="Your MIS is ready">
-          <p className="mb-3 text-sm text-neutral-700" data-testid="job-done">
-            {formatCredits(phase.captured)} credits charged. Every figure was checked
-            against its source.
-          </p>
-          {phase.outputId === null ? null : (
-            <a
-              className="text-accent-700 underline"
-              href={`/api/outputs/${phase.outputId}`}
-              data-testid="job-download"
-            >
-              Download {phase.result.fileName}
-            </a>
-          )}
+        <Panel padding="none">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-100 p-5">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-positive-subtle text-positive">
+                <Icon name="check-circle" size={20} />
+              </span>
+              <div>
+                <h2 className="text-[1.0625rem] font-semibold text-neutral-900">
+                  Your MIS is ready
+                </h2>
+                <p className="mt-0.5 text-[0.8125rem] text-neutral-500">
+                  <span data-testid="job-done">
+                    {formatCredits(phase.captured)} credits charged
+                  </span>
+                  . Every figure was checked against its source.
+                </p>
+              </div>
+            </div>
+            {phase.outputId === null ? null : (
+              <a
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-700"
+                href={`/api/outputs/${phase.outputId}`}
+                data-testid="job-download"
+              >
+                <Icon name="download" size={16} />
+                Download {phase.result.fileName}
+              </a>
+            )}
+          </div>
           <ChecksTable checks={phase.result.checks} />
         </Panel>
       ) : null}
 
       {phase.kind === "failed" ? (
-        <Panel title="The job could not be completed">
-          <Alert tone="error">{phase.message}</Alert>
-          <p className="mt-3 text-sm text-neutral-700" data-testid="job-failed">
-            {phase.captured === "0"
-              ? "No credits were charged."
-              : `${formatCredits(phase.captured)} credits were charged for the diagnostic.`}
-          </p>
+        <Panel title="The job could not be completed" icon="alert" padding="none">
+          <div className="flex flex-col gap-3 px-5 pb-5">
+            <Alert tone="error">{phase.message}</Alert>
+            <p className="text-sm text-neutral-700" data-testid="job-failed">
+              {phase.captured === "0"
+                ? "No credits were charged."
+                : `${formatCredits(phase.captured)} credits were charged for the diagnostic.`}
+            </p>
+          </div>
           <ChecksTable checks={phase.checks} />
         </Panel>
       ) : null}
@@ -625,33 +708,91 @@ export function JobRunner({
   );
 }
 
+/** Where the run has got to. Each step is named, so the state is never a bare spinner. */
+function Steps({ current }: { current: 1 | 2 | 3 | 4 }) {
+  const labels = ["Load files", "Confirm price", "Build", "Collect"] as const;
+  return (
+    <ol className="flex flex-wrap items-center gap-2">
+      {labels.map((label, i) => {
+        const n = i + 1;
+        const done = n < current;
+        const now = n === current;
+        return (
+          <li key={label} className="flex items-center gap-2">
+            <span
+              className={`flex items-center gap-2 rounded-full py-1.5 pr-3.5 pl-1.5 text-[0.8125rem] font-medium ${
+                now
+                  ? "bg-accent-600 text-white"
+                  : done
+                    ? "bg-positive-subtle text-positive"
+                    : "bg-white text-neutral-400 ring-1 ring-neutral-200"
+              }`}
+            >
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-full text-[0.6875rem] ${
+                  now
+                    ? "bg-white/20"
+                    : done
+                      ? "bg-positive text-white"
+                      : "bg-neutral-100 text-neutral-500"
+                }`}
+              >
+                {done ? <Icon name="check" size={11} /> : n}
+              </span>
+              {label}
+            </span>
+            {n < labels.length ? (
+              <span aria-hidden="true" className="h-px w-4 bg-neutral-200" />
+            ) : null}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+const CHECK_TONE: Record<string, BadgeTone> = {
+  pass: "positive",
+  fail: "negative",
+  warn: "warning",
+  not_applicable: "muted",
+};
+
 function ChecksTable({ checks }: { checks: ComputeResult["checks"] }) {
   if (checks.length === 0) return null;
   return (
-    <table className="mt-4 w-full text-sm" data-testid="job-checks">
-      <thead>
-        <tr className="text-left text-xs text-neutral-600">
-          <th className="py-1">Check</th>
-          <th className="py-1">Result</th>
-          <th className="py-1">Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        {checks.map((c) => (
-          <tr key={c.id} className="border-t border-neutral-100 align-top">
-            <td className="py-1 font-mono">{c.id}</td>
-            <td className="py-1">
+    <DataTable
+      testId="job-checks"
+      className="px-2 pb-2"
+      maxHeight="24rem"
+      head={
+        <>
+          <Th>Check</Th>
+          <Th>Result</Th>
+          <Th>Details</Th>
+        </>
+      }
+    >
+      {checks.map((c) => (
+        <Tr key={c.id} className="align-top">
+          <Td className="font-mono text-[0.8125rem] whitespace-nowrap text-neutral-900">
+            {c.id}
+          </Td>
+          <Td>
+            <Badge tone={CHECK_TONE[c.status] ?? "neutral"} dot>
               {c.status === "not_applicable" ? "not applicable" : c.status}
-            </td>
-            <td className="py-1">
-              {c.message}
-              {c.fix === "" ? null : (
-                <span className="block text-xs text-neutral-600">{c.fix}</span>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+            </Badge>
+          </Td>
+          <Td>
+            {c.message}
+            {c.fix === "" ? null : (
+              <span className="mt-0.5 block text-[0.75rem] text-neutral-500">
+                {c.fix}
+              </span>
+            )}
+          </Td>
+        </Tr>
+      ))}
+    </DataTable>
   );
 }

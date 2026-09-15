@@ -50,7 +50,9 @@ export default async function PriceBookPage({
   const preview = await impactFor(q);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Price book</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Price book
+      </h1>
       <Flash searchParams={searchParams} />
 
       <Panel title="Publish a new version">
@@ -298,7 +300,10 @@ function ImpactPanel({ impact }: { impact: PriceImpact | { error: string } }) {
         <table className="w-full max-w-xl">
           <tbody>
             {rows.map(([label, value]) => (
-              <tr key={label} className="border-t border-neutral-100">
+              <tr
+                key={label}
+                className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+              >
                 <td className={td}>{label}</td>
                 <td className={num}>{value}</td>
               </tr>

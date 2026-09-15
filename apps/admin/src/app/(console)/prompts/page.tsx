@@ -23,7 +23,9 @@ export default async function PromptsPage({
   const [runs, routing] = await Promise.all([evalRuns(pool), listRouting(pool)]);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Prompts and evals</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Prompts and evals
+      </h1>
       <Flash searchParams={searchParams} />
       <Panel title="Active prompt versions">
         <table className="w-full">
@@ -38,7 +40,10 @@ export default async function PromptsPage({
           </thead>
           <tbody>
             {routing.map((r) => (
-              <tr key={`${r.tier}:${r.stage}`} className="border-t border-neutral-100">
+              <tr
+                key={`${r.tier}:${r.stage}`}
+                className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+              >
                 <td className={td}>{r.tier}</td>
                 <td className={td}>{r.stage}</td>
                 <td className={td}>
@@ -76,7 +81,10 @@ export default async function PromptsPage({
           </thead>
           <tbody>
             {runs.map((r) => (
-              <tr key={r.id} className="border-t border-neutral-100">
+              <tr
+                key={r.id}
+                className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+              >
                 <td className={`${td} text-xs`}>
                   {r.created_at.toISOString().slice(0, 16).replace("T", " ")}
                 </td>

@@ -79,8 +79,8 @@ export function PrivacySettings({ email }: { email: string }) {
     <div className="flex flex-col gap-6">
       {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
 
-      <Panel title="Export your data">
-        <p className="mb-3 max-w-2xl text-sm text-neutral-700">
+      <Panel title="Export your data" icon="download">
+        <p className="mb-4 max-w-2xl text-sm text-neutral-600">
           A JSON file with your profile, companies, their stored memory and monthly
           snapshots, jobs, credit ledger, invoices and consent records. Your source files
           are never stored on our servers, so they are not included. The download link
@@ -89,6 +89,7 @@ export function PrivacySettings({ email }: { email: string }) {
         {exportAction === null ? (
           <Button
             variant="secondary"
+            icon="download"
             onClick={() => {
               setExportAction({ kind: "request" });
             }}
@@ -111,32 +112,32 @@ export function PrivacySettings({ email }: { email: string }) {
         )}
         {exports === null || exports.length === 0 ? null : (
           <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm" data-testid="exports">
-              <thead className="text-left text-neutral-600">
-                <tr>
-                  <th className="py-2 pr-4 font-medium">Requested (IST)</th>
-                  <th className="py-2 pr-4 font-medium">Status</th>
-                  <th className="py-2 pr-4 font-medium">Available until (IST)</th>
-                  <th className="py-2 pr-4 font-medium" />
+            <table className="w-full border-collapse text-sm" data-testid="exports">
+              <thead>
+                <tr className="border-b border-neutral-200 text-left text-[0.6875rem] font-semibold tracking-[0.06em] text-neutral-500 uppercase">
+                  <th className="py-2 pr-4">Requested (IST)</th>
+                  <th className="py-2 pr-4">Status</th>
+                  <th className="py-2 pr-4">Available until (IST)</th>
+                  <th className="py-2 pr-4" />
                 </tr>
               </thead>
               <tbody>
                 {exports.map((e) => (
-                  <tr key={e.id} className="border-t border-neutral-100">
-                    <td className="num py-1.5 pr-4 text-left">
+                  <tr key={e.id} className="border-b border-neutral-100 last:border-0">
+                    <td className="py-2 pr-4 font-mono text-[0.8125rem] whitespace-nowrap text-neutral-900">
                       {formatIstDateTime(new Date(e.requestedAt))}
                     </td>
-                    <td className="py-1.5 pr-4">{STATUS_LABEL[e.status]}</td>
-                    <td className="num py-1.5 pr-4 text-left">
+                    <td className="py-2 pr-4">{STATUS_LABEL[e.status]}</td>
+                    <td className="py-2 pr-4 font-mono text-[0.8125rem] whitespace-nowrap text-neutral-900">
                       {e.status === "ready" && e.expiresAt !== null
                         ? formatIstDateTime(new Date(e.expiresAt))
                         : ""}
                     </td>
-                    <td className="py-1.5 pr-4">
+                    <td className="py-2 pr-4">
                       {e.status === "ready" ? (
                         <button
                           type="button"
-                          className="underline"
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.8125rem] font-medium text-accent-700 hover:bg-accent-50"
                           onClick={() => {
                             setExportAction({ kind: "download", id: e.id });
                           }}
@@ -153,18 +154,18 @@ export function PrivacySettings({ email }: { email: string }) {
         )}
       </Panel>
 
-      <Panel title="Delete a company">
-        <p className="text-sm text-neutral-700">
+      <Panel title="Delete a company" icon="archive">
+        <p className="text-sm text-neutral-600">
           Open the company and use Delete company. Its memory fee stops at once and its
           data is permanently destroyed after the purge period.{" "}
-          <Link href="/app" className="underline">
+          <Link href="/app" className="font-medium text-accent-700 hover:underline">
             Go to companies
           </Link>
         </p>
       </Panel>
 
-      <Panel title="Delete your account">
-        <div className="flex max-w-2xl flex-col gap-3 text-sm text-neutral-700">
+      <Panel title="Delete your account" icon="trash">
+        <div className="flex max-w-2xl flex-col gap-3 text-sm text-neutral-600">
           <p>
             Your account closes immediately and you are signed out. All companies and
             their stored data are permanently destroyed after the purge period, and cannot

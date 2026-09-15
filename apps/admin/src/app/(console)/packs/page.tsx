@@ -16,7 +16,9 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
   const packs = await listPacks(db());
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-neutral-900">Credit packs</h1>
+      <h1 className="text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+        Credit packs
+      </h1>
       <Flash searchParams={searchParams} />
       <Panel title="New pack">
         <p className="mb-3 text-xs text-neutral-600">
@@ -69,7 +71,10 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
           </thead>
           <tbody>
             {packs.map((p) => (
-              <tr key={p.id} className="border-t border-neutral-100">
+              <tr
+                key={p.id}
+                className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
+              >
                 <td className={num}>{rupeeCell(p.price_paise_ex_gst)}</td>
                 <td className={num}>{p.credits_granted}</td>
                 <td className={num}>{p.bonus_credits}</td>
