@@ -9,17 +9,13 @@ import { Flash, input, num, td, th, type FlashParams } from "@/components/Flash"
 import { Button, Panel } from "@/components/ui";
 import { accountDetail } from "@/server/accounts";
 import { activeGrants } from "@/server/console";
-import { recoveriesFor } from "@/server/recovery";
 import { db } from "@/server/runtime";
 import { requireAdmin } from "@/server/session";
 
 import { adjustCreditsAction, setStatusAction } from "../../actions";
 import {
   approveBreakGlassAction,
-  cancelRecoveryAction,
-  completeRecoveryAction,
   grantBreakGlassAction,
-  requestRecoveryAction,
   revokeBreakGlassAction,
 } from "../../console-actions";
 
@@ -73,16 +69,12 @@ export default async function AccountPage({
   const pool = db();
   const detail = await accountDetail(pool, id);
   if (detail === null) notFound();
-  const [wallet, purchases, invoices, grants, recoveries] = await Promise.all([
+  const [wallet, purchases, invoices, grants] = await Promise.all([
     walletSummary(pool, id),
     listPurchases(pool, id),
     listInvoices(pool, id),
     activeGrants(pool, id),
-    recoveriesFor(pool, id),
   ]);
-  const openRecovery = recoveries.find(
-    (r) => r.cancelled_at === null && r.completed_at === null,
-  );
   const a = detail.account;
 
   return (
@@ -328,100 +320,6 @@ export default async function AccountPage({
             </Button>
           </form>
         )}
-      </Panel>
-      <Panel title="Account recovery">
-        <p className="mb-3 text-xs text-neutral-600">
-          Only for a customer who has lost both their authenticator and their backup
-          codes, after the checks in docs/runbooks/account-recovery.md. The customer is
-          emailed and has a hold period to cancel; the second factor is removed only after
-          it.
-        </p>
-        {recoveries.map((r) => (
-          <div
-            key={r.id}
-            className="mb-3 rounded-md border border-neutral-200 p-3 text-sm"
-            data-testid="account-recovery"
-          >
-            <p>
-              {r.ticket_ref} · requested by {r.requested_email} at{" "}
-              {r.requested_at.toISOString()} ·{" "}
-              {r.completed_at !== null
-                ? `completed ${r.completed_at.toISOString()} (${String(r.factors_removed ?? 0)} factors removed)`
-                : r.cancelled_at !== null
-                  ? `cancelled ${r.cancelled_at.toISOString()}`
-                  : `hold until ${r.hold_until.toISOString()}`}
-            </p>
-            <p className="text-xs text-neutral-600">{r.reason}</p>
-            {r.cancelled_at === null && r.completed_at === null ? (
-              <div className="mt-2 flex flex-wrap items-end gap-3">
-                <form action={completeRecoveryAction} className="flex items-end gap-2">
-                  <input type="hidden" name="accountId" value={id} />
-                  <input type="hidden" name="recoveryId" value={r.id} />
-                  <label className="flex flex-col">
-                    Your authenticator code
-                    <input
-                      name="code"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      className={`${input} w-28`}
-                      required
-                    />
-                  </label>
-                  <Button type="submit" variant="danger">
-                    Remove second factor
-                  </Button>
-                </form>
-                <form action={cancelRecoveryAction}>
-                  <input type="hidden" name="accountId" value={id} />
-                  <input type="hidden" name="recoveryId" value={r.id} />
-                  <Button type="submit" variant="secondary">
-                    Cancel request
-                  </Button>
-                </form>
-              </div>
-            ) : null}
-          </div>
-        ))}
-        {openRecovery === undefined ? (
-          <form
-            action={requestRecoveryAction}
-            className="flex flex-wrap items-end gap-2 text-sm"
-          >
-            <input type="hidden" name="accountId" value={id} />
-            <label className="flex flex-col">
-              Ticket reference
-              <input
-                name="ticketRef"
-                className={`${input} w-40`}
-                required
-                maxLength={100}
-              />
-            </label>
-            <label className="flex flex-col">
-              Verification done (20 to 500 characters, no answers)
-              <textarea
-                name="reason"
-                required
-                minLength={20}
-                maxLength={500}
-                className={`${input} h-16 w-96`}
-              />
-            </label>
-            <label className="flex flex-col">
-              Authenticator code
-              <input
-                name="code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                className={`${input} w-28`}
-                required
-              />
-            </label>
-            <Button type="submit" variant="danger">
-              Request recovery
-            </Button>
-          </form>
-        ) : null}
       </Panel>
       <Panel title="Login events">
         <Table

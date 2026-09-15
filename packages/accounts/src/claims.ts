@@ -40,7 +40,6 @@ export type AccountRefusal =
   | "invalid_claims"
   | "no_account"
   | "account_not_active"
-  | "mfa_required"
   | "session_superseded"
   | "session_not_claimed";
 
@@ -84,9 +83,8 @@ export async function requireAccount(
   if (row === null || row.deleted_at !== null) return { ok: false, reason: "no_account" };
   if (row.status !== "active") return { ok: false, reason: "account_not_active" };
 
-  // Order matters for the message shown: an aal1 token must be told to complete 2FA even
-  // if its session has also not been claimed yet.
-  if (claims.aal !== "aal2") return { ok: false, reason: "mfa_required" };
+  // A password is the only factor (ADR 0028). What still guards the account is the single
+  // active session: a new sign-in evicts the previous one on its very next request.
   if (row.active_session_id === null) return { ok: false, reason: "session_not_claimed" };
   if (row.active_session_id !== claims.session_id) {
     return { ok: false, reason: "session_superseded" };

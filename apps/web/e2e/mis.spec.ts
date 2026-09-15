@@ -14,11 +14,7 @@ import pg from "pg";
 import * as XLSX from "xlsx";
 
 import { FIXTURES_OUT } from "./fixtures-setup";
-import {
-  createVerifiedAccountWithTotp,
-  uniqueEmail,
-  watchCspViolations,
-} from "./helpers";
+import { createVerifiedAccount, uniqueEmail, watchCspViolations } from "./helpers";
 
 // The local Supabase stack's database (supabase/config.toml defaults; not a secret).
 const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
@@ -54,7 +50,7 @@ test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
   csp = watchCspViolations(page);
   email = uniqueEmail();
-  await createVerifiedAccountWithTotp(page, email);
+  await createVerifiedAccount(page, email);
   const consent = await page.request.post("/api/account/consents", {
     data: { document: "processing" },
     headers: { "idempotency-key": randomUUID() },

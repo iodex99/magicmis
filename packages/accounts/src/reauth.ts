@@ -1,10 +1,14 @@
 /**
  * Re-authentication gates (SPEC §8).
  *
- * Password + TOTP is required before: changing email, changing password, regenerating
- * backup codes, deleting a company, deleting the account, and exporting data. A
- * successful re-auth grants a short window, bound to the current session, during which
- * those actions proceed. The window length is config (`auth.reauth_ttl_seconds`).
+ * The password is required again before: changing email, changing password, deleting a
+ * company, deleting the account, and exporting data. A successful re-auth grants a short
+ * window, bound to the current session, during which those actions proceed. The window
+ * length is config (`auth.reauth_ttl_seconds`).
+ *
+ * There is no second factor to ask for (ADR 0028), so this is what stands between someone
+ * who walked up to an unlocked machine and an irreversible action. The throttle below is
+ * therefore load-bearing, not a formality.
  */
 
 import { appendAudit } from "@magicmis/db/audit";
@@ -25,7 +29,6 @@ import {
 export type ReauthAction =
   | "change_email"
   | "change_password"
-  | "regenerate_backup_codes"
   | "delete_company"
   | "delete_account"
   | "export_data";
@@ -39,7 +42,7 @@ export async function reauthenticate(
   pool: Pool,
   provider: AuthProvider,
   account: AccountContext,
-  input: { password: string; totpCode: string; ip: string | null },
+  input: { password: string; ip: string | null },
   now: Date = new Date(),
 ): Promise<ReauthResult> {
   const key = `reauth:account:${account.accountId}`;
@@ -48,16 +51,9 @@ export async function reauthenticate(
   const state = await checkThrottle(pool, key, now);
   if (state.locked) return { status: "locked", lockedUntil: state.lockedUntil };
 
-  // Both checks always run. Short-circuiting on a wrong password would let an attacker
-  // learn which factor failed from the response time.
-  const [passwordOk, totpOk] = await Promise.all([
-    provider.verifyPassword(account.email, input.password),
-    /^\d{6}$/u.test(input.totpCode)
-      ? provider.verifyTotp(input.totpCode)
-      : Promise.resolve(false),
-  ]);
+  const passwordOk = await provider.verifyPassword(account.email, input.password);
 
-  if (!passwordOk || !totpOk) {
+  if (!passwordOk) {
     const after = await withTransaction(pool, async (tx) => {
       const result = await registerFailure(tx, key, limit, now);
       await tx.query(

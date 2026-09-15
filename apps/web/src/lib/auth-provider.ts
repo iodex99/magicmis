@@ -26,19 +26,6 @@ export class SupabaseAuthProvider implements AuthProvider {
     return true;
   }
 
-  async verifyTotp(code: string): Promise<boolean> {
-    const { data: factors, error } = await this.session.auth.mfa.listFactors();
-    if (error !== null) return false;
-    // `totp` lists verified factors only; unverified ones are in `all`.
-    const factor = factors.totp[0];
-    if (factor === undefined) return false;
-    const result = await this.session.auth.mfa.challengeAndVerify({
-      factorId: factor.id,
-      code,
-    });
-    return result.error === null;
-  }
-
   async signOutOtherSessions(): Promise<void> {
     const { error } = await this.session.auth.signOut({ scope: "others" });
     if (error !== null) throw new Error(`signOut(others) failed: ${error.message}`);

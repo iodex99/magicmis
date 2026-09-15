@@ -18,7 +18,7 @@ function SignInForm() {
     const form = new FormData(event.currentTarget);
     setSubmitting(true);
     setMessage(null);
-    const result = await api<{ next: "mfa_verify" | "mfa_enrol" }>("/api/auth/sign-in", {
+    const result = await api<{ next: "app" }>("/api/auth/sign-in", {
       body: { email: formText(form, "email"), password: formText(form, "password") },
     });
     setSubmitting(false);
@@ -26,13 +26,11 @@ function SignInForm() {
       setMessage(result.message);
       return;
     }
-    const next = params.get("next");
-    const suffix = next ? `?next=${encodeURIComponent(next)}` : "";
-    router.push(
-      result.data.next === "mfa_verify"
-        ? `/sign-in/mfa${suffix}`
-        : `/sign-in/enrol${suffix}`,
-    );
+    // Only same-origin relative paths, or a crafted ?next= would bounce a fresh session
+    // to another site.
+    const next = params.get("next") ?? "";
+    const safe = next.startsWith("/") && !next.startsWith("//");
+    router.replace(safe ? next : "/app");
   }
 
   return (
@@ -76,7 +74,7 @@ export default function SignInPage() {
   return (
     <AuthShell
       title="Sign in"
-      description="Your password, then the code from your authenticator app."
+      description="Welcome back."
       footer={
         <>
           No account?{" "}

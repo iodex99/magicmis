@@ -34,7 +34,6 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-13 | **GST rate** — seeded at 18% per §13 config default; confirm current rate for this SAC at launch. | Before launch | open |
 | R-14 | **FX rate and buffer** — seeded at §13's 3% buffer default; set the operating rate. | Before launch | open |
 | R-15 | **Statutory retention period** for financial records — seeded at §10's 8-year default; confirm. | Before launch | open |
-| R-21 | **Admin account recovery action** (docs/runbooks/account-recovery.md, ADR 0025 §4). Built: request with ticket and step-up code, customer notice and hold, cancel, and completion that removes Supabase TOTP factors, revokes backup codes, ends the session and audits. Set `admin.recovery_second_admin` to true once two admins exist, and give the admin deployment `NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SECRET_KEY`. | Before launch | built — enable second-admin rule |
 | R-22 | **Production Supabase Auth settings** must mirror `supabase/config.toml`: email confirmations on, TOTP on, 12-character mixed-case-and-digit passwords, secure password change, Resend SMTP, and the token-hash confirmation template in `supabase/templates/confirmation.html`. | Before launch | open |
 
 ## Raised in Phase 2
@@ -85,8 +84,10 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-55 | **Hosting assumptions** (ADR 0024 §6). The client IP trusts `x-vercel-forwarded-for`, else the right-most `x-forwarded-for`. HSTS is sent only when the proxy sees `https:`, and `includeSubDomains; preload` should be decided at the apex domain. If the app is not deployed on Vercel, re-check all three. | Before launch | open |
 | R-50 | **Processing register** ([docs/compliance/processing-register.md](compliance/processing-register.md)). A data protection professional must review: <ul><li>purposes and legal basis wording;</li><li>subprocessor regions (Anthropic, Resend);</li><li>grievance officer;</li><li>Significant Data Fiduciary assessment.</li></ul> | Before launch | open |
 
-| R-56 | **One consent tick for two documents** (ADR 0027 §1). Sign-up now records acceptance of the Terms and the Privacy notice from a single checkbox that links both, writing two consent rows with their own versions. Confirm with the legal reviewer that one affirmative act covering two linked documents is acceptable, or split it back into two ticks. | Before launch | open |
-| R-57 | **Payment inside the run screen** (ADR 0027 §3). A run that is short of credits links to the Wallet with the shortfall and the covering pack marked. Taking the payment without leaving the run would remove the last trip, but needs billing details and Razorpay checkout inside a flow holding a browser-side pipeline. | After launch | open |
+| R-56 | **One consent tick for two documents** (ADR 0027 §1). **Decided 2026-09-15:** kept as one tick. Accepting the Terms is contract formation and the Privacy notice is *notice*, not consent; one clearly-worded act linking both is sound, and the specific, purpose-bound DPDP consent is taken separately before the first upload. Two consent rows with independent versions are still written. Flag to the legal reviewer as a recorded decision, not an open question. | Before launch | **closed** |
+| R-57 | **Payment inside the run screen** (ADR 0027 §3). **Decided 2026-09-15:** build it. Leaving the run unmounts the browser pipeline and destroys the loaded files, so "buy credits and come back" means re-loading thirteen months of trial balances. Needs Razorpay allowed on the run path as well as `/wallet`. | Before launch | in progress |
+
+| R-58 | **Customer 2FA was removed** (ADR 0028), against the recommendation to defer enrolment instead. A single leaked password now reaches a firm's financial data and its credit balance. Revisit before launch, and note that re-introducing it later means enrolling an existing population, not just a code change. | Before launch | open — owner decided |
 
 ## Decisions the spec leaves open
 

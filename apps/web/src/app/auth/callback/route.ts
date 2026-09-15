@@ -1,6 +1,10 @@
+import { claimSession } from "@magicmis/accounts";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { SupabaseAuthProvider } from "@/lib/auth-provider";
+import { db } from "@/lib/db";
+import { requestMeta } from "@/lib/http";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
 /**
@@ -44,14 +48,26 @@ export async function GET(request: NextRequest): Promise<Response> {
   /**
    * Where to land.
    *
-   * Verification normally establishes a session, and `next` then takes the reader straight
-   * on to setting up their authenticator — asking for the password they chose two minutes
-   * ago buys nothing. When no session came back (an older link style, a cookie the browser
-   * refused), `/sign-in/verified` says what happened and offers the sign-in instead. The
-   * destination is decided from what actually happened, not assumed.
+   * Verification establishes a session, and with the password as the only factor
+   * (ADR 0028) there is nothing left to ask for — so the session is **claimed** here, the
+   * same as at sign-in. Claiming is what makes it the account's single active one; without
+   * it `requireAccount` refuses with `session_not_claimed` and the reader bounces straight
+   * back to a sign-in form holding a session they cannot use.
+   *
+   * When no session came back (an older link style, a cookie the browser refused),
+   * `/sign-in/verified` says what happened and offers the sign-in instead. The destination
+   * is decided from what actually happened, not assumed.
    */
-  const signedIn =
-    !failed && (await supabase.auth.getClaims()).data?.claims !== undefined;
+  const claims = failed ? undefined : (await supabase.auth.getClaims()).data?.claims;
+  let signedIn = false;
+  if (claims !== undefined) {
+    const { ip, userAgent } = await requestMeta();
+    const claim = await claimSession(db(), new SupabaseAuthProvider(supabase), claims, {
+      ip,
+      userAgent,
+    });
+    signedIn = claim.status !== "refused";
+  }
   const path = failed
     ? "/sign-in?verification=failed"
     : signedIn

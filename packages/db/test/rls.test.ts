@@ -67,7 +67,6 @@ const INTERNAL_TABLES = [
   "library_candidates",
   "invoice_counters",
   "audit_log",
-  "backup_codes",
   "reauth_grants",
   "auth_throttle",
 ] as const;
@@ -115,8 +114,9 @@ describe("every customer table has RLS enabled and forced", () => {
     ]) {
       expect(present.has(table), `missing table ${table}`).toBe(true);
     }
-    // SPEC §9 lists 35 tables; the schema must not be quietly short of them.
-    expect(present.size).toBeGreaterThanOrEqual(35);
+    // SPEC §9 listed 35 tables; `backup_codes` and `account_recoveries` went with the
+    // customer's second factor (ADR 0028), so the floor is the rest of them.
+    expect(present.size).toBeGreaterThanOrEqual(33);
   });
 });
 

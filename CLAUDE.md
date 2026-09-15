@@ -16,9 +16,10 @@ only and never sits under figures. Seed a signed-in demo account against the loc
 with `apps/web/e2e/support/seed-demo.ts`.
 
 Flow rules that are easy to undo by accident: sign-up asks for four things only (billing
-details are collected at the first purchase, migration 0034); the confirmation email lands
-on `/sign-in/enrol` with a session already established; the run screen prices itself and
-its single button **is** the SPEC §12 confirmation. Changing `supabase/templates/` needs
+details are collected at the first purchase, migration 0034); the confirmation email
+establishes the session and lands in the app; **customers sign in with a password alone**
+(ADR 0028 — the admin console still requires TOTP); the run screen prices itself and its
+single button **is** the SPEC §12 confirmation. Changing `supabase/templates/` needs
 `docker restart supabase_auth_magicmis` to take effect locally.
 
 CI runs E2E against a **clean** Supabase stack, which catches what a long-lived local one
@@ -241,7 +242,7 @@ Enforced:
 ## Stack (Section 5)
 
 Next.js (latest stable, App Router, TS) · Tailwind + shadcn/ui · TanStack Query +
-Zustand · Supabase (Postgres, Auth w/ TOTP MFA, Storage, RLS; India/Mumbai region if
+Zustand · Supabase (Postgres, Auth — password only for customers, TOTP for admins; Storage, RLS; India/Mumbai region if
 available) · Vercel (functions pinned nearest India) · `pg-boss` worker on a container
 host · `@anthropic-ai/sdk` (server/worker only) · SheetJS (**official distribution, not
 the stale npm registry version**) · DuckDB-WASM · Comlink · OPFS · ExcelJS · Apache

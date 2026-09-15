@@ -14,9 +14,6 @@ export interface AuthProvider {
    */
   verifyPassword(email: string, password: string): Promise<boolean>;
 
-  /** Verify a TOTP code on the caller's own session (challenge + verify). */
-  verifyTotp(code: string): Promise<boolean>;
-
   /** Revoke every session for the user except the calling one. */
   signOutOtherSessions(): Promise<void>;
 

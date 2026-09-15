@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 import {
   checkThrottle,
+  claimSession,
   clearThrottle,
   registerFailure,
   throttleLimitFor,
@@ -9,6 +10,7 @@ import {
 import { withTransaction } from "@magicmis/db/tx";
 import { z } from "zod";
 
+import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
 import { supabaseForRequest } from "@/lib/supabase/server";
@@ -19,11 +21,13 @@ const bodySchema = z.object({
 });
 
 /**
- * POST /api/auth/sign-in — the password step (aal1).
+ * POST /api/auth/sign-in — the whole of signing in (SPEC §8, ADR 0028).
  *
- * Returns what comes next: TOTP verification, or TOTP enrolment for an account that has
- * never enrolled. A password alone never reaches customer data (migration 0012) and never
- * claims the session (`claimSession` requires aal2).
+ * The password is the only factor. On success this claims the session, which makes it the
+ * account's single active one and cuts off any other tab, and records the login.
+ *
+ * With no second factor, the throttle above is what stands between a leaked password list
+ * and an account: it counts every attempt per IP and per email, and locks on the limit.
  */
 export async function POST(request: Request): Promise<Response> {
   const parsed = await parseJson(request, bodySchema);
@@ -81,7 +85,21 @@ export async function POST(request: Request): Promise<Response> {
 
   for (const key of keys) await clearThrottle(pool, key);
 
-  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  const next = aal?.nextLevel === "aal2" ? "mfa_verify" : "mfa_enrol";
-  return ok({ next });
+  const { data: after } = await supabase.auth.getClaims();
+  const claim = await claimSession(
+    pool,
+    new SupabaseAuthProvider(supabase),
+    after?.claims,
+    { ip, userAgent },
+  );
+  if (claim.status === "refused") {
+    return apiError(
+      403,
+      claim.reason,
+      claim.reason === "account_not_active"
+        ? "This account is closed. Contact support if you think that is wrong."
+        : "Sign-in could not be completed. Try again.",
+    );
+  }
+  return ok({ next: "app" });
 }

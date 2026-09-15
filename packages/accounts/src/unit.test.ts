@@ -1,14 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
-import {
-  generateBackupCode,
-  generateBackupCodes,
-  hashBackupCode,
-  isWellFormedBackupCode,
-  normaliseBackupCode,
-  verifyBackupCode,
-} from "./backup-codes";
 import { isDesktopUserAgent, isDeviceAgnosticPath } from "./desktop";
 import { describeUserAgent, deviceFingerprintHash, normaliseUserAgent } from "./device";
 import { placeOfSupplyState, signupProfileSchema, signupRequestSchema } from "./signup";
@@ -24,71 +16,6 @@ const IPHONE =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 const ANDROID_TABLET =
   "Mozilla/5.0 (Linux; Android 14; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
-
-describe("backup codes (SPEC §8)", () => {
-  it("formats codes as XXXX-XXXX from the unambiguous alphabet", () => {
-    for (let i = 0; i < 200; i++) {
-      const code = generateBackupCode();
-      expect(code).toMatch(
-        /^[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{4}-[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{4}$/u,
-      );
-      // No look-alikes, ever.
-      expect(code).not.toMatch(/[01ILO]/u);
-    }
-  });
-
-  it("issues distinct codes in one batch", () => {
-    const codes = generateBackupCodes(10);
-    expect(codes).toHaveLength(10);
-    expect(new Set(codes).size).toBe(10);
-  });
-
-  it("refuses an out-of-range count", () => {
-    expect(() => generateBackupCodes(0)).toThrow(RangeError);
-    expect(() => generateBackupCodes(51)).toThrow(RangeError);
-  });
-
-  it("normalises case, spaces and hyphens without folding look-alikes", () => {
-    expect(normaliseBackupCode(" abcd-efgh ")).toBe("ABCDEFGH");
-    expect(normaliseBackupCode("ab cd ef gh")).toBe("ABCDEFGH");
-    // O and 0 are outside the alphabet; they must stay invalid rather than be rewritten.
-    expect(isWellFormedBackupCode(normaliseBackupCode("ABCD-EFG0"))).toBe(false);
-    expect(isWellFormedBackupCode(normaliseBackupCode("ABCD-EFGO"))).toBe(false);
-  });
-
-  it("verifies a code against its own hash and not against another's", async () => {
-    const [a, b] = generateBackupCodes(2);
-    if (a === undefined || b === undefined) throw new Error("need two codes");
-    const hash = await hashBackupCode(a);
-    expect(await verifyBackupCode(a, hash)).toBe(true);
-    expect(await verifyBackupCode(a.toLowerCase().replace("-", " "), hash)).toBe(true);
-    expect(await verifyBackupCode(b, hash)).toBe(false);
-  });
-
-  it("salts every hash, so equal codes do not produce equal hashes", async () => {
-    const code = generateBackupCode();
-    expect(await hashBackupCode(code)).not.toBe(await hashBackupCode(code));
-  });
-
-  it("records the scrypt parameters with the hash", async () => {
-    expect(await hashBackupCode(generateBackupCode())).toMatch(
-      /^scrypt\$16384\$8\$1\$[A-Za-z0-9+/=]+\$[A-Za-z0-9+/=]+$/u,
-    );
-  });
-
-  it("never matches a malformed stored hash", async () => {
-    const code = generateBackupCode();
-    for (const bad of [
-      "",
-      "plain",
-      "scrypt$1$2$3",
-      "bcrypt$x$y$z$a$b",
-      "scrypt$0$8$1$AA==$AA==",
-    ]) {
-      expect(await verifyBackupCode(code, bad), bad).toBe(false);
-    }
-  });
-});
 
 describe("device fingerprinting (SPEC §8 new-device alerts)", () => {
   it("treats a browser auto-update as the same device", () => {

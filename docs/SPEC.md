@@ -273,16 +273,17 @@ The system has three zones.
 ## 8. Accounts and authentication
 
 **Signup**
-- Email and password, email verification, and acceptance of Terms and Privacy notice. Each acceptance is recorded as a consent record with version and timestamp.
-- Business profile: business name; optional GSTIN (validate format and checksum); billing address with state (needed for GST place of supply).
+- Email, password and business name, plus one acceptance covering the Terms and the Privacy notice. Each document is recorded as its own consent record with version and timestamp (ADR 0027).
+- Email verification. The confirmation link establishes the session and lands in the app.
+- Optional GSTIN (validate format and checksum) and billing address with state, collected at the **first purchase**, where GST place of supply is needed (ADR 0027).
 
-**Two-factor authentication**
-- TOTP 2FA is mandatory. The app is unusable until 2FA is enrolled.
-- Issue 10 single-use backup codes at enrolment, stored hashed. Allow regeneration after re-authentication.
+**Authentication: the password is the only factor** (ADR 0028, product owner's decision 2026-09-15).
+- There is no customer 2FA, no authenticator enrolment and no backup codes.
+- What guards the account instead: a single active session that a new sign-in evicts, per-IP and per-email throttling with lockout on every auth endpoint, and re-authentication before anything irreversible.
+- **The admin console is unaffected** and keeps mandatory TOTP (§26). It is the operator surface with break-glass access to customer data, and its threat model is not the customer's.
 
 **Optional sign-in**
 - Google and Microsoft sign-in may be offered. Record the decision in an ADR.
-- 2FA is still mandatory: on first social login, require TOTP enrolment.
 
 **Single active session**
 - Store `active_session_id` on the account.
@@ -294,18 +295,18 @@ The system has three zones.
 - A new device triggers an email alert.
 - Show login history in Security settings.
 
-**Re-authentication** (password + TOTP) is required for:
+**Re-authentication** (the password again) is required for:
 - changing email
 - changing password
-- regenerating backup codes
 - disabling a social login
 - deleting a company
 - deleting the account
 - exporting data
 
+With no second factor this is the last gate before something irreversible, so it is asked every time, never remembered beyond its short session-bound window, and throttled like any other auth endpoint.
+
 **Recovery**
-- Backup codes.
-- Otherwise, a manual verified-recovery process: an admin runbook requiring proof via registered business email and GSTIN details. No automated recovery that bypasses 2FA.
+- Password reset by email, through the identity provider.
 
 **Brute-force protection:** rate limits and lockouts on auth endpoints.
 

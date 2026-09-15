@@ -3,7 +3,7 @@
  * its wallet with an admin grant, so the app can be looked at without hand-walking sign-up.
  *
  * Local development only: it talks to the local Supabase Postgres and Mailpit by their
- * `supabase/config.toml` defaults, and prints the TOTP secret. Never point it at a real stack.
+ * `supabase/config.toml` defaults, and prints a working password. Never point it at a real stack.
  *
  *   pnpm --filter @magicmis/web exec tsx e2e/support/seed-demo.ts [credits]
  */
@@ -12,7 +12,7 @@ import { chromium } from "@playwright/test";
 import { grantCredits } from "@magicmis/wallet";
 import pg from "pg";
 
-import { createVerifiedAccountWithTotp, PASSWORD, uniqueEmail } from "../helpers";
+import { createVerifiedAccount, PASSWORD, uniqueEmail } from "../helpers";
 
 // The local Supabase stack's database (supabase/config.toml defaults; not a secret).
 const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
@@ -29,9 +29,8 @@ try {
 
   const context = await browser.newContext({ baseURL: APP_URL });
   const page = await context.newPage();
-  let secret: string;
   try {
-    secret = await createVerifiedAccountWithTotp(page, email);
+    await createVerifiedAccount(page, email);
   } catch (cause) {
     const alerts = await page.getByRole("alert").allTextContents();
     throw new Error(`sign-up failed at ${page.url()}: ${alerts.join(" | ")}`, { cause });
@@ -57,13 +56,10 @@ try {
     idempotencyKey: crypto.randomUUID(),
   });
 
-  const issuer = encodeURIComponent("MIS Studio");
   process.stdout.write(
     [
       `email:    ${email}`,
       `password: ${PASSWORD}`,
-      `totp:     ${secret}`,
-      `otpauth:  otpauth://totp/${issuer}:${email}?secret=${secret}&issuer=${issuer}`,
       `credits:  ${credits.toString()}`,
       "",
     ].join("\n"),

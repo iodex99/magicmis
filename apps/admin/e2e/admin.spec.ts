@@ -38,12 +38,6 @@ test.beforeAll(async () => {
         or approved_by in (select id from admin_users where lower(email) = $1)`,
     [ADMIN_EMAIL],
   );
-  await pool.query(
-    `delete from account_recoveries where requested_by in (select id from admin_users where lower(email) = $1)
-        or cancelled_by in (select id from admin_users where lower(email) = $1)
-        or completed_by in (select id from admin_users where lower(email) = $1)`,
-    [ADMIN_EMAIL],
-  );
   await pool.query(`delete from admin_users where lower(email) = $1`, [ADMIN_EMAIL]);
   const created = await createAdmin(
     pool,

@@ -46,9 +46,9 @@ export async function POST(request: Request): Promise<Response> {
     email: input.email,
     password: input.password,
     options: {
-      // The callback establishes a session, so a verified user goes straight to setting
-      // up their authenticator rather than being asked to sign in again.
-      emailRedirectTo: `${appPublicEnv().NEXT_PUBLIC_APP_URL}/auth/callback?next=/sign-in/enrol`,
+      // The callback establishes a session and the password is the only factor, so a
+      // verified user goes straight into the app rather than back to a sign-in form.
+      emailRedirectTo: `${appPublicEnv().NEXT_PUBLIC_APP_URL}/auth/callback?next=/app`,
     },
   });
 

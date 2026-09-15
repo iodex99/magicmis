@@ -7,7 +7,7 @@
 
 import { expect, test } from "@playwright/test";
 
-import { createVerifiedAccountWithTotp, uniqueEmail } from "./helpers";
+import { createVerifiedAccount, uniqueEmail } from "./helpers";
 
 test("pricing is public and shows credits per tier, never AI cost", async ({ page }) => {
   await page.goto("/pricing");
@@ -20,7 +20,7 @@ test("pricing is public and shows credits per tier, never AI cost", async ({ pag
 test("wallet shows GST before payment, issues a proforma and serves its PDF", async ({
   page,
 }) => {
-  await createVerifiedAccountWithTotp(page, uniqueEmail());
+  await createVerifiedAccount(page, uniqueEmail());
   await page.getByRole("link", { name: "Wallet" }).click();
   await expect(page).toHaveURL(/\/wallet$/u);
   await expect(page.getByTestId("wallet-balance")).toContainText("0");

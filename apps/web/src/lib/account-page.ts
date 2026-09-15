@@ -17,8 +17,6 @@ export async function accountOrRedirect(path: string): Promise<AccountContext> {
   switch (decision.reason) {
     case "session_superseded":
       return redirect("/signed-out?reason=elsewhere");
-    case "mfa_required":
-      return redirect(`/sign-in/mfa?next=${encodeURIComponent(path)}`);
     case "account_not_active":
       return redirect("/signed-out?reason=inactive");
     case "invalid_claims":

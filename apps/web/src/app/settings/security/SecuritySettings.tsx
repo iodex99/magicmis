@@ -18,8 +18,6 @@ import {
 } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 
-import { BackupCodesNotice } from "../../sign-in/BackupCodesNotice";
-
 interface LoginEvent {
   type: string;
   ip: string | null;
@@ -37,50 +35,30 @@ const EVENT_LABEL: Record<string, string> = {
   reauth: "Identity confirmed",
   reauth_failed: "Identity confirmation failed",
   locked_out: "Locked after repeated failures",
-  mfa_failed: "Incorrect backup code",
-  mfa_reset_with_backup_code: "Authenticator reset with a backup code",
-  backup_codes_regenerated: "Backup codes regenerated",
   password_changed: "Password changed",
   email_changed: "Email changed",
   mfa_enrolled: "Authenticator set up",
 };
 
-type Pending = "regenerate" | "password" | null;
+type Pending = "password" | null;
 
 export function SecuritySettings() {
   const [events, setEvents] = useState<LoginEvent[] | null>(null);
-  const [remaining, setRemaining] = useState<number | null>(null);
   const [pending, setPending] = useState<Pending>(null);
   const [granted, setGranted] = useState<Pending>(null);
-  const [codes, setCodes] = useState<string[] | null>(null);
   const [notice, setNotice] = useState<{
     tone: "success" | "error";
     text: string;
   } | null>(null);
 
   async function load() {
-    const [history, backup] = await Promise.all([
-      api<{ events: LoginEvent[] }>("/api/account/login-history"),
-      api<{ remaining: number }>("/api/account/backup-codes"),
-    ]);
+    const history = await api<{ events: LoginEvent[] }>("/api/account/login-history");
     if (history.ok) setEvents(history.data.events);
-    if (backup.ok) setRemaining(backup.data.remaining);
   }
 
   useEffect(() => {
     void load();
   }, []);
-
-  async function regenerate() {
-    const result = await api<{ backupCodes: string[] }>("/api/account/backup-codes", {
-      body: {},
-      idempotencyKey: newIdempotencyKey(),
-    });
-    setPending(null);
-    setGranted(null);
-    if (result.ok) setCodes(result.data.backupCodes);
-    else setNotice({ tone: "error", text: result.message });
-  }
 
   async function changePassword(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -99,54 +77,9 @@ export function SecuritySettings() {
     }
   }
 
-  if (codes !== null) {
-    return (
-      <Panel title="New backup codes">
-        <BackupCodesNotice
-          codes={codes}
-          onDone={() => {
-            setCodes(null);
-            void load();
-          }}
-        />
-      </Panel>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-6">
       {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
-
-      <Panel
-        title="Backup codes"
-        icon="key"
-        description="Single-use codes that sign you in if you lose your authenticator. Regenerating invalidates the old set."
-      >
-        <p className="mb-4 flex items-center gap-2 text-sm text-neutral-700">
-          <Badge tone={remaining !== null && remaining <= 3 ? "warning" : "neutral"}>
-            {remaining ?? "—"} remaining
-          </Badge>
-          unused backup codes.
-        </p>
-        {pending === "regenerate" && granted !== "regenerate" ? (
-          <ReauthForm
-            actionLabel="regenerate your backup codes"
-            onGranted={() => {
-              setGranted("regenerate");
-              void regenerate();
-            }}
-          />
-        ) : (
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setPending("regenerate");
-            }}
-          >
-            Regenerate backup codes
-          </Button>
-        )}
-      </Panel>
 
       <Panel title="Password" icon="lock">
         {pending !== "password" ? (

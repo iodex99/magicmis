@@ -11,11 +11,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 import { FIXTURES_OUT } from "./fixtures-setup";
-import {
-  createVerifiedAccountWithTotp,
-  uniqueEmail,
-  watchCspViolations,
-} from "./helpers";
+import { createVerifiedAccount, uniqueEmail, watchCspViolations } from "./helpers";
 
 const fixture = (...parts: string[]) => path.join(FIXTURES_OUT, ...parts);
 
@@ -27,7 +23,7 @@ let csp: string[] = [];
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
   csp = watchCspViolations(page);
-  await createVerifiedAccountWithTotp(page, uniqueEmail());
+  await createVerifiedAccount(page, uniqueEmail());
   // SPEC §31: the first upload in an account waits for the processing notice to be accepted.
   await page.goto("/app/data");
   await expect(page.getByTestId("processing-notice")).toBeVisible();

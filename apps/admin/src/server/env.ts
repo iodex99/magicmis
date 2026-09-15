@@ -39,9 +39,6 @@ export const adminEnvSchema = z
     KMS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_MASTER_KEY_ID.optional(),
     KMS_PREVIOUS_MASTER_KEY_ID: serverEnvSchema.shape.KMS_PREVIOUS_MASTER_KEY_ID,
     AWS_REGION: serverEnvSchema.shape.AWS_REGION.optional(),
-    /** Optional: Supabase Auth admin access for account recovery (R-21). */
-    NEXT_PUBLIC_SUPABASE_URL: publicEnvSchema.shape.NEXT_PUBLIC_SUPABASE_URL.optional(),
-    SUPABASE_SECRET_KEY: serverEnvSchema.shape.SUPABASE_SECRET_KEY.optional(),
   })
   .superRefine((env, ctx) => {
     if (env.KEY_WRAPPER === "local") {

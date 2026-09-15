@@ -56,10 +56,6 @@ const REFUSAL: Record<AccountRefusal, { status: number; message: string }> = {
     status: 403,
     message: "This account is not active. Contact support to restore access.",
   },
-  mfa_required: {
-    status: 401,
-    message: "Complete two-factor authentication to continue.",
-  },
   session_not_claimed: { status: 401, message: "Sign in again to continue." },
   session_superseded: {
     status: 401,

@@ -7,49 +7,26 @@
 
 import { expect, test } from "@playwright/test";
 
-import {
-  createVerifiedAccountWithTotp,
-  nextTotpWindow,
-  passwordStep,
-  signInWithTotp,
-  signUp,
-  uniqueEmail,
-  verifyEmail,
-} from "./helpers";
+import { createVerifiedAccount, signIn, uniqueEmail } from "./helpers";
 
-test("sign up, verify email, enrol TOTP, receive backup codes, reach the app", async ({
-  page,
-}) => {
+test("sign up, verify email, reach the app", async ({ page }) => {
   const email = uniqueEmail();
-  await createVerifiedAccountWithTotp(page, email);
+  await createVerifiedAccount(page, email);
   await expect(page.getByTestId("app-home")).toBeVisible();
   await expect(page.getByText("E2E Test Associates")).toBeVisible();
 });
 
-test("app is unusable without 2FA: a password alone reaches nothing", async ({
+test("an unauthenticated visitor reaches no data and is sent to sign in", async ({
   page,
 }) => {
-  const email = uniqueEmail();
-  await signUp(page, email);
-  await verifyEmail(page, email);
-  await passwordStep(page, email);
-  await expect(page).toHaveURL(/\/sign-in\/enrol/u);
-
-  // Navigating straight to the app is refused and sent back to the second factor.
+  // Signing in is the whole gate now (ADR 0028), so what must hold is that nothing is
+  // reachable without it.
   await page.goto("/app");
-  await expect(page).toHaveURL(/\/sign-in\/mfa/u);
+  await expect(page).toHaveURL(/\/sign-in/u);
 
-  // Every data API refuses the aal1 session.
-  for (const path of [
-    "/api/account/profile",
-    "/api/account/login-history",
-    "/api/account/backup-codes",
-  ]) {
+  for (const path of ["/api/account/profile", "/api/account/login-history"]) {
     const response = await page.request.get(path);
     expect(response.status(), path).toBe(401);
-    expect(((await response.json()) as { error: string }).error, path).toBe(
-      "mfa_required",
-    );
   }
 });
 
@@ -58,15 +35,12 @@ test("second login terminates the first session", async ({ browser }) => {
 
   const first = await browser.newContext();
   const firstPage = await first.newPage();
-  const secret = await createVerifiedAccountWithTotp(firstPage, email);
+  await createVerifiedAccount(firstPage, email);
   expect((await firstPage.request.get("/api/account/profile")).status()).toBe(200);
-
-  // A fresh TOTP window, so the second sign-in never reuses the enrolment code.
-  await nextTotpWindow();
 
   const second = await browser.newContext();
   const secondPage = await second.newPage();
-  await signInWithTotp(secondPage, email, secret);
+  await signIn(secondPage, email);
   expect((await secondPage.request.get("/api/account/profile")).status()).toBe(200);
 
   // The first tab is now refused, and says why.
@@ -113,7 +87,7 @@ test("desktop-only gate shows a clear page to a phone", async ({ browser }) => {
 
 test("mutating APIs require an Idempotency-Key", async ({ page }) => {
   const email = uniqueEmail();
-  await createVerifiedAccountWithTotp(page, email);
+  await createVerifiedAccount(page, email);
   const response = await page.request.patch("/api/account/profile", {
     data: {
       businessName: "Changed",

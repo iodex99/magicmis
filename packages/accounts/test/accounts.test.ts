@@ -7,18 +7,12 @@
 
 import { randomUUID } from "node:crypto";
 
-import { verifyAuditChain } from "@magicmis/db/audit";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { requireAccount, type AccountContext } from "../src/claims";
+import { requireAccount } from "../src/claims";
 import { type AuthProvider } from "../src/provider";
 import { hasFreshReauth, reauthenticate } from "../src/reauth";
-import {
-  issueBackupCodes,
-  redeemBackupCode,
-  remainingBackupCodes,
-} from "../src/recovery";
 import { claimSession } from "../src/session";
 import { provisionAccount, signupProfileSchema } from "../src/signup";
 
@@ -169,20 +163,17 @@ describe("provisioning", () => {
 });
 
 describe("single active session (SPEC §8)", () => {
-  it("refuses to claim a session below aal2", async () => {
-    const { authUserId } = await newAccount();
+  it("claims on the password step, which is the only factor (ADR 0028)", async () => {
+    const { authUserId, accountId } = await newAccount();
     const provider = new FakeProvider();
     const result = await claimSession(
       testDb().pool,
       provider,
       claimsFor(authUserId, { aal: "aal1" }),
-      {
-        ip: null,
-        userAgent: DESKTOP_UA,
-      },
+      { ip: null, userAgent: DESKTOP_UA },
     );
-    expect(result).toEqual({ status: "refused", reason: "mfa_required" });
-    expect(provider.signOutCalls).toBe(0);
+    expect(result).toMatchObject({ status: "claimed", accountId });
+    expect(provider.signOutCalls).toBe(1);
   });
 
   it("a second login terminates the first", async () => {
@@ -294,9 +285,10 @@ describe("requireAccount decision table", () => {
     });
 
     const { authUserId, accountId } = await newAccount();
+    // An aal1 token is an ordinary token now, so it gets the same answer as any other.
     expect(await requireAccount(pool, claimsFor(authUserId, { aal: "aal1" }))).toEqual({
       ok: false,
-      reason: "mfa_required",
+      reason: "session_not_claimed",
     });
     expect(await requireAccount(pool, claimsFor(authUserId))).toEqual({
       ok: false,
@@ -327,34 +319,19 @@ describe("re-authentication gates (SPEC §8)", () => {
     return { provider, account: decision.account };
   }
 
-  it("grants a session-bound window only for password AND TOTP", async () => {
+  it("grants a session-bound window for the right password only", async () => {
     const { provider, account } = await signedIn();
     const pool = testDb().pool;
 
     expect(await hasFreshReauth(pool, account)).toBe(false);
     expect(
-      (
-        await reauthenticate(pool, provider, account, {
-          password: "wrong",
-          totpCode: "123456",
-          ip: null,
-        })
-      ).status,
-    ).toBe("invalid_credentials");
-    expect(
-      (
-        await reauthenticate(pool, provider, account, {
-          password: provider.password,
-          totpCode: "000000",
-          ip: null,
-        })
-      ).status,
+      (await reauthenticate(pool, provider, account, { password: "wrong", ip: null }))
+        .status,
     ).toBe("invalid_credentials");
     expect(await hasFreshReauth(pool, account)).toBe(false);
 
     const granted = await reauthenticate(pool, provider, account, {
       password: provider.password,
-      totpCode: provider.totp,
       ip: null,
     });
     expect(granted.status).toBe("granted");
@@ -373,7 +350,7 @@ describe("re-authentication gates (SPEC §8)", () => {
       testDb().pool,
       provider,
       account,
-      { password: provider.password, totpCode: provider.totp, ip: null },
+      { password: provider.password, ip: null },
       now,
     );
     const ttl = 600_000; // seeded auth.reauth_ttl_seconds
@@ -392,187 +369,14 @@ describe("re-authentication gates (SPEC §8)", () => {
     for (let i = 0; i < 5; i++) {
       last = await reauthenticate(pool, provider, account, {
         password: "wrong",
-        totpCode: "000000",
         ip: null,
       });
     }
     expect(last?.status).toBe("locked");
     const correct = await reauthenticate(pool, provider, account, {
       password: provider.password,
-      totpCode: provider.totp,
       ip: null,
     });
     expect(correct.status).toBe("locked");
-  });
-
-  it("rejects a non-numeric TOTP without calling the provider's verify", async () => {
-    const { provider, account } = await signedIn();
-    const result = await reauthenticate(testDb().pool, provider, account, {
-      password: provider.password,
-      totpCode: "12345a",
-      ip: null,
-    });
-    expect(result.status).toBe("invalid_credentials");
-  });
-});
-
-describe("backup codes (SPEC §8)", () => {
-  it("issues the configured number, and regeneration revokes the previous set", async () => {
-    const { accountId, authUserId } = await newAccount();
-    const pool = testDb().pool;
-    const first = await issueBackupCodes(pool, accountId, {
-      ip: null,
-      reason: "enrolment",
-    });
-    expect(first).toHaveLength(10);
-
-    const account = {
-      accountId,
-      authUserId,
-      sessionId: randomUUID(),
-      email: "",
-      businessName: "",
-      stateCode: "19",
-    } satisfies AccountContext;
-    expect(await remainingBackupCodes(pool, account)).toBe(10);
-
-    const second = await issueBackupCodes(pool, accountId, {
-      ip: null,
-      reason: "regeneration",
-    });
-    expect(await remainingBackupCodes(pool, account)).toBe(10);
-
-    const provider = new FakeProvider();
-    const oldCode = first[0] ?? "";
-    expect(
-      (
-        await redeemBackupCode(pool, provider, claimsFor(authUserId, { aal: "aal1" }), {
-          code: oldCode,
-          ip: null,
-        })
-      ).status,
-    ).toBe("invalid_code");
-    const newCode = second[0] ?? "";
-    expect(
-      (
-        await redeemBackupCode(pool, provider, claimsFor(authUserId, { aal: "aal1" }), {
-          code: newCode,
-          ip: null,
-        })
-      ).status,
-    ).toBe("factors_reset");
-  });
-
-  it("resets TOTP factors on redemption and never mints aal2 itself", async () => {
-    const { accountId, authUserId } = await newAccount();
-    const pool = testDb().pool;
-    const [code] = await issueBackupCodes(pool, accountId, {
-      ip: null,
-      reason: "enrolment",
-    });
-    const provider = new FakeProvider();
-    const result = await redeemBackupCode(
-      pool,
-      provider,
-      claimsFor(authUserId, { aal: "aal1" }),
-      { code: code ?? "", ip: null },
-    );
-    expect(result).toEqual({ status: "factors_reset" });
-    expect(provider.deletedFactorsFor).toEqual([authUserId]);
-    // The aal1 caller is still refused everywhere until they enrol a new factor.
-    expect((await requireAccount(pool, claimsFor(authUserId, { aal: "aal1" }))).ok).toBe(
-      false,
-    );
-  });
-
-  it("is single use", async () => {
-    const { accountId, authUserId } = await newAccount();
-    const pool = testDb().pool;
-    const [code] = await issueBackupCodes(pool, accountId, {
-      ip: null,
-      reason: "enrolment",
-    });
-    const provider = new FakeProvider();
-    const claims = claimsFor(authUserId, { aal: "aal1" });
-    expect(
-      (await redeemBackupCode(pool, provider, claims, { code: code ?? "", ip: null }))
-        .status,
-    ).toBe("factors_reset");
-    expect(
-      (await redeemBackupCode(pool, provider, claims, { code: code ?? "", ip: null }))
-        .status,
-    ).toBe("invalid_code");
-  });
-
-  it("does not consume the code when the provider fails to reset factors", async () => {
-    const { accountId, authUserId } = await newAccount();
-    const pool = testDb().pool;
-    const [code] = await issueBackupCodes(pool, accountId, {
-      ip: null,
-      reason: "enrolment",
-    });
-    const provider = new FakeProvider();
-    provider.failDeleteFactors = true;
-    const claims = claimsFor(authUserId, { aal: "aal1" });
-    await expect(
-      redeemBackupCode(pool, provider, claims, { code: code ?? "", ip: null }),
-    ).rejects.toThrow("provider down");
-
-    provider.failDeleteFactors = false;
-    expect(
-      (await redeemBackupCode(pool, provider, claims, { code: code ?? "", ip: null }))
-        .status,
-    ).toBe("factors_reset");
-  });
-
-  it("lets exactly one of two concurrent redemptions of the same code succeed", async () => {
-    const { accountId, authUserId } = await newAccount();
-    const pool = testDb().pool;
-    const [code] = await issueBackupCodes(pool, accountId, {
-      ip: null,
-      reason: "enrolment",
-    });
-    const provider = new FakeProvider();
-    const claims = claimsFor(authUserId, { aal: "aal1" });
-    const results = await Promise.all([
-      redeemBackupCode(pool, provider, claims, { code: code ?? "", ip: null }),
-      redeemBackupCode(pool, provider, claims, { code: code ?? "", ip: null }),
-    ]);
-    expect(results.filter((r) => r.status === "factors_reset")).toHaveLength(1);
-  });
-
-  it("locks the account after repeated wrong codes", async () => {
-    const { accountId, authUserId } = await newAccount();
-    const pool = testDb().pool;
-    const [code] = await issueBackupCodes(pool, accountId, {
-      ip: null,
-      reason: "enrolment",
-    });
-    const provider = new FakeProvider();
-    const claims = claimsFor(authUserId, { aal: "aal1" });
-    let last;
-    for (let i = 0; i < 5; i++) {
-      last = await redeemBackupCode(pool, provider, claims, {
-        code: "AAAA-AAAA",
-        ip: "192.0.2.9",
-      });
-    }
-    expect(last?.status).toBe("locked");
-    expect(
-      (
-        await redeemBackupCode(pool, provider, claims, {
-          code: code ?? "",
-          ip: "192.0.2.10",
-        })
-      ).status,
-    ).toBe("locked");
-  });
-});
-
-describe("audit trail", () => {
-  it("keeps the hash chain intact across every Phase 1 flow above", async () => {
-    const result = await verifyAuditChain(testDb().pool);
-    expect(result.failures).toEqual([]);
-    expect(result.checked).toBeGreaterThan(10);
   });
 });

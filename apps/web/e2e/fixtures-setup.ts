@@ -33,10 +33,13 @@ export default async function globalSetup(): Promise<void> {
   if (!existsSync(path.join(FIXTURES_OUT, "perf", "large-day-book.xlsx")))
     run("generate:large");
 
-  // Every E2E account signs up from 127.0.0.1; the throttle itself is covered by unit tests.
+  // Every request in the suite comes from 127.0.0.1, which is exactly the shape the
+  // sign-up throttle and the per-IP API limit exist to refuse. Both are covered by unit
+  // tests; here they would only refuse the suite for being a suite.
   const pool = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
   try {
     await pool.query(`delete from auth_throttle where key like 'signup:ip:%'`);
+    await pool.query(`delete from rate_limit_counters`);
   } finally {
     await pool.end();
   }

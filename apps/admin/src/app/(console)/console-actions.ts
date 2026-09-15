@@ -18,8 +18,7 @@ import {
   revokeBreakGlass,
   routeSchema,
 } from "@/server/console";
-import { cancelRecovery, completeRecovery, requestRecovery } from "@/server/recovery";
-import { authFactorAdmin, db, keyWrapper } from "@/server/runtime";
+import { db, keyWrapper } from "@/server/runtime";
 import { requireAdmin } from "@/server/session";
 
 /**
@@ -46,8 +45,7 @@ const done = (path: string, message: string): never => {
 
 const message = (error: unknown, fallback: string) =>
   error instanceof RangeError ||
-  (error instanceof Error &&
-    ["ActivationError", "StepUpRequired", "RecoveryError"].includes(error.name))
+  (error instanceof Error && ["ActivationError", "StepUpRequired"].includes(error.name))
     ? error.message
     : fallback;
 
@@ -256,68 +254,3 @@ export async function revokeBreakGlassAction(form: FormData): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Account recovery (R-21)
-// ---------------------------------------------------------------------------
-
-export async function requestRecoveryAction(form: FormData): Promise<void> {
-  const admin = await requireAdmin();
-  const accountId = text(form, "accountId");
-  const path = `/accounts/${accountId}`;
-  if (!z.uuid().safeParse(accountId).success) return back("/accounts", "Invalid request");
-  try {
-    await requestRecovery(db(), keyWrapper(), {
-      adminId: admin.adminId,
-      ip: admin.ip,
-      accountId,
-      ticketRef: text(form, "ticketRef"),
-      reason: text(form, "reason"),
-      code: text(form, "code"),
-    });
-  } catch (error) {
-    return back(path, message(error, "Could not record the recovery request"));
-  }
-  done(
-    path,
-    "Recovery requested; the account holder has been emailed and the hold has started",
-  );
-}
-
-export async function cancelRecoveryAction(form: FormData): Promise<void> {
-  const admin = await requireAdmin();
-  const accountId = text(form, "accountId");
-  const path = `/accounts/${accountId}`;
-  const recoveryId = z.uuid().safeParse(text(form, "recoveryId"));
-  if (!recoveryId.success) return back(path, "Invalid request");
-  try {
-    await cancelRecovery(db(), {
-      adminId: admin.adminId,
-      ip: admin.ip,
-      recoveryId: recoveryId.data,
-    });
-  } catch (error) {
-    return back(path, message(error, "Could not cancel"));
-  }
-  done(path, "Recovery cancelled");
-}
-
-export async function completeRecoveryAction(form: FormData): Promise<void> {
-  const admin = await requireAdmin();
-  const accountId = text(form, "accountId");
-  const path = `/accounts/${accountId}`;
-  const recoveryId = z.uuid().safeParse(text(form, "recoveryId"));
-  if (!recoveryId.success) return back(path, "Invalid request");
-  const auth = authFactorAdmin();
-  if (auth === null)
-    return back(path, "Supabase admin access is not configured for the console");
-  try {
-    await completeRecovery(db(), keyWrapper(), auth, {
-      adminId: admin.adminId,
-      ip: admin.ip,
-      recoveryId: recoveryId.data,
-      code: text(form, "code"),
-    });
-  } catch (error) {
-    return back(path, message(error, "Could not complete the recovery"));
-  }
-  done(path, "Second factor removed; the account holder has been emailed");
-}

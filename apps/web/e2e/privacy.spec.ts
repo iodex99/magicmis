@@ -12,13 +12,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import pg from "pg";
 
-import {
-  createVerifiedAccountWithTotp,
-  nextTotpWindow,
-  PASSWORD,
-  totpCode,
-  uniqueEmail,
-} from "./helpers";
+import { createVerifiedAccount, PASSWORD, uniqueEmail } from "./helpers";
 
 const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 // Same development-only key and directory the web server uses (playwright.config.ts, runtime.ts).
@@ -56,13 +50,16 @@ test.setTimeout(180_000);
 let page: Page;
 let db: pg.Pool;
 let email: string;
-let secret: string;
 
 test.beforeAll(async ({ browser }) => {
   db = new pg.Pool({ connectionString: LOCAL_DB, max: 2 });
+  // This file probes every id-scoped endpoint in a tight loop from one IP, which is what
+  // the per-IP limit is for. Start it from a clean count so the limit refuses tenancy
+  // violations here, not the suite's own volume.
+  await db.query(`delete from rate_limit_counters`);
   page = await browser.newPage();
   email = uniqueEmail();
-  secret = await createVerifiedAccountWithTotp(page, email);
+  await createVerifiedAccount(page, email);
 });
 
 test.afterAll(async () => {
@@ -71,9 +68,7 @@ test.afterAll(async () => {
 });
 
 async function reauthenticate(): Promise<void> {
-  await nextTotpWindow();
   await page.getByLabel("Current password").fill(PASSWORD);
-  await page.getByLabel("Authenticator code").fill(totpCode(secret));
   await page.getByRole("button", { name: "Confirm" }).click();
 }
 
@@ -339,6 +334,11 @@ test("another account's resources are unreachable through every id-scoped endpoi
     "id-scoped routes without a probe",
   ).toEqual([]);
 
+  // The per-IP limit would refuse these before they ever reach the tenancy check, and a
+  // 429 here would mean the probe proved nothing. Every request in this suite comes from
+  // one IP; the limit itself has its own unit tests.
+  await db.query(`delete from rate_limit_counters`);
+
   for (const probe of probes) {
     const response = await page.request.fetch(probe.url, {
       method: probe.method,
@@ -387,10 +387,7 @@ test("oversize and malformed payloads are refused before any work (SPEC §7, §3
 test("deleting the account needs re-authentication and the email, then signs out for good", async () => {
   await page.goto("/settings/privacy");
   await page.getByRole("button", { name: "Delete account" }).click();
-  await nextTotpWindow();
-  await page.getByLabel("Current password").fill(PASSWORD);
-  await page.getByLabel("Authenticator code").fill(totpCode(secret));
-  await page.getByRole("button", { name: "Confirm" }).click();
+  await reauthenticate();
 
   await page.getByLabel(/to confirm/u).fill("someone-else@example.test");
   await page.getByRole("button", { name: "Permanently delete my account" }).click();

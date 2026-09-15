@@ -102,8 +102,6 @@ function withCompany(
  */
 export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
   "security.new_device_login",
-  "security.mfa_reset_with_backup_code",
-  "security.backup_codes_regenerated",
   "security.password_changed",
   "security.email_changed",
   "invoice_issued",
@@ -124,8 +122,6 @@ export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
   "reminder.monthly_refresh",
   "security.break_glass",
   "security.break_glass_viewed",
-  "security.recovery_requested",
-  "security.mfa_reset_by_admin",
   "account.deletion_scheduled",
   "account.export_ready",
   "billing.lot_expiry_notice",
@@ -162,32 +158,6 @@ export function renderNotification(
         { label: "Review sign-in history", path: "/settings/security" },
       );
     }
-    case "security.mfa_reset_with_backup_code":
-      return email(
-        "Two-factor authentication was reset",
-        [
-          "A backup code was used to reset two-factor authentication on your account.",
-          IF_NOT_YOU,
-        ],
-        ctx,
-        {
-          label: "Security settings",
-          path: "/settings/security",
-        },
-      );
-    case "security.backup_codes_regenerated":
-      return email(
-        "Backup codes regenerated",
-        [
-          "New backup codes were generated for your account. Your previous codes no longer work.",
-          IF_NOT_YOU,
-        ],
-        ctx,
-        {
-          label: "Security settings",
-          path: "/settings/security",
-        },
-      );
     case "security.password_changed":
       return email(
         "Your password was changed",
@@ -418,31 +388,6 @@ export function renderNotification(
         ctx,
       );
     }
-    case "security.recovery_requested": {
-      // SPEC §8 / R-21: the registered address hears first and can stop it during the hold.
-      const p = z.object({ hold_until: z.string() }).safeParse(payload);
-      if (!p.success) return null;
-      return email(
-        "Account recovery requested",
-        [
-          "Our support team received a request to reset two-factor authentication on your account.",
-          `Nothing will change before ${formatIstDate(new Date(p.data.hold_until))}. If you did not ask for this, reply to this email before then and we will cancel it.`,
-          IF_NOT_YOU,
-        ],
-        ctx,
-      );
-    }
-    case "security.mfa_reset_by_admin":
-      return email(
-        "Two-factor authentication was reset by support",
-        [
-          "As you requested, support removed the authenticator from your account and revoked your old backup codes.",
-          "Sign in with your password: you will be asked to set up a new authenticator app, and new backup codes are issued when you do. We recommend changing your password afterwards.",
-          IF_NOT_YOU,
-        ],
-        ctx,
-        { label: "Sign in", path: "/sign-in" },
-      );
     case "security.break_glass_viewed": {
       // R-53: one notice per grant per day while support looks at the data.
       const p = z

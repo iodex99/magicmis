@@ -1,7 +1,7 @@
 /**
  * Claiming the single active session (SPEC §8).
  *
- * Called once per login, after the second factor is verified. It makes this session the
+ * Called once per login, as soon as the password is accepted. It makes this session the
  * account's only valid one, records the login, raises a new-device alert, and asks the
  * identity provider to revoke every other session.
  *
@@ -39,8 +39,7 @@ export type ClaimResult =
   | { readonly status: "already_active"; readonly accountId: string }
   | {
       readonly status: "refused";
-      readonly reason:
-        "invalid_claims" | "mfa_required" | "no_account" | "account_not_active";
+      readonly reason: "invalid_claims" | "no_account" | "account_not_active";
     };
 
 export async function claimSession(
@@ -52,10 +51,6 @@ export async function claimSession(
   const parsed = sessionClaimsSchema.safeParse(rawClaims);
   if (!parsed.success) return { status: "refused", reason: "invalid_claims" };
   const claims = parsed.data;
-  // A session is only ever claimed after the second factor. Claiming at aal1 would let a
-  // password alone evict a legitimate, fully authenticated session.
-  if (claims.aal !== "aal2") return { status: "refused", reason: "mfa_required" };
-
   const outcome = await withTransaction(pool, async (tx) => {
     const account = await tx.query<{
       id: string;

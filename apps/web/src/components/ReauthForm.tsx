@@ -7,9 +7,12 @@ import { api, formText } from "@/lib/client-api";
 import { Alert, Button, Field } from "./ui";
 
 /**
- * SPEC §8 re-authentication: password + authenticator code, before a sensitive action.
- * On success the server grants a short window bound to this session; `onGranted` then
- * lets the caller perform its action.
+ * SPEC §8 re-authentication: the password again, before a sensitive action. On success
+ * the server grants a short window bound to this session; `onGranted` then lets the
+ * caller perform its action.
+ *
+ * With no second factor (ADR 0028) this is the last gate before something irreversible,
+ * so it is asked for every time and never remembered beyond that window.
  */
 export function ReauthForm({
   actionLabel,
@@ -27,7 +30,7 @@ export function ReauthForm({
     setSubmitting(true);
     setMessage(null);
     const result = await api<{ status: string }>("/api/account/reauth", {
-      body: { password: formText(form, "password"), code: formText(form, "code").trim() },
+      body: { password: formText(form, "password") },
     });
     setSubmitting(false);
     if (result.ok) onGranted();
@@ -50,15 +53,6 @@ export function ReauthForm({
         type="password"
         label="Current password"
         autoComplete="current-password"
-        required
-      />
-      <Field
-        id="reauth-code"
-        name="code"
-        label="Authenticator code"
-        inputMode="numeric"
-        autoComplete="one-time-code"
-        maxLength={6}
         required
       />
       <Button type="submit" disabled={submitting}>

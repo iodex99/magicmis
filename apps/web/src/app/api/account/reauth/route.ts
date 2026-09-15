@@ -6,12 +6,9 @@ import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta, withAccount } from "@/lib/http";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
-const bodySchema = z.object({
-  password: z.string().min(1).max(128),
-  code: z.string().max(10),
-});
+const bodySchema = z.object({ password: z.string().min(1).max(128) });
 
-/** POST /api/account/reauth — password + TOTP before a sensitive action (SPEC §8). */
+/** POST /api/account/reauth — the password again, before a sensitive action (SPEC §8). */
 export async function POST(request: Request): Promise<Response> {
   return withAccount(async (account) => {
     const parsed = await parseJson(request, bodySchema);
@@ -23,11 +20,7 @@ export async function POST(request: Request): Promise<Response> {
       db(),
       new SupabaseAuthProvider(supabase),
       account,
-      {
-        password: parsed.data.password,
-        totpCode: parsed.data.code,
-        ip,
-      },
+      { password: parsed.data.password, ip },
     );
 
     switch (result.status) {
@@ -37,7 +30,7 @@ export async function POST(request: Request): Promise<Response> {
         return apiError(
           401,
           "invalid_credentials",
-          `Your password or code is incorrect. ${String(result.attemptsRemaining)} attempts left.`,
+          `That password is incorrect. ${String(result.attemptsRemaining)} attempts left.`,
         );
       case "locked":
         return apiError(

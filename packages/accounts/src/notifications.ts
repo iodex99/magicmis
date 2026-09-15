@@ -9,11 +9,7 @@
 import { type Queryable } from "@magicmis/db/tx";
 
 export type NotificationType =
-  | "security.new_device_login"
-  | "security.mfa_reset_with_backup_code"
-  | "security.backup_codes_regenerated"
-  | "security.password_changed"
-  | "security.email_changed";
+  "security.new_device_login" | "security.password_changed" | "security.email_changed";
 
 export async function enqueueNotification(
   db: Queryable,

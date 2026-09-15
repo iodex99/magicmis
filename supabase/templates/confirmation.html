@@ -1,14 +1,14 @@
 <!-- SPEC §29: plain, branded, no financial figures. Token-hash link so verification works
      in any browser, not only the one holding a PKCE verifier cookie.
 
-     The link lands on authenticator setup, not on a page telling the reader to go and sign
-     in: verifying establishes the session, so asking for the password again is a step that
-     buys nothing. /sign-in/verified remains for the case where no session was established. -->
+     The link lands in the app: verifying establishes the session, and the password is the
+     only factor (ADR 0028), so there is nothing left to ask for. /sign-in/verified remains
+     for the case where no session was established. -->
 <h2>Confirm your email address</h2>
 <p>Open this link to confirm the email address for your account:</p>
 <p>
   <a
-    href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=signup&next=/sign-in/enrol"
+    href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=signup&next=/app"
     >Confirm email address</a
   >
 </p>
