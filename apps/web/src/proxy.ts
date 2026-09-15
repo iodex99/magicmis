@@ -24,8 +24,15 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     nonce: newNonce(),
     development: process.env.NODE_ENV === "development",
     https: request.nextUrl.protocol === "https:",
-    // SPEC §30: the payment gateway only where credits are bought.
-    allowPayments: pathname === "/wallet" || pathname.startsWith("/wallet/"),
+    // SPEC §30: the payment gateway only where credits are bought — the Wallet, and the
+    // run screen, which takes the payment in place. It has to: leaving the run unmounts
+    // the browser pipeline and destroys the files already loaded, so sending someone to
+    // the Wallet for credits costs them thirteen months of re-uploading (ADR 0027, R-57).
+    // Nowhere else may open it.
+    allowPayments:
+      pathname === "/wallet" ||
+      pathname.startsWith("/wallet/") ||
+      /^\/app\/companies\/[0-9a-f-]{36}\/run$/u.test(pathname),
   });
   const secure = (response: NextResponse): NextResponse => {
     for (const [name, value] of Object.entries(headers))

@@ -26,8 +26,9 @@ CI runs E2E against a **clean** Supabase stack, which catches what a long-lived 
 hides. Before pushing a flow change, reproduce it: `npx supabase stop --no-backup` then
 `npx supabase start -x storage-api,imgproxy,realtime`.
 
-Run the unit suite as CI does — `pnpm test` (turbo), not `pnpm -r test`; they schedule
-differently. Ten packages each start a Postgres through Testcontainers, so the root script
+Run the checks as CI does: `pnpm test` (turbo, not `pnpm -r test` — they schedule
+differently), `pnpm lint`, `pnpm typecheck`, and `pnpm format:check`, which covers the
+whole tree including `.sql`, `.html` and `.md` that a hand-written glob will miss. Ten packages each start a Postgres through Testcontainers, so the root script
 caps turbo at `--concurrency=3`. A `Hook timed out in 180000ms` in a random package means
 that cap is too high for the machine, not that the test is slow.
 
