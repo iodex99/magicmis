@@ -39,7 +39,9 @@ export class BillingError extends Error {
       | "BANK_TRANSFER_NOT_ELIGIBLE"
       | "PURCHASE_NOT_FOUND"
       | "PURCHASE_NOT_PENDING"
-      | "INVALID_UTR",
+      | "INVALID_UTR"
+      /** No billing state on the account yet: GST cannot be quoted or invoiced. */
+      | "BILLING_STATE_UNKNOWN",
     message: string,
   ) {
     super(message);
@@ -76,11 +78,19 @@ interface PackRow {
   bonus_credits: string;
 }
 
+/**
+ * The buyer's tax identity.
+ *
+ * Billing details are collected at the first purchase rather than at sign-up (migration
+ * 0034), so an account can reach here without a state. GST place of supply cannot be
+ * guessed, so this refuses rather than defaulting to one -- a wrong place of supply is a
+ * wrong tax invoice.
+ */
 async function accountTax(
   db: Queryable,
   accountId: string,
 ): Promise<{ gstin: string | null; stateCode: string }> {
-  const r = await db.query<{ gstin: string | null; state_code: string }>(
+  const r = await db.query<{ gstin: string | null; state_code: string | null }>(
     `select gstin, state_code from public.accounts where id = $1 and deleted_at is null`,
     [accountId],
   );
@@ -88,7 +98,13 @@ async function accountTax(
   if (row === undefined) throw new BillingError("ACCOUNT_NOT_FOUND", "account not found");
   // A GSTIN that fails its checksum is not used for place of supply.
   const gstin = row.gstin !== null && isValidGstin(row.gstin) ? row.gstin : null;
-  return { gstin, stateCode: row.state_code };
+  const stateCode = gstin?.slice(0, 2) ?? row.state_code;
+  if (stateCode === null)
+    throw new BillingError(
+      "BILLING_STATE_UNKNOWN",
+      "the account has no billing state yet",
+    );
+  return { gstin, stateCode };
 }
 
 async function buildQuote(

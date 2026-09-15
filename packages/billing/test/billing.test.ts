@@ -151,6 +151,30 @@ describe("pack quotes", () => {
       inter.filter((q) => q.bankTransferEligible).map((q) => q.gst.taxablePaise),
     ).toEqual([2_500_000n, 5_000_000n, 10_000_000n]);
   });
+
+  it("refuses to quote before the billing state is known, and quotes once it is", async () => {
+    // Billing details moved from sign-up to the first purchase (migration 0034), so an
+    // account can exist without a state. GST place of supply is never guessed.
+    const r = await pool().query<{ id: string }>(
+      `insert into accounts (auth_user_id, email, business_name, state_code)
+       values (gen_random_uuid(), $1, 'Synthetic Traders Pvt Ltd', null) returning id`,
+      [`${randomUUID()}@example.test`],
+    );
+    const accountId = r.rows[0]?.id ?? "";
+
+    await expect(listPackQuotes(pool(), { accountId, now: NOW })).rejects.toMatchObject({
+      code: "BILLING_STATE_UNKNOWN",
+    });
+
+    // A GSTIN alone is enough: its first two digits are the place of supply (SPEC §13).
+    await pool().query(`update accounts set gstin = $2 where id = $1`, [
+      accountId,
+      "29AAGCB7383J1Z4",
+    ]);
+    const quotes = await listPackQuotes(pool(), { accountId, now: NOW });
+    expect(quotes).toHaveLength(6);
+    expect(quotes.every((q) => q.gst.supply === "inter_state")).toBe(true);
+  });
 });
 
 describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", () => {

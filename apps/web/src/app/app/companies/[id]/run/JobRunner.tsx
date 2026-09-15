@@ -18,6 +18,7 @@ import {
   Alert,
   Badge,
   Button,
+  ButtonLink,
   DataTable,
   Panel,
   SelectField,
@@ -56,8 +57,6 @@ interface CreatedJob {
 
 type Phase =
   | { kind: "files" }
-  | { kind: "pricing" }
-  | { kind: "confirm"; job: CreatedJob }
   | { kind: "running"; jobId: string; step: string }
   | {
       kind: "review";
@@ -114,6 +113,22 @@ export function JobRunner({
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const heartbeat = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /**
+   * The price, fetched as soon as the files are in.
+   *
+   * There used to be a "Get price" button and then a separate confirmation screen. The
+   * price is knowable the moment the files are loaded, so it is simply shown, and the one
+   * remaining button is the SPEC §12 confirmation: nothing is held or charged until it is
+   * pressed.
+   */
+  const [quote, setQuote] = useState<CreatedJob | null>(null);
+  const [quoting, setQuoting] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  // One draft job per distinct priceable request, so changing a dropdown twice does not
+  // leave a trail of draft rows behind.
+  const priced = useRef(new Map<string, CreatedJob>());
 
   useEffect(() => {
     const effect = { cancelled: false };
@@ -172,33 +187,59 @@ export function JobRunner({
     setFiles((f) => [...f, ...r.added]);
   };
 
-  const getPrice = async () => {
-    setError(null);
-    setPhase({ kind: "pricing" });
-    const inputs = await pipelineClient().pricingInputs();
-    const r = await api<CreatedJob>("/api/jobs", {
-      body: {
-        companyId,
-        type:
-          mode === "refresh"
-            ? "monthly_refresh"
-            : reference === null
-              ? "company_setup"
-              : "reference_mis_recreate",
+  const jobType =
+    mode === "refresh"
+      ? "monthly_refresh"
+      : reference === null
+        ? "company_setup"
+        : "reference_mis_recreate";
+
+  // Re-price whenever something that changes the price changes, and only then.
+  useEffect(() => {
+    if (!ready || files.length === 0 || phase.kind !== "files") return;
+    const state = { cancelled: false };
+    // Read through a call so each check is a fresh read, not a narrowed constant.
+    const cancelled = () => state.cancelled;
+    void (async () => {
+      const inputs = await pipelineClient().pricingInputs();
+      if (cancelled()) return;
+      const signature = JSON.stringify([
+        jobType,
         tier,
         delivery,
-        size: inputs.size,
-        fingerprints: inputs.fingerprints,
-      },
-      idempotencyKey: newIdempotencyKey(),
-    });
-    if (!r.ok) {
-      setError(r.message);
-      setPhase({ kind: "files" });
-      return;
-    }
-    setPhase({ kind: "confirm", job: r.data });
-  };
+        inputs.size,
+        inputs.fingerprints,
+      ]);
+      const cached = priced.current.get(signature);
+      if (cached !== undefined) {
+        setQuote(cached);
+        return;
+      }
+      setQuoting(true);
+      const r = await api<CreatedJob>("/api/jobs", {
+        body: {
+          companyId,
+          type: jobType,
+          tier,
+          delivery,
+          size: inputs.size,
+          fingerprints: inputs.fingerprints,
+        },
+        idempotencyKey: newIdempotencyKey(),
+      });
+      if (cancelled()) return;
+      setQuoting(false);
+      if (!r.ok) {
+        setError(r.message);
+        return;
+      }
+      priced.current.set(signature, r.data);
+      setQuote(r.data);
+    })();
+    return () => {
+      state.cancelled = true;
+    };
+  }, [ready, files, tier, delivery, jobType, companyId, phase.kind]);
 
   const fail = useCallback(
     async (jobId: string, result: ComputeResult | null, message: string) => {
@@ -266,6 +307,7 @@ export function JobRunner({
 
   const run = async (job: CreatedJob) => {
     setError(null);
+    setStarting(true);
     const hold = await api(
       job.quote === null
         ? `/api/jobs/${job.jobId}/confirm`
@@ -275,6 +317,7 @@ export function JobRunner({
         idempotencyKey: newIdempotencyKey(),
       },
     );
+    setStarting(false);
     if (!hold.ok) {
       setError(hold.message);
       return;
@@ -367,15 +410,17 @@ export function JobRunner({
     }
   };
 
-  const busy = phase.kind === "pricing" || phase.kind === "running";
-  const step: 1 | 2 | 3 | 4 =
-    phase.kind === "files" || phase.kind === "pricing"
-      ? 1
-      : phase.kind === "confirm"
-        ? 2
-        : phase.kind === "done" || phase.kind === "failed"
-          ? 4
-          : 3;
+  const busy = phase.kind === "running" || starting;
+  const step: 1 | 2 | 3 =
+    phase.kind === "files" ? 1 : phase.kind === "done" || phase.kind === "failed" ? 3 : 2;
+
+  const price = quote === null ? null : (quote.quote?.credits ?? quote.priceCredits);
+  const shortfall =
+    quote === null || price === null
+      ? 0n
+      : BigInt(price) - BigInt(quote.available) > 0n
+        ? BigInt(price) - BigInt(quote.available)
+        : 0n;
 
   return (
     <div className="flex flex-col gap-5">
@@ -383,7 +428,7 @@ export function JobRunner({
 
       {error === null ? null : <Alert tone="error">{error}</Alert>}
 
-      {phase.kind === "files" || phase.kind === "pricing" ? (
+      {phase.kind === "files" ? (
         <ProcessingNotice>
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
             <Panel
@@ -472,115 +517,168 @@ export function JobRunner({
               ) : null}
             </Panel>
 
-            <Panel title="Options" icon="sliders">
-              <div className="flex flex-col gap-4">
-                <SelectField
-                  id="job-tier"
-                  label="Intelligence tier"
-                  value={tier}
-                  hint="A higher tier reasons harder on unfamiliar data. It never changes the figures."
-                  onChange={(e) => {
-                    setTier(e.target.value as Tier);
-                  }}
-                >
-                  {Object.entries(TIER_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </SelectField>
-                <SelectField
-                  id="job-delivery"
-                  label="Delivery"
-                  value={delivery}
-                  onChange={(e) => {
-                    setDelivery(e.target.value as Delivery);
-                  }}
-                >
-                  {Object.entries(DELIVERY_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
-                  ))}
-                </SelectField>
-                <Button
-                  disabled={!ready || files.length === 0 || busy}
-                  onClick={() => void getPrice()}
-                  size="lg"
-                  className="w-full"
-                  iconAfter="arrow-right"
-                >
-                  {phase.kind === "pricing" ? "Pricing…" : "Get price"}
-                </Button>
-                <p className="text-[0.75rem] text-neutral-500">
-                  You see the exact price and confirm it before anything is charged.
+            {/*
+              The SPEC §12 confirmation, kept on screen beside the files instead of behind
+              a "Get price" button and a second page. Everything the spec requires is here
+              — action, tier, delivery, exact credits, available now, available after —
+              and nothing is held or charged until the one button is pressed.
+            */}
+            <Panel
+              title="Ready to run"
+              icon="wallet"
+              padding="none"
+              className="lg:sticky lg:top-7"
+            >
+              {files.length === 0 ? (
+                <p className="px-5 pb-5 text-[0.8125rem] text-neutral-500">
+                  Add your files and the price appears here. You confirm it before
+                  anything is charged.
                 </p>
+              ) : quote === null ? (
+                <p className="flex items-center gap-2 px-5 pb-5 text-[0.8125rem] text-neutral-500">
+                  <Icon
+                    name="loader"
+                    size={14}
+                    className="animate-spin [animation-duration:1.6s]"
+                  />
+                  {quoting ? "Working out the price…" : "Reading your files…"}
+                </p>
+              ) : (
+                <>
+                  <dl
+                    className="grid grid-cols-2 gap-y-2 px-5 pb-4 text-[0.8125rem]"
+                    data-testid="job-price"
+                  >
+                    <dt className="text-neutral-500">Action</dt>
+                    <dd className="text-right font-medium">
+                      {ACTION_LABELS[quote.type]}
+                    </dd>
+                    <dt className="text-neutral-500">Intelligence tier</dt>
+                    <dd className="text-right font-medium">{TIER_LABELS[tier]}</dd>
+                    <dt className="text-neutral-500">Delivery</dt>
+                    <dd className="text-right font-medium">
+                      {DELIVERY_LABELS[delivery]}
+                    </dd>
+                    <dt className="border-t border-neutral-100 pt-2.5 font-semibold text-neutral-900">
+                      {quote.quote === null ? "Price" : "Quote"}
+                    </dt>
+                    <dd className="num border-t border-neutral-100 pt-2.5 text-[1.25rem] leading-none font-semibold">
+                      {formatCredits(price ?? "0")}
+                    </dd>
+                    <dt className="text-neutral-500">Available now</dt>
+                    <dd className="num">{formatCredits(quote.available)}</dd>
+                    <dt className="text-neutral-500">Available after</dt>
+                    <dd className="num">
+                      {formatCredits(
+                        (BigInt(quote.available) - BigInt(price ?? "0")).toString(),
+                      )}
+                    </dd>
+                  </dl>
+
+                  <div className="flex flex-col gap-3 border-t border-neutral-100 bg-neutral-25 p-5">
+                    {quote.restructure ? (
+                      <Alert tone="warning" title="Structure has changed">
+                        This month&rsquo;s files are laid out differently from last time,
+                        so the restructure price applies.
+                      </Alert>
+                    ) : null}
+                    {quote.quote === null ? null : (
+                      <Alert tone="warning" title="A quote was needed">
+                        This job needs more analysis than the standard price covers. The
+                        quote holds until{" "}
+                        {new Date(quote.quote.expiresAt).toLocaleString("en-IN")}.
+                      </Alert>
+                    )}
+
+                    {shortfall > 0n ? (
+                      <>
+                        <Alert tone="warning" title="Not enough credits">
+                          You need {formatCredits(shortfall.toString())} more. Nothing has
+                          been charged.
+                        </Alert>
+                        <ButtonLink
+                          href={`/wallet?need=${price ?? "0"}`}
+                          size="lg"
+                          className="w-full"
+                          icon="wallet"
+                        >
+                          Buy credits
+                        </ButtonLink>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => void run(quote)}
+                        size="lg"
+                        className="w-full"
+                        disabled={busy}
+                      >
+                        {starting
+                          ? "Starting…"
+                          : `${mode === "setup" ? "Run setup" : "Run refresh"} — ${formatCredits(price ?? "0")} credits`}
+                      </Button>
+                    )}
+                    <p className="text-[0.75rem] text-neutral-500">
+                      Credits are held when you press this and charged only when the
+                      workbook is delivered.
+                    </p>
+                  </div>
+                </>
+              )}
+
+              <div className="border-t border-neutral-100 px-5 py-3">
+                <button
+                  type="button"
+                  aria-expanded={showOptions}
+                  onClick={() => {
+                    setShowOptions((v) => !v);
+                  }}
+                  className="flex w-full items-center justify-between text-[0.8125rem] font-medium text-neutral-600 hover:text-neutral-900"
+                >
+                  Options
+                  <Icon
+                    name="chevron-down"
+                    size={15}
+                    className={showOptions ? "rotate-180" : ""}
+                  />
+                </button>
+                {showOptions ? (
+                  <div className="mt-4 flex flex-col gap-4">
+                    <SelectField
+                      id="job-tier"
+                      label="Intelligence tier"
+                      value={tier}
+                      hint="Professional suits most books. A higher tier reasons harder on unfamiliar ledgers; it never changes a figure."
+                      onChange={(e) => {
+                        setTier(e.target.value as Tier);
+                      }}
+                    >
+                      {Object.entries(TIER_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>
+                          {v}
+                        </option>
+                      ))}
+                    </SelectField>
+                    <SelectField
+                      id="job-delivery"
+                      label="Delivery"
+                      value={delivery}
+                      hint="Instant runs now. Standard queues it and emails you when it is ready, for fewer credits."
+                      onChange={(e) => {
+                        setDelivery(e.target.value as Delivery);
+                      }}
+                    >
+                      {Object.entries(DELIVERY_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>
+                          {v}
+                        </option>
+                      ))}
+                    </SelectField>
+                  </div>
+                ) : null}
               </div>
             </Panel>
           </div>
         </ProcessingNotice>
-      ) : null}
-
-      {phase.kind === "confirm" ? (
-        <Panel title="Confirm price" icon="wallet" padding="none">
-          <dl
-            className="grid max-w-lg grid-cols-2 gap-y-2.5 px-5 pb-5 text-sm"
-            data-testid="job-price"
-          >
-            <dt className="text-neutral-500">Action</dt>
-            <dd className="text-right font-medium">{ACTION_LABELS[phase.job.type]}</dd>
-            <dt className="text-neutral-500">Intelligence tier</dt>
-            <dd className="text-right font-medium">{TIER_LABELS[tier]}</dd>
-            <dt className="text-neutral-500">Delivery</dt>
-            <dd className="text-right font-medium">{DELIVERY_LABELS[delivery]}</dd>
-            <dt className="pt-1 font-medium text-neutral-900">
-              {phase.job.quote === null ? "Price" : "Quote"}
-            </dt>
-            <dd className="num pt-1 text-[1.125rem] font-semibold">
-              {formatCredits(phase.job.quote?.credits ?? phase.job.priceCredits)} credits
-            </dd>
-            <dt className="text-neutral-500">Available now</dt>
-            <dd className="num">{formatCredits(phase.job.available)}</dd>
-            <dt className="text-neutral-500">Available after</dt>
-            <dd className="num">
-              {formatCredits(
-                (
-                  BigInt(phase.job.available) -
-                  BigInt(phase.job.quote?.credits ?? phase.job.priceCredits)
-                ).toString(),
-              )}
-            </dd>
-          </dl>
-          <div className="flex flex-col gap-3 border-t border-neutral-100 bg-neutral-25 p-5">
-            {phase.job.restructure ? (
-              <Alert tone="warning" title="Structure has changed">
-                This month&rsquo;s files are structured differently from last time, so the
-                restructure price applies.
-              </Alert>
-            ) : null}
-            {phase.job.quote === null ? null : (
-              <Alert tone="warning" title="A quote was needed">
-                This job needs more analysis than the standard price covers. The quote is
-                valid until {new Date(phase.job.quote.expiresAt).toLocaleString("en-IN")}.
-              </Alert>
-            )}
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setPhase({ kind: "files" });
-                }}
-              >
-                Back
-              </Button>
-              <Button onClick={() => void run(phase.job)} size="lg">
-                Confirm —{" "}
-                {formatCredits(phase.job.quote?.credits ?? phase.job.priceCredits)}{" "}
-                credits
-              </Button>
-            </div>
-          </div>
-        </Panel>
       ) : null}
 
       {phase.kind === "running" ? (
@@ -709,8 +807,8 @@ export function JobRunner({
 }
 
 /** Where the run has got to. Each step is named, so the state is never a bare spinner. */
-function Steps({ current }: { current: 1 | 2 | 3 | 4 }) {
-  const labels = ["Load files", "Confirm price", "Build", "Collect"] as const;
+function Steps({ current }: { current: 1 | 2 | 3 }) {
+  const labels = ["Load files", "Build", "Collect"] as const;
   return (
     <ol className="flex flex-wrap items-center gap-2">
       {labels.map((label, i) => {

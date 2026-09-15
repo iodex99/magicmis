@@ -24,6 +24,13 @@ export const billingAddressSchema = z.object({
   stateCode: z.string().refine(isGstStateCode, "Choose a state"),
 });
 
+/**
+ * What sign-up asks for.
+ *
+ * The billing address is **optional here and collected at the first purchase** instead
+ * (migration 0034). It exists to print a tax invoice; demanding a full postal address
+ * before a new account has seen a single screen was nine of the eleven fields on the form.
+ */
 export const signupProfileSchema = z.object({
   businessName: z.string().trim().min(2).max(200),
   gstin: z
@@ -32,7 +39,7 @@ export const signupProfileSchema = z.object({
     .refine((v) => v === "" || isValidGstin(v), "Enter a valid 15-character GSTIN")
     .optional()
     .transform((v) => (v === "" ? undefined : v)),
-  billingAddress: billingAddressSchema,
+  billingAddress: billingAddressSchema.optional(),
   acceptTerms: z.literal(true, "You must accept the Terms to create an account"),
   acceptPrivacy: z.literal(
     true,
@@ -61,10 +68,11 @@ export type SignupRequest = z.infer<typeof signupRequestSchema>;
 
 /**
  * The state that drives GST place of supply (SPEC §13): the GSTIN's state when a GSTIN is
- * given, otherwise the billing address state.
+ * given, otherwise the billing address state. Null until one of the two is known, which is
+ * at the first purchase for an account that gave neither at sign-up.
  */
-export function placeOfSupplyState(profile: SignupProfile): string {
-  return profile.gstin?.slice(0, 2) ?? profile.billingAddress.stateCode;
+export function placeOfSupplyState(profile: SignupProfile): string | null {
+  return profile.gstin?.slice(0, 2) ?? profile.billingAddress?.stateCode ?? null;
 }
 
 export const documentVersionsSchema = z.object({
@@ -117,7 +125,7 @@ export async function provisionAccount(
           input.email,
           input.profile.businessName,
           input.profile.gstin ?? null,
-          JSON.stringify(input.profile.billingAddress),
+          JSON.stringify(input.profile.billingAddress ?? {}),
           placeOfSupplyState(input.profile),
         ],
       );

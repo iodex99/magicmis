@@ -85,6 +85,9 @@ your sign-off · `closed` — resolved, with the resolution noted.
 | R-55 | **Hosting assumptions** (ADR 0024 §6). The client IP trusts `x-vercel-forwarded-for`, else the right-most `x-forwarded-for`. HSTS is sent only when the proxy sees `https:`, and `includeSubDomains; preload` should be decided at the apex domain. If the app is not deployed on Vercel, re-check all three. | Before launch | open |
 | R-50 | **Processing register** ([docs/compliance/processing-register.md](compliance/processing-register.md)). A data protection professional must review: <ul><li>purposes and legal basis wording;</li><li>subprocessor regions (Anthropic, Resend);</li><li>grievance officer;</li><li>Significant Data Fiduciary assessment.</li></ul> | Before launch | open |
 
+| R-56 | **One consent tick for two documents** (ADR 0027 §1). Sign-up now records acceptance of the Terms and the Privacy notice from a single checkbox that links both, writing two consent rows with their own versions. Confirm with the legal reviewer that one affirmative act covering two linked documents is acceptable, or split it back into two ticks. | Before launch | open |
+| R-57 | **Payment inside the run screen** (ADR 0027 §3). A run that is short of credits links to the Wallet with the shortfall and the covering pack marked. Taking the payment without leaving the run would remove the last trip, but needs billing details and Razorpay checkout inside a flow holding a browser-side pipeline. | After launch | open |
+
 ## Decisions the spec leaves open
 
 | # | Item | Needed by | Status |

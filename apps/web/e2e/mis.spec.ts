@@ -97,9 +97,10 @@ async function runJob(files: string[], expectReview: boolean) {
   await expect(page.locator("main")).not.toContainText(
     /Sundry Debtors|Northwind|Revenue/u,
   );
-  await page.getByRole("button", { name: "Get price" }).click();
-  await expect(page.getByTestId("job-price")).toBeVisible();
-  await page.getByRole("button", { name: /Confirm —/u }).click();
+  // The price appears on its own once the files are read; the single button is the
+  // SPEC §12 confirmation, and nothing is held until it is pressed.
+  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
+  await page.getByRole("button", { name: /^Run (setup|refresh) —/u }).click();
   if (expectReview) {
     await expect(page.getByRole("button", { name: "Confirm mappings" })).toBeVisible({
       timeout: 120_000,
@@ -179,9 +180,10 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   const companyId = company.rows[0]?.id ?? "";
   await page.goto(`/app/companies/${companyId}`);
   await page.getByRole("link", { name: "Dashboard" }).click();
-  await page.getByRole("button", { name: "Get price" }).click();
+  // The button carries the price before it is pressed; confirming is still explicit.
+  await page.getByRole("button", { name: /^Add the dashboard —/u }).click();
   await expect(page.getByTestId("job-price")).toContainText("Dashboard");
-  await page.getByRole("button", { name: /^Confirm/u }).click();
+  await page.getByRole("button", { name: /^Confirm —/u }).click();
 
   const revenue = page.getByTestId("widget-kpi_revenue");
   await expect(revenue).toBeVisible();
@@ -230,9 +232,9 @@ test("sets up a company that recreates the user's reference MIS, with binding re
   // Before payment, nothing from the reference's rows is shown.
   await expect(page.locator("main")).not.toContainText(/Sundry Debtors|Net Profit/u);
 
-  await page.getByRole("button", { name: "Get price" }).click();
-  await expect(page.getByTestId("job-price")).toContainText("1,498");
-  await page.getByRole("button", { name: /Confirm —/u }).click();
+  // Adding the reference re-prices on its own: the action became a recreate.
+  await expect(page.getByTestId("job-price")).toContainText("1,498", { timeout: 60_000 });
+  await page.getByRole("button", { name: /^Run setup —/u }).click();
 
   await expect(page.getByRole("button", { name: "Confirm mappings" })).toBeVisible({
     timeout: 120_000,

@@ -25,6 +25,17 @@ test("wallet shows GST before payment, issues a proforma and serves its PDF", as
   await expect(page).toHaveURL(/\/wallet$/u);
   await expect(page.getByTestId("wallet-balance")).toContainText("0");
 
+  // Billing details are asked for here, at the first purchase, rather than at sign-up:
+  // GST place of supply is needed to quote a pack and at no earlier moment.
+  await expect(
+    page.getByRole("heading", { name: "Where should we invoice this?" }),
+  ).toBeVisible();
+  await page.getByLabel("Address line 1").fill("1 Test Road");
+  await page.getByLabel("City").fill("Pune");
+  await page.getByLabel("PIN code").fill("411001");
+  await page.getByLabel("State").selectOption("27");
+  await page.getByRole("button", { name: "Save and show prices" }).click();
+
   // Maharashtra buyer, Maharashtra seller → CGST + SGST shown before paying.
   const row = page.getByRole("row", { name: /25,000/u }).first();
   await expect(row).toContainText("₹25,000.00");

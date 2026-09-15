@@ -23,6 +23,12 @@ export function paymentGateway(): PaymentGateway {
 }
 
 export interface WalletView {
+  /**
+   * False until the account has a GSTIN or a billing state. GST place of supply cannot be
+   * guessed, so packs cannot be quoted until one is known — the Wallet asks for it inline
+   * rather than the sign-up form asking for it up front (migration 0034).
+   */
+  readonly billingReady: boolean;
   readonly balance: string;
   readonly held: string;
   readonly available: string;
@@ -71,13 +77,27 @@ export interface WalletView {
   }[];
 }
 
+/** Whether GST place of supply is known for this account (SPEC §13). */
+async function hasBillingState(
+  pool: ReturnType<typeof db>,
+  accountId: string,
+): Promise<boolean> {
+  const r = await pool.query<{ known: boolean }>(
+    `select (gstin is not null or state_code is not null) as known
+       from public.accounts where id = $1 and deleted_at is null`,
+    [accountId],
+  );
+  return r.rows[0]?.known ?? false;
+}
+
 /** Everything the Wallet page shows, as JSON-safe strings (bigints never cross to the client). */
 export async function walletView(accountId: string): Promise<WalletView> {
   const pool = db();
+  const billingReady = await hasBillingState(pool, accountId);
   const [validity, summary, packs, purchases, invoices, ledger] = await Promise.all([
     readConfig(pool, "wallet.lot_validity_months", z.number().int().positive()),
     walletSummary(pool, accountId),
-    listPackQuotes(pool, { accountId }),
+    billingReady ? listPackQuotes(pool, { accountId }) : [],
     listPurchases(pool, accountId),
     listInvoices(pool, accountId),
     pool.query<{
@@ -94,6 +114,7 @@ export async function walletView(accountId: string): Promise<WalletView> {
     ),
   ]);
   return {
+    billingReady,
     balance: summary.balance.toString(),
     held: summary.held.toString(),
     available: summary.available.toString(),

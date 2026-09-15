@@ -121,7 +121,12 @@ describe("tokens (SPEC §17)", () => {
       seen.add(await t.token("PARTY", `Synthetic Party ${i.toString()}`));
     expect(seen.size).toBe(100_000);
     // Birthday bound for this run: n²/2^(bits+1) ≈ 1.8e-5.
-  }, 120_000);
+    //
+    // The timeout is generous because this is 100,000 sequential HMACs and its cost scales
+    // with how loaded the machine is, not with anything under test. The tokens are
+    // deterministic for a fixed key, so a genuine collision would fail every run; a failure
+    // here that passes on a re-run was the clock, and the timeout is what to raise.
+  }, 300_000);
 });
 
 describe("redactor", () => {

@@ -20,6 +20,8 @@ import { formatCredits, formatRupees } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
+import { BillingDetailsForm } from "./BillingDetailsForm";
+
 import type { WalletView } from "@/lib/billing";
 
 /** Razorpay Checkout's documented surface (https://razorpay.com/docs/payments/server-integration/nodejs/integration-steps/). */
@@ -95,12 +97,28 @@ const istDate = (iso: string): string =>
 const daysUntil = (iso: string): number =>
   Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
 
+/**
+ * What a credit balance actually buys, in the customer's own terms.
+ *
+ * Prices come from the price book and can change, so these are deliberately approximate
+ * and hedged — the authority is the Pricing page, and nothing here is a quote.
+ */
+const REFRESH_CREDITS = 299n;
+function covers(credits: bigint): string {
+  const refreshes = credits / REFRESH_CREDITS;
+  if (refreshes < 1n) return "Part of one monthly refresh";
+  return `About ${refreshes.toString()} monthly ${refreshes === 1n ? "refresh" : "refreshes"}`;
+}
+
 export function WalletClient({
   initial,
   businessName,
+  need,
 }: {
   initial: WalletView;
   businessName: string;
+  /** Credits a run needs, when the customer arrived here from one that was short. */
+  need: string | null;
 }) {
   const [view, setView] = useState(initial);
   const [busy, setBusy] = useState<string | null>(null);
@@ -236,9 +254,26 @@ export function WalletClient({
   const held = BigInt(view.held);
   const expiringSoon = view.lots.filter((l) => daysUntil(l.expiresAt) <= 30);
 
+  // The pack to point at: the smallest that covers what the run needs, or the one most
+  // accounts choose when nothing in particular is waiting.
+  const shortfall = need === null ? 0n : BigInt(need) - available;
+  const suggested =
+    shortfall > 0n
+      ? (view.packs.find((p) => BigInt(p.credits) + BigInt(p.bonusCredits) >= shortfall)
+          ?.packId ?? view.packs.at(-1)?.packId)
+      : view.packs[2]?.packId;
+
   return (
     <div className="flex flex-col gap-5">
       {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
+
+      {shortfall > 0n ? (
+        <Alert tone="info" title="Your run needs more credits">
+          It needs {formatCredits(need ?? "0")} and you have{" "}
+          {formatCredits(view.available)}. The pack marked below covers it; the run is
+          still waiting where you left it.
+        </Alert>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-3" data-testid="wallet-balance">
         <StatCard
@@ -310,69 +345,91 @@ export function WalletClient({
         </Alert>
       )}
 
-      <Panel
-        title="Buy credits"
-        description="1 credit = ₹1 before GST. Prepaid and non-refundable; there is no free tier."
-        icon="plus"
-        padding="none"
-      >
-        <DataTable
-          className="px-2 pb-2"
-          head={
-            <>
-              <Th>Credits</Th>
-              <Th numeric>Price (ex-GST)</Th>
-              <Th numeric>GST</Th>
-              <Th numeric>Total</Th>
-              <Th />
-            </>
-          }
+      {view.billingReady ? (
+        <Panel
+          title="Buy credits"
+          description="1 credit = ₹1 before GST. Prepaid and non-refundable; there is no free tier."
+          icon="plus"
+          padding="none"
         >
-          {view.packs.map((p) => (
-            <Tr key={p.packId}>
-              <Td>
-                <span className="num text-[0.9375rem] font-semibold text-neutral-900">
-                  {formatCredits(p.credits)}
-                </span>
-                {p.bonusCredits !== "0" ? (
-                  <Badge tone="positive" className="ml-2">
-                    +{formatCredits(p.bonusCredits)} bonus
-                  </Badge>
-                ) : null}
-              </Td>
-              <Td numeric>{formatRupees(p.taxablePaise)}</Td>
-              <Td numeric className="text-[0.75rem] text-neutral-500">
-                {p.supply === "intra_state"
-                  ? `CGST ${formatRupees(p.cgstPaise)} + SGST ${formatRupees(p.sgstPaise)}`
-                  : `IGST ${formatRupees(p.igstPaise)}`}
-              </Td>
-              <Td numeric className="font-semibold">
-                {formatRupees(p.totalPaise)}
-              </Td>
-              <Td className="text-right whitespace-nowrap">
-                <Button
-                  size="sm"
-                  disabled={busy !== null}
-                  onClick={() => void buy(p.packId)}
+          <DataTable
+            className="px-2 pb-2"
+            head={
+              <>
+                <Th>Credits</Th>
+                <Th>What it covers</Th>
+                <Th numeric>Price (ex-GST)</Th>
+                <Th numeric>GST</Th>
+                <Th numeric>Total</Th>
+                <Th />
+              </>
+            }
+          >
+            {view.packs.map((p) => {
+              const total = BigInt(p.credits) + BigInt(p.bonusCredits);
+              return (
+                <Tr
+                  key={p.packId}
+                  className={p.packId === suggested ? "bg-accent-50" : ""}
                 >
-                  Pay {formatRupees(p.totalPaise)}
-                </Button>
-                {p.bankTransferEligible ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="ml-2"
-                    disabled={busy !== null}
-                    onClick={() => void bankTransfer(p.packId)}
-                  >
-                    Bank transfer
-                  </Button>
-                ) : null}
-              </Td>
-            </Tr>
-          ))}
-        </DataTable>
-      </Panel>
+                  <Td>
+                    <span className="num text-[0.9375rem] font-semibold text-neutral-900">
+                      {formatCredits(p.credits)}
+                    </span>
+                    {p.bonusCredits !== "0" ? (
+                      <Badge tone="positive" className="ml-2">
+                        +{formatCredits(p.bonusCredits)} bonus
+                      </Badge>
+                    ) : null}
+                    {p.packId === suggested ? (
+                      <Badge tone="accent" className="ml-2">
+                        {need === null ? "Most popular" : "Covers this run"}
+                      </Badge>
+                    ) : null}
+                  </Td>
+                  <Td className="text-[0.8125rem] text-neutral-500">{covers(total)}</Td>
+                  <Td numeric>{formatRupees(p.taxablePaise)}</Td>
+                  <Td numeric className="text-[0.75rem] text-neutral-500">
+                    {p.supply === "intra_state"
+                      ? `CGST ${formatRupees(p.cgstPaise)} + SGST ${formatRupees(p.sgstPaise)}`
+                      : `IGST ${formatRupees(p.igstPaise)}`}
+                  </Td>
+                  <Td numeric className="font-semibold">
+                    {formatRupees(p.totalPaise)}
+                  </Td>
+                  <Td className="text-right whitespace-nowrap">
+                    <Button
+                      size="sm"
+                      variant={p.packId === suggested ? "primary" : "secondary"}
+                      disabled={busy !== null}
+                      onClick={() => void buy(p.packId)}
+                    >
+                      Pay {formatRupees(p.totalPaise)}
+                    </Button>
+                    {p.bankTransferEligible ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="ml-2"
+                        disabled={busy !== null}
+                        onClick={() => void bankTransfer(p.packId)}
+                      >
+                        Bank transfer
+                      </Button>
+                    ) : null}
+                  </Td>
+                </Tr>
+              );
+            })}
+          </DataTable>
+        </Panel>
+      ) : (
+        <BillingDetailsForm
+          onSaved={() => {
+            void refresh();
+          }}
+        />
+      )}
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <Panel

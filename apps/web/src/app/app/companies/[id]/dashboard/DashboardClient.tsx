@@ -302,7 +302,7 @@ export function DashboardClient({ companyId }: { companyId: string }) {
             <PaidJobButton
               companyId={companyId}
               type="dashboard_addon"
-              label="Get price"
+              label="Add the dashboard"
               deliveries={["standard"]}
               onHeld={async (jobId) => {
                 const r = await api(`/api/jobs/${jobId}/deliver-dashboard`, {
@@ -375,7 +375,7 @@ export function DashboardClient({ companyId }: { companyId: string }) {
           <PaidJobButton
             companyId={companyId}
             type="dashboard_refresh"
-            label="Get refresh price"
+            label="Refresh the dashboard"
             deliveries={["standard"]}
             onHeld={async (jobId) => {
               const r = await api(`/api/jobs/${jobId}/deliver-dashboard`, {

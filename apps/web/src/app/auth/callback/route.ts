@@ -41,6 +41,31 @@ export async function GET(request: NextRequest): Promise<Response> {
     failed = error !== null;
   }
 
-  const destination = new URL(failed ? "/sign-in?verification=failed" : next, url.origin);
-  return NextResponse.redirect(destination);
+  /**
+   * Where to land.
+   *
+   * Verification normally establishes a session, and `next` then takes the reader straight
+   * on to setting up their authenticator — asking for the password they chose two minutes
+   * ago buys nothing. When no session came back (an older link style, a cookie the browser
+   * refused), `/sign-in/verified` says what happened and offers the sign-in instead. The
+   * destination is decided from what actually happened, not assumed.
+   */
+  const signedIn =
+    !failed && (await supabase.auth.getClaims()).data?.claims !== undefined;
+  const path = failed
+    ? "/sign-in?verification=failed"
+    : signedIn
+      ? next
+      : "/sign-in/verified";
+
+  /**
+   * Redirect to the host the browser actually used.
+   *
+   * `nextUrl.origin` normalises to `localhost` even when the request arrived on
+   * `127.0.0.1`, and the session cookie just written is scoped to the host in the request.
+   * Sending the reader to the other spelling drops the cookie on the floor and lands them
+   * back at sign-in holding a session they cannot see.
+   */
+  const host = request.headers.get("host") ?? url.host;
+  return NextResponse.redirect(new URL(path, `${url.protocol}//${host}`));
 }

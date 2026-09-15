@@ -198,7 +198,7 @@ export function CommentaryClient({
             <PaidJobButton
               companyId={companyId}
               type="commentary"
-              label="Get price"
+              label="Write the commentary"
               deliveries={["standard", "instant"]}
               onHeld={async (jobId, delivery) => {
                 const r = await api<{ state: string }>(`/api/jobs/${jobId}/commentary`, {

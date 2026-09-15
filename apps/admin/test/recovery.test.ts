@@ -28,10 +28,14 @@ const pool = () => {
 };
 
 const wrapper = new LocalKeyWrapper(randomBytes(32));
-const T0 = Date.now();
 let tick = 0;
-/** Each step-up code is single-use: walk a timeline one TOTP period at a time. */
-const next = () => new Date(T0 + (tick++ + 1) * 31_000);
+/**
+ * Each step-up code is single-use: walk a timeline one TOTP period at a time, anchored to
+ * the clock at the moment of the call rather than to one captured when this file loaded.
+ * Under a loaded run the file can start minutes later, which would leave every fabricated
+ * timestamp behind the real clock and the "fresh code" check refusing a current code.
+ */
+const next = () => new Date(Date.now() + (tick++ + 1) * 31_000);
 const codeAt = (secret: string, at: Date) => hotp(base32Decode(secret), timeStep(at));
 
 async function adminWithSecret() {

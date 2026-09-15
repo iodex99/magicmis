@@ -64,20 +64,19 @@ export async function signUp(page: Page, email: string): Promise<void> {
   await page.getByLabel("Work email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await page.getByLabel("Business name").fill("E2E Test Associates");
-  await page.getByLabel("Address line 1").fill("1 Test Road");
-  await page.getByLabel("City").fill("Pune");
-  await page.getByLabel("PIN code").fill("411001");
-  await page.getByLabel("State").selectOption("27");
   await page.getByLabel(/I accept the/u).check();
-  await page.getByLabel(/I have read the/u).check();
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/sign-up\/check-email/u);
 }
 
+/**
+ * The confirmation link establishes the session, so it lands on authenticator setup
+ * rather than sending the user back to sign in with the password they just chose.
+ */
 export async function verifyEmail(page: Page, email: string): Promise<void> {
   const html = await latestEmailHtml(email, "Confirm your email");
   await page.goto(confirmationLink(html));
-  await expect(page).toHaveURL(/\/sign-in\/verified/u);
+  await expect(page).toHaveURL(/\/sign-in\/enrol/u);
 }
 
 export async function passwordStep(page: Page, email: string): Promise<void> {
@@ -94,8 +93,6 @@ export async function createVerifiedAccountWithTotp(
 ): Promise<string> {
   await signUp(page, email);
   await verifyEmail(page, email);
-  await passwordStep(page, email);
-  await expect(page).toHaveURL(/\/sign-in\/enrol/u);
 
   const secret = (await page.getByTestId("totp-secret").textContent())?.trim() ?? "";
   expect(secret).toMatch(/^[A-Z2-7]+=*$/u);

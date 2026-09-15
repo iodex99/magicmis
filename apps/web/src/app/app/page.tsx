@@ -1,7 +1,9 @@
+import { walletSummary } from "@magicmis/wallet";
 import Link from "next/link";
 
 import { AppFrame } from "@/components/AppFrame";
 import { MiniBars } from "@/components/Charts";
+import { GetStarted } from "@/components/GetStarted";
 import { Icon } from "@/components/Icon";
 import {
   Badge,
@@ -53,9 +55,10 @@ function period(value: string | null): string {
 export default async function AppHomePage() {
   const account = await accountOrRedirect("/app");
   const pool = db();
-  const [companies, overview] = await Promise.all([
+  const [companies, overview, wallet] = await Promise.all([
     listCompanies(pool, account.accountId),
     accountOverview(pool, account.accountId),
+    walletSummary(pool, account.accountId),
   ]);
   const jobsThisMonth = overview.jobsByMonth.at(-1) ?? 0;
   const jobsLastMonth = overview.jobsByMonth.at(-2) ?? 0;
@@ -65,6 +68,15 @@ export default async function AppHomePage() {
       <PageHeader
         title="Companies"
         description="Every company you keep an MIS for, and what it last produced."
+      />
+
+      <GetStarted
+        state={{
+          hasCompany: companies.length > 0,
+          hasCredits: wallet.available > 0n,
+          hasRun: overview.workbooks > 0,
+        }}
+        firstCompanyId={companies[0]?.id ?? null}
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

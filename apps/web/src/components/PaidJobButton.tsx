@@ -6,7 +6,7 @@
  * (SPEC §12, §23). Nothing is charged until the user confirms.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Alert, Button } from "@/components/ui";
 import {
@@ -54,6 +54,22 @@ export function PaidJobButton({
   const [job, setJob] = useState<CreatedJob | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** The price book is public (SPEC §2.3), so the button can carry the price. */
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    const state = { cancelled: false };
+    const cancelled = () => state.cancelled;
+    void api<{ credits: string }>("/api/pricing/preview", {
+      body: { actionKey: type, tier, delivery },
+    }).then((r) => {
+      if (cancelled()) return;
+      setPreview(r.ok ? r.data.credits : null);
+    });
+    return () => {
+      state.cancelled = true;
+    };
+  }, [type, tier, delivery]);
 
   const price = async () => {
     setBusy(true);
@@ -129,7 +145,11 @@ export function PaidJobButton({
             </label>
           ) : null}
           <Button onClick={() => void price()} disabled={busy}>
-            {busy ? "Pricing…" : label}
+            {busy
+              ? "Pricing…"
+              : preview === null
+                ? label
+                : `${label} — ${formatCredits(preview)} credits`}
           </Button>
         </div>
       ) : (
@@ -154,12 +174,13 @@ export function PaidJobButton({
             </dd>
           </dl>
           {BigInt(job.available) < BigInt(credits) ? (
-            <Alert tone="warning">
-              Not enough credits.{" "}
-              <a href="/wallet" className="underline">
+            <Alert tone="warning" title="Not enough credits">
+              You need{" "}
+              {formatCredits((BigInt(credits) - BigInt(job.available)).toString())} more.{" "}
+              <a href={`/wallet?need=${credits}`} className="font-medium underline">
                 Buy credits
-              </a>{" "}
-              to continue.
+              </a>
+              . Nothing has been charged.
             </Alert>
           ) : null}
           <div className="flex gap-2">

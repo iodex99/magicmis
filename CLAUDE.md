@@ -7,13 +7,19 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)) and the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), plan [ui-redesign](docs/plans/ui-redesign.md)). What remains needs owner input: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) (live evals R-28, legal text, seller details, final prices).
+**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), plan [ui-redesign](docs/plans/ui-redesign.md)) and the friction pass (ADR [0027](docs/adr/0027-friction.md), plan [friction](docs/plans/friction.md)). What remains needs owner input: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) (live evals R-28, legal text, seller details, final prices).
 
 Design system: tokens in `packages/ui/src/tokens.ts`, mirrored into both apps' `globals.css`.
 Primitives in `apps/web/src/components/ui.tsx`; icons are hand-drawn in `Icon.tsx` (no icon
 dependency, and never a sparkle). One indigo accent; the dark `ink` surface is navigation
 only and never sits under figures. Seed a signed-in demo account against the local stack
 with `apps/web/e2e/support/seed-demo.ts`.
+
+Flow rules that are easy to undo by accident: sign-up asks for four things only (billing
+details are collected at the first purchase, migration 0034); the confirmation email lands
+on `/sign-in/enrol` with a session already established; the run screen prices itself and
+its single button **is** the SPEC §12 confirmation. Changing `supabase/templates/` needs
+`docker restart supabase_auth_magicmis` to take effect locally.
 
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.

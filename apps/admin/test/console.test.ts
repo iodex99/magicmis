@@ -249,10 +249,15 @@ describe("library curation", () => {
 });
 
 describe("break-glass", () => {
-  // Each step-up code is single-use, so the test walks a timeline one TOTP period at a time.
-  const T0 = Date.now();
+  /**
+   * Each step-up code is single-use, so the test walks a timeline one TOTP period at a
+   * time. The timeline is anchored to the clock at the moment of the call, not to one
+   * captured when this file was loaded: under a loaded `pnpm -r test` the file can start
+   * minutes after that, leaving every fabricated timestamp behind the real clock and the
+   * "fresh code" check refusing a code the test believes is current.
+   */
   let tick = 0;
-  const next = () => new Date(T0 + (tick++ + 1) * 31_000);
+  const next = () => new Date(Date.now() + (tick++ + 1) * 31_000);
   const codeAt = (secret: string, at: Date) => hotp(base32Decode(secret), timeStep(at));
 
   async function adminWithSecret(): Promise<{

@@ -1326,6 +1326,15 @@ All legal text is a placeholder for professional review; mark `TODO(review)`. Do
 
 **Audience:** chartered accountants and finance staff on desktop, working with dense numbers for long sessions.
 
+**Friction** (ADR 0027). A step earns its place or it goes.
+
+- **Never ask for something before it is needed.** Sign-up asks for four things; the billing address is collected at the first purchase, where GST place of supply decides the tax.
+- **Never ask twice.** Anything the account has already given arrives prefilled.
+- **A price is shown, not fetched.** Where an action's price is knowable, it is on screen and on the button before the press. The SPEC §12 confirmation is that press; it is never a separate page.
+- **Defaults over decisions.** A choice a newcomer cannot make (tier, delivery) has a default and lives behind a closed "Options".
+- **Lead with the answer.** A review screen says what needs attention before it shows the table.
+- **A new account is told what to do next**, in order, until it has produced its first output.
+
 **Visual direction**
 
 - Precise, calm, professional.
