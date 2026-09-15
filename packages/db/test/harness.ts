@@ -65,6 +65,14 @@ function ipv4ConnectionUri(container: StartedPostgreSqlContainer): string {
   return url.toString();
 }
 
+/**
+ * A throwaway Postgres for one test file's package.
+ *
+ * Ten packages do this, so the root `test` script caps turbo's concurrency: started all
+ * at once, container startup starves on a small runner and a different package times out
+ * in its `beforeAll` each run. If that timeout reappears, the answer is the cap, not a
+ * longer wait.
+ */
 export async function startTestDb(): Promise<TestDb> {
   const container = await new PostgreSqlContainer("postgres:17-alpine")
     .withDatabase("magicmis_test")

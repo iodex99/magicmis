@@ -118,16 +118,29 @@ produced a workbook.
   a page.
 - **Still true:** nothing free, prepaid only, 2FA mandatory, one session per account, and
   no recognition result shown before a charge.
-- **Two pre-existing flakes were fixed on the way**, neither caused by this work but both
-  able to fail CI on a coin flip:
-  - `packages/redact`'s 100,000-token collision test timed out under a loaded
-    `pnpm -r test`. The tokens are deterministic for a fixed key, so a real collision
-    would fail every run; the timeout was raised and the reasoning written into the test.
+- **A long-standing CI coin flip was found and fixed at the root.** Three different
+  packages failed on three different runs — `redact`, then `admin`, then `billing` on CI —
+  which read like three unrelated flakes. They were one problem: **ten packages each start
+  their own Postgres through Testcontainers, and `turbo run test` started them all at
+  once.** On a small runner the container startup starves until a `beforeAll` hits its
+  180-second hook timeout, in whichever package happened to lose. Reproduced locally with
+  the exact CI command (`pnpm test`, which schedules differently from `pnpm -r test`):
+  `@magicmis/accounts` died with `Hook timed out in 180000ms`.
+
+  The root `test` script now caps turbo at `--concurrency=3`, and `startTestDb` carries a
+  note saying that if this timeout reappears the answer is the cap, not a longer wait. The
+  full suite passes in 13 minutes under the capped command.
+
+  Two real timing bugs surfaced on the way there and were worth fixing on their own merits:
   - The admin break-glass and recovery tests fabricated a TOTP timeline from a timestamp
-    captured when the file was **loaded**. Under a loaded run the file starts minutes
-    later, every fabricated timestamp falls behind the real clock, and the single-use
-    "fresh code" check refuses a code the test believes is current. Both now anchor the
-    timeline to the clock at the moment of the call.
+    captured when the file was **loaded**. Under a slow run the file starts minutes later,
+    every fabricated timestamp falls behind the real clock, and the single-use "fresh code"
+    check refuses a code the test believes is current. Both now anchor the timeline to the
+    clock at the moment of the call.
+  - `packages/redact`'s 100,000-token collision test had a timeout tight enough to trip
+    under load. Raising it treated a symptom rather than the cause, but the bound was
+    genuinely too tight for work whose cost scales with machine load, and the test now says
+    how to tell a real collision from a slow clock.
 - **Left for later (R-57):** taking the payment inside the run screen instead of linking to
   the Wallet. It needs billing details and Razorpay checkout in a flow that currently holds
   a browser-side pipeline, and the two-click version is honest and safe.
