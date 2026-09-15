@@ -83,6 +83,22 @@ export async function startTestDb(): Promise<TestDb> {
   const connectionUri = ipv4ConnectionUri(container);
   const pool = new pg.Pool({ connectionString: connectionUri, max: 12 });
 
+  /**
+   * `pg` emits `error` on the pool when an **idle** client's connection breaks, and with no
+   * listener Node turns that into an uncaught exception. Stopping the container terminates
+   * whatever backends are still connected ("terminating connection due to administrator
+   * command"), so a clean run could still fail on a teardown error after every test had
+   * passed -- intermittently, depending on which clients were idle at the time.
+   *
+   * During shutdown that error is expected and says nothing. At any other moment it is a
+   * genuine broken connection and must not be swallowed, so it is re-raised.
+   */
+  let stopping = false;
+  pool.on("error", (error) => {
+    if (stopping) return;
+    throw error;
+  });
+
   const shim = await readFile(path.join(HERE, "auth-shim.sql"), "utf8");
   await pool.query(shim);
   await migrate(pool);
@@ -125,6 +141,7 @@ export async function startTestDb(): Promise<TestDb> {
     connectionUri,
     asUser,
     stop: async () => {
+      stopping = true;
       await pool.end();
       await container.stop();
     },

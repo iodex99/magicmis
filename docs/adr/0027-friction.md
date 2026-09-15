@@ -118,20 +118,34 @@ produced a workbook.
   a page.
 - **Still true:** nothing free, prepaid only, 2FA mandatory, one session per account, and
   no recognition result shown before a charge.
-- **A long-standing CI coin flip was found and fixed at the root.** Three different
-  packages failed on three different runs — `redact`, then `admin`, then `billing` on CI —
-  which read like three unrelated flakes. They were one problem: **ten packages each start
-  their own Postgres through Testcontainers, and `turbo run test` started them all at
-  once.** On a small runner the container startup starves until a `beforeAll` hits its
-  180-second hook timeout, in whichever package happened to lose. Reproduced locally with
-  the exact CI command (`pnpm test`, which schedules differently from `pnpm -r test`):
-  `@magicmis/accounts` died with `Hook timed out in 180000ms`.
+- **CI failed three times on what turned out to be two unrelated problems**, and the
+  diagnosis is worth recording because the symptoms actively misled.
 
-  The root `test` script now caps turbo at `--concurrency=3`, and `startTestDb` carries a
-  note saying that if this timeout reappears the answer is the cap, not a longer wait. The
-  full suite passes in 13 minutes under the capped command.
+  **The one that failed CI: an unhandled `pg` pool error at teardown.** The log showed
+  every billing test passing and the run failing anyway:
 
-  Two real timing bugs surfaced on the way there and were worth fixing on their own merits:
+  > Vitest caught 2 unhandled errors during the test run.
+  > `error: terminating connection due to administrator command`
+
+  `pg` emits `error` on the pool when an **idle** client's connection breaks, and with no
+  listener Node turns it into an uncaught exception. Stopping the container terminates
+  whatever backends are still connected, so a clean run could fail at teardown —
+  intermittently, depending on which clients were idle at that moment. That is why billing
+  "failed" in 30 seconds with no assertion error, passed at one commit and failed at the
+  next two with nobody touching it, and never reproduced locally. `startTestDb` now
+  attaches the listener `pg` expects: ignored while stopping, re-raised at any other time,
+  where it means a genuinely broken connection. One change covers all ten packages that
+  use the harness.
+
+  **A separate, local problem: Testcontainers startup starvation.** Ten packages each start
+  their own Postgres, and `turbo run test` started them all at once; on this machine
+  `@magicmis/accounts` died with `Hook timed out in 180000ms`. The root `test` script now
+  caps turbo at `--concurrency=3`, and `startTestDb` says that if the timeout reappears the
+  answer is the cap, not a longer wait. This was never CI's failure — CI ran uncapped in
+  101 seconds — and treating it as such cost two speculative commits. **Read the log
+  first**; job names and timings are not evidence.
+
+  Two real timing bugs surfaced on the way and were worth fixing on their own merits:
   - The admin break-glass and recovery tests fabricated a TOTP timeline from a timestamp
     captured when the file was **loaded**. Under a slow run the file starts minutes later,
     every fabricated timestamp falls behind the real clock, and the single-use "fresh code"

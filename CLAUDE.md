@@ -30,6 +30,11 @@ differently. Ten packages each start a Postgres through Testcontainers, so the r
 caps turbo at `--concurrency=3`. A `Hook timed out in 180000ms` in a random package means
 that cap is too high for the machine, not that the test is slow.
 
+**When CI fails, read the log before theorising.** Job names and step timings are not
+evidence: a green-looking 30-second failure turned out to be every test passing and the
+run dying on an unhandled `pg` idle-client error at teardown (ADR 0027). Logs need a token
+with Actions:read — ask for one rather than guessing.
+
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
 Web E2E: `pnpm --filter @magicmis/web build && pnpm --filter @magicmis/web e2e`.
