@@ -18,57 +18,12 @@ import {
 } from "@/components/ui";
 import { formatCredits, formatRupees } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
+import { loadCheckout, type RazorpayConstructor } from "@/lib/checkout";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
 import { BillingDetailsForm } from "./BillingDetailsForm";
 
 import type { WalletView } from "@/lib/billing";
-
-/** Razorpay Checkout's documented surface (https://razorpay.com/docs/payments/server-integration/nodejs/integration-steps/). */
-interface RazorpayResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-}
-interface RazorpayInstance {
-  open(): void;
-  on(
-    event: "payment.failed",
-    handler: (response: { error: { description?: string } }) => void,
-  ): void;
-}
-type RazorpayConstructor = new (options: {
-  key: string;
-  amount: string;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  handler: (response: RazorpayResponse) => void;
-  modal?: { ondismiss?: () => void };
-  theme?: { color?: string };
-}) => RazorpayInstance;
-
-const CHECKOUT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
-
-function loadCheckout(): Promise<RazorpayConstructor> {
-  const existing = (window as unknown as { Razorpay?: RazorpayConstructor }).Razorpay;
-  if (existing) return Promise.resolve(existing);
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = CHECKOUT_SRC;
-    script.async = true;
-    script.onload = () => {
-      const loaded = (window as unknown as { Razorpay?: RazorpayConstructor }).Razorpay;
-      if (loaded) resolve(loaded);
-      else reject(new Error("Checkout did not load"));
-    };
-    script.onerror = () => {
-      reject(new Error("Checkout did not load"));
-    };
-    document.body.appendChild(script);
-  });
-}
 
 const SOURCE_LABELS: Record<string, string> = {
   purchase: "Purchase",

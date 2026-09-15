@@ -49,7 +49,7 @@ export default async function RunJobPage({
         }
         back={{ href: `/app/companies/${id}`, label: company.name }}
       />
-      <JobRunner companyId={id} mode={runMode} />
+      <JobRunner companyId={id} mode={runMode} businessName={account.businessName} />
     </AppFrame>
   );
 }

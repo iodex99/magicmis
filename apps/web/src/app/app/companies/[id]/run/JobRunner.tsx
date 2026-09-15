@@ -10,6 +10,7 @@ import type { ReviewRow } from "@magicmis/semantic";
 import type { RowBinding } from "@magicmis/templates";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { BuyCreditsInline } from "@/components/BuyCreditsInline";
 import { Icon } from "@/components/Icon";
 import { MappingReview } from "@/components/MappingReview";
 import { ProcessingNotice } from "@/components/ProcessingNotice";
@@ -18,7 +19,6 @@ import {
   Alert,
   Badge,
   Button,
-  ButtonLink,
   DataTable,
   Panel,
   SelectField,
@@ -101,9 +101,12 @@ const REFUSALS: Record<string, string> = {
 export function JobRunner({
   companyId,
   mode,
+  businessName,
 }: {
   companyId: string;
   mode: "setup" | "refresh";
+  /** Shown on the payment sheet when a run is short of credits. */
+  businessName: string;
 }) {
   const [files, setFiles] = useState<PipelineFileSummary[]>([]);
   const [reference, setReference] = useState<PipelineFileSummary | null>(null);
@@ -126,6 +129,8 @@ export function JobRunner({
   const [quoting, setQuoting] = useState(false);
   const [starting, setStarting] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  // Bumped after a purchase so the pricing effect runs again against the new balance.
+  const [repriceAt, setRepriceAt] = useState(0);
   // One draft job per distinct priceable request, so changing a dropdown twice does not
   // leave a trail of draft rows behind.
   const priced = useRef(new Map<string, CreatedJob>());
@@ -252,7 +257,7 @@ export function JobRunner({
     return () => {
       state.cancelled = true;
     };
-  }, [ready, files, tier, delivery, jobType, companyId, phase.kind]);
+  }, [ready, files, tier, delivery, jobType, companyId, phase.kind, repriceAt]);
 
   const fail = useCallback(
     async (jobId: string, result: ComputeResult | null, message: string) => {
@@ -604,20 +609,16 @@ export function JobRunner({
                     )}
 
                     {shortfall > 0n ? (
-                      <>
-                        <Alert tone="warning" title="Not enough credits">
-                          You need {formatCredits(shortfall.toString())} more. Nothing has
-                          been charged.
-                        </Alert>
-                        <ButtonLink
-                          href={`/wallet?need=${price ?? "0"}`}
-                          size="lg"
-                          className="w-full"
-                          icon="wallet"
-                        >
-                          Buy credits
-                        </ButtonLink>
-                      </>
+                      <BuyCreditsInline
+                        need={shortfall}
+                        businessName={businessName}
+                        onCredited={() => {
+                          // Re-price against the new balance; the files never moved.
+                          priced.current.clear();
+                          setQuote(null);
+                          setRepriceAt(Date.now());
+                        }}
+                      />
                     ) : (
                       <Button
                         onClick={() => void run(quote)}

@@ -155,6 +155,12 @@ produced a workbook.
     under load. Raising it treated a symptom rather than the cause, but the bound was
     genuinely too tight for work whose cost scales with machine load, and the test now says
     how to tell a real collision from a slow clock.
-- **Left for later (R-57):** taking the payment inside the run screen instead of linking to
-  the Wallet. It needs billing details and Razorpay checkout in a flow that currently holds
-  a browser-side pipeline, and the two-click version is honest and safe.
+- **R-57 built (2026-09-16).** A run that is short of credits now takes the payment where
+  it stands. The reason is stronger than the click count: leaving the run unmounts the
+  browser pipeline and destroys the files already loaded, so "buy credits and come back"
+  costs a setup its thirteen months of uploads. `BuyCreditsInline` offers the smallest
+  covering pack, Razorpay opens in place, and once the webhook has granted the credits the
+  run re-prices itself against the new balance. The CSP now allows the gateway on the run
+  path as well as the Wallet — deliberately, and asserted in `ingest.spec.ts`, which also
+  checks it is allowed nowhere else. An account with no billing details yet is sent to the
+  Wallet for that one thing, since GST place of supply cannot be guessed.

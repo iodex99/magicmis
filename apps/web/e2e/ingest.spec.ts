@@ -153,10 +153,22 @@ test("pages carry a per-request nonce CSP and hardening headers (SPEC §30)", as
   expect(policy).not.toBe(second.headers()["content-security-policy"]);
   expect(first.headers()["x-frame-options"]).toBe("DENY");
   expect(first.headers()["x-content-type-options"]).toBe("nosniff");
+  // The payment gateway is allowed on exactly two paths: the Wallet, and the run screen,
+  // which takes the payment in place so a run does not lose its loaded files (R-57).
   const wallet = await page.request.get("/wallet");
   expect(wallet.headers()["content-security-policy"]).toContain(
     "frame-src https://*.razorpay.com",
   );
+  const run = await page.request.get(
+    "/app/companies/00000000-0000-4000-8000-000000000000/run",
+  );
+  expect(run.headers()["content-security-policy"]).toContain(
+    "frame-src https://*.razorpay.com",
+  );
+  for (const path of ["/app", "/settings/security", "/pricing"]) {
+    const other = await page.request.get(path);
+    expect(other.headers()["content-security-policy"], path).not.toContain("razorpay");
+  }
 });
 
 test("no Content Security Policy violations anywhere in the flow (SPEC §30)", () => {
