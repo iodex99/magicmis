@@ -80,7 +80,15 @@ export default async function CompanyPage({
       captured_credits: string | null;
       created_at: Date;
     }>(
-      `select id, type, state, captured_credits::text as captured_credits, created_at from jobs where company_id = $1 order by created_at desc limit 50`,
+      // What the account did, not what it looked at. A run screen prices itself by
+      // creating an estimate; one that was superseded or abandoned carries no charge and
+      // is not part of this company's history.
+      `select id, type, state, captured_credits::text as captured_credits, created_at
+          from jobs
+         where company_id = $1
+           and state not in ('draft', 'estimated')
+           and not (state = 'cancelled' and coalesce(captured_credits, 0) = 0)
+         order by created_at desc limit 50`,
       [id],
     ),
     pool.query<{ id: string; file_name: string | null; created_at: Date }>(

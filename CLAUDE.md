@@ -21,6 +21,10 @@ on `/sign-in/enrol` with a session already established; the run screen prices it
 its single button **is** the SPEC §12 confirmation. Changing `supabase/templates/` needs
 `docker restart supabase_auth_magicmis` to take effect locally.
 
+CI runs E2E against a **clean** Supabase stack, which catches what a long-lived local one
+hides. Before pushing a flow change, reproduce it: `npx supabase stop --no-backup` then
+`npx supabase start -x storage-api,imgproxy,realtime`.
+
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
 Web E2E: `pnpm --filter @magicmis/web build && pnpm --filter @magicmis/web e2e`.

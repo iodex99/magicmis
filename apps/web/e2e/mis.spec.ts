@@ -155,7 +155,9 @@ test("refreshes the next month with no review and zero AI calls", async () => {
 
   expect(await aiCallsForAccount()).toBe(0);
   const r = await db.query<{ type: string; state: string; captured_credits: string }>(
-    `select j.type, j.state, j.captured_credits::text from jobs j join accounts a on a.id = j.account_id where a.email = $1 order by j.created_at`,
+    `select j.type, j.state, j.captured_credits::text from jobs j join accounts a on a.id = j.account_id
+      where a.email = $1 and j.state not in ('draft', 'estimated', 'cancelled')
+      order by j.created_at`,
     [email],
   );
   expect(r.rows).toEqual([
@@ -279,12 +281,23 @@ test("sets up a company that recreates the user's reference MIS, with binding re
   const totalIncome = rows.find((r) => r[0] === "Total Income");
   expect(typeof totalIncome?.[1]).toBe("number");
 
+  // Exactly one charged job. Adding the reference re-priced the run, and the superseded
+  // estimate is cancelled with nothing held — it is not part of the company's history.
   const job = await db.query<{ type: string; state: string }>(
     `select j.type, j.state from jobs j join companies c on c.id = j.company_id join accounts a on a.id = c.account_id
-     where c.name = 'Synthetic Recreated Traders' and a.email = $1`,
+     where c.name = 'Synthetic Recreated Traders' and a.email = $1
+       and j.state not in ('draft', 'estimated', 'cancelled')`,
     [email],
   );
   expect(job.rows).toEqual([{ type: "reference_mis_recreate", state: "completed" }]);
+
+  const abandoned = await db.query<{ state: string; captured: string }>(
+    `select j.state, coalesce(j.captured_credits, 0)::text as captured
+       from jobs j join companies c on c.id = j.company_id join accounts a on a.id = c.account_id
+      where c.name = 'Synthetic Recreated Traders' and a.email = $1 and j.state = 'cancelled'`,
+    [email],
+  );
+  expect(abandoned.rows.every((r) => r.captured === "0")).toBe(true);
   expect(await aiCallsForAccount()).toBe(0);
 });
 

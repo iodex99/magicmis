@@ -129,6 +129,8 @@ export function JobRunner({
   // One draft job per distinct priceable request, so changing a dropdown twice does not
   // leave a trail of draft rows behind.
   const priced = useRef(new Map<string, CreatedJob>());
+  // Read inside the pricing effect without making it depend on its own output.
+  const shownJobId = useRef<string | null>(null);
 
   useEffect(() => {
     const effect = { cancelled: false };
@@ -212,6 +214,7 @@ export function JobRunner({
       ]);
       const cached = priced.current.get(signature);
       if (cached !== undefined) {
+        shownJobId.current = cached.jobId;
         setQuote(cached);
         return;
       }
@@ -234,6 +237,16 @@ export function JobRunner({
         return;
       }
       priced.current.set(signature, r.data);
+      // Adding a reference workbook or changing a tier makes the previous estimate wrong.
+      // Cancel it rather than leaving an abandoned draft on the account: nothing was held,
+      // and an estimate nobody acted on is not part of this company's history.
+      const superseded = shownJobId.current;
+      if (superseded !== null && superseded !== r.data.jobId)
+        void api(`/api/jobs/${superseded}/cancel`, {
+          body: {},
+          idempotencyKey: newIdempotencyKey(),
+        });
+      shownJobId.current = r.data.jobId;
       setQuote(r.data);
     })();
     return () => {

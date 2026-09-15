@@ -68,7 +68,14 @@ nothing is held or charged before it.
 
 Tier and delivery collapse into **Options**, closed, with defaults chosen and each
 explained in a sentence. Re-pricing is keyed on a signature of the priceable inputs, so
-changing a dropdown twice does not leave a trail of draft jobs.
+changing a dropdown twice does not re-ask for the same price.
+
+Pricing creates an estimate, which means adding a reference workbook — it turns a setup
+into a recreate — can supersede one. The superseded estimate is **cancelled**, nothing
+having been held, and the company's Activity list shows what the account *did*: drafts,
+estimates and zero-charge cancellations are excluded, the same way the commentary page has
+always treated them. A cancellation that carried a fee still shows, because that is a
+charge the customer should see.
 
 When the balance is short, the panel says by how much and links to the Wallet with
 `?need=<credits>`, which banners the shortfall and marks the smallest pack that covers it.
