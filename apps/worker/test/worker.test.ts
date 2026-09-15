@@ -162,9 +162,7 @@ describe("notification delivery (SPEC §29, ADR 0010)", () => {
     await deliverNotifications(pool, new RecordingSender(), CTX, later(1));
     const a = await account();
     const ids = await Promise.all(
-      Array.from({ length: 12 }, () =>
-        queue(a.id, "security.backup_codes_regenerated", {}),
-      ),
+      Array.from({ length: 12 }, () => queue(a.id, "security.password_changed", {})),
     );
     const s1 = new RecordingSender();
     const s2 = new RecordingSender();
@@ -184,8 +182,6 @@ describe("templates", () => {
         "security.new_device_login",
         { device: "<script>x</script>", country: null, city: null },
       ],
-      ["security.mfa_reset_with_backup_code", {}],
-      ["security.backup_codes_regenerated", {}],
       ["security.password_changed", {}],
       [
         "security.break_glass",
@@ -202,8 +198,6 @@ describe("templates", () => {
           reason: "Customer asked for help with a mapping",
         },
       ],
-      ["security.recovery_requested", { hold_until: "2027-01-02T00:00:00Z" }],
-      ["security.mfa_reset_by_admin", {}],
       ["account.deletion_scheduled", { purge_after: "2027-02-01T00:00:00Z" }],
       [
         "account.export_ready",

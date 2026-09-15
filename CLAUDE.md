@@ -28,7 +28,18 @@ hides. Before pushing a flow change, reproduce it: `npx supabase stop --no-backu
 
 Run the checks as CI does: `pnpm test` (turbo, not `pnpm -r test` — they schedule
 differently), `pnpm lint`, `pnpm typecheck`, and `pnpm format:check`, which covers the
-whole tree including `.sql`, `.html` and `.md` that a hand-written glob will miss. Ten packages each start a Postgres through Testcontainers, so the root script
+whole tree including `.sql`, `.html` and `.md` that a hand-written glob will miss.
+
+**Turbo caches test results and replays the old passing log on a hit**, which reads exactly
+like a fresh pass. Before trusting a green suite as evidence, run `TURBO_FORCE=true pnpm test`
+— `pnpm test -- --force` does not work, the flag reaches vitest instead — or read the
+`cache hit` / `cache miss` lines. CI always misses, so otherwise it sees the truth first.
+
+A fully uncached run at `--concurrency=3` can still exhaust Docker Desktop on this machine
+(`Health check not healthy after 120000ms` from Testcontainers). That is the laptop, not
+the code: CI runs the same suite uncached on native Docker in under two minutes. For a
+trustworthy local full run use `TURBO_FORCE=true pnpm exec turbo run test --concurrency=1`,
+or verify the packages you touched individually and let CI be the arbiter. Ten packages each start a Postgres through Testcontainers, so the root script
 caps turbo at `--concurrency=3`. A `Hook timed out in 180000ms` in a random package means
 that cap is too high for the machine, not that the test is slow.
 
