@@ -136,6 +136,9 @@ export function JobRunner({
   const priced = useRef(new Map<string, CreatedJob>());
   // Read inside the pricing effect without making it depend on its own output.
   const shownJobId = useRef<string | null>(null);
+  // Every estimate this screen has created. An effect cancelled mid-flight still leaves a
+  // draft behind on the server, and only this set knows about it.
+  const createdDrafts = useRef(new Set<string>());
 
   useEffect(() => {
     const effect = { cancelled: false };
@@ -235,6 +238,8 @@ export function JobRunner({
         },
         idempotencyKey: newIdempotencyKey(),
       });
+      // Record it before bailing out: the row exists whether or not we still want it.
+      if (r.ok) createdDrafts.current.add(r.data.jobId);
       if (cancelled()) return;
       setQuoting(false);
       if (!r.ok) {
@@ -245,12 +250,14 @@ export function JobRunner({
       // Adding a reference workbook or changing a tier makes the previous estimate wrong.
       // Cancel it rather than leaving an abandoned draft on the account: nothing was held,
       // and an estimate nobody acted on is not part of this company's history.
-      const superseded = shownJobId.current;
-      if (superseded !== null && superseded !== r.data.jobId)
-        void api(`/api/jobs/${superseded}/cancel`, {
+      for (const draft of createdDrafts.current) {
+        if (draft === r.data.jobId) continue;
+        createdDrafts.current.delete(draft);
+        void api(`/api/jobs/${draft}/cancel`, {
           body: {},
           idempotencyKey: newIdempotencyKey(),
         });
+      }
       shownJobId.current = r.data.jobId;
       setQuote(r.data);
     })();

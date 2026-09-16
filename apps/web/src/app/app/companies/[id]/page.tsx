@@ -42,6 +42,13 @@ const JOB_STATE: Record<string, { label: string; tone: BadgeTone }> = {
   awaiting_review: { label: "Awaiting review", tone: "warning" },
   running: { label: "Running", tone: "accent" },
   queued: { label: "Queued", tone: "accent" },
+  expired: { label: "Expired", tone: "muted" },
+  needs_quote: { label: "Needs a quote", tone: "warning" },
+  quote_accepted: { label: "Quote accepted", tone: "accent" },
+  failed_data: { label: "Failed — check the data", tone: "negative" },
+  failed_platform: { label: "Failed — our fault", tone: "negative" },
+  commentary_queued: { label: "Queued", tone: "accent" },
+  commentary_done: { label: "Completed", tone: "positive" },
 };
 
 const ist = (d: Date, withTime = true) =>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { formatCredits, formatRupees } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
@@ -39,11 +39,29 @@ export function BuyCreditsInline({
     text: string;
   } | null>(null);
 
+  /**
+   * False once this card is gone from the screen.
+   *
+   * The confirmation poll below runs for half a minute after the payment window closes, and
+   * the reader is free to leave in the middle of it. Without this it keeps asking the
+   * server for a wallet nobody is looking at, and calls `onCredited` into a run that no
+   * longer exists. The payment itself is unaffected — the webhook grants the credits
+   * server-side whether or not anyone is watching.
+   */
+  const live = useRef<boolean>(true);
+  // Read through a call: a bare `live.current` check stays narrowed across every await
+  // that follows it, so the later guards would be compiled away as "always true".
+  const isLive = () => live.current;
   useEffect(() => {
+    live.current = true;
     void api<WalletView>("/api/wallet").then((r) => {
+      if (!isLive()) return;
       if (r.ok) setView(r.data);
       else setNotice({ tone: "error", text: r.message });
     });
+    return () => {
+      live.current = false;
+    };
   }, []);
 
   async function buy(packId: string) {
@@ -91,6 +109,7 @@ export function BuyCreditsInline({
               signature: response.razorpay_signature,
             },
           });
+          if (!isLive()) return;
           if (!verified.ok) {
             setBusy(false);
             setNotice({ tone: "error", text: verified.message });
@@ -101,8 +120,9 @@ export function BuyCreditsInline({
             text: "Payment received. Confirming with the payment provider…",
           });
           // The webhook grants the credits; poll briefly, then hand back.
-          for (let i = 0; i < 20; i += 1) {
+          for (let i = 0; i < 20 && isLive(); i += 1) {
             await new Promise((r) => setTimeout(r, 1500));
+            if (!isLive()) return;
             const next = await api<WalletView>("/api/wallet");
             if (
               next.ok &&
@@ -115,6 +135,7 @@ export function BuyCreditsInline({
               return;
             }
           }
+          if (!isLive()) return;
           setBusy(false);
           setNotice({
             tone: "info",
