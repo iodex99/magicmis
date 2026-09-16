@@ -94,8 +94,13 @@ You are the lead engineer building this product from an empty repository. This d
 11. **Chat with the MIS costs credits per message.**
 12. **Recurring costs.** Every monthly refresh consumes credits. Each active company also incurs a monthly company memory fee.
 13. **Desktop only.** Latest Chrome, Edge and Firefox. Mobile browsers see a message that the app requires a desktop.
-14. **Indian context.**
-    - INR, with GST on credit purchases
+14. **Indian context, sold worldwide** (amended by ADR 0030, 2026-09-16).
+    - **India is billed in INR with GST; every other country is billed in USD as a
+      zero-rated export of services under §16 of the IGST Act.** Credits themselves have
+      no currency — only their purchase does. §2.4's "1 credit = ₹1 ex-GST" holds for a
+      customer billed in rupees; a credit's sale price is set per currency.
+    - The customer's own books keep their own conventions: currency, financial year end
+      and number format are per company.
     - Financial year April to March by default (configurable per company)
     - Lakhs/crores number formatting (with absolute and millions options)
     - Timestamps stored in UTC, displayed in IST
@@ -112,7 +117,7 @@ Do not build any of the following:
 - a Tally desktop connector, or scheduled refreshes that run without a user upload
 - integrations with Zoho Books, QuickBooks, Busy, SAP or Google Sheets
 - mobile apps or mobile layouts
-- multi-currency
+- multi-currency accounting (a company's books are reported in their own single currency; **billing** is INR or USD, ADR 0030)
 - forecasting
 - multi-entity consolidation
 - Improve/Redesign modes for reference MIS (Recreate only)

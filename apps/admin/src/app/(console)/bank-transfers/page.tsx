@@ -36,7 +36,8 @@ export default async function BankTransfersPage({
                 {[
                   "Proforma",
                   "Account",
-                  "Total (₹)",
+                  "Ccy",
+                  "Total",
                   "Credits + bonus",
                   "Requested",
                   "Mark received",
@@ -62,7 +63,8 @@ export default async function BankTransfersPage({
                       {p.business_name}
                     </Link>
                   </td>
-                  <td className={num}>{minorCell(p.total_paise)}</td>
+                  <td className={num}>{p.currency}</td>
+                  <td className={num}>{minorCell(p.total_minor)}</td>
                   <td className={num}>
                     {p.credits} + {p.bonus_credits}
                   </td>

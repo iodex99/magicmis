@@ -1,13 +1,15 @@
-# Project brain — [PRODUCT_NAME]
+# Project brain — Magic MIS
 
-Prepaid, usage-priced AI MIS platform for Indian CA firms and SMEs.
+Prepaid, usage-priced AI MIS platform for CA firms and SMEs. Indian-built and sold
+worldwide: **India is billed in INR with GST, everywhere else in USD as a zero-rated
+export of services** (ADR 0030).
 Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ---
 
 ## Current phase
 
-**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), plan [ui-redesign](docs/plans/ui-redesign.md)) and the friction pass (ADR [0027](docs/adr/0027-friction.md), plan [friction](docs/plans/friction.md)) and the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)). **Deployment target is Vercel**, confirmed by the owner. What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the product name (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26) and a data-protection review (R-50).
+**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), plan [ui-redesign](docs/plans/ui-redesign.md)) the friction pass (ADR [0027](docs/adr/0027-friction.md)), the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)), the public site (plan [seo-marketing](docs/plans/seo-marketing.md)) and selling worldwide in two currencies (ADR [0030](docs/adr/0030-worldwide-two-currencies.md), plan [worldwide](docs/plans/worldwide.md)). **Deployment target is Vercel.** What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the apex domain (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26), the export LUT (R-59), Razorpay international activation (R-60) and a data-protection review (R-50).
 
 Design system: tokens in `packages/ui/src/tokens.ts`, mirrored into both apps' `globals.css`.
 Primitives in `apps/web/src/components/ui.tsx`; icons are hand-drawn in `Icon.tsx` (no icon
@@ -195,9 +197,14 @@ content current.
 12. **Recurring costs.** Every monthly refresh consumes credits; each active company
     also incurs a monthly company memory fee.
 13. **Desktop only.** Latest Chrome, Edge, Firefox. Mobile browsers get a message.
-14. **Indian context.** INR + GST on purchases · FY April–March default (per-company
-    configurable) · lakhs/crores formatting (absolute and millions options) ·
+14. **Indian context, sold worldwide** (ADR 0030). **India bills in INR with GST;
+    everywhere else bills in USD as a zero-rated export of services (IGST Act §16).**
+    Credits have no currency — only their purchase does. FY April–March default
+    (per-company configurable) · lakhs/crores formatting (absolute and millions options) ·
     **store UTC, display IST** · **dates parsed day-first, never month-first.**
+
+**Prices are set per currency, never converted.** There is no exchange rate on any
+customer-facing amount; `ai.fx` converts vendor cost for margin reporting only.
 
 **Business priority: gross margin is the single most important property of this
 product.** Every design choice affecting cost or pricing must protect it.

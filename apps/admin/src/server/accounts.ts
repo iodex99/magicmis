@@ -117,13 +117,14 @@ export async function pendingBankTransfers(db: Queryable) {
     account_id: string;
     business_name: string;
     email: string;
-    total_paise: string;
+    currency: string;
+    total_minor: string;
     credits: string;
     bonus_credits: string;
     bank_transfer_requested_at: Date | null;
     proforma_number: string | null;
   }>(
-    `select p.id, p.account_id, a.business_name, a.email, p.total_paise::text, p.credits::text,
+    `select p.id, p.account_id, a.business_name, a.email, p.currency, p.total_minor::text, p.credits::text,
             p.bonus_credits::text, p.bank_transfer_requested_at, i.number as proforma_number
      from public.purchases p
      join public.accounts a on a.id = p.account_id
