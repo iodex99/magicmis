@@ -155,8 +155,8 @@ describe("GST invariants (SPEC §13)", () => {
   ): Promise<unknown> =>
     testDb().pool.query(
       `insert into public.purchases
-         (account_id, amount_paise_ex_gst, gst_paise, cgst_paise, sgst_paise, igst_paise,
-          total_paise, method, status)
+         (account_id, amount_minor_ex_tax, tax_minor, cgst_minor, sgst_minor, igst_minor,
+          total_minor, method, status)
        values ($1, 200000, $2, $3, $4, $5, $6, 'razorpay', 'created')`,
       [accountId, gst, cgst, sgst, igst, 200000 + gst],
     );
