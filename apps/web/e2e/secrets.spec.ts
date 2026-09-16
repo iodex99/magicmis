@@ -19,7 +19,6 @@ import pg from "pg";
 
 import { createVerifiedAccount, uniqueEmail } from "./helpers";
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const { readEnvFile, scanTexts } = (await import(
   path.resolve(process.cwd(), "..", "..", "scripts", "scan-client-bundles.mjs")
 )) as {
@@ -41,6 +40,12 @@ const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
  */
 const STATIC_PATHS = [
   "/",
+  "/product",
+  "/how-it-works",
+  "/mis-report-format",
+  "/tally-mis-report",
+  "/for-ca-firms",
+  "/security",
   "/pricing",
   "/legal/terms",
   "/legal/privacy",

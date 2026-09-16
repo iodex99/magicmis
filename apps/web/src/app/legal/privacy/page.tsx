@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
-export const metadata = { title: "Privacy notice" };
+export const metadata: Metadata = pageMetadata("/legal/privacy");
 
 /**
  * TODO(review): R-11. SPEC §31 — structure only. Every section below states the facts of how the

@@ -7,6 +7,8 @@ import type {
   TextareaHTMLAttributes,
 } from "react";
 
+import { PRODUCT_NAME } from "@/lib/brand";
+
 import { Icon, type IconName } from "./Icon";
 
 /**
@@ -784,7 +786,7 @@ export function AuthShell({
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
           <BrandMark size={30} />
           <span className="text-[0.9375rem] font-semibold tracking-tight text-neutral-900">
-            MIS Studio
+            {PRODUCT_NAME}
           </span>
         </Link>
         <div className="rounded-2xl border border-neutral-200/80 bg-white p-7 shadow-lg">

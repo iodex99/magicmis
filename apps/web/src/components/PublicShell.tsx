@@ -14,6 +14,36 @@ import { BrandMark } from "./ui";
  * Exactly one link here is named "Create an account": the page's own primary call to
  * action. The header offers "Sign in" instead, so the two never compete.
  */
+const FOOTER_GROUPS: readonly {
+  heading: string;
+  links: readonly (readonly [string, string])[];
+}[] = [
+  {
+    heading: "Product",
+    links: [
+      ["/product", "What you get"],
+      ["/how-it-works", "How it works"],
+      ["/security", "Security"],
+      ["/pricing", "Pricing"],
+    ],
+  },
+  {
+    heading: "Guides",
+    links: [
+      ["/mis-report-format", "MIS report format"],
+      ["/tally-mis-report", "MIS from Tally"],
+      ["/for-ca-firms", "For CA firms"],
+    ],
+  },
+  {
+    heading: "Legal",
+    links: [
+      ["/legal/terms", "Terms of service"],
+      ["/legal/privacy", "Privacy notice"],
+    ],
+  },
+];
+
 export function PublicShell({
   children,
   action,
@@ -32,17 +62,27 @@ export function PublicShell({
             </span>
           </Link>
           <nav aria-label="Site" className="flex items-center gap-1 text-[0.8125rem]">
+            {/* The three a visitor evaluating the product needs, in the order they ask:
+                what is it, how does it work, what does it cost. The guides are reached
+                from the home page and from each other, not crowded in here. */}
+            {[
+              ["/product", "Product"],
+              ["/how-it-works", "How it works"],
+              ["/security", "Security"],
+            ].map(([href, label]) => (
+              <Link
+                key={href}
+                href={href ?? "/"}
+                className="hidden rounded-md px-3 py-2 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 md:block"
+              >
+                {label}
+              </Link>
+            ))}
             <Link
               href="/pricing"
               className="rounded-md px-3 py-2 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
             >
               Pricing
-            </Link>
-            <Link
-              href="/legal/privacy"
-              className="hidden rounded-md px-3 py-2 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 sm:block"
-            >
-              Privacy
             </Link>
             <Link
               href="/sign-in"
@@ -57,22 +97,47 @@ export function PublicShell({
 
       <main className="flex-1">{children}</main>
 
+      {/* A real footer, not a copyright line: it is how a reader who arrived on one guide
+          from search finds the rest of the site, and how a crawler reaches every page from
+          every page. */}
       <footer className="border-t border-neutral-200/70 bg-white">
-        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-3 px-6 py-8 text-[0.8125rem] text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>
+        <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <Link href="/" className="flex items-center gap-2.5">
+                <BrandMark size={26} />
+                <span className="text-[0.875rem] font-semibold tracking-tight text-neutral-900">
+                  {PRODUCT_NAME}
+                </span>
+              </Link>
+              <p className="mt-3 text-[0.8125rem] leading-relaxed text-neutral-500">
+                Monthly management reports from your Tally exports, for CA firms and
+                finance teams in India.
+              </p>
+            </div>
+            {FOOTER_GROUPS.map((group) => (
+              <nav key={group.heading} aria-label={group.heading}>
+                <h2 className="text-[0.75rem] font-medium tracking-wide text-neutral-500 uppercase">
+                  {group.heading}
+                </h2>
+                <ul className="mt-3 flex flex-col gap-2 text-[0.8125rem]">
+                  {group.links.map(([href, label]) => (
+                    <li key={href}>
+                      <Link
+                        href={href}
+                        className="text-neutral-600 hover:text-neutral-900"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+          </div>
+          <p className="mt-10 border-t border-neutral-200/70 pt-6 text-[0.8125rem] text-neutral-500">
             © {new Date().getFullYear()} {PRODUCT_NAME}. Prices in INR, exclusive of GST.
           </p>
-          <nav aria-label="Legal" className="flex gap-5">
-            <Link href="/pricing" className="hover:text-neutral-900">
-              Pricing
-            </Link>
-            <Link href="/legal/terms" className="hover:text-neutral-900">
-              Terms
-            </Link>
-            <Link href="/legal/privacy" className="hover:text-neutral-900">
-              Privacy notice
-            </Link>
-          </nav>
         </div>
       </footer>
     </div>

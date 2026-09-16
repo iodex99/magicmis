@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
-export const metadata = { title: "Terms" };
+export const metadata: Metadata = pageMetadata("/legal/terms");
 
 /**
  * TODO(review): R-10. SPEC §31 — structure only. Each section records how the product behaves so a

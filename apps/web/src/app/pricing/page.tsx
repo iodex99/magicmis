@@ -1,3 +1,6 @@
+import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo";
 import { readConfig } from "@magicmis/db/config";
 import { priceList } from "@magicmis/wallet";
 import { z } from "zod";
@@ -7,7 +10,7 @@ import { Badge, ButtonLink, DataTable, Panel, Td, Th, Tr } from "@/components/ui
 import { ACTION_LABELS, formatCredits, formatRupees } from "@/lib/actions";
 import { db } from "@/lib/db";
 
-export const metadata = { title: "Pricing" };
+export const metadata: Metadata = pageMetadata("/pricing");
 // Read from the versioned price book on each request; never prerendered at build time.
 export const dynamic = "force-dynamic";
 

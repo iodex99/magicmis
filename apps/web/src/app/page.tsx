@@ -1,10 +1,21 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { Sparkline } from "@/components/Charts";
 import { Icon, type IconName } from "@/components/Icon";
+import { Faqs } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
+import {
+  FaqSchema,
+  OrganizationSchema,
+  SoftwareApplicationSchema,
+  type Faq,
+} from "@/components/StructuredData";
 import { Badge, ButtonLink } from "@/components/ui";
 import { PRODUCT_NAME } from "@/lib/brand";
+import { PUBLIC_PAGES, pageMetadata, publicPage } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata("/");
 
 /**
  * Public home.
@@ -12,7 +23,10 @@ import { PRODUCT_NAME } from "@/lib/brand";
  * SPEC §2.3 allows public marketing samples on **fictional** data only, and nothing here
  * is computed from anyone's figures -- the illustration below is invented and says so.
  * SPEC §32 keeps the marketing site to distinct pages rather than one long scroll; this
- * is the entry point, and Pricing is its own page.
+ * is the entry point, and each of the others is linked from here.
+ *
+ * No testimonials, customer logos or usage counts: there are no customers yet. Every claim
+ * on this page is one the product can be held to today.
  */
 
 const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
@@ -33,27 +47,70 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   },
 ];
 
-const PROOF: readonly { icon: IconName; title: string; body: string }[] = [
+const PROOF: readonly { icon: IconName; title: string; body: string; href: string }[] = [
   {
     icon: "shield",
     title: "Raw files stay in your browser",
     body: "The server receives redacted structural profiles and aggregates. Party names are re-inserted locally, in the workbook you download.",
+    href: "/security",
   },
   {
     icon: "check",
     title: "Every number is computed, not written",
     body: "Figures come from a deterministic engine and are inserted into commentary through placeholders. The model never writes a number.",
+    href: "/how-it-works",
   },
   {
     icon: "wallet",
     title: "You see the price before it is charged",
     body: "Prepaid credits, a fixed price per action, confirmed before anything runs. No subscription, no negative balance.",
+    href: "/pricing",
+  },
+];
+
+/** The guides, linked from here so a reader who arrived on one can find the rest. */
+const GUIDES = ["/mis-report-format", "/tally-mis-report", "/for-ca-firms"] as const;
+
+const FAQS: readonly Faq[] = [
+  {
+    question: `What does ${PRODUCT_NAME} do?`,
+    answer:
+      "It turns Tally exports — trial balances, ledgers and registers — into a monthly management report: a validated Excel workbook with live formulas, a dashboard and written commentary, where every figure traces back to the ledger it came from.",
+  },
+  {
+    question: "Does my accounting data get uploaded?",
+    answer:
+      "No. Files are parsed and queried in your browser. The server receives a redacted structural profile and aggregate figures for the action you paid for — never the raw file, and never the party names, which are re-inserted locally in the workbook you download.",
+  },
+  {
+    question: "Is there a free trial?",
+    answer:
+      "No. There is no free tier, trial or free sample on your own data. Creating an account, adding a company and reading the price book cost nothing; anything that produces analysis or output is a paid action, priced before it runs.",
+  },
+  {
+    question: "How much does a monthly report cost?",
+    answer:
+      "Each action has a fixed price in credits from a published price book, and one credit is one rupee excluding GST. A monthly refresh on unchanged ledger structure is much cheaper than the first setup, because it reuses the mapping and makes no AI calls at all.",
+  },
+  {
+    question: "Do I need to install anything or connect to Tally?",
+    answer:
+      "No. There is no connector and nothing to install. You export the reports from Tally as you would anyway, and load the files in your browser.",
+  },
+  {
+    question: "Can several people in my firm use one account?",
+    answer:
+      "No. One account is one login, with a single active session — a new sign-in ends the previous one. There are no team members, roles, invitations or share links.",
   },
 ];
 
 export default function HomePage() {
   return (
     <PublicShell>
+      <OrganizationSchema />
+      <SoftwareApplicationSchema />
+      <FaqSchema faqs={FAQS} />
+
       <section className="mx-auto w-full max-w-[1120px] px-6 pt-16 pb-14 sm:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div>
@@ -70,8 +127,8 @@ export default function HomePage() {
               <ButtonLink href="/sign-up" size="lg" iconAfter="arrow-right">
                 Create an account
               </ButtonLink>
-              <ButtonLink href="/pricing" variant="secondary" size="lg" icon="table">
-                See the price book
+              <ButtonLink href="/product" variant="secondary" size="lg" icon="chart">
+                See what you get
               </ButtonLink>
             </div>
             <p className="mt-4 text-[0.8125rem] text-neutral-500">
@@ -155,26 +212,82 @@ export default function HomePage() {
               </li>
             ))}
           </ol>
+          <p className="mt-6 text-[0.875rem] text-neutral-600">
+            <Link
+              href="/how-it-works"
+              className="font-medium text-accent-700 hover:underline"
+            >
+              How each stage works, in detail
+            </Link>
+          </p>
         </div>
       </section>
 
       <section className="mx-auto w-full max-w-[1120px] px-6 py-14">
         <div className="grid gap-5 md:grid-cols-3">
           {PROOF.map((item) => (
-            <div key={item.title} className="flex gap-3.5">
+            <Link
+              key={item.title}
+              href={item.href}
+              className="group flex gap-3.5 rounded-xl p-3 -m-3 hover:bg-white"
+            >
               <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600">
                 <Icon name={item.icon} size={17} />
               </span>
               <div>
-                <h3 className="text-[0.9375rem] font-semibold text-neutral-900">
+                <h3 className="text-[0.9375rem] font-semibold text-neutral-900 group-hover:text-accent-700">
                   {item.title}
                 </h3>
                 <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-600">
                   {item.body}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-neutral-200/70 bg-white">
+        <div className="mx-auto w-full max-w-[1120px] px-6 py-14">
+          <h2 className="text-[1.375rem] font-semibold tracking-tight text-neutral-900">
+            Guides
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-neutral-600">
+            Written to be useful whether or not you ever use the product.
+          </p>
+          <ul className="mt-8 grid gap-5 md:grid-cols-3">
+            {GUIDES.map((path) => {
+              const page = publicPage(path);
+              return (
+                <li key={path}>
+                  <Link
+                    href={path}
+                    className="group flex h-full flex-col rounded-xl border border-neutral-200/80 bg-neutral-25 p-5 hover:border-accent-200"
+                  >
+                    <h3 className="text-[0.9375rem] font-semibold text-neutral-900 group-hover:text-accent-700">
+                      {page.title.split(":")[0]}
+                    </h3>
+                    <p className="mt-2 flex-1 text-[0.8125rem] leading-relaxed text-neutral-600">
+                      {page.description}
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-1.5 text-[0.8125rem] font-medium text-accent-700">
+                      Read
+                      <Icon name="arrow-right" size={14} />
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[760px] px-6 py-14">
+        <h2 className="text-[1.375rem] font-semibold tracking-tight text-neutral-900">
+          Common questions
+        </h2>
+        <div className="mt-6">
+          <Faqs faqs={FAQS} />
         </div>
       </section>
 
@@ -198,6 +311,18 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* Every public page is reachable from the home page: a page nothing links to is a
+          page a crawler has to be told about twice, and a reader never finds at all. */}
+      <nav aria-label="All pages" className="sr-only">
+        <ul>
+          {PUBLIC_PAGES.map((page) => (
+            <li key={page.path}>
+              <Link href={page.path}>{page.title}</Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </PublicShell>
   );
 }
