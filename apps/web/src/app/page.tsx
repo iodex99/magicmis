@@ -71,9 +71,9 @@ const PROOF: readonly { icon: IconName; title: string; body: string; href: strin
 /** The guides, linked from here so a reader who arrived on one can find the rest. */
 const GUIDES = [
   "/management-accounts",
+  "/for-accountants",
   "/mis-report-format",
   "/tally-mis-report",
-  "/for-accountants",
 ] as const;
 
 const FAQS: readonly Faq[] = [
@@ -126,9 +126,9 @@ export default function HomePage() {
             <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-neutral-600">
               {PRODUCT_NAME} turns a trial balance from any accounting system into a
               validated Excel workbook with live formulas, a dashboard and written
-              commentary — and does it again next month without being re-taught. Called an
-              MIS in India and management accounts in the UK; it is the same monthly
-              report either way.
+              commentary — and does it again next month without being re-taught.
+              Management accounts, a monthly reporting pack, an MIS — the same report
+              under whichever name your market uses.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <ButtonLink href="/sign-up" size="lg" iconAfter="arrow-right">
@@ -149,7 +149,7 @@ export default function HomePage() {
               <div>
                 <p className="eyebrow">Revenue · illustration</p>
                 <p className="num mt-1.5 text-[1.75rem] leading-none font-semibold text-neutral-900">
-                  ₹4,82,15,000
+                  $1,284,600
                 </p>
               </div>
               <span className="rounded-full bg-positive-subtle px-2.5 py-1 text-[0.75rem] font-medium text-positive">

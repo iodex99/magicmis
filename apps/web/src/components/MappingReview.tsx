@@ -43,9 +43,12 @@ const SOURCE_LABELS: Record<MappingSource, string> = {
 export function MappingReview({
   rows,
   onConfirm,
+  currencySymbol,
 }: {
   rows: readonly ReviewRow[];
   onConfirm: (confirmed: ReturnType<typeof confirm>) => void;
+  /** The company's reporting currency (ADR 0030). Omitted where it is not known. */
+  currencySymbol?: string | undefined;
 }) {
   const [state, setState] = useState(() => initialReview(rows));
   // How many rows wanted a decision when the review opened, as a fixed headline: it must
@@ -266,7 +269,10 @@ export function MappingReview({
                 <th className="px-3 py-2">Ledger or column</th>
                 <th className="px-3 py-2">Parent group</th>
                 <th className="px-3 py-2">File and sheet</th>
-                <th className="px-3 py-2 text-right">Period amount (₹)</th>
+                <th className="px-3 py-2 text-right">
+                  Period amount
+                  {currencySymbol === undefined ? "" : ` (${currencySymbol})`}
+                </th>
                 <th className="px-3 py-2">Head</th>
                 <th className="px-3 py-2">Source</th>
                 <th className="px-3 py-2">Confidence</th>

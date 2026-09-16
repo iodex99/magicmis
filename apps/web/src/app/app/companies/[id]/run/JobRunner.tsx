@@ -115,6 +115,7 @@ export function JobRunner({
   const [phase, setPhase] = useState<Phase>({ kind: "files" });
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [currencySymbol, setCurrencySymbol] = useState<string | undefined>(undefined);
   const heartbeat = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /**
@@ -158,6 +159,9 @@ export function JobRunner({
         setError(config.message);
         return;
       }
+      // The company's reporting currency, for the amounts shown during review. The
+      // pipeline gets the whole session; this screen only needs the symbol.
+      setCurrencySymbol(session.data.company.currencySymbol);
       await pipelineClient().start(session.data, config.data.limits);
       setReady(true);
     })();
@@ -728,6 +732,7 @@ export function JobRunner({
         >
           <MappingReview
             rows={phase.rows}
+            currencySymbol={currencySymbol}
             onConfirm={(confirmed) => {
               const accepted = confirmed.some((c) => c.head === "UNMAPPED");
               if (phase.references !== null) {

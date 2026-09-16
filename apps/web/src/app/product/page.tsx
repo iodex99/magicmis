@@ -48,7 +48,7 @@ const DELIVERABLES: readonly {
   {
     icon: "chart",
     title: "A dashboard",
-    body: "Revenue and margin trend, working-capital days, ageing and liquidity — the views management asks for, in the company's own currency and number format — lakhs and crores, or thousands and millions.",
+    body: "Revenue and margin trend, working-capital days, ageing and liquidity — the views management asks for, in the company's own currency and number format — thousands and millions, or lakhs and crores.",
   },
   {
     icon: "file",
@@ -102,11 +102,11 @@ export default function ProductPage() {
 
       <WideSection
         title="The dashboard"
-        intro="Rendered with the same components the product uses. The company is made up — an Indian one here, so the figures read in lakhs and crores; a company reporting in pounds or dollars gets its own currency and grouping."
+        intro="Rendered with the same components the product uses. The company is made up. Its currency and number format follow the company being reported — dollars and thousands here, pounds, euros or lakhs and crores elsewhere."
       >
         <div className="mx-auto max-w-[1000px]">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <SampleCard label="Revenue" value="₹1.43 Cr" sub="This month · up 11.7% YoY">
+            <SampleCard label="Revenue" value="$1.43M" sub="This month · up 11.7% YoY">
               <Sparkline values={REVENUE} />
             </SampleCard>
             <SampleCard label="Gross margin" value="33.7%" sub="Up 1.1 pts on last month">
@@ -115,7 +115,7 @@ export default function ProductPage() {
             <SampleCard label="Debtor days" value="58" sub="Improved from 64">
               <MiniBars values={[64, 63, 61, 60, 59, 58]} />
             </SampleCard>
-            <SampleCard label="Receivables ageing" value="₹84.2 L" sub="62% current">
+            <SampleCard label="Receivables ageing" value="$842K" sub="62% current">
               <div className="flex items-center gap-4">
                 <Donut parts={AGEING} size={64} thickness={9} />
                 <ul className="flex flex-col gap-1 text-[0.75rem] text-neutral-500">
@@ -133,7 +133,7 @@ export default function ProductPage() {
               Commentary
             </div>
             <p className="mt-3 text-[0.9375rem] leading-relaxed text-neutral-700">
-              Revenue of ₹1.43 Cr was 11.7% above the same month last year, with gross
+              Revenue of $1.43M was 11.7% above the same month last year, with gross
               margin improving 1.1 points to 33.7% as the cost of traded goods fell.
               Debtor days shortened from 64 to 58, releasing working capital, though 17%
               of receivables are now over 60 days and concentrated in three accounts.

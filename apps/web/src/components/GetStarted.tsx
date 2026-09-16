@@ -34,7 +34,7 @@ export function GetStarted({
     {
       done: state.hasCredits,
       title: "Put credits in your wallet",
-      body: "1 credit = ₹1 before GST. A first setup costs 999 credits, each monthly refresh 299.",
+      body: "A first setup costs 999 credits and each monthly refresh 299. The wallet shows what a pack costs in your own currency before you buy.",
       action: { href: "/wallet", label: "Buy credits" },
     },
     {

@@ -46,12 +46,13 @@ export default async function PricingPage() {
         <header className="max-w-2xl">
           <Badge tone="accent">Prepaid credits</Badge>
           <h1 className="mt-4 text-[2.25rem] leading-tight font-semibold tracking-tight text-neutral-900">
-            One credit is one rupee, before GST.
+            A fixed price per action, paid up front.
           </h1>
           <p className="mt-4 text-[1.0625rem] leading-relaxed text-neutral-600">
-            Every action has a fixed price from a published price book. You see it and
-            confirm it before anything runs, and you are never billed by the minute or by
-            how much work it took.
+            Every action has a fixed price from a published price book, in US dollars or —
+            for customers in India — rupees. You see the price and confirm it before
+            anything runs, and you are never billed by the minute or by how much work it
+            took.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <ButtonLink href="/sign-up" iconAfter="arrow-right">

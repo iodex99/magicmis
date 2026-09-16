@@ -94,7 +94,11 @@ const ELSEWHERE: ReportingConventions = {
 export function defaultConventions(billingCountry: string | null): ReportingConventions {
   const code = (billingCountry ?? "").trim().toUpperCase();
   const known = BY_COUNTRY[code];
-  if (known === undefined) return code === "" ? INDIA : ELSEWHERE;
+  // No country yet means no evidence either way, so the international set is the default
+  // rather than the Indian one. An account that says it is in India gets `INDIA` from the
+  // table above, which is the case that actually matters — this branch only covers a
+  // company added before billing details exist.
+  if (known === undefined) return ELSEWHERE;
   return { ...ELSEWHERE, ...known };
 }
 

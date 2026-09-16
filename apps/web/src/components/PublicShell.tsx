@@ -31,9 +31,9 @@ const FOOTER_GROUPS: readonly {
     heading: "Guides",
     links: [
       ["/management-accounts", "Management accounts"],
+      ["/for-accountants", "For accountants"],
       ["/mis-report-format", "MIS report format"],
       ["/tally-mis-report", "MIS from Tally"],
-      ["/for-accountants", "For accountants"],
     ],
   },
   {

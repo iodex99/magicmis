@@ -313,7 +313,7 @@ export function WalletClient({
       {view.billingReady ? (
         <Panel
           title="Buy credits"
-          description="1 credit = ₹1 before GST. Prepaid and non-refundable; there is no free tier."
+          description="Credits are prepaid and non-refundable, and there is no free tier. Prices below are in your billing currency, before tax."
           icon="plus"
           padding="none"
         >
