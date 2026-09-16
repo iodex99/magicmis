@@ -1,5 +1,5 @@
 import { isDesktopUserAgent, isDeviceAgnosticPath } from "@magicmis/accounts/desktop";
-import { newNonce, securityHeaders } from "@magicmis/core/security-headers";
+import { isHttps, newNonce, securityHeaders } from "@magicmis/core/security-headers";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const headers = securityHeaders({
     nonce: newNonce(),
     development: process.env.NODE_ENV === "development",
-    https: request.nextUrl.protocol === "https:",
+    https: isHttps(request.nextUrl.protocol, (n) => request.headers.get(n)),
     // SPEC §30: the payment gateway only where credits are bought — the Wallet, and the
     // run screen, which takes the payment in place. It has to: leaving the run unmounts
     // the browser pipeline and destroys the files already loaded, so sending someone to

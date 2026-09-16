@@ -59,6 +59,22 @@ export function securityHeaders(o: SecurityHeaderOptions): Record<string, string
   };
 }
 
+/**
+ * Whether the browser reached us over HTTPS, and so whether to send HSTS (SPEC §30, R-55).
+ *
+ * The parsed URL alone is not enough behind a proxy: the connection from the proxy to the
+ * function can be plain, and a header that quietly stops being sent is the worst kind of
+ * missing security header — nothing fails, it is simply gone. Vercel documents
+ * `x-forwarded-proto` as "the protocol of the forwarded server, typically `https` in
+ * production" (https://vercel.com/docs/headers/request-headers, verified 2026-09-16), so
+ * either source saying https is enough.
+ */
+export function isHttps(protocol: string, get: (name: string) => string | null): boolean {
+  if (protocol === "https:") return true;
+  const forwarded = (get("x-forwarded-proto") ?? "").split(",")[0]?.trim().toLowerCase();
+  return forwarded === "https";
+}
+
 /** A per-request nonce: 128 random bits, base64. */
 export function newNonce(): string {
   const bytes = new Uint8Array(16);
@@ -69,10 +85,17 @@ export function newNonce(): string {
 /**
  * The client IP for rate limits, throttles and the admin allowlist (SPEC §30).
  *
- * Only proxy-added values are trusted. On Vercel, `x-vercel-forwarded-for` is set by the platform
- * and cannot be supplied by the client. Elsewhere the right-most `x-forwarded-for` entry is the
- * one the nearest proxy appended; entries to its left are whatever the client sent. `x-real-ip`
- * is never read: any client can set it. Returns null when there is no trustworthy value.
+ * Only proxy-added values are trusted. Verified against Vercel's request-header reference
+ * (https://vercel.com/docs/headers/request-headers, 2026-09-16), which says it "overwrite[s]
+ * the X-Forwarded-For header and do[es] not forward external IPs … to prevent IP spoofing",
+ * and that `x-vercel-forwarded-for` is the same value except that `x-forwarded-for` "could be
+ * overwritten if you're using a proxy on top of Vercel" — so the platform header is read first
+ * and is the one that survives a proxy in front.
+ *
+ * Off Vercel, the right-most `x-forwarded-for` entry is the one the nearest proxy appended;
+ * entries to its left are whatever the client sent. `x-real-ip` is never read: Vercel makes it
+ * a third copy of the same value, but any client can set it elsewhere, and a header that is
+ * only sometimes trustworthy is not. Returns null when there is no trustworthy value.
  */
 export function clientIp(get: (name: string) => string | null): string | null {
   const pick = (value: string | null, side: "first" | "last") => {

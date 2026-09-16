@@ -1,4 +1,4 @@
-import { newNonce, securityHeaders } from "@magicmis/core/security-headers";
+import { isHttps, newNonce, securityHeaders } from "@magicmis/core/security-headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -10,7 +10,7 @@ export function proxy(request: NextRequest): NextResponse {
   const headers = securityHeaders({
     nonce: newNonce(),
     development: process.env.NODE_ENV === "development",
-    https: request.nextUrl.protocol === "https:",
+    https: isHttps(request.nextUrl.protocol, (n) => request.headers.get(n)),
     allowPayments: false,
   });
   const requestHeaders = new Headers(request.headers);

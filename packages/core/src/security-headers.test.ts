@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   clientIp,
   contentSecurityPolicy,
+  isHttps,
   newNonce,
   securityHeaders,
 } from "./security-headers";
@@ -62,5 +63,38 @@ describe("client IP (SPEC §30)", () => {
     expect(from({ "x-forwarded-for": "not-an-ip<script>" })).toBeNull();
     expect(from({ "x-forwarded-for": "2001:db8::1" })).toBe("2001:db8::1");
     expect(from({})).toBeNull();
+  });
+});
+
+describe("HSTS is sent whenever the browser reached us over HTTPS (SPEC §30, R-55)", () => {
+  const https = (protocol: string, h: Record<string, string> = {}) =>
+    isHttps(protocol, (name) => h[name] ?? null);
+
+  it("accepts either the parsed protocol or the proxy's x-forwarded-proto", () => {
+    expect(https("https:")).toBe(true);
+    // The hop from the proxy to the function can be plain even though the browser used TLS.
+    expect(https("http:", { "x-forwarded-proto": "https" })).toBe(true);
+    expect(https("http:", { "x-forwarded-proto": "HTTPS" })).toBe(true);
+    // Vercel sends one value; other proxies append, and the browser's protocol is the first.
+    expect(https("http:", { "x-forwarded-proto": "https,http" })).toBe(true);
+    expect(https("http:", { "x-forwarded-proto": "http,https" })).toBe(false);
+  });
+
+  it("stays off for plain HTTP, which is what local development is", () => {
+    expect(https("http:")).toBe(false);
+    expect(https("http:", { "x-forwarded-proto": "http" })).toBe(false);
+    expect(https("http:", { "x-forwarded-proto": "" })).toBe(false);
+  });
+
+  it("puts HSTS in the header set only then", () => {
+    const of = (secure: boolean) =>
+      securityHeaders({
+        nonce: "n",
+        development: false,
+        https: secure,
+        allowPayments: false,
+      })["strict-transport-security"];
+    expect(of(true)).toBe("max-age=63072000; includeSubDomains; preload");
+    expect(of(false)).toBeUndefined();
   });
 });
