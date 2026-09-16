@@ -7,7 +7,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), plan [ui-redesign](docs/plans/ui-redesign.md)) and the friction pass (ADR [0027](docs/adr/0027-friction.md), plan [friction](docs/plans/friction.md)). What remains needs owner input: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) (live evals R-28, legal text, seller details, final prices).
+**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), plan [ui-redesign](docs/plans/ui-redesign.md)) and the friction pass (ADR [0027](docs/adr/0027-friction.md), plan [friction](docs/plans/friction.md)) and the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)). **Deployment target is Vercel**, confirmed by the owner. What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the product name (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26) and a data-protection review (R-50).
 
 Design system: tokens in `packages/ui/src/tokens.ts`, mirrored into both apps' `globals.css`.
 Primitives in `apps/web/src/components/ui.tsx`; icons are hand-drawn in `Icon.tsx` (no icon
