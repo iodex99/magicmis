@@ -81,7 +81,7 @@ export default function OpengraphImage() {
 
       <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 24 }}>
         <div style={{ width: 40, height: 4, background: "#5846d2", borderRadius: 2 }} />
-        <div style={{ color: "#5b5b68" }}>For CA firms and finance teams in India</div>
+        <div style={{ color: "#5b5b68" }}>For accountants and finance teams</div>
       </div>
     </div>,
     size,

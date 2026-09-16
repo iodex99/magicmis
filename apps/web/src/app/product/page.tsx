@@ -48,7 +48,7 @@ const DELIVERABLES: readonly {
   {
     icon: "chart",
     title: "A dashboard",
-    body: "Revenue and margin trend, working-capital days, ageing and liquidity — the views management asks for, in Indian numeric formatting with lakhs and crores.",
+    body: "Revenue and margin trend, working-capital days, ageing and liquidity — the views management asks for, in the company's own currency and number format — lakhs and crores, or thousands and millions.",
   },
   {
     icon: "file",
@@ -102,7 +102,7 @@ export default function ProductPage() {
 
       <WideSection
         title="The dashboard"
-        intro="Rendered with the same components the product uses. The company is made up; the formatting, the lakhs-and-crores rendering and the shapes are the real thing."
+        intro="Rendered with the same components the product uses. The company is made up — an Indian one here, so the figures read in lakhs and crores; a company reporting in pounds or dollars gets its own currency and grouping."
       >
         <div className="mx-auto max-w-[1000px]">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

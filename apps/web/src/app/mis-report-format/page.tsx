@@ -126,7 +126,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} produce the format above?`,
     answer:
-      "You load the Tally exports and confirm the ledger mapping once. The workbook is then generated with live Excel formulas, a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
+      "You load the exports and confirm the ledger mapping once. The workbook is then generated with live Excel formulas, a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
   },
 ];
 
@@ -290,10 +290,10 @@ export default function MisReportFormatPage() {
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/tally-mis-report", "/for-ca-firms", "/how-it-works"]} />
+      <ReadNext paths={["/tally-mis-report", "/for-accountants", "/how-it-works"]} />
       <ClosingCta
         heading="Or stop rebuilding it every month"
-        body={`${PRODUCT_NAME} produces this format from your Tally exports, with live formulas and every figure traceable. Confirm the ledger mapping once; later months reuse it.`}
+        body={`${PRODUCT_NAME} produces this format from your accounting exports, with live formulas and every figure traceable. Confirm the ledger mapping once; later months reuse it.`}
       />
     </PublicShell>
   );

@@ -176,7 +176,7 @@ export default function SecurityPage() {
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/how-it-works", "/legal/privacy", "/for-ca-firms"]} />
+      <ReadNext paths={["/how-it-works", "/legal/privacy", "/for-accountants"]} />
       <ClosingCta />
     </PublicShell>
   );

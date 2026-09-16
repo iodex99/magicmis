@@ -17,7 +17,7 @@ import {
 import { PRODUCT_NAME } from "@/lib/brand";
 import { pageMetadata } from "@/lib/seo";
 
-const PATH = "/for-ca-firms";
+const PATH = "/for-accountants";
 export const metadata: Metadata = pageMetadata(PATH);
 
 /**
@@ -94,7 +94,7 @@ const FAQS: readonly Faq[] = [
   },
 ];
 
-export default function ForCaFirmsPage() {
+export default function ForAccountantsPage() {
   return (
     <PublicShell>
       <ArticleSchema path={PATH} />
@@ -104,7 +104,7 @@ export default function ForCaFirmsPage() {
       <MarketingHeader
         path={PATH}
         eyebrow="For practices"
-        heading="Monthly MIS across a portfolio of clients"
+        heading="Monthly reporting across a portfolio of clients"
         intro="The difficulty in monthly management reporting is rarely one client. It is twenty of them, in the same week, to the same standard, with the work spread across people who did not build the template."
       />
 
@@ -137,10 +137,10 @@ export default function ForCaFirmsPage() {
         </p>
         <p>
           There are no team logins, client portals or share links, and none are planned —
-          one account is one login. There is no Tally desktop connector: you export the
-          reports and load the files. There is no scheduled refresh without someone
-          uploading the month. And there is no free tier or trial, so evaluating it means
-          buying credits for a real month.
+          one account is one login. There is no live connector to any accounting system:
+          you export the reports and load the files. There is no scheduled refresh without
+          someone uploading the month. And there is no free tier or trial, so evaluating
+          it means buying credits for a real month.
         </p>
         <p>
           The professional judgement stays yours. The workbook is a prepared report to be

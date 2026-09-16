@@ -255,7 +255,7 @@ export default function TallyMisReportPage() {
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/mis-report-format", "/for-ca-firms", "/security"]} />
+      <ReadNext paths={["/mis-report-format", "/for-accountants", "/security"]} />
       <ClosingCta />
     </PublicShell>
   );

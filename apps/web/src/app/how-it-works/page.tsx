@@ -31,7 +31,7 @@ const STAGES: readonly {
   {
     n: "01",
     title: "Files open in your browser",
-    body: "You point at the Tally exports. They are parsed and queried locally — the file itself never leaves the machine that opened it.",
+    body: "You point at the exports from your accounting system. They are parsed and queried locally — the file itself never leaves the machine that opened it.",
     detail:
       "Before you pay for anything, the screen shows file names, sizes, sheet counts and row counts. Not what is in them: no sheet recognition, no mapping preview, no data-quality findings. Those are results, and results appear inside a paid action.",
   },

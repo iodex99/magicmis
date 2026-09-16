@@ -33,12 +33,12 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "upload",
     title: "Load your exports",
-    body: "Trial balances, ledgers and registers straight out of Tally. Files are read in your browser and never uploaded.",
+    body: "Trial balances, ledgers and registers as your accounting system exports them. Files are read in your browser and never uploaded.",
   },
   {
     icon: "table",
     title: "Confirm the mapping once",
-    body: "Ledgers are matched to a canonical MIS schema. You review and correct it the first time; later months reuse it.",
+    body: "Ledgers are matched to a standard reporting schema. You review and correct it the first time; later months reuse it.",
   },
   {
     icon: "check-circle",
@@ -69,13 +69,18 @@ const PROOF: readonly { icon: IconName; title: string; body: string; href: strin
 ];
 
 /** The guides, linked from here so a reader who arrived on one can find the rest. */
-const GUIDES = ["/mis-report-format", "/tally-mis-report", "/for-ca-firms"] as const;
+const GUIDES = [
+  "/management-accounts",
+  "/mis-report-format",
+  "/tally-mis-report",
+  "/for-accountants",
+] as const;
 
 const FAQS: readonly Faq[] = [
   {
     question: `What does ${PRODUCT_NAME} do?`,
     answer:
-      "It turns Tally exports — trial balances, ledgers and registers — into a monthly management report: a validated Excel workbook with live formulas, a dashboard and written commentary, where every figure traces back to the ledger it came from.",
+      "It turns your accounting exports — a trial balance, and optionally ledgers and registers — into a monthly management report: a validated Excel workbook with live formulas, a dashboard and written commentary, where every figure traces back to the ledger it came from. India calls this an MIS report and the UK calls it management accounts.",
   },
   {
     question: "Does my accounting data get uploaded?",
@@ -93,9 +98,9 @@ const FAQS: readonly Faq[] = [
       "Each action has a fixed price in credits from a published price book, and one credit is one rupee excluding GST. A monthly refresh on unchanged ledger structure is much cheaper than the first setup, because it reuses the mapping and makes no AI calls at all.",
   },
   {
-    question: "Do I need to install anything or connect to Tally?",
+    question: "Which accounting systems does it work with?",
     answer:
-      "No. There is no connector and nothing to install. You export the reports from Tally as you would anyway, and load the files in your browser.",
+      "No. There is no connector and nothing to install. You export a trial balance from your accounting system as you would anyway — Tally, Xero, QuickBooks, Sage, Zoho Books or anything else that writes Excel or CSV — and load the file in your browser. Columns are read by their headers, never by position.",
   },
   {
     question: "Can several people in my firm use one account?",
@@ -114,14 +119,16 @@ export default function HomePage() {
       <section className="mx-auto w-full max-w-[1120px] px-6 pt-16 pb-14 sm:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div>
-            <Badge tone="accent">For CA firms and finance teams in India</Badge>
+            <Badge tone="accent">For accountants and finance teams</Badge>
             <h1 className="mt-5 text-[2.5rem] leading-[1.1] font-semibold tracking-tight text-neutral-900 sm:text-[3.25rem]">
-              The monthly MIS, built from the exports you already have.
+              The monthly management report, built from the exports you already have.
             </h1>
             <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-neutral-600">
-              {PRODUCT_NAME} turns trial balances, ledgers and registers into a validated
-              Excel workbook with live formulas, a dashboard and management commentary —
-              and does it again next month without being re-taught.
+              {PRODUCT_NAME} turns a trial balance from any accounting system into a
+              validated Excel workbook with live formulas, a dashboard and written
+              commentary — and does it again next month without being re-taught. Called an
+              MIS in India and management accounts in the UK; it is the same monthly
+              report either way.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <ButtonLink href="/sign-up" size="lg" iconAfter="arrow-right">

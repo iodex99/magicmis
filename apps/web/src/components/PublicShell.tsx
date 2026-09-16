@@ -30,9 +30,10 @@ const FOOTER_GROUPS: readonly {
   {
     heading: "Guides",
     links: [
+      ["/management-accounts", "Management accounts"],
       ["/mis-report-format", "MIS report format"],
       ["/tally-mis-report", "MIS from Tally"],
-      ["/for-ca-firms", "For CA firms"],
+      ["/for-accountants", "For accountants"],
     ],
   },
   {
@@ -111,8 +112,8 @@ export function PublicShell({
                 </span>
               </Link>
               <p className="mt-3 text-[0.8125rem] leading-relaxed text-neutral-500">
-                Monthly management reports from your Tally exports, for CA firms and
-                finance teams in India.
+                Monthly management reports from your accounting data, for accountants and
+                finance teams.
               </p>
             </div>
             {FOOTER_GROUPS.map((group) => (
@@ -136,7 +137,8 @@ export function PublicShell({
             ))}
           </div>
           <p className="mt-10 border-t border-neutral-200/70 pt-6 text-[0.8125rem] text-neutral-500">
-            © {new Date().getFullYear()} {PRODUCT_NAME}. Prices in INR, exclusive of GST.
+            © {new Date().getFullYear()} {PRODUCT_NAME}. Billed in rupees in India, US
+            dollars elsewhere.
           </p>
         </div>
       </footer>
