@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { PublicShell } from "@/components/PublicShell";
 import { Badge, ButtonLink, DataTable, Panel, Td, Th, Tr } from "@/components/ui";
-import { ACTION_LABELS, formatCredits, formatRupees } from "@/lib/actions";
+import { ACTION_LABELS, formatCredits, formatMoney } from "@/lib/actions";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = pageMetadata("/pricing");
@@ -21,13 +21,22 @@ export default async function PricingPage() {
     priceList(pool),
     readConfig(pool, "billing.gst_rate_percent", z.string()),
     readConfig(pool, "wallet.lot_validity_months", z.number().int().positive()),
+    // Both currencies: the price book is public, and a visitor abroad should see what
+    // they would actually pay rather than a rupee figure to convert themselves.
     pool.query<{
-      price_paise_ex_gst: string;
+      price_inr_minor: string | null;
+      price_usd_minor: string | null;
       credits_granted: string;
       bonus_credits: string;
     }>(
-      `select price_paise_ex_gst::text, credits_granted::text, bonus_credits::text
-       from public.credit_packs where active order by sort_order, price_paise_ex_gst`,
+      `select max(pp.price_minor_ex_tax) filter (where pp.currency = 'INR')::text as price_inr_minor,
+              max(pp.price_minor_ex_tax) filter (where pp.currency = 'USD')::text as price_usd_minor,
+              p.credits_granted::text, p.bonus_credits::text
+         from public.credit_packs p
+         left join public.credit_pack_prices pp on pp.pack_id = p.id
+        where p.active
+        group by p.id, p.sort_order, p.credits_granted, p.bonus_credits
+        order by p.sort_order, price_inr_minor`,
     ),
   ]);
 
@@ -131,16 +140,24 @@ export default async function PricingPage() {
               className="px-2 pb-2"
               head={
                 <>
-                  <Th numeric>Price (ex-GST)</Th>
+                  <Th numeric>India (ex-GST)</Th>
+                  <Th numeric>Rest of world</Th>
                   <Th numeric>Credits</Th>
                   <Th numeric>Bonus credits</Th>
                 </>
               }
             >
               {packs.rows.map((p) => (
-                <Tr key={p.price_paise_ex_gst}>
+                <Tr key={p.credits_granted}>
                   <Td numeric className="font-semibold">
-                    {formatRupees(p.price_paise_ex_gst)}
+                    {p.price_inr_minor === null
+                      ? "—"
+                      : formatMoney("INR", p.price_inr_minor)}
+                  </Td>
+                  <Td numeric className="font-semibold">
+                    {p.price_usd_minor === null
+                      ? "—"
+                      : formatMoney("USD", p.price_usd_minor)}
                   </Td>
                   <Td numeric>{formatCredits(p.credits_granted)}</Td>
                   <Td numeric>

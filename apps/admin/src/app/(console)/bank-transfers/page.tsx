@@ -1,4 +1,4 @@
-import { rupeeCell } from "@magicmis/billing";
+import { minorCell } from "@magicmis/billing";
 import Link from "next/link";
 
 import { Flash, input, num, td, th, type FlashParams } from "@/components/Flash";
@@ -62,7 +62,7 @@ export default async function BankTransfersPage({
                       {p.business_name}
                     </Link>
                   </td>
-                  <td className={num}>{rupeeCell(p.total_paise)}</td>
+                  <td className={num}>{minorCell(p.total_paise)}</td>
                   <td className={num}>
                     {p.credits} + {p.bonus_credits}
                   </td>

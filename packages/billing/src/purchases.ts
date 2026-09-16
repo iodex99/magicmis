@@ -14,8 +14,8 @@
 
 import { createHash } from "node:crypto";
 
-import { isValidGstin } from "@magicmis/core/identifiers";
-import type { RoundingMode } from "@magicmis/core/money";
+import { isValidGstin, normaliseCountry } from "@magicmis/core/identifiers";
+import { billingCurrency, type Currency, type RoundingMode } from "@magicmis/core/money";
 import { appendAudit } from "@magicmis/db/audit";
 import { readConfig } from "@magicmis/db/config";
 import { withTransaction, type Queryable } from "@magicmis/db/tx";
@@ -23,7 +23,8 @@ import { grantCreditsInTx } from "@magicmis/wallet";
 import type { Pool, PoolClient } from "pg";
 import { z } from "zod";
 
-import { computeGst, placeOfSupply, type GstBreakdown } from "./gst";
+import { placeOfSupply } from "./gst";
+import { computeSaleTax, type SaleTax } from "./tax";
 import { issueInvoice, sellerSchema, type InvoiceRecord } from "./invoice";
 import {
   razorpayWebhookSchema,
@@ -66,14 +67,16 @@ export interface PackQuote {
   readonly packId: string;
   readonly credits: bigint;
   readonly bonusCredits: bigint;
-  readonly gst: GstBreakdown;
-  readonly placeOfSupplyStateCode: string;
+  /** GST for an Indian buyer, zero-rated export for anyone else (ADR 0030). */
+  readonly tax: SaleTax;
+  readonly currency: Currency;
+  readonly placeOfSupplyStateCode: string | null;
   readonly bankTransferEligible: boolean;
 }
 
 interface PackRow {
   id: string;
-  price_paise_ex_gst: string;
+  price_minor_ex_tax: string;
   credits_granted: string;
   bonus_credits: string;
 }
@@ -86,16 +89,43 @@ interface PackRow {
  * guessed, so this refuses rather than defaulting to one -- a wrong place of supply is a
  * wrong tax invoice.
  */
-async function accountTax(
-  db: Queryable,
-  accountId: string,
-): Promise<{ gstin: string | null; stateCode: string }> {
-  const r = await db.query<{ gstin: string | null; state_code: string | null }>(
-    `select gstin, state_code from public.accounts where id = $1 and deleted_at is null`,
+export interface BuyerTaxIdentity {
+  readonly gstin: string | null;
+  /** Null for a buyer outside India, which has no GST place of supply. */
+  readonly stateCode: string | null;
+  readonly country: string;
+  readonly currency: Currency;
+}
+
+async function accountTax(db: Queryable, accountId: string): Promise<BuyerTaxIdentity> {
+  const r = await db.query<{
+    gstin: string | null;
+    state_code: string | null;
+    billing_country: string | null;
+  }>(
+    `select gstin, state_code, billing_country
+       from public.accounts where id = $1 and deleted_at is null`,
     [accountId],
   );
   const row = r.rows[0];
   if (row === undefined) throw new BillingError("ACCOUNT_NOT_FOUND", "account not found");
+
+  // Billing details are collected at the first purchase (migration 0034), so an account
+  // can reach here with none. The country decides the currency AND the tax treatment, so
+  // it is refused rather than assumed -- defaulting would either charge Indian GST to
+  // someone abroad or zero-rate a domestic sale, and both are wrong on a tax document.
+  if (row.billing_country === null)
+    throw new BillingError(
+      "BILLING_STATE_UNKNOWN",
+      "the account has no billing country yet",
+    );
+  const country = normaliseCountry(row.billing_country);
+  const currency = billingCurrency(country);
+
+  if (currency !== "INR") {
+    return { gstin: null, stateCode: null, country, currency };
+  }
+
   // A GSTIN that fails its checksum is not used for place of supply.
   const gstin = row.gstin !== null && isValidGstin(row.gstin) ? row.gstin : null;
   const stateCode = gstin?.slice(0, 2) ?? row.state_code;
@@ -104,7 +134,7 @@ async function accountTax(
       "BILLING_STATE_UNKNOWN",
       "the account has no billing state yet",
     );
-  return { gstin, stateCode };
+  return { gstin, stateCode, country, currency };
 }
 
 async function buildQuote(
@@ -135,21 +165,30 @@ async function buildQuote(
       now,
     ),
   );
-  const pos = placeOfSupply(account);
-  const taxable = BigInt(pack.price_paise_ex_gst);
+  const pos =
+    account.stateCode === null
+      ? undefined
+      : placeOfSupply({ gstin: account.gstin, stateCode: account.stateCode });
+  const taxable = BigInt(pack.price_minor_ex_tax);
+  const tax = computeSaleTax({
+    taxableMinor: taxable,
+    buyerCountry: account.country,
+    placeOfSupplyStateCode: pos,
+    sellerStateCode: seller.state_code,
+    ratePercent: rate,
+    rounding,
+  });
   return {
     packId: pack.id,
     credits: BigInt(pack.credits_granted),
     bonusCredits: BigInt(pack.bonus_credits),
-    gst: computeGst({
-      taxablePaise: taxable,
-      ratePercent: rate,
-      sellerStateCode: seller.state_code,
-      placeOfSupplyStateCode: pos,
-      rounding,
-    }),
-    placeOfSupplyStateCode: pos,
-    bankTransferEligible: taxable >= threshold,
+    tax,
+    currency: tax.currency,
+    placeOfSupplyStateCode: tax.placeOfSupplyStateCode,
+    // The threshold is a rupee amount, so it only decides anything for a rupee sale.
+    // Bank transfer is an Indian bank transfer against a proforma; an international wire
+    // is a different process (FIRC, RBI purpose code) and is not offered (migration 0037).
+    bankTransferEligible: tax.currency === "INR" && taxable >= threshold,
   };
 }
 
@@ -158,9 +197,17 @@ export async function listPackQuotes(
   input: { accountId: string; now?: Date },
 ): Promise<PackQuote[]> {
   const now = input.now ?? new Date();
+  // The account's currency decides which price list is read. A pack with no row in that
+  // currency is simply not offered there, which is a state the join expresses directly.
+  const account = await accountTax(db, input.accountId);
   const packs = await db.query<PackRow>(
-    `select id, price_paise_ex_gst::text, credits_granted::text, bonus_credits::text
-     from public.credit_packs where active order by sort_order, price_paise_ex_gst`,
+    `select p.id, pp.price_minor_ex_tax::text, p.credits_granted::text, p.bonus_credits::text
+       from public.credit_packs p
+       join public.credit_pack_prices pp
+         on pp.pack_id = p.id and pp.currency = $1
+      where p.active
+      order by p.sort_order, pp.price_minor_ex_tax`,
+    [account.currency],
   );
   const quotes: PackQuote[] = [];
   for (const pack of packs.rows)
@@ -172,10 +219,14 @@ export async function quotePack(
   db: Queryable,
   input: { accountId: string; packId: string; now?: Date },
 ): Promise<PackQuote> {
+  const account = await accountTax(db, input.accountId);
   const r = await db.query<PackRow>(
-    `select id, price_paise_ex_gst::text, credits_granted::text, bonus_credits::text
-     from public.credit_packs where id = $1 and active`,
-    [input.packId],
+    `select p.id, pp.price_minor_ex_tax::text, p.credits_granted::text, p.bonus_credits::text
+       from public.credit_packs p
+       join public.credit_pack_prices pp
+         on pp.pack_id = p.id and pp.currency = $2
+      where p.id = $1 and p.active`,
+    [input.packId, account.currency],
   );
   const pack = r.rows[0];
   if (pack === undefined)
@@ -196,16 +247,20 @@ export interface Purchase {
   readonly packId: string | null;
   readonly method: "razorpay" | "bank_transfer";
   readonly status: PurchaseStatus;
-  readonly amountPaiseExGst: bigint;
-  readonly cgstPaise: bigint;
-  readonly sgstPaise: bigint;
-  readonly igstPaise: bigint;
-  readonly gstPaise: bigint;
-  readonly totalPaise: bigint;
+  readonly currency: Currency;
+  /** Integer minor units of `currency`: paise for INR, cents for USD. */
+  readonly amountMinorExTax: bigint;
+  readonly cgstMinor: bigint;
+  readonly sgstMinor: bigint;
+  readonly igstMinor: bigint;
+  readonly taxMinor: bigint;
+  readonly totalMinor: bigint;
   readonly credits: bigint;
   readonly bonusCredits: bigint;
+  /** "0" on an export, which is zero-rated rather than untaxed. */
   readonly gstRate: string;
-  readonly placeOfSupplyStateCode: string;
+  /** Null on an export: there is no Indian place of supply. */
+  readonly placeOfSupplyStateCode: string | null;
   readonly razorpayOrderId: string | null;
   readonly razorpayPaymentId: string | null;
   readonly bankUtr: string | null;
@@ -213,10 +268,10 @@ export interface Purchase {
   readonly creditedAt: Date | null;
 }
 
-const PURCHASE_COLUMNS = `id, account_id, pack_id, method, status,
-  amount_paise_ex_gst::text as amount_paise_ex_gst, cgst_paise::text as cgst_paise,
-  sgst_paise::text as sgst_paise, igst_paise::text as igst_paise, gst_paise::text as gst_paise,
-  total_paise::text as total_paise, credits::text as credits, bonus_credits::text as bonus_credits,
+const PURCHASE_COLUMNS = `id, account_id, pack_id, method, status, currency,
+  amount_minor_ex_tax::text as amount_minor_ex_tax, cgst_minor::text as cgst_minor,
+  sgst_minor::text as sgst_minor, igst_minor::text as igst_minor, tax_minor::text as tax_minor,
+  total_minor::text as total_minor, credits::text as credits, bonus_credits::text as bonus_credits,
   gst_rate, place_of_supply_state_code, razorpay_order_id, razorpay_payment_id, bank_utr,
   created_at, credited_at`;
 
@@ -226,12 +281,13 @@ interface PurchaseRow {
   pack_id: string | null;
   method: "razorpay" | "bank_transfer";
   status: PurchaseStatus;
-  amount_paise_ex_gst: string;
-  cgst_paise: string;
-  sgst_paise: string;
-  igst_paise: string;
-  gst_paise: string;
-  total_paise: string;
+  currency: Currency;
+  amount_minor_ex_tax: string;
+  cgst_minor: string;
+  sgst_minor: string;
+  igst_minor: string;
+  tax_minor: string;
+  total_minor: string;
   credits: string;
   bonus_credits: string;
   gst_rate: string | null;
@@ -244,8 +300,12 @@ interface PurchaseRow {
 }
 
 function toPurchase(r: PurchaseRow): Purchase {
-  if (r.gst_rate === null || r.place_of_supply_state_code === null) {
-    throw new Error(`purchase ${r.id} predates the GST snapshot columns`);
+  if (r.gst_rate === null) {
+    throw new Error(`purchase ${r.id} predates the tax snapshot columns`);
+  }
+  // An export has no Indian place of supply, and a domestic sale must have one.
+  if (r.currency === "INR" && r.place_of_supply_state_code === null) {
+    throw new Error(`purchase ${r.id} is a rupee sale with no place of supply`);
   }
   return {
     id: r.id,
@@ -253,12 +313,13 @@ function toPurchase(r: PurchaseRow): Purchase {
     packId: r.pack_id,
     method: r.method,
     status: r.status,
-    amountPaiseExGst: BigInt(r.amount_paise_ex_gst),
-    cgstPaise: BigInt(r.cgst_paise),
-    sgstPaise: BigInt(r.sgst_paise),
-    igstPaise: BigInt(r.igst_paise),
-    gstPaise: BigInt(r.gst_paise),
-    totalPaise: BigInt(r.total_paise),
+    currency: r.currency,
+    amountMinorExTax: BigInt(r.amount_minor_ex_tax),
+    cgstMinor: BigInt(r.cgst_minor),
+    sgstMinor: BigInt(r.sgst_minor),
+    igstMinor: BigInt(r.igst_minor),
+    taxMinor: BigInt(r.tax_minor),
+    totalMinor: BigInt(r.total_minor),
     credits: BigInt(r.credits),
     bonusCredits: BigInt(r.bonus_credits),
     gstRate: r.gst_rate,
@@ -307,29 +368,30 @@ async function insertPurchase(
     now: Date;
   },
 ): Promise<Purchase> {
-  const g = input.quote.gst;
+  const t = input.quote.tax;
   const r = await tx.query<PurchaseRow>(
     `insert into public.purchases
-       (account_id, pack_id, amount_paise_ex_gst, gst_paise, cgst_paise, sgst_paise, igst_paise,
-        total_paise, method, status, credits, bonus_credits, gst_rate, place_of_supply_state_code,
-        idempotency_key, bank_transfer_requested_at, created_at)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+       (account_id, pack_id, currency, amount_minor_ex_tax, tax_minor, cgst_minor, sgst_minor,
+        igst_minor, total_minor, method, status, credits, bonus_credits, gst_rate,
+        place_of_supply_state_code, idempotency_key, bank_transfer_requested_at, created_at)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
      returning ${PURCHASE_COLUMNS}`,
     [
       input.accountId,
       input.quote.packId,
-      g.taxablePaise.toString(),
-      g.gstPaise.toString(),
-      g.cgstPaise.toString(),
-      g.sgstPaise.toString(),
-      g.igstPaise.toString(),
-      g.totalPaise.toString(),
+      t.currency,
+      t.taxableMinor.toString(),
+      t.taxMinor.toString(),
+      t.cgstMinor.toString(),
+      t.sgstMinor.toString(),
+      t.igstMinor.toString(),
+      t.totalMinor.toString(),
       input.method,
       input.status,
       input.quote.credits.toString(),
       input.quote.bonusCredits.toString(),
-      g.ratePercent,
-      input.quote.placeOfSupplyStateCode,
+      t.ratePercent,
+      t.placeOfSupplyStateCode,
       input.idempotencyKey,
       input.method === "bank_transfer" ? input.now : null,
       input.now,
@@ -451,8 +513,9 @@ async function creditPurchaseInTx(
 export interface CheckoutOrder {
   readonly purchaseId: string;
   readonly orderId: string;
-  readonly amountPaise: bigint;
-  readonly currency: "INR";
+  /** Integer minor units of `currency`, which is what Razorpay Checkout expects. */
+  readonly amountMinor: bigint;
+  readonly currency: Currency;
 }
 
 export async function createRazorpayPurchase(
@@ -487,20 +550,23 @@ export async function createRazorpayPurchase(
     return {
       purchaseId: purchase.id,
       orderId: purchase.razorpayOrderId,
-      amountPaise: purchase.totalPaise,
-      currency: "INR",
+      amountMinor: purchase.totalMinor,
+      currency: purchase.currency,
     };
   }
 
   // Outside any transaction: never hold locks across a network call. A failure leaves the
   // purchase `created`; a retry with the same idempotency key tries again.
   const order = await gateway.createOrder({
-    amountPaise: purchase.totalPaise,
+    amountMinor: purchase.totalMinor,
+    currency: purchase.currency,
     receipt: purchase.id,
     notes: { purchase_id: purchase.id },
   });
-  if (order.amountPaise !== purchase.totalPaise) {
-    throw new Error("Razorpay order amount does not match the purchase total");
+  // Both, not just the amount: an order created in the wrong currency would charge
+  // a hundredth or a hundredfold of what the customer agreed to.
+  if (order.amountMinor !== purchase.totalMinor || order.currency !== purchase.currency) {
+    throw new Error("Razorpay order does not match the purchase total and currency");
   }
 
   const updated = await pool.query<{ razorpay_order_id: string }>(
@@ -512,8 +578,8 @@ export async function createRazorpayPurchase(
   return {
     purchaseId: purchase.id,
     orderId,
-    amountPaise: purchase.totalPaise,
-    currency: "INR",
+    amountMinor: purchase.totalMinor,
+    currency: purchase.currency,
   };
 }
 
@@ -598,7 +664,13 @@ async function processRazorpayEvent(
   if (purchase === null) return "unknown_order";
   if (purchase.method !== "razorpay") return "method_mismatch";
   if (purchase.status === "credited") return "already_credited";
-  if (payment.currency !== "INR" || BigInt(payment.amount) !== purchase.totalPaise) {
+  // The webhook is the only place credits are granted, so this comparison is what
+  // stands between a manipulated payment and a free wallet. Currency included: the same
+  // integer means very different money in paise and in cents.
+  if (
+    payment.currency !== purchase.currency ||
+    BigInt(payment.amount) !== purchase.totalMinor
+  ) {
     await appendAudit(tx, {
       actorType: "system",
       action: "billing.payment_amount_mismatch",
@@ -667,7 +739,8 @@ export async function reconcileRazorpayPurchases(
         if (purchase === null || purchase.status === "credited")
           return "already_credited";
         const payment = captured.find(
-          (p) => p.currency === "INR" && p.amountPaise === purchase.totalPaise,
+          (p) =>
+            p.currency === purchase.currency && p.amountMinor === purchase.totalMinor,
         );
         if (payment === undefined) {
           await appendAudit(tx, {

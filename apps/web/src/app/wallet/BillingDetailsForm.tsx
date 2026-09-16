@@ -1,6 +1,7 @@
 "use client";
 
 import { GST_STATE_CODES } from "@magicmis/accounts/state-codes";
+import { countryOptions } from "@magicmis/core/country";
 import { useEffect, useState, type SyntheticEvent } from "react";
 
 import { Alert, Button, Field, Panel, SelectField } from "@/components/ui";
@@ -17,6 +18,13 @@ export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  /**
+   * Defaults to India because that is where most customers are, not because the rest are
+   * an afterthought: changing it switches the currency, drops the GST fields and changes
+   * the invoice, all of which the reader should see happen.
+   */
+  const [country, setCountry] = useState("IN");
+  const isIndia = country === "IN";
   // Never ask twice for something already given: the business name came in at sign-up.
   const [known, setKnown] = useState<{ businessName: string; gstin: string } | null>(
     null,
@@ -50,8 +58,10 @@ export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
           line1: text("line1"),
           ...(text("line2") ? { line2: text("line2") } : {}),
           city: text("city"),
-          pincode: text("pincode"),
-          stateCode: text("stateCode"),
+          country,
+          postalCode: text("postalCode"),
+          // Only sent for India; elsewhere there is no GST state to send.
+          ...(country === "IN" ? { stateCode: text("stateCode") } : {}),
         },
       },
     });
@@ -115,6 +125,27 @@ export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
           label="Address line 2 (optional)"
           autoComplete="address-line2"
         />
+        {/*
+          The country decides the billing currency and whether GST applies (ADR 0030),
+          so it comes before the fields that depend on it rather than after them.
+        */}
+        <SelectField
+          id="billing-country"
+          name="country"
+          label="Country"
+          required
+          value={country}
+          onChange={(e) => {
+            setCountry(e.currentTarget.value);
+          }}
+          error={fields["billingAddress.country"]}
+        >
+          {countryOptions().map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </SelectField>
         <div className="grid grid-cols-2 gap-3">
           <Field
             id="billing-city"
@@ -125,32 +156,40 @@ export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
             error={fields["billingAddress.city"]}
           />
           <Field
-            id="billing-pincode"
-            name="pincode"
-            label="PIN code"
-            inputMode="numeric"
+            id="billing-postalCode"
+            name="postalCode"
+            label={isIndia ? "PIN code" : "Postal code"}
+            inputMode={isIndia ? "numeric" : "text"}
             autoComplete="postal-code"
             required
-            error={fields["billingAddress.pincode"]}
+            error={fields["billingAddress.postalCode"]}
           />
         </div>
-        <SelectField
-          id="billing-stateCode"
-          name="stateCode"
-          label="State"
-          required
-          defaultValue=""
-          error={fields["billingAddress.stateCode"]}
-        >
-          <option value="" disabled>
-            Choose a state
-          </option>
-          {Object.entries(GST_STATE_CODES).map(([code, name]) => (
-            <option key={code} value={code}>
-              {name}
+        {/* A GST state exists only for an Indian supply; an export has no place of supply. */}
+        {isIndia ? (
+          <SelectField
+            id="billing-stateCode"
+            name="stateCode"
+            label="State"
+            required
+            defaultValue=""
+            error={fields["billingAddress.stateCode"]}
+          >
+            <option value="" disabled>
+              Choose a state
             </option>
-          ))}
-        </SelectField>
+            {Object.entries(GST_STATE_CODES).map(([code, name]) => (
+              <option key={code} value={code}>
+                {name}
+              </option>
+            ))}
+          </SelectField>
+        ) : (
+          <p className="text-[0.8125rem] text-neutral-500">
+            Billed in US dollars. No Indian GST applies — this is an export of services,
+            zero-rated under section 16 of the IGST Act, and your invoice will say so.
+          </p>
+        )}
         <Button type="submit" disabled={saving} size="lg" className="w-fit">
           {saving ? "Saving…" : "Save and show prices"}
         </Button>

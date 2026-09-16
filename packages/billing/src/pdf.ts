@@ -15,8 +15,9 @@
  * TODO(review): R-06 — invoice template wording pending CA review.
  */
 
-import { paise } from "@magicmis/core/money";
-import { formatPaise } from "@magicmis/core/format";
+import { countryName } from "@magicmis/core/identifiers";
+import { amount, type Currency } from "@magicmis/core/money";
+import { formatAmountWithCode } from "@magicmis/core/format";
 import { formatIstDate } from "@magicmis/core/time";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 
@@ -36,8 +37,15 @@ export function winAnsiSafe(text: string): string {
   }).join("");
 }
 
-const rupees = (p: string): string =>
-  `INR ${formatPaise(paise(BigInt(p)), { style: "lakhs_crores", decimals: 2 })}`;
+/**
+ * An amount on the invoice, in the invoice's own currency (ADR 0030).
+ *
+ * The ISO code rather than the symbol: a dollar sign belongs to a dozen countries and
+ * an invoice is the wrong document to leave that open. Rupees group 12,34,567 and
+ * dollars 1,234,567, which is the convention each reader expects.
+ */
+const money = (currency: Currency, minor: string): string =>
+  formatAmountWithCode(amount(currency, BigInt(minor)));
 
 class Writer {
   y = A4[1] - MARGIN;
@@ -144,9 +152,15 @@ export async function renderInvoicePdf(invoice: InvoiceRecord): Promise<Uint8Arr
   w.line(invoice.buyer.name);
   for (const l of invoice.buyer.address) w.line(l, { color: MUTED });
   w.line(`GSTIN: ${invoice.buyer.gstin ?? "Unregistered"}`);
-  w.line(`State: ${invoice.buyer.state_name} (${invoice.buyer.state_code})`);
+  if (invoice.buyer.state_name !== null && invoice.buyer.state_code !== null) {
+    w.line(`State: ${invoice.buyer.state_name} (${invoice.buyer.state_code})`);
+  } else {
+    w.line(`Country: ${countryName(invoice.buyer.country)}`);
+  }
   w.line(
-    `Place of supply: ${invoice.placeOfSupplyStateName} (${invoice.placeOfSupplyStateCode})`,
+    invoice.placeOfSupplyStateCode === null
+      ? `Place of supply: ${countryName(invoice.buyer.country)} (outside India)`
+      : `Place of supply: ${invoice.placeOfSupplyStateName ?? ""} (${invoice.placeOfSupplyStateCode})`,
   );
   w.down(6);
   w.rule();
@@ -159,7 +173,7 @@ export async function renderInvoicePdf(invoice: InvoiceRecord): Promise<Uint8Arr
   for (const item of invoice.lineItems) {
     w.text(item.description);
     w.text(item.sac, { x: 390 });
-    w.right(rupees(item.taxable_paise));
+    w.right(money(t.currency, item.taxable_minor));
     w.down(16);
   }
   w.rule();
@@ -169,17 +183,29 @@ export async function renderInvoicePdf(invoice: InvoiceRecord): Promise<Uint8Arr
     w.right(value, { bold });
     w.down(16);
   };
-  row("Taxable value", rupees(t.taxable_paise));
-  if (t.supply === "intra_state") {
-    row(`CGST @ ${t.cgst_rate_percent ?? ""}%`, rupees(t.cgst_paise));
-    row(`SGST @ ${t.sgst_rate_percent ?? ""}%`, rupees(t.sgst_paise));
+  row("Taxable value", money(t.currency, t.taxable_minor));
+  if (t.supply === "export") {
+    // Zero-rated is not "no tax line". The document has to say it is zero-rated and
+    // under which provision, or it is not evidence of an export.
+    row("GST", money(t.currency, "0") + " (zero-rated export)");
+  } else if (t.supply === "intra_state") {
+    row(`CGST @ ${t.cgst_rate_percent ?? ""}%`, money(t.currency, t.cgst_minor));
+    row(`SGST @ ${t.sgst_rate_percent ?? ""}%`, money(t.currency, t.sgst_minor));
   } else {
-    row(`IGST @ ${t.igst_rate_percent ?? ""}%`, rupees(t.igst_paise));
+    row(`IGST @ ${t.igst_rate_percent ?? ""}%`, money(t.currency, t.igst_minor));
   }
-  row("Total", rupees(t.total_paise), true);
+  row("Total", money(t.currency, t.total_minor), true);
   w.down(4);
   w.line(t.total_in_words, { bold: true });
   w.down(10);
+
+  // Required on an export invoice, and the reason no tax was charged.
+  if (t.export_endorsement !== null) {
+    w.rule();
+    w.line(t.export_endorsement, { bold: true });
+    if (t.lut_arn !== null) w.line(`Supply covered under LUT ARN: ${t.lut_arn}`);
+    w.down(4);
+  }
 
   if (t.bank_details !== null) {
     w.rule();

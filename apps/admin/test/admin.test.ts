@@ -105,7 +105,10 @@ describe("admin identity (SPEC §26)", () => {
       issuer: `${PRODUCT_NAME} Admin`,
     });
     expect(created.otpauthUri).toMatch(
-      /^otpauth:\/\/totp\/MIS%20Studio%20Admin%3Aops%40example\.test\?secret=/u,
+      new RegExp(
+        `^otpauth://totp/${encodeURIComponent(`${PRODUCT_NAME} Admin`)}%3Aops%40example\\.test\\?secret=`,
+        "u",
+      ),
     );
 
     const stored = await pool().query<{ totp_secret_enc: Buffer }>(
@@ -343,7 +346,8 @@ describe("catalog administration", () => {
     const id = await createPack(pool(), {
       adminId,
       pack: {
-        pricePaiseExGst: 7_500_000n,
+        priceInrMinor: 7_500_000n,
+        priceUsdMinor: 89_900n,
         credits: 75_000n,
         bonusCredits: 9_000n,
         sortOrder: 7,
@@ -364,8 +368,8 @@ describe("catalog administration", () => {
 describe("account administration", () => {
   it("searches, shows detail, suspends with a reason and ends the customer session", async () => {
     const r = await pool().query<{ id: string }>(
-      `insert into accounts (auth_user_id, email, business_name, state_code, active_session_id)
-       values (gen_random_uuid(), 'findme@example.test', 'Findable 100% Traders', '27', gen_random_uuid()) returning id`,
+      `insert into accounts (auth_user_id, email, business_name, state_code, billing_country, active_session_id)
+       values (gen_random_uuid(), 'findme@example.test', 'Findable 100% Traders', '27', 'IN', gen_random_uuid()) returning id`,
     );
     const accountId = r.rows[0]?.id ?? "";
     expect((await searchAccounts(pool(), "findme")).map((a) => a.id)).toContain(

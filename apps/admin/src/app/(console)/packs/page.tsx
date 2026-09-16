@@ -1,4 +1,4 @@
-import { rupeeCell } from "@magicmis/billing";
+import { minorCell } from "@magicmis/billing";
 
 import { Flash, input, num, td, th, type FlashParams } from "@/components/Flash";
 import { Button, Panel } from "@/components/ui";
@@ -34,6 +34,15 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
             <input name="priceRupees" className={input} inputMode="numeric" required />
           </label>
           <label className="flex flex-col gap-1">
+            Price ex-tax ($)
+            <input
+              name="priceDollars"
+              className={input}
+              inputMode="numeric"
+              placeholder="not sold abroad"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
             Credits
             <input name="credits" className={input} inputMode="numeric" required />
           </label>
@@ -62,11 +71,13 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
         <table className="w-full">
           <thead>
             <tr>
-              {["Price ex-GST (₹)", "Credits", "Bonus", "Sort", "Active", ""].map((h) => (
-                <th key={h} className={th}>
-                  {h}
-                </th>
-              ))}
+              {["Price (₹)", "Price ($)", "Credits", "Bonus", "Sort", "Active", ""].map(
+                (h) => (
+                  <th key={h} className={th}>
+                    {h}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
@@ -75,7 +86,12 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
                 key={p.id}
                 className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
               >
-                <td className={num}>{rupeeCell(p.price_paise_ex_gst)}</td>
+                <td className={num}>
+                  {p.price_inr_minor === null ? "—" : minorCell(p.price_inr_minor)}
+                </td>
+                <td className={num}>
+                  {p.price_usd_minor === null ? "—" : minorCell(p.price_usd_minor)}
+                </td>
                 <td className={num}>{p.credits_granted}</td>
                 <td className={num}>{p.bonus_credits}</td>
                 <td className={num}>{p.sort_order}</td>

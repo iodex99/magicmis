@@ -18,24 +18,27 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import type { Currency } from "@magicmis/core/money";
 import { z } from "zod";
 
 export interface CreateOrderInput {
-  readonly amountPaise: bigint;
+  /** Integer minor units of `currency`: paise for INR, cents for USD. */
+  readonly amountMinor: bigint;
+  readonly currency: Currency;
   readonly receipt: string;
   readonly notes: Readonly<Record<string, string>>;
 }
 
 export interface GatewayOrder {
   readonly id: string;
-  readonly amountPaise: bigint;
-  readonly currency: "INR";
+  readonly amountMinor: bigint;
+  readonly currency: string;
   readonly status: string;
 }
 
 export interface GatewayPayment {
   readonly id: string;
-  readonly amountPaise: bigint;
+  readonly amountMinor: bigint;
   readonly currency: string;
   readonly status: string;
   readonly orderId: string | null;
@@ -60,7 +63,7 @@ export class GatewayError extends Error {
 const orderResponseSchema = z.object({
   id: z.string().min(1),
   amount: z.number().int().positive(),
-  currency: z.literal("INR"),
+  currency: z.string(),
   status: z.string(),
 });
 
@@ -88,18 +91,22 @@ export class RazorpayGateway implements PaymentGateway {
   ) {}
 
   async createOrder(input: CreateOrderInput): Promise<GatewayOrder> {
-    if (input.amountPaise < 100n)
-      throw new RangeError("Razorpay orders must be at least 100 paise");
+    // Razorpay's floor is 100 minor units in any currency it accepts. Our smallest
+    // pack is far above it in both; this catches a misconfigured price, not a sale.
+    if (input.amountMinor < 100n)
+      throw new RangeError("Razorpay orders must be at least 100 minor units");
     if (input.receipt.length > 40)
       throw new RangeError("Razorpay receipt exceeds 40 characters");
     if (Object.keys(input.notes).length > 15)
       throw new RangeError("Razorpay allows at most 15 notes");
-    // Paise amounts for our packs are far below 2^53; the API takes a JSON integer.
-    if (input.amountPaise > BigInt(Number.MAX_SAFE_INTEGER))
+    // Amounts for our packs are far below 2^53; the API takes a JSON integer.
+    if (input.amountMinor > BigInt(Number.MAX_SAFE_INTEGER))
       throw new RangeError("amount too large");
 
     const auth = Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64");
-    const body = `{"amount":${input.amountPaise.toString()},"currency":"INR","receipt":${JSON.stringify(
+    const body = `{"amount":${input.amountMinor.toString()},"currency":${JSON.stringify(
+      input.currency,
+    )},"receipt":${JSON.stringify(
       input.receipt,
     )},"notes":${JSON.stringify(input.notes)}}`;
     const res = await this.fetchImpl(`${this.baseUrl}/v1/orders`, {
@@ -122,7 +129,7 @@ export class RazorpayGateway implements PaymentGateway {
       );
     return {
       id: parsed.data.id,
-      amountPaise: BigInt(parsed.data.amount),
+      amountMinor: BigInt(parsed.data.amount),
       currency: parsed.data.currency,
       status: parsed.data.status,
     };
@@ -150,7 +157,7 @@ export class RazorpayGateway implements PaymentGateway {
       );
     return parsed.data.items.map((p) => ({
       id: p.id,
-      amountPaise: BigInt(p.amount),
+      amountMinor: BigInt(p.amount),
       currency: p.currency,
       status: p.status,
       orderId: p.order_id ?? null,

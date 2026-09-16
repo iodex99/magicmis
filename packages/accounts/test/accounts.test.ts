@@ -52,7 +52,8 @@ const profile = signupProfileSchema.parse({
   billingAddress: {
     line1: "4 Park Street",
     city: "Kolkata",
-    pincode: "700016",
+    country: "IN",
+    postalCode: "700016",
     stateCode: "19",
   },
   acceptTerms: true,

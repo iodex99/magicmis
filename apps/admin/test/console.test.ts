@@ -60,7 +60,7 @@ async function admin(): Promise<string> {
 
 async function customer() {
   const a = await pool().query<{ id: string }>(
-    `insert into accounts (auth_user_id, email, business_name, state_code) values (gen_random_uuid(), $1, 'Console Co', '27') returning id`,
+    `insert into accounts (auth_user_id, email, business_name, state_code, billing_country) values (gen_random_uuid(), $1, 'Console Co', '27', 'IN') returning id`,
     [`${randomUUID()}@example.test`],
   );
   const accountId = a.rows[0]?.id ?? "";
@@ -356,8 +356,8 @@ describe("break-glass", () => {
       }),
     ).rejects.toThrow(/authenticator code/u);
     const purged = await pool().query<{ id: string; company: string }>(
-      `with a as (insert into accounts (auth_user_id, email, business_name, state_code, status, purged_at)
-         values (gen_random_uuid(), $1, 'Deleted account', '27', 'deleted', now()) returning id)
+      `with a as (insert into accounts (auth_user_id, email, business_name, state_code, billing_country, status, purged_at)
+         values (gen_random_uuid(), $1, 'Deleted account', '27', 'IN', 'deleted', now()) returning id)
        insert into companies (account_id, name) select id, 'Gone Co' from a returning account_id as id, id as company`,
       [`purged-${String(Date.now())}@invalid`],
     );

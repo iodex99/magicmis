@@ -8,6 +8,8 @@
  */
 
 import { GST_STATE_CODES, isGstStateCode } from "@magicmis/core/identifiers";
+import { countryName, normaliseCountry } from "@magicmis/core/identifiers";
+import type { Currency } from "@magicmis/core/money";
 import { readConfig } from "@magicmis/db/config";
 import type { Queryable } from "@magicmis/db/tx";
 import type { PoolClient } from "pg";
@@ -20,7 +22,7 @@ import {
   nextInvoiceSequence,
 } from "./invoice-number";
 import { halfRate } from "./gst";
-import { amountInWordsIndian } from "./words";
+import { amountInWords } from "./words";
 
 export type InvoiceType = "tax_invoice" | "proforma";
 
@@ -42,7 +44,8 @@ const billingAddressSchema = z
     line1: z.string(),
     line2: z.string().optional(),
     city: z.string(),
-    pincode: z.string(),
+    postalCode: z.string(),
+    country: z.string(),
     stateCode: z.string(),
   })
   .partial();
@@ -51,8 +54,11 @@ export const buyerSchema = z.object({
   name: z.string(),
   gstin: z.string().nullable(),
   address: z.array(z.string()),
-  state_code: z.string(),
-  state_name: z.string(),
+  /** ISO 3166-1 alpha-2. On an export invoice this is the place of supply. */
+  country: z.string(),
+  /** Indian supplies only: an export has no GST state. */
+  state_code: z.string().nullable(),
+  state_name: z.string().nullable(),
 });
 export type Buyer = z.infer<typeof buyerSchema>;
 
@@ -61,22 +67,41 @@ export const lineItemSchema = z.object({
   sac: z.string(),
   credits: z.string().regex(/^\d+$/u),
   bonus_credits: z.string().regex(/^\d+$/u),
-  taxable_paise: z.string().regex(/^\d+$/u),
+  taxable_minor: z.string().regex(/^\d+$/u),
+});
+
+/**
+ * The export side of the invoice: the LUT the supply is made under and the endorsement
+ * §16 requires on the document. Both are placeholders until the owner files the LUT
+ * (R-59) and are guarded like the seller details (R-27).
+ */
+export const exportSchema = z.object({
+  lut_arn: z.string().min(1),
+  endorsement: z.string().min(1),
 });
 
 export const totalsSchema = z.object({
-  taxable_paise: z.string().regex(/^\d+$/u),
+  /** ISO 4217. Every amount below is integer minor units of it (ADR 0030). */
+  currency: z.enum(["INR", "USD"]),
+  taxable_minor: z.string().regex(/^\d+$/u),
   gst_rate_percent: z.string(),
-  supply: z.enum(["intra_state", "inter_state"]),
+  supply: z.enum(["intra_state", "inter_state", "export"]),
   cgst_rate_percent: z.string().nullable(),
   sgst_rate_percent: z.string().nullable(),
   igst_rate_percent: z.string().nullable(),
-  cgst_paise: z.string().regex(/^\d+$/u),
-  sgst_paise: z.string().regex(/^\d+$/u),
-  igst_paise: z.string().regex(/^\d+$/u),
-  gst_paise: z.string().regex(/^\d+$/u),
-  total_paise: z.string().regex(/^\d+$/u),
+  cgst_minor: z.string().regex(/^\d+$/u),
+  sgst_minor: z.string().regex(/^\d+$/u),
+  igst_minor: z.string().regex(/^\d+$/u),
+  tax_minor: z.string().regex(/^\d+$/u),
+  total_minor: z.string().regex(/^\d+$/u),
   total_in_words: z.string(),
+  /**
+   * Export only. The endorsement an export invoice must carry and the LUT it is made
+   * under, snapshotted onto the document: an invoice records what was issued, and the
+   * config it was read from changes underneath it.
+   */
+  export_endorsement: z.string().nullable(),
+  lut_arn: z.string().nullable(),
   /** Proforma only: pay-by date and bank details. */
   valid_until: z.string().nullable(),
   bank_details: z.record(z.string(), z.string()).nullable(),
@@ -92,8 +117,8 @@ export interface InvoiceRecord {
   readonly series: string;
   readonly seller: Seller;
   readonly buyer: Buyer;
-  readonly placeOfSupplyStateCode: string;
-  readonly placeOfSupplyStateName: string;
+  readonly placeOfSupplyStateCode: string | null;
+  readonly placeOfSupplyStateName: string | null;
   readonly sacCode: string;
   readonly lineItems: readonly z.infer<typeof lineItemSchema>[];
   readonly totals: z.infer<typeof totalsSchema>;
@@ -111,16 +136,17 @@ const hasPlaceholder = (value: unknown): boolean =>
 interface PurchaseForInvoice {
   readonly id: string;
   readonly accountId: string;
-  readonly amountPaiseExGst: bigint;
-  readonly cgstPaise: bigint;
-  readonly sgstPaise: bigint;
-  readonly igstPaise: bigint;
-  readonly gstPaise: bigint;
-  readonly totalPaise: bigint;
+  readonly currency: Currency;
+  readonly amountMinorExTax: bigint;
+  readonly cgstMinor: bigint;
+  readonly sgstMinor: bigint;
+  readonly igstMinor: bigint;
+  readonly taxMinor: bigint;
+  readonly totalMinor: bigint;
   readonly credits: bigint;
   readonly bonusCredits: bigint;
   readonly gstRate: string;
-  readonly placeOfSupplyStateCode: string;
+  readonly placeOfSupplyStateCode: string | null;
 }
 
 /**
@@ -166,14 +192,19 @@ export async function issueInvoice(
     business_name: string;
     gstin: string | null;
     billing_address: unknown;
-  }>(`select business_name, gstin, billing_address from public.accounts where id = $1`, [
-    purchase.accountId,
-  ]);
+    billing_country: string | null;
+  }>(
+    `select business_name, gstin, billing_address, billing_country
+       from public.accounts where id = $1`,
+    [purchase.accountId],
+  );
   const acc = account.rows[0];
   if (acc === undefined) throw new Error("issueInvoice: account not found");
   const address = billingAddressSchema.safeParse(acc.billing_address);
   const addr = address.success ? address.data : {};
   const pos = purchase.placeOfSupplyStateCode;
+  const isExport = purchase.currency !== "INR";
+  const country = normaliseCountry(acc.billing_country ?? "IN");
 
   const buyer: Buyer = {
     name: acc.business_name,
@@ -181,10 +212,13 @@ export async function issueInvoice(
     address: [
       addr.line1,
       addr.line2,
-      [addr.city, addr.pincode].filter(Boolean).join(" "),
+      [addr.city, addr.postalCode].filter(Boolean).join(" "),
+      // An export invoice names the buyer's country; a domestic one does not need to.
+      isExport ? countryName(country) : undefined,
     ].filter((l): l is string => l !== undefined && l !== ""),
+    country,
     state_code: pos,
-    state_name: stateName(pos),
+    state_name: pos === null ? null : stateName(pos),
   };
 
   const fy = gstFinancialYear(now);
@@ -212,7 +246,16 @@ export async function issueInvoice(
     );
   }
 
-  const intra = purchase.igstPaise === 0n;
+  // Zero-rated export, or a domestic supply split intra/inter state.
+  const exportConfig = isExport
+    ? await readConfig(tx, "billing.export", exportSchema, now)
+    : null;
+  if (!allowPlaceholders && exportConfig !== null && hasPlaceholder(exportConfig)) {
+    throw new Error(
+      "issueInvoice: export LUT details are placeholders (REVIEW_ITEMS R-59)",
+    );
+  }
+  const intra = !isExport && purchase.igstMinor === 0n;
   const lineItems = [
     {
       description:
@@ -222,22 +265,25 @@ export async function issueInvoice(
       sac,
       credits: purchase.credits.toString(),
       bonus_credits: purchase.bonusCredits.toString(),
-      taxable_paise: purchase.amountPaiseExGst.toString(),
+      taxable_minor: purchase.amountMinorExTax.toString(),
     },
   ];
   const totals: z.infer<typeof totalsSchema> = {
-    taxable_paise: purchase.amountPaiseExGst.toString(),
+    currency: purchase.currency,
+    taxable_minor: purchase.amountMinorExTax.toString(),
     gst_rate_percent: purchase.gstRate,
-    supply: intra ? "intra_state" : "inter_state",
+    supply: isExport ? "export" : intra ? "intra_state" : "inter_state",
     cgst_rate_percent: intra ? halfRate(purchase.gstRate) : null,
     sgst_rate_percent: intra ? halfRate(purchase.gstRate) : null,
-    igst_rate_percent: intra ? null : purchase.gstRate,
-    cgst_paise: purchase.cgstPaise.toString(),
-    sgst_paise: purchase.sgstPaise.toString(),
-    igst_paise: purchase.igstPaise.toString(),
-    gst_paise: purchase.gstPaise.toString(),
-    total_paise: purchase.totalPaise.toString(),
-    total_in_words: amountInWordsIndian(purchase.totalPaise),
+    igst_rate_percent: isExport || intra ? null : purchase.gstRate,
+    cgst_minor: purchase.cgstMinor.toString(),
+    sgst_minor: purchase.sgstMinor.toString(),
+    igst_minor: purchase.igstMinor.toString(),
+    tax_minor: purchase.taxMinor.toString(),
+    total_minor: purchase.totalMinor.toString(),
+    total_in_words: amountInWords(purchase.currency, purchase.totalMinor),
+    export_endorsement: exportConfig?.endorsement ?? null,
+    lut_arn: exportConfig?.lut_arn ?? null,
     valid_until: validUntil,
     bank_details: bankDetails,
   };
@@ -246,8 +292,8 @@ export async function issueInvoice(
     `insert into public.invoices
        (account_id, purchase_id, type, number, financial_year, series, seller_gstin, buyer_gstin,
         place_of_supply_state_code, place_of_supply_state_name, sac_code, seller, buyer,
-        line_items, totals, issued_at)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+        line_items, totals, issued_at, currency, buyer_country, export_endorsement, lut_arn)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
      returning id`,
     [
       purchase.accountId,
@@ -266,6 +312,10 @@ export async function issueInvoice(
       JSON.stringify(lineItems),
       JSON.stringify(totals),
       now,
+      purchase.currency,
+      country,
+      totals.export_endorsement,
+      totals.lut_arn,
     ],
   );
   const id = inserted.rows[0]?.id;

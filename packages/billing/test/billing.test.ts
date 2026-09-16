@@ -54,27 +54,48 @@ class FakeGateway implements PaymentGateway {
     this.calls.push(input);
     return Promise.resolve({
       id: `order_${randomUUID().replaceAll("-", "").slice(0, 14)}`,
-      amountPaise: input.amountPaise,
-      currency: "INR",
+      amountMinor: input.amountMinor,
+      currency: input.currency,
       status: "created",
     });
   }
 }
 
-async function account(stateCode = "27", gstin: string | null = null): Promise<string> {
+/**
+ * A buyer. `country` decides the billing currency and the tax treatment (ADR 0030);
+ * `stateCode` only means anything for India and is written as null otherwise, which the
+ * accounts_state_code_is_india_only constraint also insists on.
+ */
+async function account(
+  stateCode: string | null = "27",
+  gstin: string | null = null,
+  country = "IN",
+): Promise<string> {
+  const india = country === "IN";
   const r = await pool().query<{ id: string }>(
-    `insert into accounts (auth_user_id, email, business_name, gstin, billing_address, state_code)
-     values (gen_random_uuid(), $1, 'Synthetic Traders Pvt Ltd', $2, $3, $4) returning id`,
+    `insert into accounts (auth_user_id, email, business_name, gstin, billing_address, state_code, billing_country)
+     values (gen_random_uuid(), $1, 'Synthetic Traders Pvt Ltd', $2, $3, $4, $5) returning id`,
     [
       `${randomUUID()}@example.test`,
       gstin,
-      JSON.stringify({
-        line1: "1 Test Road",
-        city: "Pune",
-        pincode: "411001",
-        stateCode,
-      }),
-      stateCode,
+      JSON.stringify(
+        india
+          ? {
+              line1: "1 Test Road",
+              city: "Pune",
+              country: "IN",
+              postalCode: "411001",
+              stateCode,
+            }
+          : {
+              line1: "40 Gracechurch Street",
+              city: "London",
+              country,
+              postalCode: "EC3V 0BT",
+            },
+      ),
+      india ? stateCode : null,
+      country,
     ],
   );
   return r.rows[0]?.id ?? "";
@@ -82,7 +103,9 @@ async function account(stateCode = "27", gstin: string | null = null): Promise<s
 
 async function packId(pricePaise: bigint): Promise<string> {
   const r = await pool().query<{ id: string }>(
-    `select id from credit_packs where price_paise_ex_gst = $1 and active`,
+    `select p.id from credit_packs p
+       join credit_pack_prices pp on pp.pack_id = p.id and pp.currency = 'INR'
+      where pp.price_minor_ex_tax = $1 and p.active`,
     [pricePaise.toString()],
   );
   const id = r.rows[0]?.id;
@@ -95,6 +118,7 @@ function webhook(
   orderId: string,
   amount: bigint,
   paymentId = `pay_${randomUUID().slice(0, 8)}`,
+  currency = "INR",
 ) {
   const rawBody = JSON.stringify({
     entity: "event",
@@ -105,7 +129,7 @@ function webhook(
         entity: {
           id: paymentId,
           amount: Number.parseInt(amount.toString(), 10),
-          currency: "INR",
+          currency,
           status: "captured",
           order_id: orderId,
         },
@@ -129,11 +153,13 @@ describe("pack quotes", () => {
       packId: await packId(500_000n),
       now: NOW,
     });
-    expect(intra.gst).toMatchObject({
+    expect(intra.tax).toMatchObject({
       supply: "intra_state",
-      cgstPaise: 45_000n,
-      sgstPaise: 45_000n,
-      totalPaise: 590_000n,
+      treatment: "gst",
+      currency: "INR",
+      cgstMinor: 45_000n,
+      sgstMinor: 45_000n,
+      totalMinor: 590_000n,
     });
     expect(intra).toMatchObject({
       credits: 5000n,
@@ -146,22 +172,31 @@ describe("pack quotes", () => {
       now: NOW,
     });
     expect(inter).toHaveLength(6);
-    expect(inter.every((q) => q.gst.supply === "inter_state")).toBe(true);
+    expect(inter.every((q) => q.tax.supply === "inter_state")).toBe(true);
     expect(
-      inter.filter((q) => q.bankTransferEligible).map((q) => q.gst.taxablePaise),
+      inter.filter((q) => q.bankTransferEligible).map((q) => q.tax.taxableMinor),
     ).toEqual([2_500_000n, 5_000_000n, 10_000_000n]);
   });
 
   it("refuses to quote before the billing state is known, and quotes once it is", async () => {
     // Billing details moved from sign-up to the first purchase (migration 0034), so an
-    // account can exist without a state. GST place of supply is never guessed.
+    // account can exist with neither a country nor a state. Neither the currency nor the
+    // place of supply is ever guessed.
     const r = await pool().query<{ id: string }>(
-      `insert into accounts (auth_user_id, email, business_name, state_code)
-       values (gen_random_uuid(), $1, 'Synthetic Traders Pvt Ltd', null) returning id`,
+      `insert into accounts (auth_user_id, email, business_name, state_code, billing_country)
+       values (gen_random_uuid(), $1, 'Synthetic Traders Pvt Ltd', null, null) returning id`,
       [`${randomUUID()}@example.test`],
     );
     const accountId = r.rows[0]?.id ?? "";
 
+    await expect(listPackQuotes(pool(), { accountId, now: NOW })).rejects.toMatchObject({
+      code: "BILLING_STATE_UNKNOWN",
+    });
+
+    // A country alone still is not enough for India: GST needs a place of supply.
+    await pool().query(`update accounts set billing_country = 'IN' where id = $1`, [
+      accountId,
+    ]);
     await expect(listPackQuotes(pool(), { accountId, now: NOW })).rejects.toMatchObject({
       code: "BILLING_STATE_UNKNOWN",
     });
@@ -173,7 +208,7 @@ describe("pack quotes", () => {
     ]);
     const quotes = await listPackQuotes(pool(), { accountId, now: NOW });
     expect(quotes).toHaveLength(6);
-    expect(quotes.every((q) => q.gst.supply === "inter_state")).toBe(true);
+    expect(quotes.every((q) => q.tax.supply === "inter_state")).toBe(true);
   });
 });
 
@@ -187,13 +222,13 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
       idempotencyKey: randomUUID(),
       now: NOW,
     });
-    expect(order.amountPaise).toBe(1_180_000n);
+    expect(order.amountMinor).toBe(1_180_000n);
     expect(gateway.calls[0]?.receipt).toBe(order.purchaseId);
 
     // No credits before the webhook: the checkout callback grants nothing.
     expect((await walletSummary(pool(), accountId)).balance).toBe(0n);
 
-    const captured = webhook("payment.captured", order.orderId, order.amountPaise);
+    const captured = webhook("payment.captured", order.orderId, order.amountMinor);
     expect(await handleRazorpayWebhook(pool(), captured)).toEqual({
       status: "processed",
       outcome: "credited",
@@ -205,7 +240,7 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
     });
     expect(
       await handleRazorpayWebhook(pool(), {
-        ...webhook("order.paid", order.orderId, order.amountPaise),
+        ...webhook("order.paid", order.orderId, order.amountMinor),
         now: NOW,
       }),
     ).toEqual({ status: "processed", outcome: "already_credited" });
@@ -234,11 +269,11 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
     expect(invoice.number).toMatch(/^INV\/26-27\/\d{6}$/u);
     expect(invoice.placeOfSupplyStateName).toBe("Maharashtra");
     expect(invoice.totals).toMatchObject({
-      taxable_paise: "1000000",
-      cgst_paise: "90000",
-      sgst_paise: "90000",
-      igst_paise: "0",
-      total_paise: "1180000",
+      taxable_minor: "1000000",
+      cgst_minor: "90000",
+      sgst_minor: "90000",
+      igst_minor: "0",
+      total_minor: "1180000",
       cgst_rate_percent: "9",
       total_in_words: "Rupees Eleven Thousand Eight Hundred Only",
     });
@@ -289,15 +324,15 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
     const results = await Promise.all([
       handleRazorpayWebhook(
         pool(),
-        webhook("payment.captured", order.orderId, order.amountPaise, paymentId),
+        webhook("payment.captured", order.orderId, order.amountMinor, paymentId),
       ),
       handleRazorpayWebhook(
         pool(),
-        webhook("order.paid", order.orderId, order.amountPaise, paymentId),
+        webhook("order.paid", order.orderId, order.amountMinor, paymentId),
       ),
       handleRazorpayWebhook(
         pool(),
-        webhook("payment.captured", order.orderId, order.amountPaise, paymentId),
+        webhook("payment.captured", order.orderId, order.amountMinor, paymentId),
       ),
     ]);
     expect(
@@ -307,7 +342,7 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
     const invoices = await listInvoices(pool(), accountId);
     expect(invoices).toHaveLength(1);
     expect(invoices[0]?.totals.supply).toBe("inter_state");
-    expect(invoices[0]?.totals.igst_paise).toBe("36000");
+    expect(invoices[0]?.totals.igst_minor).toBe("36000");
   });
 
   it("rejects forged, malformed and mismatched webhooks without crediting", async () => {
@@ -318,7 +353,7 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
       idempotencyKey: randomUUID(),
       now: NOW,
     });
-    const good = webhook("payment.captured", order.orderId, order.amountPaise);
+    const good = webhook("payment.captured", order.orderId, order.amountMinor);
     expect(
       await handleRazorpayWebhook(pool(), { ...good, signature: "00".repeat(32) }),
     ).toEqual({
@@ -328,7 +363,7 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
       status: "invalid_signature",
     });
 
-    const short = webhook("payment.captured", order.orderId, order.amountPaise - 1n);
+    const short = webhook("payment.captured", order.orderId, order.amountMinor - 1n);
     expect(await handleRazorpayWebhook(pool(), short)).toEqual({
       status: "processed",
       outcome: "amount_mismatch",
@@ -390,7 +425,7 @@ describe("invoice numbering", () => {
       orders.map((o) =>
         handleRazorpayWebhook(
           pool(),
-          webhook("payment.captured", o.orderId, o.amountPaise),
+          webhook("payment.captured", o.orderId, o.amountMinor),
         ),
       ),
     );
@@ -514,12 +549,14 @@ describe("accounting exports", () => {
     // Invoices were issued with issued_at = NOW (2027-01); ledger rows carry the real clock.
     const register = await accountingCsv(pool(), "invoice_register", "2027-01");
     expect(register.split("\r\n")[0]).toBe(
-      "invoice_number,type,date_ist,buyer_name,buyer_gstin,place_of_supply_code,taxable_inr,cgst_inr,sgst_inr,igst_inr,total_inr",
+      "invoice_number,type,date_ist,buyer_name,buyer_gstin,place_of_supply_code,currency,taxable,cgst,sgst,igst,total",
     );
     expect(register).toContain("INV/26-27/000001");
     const gst = await accountingCsv(pool(), "gst_summary", "2027-01");
-    expect(gst).toMatch(/^intra_state,27,Maharashtra,/mu);
-    expect(gst).toMatch(/^inter_state,07,Delhi,/mu);
+    // Grouped by currency now: a summary that added rupees to dollars would be worse
+    // than one that failed, and GSTR-1 wants exports in their own table anyway.
+    expect(gst).toMatch(/^intra_state,INR,27,Maharashtra,/mu);
+    expect(gst).toMatch(/^inter_state,INR,07,Delhi,/mu);
     const sold = await accountingCsv(pool(), "credits_sold", "2027-01");
     expect(sold.split("\r\n").length).toBeGreaterThan(3);
     const outstanding = await accountingCsv(pool(), "outstanding_credits", month);
@@ -546,17 +583,17 @@ describe("Razorpay reconciliation when webhooks never arrive (R-51)", () => {
     const paid = await buy();
     const unpaid = await buy();
     const wrong = await buy();
-    const payments = (orderId: string, amountPaise: bigint): GatewayPayment[] => [
+    const payments = (orderId: string, amountMinor: bigint): GatewayPayment[] => [
       {
         id: "pay_failedattempt",
-        amountPaise,
+        amountMinor,
         currency: "INR",
         status: "failed",
         orderId,
       },
       {
         id: `pay_${randomUUID().slice(0, 8)}`,
-        amountPaise,
+        amountMinor,
         currency: "INR",
         status: "captured",
         orderId,
@@ -564,7 +601,7 @@ describe("Razorpay reconciliation when webhooks never arrive (R-51)", () => {
     ];
     gateway.payments.set(
       paid.order.orderId,
-      payments(paid.order.orderId, paid.order.amountPaise),
+      payments(paid.order.orderId, paid.order.amountMinor),
     );
     gateway.payments.set(wrong.order.orderId, payments(wrong.order.orderId, 100n));
 
@@ -596,10 +633,88 @@ describe("Razorpay reconciliation when webhooks never arrive (R-51)", () => {
     expect(
       await handleRazorpayWebhook(
         pool(),
-        webhook("payment.captured", paid.order.orderId, paid.order.amountPaise),
+        webhook("payment.captured", paid.order.orderId, paid.order.amountMinor),
       ),
     ).toEqual({ status: "processed", outcome: "already_credited" });
     expect((await walletSummary(pool(), paid.accountId)).balance).toBe(10_750n);
     expect(await listInvoices(pool(), paid.accountId)).toHaveLength(1);
+  });
+});
+
+describe("selling outside India (ADR 0030)", () => {
+  it("prices in dollars, charges no GST, and says why on the invoice", async () => {
+    const accountId = await account(null, null, "GB");
+    const quotes = await listPackQuotes(pool(), { accountId });
+    expect(quotes.length).toBeGreaterThan(0);
+
+    for (const q of quotes) {
+      expect(q.currency).toBe("USD");
+      expect(q.tax.treatment).toBe("export_zero_rated");
+      expect(q.tax.supply).toBe("export");
+      // Zero-rated means the total IS the taxable value -- no tax line, no rounding.
+      expect(q.tax.taxMinor).toBe(0n);
+      expect(q.tax.cgstMinor + q.tax.sgstMinor + q.tax.igstMinor).toBe(0n);
+      expect(q.tax.totalMinor).toBe(q.tax.taxableMinor);
+      expect(q.tax.placeOfSupplyStateCode).toBeNull();
+      // An international wire is a different process and is not offered.
+      expect(q.bankTransferEligible).toBe(false);
+    }
+  });
+
+  it("charges a dollar buyer dollars, not the rupee price", async () => {
+    // The failure this guards against is the worst one available: taking the INR
+    // figure and sending it as USD, charging about eighty times the intended price.
+    const inr = await listPackQuotes(pool(), { accountId: await account() });
+    const usd = await listPackQuotes(pool(), {
+      accountId: await account(null, null, "US"),
+    });
+    const inrFor = new Map(inr.map((q) => [q.credits.toString(), q.tax.taxableMinor]));
+    for (const q of usd) {
+      const rupees = inrFor.get(q.credits.toString());
+      expect(rupees, `no INR pack for ${q.credits.toString()} credits`).toBeDefined();
+      expect(q.tax.taxableMinor).not.toBe(rupees);
+    }
+  });
+
+  it("creates the gateway order in the buyer's currency", async () => {
+    const accountId = await account(null, null, "AE");
+    const quotes = await listPackQuotes(pool(), { accountId });
+    const pack = quotes[0];
+    if (pack === undefined) throw new Error("no USD packs");
+    const gateway = new FakeGateway();
+    const order = await createRazorpayPurchase(pool(), gateway, {
+      accountId,
+      packId: pack.packId,
+      idempotencyKey: randomUUID(),
+    });
+    expect(order.currency).toBe("USD");
+    expect(order.amountMinor).toBe(pack.tax.totalMinor);
+  });
+
+  it("refuses a rupee payment against a dollar purchase", async () => {
+    // Same integer, different money. Without the currency check a 2900-cent purchase
+    // would be settled by a 2900-paise payment -- twenty-nine rupees for a $29 pack.
+    const accountId = await account(null, null, "SG");
+    const quotes = await listPackQuotes(pool(), { accountId });
+    const pack = quotes[0];
+    if (pack === undefined) throw new Error("no USD packs");
+    const gateway = new FakeGateway();
+    const order = await createRazorpayPurchase(pool(), gateway, {
+      accountId,
+      packId: pack.packId,
+      idempotencyKey: randomUUID(),
+    });
+
+    const result = await handleRazorpayWebhook(
+      pool(),
+      webhook("payment.captured", order.orderId, order.amountMinor, undefined, "INR"),
+    );
+    expect(result.status).not.toBe("credited");
+
+    const wallet = await pool().query<{ balance_credits: string }>(
+      `select balance_credits from wallets where account_id = $1`,
+      [accountId],
+    );
+    expect(wallet.rows[0]?.balance_credits ?? "0").toBe("0");
   });
 });

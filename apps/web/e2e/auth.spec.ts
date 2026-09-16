@@ -91,7 +91,13 @@ test("mutating APIs require an Idempotency-Key", async ({ page }) => {
   const response = await page.request.patch("/api/account/profile", {
     data: {
       businessName: "Changed",
-      billingAddress: { line1: "x", city: "y", pincode: "411001", stateCode: "27" },
+      billingAddress: {
+        line1: "x",
+        city: "y",
+        country: "IN",
+        postalCode: "411001",
+        stateCode: "27",
+      },
     },
   });
   expect(response.status()).toBe(400);

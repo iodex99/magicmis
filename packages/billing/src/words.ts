@@ -87,3 +87,51 @@ export function amountInWordsIndian(amountPaise: bigint): string {
     ? `${rupeePart} Only`
     : `${rupeePart} and ${below100(paise)} Paise Only`;
 }
+
+/**
+ * Western grouping — thousand, million, billion — for a dollar amount (ADR 0030).
+ *
+ * Separate from the Indian version rather than parameterised: the two differ in their
+ * grouping *and* in the words, and a function that switched between them on a flag would
+ * be read by nobody and trusted by no auditor. Both are short.
+ */
+export function numberInWordsWestern(value: bigint): string {
+  if (value < 0n) throw new RangeError("numberInWordsWestern: negative value");
+  if (value === 0n) return "Zero";
+
+  const SCALES: readonly [bigint, string][] = [
+    [1_000_000_000_000n, "Trillion"],
+    [1_000_000_000n, "Billion"],
+    [1_000_000n, "Million"],
+    [1_000n, "Thousand"],
+  ];
+  const parts: string[] = [];
+  let n = value;
+  for (const [size, name] of SCALES) {
+    const count = n / size;
+    n %= size;
+    if (count > 0n) parts.push(`${numberInWordsWestern(count)} ${name}`);
+  }
+  if (n >= 100n) {
+    parts.push(`${below100(n / 100n)} Hundred`);
+    n %= 100n;
+  }
+  if (n > 0n) parts.push(below100(n));
+  return parts.join(" ");
+}
+
+/** `"Dollars One Thousand Two Hundred and Fifty Cents Only"` for an export invoice. */
+export function amountInWordsUsd(amountCents: bigint): string {
+  if (amountCents < 0n) throw new RangeError("amountInWordsUsd: negative amount");
+  const dollars = amountCents / 100n;
+  const cents = amountCents % 100n;
+  const dollarPart = `Dollars ${numberInWordsWestern(dollars)}`;
+  return cents === 0n
+    ? `${dollarPart} Only`
+    : `${dollarPart} and ${below100(cents)} Cents Only`;
+}
+
+/** The amount in words for whichever currency the invoice is in. */
+export function amountInWords(currency: "INR" | "USD", minor: bigint): string {
+  return currency === "INR" ? amountInWordsIndian(minor) : amountInWordsUsd(minor);
+}

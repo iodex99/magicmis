@@ -44,8 +44,30 @@ export function formatCredits(value: string): string {
 /** Indian digit grouping for any whole count held as a decimal string. */
 export const formatCount = (value: string): string => formatCredits(value);
 
-/** Paise (decimal string) as rupees with Indian grouping: "236000" → "₹2,360.00". */
-export function formatRupees(paise: string): string {
-  const padded = paise.padStart(3, "0");
-  return `₹${formatCredits(padded.slice(0, -2))}.${padded.slice(-2)}`;
+/** Western digit grouping, for the currencies that read that way. */
+function groupWestern(digits: string): string {
+  const negative = digits.startsWith("-");
+  const d = negative ? digits.slice(1) : digits;
+  const grouped = d.replace(/B(?=(d{3})+(?!d))/gu, ",");
+  return negative ? `-${grouped}` : grouped;
 }
+
+/**
+ * Integer minor units as money in the billing currency (ADR 0030).
+ *
+ * Rupees group 12,34,567 and dollars 1,234,567. Mixing them is the kind of mistake a
+ * reader spots instantly and mistrusts everything else for, so the grouping follows the
+ * currency rather than the page.
+ */
+export function formatMoney(currency: "INR" | "USD", minor: string): string {
+  const negative = minor.startsWith("-");
+  const padded = (negative ? minor.slice(1) : minor).padStart(3, "0");
+  const whole = padded.slice(0, -2);
+  const fraction = padded.slice(-2);
+  const grouped = currency === "INR" ? formatCredits(whole) : groupWestern(whole);
+  const symbol = currency === "INR" ? "₹" : "$";
+  return `${negative ? "-" : ""}${symbol}${grouped}.${fraction}`;
+}
+
+/** Paise (decimal string) as rupees: "236000" → "₹2,360.00". */
+export const formatRupees = (paise: string): string => formatMoney("INR", paise);

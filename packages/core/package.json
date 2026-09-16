@@ -11,6 +11,7 @@
     "./time": "./src/time/index.ts",
     "./format": "./src/format/index.ts",
     "./identifiers": "./src/identifiers/index.ts",
+    "./country": "./src/identifiers/country.ts",
     "./hashchain": "./src/hashchain/index.ts",
     "./config": "./src/config/index.ts",
     "./brand": "./src/brand.ts",

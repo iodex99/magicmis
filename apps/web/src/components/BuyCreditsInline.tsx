@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { formatCredits, formatRupees } from "@/lib/actions";
+import { formatCredits, formatMoney } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { loadCheckout, type RazorpayConstructor } from "@/lib/checkout";
 import { api, newIdempotencyKey } from "@/lib/client-api";
@@ -48,6 +48,9 @@ export function BuyCreditsInline({
    * longer exists. The payment itself is unaffected — the webhook grants the credits
    * server-side whether or not anyone is watching.
    */
+  /** Prices in whatever the account is billed in (ADR 0030), never assumed rupees. */
+  const money = (minor: string) => formatMoney(view?.currency ?? "INR", minor);
+
   const live = useRef<boolean>(true);
   // Read through a call: a bare `live.current` check stays narrowed across every await
   // that follows it, so the later guards would be compiled away as "always true".
@@ -70,7 +73,7 @@ export function BuyCreditsInline({
     const created = await api<{
       purchaseId: string;
       orderId: string;
-      amountPaise: string;
+      amountMinor: string;
       currency: string;
       keyId: string;
     }>("/api/wallet/purchases", {
@@ -95,7 +98,7 @@ export function BuyCreditsInline({
     }
     const checkout = new Razorpay({
       key: created.data.keyId,
-      amount: created.data.amountPaise,
+      amount: created.data.amountMinor,
       currency: created.data.currency,
       name: PRODUCT_NAME,
       description: `Credits for ${businessName}`,
@@ -201,7 +204,7 @@ export function BuyCreditsInline({
               {p.bonusCredits === "0"
                 ? ""
                 : ` + ${formatCredits(p.bonusCredits)} bonus`}{" "}
-              — {formatRupees(p.totalPaise)}
+              — {money(p.totalMinor)}
             </Button>
           ))
         )}

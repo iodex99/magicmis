@@ -43,7 +43,14 @@ export function toCsv(
 }
 
 /** Paise as a plain rupee decimal for spreadsheets: 236000 → "2360.00". */
-export function rupeeCell(p: string | bigint): string {
+/**
+ * Integer minor units as a plain decimal for a CSV cell: 236000 -> "2360.00".
+ *
+ * Currency-agnostic, and named that way since the product bills in two (ADR 0030). The
+ * currency belongs in its own column rather than glued to the number, so a spreadsheet
+ * can still sum the column.
+ */
+export function minorCell(p: string | bigint): string {
   const v = typeof p === "bigint" ? p : BigInt(p);
   const neg = v < 0n;
   const abs = (neg ? -v : v).toString().padStart(3, "0");
@@ -92,6 +99,7 @@ export async function accountingCsv(
         invoice_number: string | null;
         credits: string;
         bonus_credits: string;
+        currency: string;
         taxable: string;
         gst: string;
         total: string;
@@ -99,7 +107,9 @@ export async function accountingCsv(
         `select to_char(p.credited_at at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as credited_at,
                 p.id as purchase_id, p.account_id, p.method, i.number as invoice_number,
                 p.credits::text as credits, p.bonus_credits::text as bonus_credits,
-                p.amount_paise_ex_gst::text as taxable, p.gst_paise::text as gst, p.total_paise::text as total
+                p.currency,
+                p.amount_minor_ex_tax::text as taxable, p.tax_minor::text as gst,
+                p.total_minor::text as total
          from public.purchases p
          left join public.invoices i on i.purchase_id = p.id and i.type = 'tax_invoice'
          where p.status = 'credited' and p.credited_at >= $1 and p.credited_at < $2
@@ -115,9 +125,10 @@ export async function accountingCsv(
           "invoice_number",
           "credits",
           "bonus_credits",
-          "value_ex_gst_inr",
-          "gst_inr",
-          "total_inr",
+          "currency",
+          "value_ex_tax",
+          "tax",
+          "total",
         ],
         r.rows.map((x) => [
           x.credited_at,
@@ -127,9 +138,10 @@ export async function accountingCsv(
           x.invoice_number ?? "",
           x.credits,
           x.bonus_credits,
-          rupeeCell(x.taxable),
-          rupeeCell(x.gst),
-          rupeeCell(x.total),
+          x.currency,
+          minorCell(x.taxable),
+          minorCell(x.gst),
+          minorCell(x.total),
         ]),
       );
     }
@@ -171,49 +183,53 @@ export async function accountingCsv(
     case "gst_summary": {
       const r = await db.query<{
         supply: string;
-        pos: string;
+        /** Null on an export row: a supply outside India has no GST state. */
+        pos: string | null;
         pos_name: string | null;
         invoices: string;
+        currency: string;
         taxable: string;
         cgst: string;
         sgst: string;
         igst: string;
         total: string;
       }>(
-        `select totals->>'supply' as supply, place_of_supply_state_code as pos,
+        `select totals->>'supply' as supply, currency, place_of_supply_state_code as pos,
                 max(place_of_supply_state_name) as pos_name, count(*)::text as invoices,
-                sum((totals->>'taxable_paise')::bigint)::text as taxable,
-                sum((totals->>'cgst_paise')::bigint)::text as cgst,
-                sum((totals->>'sgst_paise')::bigint)::text as sgst,
-                sum((totals->>'igst_paise')::bigint)::text as igst,
-                sum((totals->>'total_paise')::bigint)::text as total
+                sum((totals->>'taxable_minor')::bigint)::text as taxable,
+                sum((totals->>'cgst_minor')::bigint)::text as cgst,
+                sum((totals->>'sgst_minor')::bigint)::text as sgst,
+                sum((totals->>'igst_minor')::bigint)::text as igst,
+                sum((totals->>'total_minor')::bigint)::text as total
          from public.invoices
          where type = 'tax_invoice' and issued_at >= $1 and issued_at < $2
-         group by 1, 2 order by 1, 2`,
+         group by 1, 2, 3 order by 1, 2, 3`,
         [from, to],
       );
       return toCsv(
         [
           "supply",
+          "currency",
           "place_of_supply_code",
           "place_of_supply",
           "invoices",
-          "taxable_inr",
-          "cgst_inr",
-          "sgst_inr",
-          "igst_inr",
-          "total_inr",
+          "taxable",
+          "cgst",
+          "sgst",
+          "igst",
+          "total",
         ],
         r.rows.map((x) => [
           x.supply,
-          x.pos,
+          x.currency,
+          x.pos ?? "",
           x.pos_name ?? "",
           x.invoices,
-          rupeeCell(x.taxable),
-          rupeeCell(x.cgst),
-          rupeeCell(x.sgst),
-          rupeeCell(x.igst),
-          rupeeCell(x.total),
+          minorCell(x.taxable),
+          minorCell(x.cgst),
+          minorCell(x.sgst),
+          minorCell(x.igst),
+          minorCell(x.total),
         ]),
       );
     }
@@ -224,7 +240,8 @@ export async function accountingCsv(
         issued: string;
         buyer_name: string | null;
         buyer_gstin: string | null;
-        pos: string;
+        pos: string | null;
+        currency: string;
         taxable: string;
         cgst: string;
         sgst: string;
@@ -233,8 +250,9 @@ export async function accountingCsv(
       }>(
         `select number, type, to_char(issued_at at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as issued,
                 buyer->>'name' as buyer_name, buyer_gstin, place_of_supply_state_code as pos,
-                totals->>'taxable_paise' as taxable, totals->>'cgst_paise' as cgst,
-                totals->>'sgst_paise' as sgst, totals->>'igst_paise' as igst, totals->>'total_paise' as total
+                currency,
+                totals->>'taxable_minor' as taxable, totals->>'cgst_minor' as cgst,
+                totals->>'sgst_minor' as sgst, totals->>'igst_minor' as igst, totals->>'total_minor' as total
          from public.invoices
          where issued_at >= $1 and issued_at < $2
          order by type desc, financial_year, number`,
@@ -248,11 +266,12 @@ export async function accountingCsv(
           "buyer_name",
           "buyer_gstin",
           "place_of_supply_code",
-          "taxable_inr",
-          "cgst_inr",
-          "sgst_inr",
-          "igst_inr",
-          "total_inr",
+          "currency",
+          "taxable",
+          "cgst",
+          "sgst",
+          "igst",
+          "total",
         ],
         r.rows.map((x) => [
           x.number,
@@ -260,12 +279,13 @@ export async function accountingCsv(
           x.issued,
           x.buyer_name ?? "",
           x.buyer_gstin ?? "",
-          x.pos,
-          rupeeCell(x.taxable),
-          rupeeCell(x.cgst),
-          rupeeCell(x.sgst),
-          rupeeCell(x.igst),
-          rupeeCell(x.total),
+          x.pos ?? "",
+          x.currency,
+          minorCell(x.taxable),
+          minorCell(x.cgst),
+          minorCell(x.sgst),
+          minorCell(x.igst),
+          minorCell(x.total),
         ]),
       );
     }

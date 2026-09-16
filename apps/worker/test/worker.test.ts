@@ -43,8 +43,8 @@ class RecordingSender implements MailSender {
 async function account(status = "active"): Promise<{ id: string; email: string }> {
   const email = `${randomUUID()}@example.test`;
   const r = await testDb().pool.query<{ id: string }>(
-    `insert into accounts (auth_user_id, email, business_name, billing_address, state_code, status)
-     values (gen_random_uuid(), $1, 'Synthetic Works', '{"line1":"2 Road","city":"Nashik","pincode":"422001","stateCode":"27"}', '27', $2)
+    `insert into accounts (auth_user_id, email, business_name, billing_address, state_code, status, billing_country)
+     values (gen_random_uuid(), $1, 'Synthetic Works', '{"line1":"2 Road","city":"Nashik","country":"IN","postalCode":"422001","stateCode":"27"}', '27', $2, 'IN')
      returning id`,
     [email, status],
   );
@@ -113,7 +113,9 @@ describe("notification delivery (SPEC §29, ADR 0010)", () => {
     const pool = testDb().pool;
     const a = await account();
     const pack = await pool.query<{ id: string }>(
-      `select id from credit_packs where price_paise_ex_gst = 2500000`,
+      `select p.id from credit_packs p
+         join credit_pack_prices pp on pp.pack_id = p.id and pp.currency = 'INR'
+        where pp.price_minor_ex_tax = 2500000`,
     );
     await requestBankTransfer(pool, {
       accountId: a.id,

@@ -165,7 +165,17 @@ export async function listPriceBook(
 }
 
 export const packSchema = z.object({
-  pricePaiseExGst: z.coerce.bigint().refine((v) => v >= 100n, "At least ₹1"),
+  /** Integer paise. Required: every pack is sold in India. */
+  priceInrMinor: z.coerce.bigint().refine((v) => v >= 100n, "At least ₹1"),
+  /**
+   * Integer cents, optional. A pack with no dollar price is simply not offered outside
+   * India — a state the price table expresses by having no row (ADR 0030). Prices are set
+   * per currency and never converted from one another.
+   */
+  priceUsdMinor: z.coerce
+    .bigint()
+    .refine((v) => v >= 100n, "At least $1")
+    .optional(),
   credits: z.coerce.bigint().refine((v) => v > 0n, "Must be positive"),
   bonusCredits: z.coerce.bigint().refine((v) => v >= 0n, "Must be zero or more"),
   sortOrder: z.coerce.number().int().min(0).max(1000),
@@ -177,16 +187,29 @@ export async function createPack(
 ): Promise<string> {
   return withTransaction(pool, async (tx) => {
     const r = await tx.query<{ id: string }>(
-      `insert into public.credit_packs (price_paise_ex_gst, credits_granted, bonus_credits, sort_order)
-       values ($1, $2, $3, $4) returning id`,
+      `insert into public.credit_packs (credits_granted, bonus_credits, sort_order)
+       values ($1, $2, $3) returning id`,
       [
-        input.pack.pricePaiseExGst.toString(),
         input.pack.credits.toString(),
         input.pack.bonusCredits.toString(),
         input.pack.sortOrder,
       ],
     );
     const id = r.rows[0]?.id ?? "";
+    // One row per currency the pack is offered in. A pack with no USD price is simply not
+    // sold abroad, which is a state worth being able to express (ADR 0030).
+    await tx.query(
+      `insert into public.credit_pack_prices (pack_id, currency, price_minor_ex_tax)
+       values ($1, 'INR', $2)`,
+      [id, input.pack.priceInrMinor.toString()],
+    );
+    if (input.pack.priceUsdMinor !== undefined) {
+      await tx.query(
+        `insert into public.credit_pack_prices (pack_id, currency, price_minor_ex_tax)
+         values ($1, 'USD', $2)`,
+        [id, input.pack.priceUsdMinor.toString()],
+      );
+    }
     await appendAudit(tx, {
       actorType: "admin",
       actorId: input.adminId,
@@ -194,7 +217,8 @@ export async function createPack(
       targetType: "credit_pack",
       targetId: id,
       metadata: {
-        pricePaiseExGst: input.pack.pricePaiseExGst.toString(),
+        priceInrMinor: input.pack.priceInrMinor.toString(),
+        priceUsdMinor: input.pack.priceUsdMinor?.toString() ?? null,
         credits: input.pack.credits.toString(),
         bonusCredits: input.pack.bonusCredits.toString(),
       },
@@ -229,14 +253,23 @@ export async function setPackActive(
 export async function listPacks(db: Queryable) {
   const r = await db.query<{
     id: string;
-    price_paise_ex_gst: string;
+    price_inr_minor: string | null;
+    price_usd_minor: string | null;
     credits_granted: string;
     bonus_credits: string;
     active: boolean;
     sort_order: number;
   }>(
-    `select id, price_paise_ex_gst::text, credits_granted::text, bonus_credits::text, active, sort_order
-     from public.credit_packs order by active desc, sort_order, price_paise_ex_gst`,
+    // One row per pack with a column per currency: the console lists packs, and a
+    // pack offered in one currency and not the other is a real and visible state.
+    `select p.id,
+            max(pp.price_minor_ex_tax) filter (where pp.currency = 'INR')::text as price_inr_minor,
+            max(pp.price_minor_ex_tax) filter (where pp.currency = 'USD')::text as price_usd_minor,
+            p.credits_granted::text, p.bonus_credits::text, p.active, p.sort_order
+       from public.credit_packs p
+       left join public.credit_pack_prices pp on pp.pack_id = p.id
+      group by p.id
+      order by p.active desc, p.sort_order, price_inr_minor`,
   );
   return r.rows;
 }

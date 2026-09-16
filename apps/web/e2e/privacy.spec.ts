@@ -109,7 +109,7 @@ test("the owner requests a data export and downloads it once the worker has buil
 test("another account's resources are unreachable through every id-scoped endpoint (SPEC §30)", async () => {
   // A second tenant with a company, job, output, chat thread and message, export and invoice.
   const other = await db.query<{ id: string }>(
-    `insert into accounts (auth_user_id, email, business_name, state_code) values (gen_random_uuid(), $1, 'Other Tenant Co', '27') returning id`,
+    `insert into accounts (auth_user_id, email, business_name, state_code, billing_country) values (gen_random_uuid(), $1, 'Other Tenant Co', '27', 'IN') returning id`,
     [uniqueEmail()],
   );
   const otherId = other.rows[0]?.id ?? "";

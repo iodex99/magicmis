@@ -1,6 +1,7 @@
 "use client";
 
 import { GST_STATE_CODES } from "@magicmis/accounts/state-codes";
+import { countryOptions } from "@magicmis/core/country";
 import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 
 import { Alert, Button, Field, Panel, SelectField } from "@/components/ui";
@@ -14,13 +15,17 @@ interface Profile {
     line1: string;
     line2?: string;
     city: string;
-    pincode: string;
-    stateCode: string;
+    country: string;
+    postalCode: string;
+    /** India only. */
+    stateCode?: string;
   } | null;
 }
 
 export function ProfileForm() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  /** Drives the currency, the GST fields and the invoice shape (ADR 0030). */
+  const [country, setCountry] = useState("IN");
   const [fields, setFields] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<{
     tone: "success" | "error";
@@ -30,7 +35,12 @@ export function ProfileForm() {
 
   useEffect(() => {
     void api<Profile>("/api/account/profile").then((r) => {
-      if (r.ok) setProfile(r.data);
+      if (!r.ok) return;
+      setProfile(r.data);
+      // Without this the select snaps back to India on every visit, and saving again
+      // would quietly move a foreign account's billing country home.
+      const saved = r.data.billingAddress?.country;
+      if (saved !== undefined && saved !== "") setCountry(saved);
     });
   }, []);
 
@@ -48,8 +58,9 @@ export function ProfileForm() {
           line1: text("line1"),
           ...(text("line2") ? { line2: text("line2") } : {}),
           city: text("city"),
-          pincode: text("pincode"),
-          stateCode: text("stateCode"),
+          country,
+          postalCode: text("postalCode"),
+          ...(country === "IN" ? { stateCode: text("stateCode") } : {}),
         },
       },
     });
@@ -116,6 +127,22 @@ export function ProfileForm() {
           label="Address line 2 (optional)"
           defaultValue={address?.line2 ?? ""}
         />
+        <SelectField
+          id="country"
+          name="country"
+          label="Country"
+          value={country}
+          onChange={(e) => {
+            setCountry(e.currentTarget.value);
+          }}
+          hint="Decides the billing currency and whether Indian GST applies."
+        >
+          {countryOptions().map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </SelectField>
         <div className="grid grid-cols-2 gap-3">
           <Field
             id="city"
@@ -125,26 +152,33 @@ export function ProfileForm() {
             error={fields["billingAddress.city"]}
           />
           <Field
-            id="pincode"
-            name="pincode"
-            label="PIN code"
-            defaultValue={address?.pincode ?? ""}
-            error={fields["billingAddress.pincode"]}
+            id="postalCode"
+            name="postalCode"
+            label={country === "IN" ? "PIN code" : "Postal code"}
+            defaultValue={address?.postalCode ?? ""}
+            error={fields["billingAddress.postalCode"]}
           />
         </div>
-        <SelectField
-          id="stateCode"
-          name="stateCode"
-          label="State"
-          defaultValue={address?.stateCode ?? ""}
-          hint="Decides whether GST is charged as CGST + SGST or as IGST."
-        >
-          {Object.entries(GST_STATE_CODES).map(([code, name]) => (
-            <option key={code} value={code}>
-              {name}
-            </option>
-          ))}
-        </SelectField>
+        {country === "IN" ? (
+          <SelectField
+            id="stateCode"
+            name="stateCode"
+            label="State"
+            defaultValue={address?.stateCode ?? ""}
+            hint="Decides whether GST is charged as CGST + SGST or as IGST."
+          >
+            {Object.entries(GST_STATE_CODES).map(([code, name]) => (
+              <option key={code} value={code}>
+                {name}
+              </option>
+            ))}
+          </SelectField>
+        ) : (
+          <p className="text-[0.8125rem] text-neutral-500">
+            Billed in US dollars. No Indian GST applies — an export of services,
+            zero-rated under section 16 of the IGST Act.
+          </p>
+        )}
         <Button type="submit" className="w-fit" icon="check">
           Save
         </Button>

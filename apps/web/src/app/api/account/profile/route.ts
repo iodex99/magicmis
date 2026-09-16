@@ -1,5 +1,6 @@
 import {
   billingAddressSchema,
+  billingCountry,
   placeOfSupplyState,
   signupProfileSchema,
 } from "@magicmis/accounts";
@@ -75,8 +76,12 @@ export async function PATCH(request: Request): Promise<Response> {
     return idempotent(request, `account:${account.accountId}`, parsed.raw, async () => {
       await withTransaction(db(), async (tx) => {
         await tx.query(
+          // The country is written alongside the address because it decides the billing
+          // currency and the tax treatment, not just what is printed (ADR 0030). The state
+          // code is null for anything but India, which the database also enforces.
           `update public.accounts
-           set business_name = $2, gstin = $3, billing_address = $4, state_code = $5
+           set business_name = $2, gstin = $3, billing_address = $4, state_code = $5,
+               billing_country = coalesce($6, billing_country)
            where id = $1`,
           [
             account.accountId,
@@ -84,6 +89,7 @@ export async function PATCH(request: Request): Promise<Response> {
             profile.data.gstin ?? null,
             JSON.stringify(profile.data.billingAddress),
             placeOfSupplyState(profile.data),
+            billingCountry(profile.data),
           ],
         );
         await appendAudit(tx, {

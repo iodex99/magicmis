@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { listInvoices, listPurchases, rupeeCell } from "@magicmis/billing";
+import { listInvoices, listPurchases, minorCell } from "@magicmis/billing";
 import { walletSummary } from "@magicmis/wallet";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -187,24 +187,28 @@ export default async function AccountPage({
       </Panel>
       <Panel title="Purchases">
         <Table
-          head={["Method", "Status", "Credits", "Bonus", "Total (₹)", "Created"]}
+          head={["Method", "Status", "Credits", "Bonus", "Ccy", "Total", "Created"]}
           rows={purchases.map((p) => [
             p.method,
             p.status,
             p.credits.toString(),
             p.bonusCredits.toString(),
-            rupeeCell(p.totalPaise),
+            // The currency has its own column: two rows totalling "2900" mean very
+            // different money, and a glued symbol would stop the column summing.
+            p.currency,
+            minorCell(p.totalMinor),
             p.createdAt.toISOString().slice(0, 10),
           ])}
         />
       </Panel>
       <Panel title="Invoices">
         <Table
-          head={["Number", "Type", "Total (₹)", "Issued"]}
+          head={["Number", "Type", "Ccy", "Total", "Issued"]}
           rows={invoices.map((i) => [
             i.number,
             i.type,
-            rupeeCell(i.totals.total_paise),
+            i.totals.currency,
+            minorCell(i.totals.total_minor),
             i.issuedAt.toISOString().slice(0, 10),
           ])}
         />

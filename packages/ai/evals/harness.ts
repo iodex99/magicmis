@@ -364,8 +364,8 @@ async function evalAccount(pool: Pool): Promise<string> {
   );
   if (found.rows[0] !== undefined) return found.rows[0].id;
   const r = await pool.query<{ id: string }>(
-    `insert into accounts (auth_user_id, email, business_name, state_code)
-     values (gen_random_uuid(), $1, 'Eval Harness (synthetic)', '27') returning id`,
+    `insert into accounts (auth_user_id, email, business_name, state_code, billing_country)
+     values (gen_random_uuid(), $1, 'Eval Harness (synthetic)', '27', 'IN') returning id`,
     [email],
   );
   const id = r.rows[0]?.id;

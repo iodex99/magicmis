@@ -8,6 +8,7 @@ import {
   RazorpayGateway,
   type PaymentGateway,
 } from "@magicmis/billing";
+import type { Currency } from "@magicmis/core/money";
 import { readConfig } from "@magicmis/db/config";
 import { walletSummary } from "@magicmis/wallet";
 import { z } from "zod";
@@ -25,9 +26,10 @@ export function paymentGateway(): PaymentGateway {
 
 export interface WalletView {
   /**
-   * False until the account has a GSTIN or a billing state. GST place of supply cannot be
-   * guessed, so packs cannot be quoted until one is known — the Wallet asks for it inline
-   * rather than the sign-up form asking for it up front (migration 0034).
+   * False until the account has a billing country, and for India a GSTIN or state. Neither
+   * the currency nor the tax treatment can be guessed from nothing, so packs cannot be
+   * quoted until they are known — the Wallet asks inline rather than the sign-up form
+   * asking up front (migration 0034, ADR 0030).
    */
   readonly billingReady: boolean;
   readonly balance: string;
@@ -40,17 +42,26 @@ export interface WalletView {
     remaining: string;
     expiresAt: string;
   }[];
+  /**
+   * What the account is billed in: INR for India, USD for everywhere else (ADR 0030).
+   * Every pack amount below is integer minor units of it.
+   *
+   * Null until the billing country is known, which is the same moment `billingReady`
+   * becomes true — before that there are no packs to price and no currency to price them
+   * in, and defaulting to one would show a visitor abroad a rupee figure.
+   */
+  readonly currency: Currency | null;
   readonly packs: readonly {
     packId: string;
     credits: string;
     bonusCredits: string;
-    taxablePaise: string;
-    supply: "intra_state" | "inter_state";
+    taxableMinor: string;
+    supply: "intra_state" | "inter_state" | "export";
     ratePercent: string;
-    cgstPaise: string;
-    sgstPaise: string;
-    igstPaise: string;
-    totalPaise: string;
+    cgstMinor: string;
+    sgstMinor: string;
+    igstMinor: string;
+    totalMinor: string;
     bankTransferEligible: boolean;
   }[];
   readonly purchases: readonly {
@@ -59,7 +70,8 @@ export interface WalletView {
     status: string;
     credits: string;
     bonusCredits: string;
-    totalPaise: string;
+    currency: Currency;
+    totalMinor: string;
     createdAt: string;
   }[];
   readonly invoices: readonly {
@@ -67,7 +79,8 @@ export interface WalletView {
     type: string;
     number: string;
     issuedAt: string;
-    totalPaise: string;
+    currency: Currency;
+    totalMinor: string;
   }[];
   readonly ledger: readonly {
     seq: string;
@@ -129,17 +142,20 @@ export async function walletView(accountId: string): Promise<WalletView> {
       remaining: l.remaining.toString(),
       expiresAt: l.expiresAt.toISOString(),
     })),
+    // Taken from the quotes rather than queried again: they were all priced in the
+    // account's currency, so if there are any, that is it.
+    currency: quotes[0]?.currency ?? null,
     packs: quotes.map((p) => ({
       packId: p.packId,
       credits: p.credits.toString(),
       bonusCredits: p.bonusCredits.toString(),
-      taxablePaise: p.gst.taxablePaise.toString(),
-      supply: p.gst.supply,
-      ratePercent: p.gst.ratePercent,
-      cgstPaise: p.gst.cgstPaise.toString(),
-      sgstPaise: p.gst.sgstPaise.toString(),
-      igstPaise: p.gst.igstPaise.toString(),
-      totalPaise: p.gst.totalPaise.toString(),
+      taxableMinor: p.tax.taxableMinor.toString(),
+      supply: p.tax.supply,
+      ratePercent: p.tax.ratePercent,
+      cgstMinor: p.tax.cgstMinor.toString(),
+      sgstMinor: p.tax.sgstMinor.toString(),
+      igstMinor: p.tax.igstMinor.toString(),
+      totalMinor: p.tax.totalMinor.toString(),
       bankTransferEligible: p.bankTransferEligible,
     })),
     purchases: purchases.map((p) => ({
@@ -148,7 +164,8 @@ export async function walletView(accountId: string): Promise<WalletView> {
       status: p.status,
       credits: p.credits.toString(),
       bonusCredits: p.bonusCredits.toString(),
-      totalPaise: p.totalPaise.toString(),
+      currency: p.currency,
+      totalMinor: p.totalMinor.toString(),
       createdAt: p.createdAt.toISOString(),
     })),
     invoices: invoices.map((i) => ({
@@ -156,7 +173,8 @@ export async function walletView(accountId: string): Promise<WalletView> {
       type: i.type,
       number: i.number,
       issuedAt: i.issuedAt.toISOString(),
-      totalPaise: i.totals.total_paise,
+      currency: i.totals.currency,
+      totalMinor: i.totals.total_minor,
     })),
     ledger: ledger.rows.map((r) => ({
       seq: r.seq_text,

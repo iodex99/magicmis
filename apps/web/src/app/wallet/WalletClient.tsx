@@ -16,7 +16,7 @@ import {
   Th,
   Tr,
 } from "@/components/ui";
-import { formatCredits, formatRupees } from "@/lib/actions";
+import { formatCredits, formatMoney } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { loadCheckout, type RazorpayConstructor } from "@/lib/checkout";
 import { api, newIdempotencyKey } from "@/lib/client-api";
@@ -77,6 +77,16 @@ export function WalletClient({
 }) {
   const [view, setView] = useState(initial);
   const [busy, setBusy] = useState<string | null>(null);
+  /**
+   * Money in the account's own billing currency (ADR 0030).
+   *
+   * Defaulting to the wallet's currency rather than to rupees: a visitor billed in dollars
+   * seeing "₹2,900" would read it as a price forty times lower than it is. Historic rows
+   * pass their own currency, since an invoice keeps the currency it was issued in even if
+   * the account's changes.
+   */
+  const money = (minor: string, currency = view.currency ?? "INR") =>
+    formatMoney(currency, minor);
   const [notice, setNotice] = useState<{
     tone: "info" | "success" | "error";
     text: string;
@@ -116,7 +126,7 @@ export function WalletClient({
     const created = await api<{
       purchaseId: string;
       orderId: string;
-      amountPaise: string;
+      amountMinor: string;
       currency: string;
       keyId: string;
     }>("/api/wallet/purchases", {
@@ -141,7 +151,7 @@ export function WalletClient({
     }
     const checkout = new Razorpay({
       key: created.data.keyId,
-      amount: created.data.amountPaise,
+      amount: created.data.amountMinor,
       currency: created.data.currency,
       name: PRODUCT_NAME,
       description: `Credits for ${businessName}`,
@@ -343,14 +353,16 @@ export function WalletClient({
                     ) : null}
                   </Td>
                   <Td className="text-[0.8125rem] text-neutral-500">{covers(total)}</Td>
-                  <Td numeric>{formatRupees(p.taxablePaise)}</Td>
+                  <Td numeric>{money(p.taxableMinor)}</Td>
                   <Td numeric className="text-[0.75rem] text-neutral-500">
-                    {p.supply === "intra_state"
-                      ? `CGST ${formatRupees(p.cgstPaise)} + SGST ${formatRupees(p.sgstPaise)}`
-                      : `IGST ${formatRupees(p.igstPaise)}`}
+                    {p.supply === "export"
+                      ? "Zero-rated export"
+                      : p.supply === "intra_state"
+                        ? `CGST ${money(p.cgstMinor)} + SGST ${money(p.sgstMinor)}`
+                        : `IGST ${money(p.igstMinor)}`}
                   </Td>
                   <Td numeric className="font-semibold">
-                    {formatRupees(p.totalPaise)}
+                    {money(p.totalMinor)}
                   </Td>
                   <Td className="text-right whitespace-nowrap">
                     <Button
@@ -359,7 +371,7 @@ export function WalletClient({
                       disabled={busy !== null}
                       onClick={() => void buy(p.packId)}
                     >
-                      Pay {formatRupees(p.totalPaise)}
+                      Pay {money(p.totalMinor)}
                     </Button>
                     {p.bankTransferEligible ? (
                       <Button
@@ -452,7 +464,7 @@ export function WalletClient({
                     </Badge>
                   </Td>
                   <Td className="whitespace-nowrap">{istDate(i.issuedAt)}</Td>
-                  <Td numeric>{formatRupees(i.totalPaise)}</Td>
+                  <Td numeric>{money(i.totalMinor, i.currency)}</Td>
                   <Td className="text-right">
                     <a
                       className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.8125rem] font-medium text-accent-700 hover:bg-accent-50"

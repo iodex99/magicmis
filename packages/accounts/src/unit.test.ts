@@ -91,7 +91,8 @@ describe("signup validation (SPEC §8)", () => {
     billingAddress: {
       line1: "12 MG Road",
       city: "Pune",
-      pincode: "411001",
+      country: "IN",
+      postalCode: "411001",
       stateCode: "27",
     },
     acceptTerms: true,
@@ -144,13 +145,13 @@ describe("signup validation (SPEC §8)", () => {
         billingAddress: { ...base.billingAddress, stateCode: "28" },
       }).success,
     ).toBe(false);
-    for (const pincode of ["011001", "41100", "4110011", "ABCDEF"]) {
+    for (const postalCode of ["011001", "41100", "4110011", "ABCDEF"]) {
       expect(
         signupRequestSchema.safeParse({
           ...base,
-          billingAddress: { ...base.billingAddress, pincode },
+          billingAddress: { ...base.billingAddress, postalCode },
         }).success,
-        pincode,
+        postalCode,
       ).toBe(false);
     }
   });
@@ -282,7 +283,8 @@ describe("invoice-printed fields refuse what the invoice cannot print (R-25)", (
     billingAddress: {
       line1: "12 MG Road",
       city: "Pune",
-      pincode: "411001",
+      country: "IN",
+      postalCode: "411001",
       stateCode: "27",
     },
     acceptTerms: true,

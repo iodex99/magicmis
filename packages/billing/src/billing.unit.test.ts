@@ -3,7 +3,7 @@ import { createHmac } from "node:crypto";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
-import { csvCell, istMonthRange, rupeeCell, toCsv } from "./exports";
+import { csvCell, istMonthRange, minorCell, toCsv } from "./exports";
 import { computeGst, halfRate, placeOfSupply } from "./gst";
 import {
   formatInvoiceNumber,
@@ -252,13 +252,14 @@ describe("Razorpay signatures", () => {
       fakeFetch as unknown as typeof fetch,
     );
     const order = await gw.createOrder({
-      amountPaise: 236_000n,
+      amountMinor: 236_000n,
+      currency: "INR",
       receipt: "r1",
       notes: { purchase_id: "p1" },
     });
     expect(order).toEqual({
       id: "order_1",
-      amountPaise: 236_000n,
+      amountMinor: 236_000n,
       currency: "INR",
       status: "created",
     });
@@ -270,11 +271,28 @@ describe("Razorpay signatures", () => {
     expect(headers["authorization"]).toBe(
       `Basic ${Buffer.from("rzp_test_key:secret").toString("base64")}`,
     );
+    // A dollar order must reach Razorpay as dollars. Sending 2900 with "INR" would
+    // charge twenty-nine rupees for a twenty-nine dollar pack.
+    await gw.createOrder({
+      amountMinor: 2_900n,
+      currency: "USD",
+      receipt: "r2",
+      notes: {},
+    });
+    expect(seen?.init.body).toBe(
+      '{"amount":2900,"currency":"USD","receipt":"r2","notes":{}}',
+    );
+
     await expect(
-      gw.createOrder({ amountPaise: 99n, receipt: "r", notes: {} }),
+      gw.createOrder({ amountMinor: 99n, currency: "INR", receipt: "r", notes: {} }),
     ).rejects.toThrow(RangeError);
     await expect(
-      gw.createOrder({ amountPaise: 100n, receipt: "x".repeat(41), notes: {} }),
+      gw.createOrder({
+        amountMinor: 100n,
+        currency: "INR",
+        receipt: "x".repeat(41),
+        notes: {},
+      }),
     ).rejects.toThrow(RangeError);
   });
 });
@@ -289,9 +307,9 @@ describe("CSV exports", () => {
   });
 
   it("renders paise as rupees", () => {
-    expect(rupeeCell("236000")).toBe("2360.00");
-    expect(rupeeCell(5n)).toBe("0.05");
-    expect(rupeeCell("0")).toBe("0.00");
+    expect(minorCell("236000")).toBe("2360.00");
+    expect(minorCell(5n)).toBe("0.05");
+    expect(minorCell("0")).toBe("0.00");
   });
 
   it("uses IST month boundaries", () => {

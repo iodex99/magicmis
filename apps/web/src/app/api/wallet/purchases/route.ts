@@ -37,7 +37,7 @@ export async function POST(request: Request): Promise<Response> {
             body: {
               purchaseId: order.purchaseId,
               orderId: order.orderId,
-              amountPaise: order.amountPaise.toString(),
+              amountMinor: order.amountMinor.toString(),
               currency: order.currency,
               keyId: serverEnv().RAZORPAY_KEY_ID,
             },

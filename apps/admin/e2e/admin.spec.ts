@@ -88,14 +88,16 @@ test("bank transfer receipt credits the account; adjustment, price version, expo
 }) => {
   // A customer with a pending bank transfer.
   const account = await pool.query<{ id: string }>(
-    `insert into accounts (auth_user_id, email, business_name, billing_address, state_code)
-     values (gen_random_uuid(), $1, 'E2E Admin Customer', '{"line1":"1 Road","city":"Pune","pincode":"411001","stateCode":"27"}', '27')
+    `insert into accounts (auth_user_id, email, business_name, billing_address, state_code, billing_country)
+     values (gen_random_uuid(), $1, 'E2E Admin Customer', '{"line1":"1 Road","city":"Pune","country":"IN","postalCode":"411001","stateCode":"27"}', '27', 'IN')
      returning id`,
     [`e2e-admin-${randomUUID().slice(0, 8)}@example.test`],
   );
   const accountId = account.rows[0]?.id ?? "";
   const pack = await pool.query<{ id: string }>(
-    `select id from credit_packs where active and price_paise_ex_gst = 2500000 limit 1`,
+    `select p.id from credit_packs p
+       join credit_pack_prices pp on pp.pack_id = p.id and pp.currency = 'INR'
+      where p.active and pp.price_minor_ex_tax = 2500000 limit 1`,
   );
   const { proforma } = await requestBankTransfer(pool, {
     accountId,
@@ -169,7 +171,7 @@ test("margin dashboard flags a seeded over-ratio action; break-glass, jobs and p
   // Seed an account with a commentary job over its max AI cost ratio: 100 credits captured, ₹30 AI cost.
   const email = `${randomUUID()}@example.test`;
   const acct = await pool.query<{ id: string }>(
-    `insert into accounts (auth_user_id, email, business_name, state_code) values (gen_random_uuid(), $1, 'Margin Seed Co', '27') returning id`,
+    `insert into accounts (auth_user_id, email, business_name, state_code, billing_country) values (gen_random_uuid(), $1, 'Margin Seed Co', '27', 'IN') returning id`,
     [email],
   );
   const accountId = acct.rows[0]?.id ?? "";

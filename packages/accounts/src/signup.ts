@@ -13,6 +13,8 @@ import { withTransaction } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 import { z } from "zod";
 
+import { isCountryCode, normaliseCountry } from "@magicmis/core/identifiers";
+
 import { invoiceableMessage, isInvoiceable } from "./invoiceable";
 import { isGstStateCode } from "./state-codes";
 
@@ -26,14 +28,46 @@ const printed = (max: number) =>
       error: (issue) => invoiceableMessage(String(issue.input)),
     });
 
-export const billingAddressSchema = z.object({
-  line1: printed(200).min(1),
-  line2: printed(200).optional(),
-  city: printed(100).min(1),
-  // India Post PIN codes are six digits and never start with 0.
-  pincode: z.string().regex(/^[1-9]\d{5}$/u, "Enter a 6-digit PIN code"),
-  stateCode: z.string().refine(isGstStateCode, "Choose a state"),
-});
+/**
+ * Where the customer is invoiced (ADR 0030).
+ *
+ * The country decides both the billing currency and the tax treatment, so it is
+ * required and validated. Everything conditional on it is checked afterwards: an
+ * Indian address needs a GST state and a six-digit PIN code, and no other country has
+ * either. A single postal-code rule would have to be either Indian and wrong abroad, or
+ * permissive and useless at home.
+ */
+export const billingAddressSchema = z
+  .object({
+    line1: printed(200).min(1),
+    line2: printed(200).optional(),
+    city: printed(100).min(1),
+    country: z
+      .string()
+      .transform(normaliseCountry)
+      .refine(isCountryCode, "Choose a country"),
+    postalCode: printed(20).min(1),
+    /** India only: the GST state that decides place of supply. */
+    stateCode: z.string().optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.country !== "IN") return;
+    if (!isGstStateCode(value.stateCode ?? "")) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["stateCode"],
+        message: "Choose a state",
+      });
+    }
+    // India Post PIN codes are six digits and never start with 0.
+    if (!/^[1-9]\d{5}$/u.test(value.postalCode)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["postalCode"],
+        message: "Enter a 6-digit PIN code",
+      });
+    }
+  });
 
 /**
  * What sign-up asks for.
@@ -84,7 +118,16 @@ export type SignupRequest = z.infer<typeof signupRequestSchema>;
  * at the first purchase for an account that gave neither at sign-up.
  */
 export function placeOfSupplyState(profile: SignupProfile): string | null {
+  // Only an Indian supply has a GST place of supply. A state code carried over from an
+  // address that later became non-Indian would silently produce a domestic tax invoice
+  // for an export, which the database also refuses (migration 0037).
+  if (billingCountry(profile) !== "IN") return null;
   return profile.gstin?.slice(0, 2) ?? profile.billingAddress?.stateCode ?? null;
+}
+
+/** The ISO country the account is invoiced in, or null until an address is given. */
+export function billingCountry(profile: SignupProfile): string | null {
+  return profile.billingAddress?.country ?? null;
 }
 
 export const documentVersionsSchema = z.object({
