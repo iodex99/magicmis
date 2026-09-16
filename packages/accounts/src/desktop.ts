@@ -32,6 +32,12 @@ export const DEVICE_AGNOSTIC_PATHS: readonly string[] = [
   "/pricing",
   "/how-it-works",
   "/security",
+  // Guides people reach from search. A visitor who searched "MIS report format in excel"
+  // on a phone must get the guide, not the desktop gate -- that bounce is the whole cost
+  // of ranking for it. A test pins this list to the sitemap so a new page cannot miss it.
+  "/mis-report-format",
+  "/tally-mis-report",
+  "/for-ca-firms",
   "/help",
   "/legal",
   "/desktop-required",
