@@ -38,9 +38,9 @@ export interface TestDb {
    * PostgREST request would. Settings are LOCAL to a transaction that is always rolled
    * back, so no test can leak state or a role into another.
    *
-   * By default a known user acts at `aal2` on their account's active session, which is
-   * what an ordinary authenticated request is after Phase 1. Pass `claims` to override
-   * `aal` or `session_id` and test the refusals.
+   * By default a known user acts on their account's active session at `aal1`, which is
+   * what an ordinary customer request is once a password is the only factor (ADR 0028).
+   * Pass `claims` to override `aal` or `session_id` and test the refusals.
    */
   asUser: <T>(
     authUserId: string | null,
@@ -114,7 +114,7 @@ export async function startTestDb(): Promise<TestDb> {
       claims = {
         sub: authUserId,
         role,
-        aal: "aal2",
+        aal: "aal1",
         ...(sessionId === null ? {} : { session_id: sessionId }),
       };
     }

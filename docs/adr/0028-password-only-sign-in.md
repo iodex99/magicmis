@@ -69,6 +69,17 @@ than assumed:
 the `admin.recovery_*` config keys. Both tables are pre-launch and hold no customer data.
 `admin.break_glass_*` keys stay: break-glass is unrelated.
 
+`0036_tenancy_predicate_password_only.sql` completes it. The first pass changed
+`requireAccount` but not its database mirror, `app.current_account_id()`, which migration
+0012 had made require a JWT `aal` of `aal2` — a claim no customer token carries any more.
+Nothing leaked, because the predicate fails closed and route handlers reach the database as
+`service_role` with `requireAccount` as the live gate. But the two are meant to be redundant
+statements of one rule, and a mirror that refuses everyone is not redundancy: it is a second
+layer that could never again catch a mistake in the first. The `aal2` clause is dropped; the
+single-active-session comparison, which is what ADR 0028 kept, still stands. Supabase's own
+TOTP enrolment is switched off in `supabase/config.toml` for the same reason — nothing in
+the product reads a factor minted there.
+
 ## Consequences
 
 - **The sign-in journey is one screen.** Sign up (four fields) → confirm email → in. The
@@ -76,7 +87,9 @@ the `admin.recovery_*` config keys. Both tables are pre-launch and hold no custo
   on authenticator setup.
 - **`requireAccount` lost its `mfa_required` refusal**, and `claimSession` no longer
   requires `aal2`. The `aal` claim is still parsed — Supabase still sends it — but nothing
-  gates on it.
+  gates on it, in the application or in the database (migration 0036). The test harness's
+  default claims say `aal1` for the same reason: that is what an ordinary customer request
+  now carries, and a fixture that claims otherwise tests a token nobody holds.
 - **Tests changed where the behaviour changed.** The E2E helper no longer enrols;
   `auth.spec.ts`'s "app is unusable without 2FA" became "an unauthenticated visitor reaches
   no data", which is what the gate now asserts; `privacy.spec.ts` re-authenticates with a

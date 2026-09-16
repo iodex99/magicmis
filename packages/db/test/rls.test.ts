@@ -277,7 +277,7 @@ describe("account A cannot reach account B's data", () => {
   });
 });
 
-describe("SPEC §8 at the database layer: aal2 and the single active session", () => {
+describe("SPEC §8 at the database layer: the single active session", () => {
   /** Rows the account can see in every tenant table, under the given claim overrides. */
   async function visibleRows(claims: Record<string, string>): Promise<number> {
     let total = 0;
@@ -297,17 +297,21 @@ describe("SPEC §8 at the database layer: aal2 and the single active session", (
     return total;
   }
 
-  it("serves an aal2 token on the active session (control)", async () => {
-    // Without this control, the two refusals below could pass because nothing is visible
-    // to anyone.
+  it("serves a token on the active session (control)", async () => {
+    // Without this control, the refusals below could pass because nothing is visible to
+    // anyone.
     expect(await visibleRows({})).toBeGreaterThan(0);
   });
 
-  it("returns nothing to an aal1 token — the app is unusable until 2FA is enrolled", async () => {
-    expect(await visibleRows({ aal: "aal1" })).toBe(0);
+  it("ignores the aal claim — a password is the only customer factor (ADR 0028)", async () => {
+    // Migration 0012 required aal2 here. Migration 0036 dropped it: every customer token
+    // is aal1 now, and a predicate that refuses all of them is a dead second layer, not a
+    // strict one. Neither value decides anything; the active session does.
+    expect(await visibleRows({ aal: "aal1" })).toBeGreaterThan(0);
+    expect(await visibleRows({ aal: "aal2" })).toBeGreaterThan(0);
   });
 
-  it("returns nothing when the aal claim is missing entirely", async () => {
+  it("serves a token with no aal claim at all", async () => {
     const count = await testDb().asUser(
       alpha.authUserId,
       "authenticated",
@@ -321,7 +325,7 @@ describe("SPEC §8 at the database layer: aal2 and the single active session", (
         return Number.parseInt(r.rows[0]?.n ?? "0", 10);
       },
     );
-    expect(count).toBe(0);
+    expect(count).toBeGreaterThan(0);
   });
 
   it("returns nothing to a superseded session — a second login terminates the first", async () => {
@@ -346,7 +350,7 @@ describe("SPEC §8 at the database layer: aal2 and the single active session", (
     }
   });
 
-  it("refuses a suspended account even at aal2 on its active session", async () => {
+  it("refuses a suspended account even on its active session", async () => {
     await testDb().pool.query(
       `update public.accounts set status = 'suspended' where id = $1`,
       [alpha.accountId],

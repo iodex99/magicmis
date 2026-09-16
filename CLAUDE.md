@@ -18,7 +18,8 @@ with `apps/web/e2e/support/seed-demo.ts`.
 Flow rules that are easy to undo by accident: sign-up asks for four things only (billing
 details are collected at the first purchase, migration 0034); the confirmation email
 establishes the session and lands in the app; **customers sign in with a password alone**
-(ADR 0028 — the admin console still requires TOTP); the run screen prices itself and its
+(ADR 0028 — the admin console still requires TOTP, and `app.current_account_id()` now gates
+on the active session alone, migration 0036); the run screen prices itself and its
 single button **is** the SPEC §12 confirmation. Changing `supabase/templates/` needs
 `docker restart supabase_auth_magicmis` to take effect locally.
 
