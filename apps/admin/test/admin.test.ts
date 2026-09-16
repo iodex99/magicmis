@@ -1,5 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 
+import { PRODUCT_NAME } from "@magicmis/core/brand";
 import { LocalKeyWrapper } from "@magicmis/crypto";
 import { verifyAuditChain } from "@magicmis/db/audit";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
@@ -101,7 +102,7 @@ describe("admin identity (SPEC §26)", () => {
       email: "OPS@example.test",
       password: PASSWORD,
       allowlist,
-      issuer: "MIS Studio Admin",
+      issuer: `${PRODUCT_NAME} Admin`,
     });
     expect(created.otpauthUri).toMatch(
       /^otpauth:\/\/totp\/MIS%20Studio%20Admin%3Aops%40example\.test\?secret=/u,

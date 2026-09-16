@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { requestBankTransfer } from "@magicmis/billing";
+import { PRODUCT_NAME } from "@magicmis/core/brand";
 import { EnvValidationError } from "@magicmis/core/config";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import type { PgBoss } from "pg-boss";
@@ -242,7 +243,7 @@ describe("templates", () => {
     for (const [type, payload] of types) {
       const r = renderNotification(type, payload, CTX);
       expect(r, type).not.toBeNull();
-      expect(r?.subject).toContain("MIS Studio");
+      expect(r?.subject).toContain(PRODUCT_NAME);
     }
     const html =
       renderNotification("security.new_device_login", types[0]?.[1], CTX)?.html ?? "";
@@ -433,7 +434,7 @@ describe("worker env", () => {
     const env = loadWorkerEnv({
       DATABASE_URL: "postgres://x",
       RESEND_API_KEY: "re_test_123",
-      EMAIL_FROM: "MIS Studio <noreply@mail.example.test>",
+      EMAIL_FROM: `${PRODUCT_NAME} <noreply@mail.example.test>`,
       NEXT_PUBLIC_APP_URL: "https://app.example.test",
     });
     expect(env.APP_URL).toBe("https://app.example.test");
