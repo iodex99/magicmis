@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type SyntheticEvent } from "react";
 
+import { safeNextPath } from "@magicmis/accounts/redirect";
+
 import { Alert, AuthShell, Button, Field } from "@/components/ui";
 import { api, formText } from "@/lib/client-api";
 
@@ -26,11 +28,9 @@ function SignInForm() {
       setMessage(result.message);
       return;
     }
-    // Only same-origin relative paths, or a crafted ?next= would bounce a fresh session
-    // to another site.
-    const next = params.get("next") ?? "";
-    const safe = next.startsWith("/") && !next.startsWith("//");
-    router.replace(safe ? next : "/app");
+    // Only same-origin relative paths, or a crafted ?next= would bounce a freshly signed-in
+    // session to another site. The shared guard is the same one /auth/callback uses.
+    router.replace(safeNextPath(params.get("next"), "/app"));
   }
 
   return (

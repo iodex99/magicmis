@@ -3,6 +3,7 @@ export * from "./desktop";
 export * from "./device";
 export * from "./notifications";
 export * from "./provider";
+export * from "./redirect";
 export * from "./reauth";
 export * from "./session";
 export * from "./signup";

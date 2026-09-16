@@ -1,4 +1,4 @@
-import { claimSession } from "@magicmis/accounts";
+import { claimSession, safeNextPath } from "@magicmis/accounts";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -27,8 +27,7 @@ const EMAIL_OTP_TYPES: readonly EmailOtpType[] = [
 
 export async function GET(request: NextRequest): Promise<Response> {
   const url = request.nextUrl;
-  const requestedNext = url.searchParams.get("next") ?? "/sign-in";
-  const next = /^\/(?!\/)[\w\-/]*$/u.test(requestedNext) ? requestedNext : "/sign-in";
+  const next = safeNextPath(url.searchParams.get("next"), "/sign-in");
 
   const supabase = await supabaseForRequest();
   const code = url.searchParams.get("code");

@@ -2,6 +2,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
 import { isDesktopUserAgent, isDeviceAgnosticPath } from "./desktop";
+import { isSafeNextPath, safeNextPath } from "./redirect";
 import { describeUserAgent, deviceFingerprintHash, normaliseUserAgent } from "./device";
 import { placeOfSupplyState, signupProfileSchema, signupRequestSchema } from "./signup";
 import { GST_STATE_CODES, isGstStateCode } from "./state-codes";
@@ -182,5 +183,48 @@ describe("GST state codes", () => {
   it("rejects prototype keys", () => {
     expect(isGstStateCode("toString")).toBe(false);
     expect(isGstStateCode("__proto__")).toBe(false);
+  });
+});
+
+describe("post-authentication redirect (SPEC §8, §30)", () => {
+  it("accepts only same-origin absolute paths", () => {
+    for (const ok of ["/app", "/app/data", "/settings/security", "/wallet", "/"]) {
+      expect(isSafeNextPath(ok), ok).toBe(true);
+    }
+  });
+
+  it("refuses every shape that leaves this origin", () => {
+    // Each of these has been a real open-redirect in some product. `/\host` matters
+    // most here: it starts with a single slash, so a naive startsWith("/") lets it past,
+    // and browsers resolve it as a network-path reference to another origin.
+    const hostile = [
+      "//evil.example",
+      "/\\evil.example",
+      "https://evil.example",
+      "http://evil.example",
+      "//evil.example/app",
+      "/\\/evil.example",
+      "javascript:alert(1)",
+      "app",
+      "",
+      " /app",
+    ];
+    for (const bad of hostile) {
+      expect(isSafeNextPath(bad), bad).toBe(false);
+      expect(safeNextPath(bad, "/app"), bad).toBe("/app");
+    }
+    expect(safeNextPath(null, "/app")).toBe("/app");
+    expect(safeNextPath(undefined, "/sign-in")).toBe("/sign-in");
+  });
+
+  it("never returns anything that is not a path, for any input", () => {
+    fc.assert(
+      fc.property(fc.string(), (raw) => {
+        const out = safeNextPath(raw, "/app");
+        expect(out.startsWith("/")).toBe(true);
+        expect(out.startsWith("//")).toBe(false);
+        expect(out.startsWith("/\\")).toBe(false);
+      }),
+    );
   });
 });

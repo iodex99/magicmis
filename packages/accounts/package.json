@@ -8,6 +8,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./desktop": "./src/desktop.ts",
+    "./redirect": "./src/redirect.ts",
     "./state-codes": "./src/state-codes.ts"
   },
   "scripts": {
