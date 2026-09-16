@@ -2,7 +2,7 @@
  * Phase 1 acceptance (SPEC §34):
  *   - E2E auth flows pass
  *   - second login terminates the first session
- *   - app unusable without 2FA
+ *   - no data is reachable unauthenticated
  */
 
 import { expect, test } from "@playwright/test";

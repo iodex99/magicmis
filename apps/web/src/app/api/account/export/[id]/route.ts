@@ -23,7 +23,7 @@ export async function GET(
       return apiError(
         403,
         "reauth_required",
-        "Confirm your password and authenticator code to download your data.",
+        "Confirm your password to download your data.",
       );
     try {
       const bytes = await openAccountExport(db(), keyWrapper(), await outputStore(), {

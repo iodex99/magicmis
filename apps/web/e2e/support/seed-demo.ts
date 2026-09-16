@@ -1,5 +1,5 @@
 /**
- * Creates one signed-up, email-verified, TOTP-enrolled account on the local stack and funds
+ * Creates one signed-up, email-verified account on the local stack and funds
  * its wallet with an admin grant, so the app can be looked at without hand-walking sign-up.
  *
  * Local development only: it talks to the local Supabase Postgres and Mailpit by their

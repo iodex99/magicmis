@@ -20,7 +20,7 @@ export async function POST(request: Request): Promise<Response> {
       return apiError(
         403,
         "reauth_required",
-        "Confirm your password and authenticator code to delete your account.",
+        "Confirm your password to delete your account.",
       );
     }
     const parsed = await parseJson(request, bodySchema);

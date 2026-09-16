@@ -32,7 +32,7 @@ Their raw details stay in the browser (SPEC §2.8). Where they reach the server,
 
 | # | Activity | Personal data | Purpose | Basis (draft) | Where | Retention | Code |
 |---|---|---|---|---|---|---|---|
-| P1 | Account and sign-in | Email, password (held by Supabase Auth), TOTP secret (encrypted), backup code hashes | Provide the account; one-session rule; security | Contract | Supabase Postgres + Auth, Mumbai | Life of account; scrubbed at purge | `packages/accounts` |
+| P1 | Account and sign-in | Email, password (held by Supabase Auth) | Provide the account; one-session rule; security | Contract | Supabase Postgres + Auth, Mumbai | Life of account; scrubbed at purge | `packages/accounts` |
 | P2 | Login history | IP address, approximate location, user agent, device fingerprint hash | Security alerts, account protection | Legitimate use (security) | Postgres | Life of account; deleted at purge | `login_events` |
 | P3 | Business profile and billing | Business name, GSTIN, billing address, state code | Tax invoices under GST | Legal obligation | Postgres | Statutory period (config, default 8 years) | `accounts`, `invoices` |
 | P4 | Payments | Razorpay order/payment IDs (no card data) | Buying credits | Contract | Postgres; Razorpay | Statutory period | `packages/billing` |
@@ -83,7 +83,7 @@ When an account is erased:
   - Erasure destroys the key, not just the rows.
 - **Tenancy:** Row-level security on every customer table, and a cross-tenant test harness.
 - **Authentication:**
-  - Mandatory TOTP.
+  - Mandatory TOTP for the admin console; customers sign in with a password (ADR 0028).
   - One active session.
   - Re-authentication for sensitive actions.
 - **Audit:** Hash-chained audit log and ledger, verified nightly.

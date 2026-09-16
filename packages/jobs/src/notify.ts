@@ -5,6 +5,15 @@
 
 import type { Queryable } from "@magicmis/db/tx";
 
+/**
+ * The notices this package queues.
+ *
+ * It is not the whole catalogue: `packages/accounts` owns the `security.*` sign-in notices
+ * and `packages/wallet` inserts `billing.lot_expiry_notice` in SQL. The list that must be
+ * complete is `TEMPLATE_TYPES` in `apps/worker/src/templates.ts`, which the worker's own
+ * test pins to the rendered templates exactly — a type queued with no template there is
+ * never delivered.
+ */
 export type NotificationType =
   | "job.awaiting_review"
   | "job.review_expiring"
@@ -22,8 +31,6 @@ export type NotificationType =
   | "reminder.monthly_refresh"
   | "security.break_glass"
   | "security.break_glass_viewed"
-  | "security.recovery_requested"
-  | "security.mfa_reset_by_admin"
   | "account.deletion_scheduled"
   | "account.export_ready";
 

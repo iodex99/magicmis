@@ -13,7 +13,7 @@ export default async function SecurityPage() {
     <AppFrame accountId={account.accountId} businessName={account.businessName}>
       <PageHeader
         title="Security"
-        description="Your password, two-factor authentication, backup codes and recent sign-ins."
+        description="Your password, and every sign-in on this account."
       />
       <SecuritySettings />
     </AppFrame>

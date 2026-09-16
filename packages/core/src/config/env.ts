@@ -40,9 +40,10 @@ export const serverEnvSchema = z.object({
 
   DATABASE_URL: nonEmpty,
   /**
-   * Supabase secret key (`sb_secret_…`): bypasses RLS, server only. Used for Auth admin
-   * calls such as removing TOTP factors during backup-code recovery. The legacy
-   * service_role JWT is deprecated and not accepted.
+   * Supabase secret key (`sb_secret_…`): bypasses RLS, server only. Used for the object
+   * store and for Auth admin calls the customer's own session cannot make — the
+   * break-glass account hold (ADR 0025). The legacy service_role JWT is deprecated and
+   * not accepted.
    */
   SUPABASE_SECRET_KEY: z.string().regex(/^sb_secret_[A-Za-z0-9_-]+$/u),
 

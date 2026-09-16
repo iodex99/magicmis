@@ -101,7 +101,7 @@ export async function DELETE(request: Request, context: Ctx): Promise<Response> 
       return apiError(
         403,
         "reauth_required",
-        "Confirm your password and authenticator code to delete this company.",
+        "Confirm your password to delete this company.",
       );
     const parsed = await parseJson(request, deleteSchema);
     if (!parsed.ok) return parsed.response;

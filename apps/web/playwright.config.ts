@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * E2E against the real Supabase local stack (`npx supabase start`) and a production build
- * of the app. Nothing is mocked: auth, email (via Mailpit), TOTP and Postgres are real.
+ * of the app. Nothing is mocked: auth, email (via Mailpit) and Postgres are all real.
  */
 export default defineConfig({
   testDir: "./e2e",

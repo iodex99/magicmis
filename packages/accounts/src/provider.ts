@@ -16,7 +16,4 @@ export interface AuthProvider {
 
   /** Revoke every session for the user except the calling one. */
   signOutOtherSessions(): Promise<void>;
-
-  /** Remove all TOTP factors for a user, so they must re-enrol (backup-code recovery). */
-  deleteTotpFactors(authUserId: string): Promise<void>;
 }

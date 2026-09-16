@@ -135,7 +135,7 @@ export default function SignUpPage() {
           {submitting ? "Creating account…" : "Create account"}
         </Button>
         <p className="text-center text-[0.75rem] text-neutral-500">
-          Next: confirm your email, then set up your authenticator app.
+          Next: confirm your email, and you are in.
         </p>
       </form>
     </AuthShell>

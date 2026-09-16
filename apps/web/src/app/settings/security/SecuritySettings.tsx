@@ -37,7 +37,6 @@ const EVENT_LABEL: Record<string, string> = {
   locked_out: "Locked after repeated failures",
   password_changed: "Password changed",
   email_changed: "Email changed",
-  mfa_enrolled: "Authenticator set up",
 };
 
 type Pending = "password" | null;

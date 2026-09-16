@@ -8,8 +8,7 @@ export default function VerifiedPage() {
       <div className="flex flex-col gap-4">
         <Alert tone="success">Your email address is confirmed.</Alert>
         <p className="text-sm text-neutral-600">
-          Next, sign in and set up an authenticator app. You will need it every time you
-          sign in.
+          Sign in with your email and password to continue.
         </p>
         <ButtonLink href="/sign-in" size="lg" className="w-full">
           Sign in

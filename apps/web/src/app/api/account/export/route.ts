@@ -35,7 +35,7 @@ export async function POST(request: Request): Promise<Response> {
       return apiError(
         403,
         "reauth_required",
-        "Confirm your password and authenticator code to export your data.",
+        "Confirm your password to export your data.",
       );
     const { ip } = await requestMeta();
     return idempotent(

@@ -11,10 +11,7 @@ export default function CheckEmailPage() {
       description="We sent a verification link to the address you entered. Open it to confirm your email."
     >
       <div className="flex flex-col gap-3 text-sm text-neutral-600">
-        <p>
-          After verifying, sign in and set up an authenticator app. Two-factor
-          authentication is required for every account.
-        </p>
+        <p>Opening it signs you in — there is nothing else to set up.</p>
         <p>
           No email after a few minutes? Check your spam folder, then{" "}
           <Link href="/sign-up" className="font-medium text-accent-700 hover:underline">

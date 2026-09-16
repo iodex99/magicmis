@@ -33,28 +33,17 @@ function testDb(): TestDb {
 
 class FakeProvider implements AuthProvider {
   password = "CorrectHorse42battery";
-  totp = "123456";
   signOutCalls = 0;
-  deletedFactorsFor: string[] = [];
   failSignOut = false;
-  failDeleteFactors = false;
 
   verifyPassword(_email: string, password: string): Promise<boolean> {
     return Promise.resolve(password === this.password);
-  }
-  verifyTotp(code: string): Promise<boolean> {
-    return Promise.resolve(code === this.totp);
   }
   signOutOtherSessions(): Promise<void> {
     this.signOutCalls++;
     return this.failSignOut
       ? Promise.reject(new Error("provider down"))
       : Promise.resolve();
-  }
-  deleteTotpFactors(authUserId: string): Promise<void> {
-    if (this.failDeleteFactors) return Promise.reject(new Error("provider down"));
-    this.deletedFactorsFor.push(authUserId);
-    return Promise.resolve();
   }
 }
 

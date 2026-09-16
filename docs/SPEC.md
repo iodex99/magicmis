@@ -166,7 +166,7 @@ Use these defaults. You may change one only if documentation shows it cannot mee
 - TanStack Query for server state; Zustand for client state
 
 **Database, auth and storage**
-- Supabase: Postgres, Auth with TOTP MFA, Storage, Row Level Security
+- Supabase: Postgres, Auth (password only for customers, TOTP for admins), Storage, Row Level Security
 - Use an India (Mumbai) region if available; confirm in docs and record the decision.
 
 **Hosting**
@@ -1271,7 +1271,7 @@ User deletion of a company stops fees immediately. There is no pro-rata refund.
 
 ## 29. Notifications (email only in this build)
 
-- **Security:** new device login, 2FA changes, password or email change, backup codes regenerated, break-glass admin access
+- **Security:** new device login, password or email change, break-glass admin access
 - **Billing:** purchase success with invoice, bank transfer received, low balance (config threshold), lot expiry notices, memory fee debited, memory fee failed
 - **Lifecycle:** grace, archive and purge notices
 - **Jobs:** awaiting review, review reservation expiring, completed (especially batch), failed (with reason and fix steps), quote offered
@@ -1367,7 +1367,7 @@ All legal text is a placeholder for professional review; mark `TODO(review)`. Do
 
 **Customer app screens**
 
-- Auth: sign up, verify email, login, TOTP enrolment, backup codes, recovery information.
+- Auth: sign up, verify email (the link signs you in), login, password reset.
 - Wallet: available, held and balance; lots with expiry; buy credits (packs); bank transfer request; invoices; ledger history.
 - Companies: list with lifecycle state, last period, memory fee status, next reminder; create company.
 - Company workspace tabs:
@@ -1384,7 +1384,7 @@ All legal text is a placeholder for professional review; mark `TODO(review)`. Do
   - Settings: FY start, number format, materiality, reminder day, delete company
 - Job progress view: stages with plain-language labels, heartbeat, cancel with fee disclosure.
 - Modals: price confirmation, quote acceptance, insufficient credits with shortfall and pack suggestion.
-- Account settings: profile, GSTIN, billing address, security (password, 2FA, backup codes, login history), data export, delete account.
+- Account settings: profile, GSTIN, billing address, security (password, login history), data export, delete account.
 - Help: Tally export guides, supported files, how pricing works.
 
 **Pricing page:** public price book and credit packs, GST note, no free trial language.
@@ -1427,7 +1427,7 @@ All legal text is a placeholder for professional review; mark `TODO(review)`. Do
 - **Integration:** full setup and refresh pipelines on every synthetic fixture with recorded Anthropic responses (record/replay mode; live mode behind an env flag). Golden outputs: metric store and Excel cell values.
 - **Excel verification:** HyperFormula evaluation equals engine values (V11) for all fixtures.
 - **E2E (Playwright):**
-  - Sign up, verify, enrol 2FA.
+  - Sign up, verify the email, reach the app.
   - Buy credits (Razorpay test mode) and receive the invoice.
   - Create a company and run setup.
   - Review mappings and download the Excel output.
@@ -1472,9 +1472,9 @@ Stop after each phase for review.
 
 **Phase 1: Accounts and security**
 
-- Signup, email verification, login, mandatory TOTP, backup codes, single active session, login events, new-device email.
+- Signup, email verification, login, single active session, login events, new-device email. (Mandatory TOTP and backup codes were built in this phase and removed in ADR 0028.)
 - Re-auth gates, account settings, consent records, desktop-only gate.
-- *Acceptance:* E2E auth flows pass; second login terminates the first session; app unusable without 2FA.
+- *Acceptance:* E2E auth flows pass; second login terminates the first session; no data is reachable unauthenticated.
 
 **Phase 2: Wallet, pricing, payments, GST**
 

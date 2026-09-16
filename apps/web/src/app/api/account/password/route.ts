@@ -16,18 +16,14 @@ const bodySchema = z.object({ newPassword: signupRequestSchema.shape.password })
 /**
  * POST /api/account/password — change password (SPEC §8: requires re-authentication).
  *
- * Set through the admin API because this product's re-auth (password + TOTP, session
+ * Set through the admin API because this product's re-auth (the password again, session
  * bound) is the gate. Supabase's own `secure_password_change` check would otherwise demand
  * a separate emailed nonce on top.
  */
 export async function POST(request: Request): Promise<Response> {
   return withAccount(async (account) => {
     if (!(await hasFreshReauth(db(), account))) {
-      return apiError(
-        403,
-        "reauth_required",
-        "Confirm your current password and authenticator code first.",
-      );
+      return apiError(403, "reauth_required", "Confirm your current password first.");
     }
     const parsed = await parseJson(request, bodySchema);
     if (!parsed.ok) return parsed.response;
