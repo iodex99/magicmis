@@ -76,28 +76,41 @@ async function* files(dir) {
   }
 }
 
-export async function scan(dirs, env = process.env) {
+/**
+ * Apply every rule to text already in hand. Entries are `{ where, text }`.
+ *
+ * Separate from `scan` because `.next/static` is only half of what a browser receives
+ * (R-54). Props passed from a server component to a client one are serialised into the
+ * HTML and the RSC payload of each response, where no bundle scan would ever see them, so
+ * the E2E suite fetches rendered pages and brings them here.
+ */
+export function scanTexts(entries, env = process.env) {
   const values = SERVER_ENV.flatMap((name) => {
     const value = env[name];
     // Short values (e.g. "local", "placeholder") would match innocently; secrets are long.
     return value !== undefined && value.length >= 16 ? [[name, value]] : [];
   });
   const findings = [];
-  let scanned = 0;
-  for (const dir of dirs) {
-    for await (const file of files(dir)) {
-      scanned += 1;
-      const text = await readFile(file, "utf8");
-      const where = path.relative(root, file);
-      for (const [name, value] of values)
-        if (text.includes(value)) findings.push(`${where}: value of ${name}`);
-      for (const [rule, pattern] of PATTERNS)
-        if (pattern.test(text)) findings.push(`${where}: ${rule}`);
-      for (const [rule, marker] of SERVER_MARKERS)
-        if (text.includes(marker)) findings.push(`${where}: server-only code (${rule})`);
-    }
+  for (const { where, text } of entries) {
+    for (const [name, value] of values)
+      if (text.includes(value)) findings.push(`${where}: value of ${name}`);
+    for (const [rule, pattern] of PATTERNS)
+      if (pattern.test(text)) findings.push(`${where}: ${rule}`);
+    for (const [rule, marker] of SERVER_MARKERS)
+      if (text.includes(marker)) findings.push(`${where}: server-only code (${rule})`);
   }
-  return { scanned, findings };
+  return { scanned: entries.length, findings };
+}
+
+export async function scan(dirs, env = process.env) {
+  const entries = [];
+  for (const dir of dirs)
+    for await (const file of files(dir))
+      entries.push({
+        where: path.relative(root, file),
+        text: await readFile(file, "utf8"),
+      });
+  return scanTexts(entries, env);
 }
 
 const isMain =
@@ -105,7 +118,7 @@ const isMain =
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 /** KEY=VALUE lines of a dotenv file, read as data (never executed by a shell). */
-async function readEnvFile(file) {
+export async function readEnvFile(file) {
   const env = {};
   for (const line of (await readFile(file, "utf8")).split(/\r?\n/u)) {
     const eq = line.indexOf("=");
