@@ -50,6 +50,13 @@ export async function POST(request: Request): Promise<Response> {
             "That pack is no longer available. Reload the page.",
           );
         }
+        if (error.code === "BILLING_STATE_UNKNOWN") {
+          return apiError(
+            422,
+            "billing_details_required",
+            "Add your billing address in the Wallet first — GST depends on where you are invoiced.",
+          );
+        }
       }
       throw error;
     }

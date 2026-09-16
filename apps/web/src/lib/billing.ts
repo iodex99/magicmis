@@ -1,6 +1,7 @@
 import "server-only";
 
 import {
+  BillingError,
   listInvoices,
   listPackQuotes,
   listPurchases,
@@ -77,27 +78,30 @@ export interface WalletView {
   }[];
 }
 
-/** Whether GST place of supply is known for this account (SPEC §13). */
-async function hasBillingState(
-  pool: ReturnType<typeof db>,
-  accountId: string,
-): Promise<boolean> {
-  const r = await pool.query<{ known: boolean }>(
-    `select (gstin is not null or state_code is not null) as known
-       from public.accounts where id = $1 and deleted_at is null`,
-    [accountId],
-  );
-  return r.rows[0]?.known ?? false;
-}
-
 /** Everything the Wallet page shows, as JSON-safe strings (bigints never cross to the client). */
 export async function walletView(accountId: string): Promise<WalletView> {
   const pool = db();
-  const billingReady = await hasBillingState(pool, accountId);
-  const [validity, summary, packs, purchases, invoices, ledger] = await Promise.all([
+  /**
+   * Packs can only be quoted once GST place of supply is known (SPEC §13), and billing
+   * details are collected at the first purchase (migration 0034). Ask the thing that
+   * decides rather than re-deriving its rule here: `accountTax` refuses with
+   * `BILLING_STATE_UNKNOWN`, and that refusal is what the Wallet renders its form for.
+   */
+  let billingReady = true;
+  const quoting = listPackQuotes(pool, { accountId }).catch((error: unknown) => {
+    // Assigned while the other queries are still in flight; read only after the await
+    // below, by which time this handler has certainly run.
+    if (error instanceof BillingError && error.code === "BILLING_STATE_UNKNOWN") {
+      billingReady = false;
+      return [];
+    }
+    throw error;
+  });
+
+  const [validity, summary, quotes, purchases, invoices, ledger] = await Promise.all([
     readConfig(pool, "wallet.lot_validity_months", z.number().int().positive()),
     walletSummary(pool, accountId),
-    billingReady ? listPackQuotes(pool, { accountId }) : [],
+    quoting,
     listPurchases(pool, accountId),
     listInvoices(pool, accountId),
     pool.query<{
@@ -125,7 +129,7 @@ export async function walletView(accountId: string): Promise<WalletView> {
       remaining: l.remaining.toString(),
       expiresAt: l.expiresAt.toISOString(),
     })),
-    packs: packs.map((p) => ({
+    packs: quotes.map((p) => ({
       packId: p.packId,
       credits: p.credits.toString(),
       bonusCredits: p.bonusCredits.toString(),

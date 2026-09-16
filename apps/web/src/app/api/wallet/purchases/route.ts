@@ -52,6 +52,16 @@ export async function POST(request: Request): Promise<Response> {
           "That pack is no longer available. Reload the page.",
         );
       }
+      // Billing details are collected at the first purchase (migration 0034), so this
+      // endpoint can be reached before a place of supply is known. The UI guards it; the
+      // boundary must refuse it with something the caller can act on, not a 500.
+      if (error instanceof BillingError && error.code === "BILLING_STATE_UNKNOWN") {
+        return apiError(
+          422,
+          "billing_details_required",
+          "Add your billing address in the Wallet first — GST depends on where you are invoiced.",
+        );
+      }
       if (error instanceof GatewayError) {
         return apiError(
           502,
