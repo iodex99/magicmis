@@ -2,6 +2,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
 import { isDesktopUserAgent, isDeviceAgnosticPath } from "./desktop";
+import { invoiceableMessage, isInvoiceable, unrenderable } from "./invoiceable";
 import { isSafeNextPath, safeNextPath } from "./redirect";
 import { describeUserAgent, deviceFingerprintHash, normaliseUserAgent } from "./device";
 import { placeOfSupplyState, signupProfileSchema, signupRequestSchema } from "./signup";
@@ -226,5 +227,94 @@ describe("post-authentication redirect (SPEC §8, §30)", () => {
         expect(out.startsWith("/\\")).toBe(false);
       }),
     );
+  });
+});
+
+describe("text that reaches a tax invoice (SPEC §13, R-25)", () => {
+  it("accepts everything the invoice font can actually draw", () => {
+    for (const ok of [
+      "Iyer & Co Chartered Accountants",
+      "Café Ledger Pvt Ltd",
+      "Naïve Söhne (India) Pvt. Ltd.",
+      "4 Park Street, 2nd Floor",
+      "Cost: ¥ £ ¢ ± µ ÷",
+      "",
+    ]) {
+      expect(isInvoiceable(ok), ok).toBe(true);
+      expect(invoiceableMessage(ok), ok).toBe("");
+    }
+  });
+
+  it("refuses scripts the font has no glyphs for, and says which characters", () => {
+    // Each of these would have been drawn as "?" on a legal document.
+    for (const bad of ["आनंद ट्रेडिंग", "अ", "海外貿易", "Ledger ☺", "Emoji 🙂 Co"]) {
+      expect(isInvoiceable(bad), bad).toBe(false);
+      expect(invoiceableMessage(bad)).toContain("cannot be used here");
+    }
+    expect(unrenderable("अOK आ")).toEqual(["अ", "आ"]);
+    // De-duplicated, so a long name does not produce a wall of repeats.
+    expect(unrenderable("आआआआ")).toEqual(["आ"]);
+  });
+
+  it("is exactly the set the PDF writer would keep, for any input", () => {
+    // The guard must not be looser than the renderer, or a "?" still reaches an invoice.
+    fc.assert(
+      fc.property(fc.string(), (raw) => {
+        const kept = Array.from(raw)
+          .map((ch) => {
+            const code = ch.codePointAt(0) ?? 0;
+            return (code >= 0x20 && code <= 0x7e) || (code >= 0xa0 && code <= 0xff)
+              ? ch
+              : "?";
+          })
+          .join("");
+        expect(isInvoiceable(raw)).toBe(kept === raw);
+      }),
+    );
+  });
+});
+
+describe("invoice-printed fields refuse what the invoice cannot print (R-25)", () => {
+  const base = {
+    email: "owner@example.test",
+    password: "CorrectHorse42battery",
+    businessName: "Sharma & Associates",
+    billingAddress: {
+      line1: "12 MG Road",
+      city: "Pune",
+      pincode: "411001",
+      stateCode: "27",
+    },
+    acceptTerms: true,
+    acceptPrivacy: true,
+  };
+
+  it("refuses a business name the tax invoice would print as '?'", () => {
+    const bad = signupRequestSchema.safeParse({
+      ...base,
+      businessName: "आनंद ट्रेडिंग",
+    });
+    expect(bad.success).toBe(false);
+    // The message must name the characters, so the person can act on it.
+    expect(bad.error?.issues[0]?.message).toContain("आ");
+  });
+
+  it("refuses unprintable address lines and city too — all three print", () => {
+    for (const field of ["line1", "city"] as const) {
+      expect(
+        signupRequestSchema.safeParse({
+          ...base,
+          billingAddress: { ...base.billingAddress, [field]: "海外" },
+        }).success,
+        field,
+      ).toBe(false);
+    }
+  });
+
+  it("still accepts the Latin-1 an Indian business actually uses", () => {
+    expect(
+      signupRequestSchema.safeParse({ ...base, businessName: "Café Ledger Pvt Ltd" })
+        .success,
+    ).toBe(true);
   });
 });

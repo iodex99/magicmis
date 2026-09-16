@@ -13,12 +13,23 @@ import { withTransaction } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 import { z } from "zod";
 
+import { invoiceableMessage, isInvoiceable } from "./invoiceable";
 import { isGstStateCode } from "./state-codes";
 
+/** Free text that is printed on a tax invoice, so it must be renderable (R-25). */
+const printed = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .refine(isInvoiceable, {
+      error: (issue) => invoiceableMessage(String(issue.input)),
+    });
+
 export const billingAddressSchema = z.object({
-  line1: z.string().trim().min(1).max(200),
-  line2: z.string().trim().max(200).optional(),
-  city: z.string().trim().min(1).max(100),
+  line1: printed(200).min(1),
+  line2: printed(200).optional(),
+  city: printed(100).min(1),
   // India Post PIN codes are six digits and never start with 0.
   pincode: z.string().regex(/^[1-9]\d{5}$/u, "Enter a 6-digit PIN code"),
   stateCode: z.string().refine(isGstStateCode, "Choose a state"),
@@ -32,7 +43,8 @@ export const billingAddressSchema = z.object({
  * before a new account has seen a single screen was nine of the eleven fields on the form.
  */
 export const signupProfileSchema = z.object({
-  businessName: z.string().trim().min(2).max(200),
+  // Printed on every tax invoice, where an unrenderable character would become "?" (R-25).
+  businessName: printed(200).min(2),
   gstin: z
     .string()
     .transform(normaliseGstin)

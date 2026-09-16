@@ -5,9 +5,14 @@
  * to the issue time and no producer string is written, so the same invoice renders the
  * same bytes every time — the PDF is regenerated on download rather than stored.
  *
- * The standard Helvetica font covers WinAnsi only; characters outside it are replaced.
- * TODO(review): R-06 — invoice template wording pending CA review. TODO(review): R-25 — a Unicode font for
- * non-Latin business names is a follow-up.
+ * The standard Helvetica font covers WinAnsi only. Everything a customer types that reaches
+ * this page — business name, address lines, city — is refused at the field unless it is
+ * renderable (`@magicmis/accounts/invoiceable`, R-25), because a `?` on a tax invoice is a
+ * defective legal document and nobody re-reads their own invoice to catch it. `winAnsiSafe`
+ * below stays as the last-resort backstop for text that does not come from those fields,
+ * such as the seller details in config: an invoice must still render.
+ *
+ * TODO(review): R-06 — invoice template wording pending CA review.
  */
 
 import { paise } from "@magicmis/core/money";
