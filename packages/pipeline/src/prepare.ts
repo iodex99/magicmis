@@ -5,6 +5,7 @@
  * descriptors the server prices from. Deterministic; no AI.
  */
 
+import type { DateOrder } from "@magicmis/core/time";
 import type { SizeDescriptors } from "@magicmis/ai/estimator";
 import type { PeriodId } from "@magicmis/core/time";
 import { ledgerFactsFromReport, type LedgerFact } from "@magicmis/engine";
@@ -121,6 +122,12 @@ async function tokeniseReport(
 export async function prepare(
   files: readonly PipelineFile[],
   redactor: Redactor,
+  /**
+   * The company's date order (ADR 0030). Ambiguous numeric dates in bills and voucher
+   * registers are read this way round; day-first unless the caller says otherwise, which
+   * is SPEC §2.14 and what every Tally export writes.
+   */
+  dateOrder: DateOrder = "day_first",
 ): Promise<Prepared> {
   const reports: LoadedReport[] = [];
   const facts: LedgerFact[] = [];
@@ -180,7 +187,7 @@ export async function prepare(
         }
         case "bills_receivable":
         case "bills_payable": {
-          const parsed = parseBills(sheet, header);
+          const parsed = parseBills(sheet, header, dateOrder);
           const asAt = parsed.asAt ?? header.period?.to ?? null;
           if (asAt === null || period === null) break;
           const lines: BillLine[] = [];

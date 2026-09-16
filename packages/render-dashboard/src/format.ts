@@ -37,10 +37,15 @@ export function formatValue(
   value: string,
   unit: MetricValue["unit"],
   money: NumberFormatOptions,
+  /**
+   * The company's reporting currency symbol (ADR 0030). Defaults to the rupee, which
+   * is what every existing company's books are in and what SPEC §2.14 assumed.
+   */
+  currencySymbol = "₹",
 ): string {
   switch (unit) {
     case "paise":
-      return `₹${formatPaise(paise(BigInt(value)), money)}`;
+      return `${currencySymbol}${formatPaise(paise(BigInt(value)), money)}`;
     case "percent":
       return `${roundTo(value, 1)}%`;
     case "ratio":

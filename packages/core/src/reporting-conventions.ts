@@ -139,3 +139,32 @@ export function isReportingCurrency(value: unknown): value is string {
     typeof value === "string" && /^[A-Z]{3}$/u.test(value) && !NOT_TWO_DECIMAL.has(value)
   );
 }
+
+/**
+ * The symbol for a reporting currency: `₹`, `$`, `£`, `AED`.
+ *
+ * Derived from `Intl` rather than a table, for the same reason country names are: a
+ * hardcoded list is one more thing that can be wrong, and the runtime already knows. Falls
+ * back to the ISO code, which is unambiguous even when it is not pretty — a report headed
+ * "AED 12,000" is clear, and one headed with the wrong symbol is not.
+ *
+ * `symbol` rather than `narrowSymbol`, deliberately: narrow renders SGD, AUD, CAD and HKD
+ * all as a bare "$", and a set of accounts that says $ when it means Singapore dollars is
+ * wrong in the way that matters most on a financial statement. `symbol` gives A$, CA$,
+ * NZ$, HK$ and SGD, and leaves ₹, $ and £ alone.
+ */
+export function currencySymbol(code: string, locale = "en"): string {
+  const upper = code.trim().toUpperCase();
+  try {
+    const part = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: upper,
+      currencyDisplay: "symbol",
+    })
+      .formatToParts(0)
+      .find((p) => p.type === "currency");
+    return part?.value ?? upper;
+  } catch {
+    return upper;
+  }
+}

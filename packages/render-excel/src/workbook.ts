@@ -71,6 +71,12 @@ export interface Expectation {
 
 export interface RenderInput {
   readonly companyName: string;
+  /**
+   * The currency the company's books are in, as its symbol or ISO code (ADR 0030).
+   * Printed on every sheet so a reader never has to assume, and defaulting to the rupee
+   * keeps an Indian workbook byte-identical to what it was.
+   */
+  readonly currencySymbol?: string;
   readonly template: TemplateSpec;
   readonly sections: readonly ResolvedSection[];
   readonly period: PeriodId;
@@ -289,7 +295,7 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
     ws.getCell(HEADER_ROWS.title, 1).value = `${input.companyName} — ${section.title}`;
     ws.getCell(HEADER_ROWS.title, 1).font = { bold: true, size: 13 };
     ws.getCell(HEADER_ROWS.subtitle, 1).value =
-      `Period: ${periodLabel(period)} · Amounts in ₹ · ${DISCLAIMER}`;
+      `Period: ${periodLabel(period)} · Amounts in ${input.currencySymbol ?? "₹"} · ${DISCLAIMER}`;
     ws.getCell(HEADER_ROWS.index, 1).value = "period index";
     ws.getCell(HEADER_ROWS.fy, 1).value = "FY start index";
     ws.getRow(HEADER_ROWS.index).hidden = true;

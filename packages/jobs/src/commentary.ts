@@ -16,6 +16,7 @@ import {
 import { collectCommentaryBatch, submitCommentaryBatch } from "@magicmis/ai/batch";
 import type { PeriodId } from "@magicmis/core/time";
 import type { KeyWrapper } from "@magicmis/crypto";
+import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import { readConfig } from "@magicmis/db/config";
 import { withTransaction } from "@magicmis/db/tx";
 import { buildFactsPack, type MetricValue } from "@magicmis/engine";
@@ -55,8 +56,13 @@ export async function commentaryInput(
   const company = await pool.query<{
     materiality_pct: string;
     materiality_abs_minor: string;
+    currency: string;
+    number_format: "lakhs_crores" | "absolute" | "millions";
   }>(
-    `select materiality_pct::text as materiality_pct, materiality_abs_minor::text as materiality_abs_minor from companies where id = $1`,
+    `select materiality_pct::text as materiality_pct,
+            materiality_abs_minor::text as materiality_abs_minor,
+            currency, number_format
+       from companies where id = $1`,
     [input.companyId],
   );
   const warnings = await pool.query<{
@@ -87,6 +93,13 @@ export async function commentaryInput(
     warnings: (warnings.rows[0]?.validation_results ?? [])
       .filter((r) => r.status === "fail" && r.severity === "warning")
       .map((r) => `Check ${r.id} raised a warning for this month.`),
+    // The figures handed to the model are written in the company's own currency and
+    // grouping (ADR 0030), so the commentary reads in the same units as the workbook
+    // beside it rather than in rupees regardless.
+    conventions: {
+      currencySymbol: currencySymbol(company.rows[0]?.currency ?? "INR"),
+      numberFormat: company.rows[0]?.number_format ?? "lakhs_crores",
+    },
   });
   if (pack.facts.length === 0)
     throw new CommentaryError(

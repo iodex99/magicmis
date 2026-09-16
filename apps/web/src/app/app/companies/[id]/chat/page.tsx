@@ -1,3 +1,4 @@
+import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { metricLabel } from "@magicmis/render-dashboard";
 import { notFound } from "next/navigation";
@@ -28,8 +29,9 @@ export default async function ChatPage({
     name: string;
     number_format: NumberFormatOptions["style"];
     decimals: number;
+    currency: string;
   }>(
-    `select name, number_format, decimals from companies where id = $1 and account_id = $2 and deleted_at is null`,
+    `select name, number_format, decimals, currency from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
   const company = r.rows[0];
@@ -65,6 +67,7 @@ export default async function ChatPage({
           decimals: company.decimals,
           negativesInBrackets: true,
         }}
+        currencySymbol={currencySymbol(company.currency)}
         prefill={prefill}
       />
     </AppFrame>

@@ -124,10 +124,13 @@ function Segments({
 export function ChatClient({
   companyId,
   money,
+  currencySymbol,
   prefill,
 }: {
   companyId: string;
   money: NumberFormatOptions;
+  /** The company's reporting currency symbol (ADR 0030). */
+  currencySymbol: string;
   prefill: { type: MessageType; text: string } | null;
 }) {
   const [threads, setThreads] = useState<
@@ -580,7 +583,9 @@ export function ChatClient({
               values={lineage.values}
               label={format.label}
               display={(v) =>
-                v.value === null ? "—" : formatValue(v.value, v.unit, money)
+                v.value === null
+                  ? "—"
+                  : formatValue(v.value, v.unit, money, currencySymbol)
               }
               onSelect={(key) => {
                 setLineage({ ...lineage, key });

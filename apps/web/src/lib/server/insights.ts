@@ -1,5 +1,7 @@
 import "server-only";
 
+import { currencySymbol } from "@magicmis/core/reporting-conventions";
+
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { readConfig } from "@magicmis/db/config";
 import type { MetricValue } from "@magicmis/engine";
@@ -22,6 +24,9 @@ export interface CompanyMetrics {
     name: string;
     fyStartMonth: number;
     money: NumberFormatOptions;
+    /** The company's reporting currency and its symbol (ADR 0030). */
+    currency: string;
+    currencySymbol: string;
   };
   readonly periods: readonly string[];
   /** The account's own computed aggregates (SPEC §7 zone B → the owner's browser). */
@@ -42,9 +47,10 @@ export async function companyMetrics(
     name: string;
     fy_start_month: number;
     number_format: NumberFormatOptions["style"];
+    currency: string;
     decimals: number;
   }>(
-    `select id, name, fy_start_month, number_format, decimals from public.companies
+    `select id, name, fy_start_month, number_format, decimals, currency from public.companies
      where id = $1 and account_id = $2 and deleted_at is null and purged_at is null`,
     [companyId, accountId],
   );
@@ -79,6 +85,8 @@ export async function companyMetrics(
         decimals: company.decimals,
         negativesInBrackets: true,
       },
+      currency: company.currency,
+      currencySymbol: currencySymbol(company.currency),
     },
     periods: periods.rows.map((p) => p.period),
     values,

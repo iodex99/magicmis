@@ -3,6 +3,7 @@
  * allows before payment: file name, size, sheet count and row counts.
  */
 
+import type { DateOrder } from "@magicmis/core/time";
 import type { IngestLimits } from "@magicmis/ingest";
 
 export interface FileSummary {
@@ -28,6 +29,13 @@ export interface IngestApi {
     limits: IngestLimits,
     caps: { sampleRowsPerSheet: number; distinctValuesPerColumn: number },
     developerMode: boolean,
+    /**
+     * How this company's exports write ambiguous numeric dates (ADR 0030). Every date
+     * column is checked against it as the file loads, and a contradiction refuses the
+     * file — reading 03/04 the wrong way round moves a month of entries and leaves
+     * every total still balancing.
+     */
+    dateOrder: DateOrder,
   ): Promise<void>;
   addFiles(
     files: File[],

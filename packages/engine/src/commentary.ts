@@ -66,27 +66,54 @@ const HEADLINE = new Set(["revenue", "gross_profit", "ebitda", "pat"]);
 
 const abs = (x: bigint) => (x < 0n ? -x : x);
 
-function formatRupees(paise: string): string {
-  const v = BigInt(paise);
-  const rupees = abs(v) / 100n;
-  const digits = rupees.toString();
+/**
+ * A money figure in the company's own reporting currency (ADR 0030).
+ *
+ * Whole units only: commentary reads better without the minor part, and the precise
+ * figure is in the workbook beside it. Grouping follows the currency, because a reader
+ * of rupees expects 12,34,567 and a reader of dollars expects 1,234,567 — showing
+ * either the other way round is the kind of detail that costs a report its credibility.
+ */
+function formatMoney(minor: string, conventions: ReportingContext): string {
+  const v = BigInt(minor);
+  const units = abs(v) / 100n;
+  const digits = units.toString();
   const grouped =
     digits.length <= 3
       ? digits
-      : `${digits.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/gu, ",")},${digits.slice(-3)}`;
-  return `${v < 0n ? "-" : ""}₹${grouped}`;
+      : conventions.numberFormat === "lakhs_crores"
+        ? `${digits.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/gu, ",")},${digits.slice(-3)}`
+        : digits.replace(/\B(?=(\d{3})+(?!\d))/gu, ",");
+  return `${v < 0n ? "-" : ""}${conventions.currencySymbol}${grouped}`;
 }
 
-const formatValue = (v: MetricValue): string =>
+/**
+ * How this company's figures are written. Defaults to the Indian set so a caller that
+ * has not been updated still behaves as it did (SPEC §2.14).
+ */
+export interface ReportingContext {
+  readonly currencySymbol: string;
+  readonly numberFormat: "lakhs_crores" | "absolute" | "millions";
+}
+
+export const INDIAN_REPORTING: ReportingContext = {
+  currencySymbol: "₹",
+  numberFormat: "lakhs_crores",
+};
+
+const formatValue = (
+  v: MetricValue,
+  conventions: ReportingContext = INDIAN_REPORTING,
+): string =>
   v.value === null
     ? "not available"
     : v.unit === "paise"
-      ? formatRupees(v.value)
+      ? formatMoney(v.value, conventions)
       : v.unit === "percent"
         ? `${v.value}%`
         : v.value;
 
-/** A metric value as prompt text (rupees with Indian grouping, percent, decimals). */
+/** A metric value as prompt text, in the company's currency and grouping. */
 export const formatFactText = formatValue;
 
 function isMaterial(
@@ -115,7 +142,10 @@ export function buildFactsPack(input: {
   materiality: { pct: string; absMinor: string };
   warnings: readonly string[];
   contributors?: readonly { token: string; label: string }[];
+  /** The company's currency and grouping. Indian if the caller does not say. */
+  conventions?: ReportingContext;
 }): FactsPack {
+  const conventions = input.conventions ?? INDIAN_REPORTING;
   const at = (id: string) =>
     input.store.find(
       (v) =>
@@ -139,7 +169,7 @@ export function buildFactsPack(input: {
     facts.push({
       id: `m:${metric}@${input.period}`,
       label: `${label}, this month`,
-      text: formatValue(current),
+      text: formatValue(current, conventions),
     });
     for (const [kind, change, pct] of [
       ["mom", mom, momPct],
@@ -149,13 +179,13 @@ export function buildFactsPack(input: {
       facts.push({
         id: `mv:${metric}.${kind}@${input.period}:abs`,
         label: `${label}, change ${kind === "mom" ? "on last month" : "on the same month last year"}`,
-        text: formatValue(change),
+        text: formatValue(change, conventions),
       });
       if (pct?.value != null)
         facts.push({
           id: `mv:${metric}.${kind}@${input.period}:pct`,
           label: `${label}, % change ${kind === "mom" ? "on last month" : "on last year"}`,
-          text: formatValue(pct),
+          text: formatValue(pct, conventions),
         });
     }
   }

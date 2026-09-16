@@ -360,7 +360,7 @@ export function JobRunner({
         await fail(
           job.jobId,
           null,
-          "Some sheets could not be recognised. Upload the Tally exports listed in the help guide.",
+          "Some sheets could not be recognised. A trial balance with ledger names and closing balances is the one that is always needed.",
         );
         return;
       }

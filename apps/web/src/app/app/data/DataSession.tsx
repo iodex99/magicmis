@@ -65,7 +65,15 @@ export function DataSession({
         return;
       }
       const client = ingestClient();
-      await client.configure(config.data.limits, config.data.caps, developerMode);
+      await client.configure(
+        config.data.limits,
+        config.data.caps,
+        developerMode,
+        // This screen inspects files without a company, so there is no setting to read.
+        // Day-first is the documented default (SPEC §2.14) and what every Tally export
+        // writes; a company's own order is applied on the run screen, where one exists.
+        "day_first",
+      );
       setFiles(await client.summaries());
       setReady(true);
     })();
@@ -104,7 +112,15 @@ export function DataSession({
       caps: { sampleRowsPerSheet: number; distinctValuesPerColumn: number };
     }>("/api/ingest/config");
     if (config.ok)
-      await client.configure(config.data.limits, config.data.caps, developerMode);
+      await client.configure(
+        config.data.limits,
+        config.data.caps,
+        developerMode,
+        // This screen inspects files without a company, so there is no setting to read.
+        // Day-first is the documented default (SPEC §2.14) and what every Tally export
+        // writes; a company's own order is applied on the run screen, where one exists.
+        "day_first",
+      );
   }
 
   const inFlight = Object.values(progress).filter((p) => p.stage !== "done");

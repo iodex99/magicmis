@@ -26,7 +26,14 @@ import { Alert, Button, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
 interface Payload {
-  company: { id: string; name: string; fyStartMonth: number; money: NumberFormatOptions };
+  company: {
+    id: string;
+    name: string;
+    fyStartMonth: number;
+    money: NumberFormatOptions;
+    /** The company's reporting currency symbol (ADR 0030). */
+    currencySymbol: string;
+  };
   periods: string[];
   values: MetricValue[];
   dashboard: {
@@ -324,7 +331,14 @@ export function DashboardClient({ companyId }: { companyId: string }) {
   const spec = pending?.spec ?? dashboard.spec;
   const current = period ?? ((payload.periods[0] ?? "") as PeriodId);
   const display = (v: MetricValue) =>
-    v.value === null ? "—" : formatValue(v.value, v.unit, payload.company.money);
+    v.value === null
+      ? "—"
+      : formatValue(
+          v.value,
+          v.unit,
+          payload.company.money,
+          payload.company.currencySymbol,
+        );
 
   const propose = async (ops: Operation[]) => {
     setError(null);

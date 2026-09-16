@@ -12,6 +12,14 @@ import { PRODUCT_NAME } from "./brand";
  * `DEVICE_AGNOSTIC_PATHS` in `@magicmis/accounts/desktop` must list the same routes, or a
  * visitor on a phone meets the desktop gate instead of the page they searched for — a test
  * asserts the two agree.
+ *
+ * **The same report has a different name in each market**, and the copy has to meet each
+ * of them in their own words. India says **MIS report**; the UK, Ireland, Australia, New
+ * Zealand and South Africa say **management accounts**; the United States says **monthly
+ * financial reporting**. They are the same monthly document — a P&L, a balance sheet, cash
+ * flow, ratios and commentary — and each market gets a page written in its own vocabulary
+ * rather than one page written in a compromise nobody types. Using the reader's own term
+ * is most of what ranking for their query is.
  */
 export interface PublicPage {
   readonly path: string;
@@ -25,9 +33,9 @@ export interface PublicPage {
 export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
     path: "/",
-    title: `${PRODUCT_NAME} — monthly MIS reports from your Tally exports`,
+    title: `${PRODUCT_NAME} — monthly management reports from your accounting data`,
     description:
-      "Turn Tally trial balances into a validated Excel MIS with live formulas, a dashboard and written commentary. For CA firms and finance teams in India. Prepaid credits, no subscription.",
+      "Turn a trial balance from any accounting system into a validated Excel report with live formulas, a dashboard and written commentary. Prepaid credits, no subscription.",
     changeFrequency: "weekly",
     priority: 1,
   },
@@ -43,9 +51,17 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/how-it-works",
     title: "How it works",
     description:
-      "Load your Tally exports, confirm the ledger mapping once, and take the workbook. Later months reuse the mapping and make no AI calls at all. Here is each step in detail.",
+      "Load your accounting exports, confirm the ledger mapping once, and take the workbook. Later months reuse the mapping and make no AI calls at all. Here is each step in detail.",
     changeFrequency: "monthly",
     priority: 0.9,
+  },
+  {
+    path: "/management-accounts",
+    title: "Management accounts: what they contain and how to prepare them monthly",
+    description:
+      "What monthly management accounts should include — P&L, balance sheet, cash flow, ratios and commentary — how long they take to prepare by hand, and how to stop rebuilding them every month.",
+    changeFrequency: "monthly",
+    priority: 0.85,
   },
   {
     path: "/mis-report-format",
@@ -64,10 +80,10 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     priority: 0.8,
   },
   {
-    path: "/for-ca-firms",
-    title: "MIS reporting for CA firms",
+    path: "/for-accountants",
+    title: "Monthly reporting for accounting firms",
     description:
-      "Monthly management reporting across a portfolio of clients, without a junior rebuilding each workbook by hand. One mapping per client, reused every month, with every number traceable.",
+      "Management reporting across a portfolio of clients, without a junior rebuilding each workbook by hand. One mapping per client, reused every month, with every number traceable.",
     changeFrequency: "monthly",
     priority: 0.8,
   },
@@ -83,7 +99,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/pricing",
     title: "Pricing",
     description:
-      "Prepaid credits, a fixed price per action, shown and confirmed before anything runs. One credit is one rupee excluding GST. No subscription, no negative balance, no free tier.",
+      "Prepaid credits, a fixed price per action, shown and confirmed before anything runs. Billed in rupees in India and US dollars elsewhere. No subscription and no free tier.",
     changeFrequency: "weekly",
     priority: 0.9,
   },

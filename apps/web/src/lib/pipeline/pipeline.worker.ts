@@ -153,7 +153,11 @@ function bytesToB64(bytes: Uint8Array): string {
 }
 
 async function ensurePrepared(): Promise<Prepared> {
-  prepared ??= await prepare(files, need(redactor, "session"));
+  prepared ??= await prepare(
+    files,
+    need(redactor, "session"),
+    need(session, "session").company.dateOrder,
+  );
   return prepared;
 }
 
@@ -404,6 +408,7 @@ const api: PipelineApi = {
       period,
       template,
       companyName: s.company.name,
+      currencySymbol: s.company.currencySymbol,
       labelText,
       tierLabel: input.tierLabel,
       snapshotVersion:

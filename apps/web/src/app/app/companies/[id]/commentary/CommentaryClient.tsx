@@ -31,7 +31,7 @@ export interface CommentaryJobRow {
 }
 
 interface Payload {
-  company: { money: NumberFormatOptions };
+  company: { money: NumberFormatOptions; currencySymbol: string };
   output: CommentaryOutput;
   pack: Pick<FactsPack, "facts" | "dimensions" | "periods">;
   allowlist: string[];
@@ -135,7 +135,14 @@ function CommentaryView({ jobId }: { jobId: string }) {
             values={payload.values}
             label={companyFormat(payload.company.money).label}
             display={(v) =>
-              v.value === null ? "—" : formatValue(v.value, v.unit, payload.company.money)
+              v.value === null
+                ? "—"
+                : formatValue(
+                    v.value,
+                    v.unit,
+                    payload.company.money,
+                    payload.company.currencySymbol,
+                  )
             }
             onSelect={setSelected}
             onClose={() => {

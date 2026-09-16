@@ -6,6 +6,7 @@
  * lines carry them forward. Amount sides come from Debit/Credit columns or Dr/Cr suffixes.
  */
 
+import type { DateOrder } from "@magicmis/core/time";
 import {
   cellAsDate,
   cellAt,
@@ -53,9 +54,14 @@ export interface VoucherReport {
   readonly totals: readonly { sourceRow: number; label: string; amount: bigint | null }[];
 }
 
+/**
+ * `order` is the company's date setting (ADR 0030). Day-first unless stated, which is
+ * SPEC §2.14 and what every Tally export writes.
+ */
 export function parseVoucherReport(
   sheet: SheetGrid,
   header: HeaderDetection,
+  order: DateOrder = "day_first",
 ): VoucherReport {
   const roles = assignRoles(header.headers);
   const lines: VoucherLine[] = [];
@@ -80,7 +86,7 @@ export function parseVoucherReport(
       continue;
     }
     const dateCell =
-      roles.date === undefined ? null : cellAsDate(cellAt(sheet, r, roles.date));
+      roles.date === undefined ? null : cellAsDate(cellAt(sheet, r, roles.date), order);
     const typeText = textAt(sheet, r, roles.vch_type);
     const noText = textAt(sheet, r, roles.vch_no);
     if (dateCell !== null || typeText !== "" || noText !== "") {
@@ -121,9 +127,11 @@ export interface BillLine {
  * Bills outstanding. Tally groups bills under a party heading row (a party name with no bill
  * reference); a party column, when present, is used directly.
  */
+/** `order` is the company's date setting (ADR 0030); day-first unless stated. */
 export function parseBills(
   sheet: SheetGrid,
   header: HeaderDetection,
+  order: DateOrder = "day_first",
 ): { period: HeaderDetection["period"]; asAt: string | null; bills: BillLine[] } {
   const roles = assignRoles(header.headers);
   const bills: BillLine[] = [];
@@ -150,11 +158,13 @@ export function parseBills(
           ? name
           : party,
       billDate:
-        roles.date === undefined ? null : cellAsDate(cellAt(sheet, r, roles.date)),
+        roles.date === undefined ? null : cellAsDate(cellAt(sheet, r, roles.date), order),
       refNo: ref,
       pending,
       dueOn:
-        roles.due_on === undefined ? null : cellAsDate(cellAt(sheet, r, roles.due_on)),
+        roles.due_on === undefined
+          ? null
+          : cellAsDate(cellAt(sheet, r, roles.due_on), order),
       overdueDays: /^-?\d+$/u.test(overdue) ? Number.parseInt(overdue, 10) : null,
     });
   }

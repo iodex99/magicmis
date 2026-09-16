@@ -8,6 +8,7 @@
  * redacted payload preview.
  */
 
+import type { DateOrder } from "@magicmis/core/time";
 import * as duckdb from "@duckdb/duckdb-wasm";
 import {
   checkFiles,
@@ -52,6 +53,8 @@ let caps = { sampleRowsPerSheet: 15, distinctValuesPerColumn: 500 };
 let developerMode = false;
 const files = new Map<string, LoadedFile>();
 const tables = new Set<string>();
+/** Set by `configure` before any file is added; day-first until it is. */
+let dateOrder: DateOrder = "day_first";
 let dbPromise: Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> | null = null;
 
 async function openDuck(): Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> {
@@ -110,10 +113,11 @@ function rowsOf(grid: SheetGrid): number {
 }
 
 const api: IngestApi = {
-  configure(l, c, dev) {
+  configure(l, c, dev, order) {
     limits = l;
     caps = c;
     developerMode = dev;
+    dateOrder = order;
     return Promise.resolve();
   },
 
@@ -196,6 +200,7 @@ const api: IngestApi = {
             sheet: grid,
             profile,
             tableTaken: tables,
+            dateOrder,
           });
           sheets.push({ grid, profile, table: loaded.table });
         }

@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomBytes } from "node:crypto";
 
-import type { NumberFormat } from "@magicmis/core/reporting-conventions";
+import { currencySymbol, type NumberFormat } from "@magicmis/core/reporting-conventions";
 import type { DateOrder } from "@magicmis/core/time";
 import { readConfig } from "@magicmis/db/config";
 
@@ -122,6 +122,15 @@ export interface JobSession {
     name: string;
     fyStartMonth: number;
     lifecycleState: string;
+    /**
+     * This company's own reporting conventions (ADR 0030). They travel with the
+     * session because the pipeline runs in the browser: the date order decides how
+     * files are read, and the currency and grouping decide how the workbook reads.
+     */
+    currency: string;
+    currencySymbol: string;
+    numberFormat: "lakhs_crores" | "absolute" | "millions";
+    dateOrder: DateOrder;
   };
   /** Base64 of the company redaction key; never logged, never persisted by the browser. */
   readonly redactionKey: string;
@@ -162,10 +171,14 @@ export async function jobSession(
     name: string;
     fy_start_month: number;
     lifecycle_state: string;
+    currency: string;
+    number_format: "lakhs_crores" | "absolute" | "millions";
+    date_order: DateOrder;
     wrapped_redaction_key: Buffer | null;
     latest_period: string | null;
   }>(
     `select c.id, c.name, c.fy_start_month, c.lifecycle_state, c.wrapped_redaction_key,
+            c.currency, c.number_format, c.date_order,
             (select max(period) from public.snapshots s where s.company_id = c.id) as latest_period
      from public.companies c where c.id = $1 and c.account_id = $2 and c.deleted_at is null`,
     [companyId, accountId],
@@ -220,6 +233,10 @@ export async function jobSession(
       name: c.name,
       fyStartMonth: c.fy_start_month,
       lifecycleState: c.lifecycle_state,
+      currency: c.currency,
+      currencySymbol: currencySymbol(c.currency),
+      numberFormat: c.number_format,
+      dateOrder: c.date_order,
     },
     redactionKey: key.toString("base64"),
     library: library.rows.map((l) => ({
