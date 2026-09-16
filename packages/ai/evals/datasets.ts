@@ -357,7 +357,7 @@ export function commentaryDataset(limit = 60): EvalItem<GenerateCommentaryInput,
     const pack = buildFactsPack({
       period: PERIOD,
       store: m.store,
-      materiality: { pct: "0.05", absPaise: "0" },
+      materiality: { pct: "0.05", absMinor: "0" },
       warnings: m.warnings,
     });
     return {
@@ -415,7 +415,7 @@ export function chatQuickDataset(limit = 60): EvalItem<ChatQuickInput, ScopeLabe
       : buildFactsPack({
           period: PERIOD,
           store: month.store,
-          materiality: { pct: "0.05", absPaise: "0" },
+          materiality: { pct: "0.05", absMinor: "0" },
           warnings: [],
         }).facts;
   return QUICK_QUESTIONS.slice(0, limit).map((q) => ({

@@ -1,11 +1,20 @@
 /**
- * Day-first date parsing.
+ * Date parsing, in a stated order.
  *
- * SPEC §2.14 and §15: dates are parsed as day-first, **never** month-first.
- * `01/04/2025` is 1 April 2025. There is no locale detection, no heuristic that
- * flips on seeing a value above 12, and no month-first fallback -- because a
- * heuristic gets `05/04/2025` wrong silently, and a silently wrong date moves a
- * voucher into the wrong month and produces a wrong MIS that reconciles perfectly.
+ * India writes day-first and the United States writes month-first, so with the product
+ * sold worldwide (ADR 0030) the order is a **per-company setting**, not a constant. It
+ * still defaults to day-first, which is what SPEC §2.14 fixed and what every Tally
+ * export uses.
+ *
+ * **There is still no per-value heuristic**, and that prohibition is the important part
+ * of this file. Flipping on seeing a number above 12 gets `05/04/2025` wrong silently,
+ * and a silently wrong date moves a voucher into the wrong month and produces an MIS
+ * that reconciles perfectly and is wrong.
+ *
+ * What *is* sound is looking at a whole column: see `detectDateOrder`. One value cannot
+ * tell you the order; a column of them often can, and where it can it is evidence rather
+ * than a guess. The two are used together — the company states the order, the column is
+ * checked against it, and a contradiction stops the job instead of picking a winner.
  *
  * `Date.parse` is never used. It is implementation-defined for non-ISO input and
  * reads `01/04/2025` as 4 January in a US locale.
@@ -42,7 +51,7 @@ const MONTH_NAMES: Readonly<Record<string, number>> = {
 
 /** Unambiguous ISO `YYYY-MM-DD`: a 4-digit leading group can only be a year. */
 const ISO = /^(\d{4})-(\d{1,2})-(\d{1,2})$/u;
-/** `d/m/y`, `d-m-y`, `d.m.y` with a numeric month. Day first, always. */
+/** Two 1-2 digit groups then a year. Which group is the day is the caller's `order`. */
 const NUMERIC = /^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2}|\d{4})$/u;
 /** `1-Apr-25`, `01 April 2025`, `1.apr.2025`. */
 const NAMED = /^(\d{1,2})[\s/\-.]*([A-Za-z]{3,9})[\s/\-.]*(\d{2}|\d{4})$/u;
@@ -58,23 +67,33 @@ export function expandTwoDigitYear(yy: number, pivot = 69): number {
   return yy <= pivot ? 2000 + yy : 1900 + yy;
 }
 
+/**
+ * Which of the two leading groups is the day.
+ *
+ * Named rather than a boolean: `parseDate(value, true)` at a call site says nothing,
+ * and this is a setting where being wrong is invisible.
+ */
+export type DateOrder = "day_first" | "month_first";
+
 export interface ParseDateOptions {
   /** Two-digit year pivot. See `expandTwoDigitYear`. */
   readonly twoDigitYearPivot?: number;
+  /** Defaults to day-first: SPEC §2.14, and what every Tally export writes. */
+  readonly order?: DateOrder;
 }
 
 /**
- * Parse a date string day-first. Returns `null` for anything unrecognised or invalid,
- * rather than guessing -- the caller surfaces it as a data-quality finding.
+ * Parse a date string in the stated order. Returns `null` for anything unrecognised or
+ * invalid, rather than guessing -- the caller surfaces it as a data-quality finding.
  *
- * Recognised:
- *   - `2025-04-01`      ISO, unambiguous
- *   - `01/04/2025`      day-first: 1 April
- *   - `1-4-25`          day-first, two-digit year
- *   - `1-Apr-25`        named month
+ * Recognised (shown day-first, the default):
+ *   - `2025-04-01`      ISO, unambiguous whatever the order
+ *   - `01/04/2025`      1 April day-first; 4 January month-first
+ *   - `1-4-25`          two-digit year
+ *   - `1-Apr-25`        named month, unambiguous whatever the order
  *   - `01 April 2025`   named month, spaced
  */
-export function parseDayFirst(
+export function parseDate(
   input: string,
   options: ParseDateOptions = {},
 ): CalendarDate | null {
@@ -87,12 +106,17 @@ export function parseDayFirst(
 
   const numeric = NUMERIC.exec(s);
   if (numeric) {
-    const day = num(numeric[1]);
-    const month = num(numeric[2]);
+    // The only place the order matters. Everything else in this function is unambiguous:
+    // ISO leads with a four-digit year, and a named month cannot be mistaken for a day.
+    const first = num(numeric[1]);
+    const second = num(numeric[2]);
+    const [day, month] =
+      (options.order ?? "day_first") === "day_first" ? [first, second] : [second, first];
     const rawYear = num(numeric[3]);
     const year =
       (numeric[3]?.length ?? 0) === 2 ? expandTwoDigitYear(rawYear, pivot) : rawYear;
-    // Day first. `13/01/2025` is 13 January; `01/13/2025` is not a date at all.
+    // `build` rejects an impossible month, so `13/01/2025` read month-first is null
+    // rather than a silent reinterpretation as 1 January.
     return build(year, month, day);
   }
 
@@ -149,6 +173,20 @@ export function calendarDateToExcelSerial(d: CalendarDate): number {
 }
 
 /**
+ * Day-first parsing, the SPEC §2.14 default and what every Tally export writes.
+ *
+ * Kept as its own name because most call sites are reading Tally, where the order is not
+ * a question, and `parseDate(v, { order: "day_first" })` at each of them would be noise
+ * around the few places where it genuinely varies.
+ */
+export function parseDayFirst(
+  input: string,
+  options: Omit<ParseDateOptions, "order"> = {},
+): CalendarDate | null {
+  return parseDate(input, { ...options, order: "day_first" });
+}
+
+/**
  * Parse a cell that may hold either text or an Excel serial.
  *
  * SheetJS hands back a number for a date-formatted cell and a string otherwise
@@ -159,7 +197,7 @@ export function parseCellDate(
   options: ParseDateOptions = {},
 ): CalendarDate | null {
   if (typeof value === "number") return excelSerialToCalendarDate(value);
-  return parseDayFirst(value, options);
+  return parseDate(value, options);
 }
 
 /** Re-export for callers that want to construct directly after their own validation. */

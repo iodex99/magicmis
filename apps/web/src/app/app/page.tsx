@@ -24,6 +24,8 @@ import { db } from "@/lib/db";
 import { listCompanies } from "@/lib/server/companies";
 import { accountOverview } from "@/lib/server/overview";
 
+import { defaultConventions } from "@magicmis/core/reporting-conventions";
+
 import { NewCompanyForm } from "./NewCompanyForm";
 
 export const metadata = { title: "Companies" };
@@ -55,10 +57,19 @@ function period(value: string | null): string {
 export default async function AppHomePage() {
   const account = await accountOrRedirect("/app");
   const pool = db();
-  const [companies, overview, wallet] = await Promise.all([
+  // The new-company form is pre-filled from where this account is billed, so adding a
+  // company stays two fields for almost everyone (ADR 0030). It is a default the reader
+  // can see and change, never applied silently.
+  const [companies, overview, wallet, billingCountry] = await Promise.all([
     listCompanies(pool, account.accountId),
     accountOverview(pool, account.accountId),
     walletSummary(pool, account.accountId),
+    pool
+      .query<{ billing_country: string | null }>(
+        `select billing_country from public.accounts where id = $1`,
+        [account.accountId],
+      )
+      .then((r) => r.rows[0]?.billing_country ?? null),
   ]);
   const jobsThisMonth = overview.jobsByMonth.at(-1) ?? 0;
   const jobsLastMonth = overview.jobsByMonth.at(-2) ?? 0;
@@ -223,7 +234,7 @@ export default async function AppHomePage() {
           description="Free. You are charged when you run an action."
           icon="plus"
         >
-          <NewCompanyForm />
+          <NewCompanyForm defaults={defaultConventions(billingCountry)} />
         </Panel>
       </div>
 

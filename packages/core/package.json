@@ -12,6 +12,7 @@
     "./format": "./src/format/index.ts",
     "./identifiers": "./src/identifiers/index.ts",
     "./country": "./src/identifiers/country.ts",
+    "./reporting-conventions": "./src/reporting-conventions.ts",
     "./hashchain": "./src/hashchain/index.ts",
     "./config": "./src/config/index.ts",
     "./brand": "./src/brand.ts",

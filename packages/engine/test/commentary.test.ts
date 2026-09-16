@@ -43,7 +43,7 @@ const store: MetricValue[] = [
 const pack = buildFactsPack({
   period: P,
   store,
-  materiality: { pct: "0.05", absPaise: "0" },
+  materiality: { pct: "0.05", absMinor: "0" },
   warnings: [],
 });
 const ALLOW = ["Schedule III", "Ind AS 115", "GSTR-3B"];

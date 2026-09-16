@@ -2,6 +2,8 @@ import "server-only";
 
 import { randomBytes } from "node:crypto";
 
+import type { NumberFormat } from "@magicmis/core/reporting-conventions";
+import type { DateOrder } from "@magicmis/core/time";
 import { readConfig } from "@magicmis/db/config";
 
 import {
@@ -60,11 +62,30 @@ export async function listCompanies(
  */
 export async function createCompany(
   pool: Pool,
-  input: { accountId: string; name: string; fyStartMonth: number },
+  input: {
+    accountId: string;
+    name: string;
+    fyStartMonth: number;
+    currency: string;
+    numberFormat: NumberFormat;
+    dateOrder: DateOrder;
+  },
 ): Promise<string> {
+  // The company's own reporting conventions, settled once and reused every month
+  // (ADR 0030). The form pre-fills them from the account's billing country, so this
+  // is a decision the reader confirmed rather than one taken for them.
   const inserted = await pool.query<{ id: string }>(
-    `insert into public.companies (account_id, name, fy_start_month) values ($1, $2, $3) returning id`,
-    [input.accountId, input.name, input.fyStartMonth],
+    `insert into public.companies
+       (account_id, name, fy_start_month, currency, number_format, date_order)
+     values ($1, $2, $3, $4, $5, $6) returning id`,
+    [
+      input.accountId,
+      input.name,
+      input.fyStartMonth,
+      input.currency,
+      input.numberFormat,
+      input.dateOrder,
+    ],
   );
   const companyId = inserted.rows[0]?.id ?? "";
   const key = randomBytes(32);

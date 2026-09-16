@@ -6,7 +6,12 @@
  * is typed `date` and the misfits are counted, so profiling can report them as findings.
  */
 
-import { excelSerialToCalendarDate, formatIso, parseDayFirst } from "@magicmis/core/time";
+import {
+  excelSerialToCalendarDate,
+  formatIso,
+  parseDate,
+  type DateOrder,
+} from "@magicmis/core/time";
 
 import { parseAmount, type DrCr } from "./amounts";
 import { isBlankCell, type Cell } from "./grid";
@@ -51,21 +56,27 @@ export function isDateFormat(format: string | undefined): boolean {
   return /[dy]/iu.test(stripped) || /m{3,}/iu.test(stripped);
 }
 
-/** A cell as a day-first ISO date, or null. Excel serials only when the cell is date-formatted. */
-export function cellAsDate(cell: Cell): string | null {
+/**
+ * A cell as an ISO date, or null. Excel serials only when the cell is date-formatted.
+ *
+ * `order` is the company's setting (ADR 0030) and matters only for the ambiguous
+ * two-number form; an Excel serial and an ISO or named-month string are unambiguous.
+ * Defaults to day-first, which is what every Tally export writes.
+ */
+export function cellAsDate(cell: Cell, order: DateOrder = "day_first"): string | null {
   if (typeof cell.value === "number") {
     if (!isDateFormat(cell.format)) return null;
     const d = excelSerialToCalendarDate(cell.value);
     return d === null ? null : formatIso(d);
   }
   if (typeof cell.value !== "string") return null;
-  const d = parseDayFirst(cell.value);
+  const d = parseDate(cell.value, { order });
   return d === null ? null : formatIso(d);
 }
 
-export function classifyCell(cell: Cell): ColumnType {
+export function classifyCell(cell: Cell, order: DateOrder = "day_first"): ColumnType {
   if (isBlankCell(cell)) return "empty";
-  if (cellAsDate(cell) !== null) return "date";
+  if (cellAsDate(cell, order) !== null) return "date";
   const text = cell.text.trim();
   if (typeof cell.value === "string") {
     const upper = text.toUpperCase();

@@ -92,12 +92,12 @@ export const formatFactText = formatValue;
 function isMaterial(
   change: MetricValue | undefined,
   pct: MetricValue | undefined,
-  materiality: { pct: string; absPaise: string },
+  materiality: { pct: string; absMinor: string },
 ): boolean {
   if (change?.value == null) return false;
   if (
-    abs(BigInt(change.value)) >= BigInt(materiality.absPaise) &&
-    BigInt(materiality.absPaise) > 0n
+    abs(BigInt(change.value)) >= BigInt(materiality.absMinor) &&
+    BigInt(materiality.absMinor) > 0n
   )
     return true;
   if (pct?.value == null) return false;
@@ -112,7 +112,7 @@ function isMaterial(
 export function buildFactsPack(input: {
   period: PeriodId;
   store: readonly MetricValue[];
-  materiality: { pct: string; absPaise: string };
+  materiality: { pct: string; absMinor: string };
   warnings: readonly string[];
   contributors?: readonly { token: string; label: string }[];
 }): FactsPack {

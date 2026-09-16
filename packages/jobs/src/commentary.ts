@@ -54,9 +54,9 @@ export async function commentaryInput(
     );
   const company = await pool.query<{
     materiality_pct: string;
-    materiality_abs_paise: string;
+    materiality_abs_minor: string;
   }>(
-    `select materiality_pct::text as materiality_pct, materiality_abs_paise::text as materiality_abs_paise from companies where id = $1`,
+    `select materiality_pct::text as materiality_pct, materiality_abs_minor::text as materiality_abs_minor from companies where id = $1`,
     [input.companyId],
   );
   const warnings = await pool.query<{
@@ -82,7 +82,7 @@ export async function commentaryInput(
     store: snapshot.metricStore.values as unknown as MetricValue[],
     materiality: {
       pct: company.rows[0]?.materiality_pct ?? "0.05",
-      absPaise: company.rows[0]?.materiality_abs_paise ?? "0",
+      absMinor: company.rows[0]?.materiality_abs_minor ?? "0",
     },
     warnings: (warnings.rows[0]?.validation_results ?? [])
       .filter((r) => r.status === "fail" && r.severity === "warning")

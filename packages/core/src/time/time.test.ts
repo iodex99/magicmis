@@ -2,6 +2,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
 import { calendarDate, daysInMonth, formatIso, isLeapYear } from "./calendar-date";
+import { checkDateOrder, detectDateOrder } from "./detect-date-order";
 import {
   formatIstDate,
   formatIstDateTime,
@@ -16,6 +17,7 @@ import {
   excelSerialToCalendarDate,
   expandTwoDigitYear,
   parseCellDate,
+  parseDate,
   parseDayFirst,
 } from "./parse-date";
 import {
@@ -352,5 +354,95 @@ describe("IST display (SPEC §2.14 — store UTC, display IST)", () => {
         return fromIstParts(toIstParts(instant)).getTime() === instant.getTime();
       }),
     );
+  });
+});
+
+describe("date order as a stated setting (ADR 0030)", () => {
+  it("reads the same string differently in each order", () => {
+    // The whole reason this is a setting: 03/04 is two different months.
+    expect(parseDate("03/04/2025", { order: "day_first" })).toEqual(
+      calendarDate(2025, 4, 3),
+    );
+    expect(parseDate("03/04/2025", { order: "month_first" })).toEqual(
+      calendarDate(2025, 3, 4),
+    );
+  });
+
+  it("defaults to day-first, which is SPEC §2.14 and every Tally export", () => {
+    expect(parseDate("03/04/2025")).toEqual(calendarDate(2025, 4, 3));
+    expect(parseDayFirst("03/04/2025")).toEqual(calendarDate(2025, 4, 3));
+  });
+
+  it("refuses an impossible month rather than reinterpreting it", () => {
+    // 13/01 read month-first is not "obviously 13 January" — it is not a date, and
+    // saying so is what stops a silent reinterpretation.
+    expect(parseDate("13/01/2025", { order: "month_first" })).toBeNull();
+    expect(parseDate("13/01/2025", { order: "day_first" })).toEqual(
+      calendarDate(2025, 1, 13),
+    );
+  });
+
+  it("leaves unambiguous formats alone whichever order is set", () => {
+    for (const order of ["day_first", "month_first"] as const) {
+      expect(parseDate("2025-04-03", { order }), order).toEqual(calendarDate(2025, 4, 3));
+      expect(parseDate("3-Apr-25", { order }), order).toEqual(calendarDate(2025, 4, 3));
+    }
+  });
+});
+
+describe("detecting the date order of a column", () => {
+  it("proves day-first from a day above twelve", () => {
+    const e = detectDateOrder(["01/02/2025", "31/03/2025", "05/04/2025"]);
+    expect(e.order).toBe("day_first");
+    expect(e.dayFirstExample).toBe("31/03/2025");
+  });
+
+  it("proves month-first from a day above twelve in the second position", () => {
+    const e = detectDateOrder(["01/02/2025", "03/31/2025"]);
+    expect(e.order).toBe("month_first");
+    expect(e.monthFirstExample).toBe("03/31/2025");
+  });
+
+  it("says ambiguous rather than guessing when every value works both ways", () => {
+    // A fortnight of early-month dates genuinely cannot be resolved, and pretending
+    // otherwise is how a heuristic gets it wrong silently.
+    const e = detectDateOrder(["01/02/2025", "03/04/2025", "05/06/2025"]);
+    expect(e.order).toBe("ambiguous");
+    expect(e.ambiguous).toBe(3);
+  });
+
+  it("says inconsistent when rows prove both, never a majority verdict", () => {
+    const e = detectDateOrder(["31/01/2025", "01/31/2025"]);
+    expect(e.order).toBe("inconsistent");
+  });
+
+  it("ignores what is not a two-number date at all", () => {
+    expect(detectDateOrder(["2025-04-03", "3-Apr-25", "", "not a date"]).order).toBe(
+      "ambiguous",
+    );
+  });
+});
+
+describe("checking a column against the company's setting", () => {
+  it("passes when the data agrees, and when it cannot say", () => {
+    expect(checkDateOrder("day_first", ["31/03/2025"]).ok).toBe(true);
+    expect(checkDateOrder("month_first", ["03/31/2025"]).ok).toBe(true);
+    expect(checkDateOrder("month_first", ["01/02/2025"]).ok).toBe(true);
+  });
+
+  it("fails with the value that proves it, not a vague complaint", () => {
+    const check = checkDateOrder("month_first", ["01/02/2025", "31/03/2025"]);
+    expect(check.ok).toBe(false);
+    if (check.ok) throw new Error("expected a contradiction");
+    // A person can act on "31/03/2025"; they cannot act on "dates look wrong".
+    expect(check.message).toContain("31/03/2025");
+    expect(check.message).toContain("wrong month");
+  });
+
+  it("fails a file that mixes orders, which no setting can rescue", () => {
+    const check = checkDateOrder("day_first", ["31/01/2025", "01/31/2025"]);
+    expect(check.ok).toBe(false);
+    if (check.ok) throw new Error("expected a contradiction");
+    expect(check.message).toContain("mixes date orders");
   });
 });
