@@ -18,9 +18,27 @@ import * as XLSX from "xlsx";
 
 import type { Cell, SheetGrid, WorkbookGrid } from "./grid";
 
+// Native zlib for unzipping workbooks when running in Node. SheetJS ESM build does not wire it
+// up itself and otherwise inflates in pure JavaScript, several times slower on large files.
+// In a browser bundle `process` may be a polyfill without getBuiltinModule; check the function.
+const nodeZlib: unknown =
+  typeof process !== "undefined" && typeof process.getBuiltinModule === "function"
+    ? process.getBuiltinModule("node:zlib")
+    : undefined;
+if (nodeZlib !== undefined)
+  (
+    XLSX as unknown as { CFB: { utils: { use_zlib(z: unknown): void } } }
+  ).CFB.utils.use_zlib(nodeZlib);
+
 export interface ReadExcelOptions {
   /** Read only the first N rows of each sheet (for previews). */
   readonly sheetRows?: number;
+  /**
+   * Values only: no formatted text, number formats or row styles. About twice as fast on a
+   * large workbook, and enough for counting sheets and rows before payment (ADR 0032). The
+   * paid run always reads the full detail.
+   */
+  readonly lite?: boolean;
 }
 
 // Dense rows can have holes at runtime (empty rows), which the published types omit.
@@ -66,9 +84,9 @@ export function readExcel(
     dense: true,
     cellFormula: false,
     bookVBA: false,
-    cellText: true,
-    cellNF: true,
-    cellStyles: true,
+    cellText: options.lite !== true,
+    cellNF: options.lite !== true,
+    cellStyles: options.lite !== true,
     cellHTML: false,
     cellDates: false,
     ...(options.sheetRows === undefined ? {} : { sheetRows: options.sheetRows }),
@@ -119,4 +137,37 @@ export function sheetsToXlsx(sheets: readonly SheetGrid[]): Uint8Array {
   return new Uint8Array(
     XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer,
   );
+}
+
+/**
+ * Sheet and non-blank row counts, without building cells (ADR 0032). Before payment only counts
+ * are shown, and on a 50 MB workbook building three million cells to count rows costs more than
+ * reading the file.
+ */
+export function countExcel(bytes: Uint8Array): { sheets: number; rows: number } {
+  const wb = XLSX.read(bytes, {
+    type: "array",
+    dense: true,
+    cellFormula: false,
+    bookVBA: false,
+    cellText: false,
+    cellNF: false,
+    cellStyles: false,
+    cellHTML: false,
+    cellDates: false,
+  });
+  let rows = 0;
+  for (const name of wb.SheetNames) {
+    const data = (wb.Sheets[name] as unknown as DenseSheet | undefined)?.["!data"] ?? [];
+    for (const row of data) {
+      if (row === undefined) continue;
+      for (const c of row) {
+        if (c === undefined || c.t === "z" || c.v === undefined) continue;
+        if (typeof c.v === "string" && c.v.trim() === "") continue;
+        rows += 1;
+        break;
+      }
+    }
+  }
+  return { sheets: wb.SheetNames.length, rows };
 }

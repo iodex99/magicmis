@@ -1,5 +1,5 @@
 /**
- * Any file a customer has, read into grids (ADR 0031).
+ * Any file a customer has, read into grids (ADR 0031, ADR 0032).
  *
  * The extension is a hint, not a gate. What a file is decided from its first bytes, because
  * accounting exports are routinely renamed, saved with the wrong extension, or downloaded as
@@ -8,14 +8,15 @@
  * tables in any common delimiter, JSON arrays of records, and text PDFs.
  *
  * What cannot be read without sending the file somewhere — photographs, scans, Word documents
- * — is refused with the reason, because SPEC §2.8 keeps raw files in the browser. The refusal
+ * — is refused with the reason: there is no text in them to read without OCR. The refusal
  * names what to export instead; it never says only "unsupported".
  */
 
 import { decodeText, readCsvGrid } from "./csv";
-import { readExcel } from "./excel";
+import { countExcel, readExcel } from "./excel";
 import { gridFromText, isBlankRow, type SheetGrid } from "./grid";
 import { readPdf } from "./pdf";
+import { countXlsx } from "./xlsx-count";
 import { inspectZip, type ZipLimits } from "./zip";
 
 export type SourceRefusal =
@@ -116,7 +117,10 @@ export async function readSourceFile(
   name: string,
   bytes: Uint8Array,
   limits: ZipLimits,
+  /** Values only, for counting sheets and rows (see `ReadExcelOptions.lite`). */
+  options: { lite?: boolean } = {},
 ): Promise<SourceRead> {
+  const excel = { lite: options.lite === true };
   const format = sniffFormat(name, bytes);
   if (format === "image" || format === "document") return { ok: false, reason: format };
 
@@ -131,11 +135,11 @@ export async function readSourceFile(
       case "workbook": {
         const zip = inspectZip(bytes, limits);
         if (!zip.ok) return { ok: false, reason: "unsafe_workbook" };
-        return { ok: true, format, sheets: [...readExcel(bytes).sheets] };
+        return { ok: true, format, sheets: [...readExcel(bytes, excel).sheets] };
       }
       case "legacy_workbook":
       case "markup":
-        return { ok: true, format, sheets: [...readExcel(bytes).sheets] };
+        return { ok: true, format, sheets: [...readExcel(bytes, excel).sheets] };
       case "json": {
         const sheets = readJson(bytes, baseName(name));
         return sheets === null
@@ -157,7 +161,11 @@ export async function readSourceFile(
   } catch {
     // A mislabelled or slightly malformed file: one more try as whatever SheetJS makes of it.
     try {
-      read = { ok: true, format: "workbook", sheets: [...readExcel(bytes).sheets] };
+      read = {
+        ok: true,
+        format: "workbook",
+        sheets: [...readExcel(bytes, excel).sheets],
+      };
     } catch {
       return { ok: false, reason: "unreadable" };
     }
@@ -169,7 +177,7 @@ export async function readSourceFile(
 /** What to tell a customer about a refused file: the reason, and what to do instead. */
 export const SOURCE_REFUSAL_MESSAGES: Record<SourceRefusal, string> = {
   image:
-    "This is a photo or scan, which can't be read in your browser. Export the report from your accounting software as Excel, CSV or PDF instead.",
+    "This is a photo or scan, which has no text that can be read. Export the report from your accounting software as Excel, CSV or PDF instead.",
   document:
     "This is a document rather than a report export. Export the report from your accounting software as Excel, CSV or PDF instead.",
   scanned_pdf:
@@ -179,3 +187,38 @@ export const SOURCE_REFUSAL_MESSAGES: Record<SourceRefusal, string> = {
   unreadable:
     "This file couldn't be read. Check that it opens on your computer, or export it again as Excel, CSV or PDF.",
 };
+
+/**
+ * What the upload step shows before payment: sheet and row counts, or a refusal (ADR 0032).
+ * Workbooks are counted without building cells; everything else is small enough to read.
+ */
+export async function countSourceFile(
+  name: string,
+  bytes: Uint8Array,
+  limits: ZipLimits,
+): Promise<
+  | { readonly ok: true; readonly sheets: number; readonly rows: number }
+  | { readonly ok: false; readonly reason: SourceRefusal }
+> {
+  const format = sniffFormat(name, bytes);
+  if (format === "workbook" || format === "legacy_workbook") {
+    if (format === "workbook" && !inspectZip(bytes, limits).ok)
+      return { ok: false, reason: "unsafe_workbook" };
+    try {
+      const counted =
+        (format === "workbook" ? countXlsx(bytes) : null) ?? countExcel(bytes);
+      return counted.rows === 0
+        ? { ok: false, reason: "empty" }
+        : { ok: true, ...counted };
+    } catch {
+      // Fall through to the full reader, which has its own recovery.
+    }
+  }
+  const read = await readSourceFile(name, bytes, limits, { lite: true });
+  if (!read.ok) return read;
+  const rows = read.sheets.reduce(
+    (n, g) => n + g.rows.filter((r) => !isBlankRow(r)).length,
+    0,
+  );
+  return { ok: true, sheets: read.sheets.length, rows };
+}

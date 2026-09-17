@@ -120,7 +120,7 @@ export async function runChatQuery(
   if (!guard.ok)
     return {
       status: "error",
-      reason: `the query was refused in the browser: ${guard.reason}`,
+      reason: `the query was refused before it ran: ${guard.reason}`,
     };
   let timer: ReturnType<typeof setTimeout> | undefined;
   let rows: Record<string, unknown>[];

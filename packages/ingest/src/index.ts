@@ -9,5 +9,6 @@ export * from "./loader";
 export * from "./pdf";
 export * from "./profile";
 export * from "./source";
+export * from "./xlsx-count";
 export * from "./zip";
 export * from "./reference-layout";

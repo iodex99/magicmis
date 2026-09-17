@@ -178,3 +178,45 @@ describe("rebuilding a table from positioned text", () => {
     ]);
   });
 });
+
+describe("counting before payment (ADR 0032)", () => {
+  it("counts sheets and non-blank rows the same way the full reader does", async () => {
+    const { countSourceFile, sheetsToXlsx } = await import("../src");
+    const { gridFromText } = await import("../src/grid");
+    const workbook = sheetsToXlsx([
+      gridFromText("TB", [
+        ["Particulars", "Debit"],
+        ["Cash", "10"],
+        ["", ""],
+        ["Capital", "5"],
+      ]),
+      gridFromText("Notes", [["hello"]]),
+    ]);
+    expect(await countSourceFile("tb.xlsx", workbook, LIMITS)).toEqual({
+      ok: true,
+      sheets: 2,
+      rows: 4,
+    });
+    expect(await countSourceFile("tb.csv", enc("a,b\n1,2\n\n3,4\n"), LIMITS)).toEqual({
+      ok: true,
+      sheets: 1,
+      rows: 3,
+    });
+    expect(
+      await countSourceFile("x.png", new Uint8Array([0x89, 0x50, 0x4e, 0x47]), LIMITS),
+    ).toEqual({ ok: false, reason: "image" });
+  });
+});
+
+describe("counting worksheet rows from XML (ADR 0032)", () => {
+  it("counts rows holding a value or inline string, and skips empty ones", async () => {
+    const { countWorksheetRows } = await import("../src");
+    const xml =
+      '<sheetData><row r="1"><c r="A1" t="s"><v>0</v></c></row>' +
+      '<row r="2" spans="1:2"/>' +
+      '<row r="3"><c r="A3" s="1"/></row>' +
+      '<row r="4"><c r="A4" t="inlineStr"><is><t>Cash</t></is></c></row>' +
+      '<row r="5"><c r="B5"><v>12.5</v></c></row></sheetData>';
+    expect(countWorksheetRows(xml)).toBe(3);
+  });
+});
