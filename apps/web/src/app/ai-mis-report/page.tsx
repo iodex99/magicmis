@@ -73,7 +73,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does it work with my accounting system?",
     answer:
-      "It works from exports rather than a live connection, so any system that can export a trial balance to Excel or CSV can be used. Tally exports are recognised in detail, including their group structure.",
+      "It works from exports rather than a live connection, so any system that can export a trial balance — to Excel, CSV, PDF or plain text — can be used. Tally exports are recognised in detail, including their group structure.",
   },
 ];
 

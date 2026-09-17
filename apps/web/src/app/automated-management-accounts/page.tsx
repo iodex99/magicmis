@@ -63,7 +63,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Which accounting software does it work with?",
     answer:
-      "Any system that can export a trial balance to Excel or CSV. It works from exports rather than a live connection, so there is nothing to install and no access to grant to your accounting system.",
+      "Any system that can export a trial balance, as Excel, CSV, PDF or plain text. It works from exports rather than a live connection, so there is nothing to install and no access to grant to your accounting system.",
   },
   {
     question: "Can I set my financial year and date format?",

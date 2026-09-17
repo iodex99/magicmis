@@ -31,7 +31,7 @@ const STEPS = [
   {
     icon: "upload",
     title: "Export the trial balance",
-    body: "From your accounting system, to Excel or CSV. Add the open invoices and open bills reports if you want A/R and A/P aging.",
+    body: "From your accounting system, as Excel, CSV or PDF. Add the open invoices and open bills reports if you want A/R and A/P aging.",
   },
   {
     icon: "sliders",

@@ -43,7 +43,7 @@ const STEPS = [
   {
     icon: "download",
     title: "Take the trial balance as numbers, not a picture",
-    body: "Export it to Excel or CSV with ledger names, their groups and closing balances. A PDF has to be re-keyed, and re-keying is where most errors in a monthly report are born.",
+    body: "Export it with ledger names, their groups and closing balances — Excel or CSV where you can, because a spreadsheet keeps figures as numbers. Re-keying from a printout is where most errors in a monthly report are born.",
   },
   {
     icon: "check",

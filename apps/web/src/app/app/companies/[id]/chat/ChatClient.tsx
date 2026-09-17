@@ -19,6 +19,7 @@ import {
 } from "@magicmis/render-dashboard";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { FileDropZone } from "@/components/FileDropZone";
 import { ProcessingNotice } from "@/components/ProcessingNotice";
 import { LineagePanel } from "@/components/LineagePanel";
 import { Alert, Button, Panel } from "@/components/ui";
@@ -209,8 +210,8 @@ export function ChatClient({
       .then(setNames);
   }, [thread, session]);
 
-  const loadFiles = async (list: FileList | null) => {
-    if (list === null || list.length === 0) return;
+  const loadFiles = async (list: File[]) => {
+    if (list.length === 0) return;
     setError(null);
     setBusy("Reading files in your browser…");
     try {
@@ -224,8 +225,10 @@ export function ChatClient({
         throw new Error(s.ok ? "Could not load limits." : s.message);
       const pipeline = pipelineClient();
       await pipeline.start(s.data, config.data.limits);
-      const added = await pipeline.addFiles([...list]);
+      const added = await pipeline.addFiles(list);
       if (added.refused !== null) throw new Error("These files could not be loaded.");
+      if (added.added.length === 0)
+        throw new Error(added.skipped[0]?.message ?? "These files could not be loaded.");
       const tables = await pipeline.chatStart();
       setSession({ loaded: true, balances: tables.balances });
     } catch (e) {
@@ -526,19 +529,18 @@ export function ChatClient({
                   </p>
                 ) : (
                   <ProcessingNotice>
-                    <label className="flex flex-col gap-1">
-                      <span>
-                        Deep answers query this company's files, which must be loaded in
-                        this browser. They are not uploaded.
-                      </span>
-                      <input
-                        type="file"
-                        multiple
-                        accept=".xlsx,.xlsm,.xls,.csv"
-                        aria-label="Load files for Deep answers"
-                        onChange={(e) => void loadFiles(e.target.files)}
-                      />
-                    </label>
+                    <p className="mb-2">
+                      Deep answers query this company's files, which must be loaded in
+                      this browser. They are not uploaded.
+                    </p>
+                    <FileDropZone
+                      compact
+                      title="Drag this company's exports here"
+                      hint="Any format: Excel, CSV, PDF, text or HTML."
+                      inputLabel="Load files for Deep answers"
+                      busy={busy !== null}
+                      onFiles={loadFiles}
+                    />
                   </ProcessingNotice>
                 )}
               </div>

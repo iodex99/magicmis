@@ -49,15 +49,21 @@ compare two different entities.
   columns in payroll/HR by header heuristic · any column the user marks sensitive ·
   **party ledgers** under Sundry Debtors/Creditors → `PARTY_*` (their group already
   determines the MIS head, so the name is never needed for mapping).
-- Ship the **payload inspector**: a developer-mode panel showing the exact JSON that
-  would be sent for the current action.
+- The developer-mode payload inspector (SPEC §17) was **removed by the owner** (ADR 0031).
+  What leaves the browser is enforced by `buildOutboundSheet` and
+  `assertNoRawIdentifiers`, not by a viewer — keep every outbound payload on that builder.
 - Tests: positive *and* negative cases per detector, including false positives such as
   invoice numbers and amounts.
 
 ## Parsing (SPEC §15)
 - **Header-based parsing only. Never rely on column positions.** Score candidate header
   rows on text density, uniqueness, type contrast with rows below, and known header
-  vocabulary. Support multi-row headers by concatenating levels.
+  vocabulary. Support multi-row headers by concatenating levels. Where headings name no
+  role, a column's **content** may decide it (ADR 0031: text column = ledger, one-sided
+  amount pair = debit/credit) — and a sheet is a trial balance on content alone only if it
+  nets to zero. PDF positions only rebuild the table; header detection still reads it.
+- **Any file type** (ADR 0031): decide the format from the bytes (`readSourceFile`), never
+  the extension; refuse only what cannot be read in the browser, always with a reason.
 - All parsing runs in **Web Workers** (Comlink). The main thread never blocks.
 - SheetJS reads **cached cell values — never evaluate formulas** — plus formatted text
   for type inference. `.xlsm` macros are never executed.

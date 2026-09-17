@@ -22,7 +22,12 @@ details are collected at the first purchase, migration 0034); the confirmation e
 establishes the session and lands in the app; **customers sign in with a password alone**
 (ADR 0028 — the admin console still requires TOTP, and `app.current_account_id()` now gates
 on the active session alone, migration 0036); the run screen prices itself and its
-single button **is** the SPEC §12 confirmation. Changing `supabase/templates/` needs
+single button **is** the SPEC §12 confirmation; **a run gets the customer to a workbook**
+(ADR 0031) — any file format is read in the browser (text PDFs included) or refused with a
+reason, unplaceable sheets are set aside rather than failing the job, AI classification is
+called only when no balances were found, a missing month is asked for, an AI stage that
+cannot run never fails the job, and data-fault checks deliver the workbook with warnings
+(`deliverWithWarnings`) while platform faults still block. Changing `supabase/templates/` needs
 `docker restart supabase_auth_magicmis` to take effect locally.
 
 CI runs E2E against a **clean** Supabase stack, which catches what a long-lived local one

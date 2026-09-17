@@ -15,7 +15,7 @@ The ledger balances every MIS is built from. Needed for company setup and every 
 
 ## Export
 
-- Export to Excel (.xlsx). CSV also works.
+- Export to Excel (.xlsx) where you can; CSV, PDF, text and HTML exports also work.
 - Export the report as shown; do not edit, re-sort or delete rows afterwards.
 - One report per file is simplest; a workbook with several sheets is also read.
 
@@ -27,5 +27,5 @@ The ledger balances every MIS is built from. Needed for company setup and every 
 
 ## If a file is refused
 
-- Only .xlsx, .xlsm, .xls and .csv files are accepted. Macros are never run.
+- Any export format is accepted and read in your browser; photos and scans are not, because they have no text to read. Macros are never run.
 - Very large files: split the period into smaller exports.

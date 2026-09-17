@@ -102,7 +102,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Which accounting systems does it work with?",
     answer:
-      "No. There is no connector and nothing to install. You export a trial balance from your accounting system as you would anyway — Tally, Xero, QuickBooks, Sage, Zoho Books or anything else that writes Excel or CSV — and load the file in your browser. Columns are read by their headers, never by position.",
+      "No. There is no connector and nothing to install. You export a trial balance from your accounting system as you would anyway — Tally, Xero, QuickBooks, Sage, Zoho Books or anything else that exports Excel, CSV or PDF — and load the file in your browser. Columns are read by their headers, never by position.",
   },
   {
     question: "Can several people in my firm use one account?",

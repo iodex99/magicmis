@@ -4,6 +4,11 @@
  * Setup and refresh flow (SPEC §23). Files stay in the pipeline worker. Before the price is
  * confirmed the page shows only file names, sizes, sheet and row counts (SPEC §2.3); recognition,
  * mappings, checks and the workbook appear only once credits are held.
+ *
+ * Built to get the customer to a workbook (ADR 0031): sheets nothing can place are set aside, AI
+ * is asked only when no balances were found, a missing month is asked for, an analysis that
+ * cannot run falls back rather than failing, and data problems arrive as warnings on a delivered
+ * report instead of a refusal.
  */
 
 import type { ReviewRow } from "@magicmis/semantic";
@@ -11,6 +16,7 @@ import type { RowBinding } from "@magicmis/templates";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BuyCreditsInline } from "@/components/BuyCreditsInline";
+import { FileDropZone } from "@/components/FileDropZone";
 import { Icon } from "@/components/Icon";
 import { MappingReview } from "@/components/MappingReview";
 import { ProcessingNotice } from "@/components/ProcessingNotice";
@@ -59,6 +65,12 @@ type Phase =
   | { kind: "files" }
   | { kind: "running"; jobId: string; step: string }
   | {
+      kind: "period";
+      jobId: string;
+      sheets: readonly { key: string; fileName: string; sheet: string }[];
+      suggested: string;
+    }
+  | {
       kind: "review";
       jobId: string;
       rows: readonly ReviewRow[];
@@ -91,12 +103,24 @@ type Phase =
     };
 
 const REFUSALS: Record<string, string> = {
-  unsupported_type: "Only .xlsx, .xlsm, .xls and .csv files are accepted.",
   file_too_large: "A file is larger than the per-file limit.",
   session_too_large: "These files together exceed the session limit.",
   too_many_files: "Too many files for one job.",
   unsafe_workbook: "A workbook's contents are too large or malformed to open safely.",
+  image:
+    "That's a photo or scan, which can't be read in your browser. Use an Excel, CSV or PDF export instead.",
+  document:
+    "That's a document rather than a report. Use an Excel, CSV or PDF export instead.",
+  scanned_pdf:
+    "That PDF is a scanned image with no text in it. Use an Excel, CSV or PDF export instead.",
+  empty: "That file has no data in it.",
+  unreadable: "That file couldn't be read. Try exporting it again as Excel, CSV or PDF.",
+  unreadable_reference:
+    "That MIS workbook's layout couldn't be read. You can run without it.",
 };
+
+const NOTHING_USABLE =
+  "We couldn't find account balances in these files. Add a trial balance exported from your accounting software (Excel, CSV or PDF all work) and run it again.";
 
 export function JobRunner({
   companyId,
@@ -114,6 +138,14 @@ export function JobRunner({
   const [delivery, setDelivery] = useState<Delivery>("instant");
   const [phase, setPhase] = useState<Phase>({ kind: "files" });
   const [error, setError] = useState<string | null>(null);
+  // Files that could not be read, each with what to do instead; the rest still count.
+  const [skipped, setSkipped] = useState<readonly { name: string; message: string }[]>(
+    [],
+  );
+  // Things that went differently from plan inside a run, told plainly rather than as failures.
+  const [notices, setNotices] = useState<readonly string[]>([]);
+  const [reading, setReading] = useState(false);
+  const [readingReference, setReadingReference] = useState(false);
   const [ready, setReady] = useState(false);
   const [currencySymbol, setCurrencySymbol] = useState<string | undefined>(undefined);
   const heartbeat = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -178,27 +210,42 @@ export function JobRunner({
     setPhase({ kind: "running", jobId, step: to });
   };
 
-  const onReference = async (list: FileList | null) => {
-    const file = list?.[0];
+  const onReference = async (list: File[]) => {
+    const file = list[0];
     if (file === undefined) return;
     setError(null);
+    setReadingReference(true);
     const r = await pipelineClient().addReference(file);
+    setReadingReference(false);
     if (r.summary === null)
-      setError(
-        r.refused === "unsupported_type"
-          ? "The reference MIS must be an .xlsx or .xlsm workbook."
-          : (REFUSALS[r.refused ?? ""] ?? "The reference MIS could not be read."),
-      );
+      setError(REFUSALS[r.refused ?? ""] ?? "The reference MIS could not be read.");
     setReference(r.summary);
   };
 
-  const onFiles = async (list: FileList | null) => {
-    if (list === null || list.length === 0) return;
+  const onFiles = async (list: File[]) => {
+    if (list.length === 0) return;
     setError(null);
-    const r = await pipelineClient().addFiles([...list]);
-    if (r.refused !== null)
-      setError(REFUSALS[r.refused] ?? "These files could not be added.");
-    setFiles((f) => [...f, ...r.added]);
+    setReading(true);
+    try {
+      const r = await pipelineClient().addFiles(list);
+      if (r.refused !== null)
+        setError(REFUSALS[r.refused] ?? "These files could not be added.");
+      setSkipped((prev) => [
+        ...prev.filter((p) => !list.some((f) => f.name === p.name)),
+        ...r.skipped,
+      ]);
+      setFiles((f) => [...f, ...r.added]);
+    } catch {
+      setError(
+        "These files couldn't be read. Try exporting them again as Excel, CSV or PDF.",
+      );
+    } finally {
+      setReading(false);
+    }
+  };
+
+  const notice = (text: string) => {
+    setNotices((n) => (n.includes(text) ? n : [...n, text]));
   };
 
   const jobType =
@@ -215,7 +262,17 @@ export function JobRunner({
     // Read through a call so each check is a fresh read, not a narrowed constant.
     const cancelled = () => state.cancelled;
     void (async () => {
-      const inputs = await pipelineClient().pricingInputs();
+      let inputs;
+      try {
+        inputs = await pipelineClient().pricingInputs();
+      } catch {
+        // Never leave "Reading your files…" spinning on a file that broke the reader.
+        if (!cancelled())
+          setError(
+            "These files couldn't be read together. Remove the last file you added, or export it again as Excel, CSV or PDF.",
+          );
+        return;
+      }
       if (cancelled()) return;
       const signature = JSON.stringify([
         jobType,
@@ -355,81 +412,11 @@ export function JobRunner({
       () => void api(`/api/jobs/${job.jobId}/heartbeat`, { body: {} }),
       60_000,
     );
-    const pipeline = pipelineClient();
     try {
       await advance(job.jobId, "preflight");
       await advance(job.jobId, "profiling");
       await advance(job.jobId, "classifying");
-      if ((await pipeline.unrecognisedSheets()) > 0) {
-        await fail(
-          job.jobId,
-          null,
-          "Some sheets could not be recognised. A trial balance with ledger names and closing balances is the one that is always needed.",
-        );
-        return;
-      }
-      await advance(job.jobId, "mapping");
-      let mapped = await pipeline.map();
-      if (mapped.unmatched.length > 0) {
-        const ai = await api<{
-          output: {
-            mappings: {
-              ref: string;
-              head: string | null;
-              confidence: "high" | "medium" | "low";
-            }[];
-          };
-        }>(`/api/jobs/${job.jobId}/ai/ledger_mapping`, {
-          body: { ledgers: mapped.unmatched },
-        });
-        if (!ai.ok) {
-          setPhase({
-            kind: "failed",
-            jobId: job.jobId,
-            message: ai.message,
-            checks: [],
-            captured: "0",
-          });
-          return;
-        }
-        mapped = await pipeline.applyAi(ai.data.output.mappings);
-      }
-      let references: readonly ReferenceReviewRow[] | null = null;
-      if (reference !== null) {
-        const layout = await pipeline.referenceLayout();
-        const bound = await api<{ bindings: RowBinding[] }>(
-          `/api/jobs/${job.jobId}/ai/reference_layout`,
-          { body: { layout } },
-        );
-        if (!bound.ok) {
-          setPhase({
-            kind: "failed",
-            jobId: job.jobId,
-            message: bound.message,
-            checks: [],
-            captured: "0",
-          });
-          return;
-        }
-        references = await pipeline.referenceReview(bound.data.bindings);
-      }
-      if (mapped.reviewRows.length === 0 && references === null) {
-        // SPEC §19: nothing new or changed on refresh — review is skipped.
-        await finish(job.jobId, [], false);
-        return;
-      }
-      await advance(job.jobId, "awaiting_review");
-      if (mapped.reviewRows.length === 0 && references !== null) {
-        setPhase({
-          kind: "bindings",
-          jobId: job.jobId,
-          rows: references,
-          confirmed: [],
-          unmappedAccepted: false,
-        });
-        return;
-      }
-      setPhase({ kind: "review", jobId: job.jobId, rows: mapped.reviewRows, references });
+      await recognise(job.jobId);
     } catch (e) {
       await fail(
         job.jobId,
@@ -437,6 +424,133 @@ export function JobRunner({
         e instanceof Error ? e.message : "The job stopped unexpectedly.",
       );
     }
+  };
+
+  /**
+   * What the files contain. Unplaceable sheets are ignored while there are balances to work
+   * with; only when there are none does AI look at them. A sheet with no month anywhere is
+   * asked about instead of silently left out.
+   */
+  const recognise = async (jobId: string): Promise<void> => {
+    const pipeline = pipelineClient();
+    let seen = await pipeline.recognition();
+    if (!seen.hasBalances && seen.unrecognised > 0) {
+      const input = await pipeline.classificationInput();
+      if (input !== null) {
+        const ai = await api<{
+          output: {
+            sheets: {
+              ref: string;
+              report_type: Parameters<
+                typeof pipeline.applyClassification
+              >[0][number]["report_type"];
+              confidence: "high" | "medium" | "low";
+              reason: string;
+            }[];
+          };
+        }>(`/api/jobs/${jobId}/ai/sheet_classification`, { body: input });
+        if (ai.ok) {
+          await pipeline.applyClassification(ai.data.output.sheets);
+          seen = await pipeline.recognition();
+        }
+      }
+    }
+    if (seen.needsPeriod.length > 0) {
+      setPhase({
+        kind: "period",
+        jobId,
+        sheets: seen.needsPeriod,
+        suggested: seen.suggestedPeriod,
+      });
+      return;
+    }
+    if (!seen.usable) {
+      await fail(jobId, null, NOTHING_USABLE);
+      return;
+    }
+    if (seen.unrecognised > 0)
+      notice(
+        `${seen.unrecognised.toString()} ${seen.unrecognised === 1 ? "sheet was" : "sheets were"} not needed for the MIS and ${seen.unrecognised === 1 ? "was" : "were"} left out.`,
+      );
+    await mapAndReview(jobId);
+  };
+
+  const mapAndReview = async (jobId: string): Promise<void> => {
+    const pipeline = pipelineClient();
+    await advance(jobId, "mapping");
+    let mapped = await pipeline.map();
+    if (mapped.unmatched.length > 0) {
+      const ai = await api<{
+        output: {
+          mappings: {
+            ref: string;
+            head: string | null;
+            confidence: "high" | "medium" | "low";
+          }[];
+        };
+      }>(`/api/jobs/${jobId}/ai/ledger_mapping`, {
+        body: { ledgers: mapped.unmatched },
+      });
+      if (!ai.ok && ai.error === "needs_quote") {
+        setPhase({
+          kind: "failed",
+          jobId,
+          message: ai.message,
+          checks: [],
+          captured: "0",
+        });
+        return;
+      }
+      // Without AI suggestions the unmatched ledgers simply come to review for a choice.
+      if (!ai.ok)
+        notice(
+          "A few ledgers couldn't be matched automatically. Pick a line for them below.",
+        );
+      mapped = await pipeline.applyAi(ai.ok ? ai.data.output.mappings : []);
+    }
+    let references: readonly ReferenceReviewRow[] | null = null;
+    if (reference !== null) {
+      const layout = await pipeline.referenceLayout();
+      const bound = await api<{ bindings: RowBinding[] }>(
+        `/api/jobs/${jobId}/ai/reference_layout`,
+        { body: { layout } },
+      );
+      if (!bound.ok && bound.error === "needs_quote") {
+        setPhase({
+          kind: "failed",
+          jobId,
+          message: bound.message,
+          checks: [],
+          captured: "0",
+        });
+        return;
+      }
+      if (bound.ok) {
+        references = await pipeline.referenceReview(bound.data.bindings);
+      } else {
+        await pipeline.dropReference();
+        notice(
+          "Your MIS layout couldn't be read this time, so the standard layout is used.",
+        );
+      }
+    }
+    if (mapped.reviewRows.length === 0 && references === null) {
+      // SPEC §19: nothing new or changed on refresh — review is skipped.
+      await finish(jobId, [], false);
+      return;
+    }
+    await advance(jobId, "awaiting_review");
+    if (mapped.reviewRows.length === 0 && references !== null) {
+      setPhase({
+        kind: "bindings",
+        jobId,
+        rows: references,
+        confirmed: [],
+        unmappedAccepted: false,
+      });
+      return;
+    }
+    setPhase({ kind: "review", jobId, rows: mapped.reviewRows, references });
   };
 
   const busy = phase.kind === "running" || starting;
@@ -456,6 +570,38 @@ export function JobRunner({
       <Steps current={step} />
 
       {error === null ? null : <Alert tone="error">{error}</Alert>}
+      {notices.length === 0 || phase.kind === "files" ? null : (
+        <div data-testid="job-notices">
+          <Alert tone="info">
+            <ul className="flex flex-col gap-1">
+              {notices.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+          </Alert>
+        </div>
+      )}
+
+      {phase.kind === "period" ? (
+        <PeriodQuestion
+          sheets={phase.sheets}
+          suggested={phase.suggested}
+          onAnswer={(periods) => {
+            const jobId = phase.jobId;
+            setPhase({ kind: "running", jobId, step: "classifying" });
+            void pipelineClient()
+              .setPeriods(periods)
+              .then(() => recognise(jobId))
+              .catch((e: unknown) =>
+                fail(
+                  jobId,
+                  null,
+                  e instanceof Error ? e.message : "The job stopped unexpectedly.",
+                ),
+              );
+          }}
+        />
+      ) : null}
 
       {phase.kind === "files" ? (
         <ProcessingNotice>
@@ -471,20 +617,32 @@ export function JobRunner({
                   : "Include the new month. Files are read in your browser and never uploaded."
               }
             >
-              <div className="rounded-xl border-2 border-dashed border-neutral-200 bg-neutral-25 px-5 py-6 text-center">
-                <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-accent-50 text-accent-600">
-                  <Icon name="upload" size={20} />
-                </span>
-                <input
-                  type="file"
-                  multiple
-                  accept=".xlsx,.xlsm,.xls,.csv"
-                  aria-label="Choose files"
-                  disabled={!ready || busy}
-                  onChange={(e) => void onFiles(e.target.files)}
-                  className="mt-3 text-[0.8125rem] text-neutral-600 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-accent-600 file:px-3.5 file:py-2 file:text-[0.8125rem] file:font-medium file:text-white hover:file:bg-accent-700"
-                />
-              </div>
+              <FileDropZone
+                title={
+                  mode === "setup"
+                    ? "Drag your trial balances here"
+                    : "Drag this month's trial balance here"
+                }
+                hint="Any format from any accounting software: Excel, CSV, PDF, text or HTML exports. Extra sheets are fine."
+                inputLabel="Choose files"
+                disabled={!ready || busy}
+                busy={reading}
+                onFiles={onFiles}
+                testId="job-drop"
+              />
+              {skipped.length === 0 ? null : (
+                <div className="mt-4" data-testid="job-skipped">
+                  <Alert tone="warning" title="Some files couldn't be used">
+                    <ul className="mt-1 flex flex-col gap-1">
+                      {skipped.map((x) => (
+                        <li key={x.name}>
+                          <span className="font-medium">{x.name}</span>: {x.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </Alert>
+                </div>
+              )}
               {files.length === 0 ? null : (
                 <div className="mt-4">
                   <DataTable
@@ -514,7 +672,7 @@ export function JobRunner({
               )}
               {mode === "setup" ? (
                 <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-25 p-4">
-                  <label className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-1.5">
                     <span className="text-[0.8125rem] font-medium text-neutral-800">
                       Your current MIS workbook (optional)
                     </span>
@@ -522,15 +680,19 @@ export function JobRunner({
                       We recreate its layout. Only the layout is read; every figure comes
                       from your trial balances.
                     </span>
-                    <input
-                      type="file"
-                      accept=".xlsx,.xlsm"
-                      aria-label="Choose reference MIS"
+                  </div>
+                  <div className="mt-3">
+                    <FileDropZone
+                      compact
+                      multiple={false}
+                      title="Drag your current MIS here"
+                      hint="Any spreadsheet or PDF of it."
+                      inputLabel="Choose reference MIS"
                       disabled={!ready || busy}
-                      onChange={(e) => void onReference(e.target.files)}
-                      className="mt-1.5 text-[0.8125rem] text-neutral-600 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-neutral-200 file:bg-white file:px-3 file:py-1.5 file:text-[0.8125rem] file:font-medium file:text-neutral-800"
+                      busy={readingReference}
+                      onFiles={onReference}
                     />
-                  </label>
+                  </div>
                   {reference === null ? null : (
                     <p
                       className="mt-2 flex items-center gap-1.5 text-[0.8125rem] text-neutral-700"
@@ -796,7 +958,10 @@ export function JobRunner({
                   <span data-testid="job-done">
                     {formatCredits(phase.captured)} credits charged
                   </span>
-                  . Every figure was checked against its source.
+                  .{" "}
+                  {warningsOf(phase.result.checks).length === 0
+                    ? "Every figure was checked against its source."
+                    : "Every figure traces to its source; a few things in the data are worth a look."}
                 </p>
               </div>
             </div>
@@ -811,6 +976,30 @@ export function JobRunner({
               </a>
             )}
           </div>
+          {warningsOf(phase.result.checks).length === 0 ? null : (
+            <div className="px-5 pt-4" data-testid="job-warnings">
+              <Alert
+                tone="warning"
+                title={`${warningsOf(phase.result.checks).length.toString()} ${
+                  warningsOf(phase.result.checks).length === 1 ? "thing" : "things"
+                } to check in your data`}
+              >
+                <ul className="mt-1 flex flex-col gap-1.5">
+                  {warningsOf(phase.result.checks).map((c) => (
+                    <li key={c.id}>
+                      {c.message}
+                      {c.fix === "" ? null : (
+                        <span className="block text-[0.75rem] opacity-80">{c.fix}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-[0.75rem]">
+                  The workbook is complete and these are listed on its checks sheet too.
+                </p>
+              </Alert>
+            </div>
+          )}
           <ChecksTable checks={phase.result.checks} />
         </Panel>
       ) : null}
@@ -829,6 +1018,73 @@ export function JobRunner({
         </Panel>
       ) : null}
     </div>
+  );
+}
+
+const warningsOf = (checks: ComputeResult["checks"]) =>
+  checks.filter((c) => c.status === "fail" && c.severity === "warning");
+
+/**
+ * The one question a run may need to ask: which month a sheet is for, when nothing in the
+ * file, its title, its sheet name or its file name says. Pre-filled with the likeliest month.
+ */
+function PeriodQuestion({
+  sheets,
+  suggested,
+  onAnswer,
+}: {
+  sheets: readonly { key: string; fileName: string; sheet: string }[];
+  suggested: string;
+  onAnswer: (periods: Record<string, string>) => void;
+}) {
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    Object.fromEntries(sheets.map((s) => [s.key, suggested])),
+  );
+  const complete = sheets.every((s) => /^\d{4}-\d{2}$/u.test(values[s.key] ?? ""));
+  return (
+    <Panel
+      title="Which month are these for?"
+      icon="calendar"
+      description="These files don't say which month they cover. Pick the month and the run carries on."
+    >
+      <div className="flex flex-col gap-3" data-testid="job-period">
+        {sheets.map((s) => (
+          <label
+            key={s.key}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-neutral-25 px-4 py-3"
+          >
+            <span className="text-[0.8125rem] text-neutral-800">
+              <span className="font-medium">{s.fileName}</span>
+              {s.sheet === "" ? null : (
+                <span className="text-neutral-500"> · {s.sheet}</span>
+              )}
+            </span>
+            <input
+              type="month"
+              required
+              aria-label={`Month for ${s.fileName}`}
+              value={values[s.key] ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                setValues((prev) => ({ ...prev, [s.key]: v }));
+              }}
+              className="h-9 rounded-md border border-neutral-200 bg-white px-2 text-[0.8125rem]"
+            />
+          </label>
+        ))}
+        <div>
+          <Button
+            icon="check"
+            disabled={!complete}
+            onClick={() => {
+              onAnswer(values);
+            }}
+          >
+            Continue
+          </Button>
+        </div>
+      </div>
+    </Panel>
   );
 }
 

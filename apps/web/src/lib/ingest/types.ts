@@ -28,7 +28,6 @@ export interface IngestApi {
   configure(
     limits: IngestLimits,
     caps: { sampleRowsPerSheet: number; distinctValuesPerColumn: number },
-    developerMode: boolean,
     /**
      * How this company's exports write ambiguous numeric dates (ADR 0030). Every date
      * column is checked against it as the file loads, and a contradiction refuses the
@@ -43,6 +42,4 @@ export interface IngestApi {
   ): Promise<FileSummary[]>;
   summaries(): Promise<FileSummary[]>;
   clear(): Promise<void>;
-  /** Developer mode only: the redacted JSON a paid action would send for one file. */
-  inspect(fileId: string): Promise<string>;
 }

@@ -8,16 +8,15 @@
 import "./pg-wasm-shim";
 
 import * as duckdb from "@duckdb/duckdb-wasm";
-import { addMonths, type PeriodId } from "@magicmis/core/time";
+import { addMonths, periodId, type PeriodId } from "@magicmis/core/time";
 import { gateOutcome } from "@magicmis/engine";
 import {
   checkFiles,
   extractReferenceLayout,
-  fileKind,
-  inspectZip,
-  readCsvGrid,
-  readExcel,
+  readSourceFile,
   redactReferenceLayout,
+  sheetsToXlsx,
+  SOURCE_REFUSAL_MESSAGES,
   type DuckConn,
   type IngestLimits,
 } from "@magicmis/ingest";
@@ -29,12 +28,14 @@ import {
   mapStep,
   nextRules,
   prepare,
+  sheetKey,
   validate,
   type MappingStep,
   type PipelineFile,
+  type PrepareGuidance,
   type Prepared,
 } from "@magicmis/pipeline";
-import { Redactor, TOKEN_PATTERN } from "@magicmis/redact";
+import { buildOutboundSheet, Redactor, TOKEN_PATTERN } from "@magicmis/redact";
 import {
   applyAiMappings,
   head,
@@ -54,6 +55,8 @@ import * as Comlink from "comlink";
 import type { JobSession } from "../server/companies";
 
 import type {
+  ClassifySheetsInput,
+  ClassifySheetsOutput,
   ComputeResult,
   MapResult,
   PipelineApi,
@@ -66,6 +69,14 @@ let limits: IngestLimits | null = null;
 let redactor: Redactor | null = null;
 const files: PipelineFile[] = [];
 let prepared: Prepared | null = null;
+/** What classification and the person running the job have added since files were read. */
+let guidance: { periods: Record<string, PeriodId>; classified: Record<string, string> } =
+  {
+    periods: {},
+    classified: {},
+  };
+/** Classification refs sent to the server, back to the sheets they stand for. */
+const classificationRefs = new Map<string, string>();
 let step: MappingStep | null = null;
 let mappings: Mapping[] = [];
 let duckPromise: Promise<{ db: duckdb.AsyncDuckDB; conn: DuckConn }> | null = null;
@@ -157,18 +168,33 @@ async function ensurePrepared(): Promise<Prepared> {
     files,
     need(redactor, "session"),
     need(session, "session").company.dateOrder,
+    guidance as PrepareGuidance,
   );
   return prepared;
 }
 
-const toMapResult = (s: MappingStep): MapResult => ({
-  reviewRows: s.reviewRows,
-  unmatched: s.unmatched.map((u) => ({
-    ref: u.ref,
-    name: u.name,
-    group_path: u.groupPath,
-  })),
+const zipLimitsOf = (l: IngestLimits) => ({
+  maxEntries: l.zip_max_entries,
+  maxUncompressedBytes: l.zip_max_uncompressed_bytes,
+  maxRatio: l.zip_max_ratio,
 });
+
+/**
+ * Ledger names bound for AI mapping pass through the redactor first. Party ledgers are
+ * already tokens; this catches identifiers inside other names (an email, a PAN, a phone
+ * number in "Loan — 98xxxxxxxx"), which exports from other systems do not group away.
+ */
+const toMapResult = async (s: MappingStep): Promise<MapResult> => {
+  const r = need(redactor, "session");
+  const unmatched = [];
+  for (const u of s.unmatched)
+    unmatched.push({
+      ref: u.ref,
+      name: await r.redactText(u.name),
+      group_path: await Promise.all(u.groupPath.map((g) => r.redactText(g))),
+    });
+  return { reviewRows: s.reviewRows, unmatched };
+};
 
 const api: PipelineApi = {
   async start(s, l) {
@@ -179,6 +205,8 @@ const api: PipelineApi = {
     prepared = null;
     step = null;
     mappings = [];
+    guidance = { periods: {}, classified: {} };
+    classificationRefs.clear();
   },
 
   async addFiles(input) {
@@ -190,29 +218,29 @@ const api: PipelineApi = {
       ],
       lim,
     );
-    if (!verdict.ok) return { added: [], refused: verdict.reason };
+    if (!verdict.ok) return { added: [], refused: verdict.reason, skipped: [] };
     const added: PipelineFileSummary[] = [];
+    const skipped: { name: string; message: string }[] = [];
     for (const file of input) {
       const bytes = new Uint8Array(await file.arrayBuffer());
-      const kind = fileKind(file.name);
-      if (kind === "xlsx" || kind === "xlsm") {
-        const zip = inspectZip(bytes, {
-          maxEntries: lim.zip_max_entries,
-          maxUncompressedBytes: lim.zip_max_uncompressed_bytes,
-          maxRatio: lim.zip_max_ratio,
-        });
-        if (!zip.ok) return { added, refused: "unsafe_workbook" };
+      // Any format: the file's own bytes decide what it is (ADR 0031). A file that cannot be
+      // read is listed with the reason and what to do; the others are still added.
+      const read = await readSourceFile(file.name, bytes, zipLimitsOf(lim));
+      if (!read.ok) {
+        skipped.push({ name: file.name, message: SOURCE_REFUSAL_MESSAGES[read.reason] });
+        continue;
       }
-      const sheets =
-        kind === "csv"
-          ? [readCsvGrid(bytes, file.name).grid]
-          : [...readExcel(bytes).sheets];
-      files.push({ fileId: crypto.randomUUID(), name: file.name, bytes });
+      files.push({
+        fileId: crypto.randomUUID(),
+        name: file.name,
+        bytes,
+        sheets: read.sheets,
+      });
       added.push({
         name: file.name,
         size: file.size,
-        sheets: sheets.length,
-        rows: sheets.reduce(
+        sheets: read.sheets.length,
+        rows: read.sheets.reduce(
           (n, g) =>
             n +
             g.rows.filter((r) => r.some((c) => c !== undefined && c.text.trim() !== ""))
@@ -222,28 +250,29 @@ const api: PipelineApi = {
       });
     }
     prepared = null;
-    return { added, refused: null };
+    return { added, refused: null, skipped };
   },
 
   async addReference(file) {
     const lim = need(limits, "limits");
-    const kind = fileKind(file.name);
-    if (kind !== "xlsx" && kind !== "xlsm")
-      return { summary: null, refused: "unsupported_type" };
     if (file.size > lim.max_file_bytes)
       return { summary: null, refused: "file_too_large" };
     const bytes = new Uint8Array(await file.arrayBuffer());
-    const zip = inspectZip(bytes, {
-      maxEntries: lim.zip_max_entries,
-      maxUncompressedBytes: lim.zip_max_uncompressed_bytes,
-      maxRatio: lim.zip_max_ratio,
-    });
-    if (!zip.ok) return { summary: null, refused: "unsafe_workbook" };
+    const read = await readSourceFile(file.name, bytes, zipLimitsOf(lim));
+    if (!read.ok) return { summary: null, refused: read.reason };
     let extracted;
     try {
-      extracted = await extractReferenceLayout(bytes);
+      // An .xlsx keeps its bold and indentation, which help read the layout; any other
+      // format is converted first and read from its text alone.
+      extracted = await extractReferenceLayout(
+        read.format === "workbook" ? bytes : sheetsToXlsx(read.sheets),
+      );
     } catch {
-      return { summary: null, refused: "unreadable_reference" };
+      try {
+        extracted = await extractReferenceLayout(sheetsToXlsx(read.sheets));
+      } catch {
+        return { summary: null, refused: "unreadable_reference" };
+      }
     }
     reference = { layout: extracted.layout, redacted: null };
     referenceTemplate = null;
@@ -318,8 +347,85 @@ const api: PipelineApi = {
     return Promise.resolve();
   },
 
-  async unrecognisedSheets() {
-    return (await ensurePrepared()).unrecognised.length;
+  async recognition() {
+    const s = need(session, "session");
+    const p = await ensurePrepared();
+    // A sensible month to offer for a sheet that names none: the one after the company's
+    // latest, else the latest loaded, else last calendar month.
+    const now = new Date();
+    const lastMonth = addMonths(
+      periodId(now.getUTCFullYear(), now.getUTCMonth() + 1),
+      -1,
+    );
+    const latestLoaded = p.periods.at(-1) ?? null;
+    const suggested =
+      s.memory.latestPeriod !== null
+        ? addMonths(s.memory.latestPeriod as PeriodId, 1)
+        : (latestLoaded ?? lastMonth);
+    return {
+      hasBalances: p.facts.length > 0,
+      usable: p.facts.length > 0 || p.bills.length > 0 || p.pay.length > 0,
+      unrecognised: p.unrecognised.length,
+      needsPeriod: p.needsPeriod.map((n) => ({
+        key: n.key,
+        fileName: n.fileName,
+        sheet: n.sheet,
+      })),
+      suggestedPeriod: suggested,
+    };
+  },
+
+  async classificationInput(): Promise<ClassifySheetsInput | null> {
+    const p = await ensurePrepared();
+    const r = need(redactor, "session");
+    classificationRefs.clear();
+    const cut = (t: string) => t.slice(0, 200);
+    const sheets: ClassifySheetsInput["sheets"][number][] = [];
+    for (const u of p.unrecognised.slice(0, 60)) {
+      const grid = files
+        .find((x) => x.fileId === u.fileId)
+        ?.sheets?.find((g) => g.name === u.sheet);
+      if (grid === undefined || u.profile.columns.length === 0) continue;
+      // The same builder every outbound payload uses: text redacted, title lines never sent.
+      const out = await buildOutboundSheet({
+        fileId: u.fileId,
+        grid,
+        profile: u.profile,
+        redactor: r,
+        caps: { sampleRowsPerSheet: 15, distinctValuesPerColumn: 0 },
+        sheetKind: "other",
+      });
+      const ref = `s${sheets.length.toString()}`;
+      classificationRefs.set(ref, sheetKey(u.fileId, u.sheet));
+      sheets.push({
+        ref,
+        name: cut(out.sheet),
+        titleLines: [],
+        headers: out.columns.slice(0, 80).map((c) => cut(c.header)),
+        types: out.columns.slice(0, 80).map((c) => c.type.slice(0, 20)),
+        samples: out.sample
+          .slice(0, 15)
+          .map((row) => row.slice(0, 80).map((v) => cut(v ?? ""))),
+      });
+    }
+    return sheets.length === 0 ? null : { sheets };
+  },
+
+  applyClassification(answers: ClassifySheetsOutput["sheets"]) {
+    for (const a of answers) {
+      const key = classificationRefs.get(a.ref);
+      if (key !== undefined) guidance.classified[key] = a.report_type;
+    }
+    prepared = null;
+    step = null;
+    return Promise.resolve();
+  },
+
+  setPeriods(periods) {
+    guidance.periods = { ...guidance.periods, ...(periods as Record<string, PeriodId>) };
+    prepared = null;
+    step = null;
+    return Promise.resolve();
   },
 
   async map() {
@@ -336,7 +442,7 @@ const api: PipelineApi = {
       displayName: display,
     });
     mappings = [...step.mappings];
-    return toMapResult(step);
+    return await toMapResult(step);
   },
 
   async applyAi(answers) {
@@ -541,6 +647,14 @@ const api: PipelineApi = {
     session = null;
     reference = null;
     referenceTemplate = null;
+    guidance = { periods: {}, classified: {} };
+    classificationRefs.clear();
+  },
+
+  dropReference() {
+    reference = null;
+    referenceTemplate = null;
+    return Promise.resolve();
   },
 };
 

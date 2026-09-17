@@ -4,10 +4,9 @@ import {
   classifySheetsInput,
   jobAiContext,
   mapLedgers,
-  RoutingError,
   runJobAiStage,
 } from "@magicmis/ai";
-import { failJob, loadStageOutput, saveStageOutput } from "@magicmis/jobs";
+import { loadStageOutput, saveStageOutput } from "@magicmis/jobs";
 import { aiHeadList } from "@magicmis/semantic";
 import { z } from "zod";
 
@@ -126,20 +125,9 @@ export async function POST(
       }
       return ok({ output: outcome.value.output, reused: false });
     } catch (error) {
-      if (
-        error instanceof RoutingError ||
-        (error instanceof Error && error.name === "AiStageError")
-      ) {
-        await failJob(pool, {
-          accountId: account.accountId,
-          jobId: id,
-          failureClass: "platform_fault",
-          code:
-            error instanceof RoutingError ? "analysis_unavailable" : "analysis_failed",
-          detail: "Analysis could not run. No credits were charged.",
-          reportedBy: "server",
-        });
-      }
+      // An analysis that cannot run no longer fails the job (ADR 0031). The browser carries on
+      // without it — unrecognised sheets are set aside, unmatched ledgers go to review, a
+      // reference layout falls back to the standard template — and the job settles as usual.
       return jobErrorResponse(error);
     }
   });

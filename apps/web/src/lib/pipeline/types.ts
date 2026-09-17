@@ -4,6 +4,10 @@
  * outputs cross only once the job is reserved.
  */
 
+import type { ClassifySheetsInput, ClassifySheetsOutput } from "@magicmis/ai";
+
+// Re-exported so the worker, which must not name @magicmis/ai, can use the stage shapes.
+export type { ClassifySheetsInput, ClassifySheetsOutput };
 import type { SizeDescriptors } from "@magicmis/ai/estimator";
 import type { CheckResult, SnapshotPayload } from "@magicmis/engine";
 import type { IngestLimits } from "@magicmis/ingest";
@@ -24,6 +28,20 @@ export interface PricingInputs {
   readonly size: SizeDescriptors;
   /** Sheet signature hashes, matched against the blueprint on the server. Not shown to the user. */
   readonly fingerprints: Readonly<Record<string, string>>;
+}
+
+/** What the loaded files turned out to contain. Crosses to the page only inside a paid job. */
+export interface Recognition {
+  /** At least one trial balance or group summary was read. */
+  readonly hasBalances: boolean;
+  /** Anything the report can be built from: balances, bills or a pay sheet. */
+  readonly usable: boolean;
+  /** Sheets set aside because nothing could place them. */
+  readonly unrecognised: number;
+  /** Sheets that were read but name no month anywhere. */
+  readonly needsPeriod: readonly { key: string; fileName: string; sheet: string }[];
+  /** The month to offer for those, as YYYY-MM. */
+  readonly suggestedPeriod: string;
 }
 
 export interface MapResult {
@@ -67,9 +85,15 @@ export interface ReferenceReviewRow {
 
 export interface PipelineApi {
   start(session: JobSession, limits: IngestLimits): Promise<void>;
-  addFiles(
-    files: File[],
-  ): Promise<{ added: PipelineFileSummary[]; refused: string | null }>;
+  /**
+   * Any file format (ADR 0031). `refused` is a limit that stops the whole batch; `skipped`
+   * lists single files that could not be read, each with a reason the customer can act on.
+   */
+  addFiles(files: File[]): Promise<{
+    added: PipelineFileSummary[];
+    refused: string | null;
+    skipped: { name: string; message: string }[];
+  }>;
   /** A reference MIS to recreate (SPEC §22): only its name, size and sheet count before payment. */
   addReference(
     file: File,
@@ -82,8 +106,15 @@ export interface PipelineApi {
   ): Promise<readonly ReferenceReviewRow[]>;
   /** The reviewed bindings become this job's template. */
   useReferenceBindings(bindings: readonly RowBinding[]): Promise<void>;
-  /** After reservation: redacted structures for sheets deterministic detection could not read. */
-  unrecognisedSheets(): Promise<number>;
+  /** After reservation: what was recognised, what was set aside, and what needs a month. */
+  recognition(): Promise<Recognition>;
+  /** After reservation: redacted profiles of set-aside sheets for AI classification, or null. */
+  classificationInput(): Promise<ClassifySheetsInput | null>;
+  applyClassification(answers: ClassifySheetsOutput["sheets"]): Promise<void>;
+  /** Months for sheets that name none, keyed as `Recognition.needsPeriod[].key`. */
+  setPeriods(periods: Readonly<Record<string, string>>): Promise<void>;
+  /** Carry on with the standard template when a reference layout could not be read. */
+  dropReference(): Promise<void>;
   map(): Promise<MapResult>;
   applyAi(
     answers: readonly { ref: string; head: string | null; confidence: Confidence }[],
