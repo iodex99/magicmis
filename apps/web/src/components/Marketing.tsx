@@ -36,6 +36,14 @@ export function MarketingHeader({
           {PRODUCT_NAME}
         </Link>
         <span className="mx-2 text-neutral-300">/</span>
+        {path.startsWith("/guides/") ? (
+          <>
+            <Link href="/guides" className="hover:text-neutral-900">
+              Guides
+            </Link>
+            <span className="mx-2 text-neutral-300">/</span>
+          </>
+        ) : null}
         <span className="text-neutral-700">{publicPage(path).title.split(":")[0]}</span>
       </nav>
       <p className="mt-6 text-[0.8125rem] font-medium tracking-wide text-accent-700 uppercase">

@@ -28,12 +28,24 @@ const FOOTER_GROUPS: readonly {
     ],
   },
   {
+    heading: "Solutions",
+    links: [
+      ["/ai-mis-report", "AI MIS reports"],
+      ["/mis-in-minutes", "MIS in minutes"],
+      ["/automated-management-accounts", "Automated management accounts"],
+      ["/monthly-financial-reporting", "Monthly financial reporting"],
+      ["/for-accountants", "For accountants"],
+    ],
+  },
+  {
     heading: "Guides",
     links: [
-      ["/management-accounts", "Management accounts"],
-      ["/for-accountants", "For accountants"],
       ["/mis-report-format", "MIS report format"],
-      ["/tally-mis-report", "MIS from Tally"],
+      ["/management-accounts", "Management accounts"],
+      ["/guides/mis-kpis-and-ratios", "KPIs and ratios"],
+      ["/guides/debtors-ageing-report", "Debtors ageing"],
+      ["/guides/mis-commentary", "Writing commentary"],
+      ["/guides", "All guides"],
     ],
   },
   {
@@ -103,7 +115,7 @@ export function PublicShell({
           every page. */}
       <footer className="border-t border-neutral-200/70 bg-white">
         <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <Link href="/" className="flex items-center gap-2.5">
                 <BrandMark size={26} />

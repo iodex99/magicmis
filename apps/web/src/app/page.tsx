@@ -70,10 +70,12 @@ const PROOF: readonly { icon: IconName; title: string; body: string; href: strin
 
 /** The guides, linked from here so a reader who arrived on one can find the rest. */
 const GUIDES = [
-  "/management-accounts",
-  "/for-accountants",
   "/mis-report-format",
-  "/tally-mis-report",
+  "/management-accounts",
+  "/guides/mis-kpis-and-ratios",
+  "/guides/trial-balance-to-management-report",
+  "/guides/mis-commentary",
+  "/ai-mis-report",
 ] as const;
 
 const FAQS: readonly Faq[] = [
@@ -286,6 +288,13 @@ export default function HomePage() {
               );
             })}
           </ul>
+          <Link
+            href="/guides"
+            className="mt-6 inline-flex items-center gap-1.5 text-[0.875rem] font-medium text-accent-700 hover:underline"
+          >
+            All guides
+            <Icon name="arrow-right" size={14} />
+          </Link>
         </div>
       </section>
 

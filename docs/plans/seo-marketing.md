@@ -78,3 +78,20 @@ New E2E coverage: every public page renders, is reachable on a phone user agent,
 canonical and a title, exposes valid JSON-LD, and shows no figure that is not labelled
 fictional. `sitemap.xml` and `robots.txt` are served. The existing CSP-violation watcher
 covers the new pages, and the secret scan (R-54) already walks every route in the sitemap.
+
+### 5. Solutions and guides (2026-09-17)
+
+Buyer searches get their own pages, each written in the searcher's words and making no claim
+the code does not enforce: `/ai-mis-report` ("MIS with AI", "AI MIS generator" — what AI
+does and, as plainly, what it does not), `/mis-in-minutes` ("automate MIS" — minutes for the
+refresh, and honest that the first month's mapping takes longer), `/automated-management-accounts`
+(UK and Commonwealth wording) and `/monthly-financial-reporting` (US wording).
+
+Practitioner questions go under `/guides`, with an index: KPIs and ratios with worked
+formulas, trial balance to management report, debtors ageing, commentary and variance
+analysis, and a month-end close checklist. The four guides written earlier keep their URLs;
+moving a page that ranks throws the ranking away. `GUIDE_PATHS` and `SOLUTION_PATHS` in
+`lib/seo.ts` order the index, and nested guides carry a Guides breadcrumb in both the page
+and its JSON-LD. Vendor-specific export guides (Xero, QuickBooks Online, Zoho Books) are
+deliberately not written until their menu paths are verified against each vendor's own
+documentation (SPEC §0.4).

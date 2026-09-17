@@ -88,6 +88,86 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     priority: 0.8,
   },
   {
+    path: "/ai-mis-report",
+    title: "AI MIS report generator: AI maps the ledgers, never writes the numbers",
+    description:
+      "MIS with AI, done safely: AI recognises your sheets, maps ledgers and drafts commentary, while every figure comes from a deterministic engine and traces back to a ledger.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+  },
+  {
+    path: "/mis-in-minutes",
+    title: "MIS in minutes: automate the monthly MIS report you rebuild by hand",
+    description:
+      "Confirm the ledger mapping once, then each month's MIS refreshes from the new trial balance in minutes, with live Excel formulas and no AI calls when nothing has changed.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+  },
+  {
+    path: "/automated-management-accounts",
+    title: "Automated management accounts from your trial balance",
+    description:
+      "Monthly management accounts produced from a trial balance export: P&L, balance sheet, KPIs, aged debtors and commentary in Excel, every figure traceable, paid per report.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+  },
+  {
+    path: "/monthly-financial-reporting",
+    title: "Monthly financial reporting software for small businesses",
+    description:
+      "Month-end reporting from your accounting system's trial balance: P&L with year to date, balance sheet, KPIs, A/R and A/P aging and commentary, in an Excel workbook you can audit.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+  },
+  {
+    path: "/guides",
+    title: "Guides to monthly management reporting and MIS",
+    description:
+      "Practical guides for accountants and finance teams: MIS format, ratios and KPIs, mapping a trial balance, ageing reports, commentary and the month-end close.",
+    changeFrequency: "weekly",
+    priority: 0.7,
+  },
+  {
+    path: "/guides/mis-kpis-and-ratios",
+    title: "KPIs and ratios for a monthly MIS: formulas and what they tell you",
+    description:
+      "The ratios a monthly MIS or management accounts pack should carry — margins, debtor, creditor and inventory days, cash conversion cycle, current and quick ratio — with formulas.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+  },
+  {
+    path: "/guides/trial-balance-to-management-report",
+    title: "Trial balance to management report: mapping ledgers to report heads",
+    description:
+      "How a trial balance becomes a P&L and balance sheet summary: grouping ledgers into report heads, sign conventions, checks that the totals tie, and reusing the mapping monthly.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+  },
+  {
+    path: "/guides/debtors-ageing-report",
+    title: "Debtors ageing report: format, buckets and how to read it",
+    description:
+      "How to build a receivables ageing report (aged debtors, A/R aging): choosing buckets, ageing from bill date or due date, unallocated receipts, and acting on the result.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+  },
+  {
+    path: "/guides/mis-commentary",
+    title: "MIS commentary and variance analysis: how to write it so it gets read",
+    description:
+      "Writing the commentary in a monthly MIS or management accounts pack: which variances to explain, a materiality threshold, sentence patterns that work, and ones to avoid.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+  },
+  {
+    path: "/guides/month-end-close-checklist",
+    title: "Month-end close checklist before the management report",
+    description:
+      "The checks to finish before a month's figures go into an MIS or management accounts: bank reconciliation, cut-off, accruals, depreciation, control accounts and suspense.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+  },
+  {
     path: "/security",
     title: "Security and data handling",
     description:
@@ -113,10 +193,35 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
     path: "/legal/privacy",
     title: "Privacy notice",
-    description: `How ${PRODUCT_NAME} handles personal data under the Digital Personal Data Protection Act: what is collected, what leaves your browser, who processes it, and your rights.`,
+    description: `How ${PRODUCT_NAME} handles personal data: what is collected, what leaves your browser, who processes it, and your rights in India, the UK and the EEA.`,
     changeFrequency: "monthly",
     priority: 0.3,
   },
+];
+
+/**
+ * The guides, in the order the index and the home page list them. Each lives under
+ * `/guides/` except the four written before the section existed, which keep their URLs —
+ * moving a page that already ranks throws the ranking away.
+ */
+export const GUIDE_PATHS: readonly string[] = [
+  "/mis-report-format",
+  "/management-accounts",
+  "/guides/mis-kpis-and-ratios",
+  "/guides/trial-balance-to-management-report",
+  "/guides/debtors-ageing-report",
+  "/guides/mis-commentary",
+  "/guides/month-end-close-checklist",
+  "/tally-mis-report",
+];
+
+/** Pages written for a search a buyer makes, rather than a question a practitioner asks. */
+export const SOLUTION_PATHS: readonly string[] = [
+  "/ai-mis-report",
+  "/mis-in-minutes",
+  "/automated-management-accounts",
+  "/monthly-financial-reporting",
+  "/for-accountants",
 ];
 
 export function publicPage(path: string): PublicPage {

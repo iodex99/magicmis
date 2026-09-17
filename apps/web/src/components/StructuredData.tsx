@@ -95,26 +95,21 @@ export function FaqSchema({ faqs }: { faqs: readonly Faq[] }) {
 
 /** The trail a search result shows instead of a bare URL. */
 export function BreadcrumbSchema({ path }: { path: string }) {
-  const page = publicPage(path);
+  const trail: [string, string][] = [[PRODUCT_NAME, "/"]];
+  // A guide under /guides/ sits one level down, and the trail says so.
+  if (path.startsWith("/guides/")) trail.push(["Guides", "/guides"]);
+  trail.push([publicPage(path).title, path]);
   return (
     <Json
       data={{
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: PRODUCT_NAME,
-            item: absoluteUrl("/"),
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: page.title,
-            item: absoluteUrl(path),
-          },
-        ],
+        itemListElement: trail.map(([name, href], i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name,
+          item: absoluteUrl(href),
+        })),
       }}
     />
   );
