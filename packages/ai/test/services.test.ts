@@ -63,6 +63,9 @@ describe("activation gate", () => {
     // A replay does not count.
     await recordEvalRun(pool(), { ...base, mode: "replay", items: 100, correct: 100 });
     await expect(activate()).rejects.toMatchObject({ code: "no_eval" });
+    // A perfect score on a smoke-test-sized sample is not evidence (R-28).
+    await recordEvalRun(pool(), { ...base, mode: "live", items: 3, correct: 3 });
+    await expect(activate()).rejects.toMatchObject({ code: "too_few_items" });
     await recordEvalRun(pool(), { ...base, mode: "live", items: 100, correct: 94 });
     await expect(activate()).rejects.toMatchObject({ code: "below_threshold" });
     await recordEvalRun(pool(), { ...base, mode: "live", items: 100, correct: 95 });

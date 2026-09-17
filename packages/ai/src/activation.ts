@@ -14,7 +14,8 @@ import type { Stage, Tier } from "./registry";
 
 export class ActivationError extends Error {
   constructor(
-    readonly code: "no_route" | "no_eval" | "below_threshold" | "no_threshold",
+    readonly code:
+      "no_route" | "no_eval" | "below_threshold" | "no_threshold" | "too_few_items",
     message: string,
   ) {
     super(message);
@@ -92,6 +93,13 @@ export async function activatePromptVersion(
     "ai.eval_thresholds",
     z.record(z.string(), z.string().regex(/^\d+(\.\d+)?$/u)),
   );
+  // An accuracy is only evidence over enough examples: 3/3 is "100%" and proves nothing.
+  // Without a floor, a smoke test run to check the harness could clear any threshold.
+  const minItems = await readConfig(
+    pool,
+    "ai.eval_min_items",
+    z.number().int().positive(),
+  );
   const threshold = thresholds[input.stage];
   if (threshold === undefined) {
     throw new ActivationError(
@@ -119,8 +127,8 @@ export async function activatePromptVersion(
         `no routing for ${input.tier}/${input.stage}`,
       );
     }
-    const best = await tx.query<{ accuracy: string; id: string }>(
-      `select accuracy::text as accuracy, id from public.ai_eval_runs
+    const best = await tx.query<{ accuracy: string; id: string; items: number }>(
+      `select accuracy::text as accuracy, id, items from public.ai_eval_runs
        where stage = $1 and tier = $2 and prompt_version = $3 and model_id = $4 and mode = 'live'
        order by created_at desc limit 1`,
       [input.stage, input.tier, input.promptVersion, current.model_id],
@@ -130,6 +138,12 @@ export async function activatePromptVersion(
       throw new ActivationError(
         "no_eval",
         `no live eval recorded for ${input.stage} v${input.promptVersion.toString()} on ${current.model_id}`,
+      );
+    }
+    if (run.items < minItems) {
+      throw new ActivationError(
+        "too_few_items",
+        `the latest live eval scored ${run.items.toString()} items; activation needs at least ${minItems.toString()}`,
       );
     }
     if (scaled(run.accuracy) < scaled(threshold)) {
