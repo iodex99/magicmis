@@ -11,7 +11,7 @@ const bodySchema = z.object({
 });
 
 /**
- * POST /api/pricing/preview — what the price confirmation shows before any charge
+ * POST /api/pricing/preview — the price book price of one action, for the public price book
  * (SPEC §12): action, tier, delivery, exact credits, available balance, balance after.
  * Credits only; the AI cost cap never leaves the server (SPEC §2.5). Read-only.
  */

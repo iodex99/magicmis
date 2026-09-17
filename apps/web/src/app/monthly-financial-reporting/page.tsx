@@ -40,8 +40,8 @@ const STEPS = [
   },
   {
     icon: "wallet",
-    title: "See the price and run it",
-    body: "A fixed price in prepaid credits, shown before anything runs.",
+    title: "Run it",
+    body: "One button, paid from prepaid credits at a fixed price per action.",
   },
   {
     icon: "document",
@@ -130,7 +130,7 @@ export default function MonthlyFinancialReportingPage() {
       />
       <ClosingCta
         heading="Send this month's package sooner"
-        body={`${PRODUCT_NAME} turns your month-end trial balance into a reporting package with every figure traceable. See the price before you run it.`}
+        body={`${PRODUCT_NAME} turns your month-end trial balance into a reporting package with every figure traceable. Pay per action, from prepaid credits.`}
       />
     </PublicShell>
   );

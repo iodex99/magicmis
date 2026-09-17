@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
 import { AppFrame } from "@/components/AppFrame";
@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 
 import { JobRunner } from "./JobRunner";
 
-export const metadata = { title: "Run job" };
+export const metadata = { title: "Add a month" };
 export const dynamic = "force-dynamic";
 
 export default async function RunJobPage({
@@ -32,6 +32,9 @@ export default async function RunJobPage({
   );
   const company = r.rows[0];
   if (company === undefined) notFound();
+  // A company that has never been set up is set up from its workspace (ADR 0033).
+  if (company.first_setup_at === null && mode !== "setup")
+    redirect(`/app/companies/${id}`);
   const runMode =
     company.first_setup_at === null ? "setup" : mode === "setup" ? "setup" : "refresh";
   return (
@@ -41,11 +44,11 @@ export default async function RunJobPage({
       company={{ id, name: company.name }}
     >
       <PageHeader
-        title={runMode === "setup" ? "Set up MIS" : "Monthly refresh"}
+        title={runMode === "setup" ? "Set up the MIS again" : "Add a month"}
         description={
           runMode === "setup"
             ? "Load every month you have. The first run learns the mappings and builds the workbook."
-            : "Load this month's export. On unchanged structure the refresh needs no review and makes no AI calls."
+            : "Drop in the new month's trial balance. The dashboard, workbook and assistant pick it up."
         }
         back={{ href: `/app/companies/${id}`, label: company.name }}
       />

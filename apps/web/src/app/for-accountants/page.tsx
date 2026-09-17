@@ -80,7 +80,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "How is it priced for a practice with many clients?",
     answer:
-      "By action, from a published price book, paid in prepaid credits — one credit is one rupee excluding GST. You see the price of an action before it runs, and each active company also carries a monthly memory fee. There is no per-seat or per-client subscription.",
+      "By action, from a published price book, paid in prepaid credits — one credit is one rupee excluding GST. Credits are charged only for what you run, and each active company also carries a monthly memory fee. There is no per-seat or per-client subscription.",
   },
   {
     question: "What happens to a client's data when we stop acting for them?",
@@ -156,7 +156,7 @@ export default function ForAccountantsPage() {
       <ReadNext paths={["/how-it-works", "/security", "/pricing"]} />
       <ClosingCta
         heading="Try it on one client's month"
-        body={`Create an account and run one company's last month. You will see the price before anything runs, and ${PRODUCT_NAME} charges per action rather than per seat.`}
+        body={`Create an account and run one company's last month. ${PRODUCT_NAME} charges per action rather than per seat.`}
       />
     </PublicShell>
   );

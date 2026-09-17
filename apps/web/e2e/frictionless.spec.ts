@@ -55,9 +55,13 @@ test.afterAll(async () => {
 
 async function newCompany(name: string) {
   await page.goto("/app");
+  // With companies already, the form opens behind one button.
+  const open = page.getByRole("button", { name: /^Add a company/u });
+  if (await open.isVisible()) await open.click();
   await page.getByLabel("Company name").fill(name);
   await page.getByRole("button", { name: "Add company" }).click();
-  await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+\/run$/u);
+  // A new company is set up from its own workspace (ADR 0033).
+  await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+$/u);
   await expect(page.getByLabel("Choose files")).toBeEnabled();
 }
 
@@ -87,8 +91,9 @@ test("a non-Tally CSV with no month, a notes file and a photo still produce a wo
     timeout: 60_000,
   });
 
-  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
-  await page.getByRole("button", { name: /^Run setup —/u }).click();
+  // One button starts the run; there is no price step (ADR 0033).
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 60_000 });
+  await page.getByTestId("job-run").click();
 
   // No review and no questions: the server runs it through.
   await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 180_000 });
@@ -106,8 +111,9 @@ test("a profit and loss with no sides is used as a best guess rather than refuse
     mimeType: "text/csv",
     buffer: Buffer.from("Particulars,Amount\nSales,5000\nRent,2000\nNet Profit,3000\n"),
   });
-  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
-  await page.getByRole("button", { name: /^Run setup —/u }).click();
+  // One button starts the run; there is no price step (ADR 0033).
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 60_000 });
+  await page.getByTestId("job-run").click();
 
   await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 180_000 });
   await expect(page.getByTestId("job-download")).toBeVisible();

@@ -180,9 +180,9 @@ export default function ProductPage() {
           that produced it attached.
         </p>
         <p>
-          Chat costs credits per message, like every other action, and the price is shown
-          before you send. An out-of-scope question is declined rather than guessed at,
-          and the decline is charged, because refusing accurately still costs a call.
+          Chat costs credits per message at a fixed price per message type, like every
+          other action. An out-of-scope question is declined rather than guessed at, and
+          the decline is charged, because refusing accurately still costs a call.
         </p>
       </Section>
 

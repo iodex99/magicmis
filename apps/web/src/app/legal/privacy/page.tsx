@@ -135,8 +135,9 @@ export default async function PrivacyPage() {
           </p>
           <p>
             Uploaded files are deleted automatically {f.uploadRetentionDays} days after
-            upload. You can see every file we keep, and delete any of them sooner, on the
-            Uploaded files page. Deleting a company or your account deletes its files.
+            upload. You can see every file we keep for a company, and delete any of them
+            sooner, on that company&rsquo;s page. Deleting a company or your account
+            deletes its files.
           </p>
           <p>
             Before any part of a file is sent to our AI provider, names and identifiers —

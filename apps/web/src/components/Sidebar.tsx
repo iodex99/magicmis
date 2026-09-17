@@ -27,7 +27,6 @@ interface NavItem {
 
 const PRIMARY: readonly NavItem[] = [
   { href: "/app", label: "Companies", icon: "building", match: "/app/companies" },
-  { href: "/app/data", label: "Uploaded files", icon: "file" },
   { href: "/wallet", label: "Wallet", icon: "wallet" },
 ];
 
@@ -39,11 +38,9 @@ const SETTINGS: readonly NavItem[] = [
 
 function workspaceItems(id: string): readonly NavItem[] {
   return [
-    { href: `/app/companies/${id}`, label: "Overview", icon: "table" },
-    { href: `/app/companies/${id}/run`, label: "Run", icon: "play" },
-    { href: `/app/companies/${id}/dashboard`, label: "Dashboard", icon: "chart" },
-    { href: `/app/companies/${id}/commentary`, label: "Commentary", icon: "document" },
-    { href: `/app/companies/${id}/chat`, label: "Chat", icon: "chat" },
+    // One workspace: the dashboard with the assistant beside it (ADR 0033).
+    { href: `/app/companies/${id}`, label: "Dashboard and assistant", icon: "chart" },
+    { href: `/app/companies/${id}/run`, label: "Add a month", icon: "upload" },
   ];
 }
 

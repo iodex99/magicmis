@@ -195,7 +195,7 @@ export function FictionalNote({ children }: { children?: ReactNode }) {
 /** The same closing step on every page, so the reader never has to look for it. */
 export function ClosingCta({
   heading = "See it on your own month",
-  body = "Create an account, load last month's trial balance, and see the price before anything runs.",
+  body = "Create an account, load last month's trial balance, and get the report — paid per action.",
 }: {
   heading?: string | undefined;
   body?: string | undefined;
@@ -217,8 +217,8 @@ export function ClosingCta({
             </ButtonLink>
           </div>
           <p className="mt-4 text-[0.8125rem] text-neutral-500">
-            Prepaid credits, no subscription. You see the price of every action before it
-            runs.
+            Prepaid credits, no subscription. A fixed price per action from a published
+            price book.
           </p>
         </div>
       </div>

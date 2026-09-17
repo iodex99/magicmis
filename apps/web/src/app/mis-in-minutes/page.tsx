@@ -128,9 +128,9 @@ export default function MisInMinutesPage() {
         </p>
         <p>
           <strong className="font-medium text-neutral-900">
-            You see the price first.
+            A fixed price per action.
           </strong>{" "}
-          Each refresh is a fixed price in prepaid credits, shown before it runs.
+          Each refresh is a fixed price in prepaid credits from the published price book.
         </p>
       </Section>
 
@@ -147,7 +147,7 @@ export default function MisInMinutesPage() {
       />
       <ClosingCta
         heading="Stop rebuilding the MIS every month"
-        body={`${PRODUCT_NAME} keeps the mapping, so next month's report is a refresh. See the price before you run it.`}
+        body={`${PRODUCT_NAME} keeps the mapping, so next month's report is a refresh. Drop in the file and run it.`}
       />
     </PublicShell>
   );

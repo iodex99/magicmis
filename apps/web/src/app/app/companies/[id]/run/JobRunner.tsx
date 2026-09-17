@@ -3,15 +3,17 @@
 /**
  * Setup and refresh (SPEC §23), run on the server (ADR 0032).
  *
- * Three moments for the customer: add files, see the price, collect the workbook. Files upload in
- * the background as soon as they are dropped; the price appears once they are in; the one button
- * is the SPEC §12 confirmation; and the server does everything else — recognition, mapping with
- * Claude, computation, checks and rendering — without stopping to ask. What it had to assume or
+ * Three moments for the customer: add files, build, collect the workbook. Files upload in the
+ * background as soon as they are dropped; one button holds the credits and starts the run, with no
+ * price step in between (ADR 0033); and the server does everything else — recognition, mapping
+ * with Claude, computation, checks and rendering — without stopping to ask. Only an estimate over
+ * the AI cost cap stops to ask for a quote to be accepted (locked decision 6). What it had to assume or
  * could not match is said on the result, and data problems arrive as warnings on a delivered
  * workbook (ADR 0031). Before payment the page shows only file names, sizes, sheet counts and row
  * counts (SPEC §2.3).
  */
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BuyCreditsInline } from "@/components/BuyCreditsInline";
@@ -30,28 +32,13 @@ import {
   Tr,
   type BadgeTone,
 } from "@/components/ui";
-import {
-  ACTION_LABELS,
-  DELIVERY_LABELS,
-  formatCount,
-  formatCredits,
-  TIER_LABELS,
-} from "@/lib/actions";
-import { api, newIdempotencyKey } from "@/lib/client-api";
+import { DELIVERY_LABELS, formatCount, formatCredits, TIER_LABELS } from "@/lib/actions";
+import { api } from "@/lib/client-api";
+import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 import { removeUpload, uploadFile } from "@/lib/uploads";
 
 type Tier = keyof typeof TIER_LABELS;
 type Delivery = keyof typeof DELIVERY_LABELS;
-
-interface CreatedJob {
-  jobId: string;
-  state: string;
-  type: keyof typeof ACTION_LABELS;
-  priceCredits: string;
-  quote: { credits: string; expiresAt: string } | null;
-  restructure: boolean;
-  available: string;
-}
 
 interface Check {
   id: string;
@@ -121,13 +108,12 @@ export function JobRunner({
   const [delivery, setDelivery] = useState<Delivery>("instant");
   const [phase, setPhase] = useState<Phase>({ kind: "files" });
   const [error, setError] = useState<string | null>(null);
-  const [quote, setQuote] = useState<CreatedJob | null>(null);
-  const [quoting, setQuoting] = useState(false);
+  const [stopped, setStopped] = useState<Exclude<StartResult, { kind: "held" }> | null>(
+    null,
+  );
   const [starting, setStarting] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  const [repriceAt, setRepriceAt] = useState(0);
-  const priced = useRef(new Map<string, CreatedJob>());
-  const createdDrafts = useRef(new Set<string>());
+  const router = useRouter();
   const heartbeat = useRef<ReturnType<typeof setInterval> | null>(null);
   const poll = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -227,81 +213,13 @@ export function JobRunner({
         ? "company_setup"
         : "reference_mis_recreate";
 
-  // Price as soon as the uploads are in, and again whenever something that changes it changes.
-  useEffect(() => {
-    if (uploading || readyIds.length === 0 || phase.kind !== "files") {
-      if (readyIds.length === 0) setQuote(null);
+  const follow = useCallback(async (started: StartResult) => {
+    if (started.kind !== "held") {
+      setStopped(started);
       return;
     }
-    const state = { cancelled: false };
-    const cancelled = () => state.cancelled;
-    const signature = JSON.stringify([jobType, tier, delivery, readyIds, referenceId]);
-    const cached = priced.current.get(signature);
-    if (cached !== undefined) {
-      setQuote(cached);
-      return;
-    }
-    setQuote(null);
-    setQuoting(true);
-    void (async () => {
-      const r = await api<CreatedJob>("/api/jobs", {
-        body: {
-          companyId,
-          type: jobType,
-          tier,
-          delivery,
-          uploadIds: readyIds,
-          referenceUploadId: referenceId,
-        },
-        idempotencyKey: newIdempotencyKey(),
-      });
-      if (r.ok) createdDrafts.current.add(r.data.jobId);
-      if (cancelled()) return;
-      setQuoting(false);
-      if (!r.ok) {
-        setError(r.message);
-        return;
-      }
-      priced.current.set(signature, r.data);
-      for (const draft of createdDrafts.current) {
-        if (draft === r.data.jobId) continue;
-        createdDrafts.current.delete(draft);
-        void api(`/api/jobs/${draft}/cancel`, {
-          body: {},
-          idempotencyKey: newIdempotencyKey(),
-        });
-      }
-      setQuote(r.data);
-    })();
-    return () => {
-      state.cancelled = true;
-    };
-  }, [
-    uploading,
-    readyIds.join(","),
-    referenceId,
-    tier,
-    delivery,
-    jobType,
-    companyId,
-    phase.kind,
-    repriceAt,
-  ]);
-
-  const run = useCallback(async (job: CreatedJob) => {
-    setError(null);
-    setStarting(true);
-    const hold = await api(
-      job.quote === null
-        ? `/api/jobs/${job.jobId}/confirm`
-        : `/api/jobs/${job.jobId}/accept-quote`,
-      { body: {}, idempotencyKey: newIdempotencyKey() },
-    );
-    setStarting(false);
-    if (!hold.ok) {
-      setError(hold.message);
-      return;
-    }
+    setStopped(null);
+    const job = started;
     setPhase({ kind: "running", jobId: job.jobId, step: "reserved" });
     heartbeat.current = setInterval(
       () => void api(`/api/jobs/${job.jobId}/heartbeat`, { body: {} }),
@@ -340,15 +258,28 @@ export function JobRunner({
     );
   }, []);
 
+  const start = async () => {
+    setError(null);
+    setStarting(true);
+    let started: StartResult;
+    try {
+      started = await startPaidJob({
+        companyId,
+        type: jobType,
+        tier,
+        delivery,
+        uploadIds: readyIds,
+        referenceUploadId: referenceId,
+      });
+    } finally {
+      setStarting(false);
+    }
+    await follow(started);
+  };
+
   const busy = phase.kind === "running" || starting;
   const step: 1 | 2 | 3 = phase.kind === "files" ? 1 : phase.kind === "running" ? 2 : 3;
-  const price = quote === null ? null : (quote.quote?.credits ?? quote.priceCredits);
-  const shortfall =
-    quote === null || price === null
-      ? 0n
-      : BigInt(price) - BigInt(quote.available) > 0n
-        ? BigInt(price) - BigInt(quote.available)
-        : 0n;
+  const ready = readyIds.length > 0 && !uploading;
 
   return (
     <div className="flex flex-col gap-5">
@@ -492,112 +423,81 @@ export function JobRunner({
             </Panel>
 
             {/*
-              The SPEC §12 confirmation, beside the files. Everything the spec requires is
-              here, and nothing is held or charged until the one button is pressed.
+              One button holds the credits and starts the run (ADR 0033). Nothing is held or
+              charged before it is pressed, and an unused hold is released.
             */}
             <Panel
-              title="Ready to run"
-              icon="wallet"
+              title={mode === "setup" ? "Build the MIS" : "Add the month"}
+              icon="play"
               padding="none"
               className="lg:sticky lg:top-7"
             >
-              {files.length === 0 ? (
-                <p className="px-5 pb-5 text-[0.8125rem] text-neutral-500">
-                  Add your files and the price appears here. You confirm it before
-                  anything is charged.
+              <div className="flex flex-col gap-3 px-5 pb-5">
+                <p className="text-[0.8125rem] leading-relaxed text-neutral-500">
+                  {files.length === 0
+                    ? "Add your files. We read every sheet, match every ledger and check every figure — nothing to map by hand."
+                    : readyIds.length === 0 && !uploading
+                      ? "None of these files can be used. Add a trial balance export."
+                      : uploading
+                        ? "Uploading your files…"
+                        : `${readyIds.length.toString()} ${readyIds.length === 1 ? "file" : "files"} ready.`}
                 </p>
-              ) : readyIds.length === 0 && !uploading ? (
-                <p className="px-5 pb-5 text-[0.8125rem] text-neutral-500">
-                  None of these files can be used. Add a trial balance export.
-                </p>
-              ) : quote === null ? (
-                <p className="flex items-center gap-2 px-5 pb-5 text-[0.8125rem] text-neutral-500">
-                  <Icon
-                    name="loader"
-                    size={14}
-                    className="animate-spin [animation-duration:1.6s]"
-                  />
-                  {uploading
-                    ? "Uploading your files…"
-                    : quoting
-                      ? "Working out the price…"
-                      : "Reading your files…"}
-                </p>
-              ) : (
-                <>
-                  <dl
-                    className="grid grid-cols-2 gap-y-2 px-5 pb-4 text-[0.8125rem]"
-                    data-testid="job-price"
-                  >
-                    <dt className="text-neutral-500">Action</dt>
-                    <dd className="text-right font-medium">
-                      {ACTION_LABELS[quote.type]}
-                    </dd>
-                    <dt className="text-neutral-500">Intelligence tier</dt>
-                    <dd className="text-right font-medium">{TIER_LABELS[tier]}</dd>
-                    <dt className="text-neutral-500">Delivery</dt>
-                    <dd className="text-right font-medium">
-                      {DELIVERY_LABELS[delivery]}
-                    </dd>
-                    <dt className="border-t border-neutral-100 pt-2.5 font-semibold text-neutral-900">
-                      {quote.quote === null ? "Price" : "Quote"}
-                    </dt>
-                    <dd className="num border-t border-neutral-100 pt-2.5 text-[1.25rem] leading-none font-semibold">
-                      {formatCredits(price ?? "0")}
-                    </dd>
-                    <dt className="text-neutral-500">Available now</dt>
-                    <dd className="num">{formatCredits(quote.available)}</dd>
-                    <dt className="text-neutral-500">Available after</dt>
-                    <dd className="num">
-                      {formatCredits(
-                        (BigInt(quote.available) - BigInt(price ?? "0")).toString(),
-                      )}
-                    </dd>
-                  </dl>
-
-                  <div className="flex flex-col gap-3 border-t border-neutral-100 bg-neutral-25 p-5">
-                    {quote.restructure ? (
-                      <Alert tone="warning" title="Structure has changed">
-                        This month&rsquo;s files are laid out differently from last time,
-                        so the restructure price applies.
-                      </Alert>
-                    ) : null}
-                    {quote.quote === null ? null : (
-                      <Alert tone="warning" title="A quote was needed">
-                        This job needs more analysis than the standard price covers. The
-                        quote holds until{" "}
-                        {new Date(quote.quote.expiresAt).toLocaleString("en-IN")}.
-                      </Alert>
-                    )}
-                    {shortfall > 0n ? (
-                      <BuyCreditsInline
-                        need={shortfall}
-                        businessName={businessName}
-                        onCredited={() => {
-                          priced.current.clear();
-                          setQuote(null);
-                          setRepriceAt(Date.now());
-                        }}
-                      />
-                    ) : (
+                {stopped?.kind === "quote" ? (
+                  <Alert tone="warning" title="This run needs a quote">
+                    It needs more analysis than the standard price covers:{" "}
+                    <strong className="tabular-nums">
+                      {formatCredits(stopped.credits)}
+                    </strong>{" "}
+                    credits, held until{" "}
+                    {new Date(stopped.expiresAt).toLocaleString("en-IN")}.
+                    <div className="mt-2.5">
                       <Button
-                        onClick={() => void run(quote)}
-                        size="lg"
-                        className="w-full"
-                        disabled={busy || uploading}
+                        size="sm"
+                        disabled={busy}
+                        onClick={() => {
+                          setStarting(true);
+                          void acceptQuote(stopped.jobId, stopped.credits)
+                            .then(follow)
+                            .finally(() => {
+                              setStarting(false);
+                            });
+                        }}
                       >
-                        {starting
-                          ? "Starting…"
-                          : `${mode === "setup" ? "Run setup" : "Run refresh"} — ${formatCredits(price ?? "0")} credits`}
+                        Accept and run
                       </Button>
-                    )}
-                    <p className="text-[0.75rem] text-neutral-500">
-                      Credits are held when you press this and charged only when the
-                      workbook is delivered.
-                    </p>
-                  </div>
-                </>
-              )}
+                    </div>
+                  </Alert>
+                ) : stopped?.kind === "short" ? (
+                  <BuyCreditsInline
+                    need={stopped.need}
+                    businessName={businessName}
+                    onCredited={() => {
+                      setStopped(null);
+                    }}
+                  />
+                ) : (
+                  <Button
+                    onClick={() => void start()}
+                    size="lg"
+                    className="w-full"
+                    icon={mode === "setup" ? "play" : "refresh"}
+                    disabled={busy || !ready}
+                    data-testid="job-run"
+                  >
+                    {starting
+                      ? "Starting…"
+                      : mode === "setup"
+                        ? "Build my MIS"
+                        : "Add this month"}
+                  </Button>
+                )}
+                {stopped?.kind === "error" ? (
+                  <Alert tone="error">{stopped.message}</Alert>
+                ) : null}
+                <p className="text-[0.75rem] text-neutral-500">
+                  Credits are charged only when the workbook is delivered.
+                </p>
+              </div>
 
               <div className="border-t border-neutral-100 px-5 py-3">
                 <button
@@ -700,16 +600,29 @@ export function JobRunner({
                 </p>
               </div>
             </div>
-            {phase.outcome.outputId === null ? null : (
-              <a
-                className="inline-flex h-10 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-700"
-                href={`/api/outputs/${phase.outcome.outputId}`}
-                data-testid="job-download"
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="secondary"
+                iconAfter="arrow-right"
+                onClick={() => {
+                  router.push(`/app/companies/${companyId}`);
+                  router.refresh();
+                }}
+                data-testid="job-open-workspace"
               >
-                <Icon name="download" size={16} />
-                Download {phase.outcome.fileName}
-              </a>
-            )}
+                {mode === "setup" ? "Open the dashboard" : "Back to the dashboard"}
+              </Button>
+              {phase.outcome.outputId === null ? null : (
+                <a
+                  className="inline-flex h-10 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-700"
+                  href={`/api/outputs/${phase.outcome.outputId}`}
+                  data-testid="job-download"
+                >
+                  <Icon name="download" size={16} />
+                  Download {phase.outcome.fileName}
+                </a>
+              )}
+            </div>
           </div>
           {warningsOf(phase.outcome.checks).length === 0 ? null : (
             <div className="px-5 pt-4" data-testid="job-warnings">

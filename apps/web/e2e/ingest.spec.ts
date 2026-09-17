@@ -28,7 +28,7 @@ test.beforeAll(async ({ browser }) => {
   await page.goto("/app");
   await page.getByLabel("Company name").fill("Intake Test Traders");
   await page.getByRole("button", { name: "Add company" }).click();
-  await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+\/run$/u);
+  await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+$/u);
   runUrl = page.url();
   // SPEC §31: the first upload in an account waits for the processing notice to be accepted.
   await expect(page.getByTestId("processing-notice")).toBeVisible();
@@ -62,7 +62,7 @@ test("files upload and only names, sizes, sheets and rows are shown before payme
   await expect(table.getByRole("row", { name: /trial_balance/u })).toContainText(
     `${Math.ceil(statSync(tb).size / 1024).toString()} KB`,
   );
-  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 60_000 });
 
   // SPEC §2.3: no recognition results before payment.
   const body = page.locator("main");
@@ -140,7 +140,7 @@ test("a text PDF of a trial balance is read", async () => {
   });
   const row = page.getByTestId("job-files").getByRole("row", { name: /tb\.pdf/u });
   await expect(row).toBeVisible();
-  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 60_000 });
   await expect(page.getByTestId("job-file-problem")).toHaveCount(0);
 });
 
@@ -174,28 +174,30 @@ test("a 50 MB workbook is uploaded and read in under 60 seconds (SPEC §33)", as
   expect(elapsed).toBeLessThan(60_000);
 });
 
-test("uploaded files are listed with their deletion date and can be deleted now", async () => {
-  await page.goto("/app/data");
+test("a company's kept files are listed with their deletion date and can be deleted now", async () => {
+  await page.goto(runUrl);
+  await page.getByTestId("kept-files").locator("summary").click();
   const table = page.getByTestId("uploaded-files");
   await expect(table).toContainText("trial_balance_2025-04.xlsx");
   const row = table.getByRole("row", { name: /tb\.pdf/u });
   await row.getByRole("button", { name: "Delete now" }).click();
   await expect(table.getByRole("row", { name: /tb\.pdf/u })).toHaveCount(0);
   await page.reload();
+  await page.getByTestId("kept-files").locator("summary").click();
   await expect(page.getByTestId("uploaded-files")).not.toContainText("tb.pdf");
 });
 
 test("pages carry a per-request nonce CSP and hardening headers (SPEC §30)", async () => {
-  const first = await page.request.get("/app/data");
-  const second = await page.request.get("/app/data");
+  const first = await page.request.get("/app");
+  const second = await page.request.get("/app");
   const policy = first.headers()["content-security-policy"] ?? "";
   expect(policy).toMatch(/script-src [^;]*'nonce-[A-Za-z0-9+/=]+'/u);
   expect(policy).not.toContain("razorpay");
   expect(policy).not.toBe(second.headers()["content-security-policy"]);
   expect(first.headers()["x-frame-options"]).toBe("DENY");
   expect(first.headers()["x-content-type-options"]).toBe("nosniff");
-  // The payment gateway is allowed on exactly two paths: the Wallet, and the run screen,
-  // which takes the payment in place so a run does not lose its uploaded files (R-57).
+  // The payment gateway is allowed only on the Wallet and the two screens that start a run
+  // and take the payment in place — the company workspace and Add a month (R-57, ADR 0033).
   const wallet = await page.request.get("/wallet");
   expect(wallet.headers()["content-security-policy"]).toContain(
     "frame-src https://*.razorpay.com",
@@ -204,6 +206,12 @@ test("pages carry a per-request nonce CSP and hardening headers (SPEC §30)", as
     "/app/companies/00000000-0000-4000-8000-000000000000/run",
   );
   expect(run.headers()["content-security-policy"]).toContain(
+    "frame-src https://*.razorpay.com",
+  );
+  const workspace = await page.request.get(
+    "/app/companies/00000000-0000-4000-8000-000000000000",
+  );
+  expect(workspace.headers()["content-security-policy"]).toContain(
     "frame-src https://*.razorpay.com",
   );
   for (const p of ["/app", "/settings/security", "/pricing"]) {

@@ -52,7 +52,7 @@ const DOES_NOT: readonly string[] = [
   "Calculate, round or restate any figure. Totals, ratios and variances come from a deterministic engine and are the same every time.",
   "See your whole files. It receives a sheet's structure, a small redacted sample of rows and ledger names, for a paid action you confirmed.",
   "Run on a routine month. When the ledger structure has not changed, the monthly refresh makes no AI calls at all.",
-  "Choose its own model or budget. Those are fixed on the server for each action, and the price is shown before anything runs.",
+  "Choose its own model or budget. Those are fixed on the server for each action, and each action has a fixed price in the published price book.",
 ];
 
 const FAQS: readonly Faq[] = [
@@ -139,7 +139,7 @@ export default function AiMisReportPage() {
       <ReadNext paths={["/mis-in-minutes", "/how-it-works", "/security"]} />
       <ClosingCta
         heading="See it on your own month"
-        body="Create an account, load a trial balance, and see the price of the report before anything runs."
+        body="Create an account, load a trial balance, and get the report — paid per action from prepaid credits."
       />
     </PublicShell>
   );

@@ -2,7 +2,8 @@
 
 /**
  * Dashboard (SPEC §24.2): widgets from the stored spec over the company's stored metric values.
- * Every number opens its lineage. Edits are JSON Patch operations: previewed, applied on
+ * It is the main surface of the company workspace (ADR 0033). Every number opens its lineage in
+ * a drawer, and Investigate hands a question to the assistant beside it. Edits are JSON Patch operations: previewed, applied on
  * confirmation as a new blueprint version, and undoable.
  */
 
@@ -17,11 +18,13 @@ import {
   type ValueRef,
   type Widget,
 } from "@magicmis/render-dashboard";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 
+import { Drawer } from "@/components/Drawer";
 import { EChart } from "@/components/EChart";
 import { LineagePanel } from "@/components/LineagePanel";
 import { PaidJobButton } from "@/components/PaidJobButton";
+import { Icon } from "@/components/Icon";
 import { Alert, Button, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
@@ -78,6 +81,7 @@ function WidgetCard({
   editing,
   onOpen,
   onEdit,
+  onInvestigate,
 }: {
   widget: Widget;
   index: number;
@@ -88,6 +92,7 @@ function WidgetCard({
   editing: boolean;
   onOpen: (key: string) => void;
   onEdit: (ops: Operation[]) => void;
+  onInvestigate: (metric: string, period: PeriodId) => void;
 }) {
   const format = useMemo(
     () => companyFormat(payload.company.money),
@@ -106,11 +111,16 @@ function WidgetCard({
   const path = `/widgets/${index.toString()}`;
   return (
     <section
-      className="flex flex-col rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm"
-      style={{
-        gridColumn: `span ${widget.layout.w.toString()} / span ${widget.layout.w.toString()}`,
-        minHeight: `${(widget.layout.h * 4).toString()}rem`,
-      }}
+      // Beside the assistant the grid can be narrow, so a card takes twice its width there
+      // and its designed width once the grid has room.
+      className="flex flex-col rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm [grid-column:span_var(--span-narrow)/span_var(--span-narrow)] @3xl:[grid-column:span_var(--span)/span_var(--span)]"
+      style={
+        {
+          "--span": widget.layout.w.toString(),
+          "--span-narrow": Math.min(12, widget.layout.w * 2).toString(),
+          minHeight: `${(widget.layout.h * 4).toString()}rem`,
+        } as CSSProperties
+      }
       data-testid={`widget-${widget.id}`}
     >
       <div className="mb-3 flex items-start justify-between gap-2">
@@ -184,12 +194,16 @@ function WidgetCard({
             </div>
           ))}
           {/* SPEC §27: Investigate sends a Deep question about this metric's movement. */}
-          <a
-            className="mt-3 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
-            href={`/app/companies/${payload.company.id}/chat?investigate=${encodeURIComponent(widget.metrics[0] ?? "")}&period=${period}`}
+          <button
+            type="button"
+            className="mt-3 -ml-2 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
+            onClick={() => {
+              onInvestigate(widget.metrics[0] ?? "", period);
+            }}
           >
+            <Icon name="search" size={12} />
             Investigate
-          </a>
+          </button>
         </div>
       ) : view.kind === "table" ? (
         <div className="overflow-x-auto">
@@ -251,7 +265,16 @@ function WidgetCard({
   );
 }
 
-export function DashboardClient({ companyId }: { companyId: string }) {
+export function DashboardClient({
+  companyId,
+  onInvestigate,
+  reloadKey,
+}: {
+  companyId: string;
+  onInvestigate: (metric: string, period: PeriodId) => void;
+  /** Changes when the layout was changed elsewhere (the assistant), to load it again. */
+  reloadKey: number;
+}) {
   const [payload, setPayload] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<PeriodId | null>(null);
@@ -279,7 +302,7 @@ export function DashboardClient({ companyId }: { companyId: string }) {
 
   useEffect(() => {
     void load();
-  }, [load]);
+  }, [load, reloadKey]);
 
   if (payload === null)
     return error === null ? (
@@ -290,27 +313,35 @@ export function DashboardClient({ companyId }: { companyId: string }) {
 
   if (payload.dashboard === null) {
     return (
-      <Panel
-        title="Add a dashboard"
-        icon="chart"
-        description="Charts and KPIs over the months this company already has."
+      <section
+        className="rounded-2xl border border-neutral-200/80 bg-white p-8 shadow-sm"
+        data-testid="dashboard-empty"
       >
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
+          <Icon name="chart" size={22} />
+        </span>
+        <h2 className="mt-4 text-[1.25rem] font-semibold tracking-tight text-neutral-900">
+          {payload.latestPeriod === null
+            ? "Your dashboard appears here"
+            : "Turn this MIS into a live dashboard"}
+        </h2>
         {payload.latestPeriod === null ? (
-          <p className="text-sm text-neutral-600">
-            Run the company setup first; the dashboard shows its figures.
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-neutral-600">
+            Upload the company&rsquo;s trial balances first; the dashboard charts their
+            figures.
           </p>
         ) : (
           <>
-            <p className="mb-4 text-sm text-neutral-600">
-              The dashboard charts this company's MIS figures, month by month. It is kept
-              with the company; after a monthly refresh, a dashboard refresh brings in the
-              new month.
+            <p className="mt-2 mb-5 max-w-lg text-sm leading-relaxed text-neutral-600">
+              KPIs and charts for every month this company has, each figure one click from
+              its source. Ask the assistant alongside about anything you see.
             </p>
             <PaidJobButton
               companyId={companyId}
               type="dashboard_addon"
-              label="Add the dashboard"
-              deliveries={["standard"]}
+              label="Build the dashboard"
+              busyLabel="Building…"
+              icon="chart"
               onHeld={async (jobId) => {
                 const r = await api(`/api/jobs/${jobId}/deliver-dashboard`, {
                   body: {},
@@ -323,7 +354,7 @@ export function DashboardClient({ companyId }: { companyId: string }) {
           </>
         )}
         {error === null ? null : <Alert tone="error">{error}</Alert>}
-      </Panel>
+      </section>
     );
   }
 
@@ -390,7 +421,7 @@ export function DashboardClient({ companyId }: { companyId: string }) {
             companyId={companyId}
             type="dashboard_refresh"
             label="Refresh the dashboard"
-            deliveries={["standard"]}
+            icon="refresh"
             onHeld={async (jobId) => {
               const r = await api(`/api/jobs/${jobId}/deliver-dashboard`, {
                 body: {},
@@ -472,38 +503,43 @@ export function DashboardClient({ companyId }: { companyId: string }) {
       )}
       {error === null ? null : <Alert tone="error">{error}</Alert>}
 
-      <div className="flex gap-4">
-        <div className="grid flex-1 grid-cols-12 gap-4" data-testid="dashboard-grid">
-          {spec.widgets.map((w, i) => (
-            <WidgetCard
-              key={w.id}
-              widget={w}
-              index={i}
-              count={spec.widgets.length}
-              values={payload.values}
-              period={current}
-              payload={payload}
-              editing={editing}
-              onOpen={setSelected}
-              onEdit={(ops) => void propose(ops)}
-            />
-          ))}
-        </div>
-        {selected === null ? null : (
-          <div className="w-80 shrink-0">
-            <LineagePanel
-              selected={selected}
-              values={payload.values}
-              label={companyFormat(payload.company.money).label}
-              display={display}
-              onSelect={setSelected}
-              onClose={() => {
-                setSelected(null);
-              }}
-            />
-          </div>
-        )}
+      <div className="@container grid grid-cols-12 gap-4" data-testid="dashboard-grid">
+        {spec.widgets.map((w, i) => (
+          <WidgetCard
+            key={w.id}
+            widget={w}
+            index={i}
+            count={spec.widgets.length}
+            values={payload.values}
+            period={current}
+            payload={payload}
+            editing={editing}
+            onOpen={setSelected}
+            onEdit={(ops) => void propose(ops)}
+            onInvestigate={onInvestigate}
+          />
+        ))}
       </div>
+      <Drawer
+        open={selected !== null}
+        label="Lineage"
+        onClose={() => {
+          setSelected(null);
+        }}
+      >
+        {selected === null ? null : (
+          <LineagePanel
+            selected={selected}
+            values={payload.values}
+            label={companyFormat(payload.company.money).label}
+            display={display}
+            onSelect={setSelected}
+            onClose={() => {
+              setSelected(null);
+            }}
+          />
+        )}
+      </Drawer>
     </div>
   );
 }

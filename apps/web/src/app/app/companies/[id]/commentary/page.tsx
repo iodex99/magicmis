@@ -1,64 +1,7 @@
-import { notFound } from "next/navigation";
-import { z } from "zod";
+import { redirect } from "next/navigation";
 
-import { AppFrame } from "@/components/AppFrame";
-import { PageHeader } from "@/components/ui";
-import { accountOrRedirect } from "@/lib/account-page";
-import { db } from "@/lib/db";
-
-import { CommentaryClient } from "./CommentaryClient";
-
-export const metadata = { title: "Commentary" };
-export const dynamic = "force-dynamic";
-
-export default async function CommentaryPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+/** The dashboard, commentary and chat are one workspace now (ADR 0033); old links land there. */
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const account = await accountOrRedirect(`/app/companies/${id}/commentary`);
-  if (!z.uuid().safeParse(id).success) notFound();
-  const pool = db();
-  const r = await pool.query<{ name: string }>(
-    `select name from companies where id = $1 and account_id = $2 and deleted_at is null`,
-    [id, account.accountId],
-  );
-  const company = r.rows[0];
-  if (company === undefined) notFound();
-  const [periods, jobs] = await Promise.all([
-    pool.query<{ period: string }>(
-      `select distinct period from snapshots where company_id = $1 order by period desc limit 24`,
-      [id],
-    ),
-    pool.query<{ id: string; state: string; period: string | null; created_at: Date }>(
-      `select id, state, stage_checkpoints->>'period' as period, created_at from jobs
-       where company_id = $1 and account_id = $2 and type = 'commentary' and state not in ('draft', 'estimated')
-       order by created_at desc limit 50`,
-      [id, account.accountId],
-    ),
-  ]);
-  return (
-    <AppFrame
-      accountId={account.accountId}
-      businessName={account.businessName}
-      company={{ id, name: company.name }}
-    >
-      <PageHeader
-        title="Commentary"
-        description="A written explanation of what moved and why. Figures come from the engine, never from the model."
-        back={{ href: `/app/companies/${id}`, label: company.name }}
-      />
-      <CommentaryClient
-        companyId={id}
-        periods={periods.rows.map((p) => p.period)}
-        jobs={jobs.rows.map((j) => ({
-          id: j.id,
-          state: j.state,
-          period: j.period,
-          createdAt: j.created_at.toISOString(),
-        }))}
-      />
-    </AppFrame>
-  );
+  redirect(`/app/companies/${encodeURIComponent(id)}`);
 }

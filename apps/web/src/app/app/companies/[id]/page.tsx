@@ -1,3 +1,6 @@
+import type { NumberFormatOptions } from "@magicmis/core/format";
+import { currencySymbol } from "@magicmis/core/reporting-conventions";
+import { uploadLimits } from "@magicmis/jobs";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
@@ -10,7 +13,6 @@ import {
   EmptyState,
   PageHeader,
   Panel,
-  StatCard,
   Td,
   Th,
   Tr,
@@ -20,7 +22,10 @@ import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 
+import { CompanyFiles } from "./CompanyFiles";
 import { DeleteCompany } from "./DeleteCompany";
+import { JobRunner } from "./run/JobRunner";
+import { Workspace } from "./Workspace";
 
 export const metadata = { title: "Company" };
 export const dynamic = "force-dynamic";
@@ -47,19 +52,60 @@ const JOB_STATE: Record<string, { label: string; tone: BadgeTone }> = {
   quote_accepted: { label: "Quote accepted", tone: "accent" },
   failed_data: { label: "Failed — check the data", tone: "negative" },
   failed_platform: { label: "Failed — our fault", tone: "negative" },
-  commentary_queued: { label: "Queued", tone: "accent" },
-  commentary_done: { label: "Completed", tone: "positive" },
 };
 
-const ist = (d: Date, withTime = true) =>
+const ist = (d: Date) =>
   d.toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
     day: "numeric",
     month: "short",
     year: "numeric",
-    ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
+type Pool = ReturnType<typeof db>;
+
+/** What this company still keeps on our servers, for the list with its delete buttons. */
+async function keptFiles(pool: Pool, companyId: string, accountId: string) {
+  const [rows, limits] = await Promise.all([
+    pool.query<{
+      id: string;
+      file_name: string;
+      byte_size: string;
+      status: string;
+      created_at: Date;
+      expires_at: Date;
+    }>(
+      `select id, file_name, byte_size::text as byte_size, status, created_at, expires_at
+         from source_uploads
+        where company_id = $1 and account_id = $2 and deleted_at is null
+        order by created_at desc limit 500`,
+      [companyId, accountId],
+    ),
+    uploadLimits(pool),
+  ]);
+  return {
+    retentionDays: limits.retentionDays,
+    files: rows.rows.map((r) => ({
+      id: r.id,
+      name: r.file_name,
+      size: Number.parseInt(r.byte_size, 10),
+      usable: r.status === "ready",
+      uploadedAt: r.created_at.toISOString(),
+      deletesAt: r.expires_at.toISOString(),
+    })),
+  };
+}
+
+/**
+ * A company, as one workspace (ADR 0033).
+ *
+ * Before its first setup the page is the setup itself: drop the trial balances and build. After
+ * it, the page is the dashboard with the assistant beside it — questions, deeper analysis, layout
+ * changes and the month's commentary in one conversation — and the company's workbooks, kept
+ * files and history below. There are no separate chat, commentary or dashboard tabs.
+ */
 export default async function CompanyPage({
   params,
 }: {
@@ -73,13 +119,77 @@ export default async function CompanyPage({
     name: string;
     lifecycle_state: string;
     first_setup_at: Date | null;
+    number_format: NumberFormatOptions["style"];
+    decimals: number;
+    currency: string;
   }>(
-    `select name, lifecycle_state, first_setup_at from companies where id = $1 and account_id = $2 and deleted_at is null`,
+    `select name, lifecycle_state, first_setup_at, number_format, decimals, currency
+       from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
   const company = c.rows[0];
   if (company === undefined) notFound();
-  const [jobs, outputs, latest] = await Promise.all([
+  const state = LIFECYCLE[company.lifecycle_state] ?? {
+    label: company.lifecycle_state,
+    tone: "neutral" as BadgeTone,
+  };
+  const active = company.lifecycle_state === "active";
+  const frame = {
+    accountId: account.accountId,
+    businessName: account.businessName,
+    company: { id, name: company.name },
+  };
+
+  if (company.first_setup_at === null) {
+    const kept = await keptFiles(pool, id, account.accountId);
+    return (
+      <AppFrame {...frame}>
+        <PageHeader
+          title={company.name}
+          meta={
+            <Badge tone={state.tone} dot>
+              {state.label}
+            </Badge>
+          }
+          description="Drop in the trial balances you have — every month you want in the MIS. We read them, map every ledger and build the workbook, then this becomes the company's dashboard and assistant."
+        />
+        {active ? (
+          <JobRunner companyId={id} mode="setup" businessName={account.businessName} />
+        ) : (
+          <Panel>
+            <p className="text-sm text-neutral-600">
+              This company is {state.label.toLowerCase()}. Restore it to set it up.
+            </p>
+          </Panel>
+        )}
+        {kept.files.length === 0 ? null : (
+          <details
+            className="group mt-5 rounded-xl border border-neutral-200/80 bg-white shadow-sm"
+            data-testid="kept-files"
+          >
+            <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.875rem] font-semibold text-neutral-900 select-none">
+              <span className="flex items-center gap-2">
+                <Icon name="lock" size={16} className="text-neutral-400" />
+                Files kept for this company ({kept.files.length.toString()})
+              </span>
+              <Icon
+                name="chevron-down"
+                size={16}
+                className="text-neutral-400 group-open:rotate-180"
+              />
+            </summary>
+            <p className="px-5 pb-3 text-[0.8125rem] text-neutral-500">
+              Encrypted, and deleted automatically {kept.retentionDays.toString()} days
+              after upload.
+            </p>
+            <CompanyFiles files={kept.files} />
+          </details>
+        )}
+      </AppFrame>
+    );
+  }
+
+  const [jobs, outputs, periods, commentaries, kept] = await Promise.all([
     pool.query<{
       id: string;
       type: string;
@@ -87,9 +197,8 @@ export default async function CompanyPage({
       captured_credits: string | null;
       created_at: Date;
     }>(
-      // What the account did, not what it looked at. A run screen prices itself by
-      // creating an estimate; one that was superseded or abandoned carries no charge and
-      // is not part of this company's history.
+      // What the account did, not what it looked at: an abandoned start carries no charge
+      // and is not part of this company's history.
       `select id, type, state, captured_credits::text as captured_credits, created_at
           from jobs
          where company_id = $1
@@ -102,141 +211,133 @@ export default async function CompanyPage({
       `select id, file_name, created_at from outputs where company_id = $1 order by created_at desc limit 50`,
       [id],
     ),
-    pool.query<{ period: string | null }>(
-      `select max(period) as period from snapshots where company_id = $1`,
+    pool.query<{ period: string }>(
+      `select distinct period from snapshots where company_id = $1 order by period desc limit 36`,
       [id],
     ),
+    pool.query<{ id: string; state: string; period: string | null; created_at: Date }>(
+      `select id, state, stage_checkpoints->>'period' as period, created_at from jobs
+        where company_id = $1 and account_id = $2 and type = 'commentary'
+          and state not in ('draft', 'estimated', 'cancelled')
+        order by created_at desc limit 50`,
+      [id, account.accountId],
+    ),
+    keptFiles(pool, id, account.accountId),
   ]);
-
-  const state = LIFECYCLE[company.lifecycle_state] ?? {
-    label: company.lifecycle_state,
-    tone: "neutral" as BadgeTone,
-  };
-  const isSetUp = company.first_setup_at !== null;
-  const active = company.lifecycle_state === "active";
-  const spent = jobs.rows.reduce((sum, j) => sum + BigInt(j.captured_credits ?? "0"), 0n);
+  const latestOutput = outputs.rows[0];
 
   return (
-    <AppFrame
-      accountId={account.accountId}
-      businessName={account.businessName}
-      company={{ id, name: company.name }}
-    >
+    <AppFrame {...frame} wide>
       <PageHeader
         title={company.name}
-        back={{ href: "/app", label: "All companies" }}
-        description={
-          isSetUp
-            ? "Its workbooks, everything that has run, and what each action cost."
-            : "Not set up yet. Run the first setup to build the MIS and its mappings."
-        }
         meta={
           <Badge tone={state.tone} dot>
             {state.label}
           </Badge>
         }
         actions={
-          active ? (
-            <ButtonLink
-              href={`/app/companies/${id}/run`}
-              icon={isSetUp ? "refresh" : "play"}
-            >
-              {isSetUp ? "Run monthly refresh" : "Set up MIS"}
-            </ButtonLink>
-          ) : undefined
+          <>
+            {latestOutput === undefined ? null : (
+              <ButtonLink
+                href={`/api/outputs/${latestOutput.id}`}
+                variant="secondary"
+                icon="download"
+                data-testid="latest-workbook"
+              >
+                Latest workbook
+              </ButtonLink>
+            )}
+            {active ? (
+              <ButtonLink href={`/app/companies/${id}/run`} icon="upload">
+                Add a month
+              </ButtonLink>
+            ) : null}
+          </>
         }
       />
 
-      {isSetUp ? (
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            label="Latest period"
-            value={latest.rows[0]?.period ?? "—"}
-            icon="calendar"
-            tone="accent"
-            hint="Months are added by a refresh"
-          />
-          <StatCard
-            label="Workbooks"
-            value={outputs.rows.length.toString()}
-            icon="document"
-            hint="Every version is kept"
-          />
-          <StatCard
-            label="Actions run"
-            value={jobs.rows.length.toString()}
-            icon="clock"
-            hint="Setup, refreshes, commentary and chat"
-          />
-          <StatCard
-            label="Credits spent here"
-            value={formatCredits(spent.toString())}
-            icon="wallet"
-            hint="Charged on completion, never before"
-          />
+      <Workspace
+        companyId={id}
+        companyName={company.name}
+        money={{
+          style: company.number_format,
+          decimals: company.decimals,
+          negativesInBrackets: true,
+        }}
+        currencySymbol={currencySymbol(company.currency)}
+        periods={periods.rows.map((p) => p.period)}
+        commentaries={commentaries.rows.map((j) => ({
+          id: j.id,
+          state: j.state,
+          period: j.period,
+          createdAt: j.created_at.toISOString(),
+        }))}
+      >
+        <div className="grid items-start gap-5 2xl:grid-cols-2">
+          <Panel title="Workbooks" icon="download" padding="none">
+            {outputs.rows.length === 0 ? (
+              <EmptyState icon="document" title="No workbooks yet">
+                A workbook appears here once a setup or a month completes.
+              </EmptyState>
+            ) : (
+              <ul
+                className="scroll-slim flex max-h-80 flex-col divide-y divide-neutral-100 overflow-y-auto px-2 pb-2"
+                data-testid="company-outputs"
+              >
+                {outputs.rows.map((o) => (
+                  <li key={o.id}>
+                    <a
+                      href={`/api/outputs/${o.id}`}
+                      className="group flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-neutral-25"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-positive-subtle text-positive">
+                        <Icon name="file" size={15} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[0.8125rem] font-medium text-neutral-900">
+                          {o.file_name ?? "Workbook"}
+                        </span>
+                        <span className="block text-[0.75rem] text-neutral-500">
+                          {ist(o.created_at)} IST
+                        </span>
+                      </span>
+                      <Icon
+                        name="download"
+                        size={15}
+                        className="text-neutral-300 group-hover:text-accent-600"
+                      />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel
+            title="Files kept"
+            icon="lock"
+            padding="none"
+            description={`Encrypted, and deleted automatically ${kept.retentionDays.toString()} days after upload.`}
+          >
+            <CompanyFiles files={kept.files} />
+          </Panel>
         </div>
-      ) : null}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]">
-        <Panel title="Workbooks" icon="download" padding="none">
-          {outputs.rows.length === 0 ? (
-            <EmptyState icon="document" title="No workbooks yet">
-              A workbook appears here once a setup or refresh completes.
-            </EmptyState>
-          ) : (
-            <ul
-              className="flex flex-col divide-y divide-neutral-100 px-2 pb-2"
-              data-testid="company-outputs"
-            >
-              {outputs.rows.map((o) => (
-                <li key={o.id}>
-                  <a
-                    href={`/api/outputs/${o.id}`}
-                    className="group flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-neutral-25"
-                  >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-positive-subtle text-positive">
-                      <Icon name="file" size={15} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[0.8125rem] font-medium text-neutral-900">
-                        {o.file_name ?? "Workbook"}
-                      </span>
-                      <span className="block text-[0.75rem] text-neutral-500">
-                        {ist(o.created_at)} IST
-                      </span>
-                    </span>
-                    <Icon
-                      name="download"
-                      size={15}
-                      className="text-neutral-300 group-hover:text-accent-600"
-                    />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel
-          title="Activity"
-          description="Every action run for this company, newest first."
-          icon="clock"
-          padding="none"
-        >
+        <details className="group rounded-xl border border-neutral-200/80 bg-white shadow-sm">
+          <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.9375rem] font-semibold text-neutral-900 select-none">
+            <span className="flex items-center gap-2">
+              <Icon name="clock" size={16} className="text-neutral-400" />
+              Activity and charges
+            </span>
+            <Icon
+              name="chevron-down"
+              size={16}
+              className="text-neutral-400 group-open:rotate-180"
+            />
+          </summary>
           {jobs.rows.length === 0 ? (
-            <EmptyState
-              icon="clock"
-              title="Nothing has run yet"
-              action={
-                active ? (
-                  <ButtonLink href={`/app/companies/${id}/run`} size="sm" icon="play">
-                    {isSetUp ? "Run monthly refresh" : "Set up MIS"}
-                  </ButtonLink>
-                ) : undefined
-              }
-            >
-              Load this month&rsquo;s files, then run a setup or a refresh. You see the
-              price and confirm it before anything is charged.
+            <EmptyState icon="clock" title="Nothing has run yet">
+              Everything run for this company appears here with what it charged.
             </EmptyState>
           ) : (
             <DataTable
@@ -277,18 +378,29 @@ export default async function CompanyPage({
               })}
             </DataTable>
           )}
-        </Panel>
-      </div>
+        </details>
 
-      <div className="mt-5">
-        <Panel
-          title="Delete company"
-          description="Stops the monthly memory fee now; stored data is destroyed after the purge period."
-          icon="trash"
-        >
-          <DeleteCompany companyId={id} name={company.name} />
-        </Panel>
-      </div>
+        <details className="group rounded-xl border border-neutral-200/80 bg-white shadow-sm">
+          <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.9375rem] font-semibold text-neutral-900 select-none">
+            <span className="flex items-center gap-2">
+              <Icon name="trash" size={16} className="text-neutral-400" />
+              Delete company
+            </span>
+            <Icon
+              name="chevron-down"
+              size={16}
+              className="text-neutral-400 group-open:rotate-180"
+            />
+          </summary>
+          <div className="px-5 pb-5">
+            <p className="mb-3 text-[0.8125rem] text-neutral-500">
+              Stops the monthly memory fee now; stored data is destroyed after the purge
+              period.
+            </p>
+            <DeleteCompany companyId={id} name={company.name} />
+          </div>
+        </details>
+      </Workspace>
     </AppFrame>
   );
 }

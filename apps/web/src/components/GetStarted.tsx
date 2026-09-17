@@ -34,16 +34,16 @@ export function GetStarted({
     {
       done: state.hasCredits,
       title: "Put credits in your wallet",
-      body: "A first setup costs 999 credits and each monthly refresh 299. The wallet shows what a pack costs in your own currency before you buy.",
+      body: "Credits pay for each action as you use it. The wallet shows what a pack costs in your own currency before you buy.",
       action: { href: "/wallet", label: "Buy credits" },
     },
     {
       done: false,
       title: "Run your first MIS",
-      body: "Load your trial balances. You see the exact price and confirm it before anything is charged.",
+      body: "Drop in your trial balances and press build. The workbook, dashboard and assistant follow.",
       action:
         state.hasCompany && firstCompanyId !== null
-          ? { href: `/app/companies/${firstCompanyId}/run`, label: "Start" }
+          ? { href: `/app/companies/${firstCompanyId}`, label: "Start" }
           : null,
     },
   ];

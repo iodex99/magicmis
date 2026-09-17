@@ -151,7 +151,7 @@ export default function AutomatedManagementAccountsPage() {
       />
       <ClosingCta
         heading="Your next pack, without the rebuild"
-        body={`${PRODUCT_NAME} produces monthly management accounts from a trial balance export. See the price before anything runs.`}
+        body={`${PRODUCT_NAME} produces monthly management accounts from a trial balance export. Pay per action from prepaid credits.`}
       />
     </PublicShell>
   );

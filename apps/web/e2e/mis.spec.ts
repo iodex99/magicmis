@@ -93,10 +93,9 @@ async function runJob(files: string[]) {
   await expect(page.locator("main")).not.toContainText(
     /Sundry Debtors|Northwind|Revenue/u,
   );
-  // The price appears once the uploads are in; the single button is the SPEC §12
-  // confirmation, and nothing is held until it is pressed.
-  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 120_000 });
-  await page.getByRole("button", { name: /^Run (setup|refresh) —/u }).click();
+  // One button starts the run once the uploads are in; there is no price step (ADR 0033).
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 120_000 });
+  await page.getByTestId("job-run").click();
   // The server runs it through: no review, no questions.
   await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 240_000 });
 }
@@ -105,7 +104,8 @@ test("sets up a company from thirteen months of trial balances", async () => {
   await page.goto("/app");
   await page.getByLabel("Company name").fill("Synthetic Hardware Traders");
   await page.getByRole("button", { name: "Add company" }).click();
-  await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+\/run$/u);
+  // A new company is set up from its own workspace (ADR 0033).
+  await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+$/u);
   await expect(page.getByLabel("Choose files")).toBeEnabled();
 
   await runJob(SETUP_MONTHS.map(tb));
@@ -137,7 +137,7 @@ test("sets up a company from thirteen months of trial balances", async () => {
 
 test("refreshes the next month with no review and zero AI calls", async () => {
   await page.goto("/app");
-  await page.getByRole("link", { name: "Refresh" }).click();
+  await page.getByRole("link", { name: "Add a month" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
   await runJob([tb("2026-05")]);
   await expect(page.getByTestId("job-done")).toContainText("299 credits charged");
@@ -169,12 +169,10 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
     [email],
   );
   const companyId = company.rows[0]?.id ?? "";
+  // The company page is the workspace: the dashboard with the assistant beside it.
   await page.goto(`/app/companies/${companyId}`);
-  await page.getByRole("link", { name: "Dashboard" }).click();
-  // The button carries the price before it is pressed; confirming is still explicit.
-  await page.getByRole("button", { name: /^Add the dashboard —/u }).click();
-  await expect(page.getByTestId("job-price")).toContainText("Dashboard");
-  await page.getByRole("button", { name: /^Confirm —/u }).click();
+  await expect(page.getByTestId("assistant")).toBeVisible();
+  await page.getByRole("button", { name: "Build the dashboard" }).click();
 
   const revenue = page.getByTestId("widget-kpi_revenue");
   await expect(revenue).toBeVisible();
@@ -182,6 +180,9 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   await revenue.locator("[data-metric-key='revenue@2026-05']").click();
   await expect(page.getByTestId("lineage-panel")).toContainText("revenue");
   await expect(page.getByTestId("lineage-panel")).toContainText("Formula");
+  // Lineage opens in a drawer; Escape closes it.
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("lineage-panel")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Edit layout" }).click();
   page.once("dialog", (d) => void d.accept("Sales"));
@@ -214,6 +215,7 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
   await writeFile(referencePath, await referenceMisWorkbook({ rulesOnly: true }));
 
   await page.goto("/app");
+  await page.getByRole("button", { name: /^Add a company/u }).click();
   await page.getByLabel("Company name").fill("Synthetic Recreated Traders");
   await page.getByRole("button", { name: "Add company" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
@@ -225,9 +227,9 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
   // Before payment, nothing from the reference's rows is shown.
   await expect(page.locator("main")).not.toContainText(/Sundry Debtors|Net Profit/u);
 
-  // Adding the reference re-prices on its own: the action became a recreate.
-  await expect(page.getByTestId("job-price")).toContainText("1,498", { timeout: 60_000 });
-  await page.getByRole("button", { name: /^Run setup —/u }).click();
+  // With a reference added, the one button runs a recreate.
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 60_000 });
+  await page.getByTestId("job-run").click();
 
   // The layout is bound by rules and accepted as proposed: no review screen.
   await expect(page.getByTestId("job-done")).toContainText("1,498 credits charged", {
@@ -256,8 +258,7 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
   const totalIncome = rows.find((r) => r[0] === "Total Income");
   expect(typeof totalIncome?.[1]).toBe("number");
 
-  // Exactly one charged job. Adding the reference re-priced the run, and the superseded
-  // estimate is cancelled with nothing held — it is not part of the company's history.
+  // Exactly one charged job; nothing is created before the button is pressed.
   const job = await db.query<{ type: string; state: string }>(
     `select j.type, j.state from jobs j join companies c on c.id = j.company_id join accounts a on a.id = c.account_id
      where c.name = 'Synthetic Recreated Traders' and a.email = $1
@@ -303,8 +304,7 @@ test.describe("chat with the MIS", () => {
   };
 
   test("quick answers resolve placeholders with lineage; out-of-scope is declined and charged", async () => {
-    await page.goto(`/app/companies/${await companyId()}/chat`);
-    await expect(page.getByTestId("chat-send")).toContainText("19 credits");
+    await page.goto(`/app/companies/${await companyId()}`);
     await expect(page.getByText("including questions outside this MIS")).toBeVisible();
     await page.getByLabel("Your question").fill("How did revenue move this month?");
     await page.getByTestId("chat-send").click();
@@ -312,6 +312,7 @@ test.describe("chat with the MIS", () => {
     await expect(answer).toContainText("The figure you asked about is");
     await answer.locator("[data-lineage^='revenue']").first().click();
     await expect(page.getByTestId("lineage-panel")).toContainText("Formula");
+    await page.keyboard.press("Escape");
 
     await page.getByLabel("Your question").fill("Write me a poem about the sea.");
     await page.getByTestId("chat-send").click();
@@ -330,14 +331,16 @@ test.describe("chat with the MIS", () => {
   });
 
   test("deep answers query the company's figures on the server and link cells to their query", async () => {
-    await page.goto(`/app/companies/${await companyId()}/chat`);
-    await page.getByTestId("chat-type").selectOption("deep");
+    await page.goto(`/app/companies/${await companyId()}`);
+    await page
+      .getByTestId("chat-type")
+      .getByRole("radio", { name: "Dig deeper" })
+      .click();
     await page
       .getByLabel("Your question")
       .fill("Which head has the largest closing balance?");
     // Nothing to load: the queries run on the server (ADR 0032).
     await expect(page.getByTestId("chat-session")).toBeVisible();
-    await expect(page.getByTestId("chat-send")).toContainText("99 credits");
     await page.getByTestId("chat-send").click();
     const answer = page.getByTestId("chat-answer").last();
     await expect(answer).toContainText("The largest closing balance by head is", {
@@ -358,10 +361,14 @@ test.describe("chat with the MIS", () => {
 
   test("edit proposes a patch, applies on confirmation, and undoes; Investigate opens a Deep question", async () => {
     const id = await companyId();
-    await page.goto(`/app/companies/${id}/chat`);
-    await page.getByTestId("chat-type").selectOption("edit");
+    await page.goto(`/app/companies/${id}`);
+    await page
+      .getByTestId("chat-type")
+      .getByRole("radio", { name: "Change layout" })
+      .click();
     await page.getByLabel("Your question").fill("Rename the first card to Sales");
     await page.getByTestId("chat-send").click();
+    await page.getByTestId("chat-edit").last().getByText("The exact change").click();
     await expect(page.getByTestId("chat-edit-preview").last()).toContainText(
       "/widgets/0/title",
     );
@@ -369,15 +376,16 @@ test.describe("chat with the MIS", () => {
     await expect(page.getByTestId("chat-edit").last()).toContainText(
       "Applied to the dashboard",
     );
-    await page.goto(`/app/companies/${id}/dashboard`);
+    // The dashboard beside the conversation reloads with the change.
     await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Sales");
     await page.getByRole("button", { name: "Undo last change" }).click();
     await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Revenue");
     await page
       .getByTestId("widget-kpi_revenue")
-      .getByRole("link", { name: "Investigate" })
+      .getByRole("button", { name: "Investigate" })
       .click();
-    await expect(page).toHaveURL(/\/chat\?investigate=revenue/u);
+    // Investigate hands the question to the assistant beside the dashboard.
+    await expect(page).toHaveURL(new RegExp(`/app/companies/${id}$`, "u"));
     await expect(page.getByLabel("Your question")).toHaveValue(
       /Why did Revenue from operations move/u,
     );

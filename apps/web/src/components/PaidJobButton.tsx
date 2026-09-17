@@ -1,31 +1,19 @@
 "use client";
 
 /**
- * A paid action without files (dashboard add-on, commentary): choose tier and delivery, get the
- * exact price from the server, confirm, hold credits, then hand the held job to `onHeld`
- * (SPEC §12, §23). Nothing is charged until the user confirms.
+ * A paid action without files (dashboard add-on, dashboard refresh): one press holds the credits
+ * and hands the held job to `onHeld` (ADR 0033). A quote over the AI cost cap is shown and must
+ * be accepted first (locked decision 6); a wallet that cannot cover it says so and holds nothing.
  */
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 
 import { Alert, Button } from "@/components/ui";
-import {
-  ACTION_LABELS,
-  DELIVERY_LABELS,
-  formatCredits,
-  TIER_LABELS,
-} from "@/lib/actions";
-import { api, newIdempotencyKey } from "@/lib/client-api";
+import { formatCredits } from "@/lib/actions";
+import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 
-type Tier = keyof typeof TIER_LABELS;
-type Delivery = keyof typeof DELIVERY_LABELS;
-
-interface CreatedJob {
-  jobId: string;
-  priceCredits: string;
-  quote: { credits: string; expiresAt: string } | null;
-  available: string;
-}
+import type { IconName } from "./Icon";
 
 const ZERO_SIZE = {
   files: 0,
@@ -40,169 +28,102 @@ export function PaidJobButton({
   companyId,
   type,
   label,
-  deliveries,
+  busyLabel = "Working…",
+  icon,
   onHeld,
 }: {
   companyId: string;
-  type: "dashboard_addon" | "dashboard_refresh" | "commentary";
+  type: "dashboard_addon" | "dashboard_refresh";
   label: string;
-  deliveries: readonly Delivery[];
-  onHeld: (jobId: string, delivery: Delivery) => Promise<void>;
+  busyLabel?: string;
+  icon?: IconName;
+  onHeld: (jobId: string) => Promise<void>;
 }) {
-  const [tier, setTier] = useState<Tier>("professional");
-  const [delivery, setDelivery] = useState<Delivery>(deliveries[0] ?? "standard");
-  const [job, setJob] = useState<CreatedJob | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  /** The price book is public (SPEC §2.3), so the button can carry the price. */
-  const [preview, setPreview] = useState<string | null>(null);
+  const [stopped, setStopped] = useState<Exclude<StartResult, { kind: "held" }> | null>(
+    null,
+  );
 
-  useEffect(() => {
-    const state = { cancelled: false };
-    const cancelled = () => state.cancelled;
-    void api<{ credits: string }>("/api/pricing/preview", {
-      body: { actionKey: type, tier, delivery },
-    }).then((r) => {
-      if (cancelled()) return;
-      setPreview(r.ok ? r.data.credits : null);
-    });
-    return () => {
-      state.cancelled = true;
-    };
-  }, [type, tier, delivery]);
-
-  const price = async () => {
-    setBusy(true);
-    setError(null);
-    const r = await api<CreatedJob>("/api/jobs", {
-      body: { companyId, type, tier, delivery, size: ZERO_SIZE, fingerprints: {} },
-      idempotencyKey: newIdempotencyKey(),
-    });
-    setBusy(false);
-    if (r.ok) setJob(r.data);
-    else setError(r.message);
-  };
-
-  const confirm = async (j: CreatedJob) => {
-    setBusy(true);
-    setError(null);
-    const hold = await api(
-      j.quote === null
-        ? `/api/jobs/${j.jobId}/confirm`
-        : `/api/jobs/${j.jobId}/accept-quote`,
-      { body: {}, idempotencyKey: newIdempotencyKey() },
-    );
-    if (!hold.ok) {
-      setBusy(false);
-      setError(hold.message);
+  const settle = async (result: StartResult) => {
+    if (result.kind !== "held") {
+      setStopped(result);
       return;
     }
+    setStopped(null);
+    await onHeld(result.jobId);
+  };
+
+  const start = async () => {
+    setBusy(true);
     try {
-      await onHeld(j.jobId, delivery);
-      setJob(null);
+      await settle(
+        await startPaidJob({
+          companyId,
+          type,
+          tier: "professional",
+          delivery: "standard",
+          size: ZERO_SIZE,
+          fingerprints: {},
+        }),
+      );
     } finally {
       setBusy(false);
     }
   };
 
-  const credits = job?.quote?.credits ?? job?.priceCredits ?? "0";
   return (
     <div className="flex flex-col gap-3">
-      {job === null ? (
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
-            <span>Intelligence tier</span>
-            <select
-              className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
-              value={tier}
-              onChange={(e) => {
-                setTier(e.target.value as Tier);
+      {stopped?.kind === "quote" ? (
+        <Alert tone="warning" title="This one needs a quote">
+          <p>
+            It needs more analysis than the standard price covers:{" "}
+            <strong className="tabular-nums">{formatCredits(stopped.credits)}</strong>{" "}
+            credits, held until {new Date(stopped.expiresAt).toLocaleString("en-IN")}.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <Button
+              size="sm"
+              disabled={busy}
+              onClick={() => {
+                setBusy(true);
+                void acceptQuote(stopped.jobId, stopped.credits)
+                  .then(settle)
+                  .finally(() => {
+                    setBusy(false);
+                  });
               }}
             >
-              {(Object.keys(TIER_LABELS) as Tier[]).map((t) => (
-                <option key={t} value={t}>
-                  {TIER_LABELS[t]}
-                </option>
-              ))}
-            </select>
-          </label>
-          {deliveries.length > 1 ? (
-            <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
-              <span>Delivery</span>
-              <select
-                className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
-                value={delivery}
-                onChange={(e) => {
-                  setDelivery(e.target.value as Delivery);
-                }}
-              >
-                {deliveries.map((d) => (
-                  <option key={d} value={d}>
-                    {DELIVERY_LABELS[d]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : null}
-          <Button onClick={() => void price()} disabled={busy}>
-            {busy
-              ? "Pricing…"
-              : preview === null
-                ? label
-                : `${label} — ${formatCredits(preview)} credits`}
-          </Button>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          <dl
-            className="grid max-w-md grid-cols-2 gap-y-2 text-sm"
-            data-testid="job-price"
-          >
-            <dt className="text-neutral-600">Action</dt>
-            <dd className="text-right font-medium">{ACTION_LABELS[type]}</dd>
-            <dt className="text-neutral-600">Intelligence tier</dt>
-            <dd className="text-right font-medium">{TIER_LABELS[tier]}</dd>
-            <dt className="text-neutral-600">Delivery</dt>
-            <dd className="text-right font-medium">{DELIVERY_LABELS[delivery]}</dd>
-            <dt className="text-neutral-600">{job.quote === null ? "Price" : "Quote"}</dt>
-            <dd className="text-right font-medium tabular-nums">
-              {formatCredits(credits)} credits
-            </dd>
-            <dt className="text-neutral-600">Available after</dt>
-            <dd className="text-right tabular-nums">
-              {formatCredits((BigInt(job.available) - BigInt(credits)).toString())}
-            </dd>
-          </dl>
-          {BigInt(job.available) < BigInt(credits) ? (
-            <Alert tone="warning" title="Not enough credits">
-              You need{" "}
-              {formatCredits((BigInt(credits) - BigInt(job.available)).toString())} more.{" "}
-              <a href={`/wallet?need=${credits}`} className="font-medium underline">
-                Buy credits
-              </a>
-              . Nothing has been charged.
-            </Alert>
-          ) : null}
-          <div className="flex gap-2">
+              Accept and continue
+            </Button>
             <Button
+              size="sm"
               variant="secondary"
               onClick={() => {
-                setJob(null);
+                setStopped(null);
               }}
-              disabled={busy}
             >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => void confirm(job)}
-              disabled={busy || BigInt(job.available) < BigInt(credits)}
-            >
-              {busy ? "Working…" : `Confirm — ${formatCredits(credits)} credits`}
+              Not now
             </Button>
           </div>
-        </div>
+        </Alert>
+      ) : (
+        <Button
+          onClick={() => void start()}
+          disabled={busy}
+          {...(icon === undefined ? {} : { icon })}
+        >
+          {busy ? busyLabel : label}
+        </Button>
       )}
-      {error === null ? null : <Alert tone="error">{error}</Alert>}
+      {stopped?.kind === "short" ? (
+        <Alert tone="warning" title="Not enough credits">
+          Top up your wallet and press it again. Nothing has been charged.{" "}
+          <Link href="/wallet" className="font-medium underline">
+            Buy credits
+          </Link>
+        </Alert>
+      ) : null}
+      {stopped?.kind === "error" ? <Alert tone="error">{stopped.message}</Alert> : null}
     </div>
   );
 }

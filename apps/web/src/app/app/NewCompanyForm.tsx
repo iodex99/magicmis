@@ -59,7 +59,13 @@ const CURRENCIES: readonly (readonly [string, string])[] = [
  * They are settled once and reused every month afterwards — which is the point: a setting
  * asked every month is a question, and a setting asked once is a convention.
  */
-export function NewCompanyForm({ defaults }: { defaults: ReportingConventions }) {
+export function NewCompanyForm({
+  defaults,
+  autoFocus = false,
+}: {
+  defaults: ReportingConventions;
+  autoFocus?: boolean;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [fields, setFields] = useState<Record<string, string>>({});
@@ -94,7 +100,7 @@ export function NewCompanyForm({ defaults }: { defaults: ReportingConventions })
             setFields(r.fields);
             return;
           }
-          router.push(`/app/companies/${r.data.companyId}/run`);
+          router.push(`/app/companies/${r.data.companyId}`);
         });
       }}
     >
@@ -104,6 +110,8 @@ export function NewCompanyForm({ defaults }: { defaults: ReportingConventions })
         name="name"
         label="Company name"
         placeholder="Northwind Traders Pvt Ltd"
+        className="h-12 text-base"
+        autoFocus={autoFocus}
         required
         minLength={2}
         maxLength={120}
@@ -185,7 +193,13 @@ export function NewCompanyForm({ defaults }: { defaults: ReportingConventions })
         </div>
       </div>
 
-      <Button type="submit" disabled={busy} icon="plus" className="w-full">
+      <Button
+        type="submit"
+        size="lg"
+        disabled={busy}
+        iconAfter="arrow-right"
+        className="w-full"
+      >
         {busy ? "Adding…" : "Add company"}
       </Button>
     </form>

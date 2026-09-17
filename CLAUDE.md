@@ -9,7 +9,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), plan [ui-redesign](docs/plans/ui-redesign.md)) the friction pass (ADR [0027](docs/adr/0027-friction.md)), the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)), the public site (plan [seo-marketing](docs/plans/seo-marketing.md)) and selling worldwide in two currencies (ADR [0030](docs/adr/0030-worldwide-two-currencies.md), plan [worldwide](docs/plans/worldwide.md)). **Deployment target is Vercel.** What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the apex domain (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26), the export LUT (R-59), Razorpay international activation (R-60) and a data-protection review (R-50).
+**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), and the one-workspace flow, ADR [0033](docs/adr/0033-one-workspace-no-price-step.md), plan [ui-redesign](docs/plans/ui-redesign.md)) the friction pass (ADR [0027](docs/adr/0027-friction.md)), the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)), the public site (plan [seo-marketing](docs/plans/seo-marketing.md)) and selling worldwide in two currencies (ADR [0030](docs/adr/0030-worldwide-two-currencies.md), plan [worldwide](docs/plans/worldwide.md)). **Deployment target is Vercel.** What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the apex domain (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26), the export LUT (R-59), Razorpay international activation (R-60) and a data-protection review (R-50).
 
 Design system: tokens in `packages/ui/src/tokens.ts`, mirrored into both apps' `globals.css`.
 Primitives in `apps/web/src/components/ui.tsx`; icons are hand-drawn in `Icon.tsx` (no icon
@@ -21,8 +21,10 @@ Flow rules that are easy to undo by accident: sign-up asks for four things only 
 details are collected at the first purchase, migration 0034); the confirmation email
 establishes the session and lands in the app; **customers sign in with a password alone**
 (ADR 0028 — the admin console still requires TOTP, and `app.current_account_id()` now gates
-on the active session alone, migration 0036); the run screen prices itself and its
-single button **is** the SPEC §12 confirmation; **a run gets the customer to a workbook**
+on the active session alone, migration 0036); **there is no price step** — pressing an
+action's button holds its credits, and only a quote over the AI cost cap or a short wallet
+stops it (ADR 0033); **a company is one workspace** — setup when new, then the dashboard
+with the assistant (chat and commentary merged) beside it, no separate tabs (ADR 0033); **a run gets the customer to a workbook**
 (ADR 0031, ADR 0032) — files are uploaded and the whole run happens on the server
 (`lib/server/run-job.ts`, one request, no review); any file format is read (text PDFs included) or refused with a
 reason, unplaceable sheets are set aside rather than failing the job, AI classification is
@@ -193,7 +195,7 @@ content current.
    answer is computed by the deterministic engine and inserted via placeholders.
 8. **Amended by ADR 0032: files are uploaded and processed on the server.** Each chunk is
    sealed under the company's data key before storage, uploads expire after
-   `sources.retention_days` and are purged, and the Uploaded files page deletes on
+   `sources.retention_days` and are purged, and each company page deletes them on
    request. Anthropic still receives only what action-specific server code sends —
    redacted structure, capped redacted samples, redacted ledger names, chat query
    results — never a whole file. Before payment only names, sizes, sheet and row counts

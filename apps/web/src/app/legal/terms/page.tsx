@@ -122,10 +122,13 @@ export default async function TermsPage() {
         <>
           <p>
             The service is paid for with prepaid credits. Each action has a fixed credit
-            price from the price book, and the price is shown before you confirm the
-            action. Some larger actions need a quote, which you accept before anything
-            runs. You are never charged for an action you did not confirm, and your
-            balance cannot go below zero. There is no free tier or trial.
+            price from the published price book. Pressing the button for an action (for
+            example, building an MIS, adding a month, writing commentary or sending a chat
+            message) is your instruction to run it and to charge its price. Some larger
+            actions need a quote, which you accept before anything runs. You are never
+            charged for an action you did not start, credits are charged only when the
+            action is delivered, and your balance cannot go below zero. There is no free
+            tier or trial.
           </p>
           <ul>
             <li>

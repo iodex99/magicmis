@@ -71,7 +71,7 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
         <li>
           They are read on our servers only to prepare the reports you pay for and answer
           your questions, and deleted automatically after a fixed period — sooner if you
-          delete them from Uploaded files.
+          delete them from the company&rsquo;s page.
         </li>
         <li>
           Before anything goes to the AI, names and identifiers — party and employee

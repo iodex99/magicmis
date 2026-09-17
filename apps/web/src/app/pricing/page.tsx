@@ -50,9 +50,8 @@ export default async function PricingPage() {
           </h1>
           <p className="mt-4 text-[1.0625rem] leading-relaxed text-neutral-600">
             Every action has a fixed price from a published price book, in US dollars or —
-            for customers in India — rupees. You see the price and confirm it before
-            anything runs, and you are never billed by the minute or by how much work it
-            took.
+            for customers in India — rupees. Credits are charged only for what you run,
+            and you are never billed by the minute or by how much work it took.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <ButtonLink href="/sign-up" iconAfter="arrow-right">

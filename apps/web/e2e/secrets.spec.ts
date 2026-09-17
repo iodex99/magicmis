@@ -63,7 +63,6 @@ const STATIC_PATHS = [
   "/sign-in",
   "/sign-up",
   "/app",
-  "/app/data",
   "/wallet",
   "/settings/profile",
   "/settings/security",

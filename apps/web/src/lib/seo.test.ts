@@ -25,7 +25,7 @@ describe("public pages", () => {
 
   it("keeps the app itself desktop-only", () => {
     // The mirror of the rule above: opening the gate too wide is the other failure.
-    for (const path of ["/app", "/app/data", "/wallet", "/settings/profile"]) {
+    for (const path of ["/app", "/app/companies", "/wallet", "/settings/profile"]) {
       expect(isDeviceAgnosticPath(path), path).toBe(false);
     }
   });

@@ -62,8 +62,8 @@ const PROOF: readonly { icon: IconName; title: string; body: string; href: strin
   },
   {
     icon: "wallet",
-    title: "You see the price before it is charged",
-    body: "Prepaid credits, a fixed price per action, confirmed before anything runs. No subscription, no negative balance.",
+    title: "Pay only for what you run",
+    body: "Prepaid credits and a fixed price per action from a published price book. No subscription, no negative balance.",
     href: "/pricing",
   },
 ];
@@ -92,7 +92,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is there a free trial?",
     answer:
-      "No. There is no free tier, trial or free sample on your own data. Creating an account, adding a company and reading the price book cost nothing; anything that produces analysis or output is a paid action, priced before it runs.",
+      "No. There is no free tier, trial or free sample on your own data. Creating an account, adding a company and reading the price book cost nothing; anything that produces analysis or output is a paid action at a fixed price.",
   },
   {
     question: "How much does a monthly report cost?",
@@ -315,7 +315,7 @@ export default function HomePage() {
             </h2>
             <p className="mt-1.5 max-w-lg text-[0.875rem] text-neutral-300">
               Creating an account and adding a company cost nothing. You buy credits when
-              you are ready to run something, and confirm the price before it runs.
+              you are ready to run something, and are charged only for what you run.
             </p>
           </div>
           <Link

@@ -25,14 +25,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     development: process.env.NODE_ENV === "development",
     https: isHttps(request.nextUrl.protocol, (n) => request.headers.get(n)),
     // SPEC §30: the payment gateway only where credits are bought — the Wallet, and the
-    // run screen, which takes the payment in place. It has to: leaving the run unmounts
-    // the browser pipeline and destroys the files already loaded, so sending someone to
-    // the Wallet for credits costs them thirteen months of re-uploading (ADR 0027, R-57).
-    // Nowhere else may open it.
+    // two screens that run a setup or a month and take the payment in place: the company
+    // workspace (a new company is set up there, ADR 0033) and Add a month. Leaving a run
+    // loses the files chosen on it, so sending someone to the Wallet for credits costs
+    // them their uploads (ADR 0027, R-57). Nowhere else may open it.
     allowPayments:
       pathname === "/wallet" ||
       pathname.startsWith("/wallet/") ||
-      /^\/app\/companies\/[0-9a-f-]{36}\/run$/u.test(pathname),
+      /^\/app\/companies\/[0-9a-f-]{36}(\/run)?$/u.test(pathname),
   });
   const secure = (response: NextResponse): NextResponse => {
     for (const [name, value] of Object.entries(headers))

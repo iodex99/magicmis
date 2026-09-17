@@ -21,12 +21,15 @@ export async function AppFrame({
   accountId,
   businessName,
   company,
+  wide = false,
   children,
 }: {
   /** Omit only where the caller has no account context; the rail then shows a dash. */
   accountId?: string;
   businessName: string;
   company?: { id: string; name: string };
+  /** The company workspace uses the full width for the dashboard and the assistant. */
+  wide?: boolean;
   children: ReactNode;
 }) {
   const available =
@@ -44,7 +47,9 @@ export async function AppFrame({
         onSignOut={<SignOutButton />}
       />
       <main className="min-w-0 flex-1 px-8 py-7">
-        <div className="mx-auto w-full max-w-[1180px]">{children}</div>
+        <div className={`mx-auto w-full ${wide ? "max-w-[1680px]" : "max-w-[1180px]"}`}>
+          {children}
+        </div>
       </main>
     </div>
   );

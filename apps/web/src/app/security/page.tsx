@@ -63,7 +63,7 @@ export default async function SecurityPage() {
     },
     {
       title: "Uploaded files are deleted on a schedule",
-      body: `Files are deleted automatically ${days} after upload. The Uploaded files page lists every file kept and lets you delete any of them sooner. Deleting a company deletes its files.`,
+      body: `Files are deleted automatically ${days} after upload. Each company's page lists every file kept for it and lets you delete any of them sooner. Deleting a company deletes its files.`,
     },
     {
       title: "Names and identifiers are redacted before the AI sees anything",
