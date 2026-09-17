@@ -18,7 +18,7 @@
     "@magicmis/core": "workspace:*",
     "@magicmis/templates": "workspace:*",
     "exceljs": "4.4.0",
-    "pdfjs-dist": "^5.7.284",
+    "pdfjs-dist": "^6.3.289",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.1.13"
   },

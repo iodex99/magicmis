@@ -7,11 +7,11 @@
  * strings that line up vertically across rows form a column. Scanned PDFs carry no text and
  * yield an empty grid, which the caller reports as unreadable.
  *
- * pdf.js 5.7 (Mozilla, `pdfjs-dist`), legacy build so it also runs under Node for tests. Its
+ * pdf.js 6.3 (Mozilla, `pdfjs-dist`), legacy build so it also runs under Node for tests. Its
  * worker module is imported first: that registers `globalThis.pdfjsWorker`, and pdf.js then
  * runs its parser in the current thread (`PDFWorker#initialize` checks for it) — which is
  * already our ingestion Web Worker — instead of spawning a worker from a URL. The PDF never
- * leaves the tab. pdf.js 5 no longer compiles fonts with `eval`, so our CSP needs no exception;
+ * leaves the tab. pdf.js no longer compiles fonts with `eval`, so our CSP needs no exception;
  * nothing is rendered, so fonts are not needed at all.
  */
 

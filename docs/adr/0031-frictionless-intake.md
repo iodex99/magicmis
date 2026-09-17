@@ -46,12 +46,12 @@ photographs and scans (no text without OCR), scanned PDFs, and word-processor do
 A refused file never blocks the others in the same drop. `checkFiles` checks size and count
 only.
 
-**PDFs.** pdf.js 5.7.284 (`pdfjs-dist`, Mozilla's official distribution), legacy build so
+**PDFs.** pdf.js 6.3.289 (`pdfjs-dist`, Mozilla's official distribution; 6.2.108 or later is required — GHSA-hq66-cqwq-w95j affects 5.6.83 to 6.2.107, caught by the CI audit), legacy build so
 the same code runs under Node for tests. Its worker module is imported for its side effect
 of registering `globalThis.pdfjsWorker`; pdf.js then parses in the current thread
 (`PDFWorker#initialize` checks for it — verified in the installed `legacy/build/pdf.mjs`),
 which is already our ingestion Web Worker. The PDF never leaves the tab and no extra worker
-or CSP exception is needed; pdf.js 5 no longer uses `eval` for fonts. Text items carry
+or CSP exception is needed; pdf.js no longer uses `eval` for fonts. Text items carry
 positions (`getTextContent().items[].transform[4..5]`, `width`, `height` — verified in the
 package's `types/src/display/api.d.ts`): strings on one baseline form a row, right edges of
 numbers cluster into amount columns, and a heading that spans an amount column's right edge
