@@ -214,8 +214,10 @@ const addAmounts = (a: Amounts, b: Amounts): Amounts => {
 export function parseBalanceReport(
   sheet: SheetGrid,
   header: HeaderDetection,
+  /** Roles decided elsewhere (content inference, ADR 0031); header text otherwise. */
+  rolesOverride?: RoleMap,
 ): BalanceReport {
-  const roles = assignRoles(header.headers);
+  const roles = rolesOverride ?? assignRoles(header.headers);
   const findings: BalanceFinding[] = [];
   const particularsCol = roles.particulars ?? 0;
 

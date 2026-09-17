@@ -1,10 +1,11 @@
 import { randomBytes, randomUUID } from "node:crypto";
 
+import type { PeriodId } from "@magicmis/core/time";
 import { buildFixtureSet } from "@magicmis/fixtures";
 import { Redactor } from "@magicmis/redact";
 import { describe, expect, it } from "vitest";
 
-import { prepare, type PipelineFile } from "../src/prepare";
+import { prepare, sheetKey, type PipelineFile } from "../src/prepare";
 import { priorFacts } from "../src/run";
 
 const set = buildFixtureSet({ companies: ["trading"], months: 3 });
@@ -64,6 +65,70 @@ describe("prepare", () => {
     expect(p.available).toEqual(new Set(["bills_receivable", "pay_sheet"]));
     expect(p.bills[0]?.lines.every((l) => l.party.startsWith("PARTY_"))).toBe(true);
     expect(p.pay[0]?.lines.every((l) => l.employee.startsWith("PERSON_"))).toBe(true);
+  });
+});
+
+describe("prepare is tolerant of what people actually upload (ADR 0031)", () => {
+  const text = (name: string, body: string): PipelineFile => ({
+    fileId: randomUUID(),
+    name,
+    bytes: new TextEncoder().encode(body),
+  });
+  const tb = "Account,Debit,Credit\nCash,1500,\nSales,,2500\nRent,1000,\n";
+
+  it("reads another system's trial balance, taking the month from the file name", async () => {
+    const redactor = await Redactor.create(randomBytes(32));
+    const p = await prepare([text("Trial balance Mar-2026.csv", tb)], redactor);
+    expect(p.periods).toEqual(["2026-03"]);
+    expect(p.facts.map((f) => [f.name, f.closing])).toEqual([
+      ["Cash", 150000n],
+      ["Sales", -250000n],
+      ["Rent", 100000n],
+    ]);
+    expect(p.needsPeriod).toEqual([]);
+  });
+
+  it("sets aside a sheet it cannot place instead of failing the job", async () => {
+    const redactor = await Redactor.create(randomBytes(32));
+    const p = await prepare(
+      [
+        text("tb 2026-03.csv", tb),
+        text("notes.txt", "Things to discuss\nNew office lease\n"),
+      ],
+      redactor,
+    );
+    expect(p.available.has("balances")).toBe(true);
+    expect(p.unrecognised.map((u) => u.sheet)).toEqual(["notes"]);
+  });
+
+  it("asks for a month rather than dropping balances, and uses the answer", async () => {
+    const redactor = await Redactor.create(randomBytes(32));
+    const file = text("export.csv", tb);
+    const first = await prepare([file], redactor);
+    expect(first.facts).toEqual([]);
+    expect(first.needsPeriod).toEqual([
+      expect.objectContaining({ fileName: "export.csv", reportType: "trial_balance" }),
+    ]);
+    const key = first.needsPeriod[0]?.key ?? "";
+    const second = await prepare([file], redactor, "day_first", {
+      periods: { [key]: "2026-02" as PeriodId },
+    });
+    expect(second.periods).toEqual(["2026-02"]);
+    expect(second.needsPeriod).toEqual([]);
+  });
+
+  it("uses AI classification for a sheet detection could not place", async () => {
+    const redactor = await Redactor.create(randomBytes(32));
+    // Debit and credit in one unsigned column: it cannot be proven to balance by content.
+    const file = text("ledger list Jan 2026.csv", "Head,Figure\nCash,100\nCapital,100\n");
+    const before = await prepare([file], redactor);
+    expect(before.unrecognised).toHaveLength(1);
+    const key = sheetKey(file.fileId, before.unrecognised[0]?.sheet ?? "");
+    const after = await prepare([file], redactor, "day_first", {
+      classified: { [key]: "trial_balance" },
+    });
+    expect(after.unrecognised).toEqual([]);
+    expect(after.facts).toHaveLength(2);
   });
 });
 

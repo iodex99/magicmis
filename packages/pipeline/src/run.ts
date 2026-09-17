@@ -217,7 +217,26 @@ export function validate(
     ),
     checkSigns(cube, input.config.signSanityHeads),
   ];
-  return results;
+  return deliverWithWarnings(results);
+}
+
+/**
+ * A problem in the customer's data is reported, not a reason to withhold the report (ADR 0031).
+ *
+ * A trial balance out by a rounding difference, a month missing from a run, or a subtotal an
+ * export got wrong used to stop the job and charge a diagnostic. The customer then had nothing
+ * to work with. The checks still run and still say exactly what is wrong — in the workbook's
+ * checks sheet, on the result screen and in the commentary — but the workbook is delivered.
+ *
+ * Only our own faults still block (a balance lost between source and report, a workbook whose
+ * formulas do not reproduce the engine's figures): a report we know to be wrong is never sent.
+ */
+export function deliverWithWarnings(results: readonly CheckResult[]): CheckResult[] {
+  return results.map((r) =>
+    r.severity === "blocking" && r.failureClass === "data_fault"
+      ? { ...r, severity: "warning" }
+      : r,
+  );
 }
 
 export interface OutputBundle {

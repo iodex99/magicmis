@@ -1,13 +1,15 @@
 /**
  * Report detection (SPEC §16). Title lines name most Tally exports; header vocabulary is the
- * fallback when titles were stripped. Unrecognised sheets are `generic` and go to AI-assisted
- * classification in a paid action (Phase 4), never guessed here.
+ * fallback when titles were stripped, and a list of balances that nets to zero is recognised by
+ * its content. Sheets still unrecognised are `generic`: they are ignored when the job has what
+ * it needs, and go to AI classification inside the paid action when it does not (ADR 0031).
  */
 
 import type { ColumnProfile, HeaderDetection } from "@magicmis/ingest";
 import type { SheetGrid } from "@magicmis/ingest";
 
 import { assignRoles } from "./columns";
+import { inferBalanceReport } from "./infer-balance";
 
 export type ReportType =
   | "trial_balance"
@@ -48,7 +50,7 @@ const TITLES: readonly [RegExp, ReportType][] = [
 export function detectReport(
   sheet: SheetGrid,
   header: HeaderDetection | null,
-  _columns: readonly ColumnProfile[] = [],
+  columns: readonly ColumnProfile[] = [],
 ): Detection {
   const titleText = [sheet.name, ...(header?.titleLines ?? [])].join("\n");
   for (const [re, type] of TITLES) {
@@ -88,5 +90,15 @@ export function detectReport(
   ) {
     return { type: "trial_balance", confidence: 0.6, evidence: "headers" };
   }
+  // Headings from another system, or none that say much: a list of balances that nets to
+  // zero is a trial balance whatever its columns are called (ADR 0031).
+  // Bounded: a balance list runs to thousands of rows, not the hundreds of thousands of a day
+  // book, and reading every row of a huge sheet twice is what the 60-second budget cannot spare.
+  if (
+    columns.length > 0 &&
+    sheet.rows.length <= 20_000 &&
+    inferBalanceReport(sheet, header, columns)?.balanced === true
+  )
+    return { type: "trial_balance", confidence: 0.5, evidence: "balances net to zero" };
   return { type: "generic", confidence: 0, evidence: "unrecognised" };
 }

@@ -1,5 +1,9 @@
 /**
  * Column roles from header text (SPEC §4: header-based parsing only, never positions).
+ *
+ * The vocabulary covers Tally's own headings and the ones other accounting systems export
+ * ("Account", "Account Type", "Balance", "Net Balance", "Account Code"), so a trial balance
+ * from any of them is read the same way (ADR 0031).
  */
 
 import { normaliseHeader } from "@magicmis/ingest";
@@ -41,12 +45,16 @@ export type ColumnRole =
 export type RoleMap = Partial<Record<ColumnRole, number>>;
 
 interface Rule {
-  readonly role: ColumnRole;
+  /** Null marks a column that is recognised and deliberately given no role (an account code). */
+  readonly role: ColumnRole | null;
   readonly test: (h: string) => boolean;
 }
 
 const has = (h: string, ...words: string[]) =>
   words.every((w) => new RegExp(`\\b${w}\\b`, "u").test(h));
+
+const balance = (h: string) =>
+  has(h, "closing") || has(h, "balance") || has(h, "ending") || has(h, "net");
 
 const RULES: readonly Rule[] = [
   {
@@ -60,13 +68,20 @@ const RULES: readonly Rule[] = [
   { role: "opening", test: (h) => has(h, "opening") },
   {
     role: "closing_dr",
-    test: (h) => has(h, "closing") && (has(h, "debit") || has(h, "dr")),
+    test: (h) => balance(h) && (has(h, "debit") || has(h, "dr")),
   },
   {
     role: "closing_cr",
-    test: (h) => has(h, "closing") && (has(h, "credit") || has(h, "cr")),
+    test: (h) => balance(h) && (has(h, "credit") || has(h, "cr")),
   },
-  { role: "closing", test: (h) => has(h, "closing") },
+  {
+    role: "closing",
+    test: (h) =>
+      has(h, "closing") ||
+      has(h, "balance") ||
+      has(h, "ending") ||
+      (has(h, "net") && !has(h, "pay") && !has(h, "salary")),
+  },
   { role: "overdue_days", test: (h) => has(h, "overdue") },
   { role: "due_on", test: (h) => has(h, "due") },
   { role: "pending", test: (h) => has(h, "pending") },
@@ -96,12 +111,28 @@ const RULES: readonly Rule[] = [
   },
   { role: "designation", test: (h) => has(h, "designation") },
   { role: "net_pay", test: (h) => has(h, "net") },
+  // Account codes and numbers identify a ledger but are not its name.
+  {
+    role: null,
+    test: (h) =>
+      has(h, "code") ||
+      ((has(h, "account") || has(h, "ledger") || has(h, "gl")) &&
+        (has(h, "no") || has(h, "number") || has(h, "id"))),
+  },
   { role: "gross_pay", test: (h) => has(h, "gross") },
   { role: "value", test: (h) => has(h, "value") || has(h, "amount") },
   { role: "level", test: (h) => has(h, "level") },
   {
     role: "parent_group",
-    test: (h) => has(h, "group") || has(h, "under") || has(h, "parent"),
+    test: (h) =>
+      has(h, "group") ||
+      has(h, "under") ||
+      has(h, "parent") ||
+      has(h, "type") ||
+      has(h, "category") ||
+      has(h, "class") ||
+      has(h, "classification") ||
+      has(h, "section"),
   },
   {
     role: "particulars",
@@ -110,7 +141,12 @@ const RULES: readonly Rule[] = [
       has(h, "ledger") ||
       has(h, "name") ||
       has(h, "item") ||
-      has(h, "party"),
+      has(h, "party") ||
+      has(h, "account") ||
+      has(h, "accounts") ||
+      has(h, "description") ||
+      has(h, "head") ||
+      has(h, "gl"),
   },
 ];
 
@@ -121,7 +157,8 @@ export function assignRoles(headers: readonly string[]): RoleMap {
     const h = normaliseHeader(raw);
     for (const rule of RULES) {
       if (rule.test(h)) {
-        if (roles[rule.role] === undefined) roles[rule.role] = index;
+        if (rule.role !== null && roles[rule.role] === undefined)
+          roles[rule.role] = index;
         return;
       }
     }

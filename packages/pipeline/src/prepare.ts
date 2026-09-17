@@ -3,24 +3,38 @@
  * the ones the engine uses, tokenise party ledgers before anything else touches their names
  * (SPEC §17), build ledger facts, sheet signatures for blueprint matching, and the counts-only size
  * descriptors the server prices from. Deterministic; no AI.
+ *
+ * Tolerant by design (ADR 0031). A sheet that cannot be placed is set aside, never fatal: the job
+ * runs on what was recognised, and only when nothing usable is found do the set-aside sheets go
+ * to AI classification, whose answers come back in as `guidance`. A sheet that states no month
+ * takes one from its title, its sheet name or its file name, and failing all three is listed in
+ * `needsPeriod` so the person running the job can say — rather than its balances being dropped.
  */
 
-import type { DateOrder } from "@magicmis/core/time";
 import type { SizeDescriptors } from "@magicmis/ai/estimator";
-import type { PeriodId } from "@magicmis/core/time";
+import {
+  formatIso,
+  periodEndDate,
+  periodFromText,
+  resolveDateOrder,
+  type DateOrder,
+  type PeriodId,
+} from "@magicmis/core/time";
 import { ledgerFactsFromReport, type LedgerFact } from "@magicmis/engine";
 import {
-  fileKind,
+  cellAt,
   profileSheet,
-  readCsvGrid,
-  readExcel,
+  readSourceFile,
+  type HeaderDetection,
   type SheetGrid,
   type SheetProfile,
 } from "@magicmis/ingest";
 import type { Redactor } from "@magicmis/redact";
 import {
+  balanceRoles,
   detectReport,
   groupKey,
+  inferBalanceReport,
   parseBalanceReport,
   parseBills,
   parsePaySheet,
@@ -37,6 +51,19 @@ export interface PipelineFile {
   readonly fileId: string;
   readonly name: string;
   readonly bytes: Uint8Array;
+  /** Grids already read (the worker reads each file once, PDFs included). */
+  readonly sheets?: readonly SheetGrid[];
+}
+
+/** One sheet of one file, as a map key. */
+export const sheetKey = (fileId: string, sheet: string): string => `${fileId}|${sheet}`;
+
+/** What the person running the job, or AI classification, has told us since the last pass. */
+export interface PrepareGuidance {
+  /** A month for each sheet that names none, keyed by `sheetKey`. */
+  readonly periods?: Readonly<Record<string, PeriodId>>;
+  /** Report types for sheets detection could not place, keyed by `sheetKey`. */
+  readonly classified?: Readonly<Record<string, ReportType | "other">>;
 }
 
 export interface LoadedReport {
@@ -80,18 +107,75 @@ export interface Prepared {
     sheet: string;
     profile: SheetProfile;
   }[];
+  /** Recognised sheets whose month could not be found anywhere; their data waits for one. */
+  readonly needsPeriod: readonly {
+    key: string;
+    fileName: string;
+    sheet: string;
+    reportType: ReportType;
+  }[];
   readonly periods: readonly PeriodId[];
   readonly fingerprints: Readonly<Record<string, string>>;
   readonly size: SizeDescriptors;
   readonly available: ReadonlySet<DataRequirement>;
 }
 
-function sheetsOf(file: PipelineFile): SheetGrid[] {
-  const kind = fileKind(file.name);
-  if (kind === "csv") return [readCsvGrid(file.bytes, file.name).grid];
-  if (kind === null) return [];
-  return [...readExcel(file.bytes).sheets];
+// Bytes handed straight to prepare (tests, the server-side flow) are trusted to be bounded; the
+// browser worker applies the configured zip limits when the file is added.
+const UNBOUNDED = {
+  maxEntries: Number.MAX_SAFE_INTEGER,
+  maxUncompressedBytes: Number.MAX_SAFE_INTEGER,
+  maxRatio: Number.MAX_SAFE_INTEGER,
+};
+
+async function sheetsOf(file: PipelineFile): Promise<readonly SheetGrid[]> {
+  if (file.sheets !== undefined) return file.sheets;
+  const read = await readSourceFile(file.name, file.bytes, UNBOUNDED);
+  return read.ok ? read.sheets : [];
 }
+
+/** A header for a sheet with none: every row is data, columns keep their inferred names. */
+const syntheticHeader = (profile: SheetProfile): HeaderDetection => ({
+  headerStart: 0,
+  headerEnd: -1,
+  bodyStart: 0,
+  headers: profile.columns.map((c) => c.header),
+  titleLines: [],
+  companyName: null,
+  period: null,
+  asAt: null,
+  confidence: 0,
+});
+
+/**
+ * The order a sheet's dates are written in: what its date columns prove, else the company's
+ * setting (ADR 0031). An export from another system is read the way it was written.
+ */
+function sheetDateOrder(
+  sheet: SheetGrid,
+  header: HeaderDetection,
+  profile: SheetProfile,
+  fallback: DateOrder,
+): DateOrder {
+  const values: string[] = [];
+  for (const c of profile.columns) {
+    if (c.type !== "date") continue;
+    for (let r = header.bodyStart; r < sheet.rows.length; r += 1) {
+      const cell = cellAt(sheet, r, c.index);
+      if (typeof cell.value === "string" && cell.text.trim() !== "")
+        values.push(cell.text);
+    }
+  }
+  return resolveDateOrder(fallback, values) ?? fallback;
+}
+
+const USED: ReadonlySet<string> = new Set([
+  "trial_balance",
+  "group_summary",
+  "bills_receivable",
+  "bills_payable",
+  "pay_sheet",
+]);
 
 const periodOf = (iso: string | null | undefined): PeriodId | null =>
   iso === null || iso === undefined ? null : (iso.slice(0, 7) as PeriodId);
@@ -128,6 +212,7 @@ export async function prepare(
    * is SPEC §2.14 and what every Tally export writes.
    */
   dateOrder: DateOrder = "day_first",
+  guidance: PrepareGuidance = {},
 ): Promise<Prepared> {
   const reports: LoadedReport[] = [];
   const facts: LedgerFact[] = [];
@@ -136,84 +221,139 @@ export async function prepare(
   const bills: Prepared["bills"][number][] = [];
   const pay: Prepared["pay"][number][] = [];
   const unrecognised: Prepared["unrecognised"][number][] = [];
+  const needsPeriod: Prepared["needsPeriod"][number][] = [];
   const signatures = new Map<string, Set<string>>();
   let sheets = 0;
   let columns = 0;
   let rows = 0;
 
   for (const file of files) {
-    for (const sheet of sheetsOf(file)) {
+    for (const sheet of await sheetsOf(file)) {
       const profile = await profileSheet(sheet, (s, h, c) => detectReport(s, h, c).type);
       sheets += 1;
       columns += profile.columns.length;
       rows += profile.bodyRows;
-      const header = profile.header;
-      const period = periodOf(header?.period?.to ?? header?.asAt);
+      const key = sheetKey(file.fileId, sheet.name);
+      const header = profile.header ?? syntheticHeader(profile);
+
+      // Detection first; then content (a balanced list with no usable header); then what AI
+      // classification said about a sheet neither could place.
+      let type = profile.reportType as ReportType;
+      if (
+        type === "generic" &&
+        profile.header === null &&
+        inferBalanceReport(sheet, header, profile.columns)?.balanced === true
+      )
+        type = "trial_balance";
+      const classified = guidance.classified?.[key];
+      if (type === "generic" && classified !== undefined && classified !== "other")
+        type = classified;
+
+      const period =
+        periodOf(header.period?.to ?? header.asAt) ??
+        periodFromText(header.titleLines.join("\n"), dateOrder) ??
+        periodFromText(sheet.name, dateOrder) ??
+        periodFromText(file.name, dateOrder) ??
+        guidance.periods?.[key] ??
+        null;
+
       reports.push({
         fileId: file.fileId,
         fileName: file.name,
         sheet: sheet.name,
-        reportType: profile.reportType as ReportType,
+        reportType: type,
         period,
         signature: profile.signature,
       });
       if (profile.signature !== null) {
-        const set = signatures.get(profile.reportType) ?? new Set<string>();
+        const set = signatures.get(type) ?? new Set<string>();
         set.add(profile.signature);
-        signatures.set(profile.reportType, set);
+        signatures.set(type, set);
       }
-      if (header === null || profile.reportType === "generic") {
-        unrecognised.push({ fileId: file.fileId, sheet: sheet.name, profile });
+      if (!USED.has(type)) {
+        if (type === "generic")
+          unrecognised.push({ fileId: file.fileId, sheet: sheet.name, profile });
         continue;
       }
-      switch (profile.reportType as ReportType) {
-        case "trial_balance":
-        case "group_summary": {
-          const report = await tokeniseReport(
-            parseBalanceReport(sheet, header),
-            redactor,
-          );
-          if (period === null) break;
-          facts.push(
-            ...ledgerFactsFromReport(report, {
+      if (period === null) {
+        needsPeriod.push({
+          key,
+          fileName: file.name,
+          sheet: sheet.name,
+          reportType: type,
+        });
+        continue;
+      }
+
+      // One odd sheet never stops the job: whatever cannot be parsed is set aside with the
+      // unrecognised ones, and the rest of the files carry on.
+      try {
+        switch (type) {
+          case "trial_balance":
+          case "group_summary": {
+            const parsed = parseBalanceReport(
+              sheet,
+              header,
+              balanceRoles(sheet, header, profile.columns) ?? undefined,
+            );
+            // Rows with a name and no amount are headings, not ledgers missing a balance.
+            const report = await tokeniseReport(
+              {
+                ...parsed,
+                ledgers: parsed.ledgers.filter((l) => Object.keys(l.amounts).length > 0),
+              },
+              redactor,
+            );
+            if (report.ledgers.length === 0) {
+              unrecognised.push({ fileId: file.fileId, sheet: sheet.name, profile });
+              break;
+            }
+            facts.push(
+              ...ledgerFactsFromReport(report, {
+                fileId: file.fileId,
+                sheet: sheet.name,
+                period,
+              }),
+            );
+            subtotalChecks.push({ period, checks: report.checks });
+            grandTotals.push({ period, reported: report.grandTotal });
+            break;
+          }
+          case "bills_receivable":
+          case "bills_payable": {
+            const parsed = parseBills(
+              sheet,
+              header,
+              sheetDateOrder(sheet, header, profile, dateOrder),
+            );
+            const asAt =
+              parsed.asAt ?? header.period?.to ?? formatIso(periodEndDate(period));
+            const lines: BillLine[] = [];
+            for (const b of parsed.bills)
+              lines.push({ ...b, party: await redactor.token("PARTY", b.party) });
+            bills.push({
+              side: type === "bills_receivable" ? "receivable" : "payable",
+              asAt,
+              period: periodOf(asAt) ?? period,
               fileId: file.fileId,
               sheet: sheet.name,
-              period,
-            }),
-          );
-          subtotalChecks.push({ period, checks: report.checks });
-          grandTotals.push({ period, reported: report.grandTotal });
-          break;
+              lines,
+            });
+            break;
+          }
+          case "pay_sheet": {
+            const parsed = parsePaySheet(sheet, header);
+            const lines: PayLine[] = [];
+            for (const l of parsed.lines)
+              lines.push({ ...l, employee: await redactor.token("PERSON", l.employee) });
+            pay.push({ period, fileId: file.fileId, sheet: sheet.name, lines });
+            break;
+          }
+          default:
+            break;
         }
-        case "bills_receivable":
-        case "bills_payable": {
-          const parsed = parseBills(sheet, header, dateOrder);
-          const asAt = parsed.asAt ?? header.period?.to ?? null;
-          if (asAt === null || period === null) break;
-          const lines: BillLine[] = [];
-          for (const b of parsed.bills)
-            lines.push({ ...b, party: await redactor.token("PARTY", b.party) });
-          bills.push({
-            side: profile.reportType === "bills_receivable" ? "receivable" : "payable",
-            asAt,
-            period,
-            fileId: file.fileId,
-            sheet: sheet.name,
-            lines,
-          });
-          break;
-        }
-        case "pay_sheet": {
-          if (period === null) break;
-          const parsed = parsePaySheet(sheet, header);
-          const lines: PayLine[] = [];
-          for (const l of parsed.lines)
-            lines.push({ ...l, employee: await redactor.token("PERSON", l.employee) });
-          pay.push({ period, fileId: file.fileId, sheet: sheet.name, lines });
-          break;
-        }
-        default:
-          break;
+      } catch {
+        unrecognised.push({ fileId: file.fileId, sheet: sheet.name, profile });
       }
     }
   }
@@ -239,6 +379,7 @@ export async function prepare(
     bills,
     pay,
     unrecognised,
+    needsPeriod,
     periods: [...new Set(facts.map((f) => f.period))].sort(),
     fingerprints,
     size: {
