@@ -37,7 +37,7 @@ Their raw details stay in the browser (SPEC §2.8). Where they reach the server,
 | P3 | Business profile and billing | Business name, GSTIN, billing address, state code | Tax invoices under GST | Legal obligation | Postgres | Statutory period (config, default 8 years) | `accounts`, `invoices` |
 | P4 | Payments | Razorpay order/payment IDs (no card data) | Buying credits | Contract | Postgres; Razorpay | Statutory period | `packages/billing` |
 | P5 | File analysis in the browser | Everything in the loaded files, including third-party names, PAN, Aadhaar, bank details | Build the MIS the user asked for | Contract (the account holder is responsible for their clients' data) | Browser memory / OPFS only | Cleared on sign-out, Clear session data, new session, tab close | `apps/web/src/lib/ingest`, `packages/redact` |
-| P6 | AI actions | Redacted structural profiles, capped redacted samples, aggregates, chat messages | Sheet recognition, mapping, commentary, chat | Contract | Server → Anthropic (subprocessor) | Stage outputs and raw AI responses encrypted, 30 days (config) | `packages/ai` |
+| P6 | AI actions | Redacted structural profiles, capped redacted samples, aggregates, chat messages | Sheet recognition, mapping, commentary, chat | Contract | Server → Anthropic (subprocessor) | Stage outputs and raw AI responses encrypted under the company key; kept with company memory and destroyed with it (no separate retention period — TODO(review): R-50) | `packages/ai` |
 | P7 | Company memory | Blueprints and snapshots, keyed by tokens; encrypted names only if the company opts in | Comparatives, refresh without re-mapping, chat | Contract | Postgres, AES-256-GCM under a per-company key | Until the company or account is deleted, then crypto-shred after `lifecycle.deletion_purge_delay_days` | `packages/engine` |
 | P8 | Generated workbooks | Figures and labels from the user's data | Re-download | Contract | Supabase Storage, encrypted | `outputs.retention_days` | `packages/jobs` |
 | P9 | Notifications | Email address, event metadata (no financial content) | Security, billing and lifecycle notices | Contract / legal obligation | Postgres → Resend (subprocessor) | Life of account | `apps/worker` |
@@ -51,11 +51,13 @@ Their raw details stay in the browser (SPEC §2.8). Where they reach the server,
 | Subprocessor | Data | Region | Notes |
 |---|---|---|---|
 | Supabase | P1–P4, P7–P11, P13 | ap-south-1 (Mumbai) | ADR 0003 |
-| Anthropic | P6 payloads only | TODO(review): R-50 | Server-side key; action-specific endpoints only (SPEC §2.9) |
+| Anthropic | P6 payloads only | United States | Server-side key; action-specific endpoints only (SPEC §2.9) |
 | AWS KMS | Wraps data keys; sees no personal data | ap-south-1 | ADR 0008 |
 | Resend | Email address, notice text | TODO(review): R-50 | ADR 0010 |
 | Razorpay | Payment details entered on Razorpay Checkout | India | ADR 0012 |
 | Vercel | Request metadata in transit | Functions pinned nearest India | SPEC §5 |
+| Sentry | Error events, PII scrubbed before sending | TODO(review): R-50 | SPEC §5 |
+| Background job host | Job payloads for the worker (pg-boss) | TODO(review): R-50 — provider not chosen | SPEC §5 |
 
 ## 4. Data principal rights
 

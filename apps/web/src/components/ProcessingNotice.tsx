@@ -17,7 +17,10 @@ interface ConsentState {
  * processing notice version changes), show how files are processed and record acceptance.
  * Children — the file pickers — render only once the current version is accepted.
  *
- * TODO(review): R-11 — notice wording pending legal review.
+ * Every line here is a shorter statement of something the privacy notice and the terms say
+ * in full; change them together.
+ *
+ * TODO(review): R-11, R-12 — notice wording pending legal review.
  */
 export function ProcessingNotice({ children }: { children: ReactNode }) {
   const [state, setState] = useState<"loading" | "needed" | "accepted" | "error">(
@@ -61,24 +64,43 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
         How your files are processed
       </p>
       <ul className="list-disc space-y-1.5 pl-5 leading-relaxed">
-        <li>Files are read in this browser. They are not uploaded to our servers.</li>
         <li>
-          Before anything is sent, names, PAN, GSTIN, bank details and similar identifiers
-          are replaced with tokens in your browser.
+          Your files are opened in this browser. They are not uploaded to our servers.
         </li>
         <li>
-          Only structural profiles, a small capped sample of redacted rows, and computed
-          totals are sent — and only for a paid action you start.
+          Before anything leaves the browser, names and identifiers — party and employee
+          names, tax and registration numbers, bank details, emails and phone numbers —
+          are replaced with tokens. The key that restores them stays here.
         </li>
         <li>
-          AI requests are processed by Anthropic as our subprocessor. Company memory is
-          stored encrypted until you delete the company or your account.
+          Only for an action you confirm and pay for, our server receives a description of
+          the files&rsquo; structure, a small limited sample of redacted rows and computed
+          totals.
+        </li>
+        <li>
+          AI requests are processed by Anthropic as our subprocessor, and are not used to
+          train its models.
+        </li>
+        <li>
+          The company&rsquo;s memory — mapping, templates and monthly figures — is kept
+          encrypted under its own key until you delete the company or your account.
+        </li>
+        <li>
+          If the files contain other people&rsquo;s personal data, you remain responsible
+          for it and we process it on your behalf.
         </li>
       </ul>
       <p>
-        Read the full{" "}
+        Details are in the{" "}
         <Link href="/legal/privacy" className="font-medium text-accent-700 underline">
           privacy notice
+        </Link>{" "}
+        and section 7 of the{" "}
+        <Link
+          href="/legal/terms#processing"
+          className="font-medium text-accent-700 underline"
+        >
+          terms
         </Link>
         .
       </p>

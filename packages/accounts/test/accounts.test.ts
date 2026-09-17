@@ -101,7 +101,7 @@ describe("provisioning", () => {
       [accountId],
     );
     expect(consents.rows.map((r) => r.document)).toEqual(["privacy", "terms"]);
-    expect(consents.rows[0]?.version).toBe("0.1-draft");
+    expect(consents.rows[0]?.version).toBe("1.0-draft");
   });
 
   it("is idempotent on the auth user id", async () => {
