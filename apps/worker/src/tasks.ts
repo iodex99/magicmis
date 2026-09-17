@@ -16,6 +16,7 @@ import {
   processAccountExports,
   purgeAccounts,
   purgeCompanies,
+  purgeExpiredUploads,
   queueLifecycleNotices,
   queueRefreshReminders,
   refreshLibraryCandidates,
@@ -139,6 +140,16 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
           ? { skipped: "key wrapper not configured" }
           : await purgeAccounts(pool, outputs ?? null, now, wrapper),
     }),
+  },
+  {
+    // ADR 0032: uploaded source files past their retention are removed from the store.
+    queue: "sources-purge",
+    cron: "20 * * * *",
+    expireInSeconds: 1800,
+    run: async ({ pool, outputs }, now) =>
+      outputs == null
+        ? { skipped: "output store not configured" }
+        : { purged: await purgeExpiredUploads(pool, outputs, now) },
   },
   {
     // SPEC §29: monthly refresh reminder on each company's reminder day.

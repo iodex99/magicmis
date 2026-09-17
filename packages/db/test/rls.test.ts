@@ -51,6 +51,7 @@ const TENANT_TABLES = [
   "notifications",
   "login_events",
   "consents",
+  "source_uploads",
 ] as const;
 
 /** Tables a customer-facing role must not read at all (SPEC §2.5, §10). */
