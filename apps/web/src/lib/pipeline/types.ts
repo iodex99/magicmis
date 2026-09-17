@@ -38,6 +38,8 @@ export interface Recognition {
   readonly usable: boolean;
   /** Sheets set aside because nothing could place them. */
   readonly unrecognised: number;
+  /** Sheets read as balances only because nothing better was found. */
+  readonly guessed: number;
   /** Sheets that were read but name no month anywhere. */
   readonly needsPeriod: readonly { key: string; fileName: string; sheet: string }[];
   /** The month to offer for those, as YYYY-MM. */
@@ -113,6 +115,8 @@ export interface PipelineApi {
   applyClassification(answers: ClassifySheetsOutput["sheets"]): Promise<void>;
   /** Months for sheets that name none, keyed as `Recognition.needsPeriod[].key`. */
   setPeriods(periods: Readonly<Record<string, string>>): Promise<void>;
+  /** Last resort: read any balance-shaped sheet as balances, with the report saying so. */
+  useBestEffort(): Promise<void>;
   /** Carry on with the standard template when a reference layout could not be read. */
   dropReference(): Promise<void>;
   map(): Promise<MapResult>;

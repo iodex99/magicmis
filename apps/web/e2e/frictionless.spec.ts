@@ -104,3 +104,30 @@ test("a non-Tally CSV with no month, a notes file and a photo still produce a wo
   await expect(page.getByTestId("job-notices")).toContainText("left out");
   expect(csp).toEqual([]);
 });
+
+test("a profit and loss with no sides is used as a best guess rather than refused", async () => {
+  await page.goto("/app");
+  await page.getByLabel("Company name").fill("Best Guess Traders");
+  await page.getByRole("button", { name: "Add company" }).click();
+  await expect(page.getByLabel("Choose files")).toBeEnabled();
+
+  await page.getByLabel("Choose files").setInputFiles({
+    name: "Profit and loss March 2026.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("Particulars,Amount\nSales,5000\nRent,2000\nNet Profit,3000\n"),
+  });
+  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
+  await page.getByRole("button", { name: /^Run setup —/u }).click();
+
+  // Everything mapped from the library, so review offers a one-click continue.
+  const proceed = page.getByRole("button", {
+    name: /^(Confirm mappings|Looks right — continue)$/u,
+  });
+  await expect(proceed).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByTestId("job-notices")).toContainText("looked most like");
+  await proceed.click();
+
+  await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 180_000 });
+  await expect(page.getByTestId("job-download")).toBeVisible();
+  expect(csp).toEqual([]);
+});

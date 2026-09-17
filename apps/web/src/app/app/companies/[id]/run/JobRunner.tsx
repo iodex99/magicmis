@@ -455,6 +455,16 @@ export function JobRunner({
         }
       }
     }
+    if (!seen.usable) {
+      // Nothing recognised and AI could not say: read whatever is shaped like balances
+      // rather than refuse, and say plainly that it was a best guess.
+      await pipeline.useBestEffort();
+      seen = await pipeline.recognition();
+      if (seen.guessed > 0)
+        notice(
+          "We couldn't tell for certain which sheets hold your balances, so we used the ones that looked most like them. Check the figures and the warnings below.",
+        );
+    }
     if (seen.needsPeriod.length > 0) {
       setPhase({
         kind: "period",

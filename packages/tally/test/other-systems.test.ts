@@ -83,4 +83,28 @@ describe("trial balances from systems other than Tally (ADR 0031)", () => {
     expect(r.type).toBe("generic");
     expect(r.inferred?.balanced).toBe(false);
   });
+
+  it("folds a separate Dr/Cr column into its amounts", async () => {
+    const r = await read(
+      gridFromText("TB", [
+        ["Ledger", "Amount", "Dr/Cr"],
+        ["Cash", "1000", "Dr"],
+        ["Capital", "1000", "Cr"],
+      ]),
+    );
+    expect(r.type).toBe("trial_balance");
+    expect(closings(r)).toEqual({ Cash: "100000", Capital: "-100000" });
+  });
+
+  it("marks a one-column list with no sides as unsigned rather than guessing", async () => {
+    const r = await read(
+      gridFromText("PL", [
+        ["Particulars", "Amount"],
+        ["Sales", "5000"],
+        ["Rent", "2000"],
+      ]),
+    );
+    expect(r.inferred?.unsigned).toBe(true);
+    expect(r.inferred?.balanced).toBe(false);
+  });
 });

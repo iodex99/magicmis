@@ -25,6 +25,7 @@ import {
   computeAndRender,
   loadChatTables,
   runChatQuery,
+  applyNormalSides,
   mapStep,
   nextRules,
   prepare,
@@ -70,11 +71,11 @@ let redactor: Redactor | null = null;
 const files: PipelineFile[] = [];
 let prepared: Prepared | null = null;
 /** What classification and the person running the job have added since files were read. */
-let guidance: { periods: Record<string, PeriodId>; classified: Record<string, string> } =
-  {
-    periods: {},
-    classified: {},
-  };
+let guidance: {
+  periods: Record<string, PeriodId>;
+  classified: Record<string, string>;
+  bestEffort: boolean;
+} = { periods: {}, classified: {}, bestEffort: false };
 /** Classification refs sent to the server, back to the sheets they stand for. */
 const classificationRefs = new Map<string, string>();
 let step: MappingStep | null = null;
@@ -205,7 +206,7 @@ const api: PipelineApi = {
     prepared = null;
     step = null;
     mappings = [];
-    guidance = { periods: {}, classified: {} };
+    guidance = { periods: {}, classified: {}, bestEffort: false };
     classificationRefs.clear();
   },
 
@@ -366,6 +367,7 @@ const api: PipelineApi = {
       hasBalances: p.facts.length > 0,
       usable: p.facts.length > 0 || p.bills.length > 0 || p.pay.length > 0,
       unrecognised: p.unrecognised.length,
+      guessed: p.guessed,
       needsPeriod: p.needsPeriod.map((n) => ({
         key: n.key,
         fileName: n.fileName,
@@ -416,6 +418,13 @@ const api: PipelineApi = {
       const key = classificationRefs.get(a.ref);
       if (key !== undefined) guidance.classified[key] = a.report_type;
     }
+    prepared = null;
+    step = null;
+    return Promise.resolve();
+  },
+
+  useBestEffort() {
+    guidance.bestEffort = true;
     prepared = null;
     step = null;
     return Promise.resolve();
@@ -486,7 +495,7 @@ const api: PipelineApi = {
 
   async compute(input): Promise<ComputeResult> {
     const s = need(session, "session");
-    const p = await ensurePrepared();
+    const loaded = await ensurePrepared();
     duckPromise ??= openDuck();
     const { conn } = await duckPromise;
     const byKey = new Map(input.confirmed.map((c) => [c.ledgerKey, c]));
@@ -494,6 +503,11 @@ const api: PipelineApi = {
       const c = byKey.get(m.ledgerKey);
       return c === undefined ? m : { ...m, head: c.head };
     });
+    // Balances that came without a side take it from the head they map to (ADR 0031).
+    const p: Prepared = {
+      ...loaded,
+      facts: applyNormalSides(loaded.facts, finalMappings, new Set(loaded.unsigned)),
+    };
     const period = (p.periods.at(-1) ?? "") as PeriodId;
     const first =
       (s.memory.latestPeriod === null
@@ -647,7 +661,7 @@ const api: PipelineApi = {
     session = null;
     reference = null;
     referenceTemplate = null;
-    guidance = { periods: {}, classified: {} };
+    guidance = { periods: {}, classified: {}, bestEffort: false };
     classificationRefs.clear();
   },
 

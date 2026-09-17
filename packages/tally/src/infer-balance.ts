@@ -122,15 +122,88 @@ export function netsToZero(report: BalanceReport): boolean {
   return (sum < 0n ? -sum : sum) <= allowance;
 }
 
-/** A balance list read by content, and whether it balances. Null when it has no shape at all. */
+const SIDE_WORD = /^(dr|cr|debit|credit)\.?$/iu;
+
+/**
+ * A separate "Dr / Cr" column folded into the amounts beside it.
+ *
+ * Many exports write the balance unsigned and put its side in its own column. Every amount
+ * reader here understands a "Dr"/"Cr" suffix, so the side is appended to each amount cell of
+ * that row and the indicator column is emptied; nothing downstream needs a new role. Returns
+ * the sheet unchanged when no column is at least 80% side words.
+ */
+export function withSideColumn(
+  sheet: SheetGrid,
+  header: HeaderDetection,
+  columns: readonly ColumnProfile[],
+): SheetGrid {
+  const side = columns.find((c) => {
+    if (c.type !== "text" || c.nonBlank === 0) return false;
+    let words = 0;
+    for (let r = header.bodyStart; r < sheet.rows.length; r += 1) {
+      if (SIDE_WORD.test(cellAt(sheet, r, c.index).text.trim())) words += 1;
+    }
+    return words * 10 >= c.nonBlank * 8;
+  });
+  if (side === undefined) return sheet;
+  const amountCols = columns
+    .filter((c) => c.type === "amount" || c.type === "integer")
+    .map((c) => c.index);
+  const rows = sheet.rows.map((row, r) => {
+    if (r < header.bodyStart) return row;
+    const word = cellAt(sheet, r, side.index).text.trim().toLowerCase();
+    if (!SIDE_WORD.test(word)) return row;
+    const suffix = word.startsWith("d") ? " Dr" : " Cr";
+    const out = [...row];
+    out[side.index] = undefined;
+    for (const c of amountCols) {
+      const cell = out[c];
+      if (cell === undefined || cell.text.trim() === "") continue;
+      const text = `${cell.text.trim()}${suffix}`;
+      out[c] = { value: text, text };
+    }
+    return out;
+  });
+  return { ...sheet, rows };
+}
+
+/**
+ * A balance list read by content. Null when the sheet has no balance-list shape at all.
+ *
+ * `balanced` says it nets to zero, which is what makes it certainly a trial balance.
+ * `unsigned` says every balance came without a side (one column, no Dr/Cr, no negatives):
+ * the figures are right but their debit or credit side must come from what each ledger maps
+ * to (ADR 0031).
+ */
 export function inferBalanceReport(
   sheet: SheetGrid,
   header: HeaderDetection,
   columns: readonly ColumnProfile[],
-): { report: BalanceReport; roles: RoleMap; balanced: boolean } | null {
-  const roles = balanceRoles(sheet, header, columns);
+): {
+  report: BalanceReport;
+  roles: RoleMap;
+  balanced: boolean;
+  unsigned: boolean;
+  sheet: SheetGrid;
+} | null {
+  const sided = withSideColumn(sheet, header, columns);
+  const roles = balanceRoles(sided, header, columns);
   if (roles === null) return null;
-  const report = parseBalanceReport(sheet, header, roles);
+  const report = parseBalanceReport(sided, header, roles);
   if (report.ledgers.length === 0) return null;
-  return { report, roles, balanced: netsToZero(report) };
+  return {
+    report,
+    roles,
+    balanced: netsToZero(report),
+    unsigned: isUnsigned(report),
+    sheet: sided,
+  };
+}
+
+/** Every balance without a side: no negatives, and the parser recorded unsigned amounts. */
+export function isUnsigned(report: BalanceReport): boolean {
+  return (
+    report.findings.some((f) => f.kind === "unsigned_amount") &&
+    report.ledgers.every((l) => (l.amounts.closing ?? 0n) >= 0n)
+  );
 }

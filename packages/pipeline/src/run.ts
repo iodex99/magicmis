@@ -36,7 +36,9 @@ import {
   type RenderedWorkbook,
 } from "@magicmis/render-excel";
 import {
+  head,
   indexLibrary,
+  isHeadCode,
   normaliseName,
   refreshRows,
   runCascade,
@@ -365,6 +367,33 @@ function dedupe(values: readonly MetricValue[]): MetricValue[] {
   for (const v of values)
     seen.set(`${v.metricId}@${v.period}|${JSON.stringify(v.dims)}`, v);
   return [...seen.values()];
+}
+
+/**
+ * Sides for balances that arrived without one (ADR 0031).
+ *
+ * A profit and loss or a one-column balance list gives every figure as a positive number.
+ * Once each ledger is mapped, its head says which side it normally sits on — revenue and
+ * liabilities credit, assets and expenses debit — and the balance takes that side. Only facts
+ * listed as unsigned are touched; a balance whose side the export stated is never changed.
+ */
+export function applyNormalSides(
+  facts: readonly LedgerFact[],
+  mappings: readonly Mapping[],
+  unsigned: ReadonlySet<string>,
+): LedgerFact[] {
+  if (unsigned.size === 0) return [...facts];
+  const heads = new Map(mappings.map((m) => [m.ledgerKey, m.head]));
+  return facts.map((f) => {
+    if (!unsigned.has(`${f.ledgerKey}|${f.period}`)) return f;
+    const code = heads.get(f.ledgerKey);
+    if (code === undefined || !isHeadCode(code)) return f;
+    const magnitude = f.closing < 0n ? -f.closing : f.closing;
+    return {
+      ...f,
+      closing: head(code).normalBalance === "credit" ? -magnitude : magnitude,
+    };
+  });
 }
 
 /** Next blueprint rules from the confirmed review (SPEC §18 write-back). */

@@ -35,6 +35,8 @@ import {
   detectReport,
   groupKey,
   inferBalanceReport,
+  isUnsigned,
+  withSideColumn,
   parseBalanceReport,
   parseBills,
   parsePaySheet,
@@ -64,6 +66,12 @@ export interface PrepareGuidance {
   readonly periods?: Readonly<Record<string, PeriodId>>;
   /** Report types for sheets detection could not place, keyed by `sheetKey`. */
   readonly classified?: Readonly<Record<string, ReportType | "other">>;
+  /**
+   * The last resort when nothing was recognised and AI could not say either: any sheet shaped
+   * like a list of names and amounts — including a profit and loss or balance sheet — is read
+   * as balances, and the report says so. A likely report with warnings beats a refusal.
+   */
+  readonly bestEffort?: boolean;
 }
 
 export interface LoadedReport {
@@ -114,6 +122,13 @@ export interface Prepared {
     sheet: string;
     reportType: ReportType;
   }[];
+  /**
+   * `ledgerKey|period` of facts whose balances arrived without a side (one unsigned column).
+   * Their sign is taken from the head each maps to, once mapping is known.
+   */
+  readonly unsigned: readonly string[];
+  /** Sheets read by `bestEffort` rather than recognised. */
+  readonly guessed: number;
   readonly periods: readonly PeriodId[];
   readonly fingerprints: Readonly<Record<string, string>>;
   readonly size: SizeDescriptors;
@@ -169,6 +184,9 @@ function sheetDateOrder(
   return resolveDateOrder(fallback, values) ?? fallback;
 }
 
+const COMPUTED_LINE =
+  /^(?:gross|net|operating)\s+(?:profit|loss|income|surplus|deficit)\b|^(?:ebitda|pbt|pat)$|^(?:profit|loss)\s+(?:before|after)\s+tax/iu;
+
 const USED: ReadonlySet<string> = new Set([
   "trial_balance",
   "group_summary",
@@ -222,6 +240,8 @@ export async function prepare(
   const pay: Prepared["pay"][number][] = [];
   const unrecognised: Prepared["unrecognised"][number][] = [];
   const needsPeriod: Prepared["needsPeriod"][number][] = [];
+  const unsigned: string[] = [];
+  let guessed = 0;
   const signatures = new Map<string, Set<string>>();
   let sheets = 0;
   let columns = 0;
@@ -248,6 +268,15 @@ export async function prepare(
       const classified = guidance.classified?.[key];
       if (type === "generic" && classified !== undefined && classified !== "other")
         type = classified;
+      if (
+        guidance.bestEffort === true &&
+        (type === "generic" || type === "profit_and_loss" || type === "balance_sheet") &&
+        (inferBalanceReport(sheet, header, profile.columns)?.report.ledgers.length ??
+          0) >= 2
+      ) {
+        type = "trial_balance";
+        guessed += 1;
+      }
 
       const period =
         periodOf(header.period?.to ?? header.asAt) ??
@@ -291,16 +320,21 @@ export async function prepare(
         switch (type) {
           case "trial_balance":
           case "group_summary": {
+            // A separate Dr/Cr column is folded into the amounts first.
+            const sided = withSideColumn(sheet, header, profile.columns);
             const parsed = parseBalanceReport(
-              sheet,
+              sided,
               header,
-              balanceRoles(sheet, header, profile.columns) ?? undefined,
+              balanceRoles(sided, header, profile.columns) ?? undefined,
             );
-            // Rows with a name and no amount are headings, not ledgers missing a balance.
+            // Rows with a name and no amount are headings, not ledgers missing a balance; and
+            // a statement's computed lines (gross profit, net profit) are not ledgers at all.
             const report = await tokeniseReport(
               {
                 ...parsed,
-                ledgers: parsed.ledgers.filter((l) => Object.keys(l.amounts).length > 0),
+                ledgers: parsed.ledgers.filter(
+                  (l) => Object.keys(l.amounts).length > 0 && !COMPUTED_LINE.test(l.name),
+                ),
               },
               redactor,
             );
@@ -308,13 +342,14 @@ export async function prepare(
               unrecognised.push({ fileId: file.fileId, sheet: sheet.name, profile });
               break;
             }
-            facts.push(
-              ...ledgerFactsFromReport(report, {
-                fileId: file.fileId,
-                sheet: sheet.name,
-                period,
-              }),
-            );
+            const built = ledgerFactsFromReport(report, {
+              fileId: file.fileId,
+              sheet: sheet.name,
+              period,
+            });
+            if (isUnsigned(report))
+              for (const fact of built) unsigned.push(`${fact.ledgerKey}|${fact.period}`);
+            facts.push(...built);
             subtotalChecks.push({ period, checks: report.checks });
             grandTotals.push({ period, reported: report.grandTotal });
             break;
@@ -380,6 +415,8 @@ export async function prepare(
     pay,
     unrecognised,
     needsPeriod,
+    unsigned,
+    guessed,
     periods: [...new Set(facts.map((f) => f.period))].sort(),
     fingerprints,
     size: {

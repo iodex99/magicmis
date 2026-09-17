@@ -104,8 +104,20 @@ missing balance. The run screen then:
 3. **Asks for a month** for any sheet that names none, pre-filled with the month after the
    company's latest, else the latest loaded, else last month. Inside the paid action, so
    SPEC §2.3 is untouched.
-4. Fails only when nothing usable exists — no balances, bills or pay sheet — with a message
-   that says what to add, and no charge (platform-fault release, as before).
+4. **Last resort, before refusing** (added after the owner hit the refusal on a four-sheet
+   workbook nothing recognised, with AI unavailable because no prompt is activated yet,
+   R-28): any sheet shaped like names and amounts — a profit and loss or balance sheet
+   included — is read as balances (`bestEffort`), and the run says it used its best guess.
+   A separate Dr/Cr column is folded into the amounts; a statement's computed lines (gross
+   profit, net profit, profit before tax) are not ledgers; and a one-column list with no
+   sides (`unsigned`) takes each balance's side from the head its ledger maps to
+   (`applyNormalSides`: revenue and liabilities credit, assets and expenses debit). A side
+   the export stated is never changed.
+5. Fails only when nothing usable exists even then — no name-and-amount shape anywhere —
+   with a message that says what to add, and no charge (platform-fault release, as before).
+
+A support tool prints what the reader makes of a file without printing its figures:
+`pnpm --filter @magicmis/web exec tsx ../../packages/pipeline/scripts/diagnose.ts <file>`.
 
 An AI stage that cannot run no longer fails the job server-side (the `failJob` calls in the
 two AI routes are removed). The browser carries on: unmatched ledgers go to review for a

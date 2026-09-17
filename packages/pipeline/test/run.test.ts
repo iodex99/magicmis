@@ -2,7 +2,7 @@ import { checkTrialBalance, gateOutcome, type CheckResult } from "@magicmis/engi
 import type { PeriodId } from "@magicmis/core/time";
 import { describe, expect, it } from "vitest";
 
-import { deliverWithWarnings } from "../src/run";
+import { applyNormalSides, deliverWithWarnings } from "../src/run";
 
 describe("deliverWithWarnings (ADR 0031)", () => {
   it("turns a data problem into a warning, so the workbook is still delivered", () => {
@@ -48,5 +48,40 @@ describe("deliverWithWarnings (ADR 0031)", () => {
       ok: false,
       failureClass: "platform_fault",
     });
+  });
+});
+
+describe("applyNormalSides (ADR 0031)", () => {
+  const fact = (name: string, closing: bigint) => ({
+    ledgerKey: name.toLowerCase(),
+    name,
+    groupPath: [],
+    period: "2026-03" as PeriodId,
+    opening: null,
+    debit: null,
+    credit: null,
+    closing,
+    source: { fileId: "f", sheet: "s", sourceRow: 2 },
+  });
+  const mapped = (ledgerKey: string, head: string) => ({
+    ledgerKey,
+    head,
+    source: "global_exact" as const,
+    confidence: "high" as const,
+    needsReview: false,
+    reason: null,
+  });
+
+  it("gives unsigned balances the side of the head they map to, and leaves stated sides alone", () => {
+    const out = applyNormalSides(
+      [fact("Sales", 5000n), fact("Rent", 2000n), fact("Capital", 900n)],
+      [
+        mapped("sales", "REV_PRODUCTS"),
+        mapped("rent", "OPEX_RENT"),
+        mapped("capital", "REV_PRODUCTS"),
+      ],
+      new Set(["sales|2026-03", "rent|2026-03"]),
+    );
+    expect(out.map((f) => f.closing)).toEqual([-5000n, 2000n, 900n]);
   });
 });

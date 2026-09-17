@@ -132,6 +132,26 @@ describe("prepare is tolerant of what people actually upload (ADR 0031)", () => 
   });
 });
 
+describe("the last resort (ADR 0031)", () => {
+  it("reads a balance-shaped sheet when nothing else could be recognised", async () => {
+    const redactor = await Redactor.create(randomBytes(32));
+    const file: PipelineFile = {
+      fileId: randomUUID(),
+      name: "P&L March 2026.csv",
+      bytes: new TextEncoder().encode(
+        "Particulars,Amount\nSales,5000\nRent,2000\nNet Profit,3000\n",
+      ),
+    };
+    const plain = await prepare([file], redactor);
+    expect(plain.facts).toEqual([]);
+    const guessed = await prepare([file], redactor, "day_first", { bestEffort: true });
+    expect(guessed.guessed).toBe(1);
+    // The computed line is not a ledger; both real lines await their side from mapping.
+    expect(guessed.facts.map((f) => f.name)).toEqual(["Sales", "Rent"]);
+    expect(guessed.unsigned).toHaveLength(2);
+  });
+});
+
 describe("priorFacts", () => {
   it("turns stored snapshot balances into facts for periods not loaded now, keeping their heads", () => {
     const { facts, mappings } = priorFacts(
