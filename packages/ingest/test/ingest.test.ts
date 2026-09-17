@@ -267,7 +267,7 @@ describe("limits and zip-bomb guard", () => {
     });
   });
 
-  it("refuses by size, count and type before reading content", () => {
+  it("refuses by size and count before reading content, never by extension", () => {
     const l = {
       max_file_bytes: 100,
       max_session_bytes: 150,
@@ -277,9 +277,8 @@ describe("limits and zip-bomb guard", () => {
       zip_max_ratio: 1,
     };
     expect(checkFiles([{ name: "a.xlsx", size: 90 }], l)).toEqual({ ok: true });
-    expect(checkFiles([{ name: "a.pdf", size: 1 }], l)).toMatchObject({
-      reason: "unsupported_type",
-    });
+    expect(checkFiles([{ name: "a.pdf", size: 1 }], l)).toEqual({ ok: true });
+    expect(checkFiles([{ name: "export.unknown", size: 1 }], l)).toEqual({ ok: true });
     expect(checkFiles([{ name: "a.xlsx", size: 101 }], l)).toMatchObject({
       reason: "file_too_large",
     });

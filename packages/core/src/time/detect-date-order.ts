@@ -137,3 +137,22 @@ export function checkDateOrder(
     message: `This company reads dates as ${setting}, but this file is ${detected}: ${String(proof)} is only a date that way round. Reading it as ${setting} would move entries into the wrong month, and every total would still balance — so nothing is generated until the setting or the file is corrected.`,
   };
 }
+
+/**
+ * The order to read one column in (ADR 0031).
+ *
+ * When the column's own values prove an order, that order is used even against the
+ * company's setting: a file whose dates can only be month-first is month-first, and reading
+ * it the other way would move entries between months. Refusing the file instead turned an
+ * export from another system into a dead end. The setting decides only when the values are
+ * ambiguous. A column that proves both orders at once has no safe reading and returns null,
+ * so the caller keeps its values as text rather than guessing a date.
+ */
+export function resolveDateOrder(
+  stated: DateOrder,
+  values: Iterable<string>,
+): DateOrder | null {
+  const { order } = detectDateOrder(values);
+  if (order === "inconsistent") return null;
+  return order === "ambiguous" ? stated : order;
+}

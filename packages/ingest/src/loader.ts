@@ -11,7 +11,7 @@
 
 import { parseAmount } from "./amounts";
 import { cellAt, isBlankRow, type SheetGrid } from "./grid";
-import { checkDateOrder, type DateOrder } from "@magicmis/core/time";
+import { resolveDateOrder, type DateOrder } from "@magicmis/core/time";
 
 import { cellAsDate } from "./infer";
 import type { SheetProfile } from "./profile";
@@ -58,20 +58,6 @@ const quoteIdent = (s: string): string => `"${s.replace(/"/gu, '""')}"`;
 const csvField = (s: string): string =>
   /[",\n\r]/u.test(s) ? `"${s.replace(/"/gu, '""')}"` : s;
 
-/**
- * A file whose dates contradict the company's stated order.
- *
- * Its own type because the remedy is a decision, not a retry: either the company's
- * setting is wrong or the export is, and a person has to say which.
- */
-export class DateOrderError extends Error {
-  readonly code = "date_order_mismatch" as const;
-  constructor(message: string) {
-    super(message);
-    this.name = "DateOrderError";
-  }
-}
-
 export async function loadSheet(
   conn: DuckConn,
   input: {
@@ -87,13 +73,11 @@ export async function loadSheet(
   const dateOrder = input.dateOrder ?? "day_first";
 
   /**
-   * Check every date column against the company's setting before loading a row.
-   *
-   * This is the one data error where nothing downstream notices: read the wrong way
-   * round, 03/04 becomes 4 March, a month of vouchers lands in the wrong period, and
-   * every total still balances. So it is caught here, at the only point where the raw
-   * text is still in hand, and it stops the load rather than producing a workbook.
+   * The order each date column is read in: what its values prove, else the company's setting
+   * (ADR 0031, amending ADR 0030's refusal). A column proving both orders keeps its values as
+   * text — a wrong date is the one error nothing downstream notices, so it is never guessed.
    */
+  const orders = new Map<number, DateOrder | null>();
   for (const c of profile.columns) {
     if (c.type !== "date") continue;
     const seen: string[] = [];
@@ -102,10 +86,7 @@ export async function loadSheet(
       const cell = cellAt(sheet, r, c.index);
       if (typeof cell.value === "string" && cell.text.trim() !== "") seen.push(cell.text);
     }
-    const check = checkDateOrder(dateOrder, seen);
-    if (!check.ok) {
-      throw new DateOrderError(`${sheet.name} · ${c.header}: ${check.message}`);
-    }
+    orders.set(c.index, resolveDateOrder(dateOrder, seen));
   }
   const table = sanitiseIdentifier(
     `s_${input.fileId.slice(0, 8)}_${sheet.name}`,
@@ -114,6 +95,7 @@ export async function loadSheet(
   const taken = new Set<string>();
   const cols = profile.columns.map((c) => ({
     ...c,
+    type: c.type === "date" && orders.get(c.index) === null ? ("text" as const) : c.type,
     name: sanitiseIdentifier(c.header, taken),
   }));
   const headerMap: Record<string, string> = {};
@@ -138,7 +120,7 @@ export async function loadSheet(
         // value is the unsigned-by-side paise. Unparseable cells load as NULL (a finding).
         fields.push(parsed === null ? "" : parsed.paise.toString());
       } else if (c.type === "date") {
-        fields.push(cellAsDate(cell, dateOrder) ?? "");
+        fields.push(cellAsDate(cell, orders.get(c.index) ?? dateOrder) ?? "");
       } else {
         fields.push(csvField(cell.text));
       }

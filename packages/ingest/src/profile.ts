@@ -109,17 +109,12 @@ export const ingestLimitsSchema = z.object({
 });
 export type IngestLimits = z.infer<typeof ingestLimitsSchema>;
 
-export type FileKind = "xlsx" | "xlsm" | "xls" | "csv";
+export type LimitRefusal = "file_too_large" | "session_too_large" | "too_many_files";
 
-export function fileKind(name: string): FileKind | null {
-  const ext = /\.([a-z0-9]+)$/iu.exec(name)?.[1]?.toLowerCase();
-  return ext === "xlsx" || ext === "xlsm" || ext === "xls" || ext === "csv" ? ext : null;
-}
-
-export type LimitRefusal =
-  "unsupported_type" | "file_too_large" | "session_too_large" | "too_many_files";
-
-/** Checks before reading a byte of content. */
+/**
+ * Checks before reading a byte of content. Size and count only: what a file is gets decided
+ * from its bytes by `readSourceFile`, not from its extension (ADR 0031).
+ */
 export function checkFiles(
   files: readonly { name: string; size: number }[],
   limits: IngestLimits,
@@ -128,8 +123,6 @@ export function checkFiles(
     return { ok: false, reason: "too_many_files" };
   let total = 0;
   for (const f of files) {
-    if (fileKind(f.name) === null)
-      return { ok: false, reason: "unsupported_type", file: f.name };
     if (f.size > limits.max_file_bytes)
       return { ok: false, reason: "file_too_large", file: f.name };
     total += f.size;

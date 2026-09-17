@@ -98,3 +98,25 @@ export function readExcel(
   });
   return { sheets };
 }
+
+/**
+ * Grids back into an .xlsx workbook, for readers that accept only .xlsx (the reference MIS
+ * layout reader, which uses ExcelJS). Values and text only; styling cannot survive a format
+ * that never had it (ADR 0031).
+ */
+export function sheetsToXlsx(sheets: readonly SheetGrid[]): Uint8Array {
+  const wb = XLSX.utils.book_new();
+  const used = new Set<string>();
+  for (const sheet of sheets) {
+    const rows = sheet.rows.map((row) =>
+      Array.from(row, (c) => (c === undefined ? null : (c.value ?? c.text))),
+    );
+    let name = sheet.name.replace(/[\\/?*[\]:]/gu, " ").slice(0, 31) || "Sheet";
+    for (let i = 2; used.has(name); i += 1) name = `${name.slice(0, 28)} ${i.toString()}`;
+    used.add(name);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name);
+  }
+  return new Uint8Array(
+    XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer,
+  );
+}
