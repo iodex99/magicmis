@@ -14,7 +14,10 @@ test("pricing is public and shows credits per tier, never AI cost", async ({ pag
   const table = page.getByTestId("price-list");
   await expect(table).toBeVisible();
   await expect(table.getByRole("row", { name: /Company setup/u })).toContainText("999");
-  await expect(page.locator("body")).not.toContainText(/ratio|token|model/iu);
+  // AI cost and its vocabulary never appear; "KPIs and ratios" in the footer is a guide.
+  await expect(page.locator("body")).not.toContainText(
+    /cost ratio|ai cost|token|\bmodel\b/iu,
+  );
 });
 
 test("wallet shows GST before payment, issues a proforma and serves its PDF", async ({
