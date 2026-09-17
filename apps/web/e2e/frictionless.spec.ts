@@ -1,10 +1,10 @@
 /**
- * ADR 0031 browser acceptance: a run gets to a workbook from what people actually upload.
+ * ADR 0031 and 0032 browser acceptance: a run gets to a workbook from what people actually
+ * upload, with the server doing the work and nothing stopping to ask.
  *
  * A trial balance exported from a system other than Tally, as CSV, naming no month; a notes
  * file alongside it; and a photo. The photo is turned away with what to export instead, the
- * notes are set aside rather than failing the job, the month is asked for once, and the
- * workbook is delivered.
+ * notes are set aside, the month is assumed and said, and the workbook is delivered.
  */
 
 import { randomUUID } from "node:crypto";
@@ -53,13 +53,16 @@ test.afterAll(async () => {
   await db.end();
 });
 
-test("a non-Tally CSV with no month, a notes file and a photo still produce a workbook", async () => {
+async function newCompany(name: string) {
   await page.goto("/app");
-  await page.getByLabel("Company name").fill("Frictionless Exports Ltd");
+  await page.getByLabel("Company name").fill(name);
   await page.getByRole("button", { name: "Add company" }).click();
   await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+\/run$/u);
   await expect(page.getByLabel("Choose files")).toBeEnabled();
+}
 
+test("a non-Tally CSV with no month, a notes file and a photo still produce a workbook", async () => {
+  await newCompany("Frictionless Exports Ltd");
   await page.getByLabel("Choose files").setInputFiles([
     {
       name: "export.csv",
@@ -79,38 +82,25 @@ test("a non-Tally CSV with no month, a notes file and a photo still produce a wo
       buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]),
     },
   ]);
-  await expect(page.getByTestId("job-skipped")).toContainText("scan.jpg");
-  await expect(page.getByTestId("job-files").getByRole("row")).toHaveCount(3);
+  await expect(page.getByTestId("job-files").getByRole("row")).toHaveCount(4);
+  await expect(page.getByTestId("job-file-problem")).toContainText("photo or scan", {
+    timeout: 60_000,
+  });
 
   await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
   await page.getByRole("button", { name: /^Run setup —/u }).click();
 
-  // The one question: which month, pre-filled with a sensible guess.
-  const question = page.getByTestId("job-period");
-  await expect(question).toBeVisible({ timeout: 120_000 });
-  await expect(page.getByLabel("Month for export.csv")).toHaveValue(/^\d{4}-\d{2}$/u);
-  await page.getByLabel("Month for export.csv").fill("2026-03");
-  await question.getByRole("button", { name: "Continue" }).click();
-
-  await expect(page.getByRole("button", { name: "Confirm mappings" })).toBeVisible({
-    timeout: 120_000,
-  });
-  const accept = page.getByRole("button", { name: "Accept remaining as proposed" });
-  if (await accept.isVisible()) await accept.click();
-  await page.getByRole("button", { name: "Confirm mappings" }).click();
-
+  // No review and no questions: the server runs it through.
   await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 180_000 });
   await expect(page.getByTestId("job-download")).toBeVisible();
-  await expect(page.getByTestId("job-notices")).toContainText("left out");
+  const notices = page.getByTestId("job-notices");
+  await expect(notices).toContainText("left out");
+  await expect(notices).toContainText("doesn't say which month");
   expect(csp).toEqual([]);
 });
 
 test("a profit and loss with no sides is used as a best guess rather than refused", async () => {
-  await page.goto("/app");
-  await page.getByLabel("Company name").fill("Best Guess Traders");
-  await page.getByRole("button", { name: "Add company" }).click();
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
-
+  await newCompany("Best Guess Traders");
   await page.getByLabel("Choose files").setInputFiles({
     name: "Profit and loss March 2026.csv",
     mimeType: "text/csv",
@@ -119,15 +109,32 @@ test("a profit and loss with no sides is used as a best guess rather than refuse
   await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
   await page.getByRole("button", { name: /^Run setup —/u }).click();
 
-  // Everything mapped from the library, so review offers a one-click continue.
-  const proceed = page.getByRole("button", {
-    name: /^(Confirm mappings|Looks right — continue)$/u,
-  });
-  await expect(proceed).toBeVisible({ timeout: 120_000 });
-  await expect(page.getByTestId("job-notices")).toContainText("looked most like");
-  await proceed.click();
-
   await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 180_000 });
   await expect(page.getByTestId("job-download")).toBeVisible();
+  await expect(page.getByTestId("job-notices")).toContainText("looked most like");
   expect(csp).toEqual([]);
+});
+
+test("uploaded files are stored encrypted: nothing readable reaches the store", async () => {
+  const rows = await db.query<{ n: number }>(
+    `select count(*)::int as n from source_uploads where status = 'ready'`,
+  );
+  expect(rows.rows[0]?.n).toBeGreaterThan(0);
+  const { readdir, readFile } = await import("node:fs/promises");
+  const path = await import("node:path");
+  const root = path.join(process.cwd(), ".data", "outputs");
+  const walk = async (dir: string): Promise<string[]> => {
+    const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+    const out: string[] = [];
+    for (const e of entries) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) out.push(...(await walk(p)));
+      else if (p.includes(`${path.sep}sources${path.sep}`)) out.push(p);
+    }
+    return out;
+  };
+  const stored = await walk(root);
+  expect(stored.length).toBeGreaterThan(0);
+  for (const f of stored)
+    expect((await readFile(f)).includes(Buffer.from("Cash at bank"))).toBe(false);
 });

@@ -247,16 +247,16 @@ export default async function AppHomePage() {
               </span>
               <div>
                 <p className="text-[0.8125rem] font-semibold text-neutral-900">
-                  Load this month&rsquo;s exports first
+                  Your uploaded files
                 </p>
                 <p className="mt-0.5 text-[0.8125rem] text-neutral-500">
-                  Files are read in your browser and never uploaded. Loading them costs
-                  nothing.
+                  Encrypted when they arrive and deleted automatically. See or delete them
+                  any time.
                 </p>
               </div>
             </div>
-            <ButtonLink href="/app/data" variant="secondary" size="sm" icon="upload">
-              Source files
+            <ButtonLink href="/app/data" variant="secondary" size="sm" icon="file">
+              Uploaded files
             </ButtonLink>
           </div>
         </Panel>

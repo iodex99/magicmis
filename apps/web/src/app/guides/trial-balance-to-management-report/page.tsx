@@ -91,7 +91,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} build the mapping?`,
     answer:
-      "In order: your own confirmed mapping for the ledger, then a library of common ledger names, then the ledger's group, then a close-name match. Only ledgers still unmatched go to AI, and anything not certain is marked for your review. You confirm the mapping once; later months reuse it and flag only new ledgers.",
+      "In order: your own confirmed mapping for the ledger, then a library of common ledger names, then the ledger's group, then a close-name match. Only ledgers still unmatched go to AI, and anything it cannot place is shown as Unmapped rather than guessed. The mapping is kept; later months reuse it and match only new ledgers.",
   },
 ];
 
@@ -205,7 +205,7 @@ export default function TrialBalanceGuide() {
       />
       <ClosingCta
         heading="Map it once, reuse it every month"
-        body={`${PRODUCT_NAME} proposes the mapping, checks that the report ties back to the trial balance, and remembers your confirmed mapping so next month only new ledgers need a look.`}
+        body={`${PRODUCT_NAME} builds the mapping, checks that the report ties back to the trial balance, and keeps the mapping so next month only new ledgers are matched.`}
       />
     </PublicShell>
   );

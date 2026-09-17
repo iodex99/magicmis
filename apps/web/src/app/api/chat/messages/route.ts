@@ -7,8 +7,12 @@ import { processingConsentRequired } from "@/lib/server/consent";
 import { rateLimited } from "@/lib/server/ratelimit";
 import { aiTransport } from "@/lib/server/ai";
 import { progressBody } from "@/lib/server/chat";
+import { answerDeepOnServer } from "@/lib/server/chat-deep";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 import { keyWrapper } from "@/lib/server/runtime";
+
+// A Deep answer runs its queries here, round by round (ADR 0032).
+export const maxDuration = 120;
 
 const bodySchema = z.object({
   companyId: z.uuid(),
@@ -22,7 +26,7 @@ const bodySchema = z.object({
 
 /**
  * POST /api/chat/messages — price and hold a chat message, then answer it (Quick, Edit) or run it
- * to its first browser query (Deep). The message type is the price (SPEC §27).
+ * through its queries on the server (Deep, ADR 0032). The message type is the price (SPEC §27).
  */
 export async function POST(request: Request): Promise<Response> {
   return withAccount(async (account) => {
@@ -53,9 +57,15 @@ export async function POST(request: Request): Promise<Response> {
               : { editTarget: parsed.data.editTarget }),
             idempotencyKey: key,
           });
-          const progress = await processMessage(pool, keyWrapper(), aiTransport(), {
+          const first = await processMessage(pool, keyWrapper(), aiTransport(), {
             accountId: account.accountId,
             messageId: sent.messageId,
+          });
+          const progress = await answerDeepOnServer(pool, {
+            accountId: account.accountId,
+            companyId: parsed.data.companyId,
+            messageId: sent.messageId,
+            first,
           });
           return {
             status: 200,

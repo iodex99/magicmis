@@ -33,12 +33,12 @@ const FIRST_MONTH = [
   {
     icon: "upload",
     title: "Load the exports",
-    body: "The trial balance, and if you want ageing, the bills outstanding registers. Files are read in your browser.",
+    body: "The trial balance, and if you want ageing, the bills outstanding registers, in any format.",
   },
   {
     icon: "sliders",
-    title: "Confirm the mapping",
-    body: "Each ledger arrives with a proposed report head. You review the ones marked for review and confirm. This is the step that takes real time, and it is done once.",
+    title: "The mapping is built for you",
+    body: "Each ledger is matched to a report head, rules first and AI for the rest. Nothing waits for a review; anything that cannot be placed is shown as Unmapped in the workbook.",
   },
   {
     icon: "document",
@@ -74,7 +74,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is it really minutes?",
     answer:
-      "For a monthly refresh on unchanged ledger structure, yes — the work is loading the file, applying a mapping you already confirmed, and computing. The first month takes longer, because a person has to review and confirm the mapping, and that should not be rushed.",
+      "For a monthly refresh on unchanged ledger structure, yes — the work is reading the file, applying the mapping already built, and computing. A first setup takes a little longer while every ledger is matched, but nothing waits on you.",
   },
   {
     question: "What if a new ledger appears?",

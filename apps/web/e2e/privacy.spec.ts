@@ -136,6 +136,11 @@ test("another account's resources are unreachable through every id-scoped endpoi
      values ($1, $2, 'user', 'edit', '\\x', 'professional', 0, 0, 'completed') returning id`,
     [thread, otherId],
   );
+  const upload = await one(
+    `insert into source_uploads (account_id, company_id, file_name, byte_size, chunk_count, expires_at)
+     values ($1, $2, 'hidden.csv', 10, 1, now() + interval '1 day') returning id`,
+    [otherId, company],
+  );
   const dataExport = await one(
     `insert into data_exports (account_id, status) values ($1, 'queued') returning id`,
     [otherId],
@@ -157,14 +162,6 @@ test("another account's resources are unreachable through every id-scoped endpoi
     distinctLedgerValues: 40,
     referenceMisSheets: 0,
   };
-  const sheet = {
-    ref: "s1",
-    name: "Sheet1",
-    titleLines: ["Trial Balance"],
-    headers: ["Particulars", "Debit"],
-    types: ["text", "amount"],
-    samples: [["LEDGER_a1b2c3", "1"]],
-  };
   // Every probe carries a body that passes validation, so a refusal proves ownership was checked
   // (a 422 would only prove the body was wrong). Route templates are listed to guard coverage.
   const probes: { route: string; method: string; url: string; body?: object }[] = [
@@ -176,9 +173,33 @@ test("another account's resources are unreachable through every id-scoped endpoi
       body: { confirmName: "Hidden Traders" },
     },
     {
-      route: "/api/companies/[id]/session",
-      method: "GET",
-      url: `/api/companies/${company}/session`,
+      route: "/api/companies/[id]/uploads",
+      method: "POST",
+      url: `/api/companies/${company}/uploads`,
+      body: { fileName: "tb.csv", byteSize: 10 },
+    },
+    {
+      route: "/api/companies/[id]/chat/names",
+      method: "POST",
+      url: `/api/companies/${company}/chat/names`,
+      body: { tokens: ["PARTY_0123456789ab"] },
+    },
+    {
+      route: "/api/uploads/[id]",
+      method: "DELETE",
+      url: `/api/uploads/${upload}`,
+    },
+    {
+      route: "/api/uploads/[id]/complete",
+      method: "POST",
+      url: `/api/uploads/${upload}/complete`,
+      body: {},
+    },
+    {
+      route: "/api/uploads/[id]/chunks/[index]",
+      method: "PUT",
+      url: `/api/uploads/${upload}/chunks/0`,
+      body: {},
     },
     {
       route: "/api/companies/[id]/dashboard",
@@ -218,32 +239,10 @@ test("another account's resources are unreachable through every id-scoped endpoi
       }),
     ),
     {
-      route: "/api/jobs/[id]/[action]",
+      route: "/api/jobs/[id]/run",
       method: "POST",
-      url: `/api/jobs/${job}/advance`,
-      body: { to: "mapping" },
-    },
-    {
-      route: "/api/jobs/[id]/[action]",
-      method: "POST",
-      url: `/api/jobs/${job}/fail`,
-      body: {
-        failureClass: "platform_fault",
-        code: "probe",
-        detail: "cross-tenant probe",
-      },
-    },
-    {
-      route: "/api/jobs/[id]/ai/[stage]",
-      method: "POST",
-      url: `/api/jobs/${job}/ai/sheet_classification`,
-      body: { sheets: [sheet] },
-    },
-    {
-      route: "/api/jobs/[id]/ai/reference_layout",
-      method: "POST",
-      url: `/api/jobs/${job}/ai/reference_layout`,
-      body: { layout: { sheets: [] } },
+      url: `/api/jobs/${job}/run`,
+      body: {},
     },
     {
       route: "/api/jobs/[id]/commentary",
@@ -256,12 +255,6 @@ test("another account's resources are unreachable through every id-scoped endpoi
       url: `/api/jobs/${job}/commentary`,
       body: { period: "2027-01" },
     },
-    {
-      route: "/api/jobs/[id]/complete",
-      method: "POST",
-      url: `/api/jobs/${job}/complete`,
-      body: {},
-    },
     { route: "/api/outputs/[id]", method: "GET", url: `/api/outputs/${output}` },
     {
       route: "/api/chat/threads/[id]",
@@ -273,12 +266,6 @@ test("another account's resources are unreachable through every id-scoped endpoi
       method: "POST",
       url: `/api/chat/messages/${message}/apply`,
       body: { threadId: thread },
-    },
-    {
-      route: "/api/chat/messages/[id]/steps/[stepId]/result",
-      method: "POST",
-      url: `/api/chat/messages/${message}/steps/${randomUUID()}/result`,
-      body: { status: "ok", columns: ["a"], rows: [["1"]], truncated: false },
     },
     {
       route: "/api/account/export/[id]",

@@ -2,10 +2,10 @@
 
 /**
  * Chat with the MIS (SPEC §27). The user picks the message type, which is the price; the send
- * button shows it. Deep questions need this company's files loaded in this browser: they are read
- * here, queried in a locked DuckDB, and only redacted, capped results go to the server. Every
- * figure in an answer is a placeholder resolved here, after the placeholder check runs again, and
- * opens its lineage: a metric's formula and inputs, or the query that produced a cell.
+ * button shows it. Deep questions run their queries on the server over this company's figures
+ * (ADR 0032); nothing needs loading here. Every figure in an answer is a placeholder resolved
+ * here, after the placeholder check runs again, and opens its lineage: a metric's formula and
+ * inputs, or the query that produced a cell.
  */
 
 import type { NumberFormatOptions } from "@magicmis/core/format";
@@ -19,14 +19,10 @@ import {
 } from "@magicmis/render-dashboard";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { FileDropZone } from "@/components/FileDropZone";
-import { ProcessingNotice } from "@/components/ProcessingNotice";
 import { LineagePanel } from "@/components/LineagePanel";
 import { Alert, Button, Panel } from "@/components/ui";
 import { formatCredits, TIER_LABELS } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
-import { clearPipeline, pipelineClient } from "@/lib/pipeline/client";
-import type { JobSession } from "@/lib/server/companies";
 
 type MessageType = "quick" | "deep" | "edit" | "investigate";
 type Tier = keyof typeof TIER_LABELS;
@@ -65,12 +61,6 @@ type Progress =
   | { status: "completed"; state: string; capturedCredits: string }
   | { status: "needs_query"; stepId: string; stepRef: string; sql: string }
   | { status: "failed"; reason: string };
-
-interface ChatCaps {
-  rowsPerRound: number;
-  bytesPerRound: number;
-  queryTimeoutMs: number;
-}
 
 const ACTION: Record<MessageType, "chat_quick" | "chat_deep" | "chat_edit"> = {
   quick: "chat_quick",
@@ -145,10 +135,6 @@ export function ChatClient({
   const [price, setPrice] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [session, setSession] = useState<{ loaded: boolean; balances: number } | null>(
-    null,
-  );
-  const [caps, setCaps] = useState<ChatCaps | null>(null);
   const [names, setNames] = useState<Record<string, string | null>>({});
   const [lineage, setLineage] = useState<
     | { kind: "metric"; key: string; values: MetricValue[] }
@@ -176,12 +162,6 @@ export function ChatClient({
 
   useEffect(() => {
     void loadThreads();
-    void api<{ limits: unknown; chat: ChatCaps }>("/api/ingest/config").then((r) => {
-      if (r.ok) setCaps(r.data.chat);
-    });
-    return () => {
-      void clearPipeline();
-    };
   }, [loadThreads]);
 
   useEffect(() => {
@@ -197,51 +177,29 @@ export function ChatClient({
     };
   }, [type, tier]);
 
-  // Names for tokens in answers, only from files loaded in this session.
+  // Names for tokens in answers, from this company's most recent upload while it is kept.
   useEffect(() => {
-    if (thread === null || session?.loaded !== true) return;
+    if (thread === null) return;
     const tokens = new Set<string>();
     for (const m of thread.messages) {
       const blob = JSON.stringify([m.reply, m.queries]);
       for (const t of blob.matchAll(/\b[A-Z]+_[0-9a-f]{12}\b/gu)) tokens.add(t[0]);
     }
-    void pipelineClient()
-      .displayNames([...tokens])
-      .then(setNames);
-  }, [thread, session]);
-
-  const loadFiles = async (list: File[]) => {
-    if (list.length === 0) return;
-    setError(null);
-    setBusy("Reading files in your browser…");
-    try {
-      const [s, config] = await Promise.all([
-        api<JobSession>(`/api/companies/${companyId}/session`),
-        api<{ limits: Parameters<ReturnType<typeof pipelineClient>["start"]>[1] }>(
-          "/api/ingest/config",
-        ),
-      ]);
-      if (!s.ok || !config.ok)
-        throw new Error(s.ok ? "Could not load limits." : s.message);
-      const pipeline = pipelineClient();
-      await pipeline.start(s.data, config.data.limits);
-      const added = await pipeline.addFiles(list);
-      if (added.refused !== null) throw new Error("These files could not be loaded.");
-      if (added.added.length === 0)
-        throw new Error(added.skipped[0]?.message ?? "These files could not be loaded.");
-      const tables = await pipeline.chatStart();
-      setSession({ loaded: true, balances: tables.balances });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "The files could not be loaded.");
-    } finally {
-      setBusy(null);
-    }
-  };
+    if (tokens.size === 0) return;
+    void api<{ names: Record<string, string | null> }>(
+      `/api/companies/${companyId}/chat/names`,
+      { body: { tokens: [...tokens].slice(0, 500) } },
+    ).then((r) => {
+      if (r.ok) setNames(r.data.names);
+    });
+  }, [thread, companyId]);
 
   const send = async () => {
     if (text.trim() === "") return;
     setError(null);
-    setBusy("Sending…");
+    setBusy(
+      type === "deep" || type === "investigate" ? "Working out the answer…" : "Sending…",
+    );
     try {
       const r = await api<{ messageId: string; threadId: string; progress: Progress }>(
         "/api/chat/messages",
@@ -261,22 +219,9 @@ export function ChatClient({
         setError(r.message);
         return;
       }
-      let progress = r.data.progress;
-      let rounds = 0;
-      while (progress.status === "needs_query") {
-        rounds += 1;
-        if (caps === null || session?.loaded !== true)
-          throw new Error("Load this company's files to answer Deep questions.");
-        setBusy(`Running query ${rounds.toString()} in your browser…`);
-        const outcome = await pipelineClient().chatQuery(progress.sql, caps);
-        const step: Awaited<ReturnType<typeof api<Progress>>> = await api<Progress>(
-          `/api/chat/messages/${r.data.messageId}/steps/${progress.stepId}/result`,
-          { body: outcome, idempotencyKey: newIdempotencyKey() },
-        );
-        if (!step.ok) throw new Error(step.message);
-        progress = step.data;
-      }
-      if (progress.status === "failed")
+      // Deep questions run their queries on the server and come back answered (ADR 0032).
+      const progress = r.data.progress;
+      if (progress.status !== "completed")
         setError("This message could not be answered. No credits were charged.");
       setText("");
       await openThread(r.data.threadId);
@@ -316,9 +261,6 @@ export function ChatClient({
     if (r.ok) setApplied((a) => ({ ...a, [m.id]: { ...done, undone: true } }));
     else setError(r.message);
   };
-
-  const deepDisabled =
-    (type === "deep" || type === "investigate") && session?.loaded !== true;
 
   return (
     <div className="flex gap-4">
@@ -521,29 +463,13 @@ export function ChatClient({
               ) : null}
             </div>
             {type === "deep" || type === "investigate" ? (
-              <div className="rounded-xl border border-neutral-200 bg-white p-3">
-                {session?.loaded === true ? (
-                  <p data-testid="chat-session">
-                    Files loaded in this browser ({session.balances} ledger lines).
-                    Queries run here; only redacted results are sent.
-                  </p>
-                ) : (
-                  <ProcessingNotice>
-                    <p className="mb-2">
-                      Deep answers query this company's files, which must be loaded in
-                      this browser. They are not uploaded.
-                    </p>
-                    <FileDropZone
-                      compact
-                      title="Drag this company's exports here"
-                      hint="Any format: Excel, CSV, PDF, text or HTML."
-                      inputLabel="Load files for Deep answers"
-                      busy={busy !== null}
-                      onFiles={loadFiles}
-                    />
-                  </ProcessingNotice>
-                )}
-              </div>
+              <p
+                className="rounded-xl border border-neutral-200 bg-white p-3"
+                data-testid="chat-session"
+              >
+                Deep answers run queries over this company&rsquo;s figures on our servers.
+                Only redacted results are sent for the answer.
+              </p>
             ) : null}
             <textarea
               className="min-h-24 rounded-lg border border-neutral-200 bg-white p-3 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300"
@@ -561,7 +487,7 @@ export function ChatClient({
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => void send()}
-                disabled={busy !== null || deepDisabled || text.trim() === ""}
+                disabled={busy !== null || text.trim() === ""}
                 data-testid="chat-send"
               >
                 {price === null ? "Send" : `Send — ${formatCredits(price)} credits`}

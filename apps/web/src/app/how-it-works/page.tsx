@@ -30,17 +30,17 @@ const STAGES: readonly {
 }[] = [
   {
     n: "01",
-    title: "Files open in your browser",
-    body: "You point at the exports from your accounting system. They are parsed and queried locally — the file itself never leaves the machine that opened it.",
+    title: "Upload your exports",
+    body: "You add the exports from your accounting system, in any format. They are encrypted as they arrive, used only for the runs you pay for, and deleted automatically.",
     detail:
       "Before you pay for anything, the screen shows file names, sizes, sheet counts and row counts. Not what is in them: no sheet recognition, no mapping preview, no data-quality findings. Those are results, and results appear inside a paid action.",
   },
   {
     n: "02",
     title: "Ledgers are matched to a canonical schema",
-    body: "Each ledger is proposed against a standard MIS head. You review the proposals once, for this company, and correct what is wrong.",
+    body: "Each ledger is matched to a standard MIS head for you, and the mapping is kept for this company so later months reuse it.",
     detail:
-      "Matching is by header name, never by column position, so a reordered export does not break it. Where a name is unambiguous it is matched deterministically without any model involved; only genuinely ambiguous ledgers need a judgement, and yours overrides.",
+      "Matching is by header name, never by column position, so a reordered export does not break it. Where a name is unambiguous it is matched deterministically without any model involved; only genuinely ambiguous ledgers go to the AI, and anything it cannot place is shown as Unmapped rather than guessed.",
   },
   {
     n: "03",

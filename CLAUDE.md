@@ -23,9 +23,10 @@ establishes the session and lands in the app; **customers sign in with a passwor
 (ADR 0028 — the admin console still requires TOTP, and `app.current_account_id()` now gates
 on the active session alone, migration 0036); the run screen prices itself and its
 single button **is** the SPEC §12 confirmation; **a run gets the customer to a workbook**
-(ADR 0031) — any file format is read in the browser (text PDFs included) or refused with a
+(ADR 0031, ADR 0032) — files are uploaded and the whole run happens on the server
+(`lib/server/run-job.ts`, one request, no review); any file format is read (text PDFs included) or refused with a
 reason, unplaceable sheets are set aside rather than failing the job, AI classification is
-called only when no balances were found, a missing month is asked for, an AI stage that
+called only when no balances were found, a missing month is assumed and said, an AI stage that
 cannot run never fails the job, and data-fault checks deliver the workbook with warnings
 (`deliverWithWarnings`) while platform faults still block. Changing `supabase/templates/` needs
 `docker restart supabase_auth_magicmis` to take effect locally.
@@ -190,9 +191,13 @@ content current.
    never silently overspends.
 7. **Claude never outputs numbers.** Every figure in every output, commentary and chat
    answer is computed by the deterministic engine and inserted via placeholders.
-8. **Raw files never leave the browser** by default. Server receives only redacted
-   structural profiles, capped redacted samples, and aggregates. Anthropic receives
-   only what the server sends for a specific action.
+8. **Amended by ADR 0032: files are uploaded and processed on the server.** Each chunk is
+   sealed under the company's data key before storage, uploads expire after
+   `sources.retention_days` and are purged, and the Uploaded files page deletes on
+   request. Anthropic still receives only what action-specific server code sends —
+   redacted structure, capped redacted samples, redacted ledger names, chat query
+   results — never a whole file. Before payment only names, sizes, sheet and row counts
+   are shown.
 9. **Anthropic API key is server-side only.** Action-specific endpoints only — never a
    generic prompt passthrough. The browser cannot choose prompts, models or token
    limits.
@@ -248,7 +253,7 @@ product.** Every design choice affecting cost or pricing must protect it.
 
 | Zone               | What it is                                | What it may hold                                                                           |
 | ------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------ |
-| **A — Browser**    | Untrusted client                          | Raw files, DuckDB compute, redaction token map (never leaves), Excel + dashboard rendering |
+| **A — Browser**    | Untrusted client                          | Uploads files in chunks, shows counts and results, downloads the workbook; holds no data (ADR 0032) |
 | **B — Our server** | Trusted (Next.js route handlers + worker) | Auth, wallet, pricing, quotes, job state, AI orchestrator, blueprints, snapshots, billing  |
 | **C — Anthropic**  | Vendor                                    | Only what an action-specific server function sends                                         |
 

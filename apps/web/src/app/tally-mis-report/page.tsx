@@ -104,13 +104,13 @@ const SETTINGS: readonly {
 const STEPS = [
   {
     icon: "upload" as const,
-    title: "Export the reports and load them",
-    body: "Drop the Excel exports in. They are parsed in your browser — the files themselves are never uploaded, and before you pay for anything the screen shows only file names, sizes, sheet counts and row counts.",
+    title: "Export the reports and upload them",
+    body: "Drop the exports in, in any format. They are encrypted as they arrive, and before you pay for anything the screen shows only file names, sizes, sheet counts and row counts.",
   },
   {
     icon: "table" as const,
-    title: "Confirm the ledger mapping once",
-    body: "Each ledger is matched to a canonical MIS head. You review and correct that once, for this company. It is the part that takes judgement, and the part that does not change next month.",
+    title: "The ledger mapping is done for you",
+    body: "Each ledger is matched to a canonical MIS head: Tally's group structure does most of the work and AI handles what is left. The mapping is kept, so next month it is reused.",
   },
   {
     icon: "check-circle" as const,
@@ -133,12 +133,12 @@ const FAQS: readonly Faq[] = [
   {
     question: "Do I need to connect anything to my Tally installation?",
     answer:
-      "No. There is no connector, no ODBC link and nothing to install beside Tally. You export the reports you would export anyway and load the files, which keeps your Tally data on your own machine.",
+      "No. There is no connector, no ODBC link and nothing to install beside Tally. You export the reports you would export anyway and upload the files; nothing connects to your Tally installation.",
   },
   {
     question: "Does my accounting data leave my computer?",
     answer:
-      "The files themselves do not. They are parsed and queried in your browser. What reaches the server is a redacted structural profile and aggregate figures — never the raw file, and never the party names, which are re-inserted locally in the workbook you download.",
+      "The export files are uploaded, encrypted under a key unique to that company, and deleted automatically. The AI model receives only redacted samples and ledger names, never a whole file and never your parties' names.",
   },
   {
     question: "What if ledger names change between months?",

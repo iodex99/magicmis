@@ -126,7 +126,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} produce the format above?`,
     answer:
-      "You load the exports and confirm the ledger mapping once. The workbook is then generated with live Excel formulas, a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
+      "You upload the exports and the ledger mapping is built for you. The workbook is then generated with live Excel formulas, a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
   },
 ];
 
@@ -293,7 +293,7 @@ export default function MisReportFormatPage() {
       <ReadNext paths={["/tally-mis-report", "/for-accountants", "/how-it-works"]} />
       <ClosingCta
         heading="Or stop rebuilding it every month"
-        body={`${PRODUCT_NAME} produces this format from your accounting exports, with live formulas and every figure traceable. Confirm the ledger mapping once; later months reuse it.`}
+        body={`${PRODUCT_NAME} produces this format from your accounting exports, with live formulas and every figure traceable. The ledger mapping is built once and reused every month.`}
       />
     </PublicShell>
   );

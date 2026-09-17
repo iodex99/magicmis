@@ -1,26 +1,23 @@
 "use client";
 
 /**
- * Setup and refresh flow (SPEC §23). Files stay in the pipeline worker. Before the price is
- * confirmed the page shows only file names, sizes, sheet and row counts (SPEC §2.3); recognition,
- * mappings, checks and the workbook appear only once credits are held.
+ * Setup and refresh (SPEC §23), run on the server (ADR 0032).
  *
- * Built to get the customer to a workbook (ADR 0031): sheets nothing can place are set aside, AI
- * is asked only when no balances were found, a missing month is asked for, an analysis that
- * cannot run falls back rather than failing, and data problems arrive as warnings on a delivered
- * report instead of a refusal.
+ * Three moments for the customer: add files, see the price, collect the workbook. Files upload in
+ * the background as soon as they are dropped; the price appears once they are in; the one button
+ * is the SPEC §12 confirmation; and the server does everything else — recognition, mapping with
+ * Claude, computation, checks and rendering — without stopping to ask. What it had to assume or
+ * could not match is said on the result, and data problems arrive as warnings on a delivered
+ * workbook (ADR 0031). Before payment the page shows only file names, sizes, sheet counts and row
+ * counts (SPEC §2.3).
  */
 
-import type { ReviewRow } from "@magicmis/semantic";
-import type { RowBinding } from "@magicmis/templates";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BuyCreditsInline } from "@/components/BuyCreditsInline";
 import { FileDropZone } from "@/components/FileDropZone";
 import { Icon } from "@/components/Icon";
-import { MappingReview } from "@/components/MappingReview";
 import { ProcessingNotice } from "@/components/ProcessingNotice";
-import { ReferenceBindingReview } from "@/components/ReferenceBindingReview";
 import {
   Alert,
   Badge,
@@ -36,17 +33,12 @@ import {
 import {
   ACTION_LABELS,
   DELIVERY_LABELS,
+  formatCount,
   formatCredits,
   TIER_LABELS,
 } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
-import { clearPipeline, pipelineClient } from "@/lib/pipeline/client";
-import type {
-  ComputeResult,
-  PipelineFileSummary,
-  ReferenceReviewRow,
-} from "@/lib/pipeline/types";
-import type { JobSession } from "@/lib/server/companies";
+import { removeUpload, uploadFile } from "@/lib/uploads";
 
 type Tier = keyof typeof TIER_LABELS;
 type Delivery = keyof typeof DELIVERY_LABELS;
@@ -61,66 +53,57 @@ interface CreatedJob {
   available: string;
 }
 
+interface Check {
+  id: string;
+  status: string;
+  severity: string;
+  message: string;
+  fix: string;
+}
+
+interface RunOutcome {
+  status: "completed" | "failed" | "needs_quote";
+  message: string | null;
+  capturedCredits: string;
+  outputId: string | null;
+  fileName: string | null;
+  checks: Check[];
+  notices: string[];
+}
+
+/** One file on screen: uploading, read, or refused with a reason. */
+interface FileEntry {
+  key: string;
+  name: string;
+  size: number;
+  progress: number;
+  uploadId: string | null;
+  sheets: number | null;
+  rows: number | null;
+  problem: string | null;
+}
+
 type Phase =
   | { kind: "files" }
   | { kind: "running"; jobId: string; step: string }
-  | {
-      kind: "period";
-      jobId: string;
-      sheets: readonly { key: string; fileName: string; sheet: string }[];
-      suggested: string;
-    }
-  | {
-      kind: "review";
-      jobId: string;
-      rows: readonly ReviewRow[];
-      references: readonly ReferenceReviewRow[] | null;
-    }
-  | {
-      kind: "bindings";
-      jobId: string;
-      rows: readonly ReferenceReviewRow[];
-      confirmed: Parameters<typeof MappingReview>[0] extends {
-        onConfirm: (c: infer C) => void;
-      }
-        ? C
-        : never;
-      unmappedAccepted: boolean;
-    }
-  | {
-      kind: "done";
-      jobId: string;
-      outputId: string | null;
-      captured: string;
-      result: ComputeResult;
-    }
-  | {
-      kind: "failed";
-      jobId: string;
-      message: string;
-      checks: ComputeResult["checks"];
-      captured: string;
-    };
+  | { kind: "done"; jobId: string; outcome: RunOutcome }
+  | { kind: "failed"; jobId: string; outcome: RunOutcome };
 
-const REFUSALS: Record<string, string> = {
-  file_too_large: "A file is larger than the per-file limit.",
-  session_too_large: "These files together exceed the session limit.",
-  too_many_files: "Too many files for one job.",
-  unsafe_workbook: "A workbook's contents are too large or malformed to open safely.",
-  image:
-    "That's a photo or scan, which can't be read in your browser. Use an Excel, CSV or PDF export instead.",
-  document:
-    "That's a document rather than a report. Use an Excel, CSV or PDF export instead.",
-  scanned_pdf:
-    "That PDF is a scanned image with no text in it. Use an Excel, CSV or PDF export instead.",
-  empty: "That file has no data in it.",
-  unreadable: "That file couldn't be read. Try exporting it again as Excel, CSV or PDF.",
-  unreadable_reference:
-    "That MIS workbook's layout couldn't be read. You can run without it.",
+const STEP_LABELS: Record<string, string> = {
+  reserved: "Starting",
+  preflight: "Opening your files",
+  profiling: "Reading your files",
+  classifying: "Recognising the reports",
+  mapping: "Matching ledgers to MIS lines",
+  awaiting_review: "Matching ledgers to MIS lines",
+  computing: "Computing the figures",
+  validating: "Checking every figure",
+  rendering: "Building your workbook",
+  completed: "Finishing",
 };
 
-const NOTHING_USABLE =
-  "We couldn't find account balances in these files. Add a trial balance exported from your accounting software (Excel, CSV or PDF all work) and run it again.";
+const fileKey = (f: File) =>
+  `${f.name}:${f.size.toString()}:${f.lastModified.toString()}`;
 
 export function JobRunner({
   companyId,
@@ -132,174 +115,146 @@ export function JobRunner({
   /** Shown on the payment sheet when a run is short of credits. */
   businessName: string;
 }) {
-  const [files, setFiles] = useState<PipelineFileSummary[]>([]);
-  const [reference, setReference] = useState<PipelineFileSummary | null>(null);
+  const [files, setFiles] = useState<FileEntry[]>([]);
+  const [reference, setReference] = useState<FileEntry | null>(null);
   const [tier, setTier] = useState<Tier>("professional");
   const [delivery, setDelivery] = useState<Delivery>("instant");
   const [phase, setPhase] = useState<Phase>({ kind: "files" });
   const [error, setError] = useState<string | null>(null);
-  // Files that could not be read, each with what to do instead; the rest still count.
-  const [skipped, setSkipped] = useState<readonly { name: string; message: string }[]>(
-    [],
-  );
-  // Things that went differently from plan inside a run, told plainly rather than as failures.
-  const [notices, setNotices] = useState<readonly string[]>([]);
-  const [reading, setReading] = useState(false);
-  const [readingReference, setReadingReference] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [currencySymbol, setCurrencySymbol] = useState<string | undefined>(undefined);
-  const heartbeat = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  /**
-   * The price, fetched as soon as the files are in.
-   *
-   * There used to be a "Get price" button and then a separate confirmation screen. The
-   * price is knowable the moment the files are loaded, so it is simply shown, and the one
-   * remaining button is the SPEC §12 confirmation: nothing is held or charged until it is
-   * pressed.
-   */
   const [quote, setQuote] = useState<CreatedJob | null>(null);
   const [quoting, setQuoting] = useState(false);
   const [starting, setStarting] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  // Bumped after a purchase so the pricing effect runs again against the new balance.
   const [repriceAt, setRepriceAt] = useState(0);
-  // One draft job per distinct priceable request, so changing a dropdown twice does not
-  // leave a trail of draft rows behind.
   const priced = useRef(new Map<string, CreatedJob>());
-  // Read inside the pricing effect without making it depend on its own output.
-  const shownJobId = useRef<string | null>(null);
-  // Every estimate this screen has created. An effect cancelled mid-flight still leaves a
-  // draft behind on the server, and only this set knows about it.
   const createdDrafts = useRef(new Set<string>());
+  const heartbeat = useRef<ReturnType<typeof setInterval> | null>(null);
+  const poll = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    const effect = { cancelled: false };
-    void (async () => {
-      const [session, config] = await Promise.all([
-        api<JobSession>(`/api/companies/${companyId}/session`),
-        api<{
-          limits: Parameters<Awaited<ReturnType<typeof pipelineClient>>["start"]>[1];
-        }>("/api/ingest/config"),
-      ]);
-      if (effect.cancelled) return;
-      if (!session.ok) {
-        setError(session.message);
-        return;
-      }
-      if (!config.ok) {
-        setError(config.message);
-        return;
-      }
-      // The company's reporting currency, for the amounts shown during review. The
-      // pipeline gets the whole session; this screen only needs the symbol.
-      setCurrencySymbol(session.data.company.currencySymbol);
-      await pipelineClient().start(session.data, config.data.limits);
-      setReady(true);
-    })();
-    return () => {
-      effect.cancelled = true;
-      if (heartbeat.current !== null) clearInterval(heartbeat.current);
-      void clearPipeline();
-    };
-  }, [companyId]);
-
-  const advance = async (jobId: string, to: string) => {
-    const r = await api(`/api/jobs/${jobId}/advance`, { body: { to } });
-    if (!r.ok) throw new Error(r.message);
-    setPhase({ kind: "running", jobId, step: to });
+  // Read through a function so each check is a fresh read of the ref, not a narrowed constant.
+  const stopTimers = () => {
+    if (heartbeat.current !== null) clearInterval(heartbeat.current);
+    if (poll.current !== null) clearInterval(poll.current);
+    heartbeat.current = null;
+    poll.current = null;
   };
+  useEffect(() => stopTimers, []);
 
-  const onReference = async (list: File[]) => {
-    const file = list[0];
-    if (file === undefined) return;
-    setError(null);
-    setReadingReference(true);
-    const r = await pipelineClient().addReference(file);
-    setReadingReference(false);
-    if (r.summary === null)
-      setError(REFUSALS[r.refused ?? ""] ?? "The reference MIS could not be read.");
-    setReference(r.summary);
+  const patch = (key: string, change: Partial<FileEntry>) => {
+    setFiles((list) => list.map((f) => (f.key === key ? { ...f, ...change } : f)));
   };
 
   const onFiles = async (list: File[]) => {
-    if (list.length === 0) return;
     setError(null);
-    setReading(true);
-    try {
-      const r = await pipelineClient().addFiles(list);
-      if (r.refused !== null)
-        setError(REFUSALS[r.refused] ?? "These files could not be added.");
-      setSkipped((prev) => [
-        ...prev.filter((p) => !list.some((f) => f.name === p.name)),
-        ...r.skipped,
-      ]);
-      setFiles((f) => [...f, ...r.added]);
-    } catch {
-      setError(
-        "These files couldn't be read. Try exporting them again as Excel, CSV or PDF.",
-      );
-    } finally {
-      setReading(false);
+    const fresh = list.filter((f) => !files.some((e) => e.key === fileKey(f)));
+    setFiles((prev) => [
+      ...prev,
+      ...fresh.map((f) => ({
+        key: fileKey(f),
+        name: f.name,
+        size: f.size,
+        progress: 0,
+        uploadId: null,
+        sheets: null,
+        rows: null,
+        problem: null,
+      })),
+    ]);
+    // Uploads run one after another so a large batch does not saturate the connection.
+    for (const f of fresh) {
+      const key = fileKey(f);
+      const r = await uploadFile(companyId, f, (fraction) => {
+        patch(key, { progress: fraction });
+      });
+      if (!r.ok) {
+        patch(key, { problem: r.message, progress: 1 });
+        continue;
+      }
+      patch(key, {
+        progress: 1,
+        uploadId: r.file.refused === null ? r.file.uploadId : null,
+        sheets: r.file.sheets,
+        rows: r.file.rows,
+        problem: r.file.refused,
+      });
     }
   };
 
-  const notice = (text: string) => {
-    setNotices((n) => (n.includes(text) ? n : [...n, text]));
+  const onReference = async (list: File[]) => {
+    const f = list[0];
+    if (f === undefined) return;
+    setError(null);
+    const entry: FileEntry = {
+      key: fileKey(f),
+      name: f.name,
+      size: f.size,
+      progress: 0,
+      uploadId: null,
+      sheets: null,
+      rows: null,
+      problem: null,
+    };
+    setReference(entry);
+    const r = await uploadFile(companyId, f, (fraction) => {
+      setReference((cur) => (cur === null ? cur : { ...cur, progress: fraction }));
+    });
+    setReference(
+      r.ok
+        ? {
+            ...entry,
+            progress: 1,
+            uploadId: r.file.refused === null ? r.file.uploadId : null,
+            sheets: r.file.sheets,
+            rows: r.file.rows,
+            problem: r.file.refused,
+          }
+        : { ...entry, progress: 1, problem: r.message },
+    );
   };
 
+  const remove = (entry: FileEntry) => {
+    setFiles((list) => list.filter((f) => f.key !== entry.key));
+    if (entry.uploadId !== null) void removeUpload(entry.uploadId);
+  };
+
+  const uploading = files.some((f) => f.progress < 1) || (reference?.progress ?? 1) < 1;
+  const readyIds = files.flatMap((f) => (f.uploadId === null ? [] : [f.uploadId]));
+  const referenceId = reference?.uploadId ?? null;
   const jobType =
     mode === "refresh"
       ? "monthly_refresh"
-      : reference === null
+      : referenceId === null
         ? "company_setup"
         : "reference_mis_recreate";
 
-  // Re-price whenever something that changes the price changes, and only then.
+  // Price as soon as the uploads are in, and again whenever something that changes it changes.
   useEffect(() => {
-    if (!ready || files.length === 0 || phase.kind !== "files") return;
+    if (uploading || readyIds.length === 0 || phase.kind !== "files") {
+      if (readyIds.length === 0) setQuote(null);
+      return;
+    }
     const state = { cancelled: false };
-    // Read through a call so each check is a fresh read, not a narrowed constant.
     const cancelled = () => state.cancelled;
+    const signature = JSON.stringify([jobType, tier, delivery, readyIds, referenceId]);
+    const cached = priced.current.get(signature);
+    if (cached !== undefined) {
+      setQuote(cached);
+      return;
+    }
+    setQuote(null);
+    setQuoting(true);
     void (async () => {
-      let inputs;
-      try {
-        inputs = await pipelineClient().pricingInputs();
-      } catch {
-        // Never leave "Reading your files…" spinning on a file that broke the reader.
-        if (!cancelled())
-          setError(
-            "These files couldn't be read together. Remove the last file you added, or export it again as Excel, CSV or PDF.",
-          );
-        return;
-      }
-      if (cancelled()) return;
-      const signature = JSON.stringify([
-        jobType,
-        tier,
-        delivery,
-        inputs.size,
-        inputs.fingerprints,
-      ]);
-      const cached = priced.current.get(signature);
-      if (cached !== undefined) {
-        shownJobId.current = cached.jobId;
-        setQuote(cached);
-        return;
-      }
-      setQuoting(true);
       const r = await api<CreatedJob>("/api/jobs", {
         body: {
           companyId,
           type: jobType,
           tier,
           delivery,
-          size: inputs.size,
-          fingerprints: inputs.fingerprints,
+          uploadIds: readyIds,
+          referenceUploadId: referenceId,
         },
         idempotencyKey: newIdempotencyKey(),
       });
-      // Record it before bailing out: the row exists whether or not we still want it.
       if (r.ok) createdDrafts.current.add(r.data.jobId);
       if (cancelled()) return;
       setQuoting(false);
@@ -308,9 +263,6 @@ export function JobRunner({
         return;
       }
       priced.current.set(signature, r.data);
-      // Adding a reference workbook or changing a tier makes the previous estimate wrong.
-      // Cancel it rather than leaving an abandoned draft on the account: nothing was held,
-      // and an estimate nobody acted on is not part of this company's history.
       for (const draft of createdDrafts.current) {
         if (draft === r.data.jobId) continue;
         createdDrafts.current.delete(draft);
@@ -319,254 +271,77 @@ export function JobRunner({
           idempotencyKey: newIdempotencyKey(),
         });
       }
-      shownJobId.current = r.data.jobId;
       setQuote(r.data);
     })();
     return () => {
       state.cancelled = true;
     };
-  }, [ready, files, tier, delivery, jobType, companyId, phase.kind, repriceAt]);
+  }, [
+    uploading,
+    readyIds.join(","),
+    referenceId,
+    tier,
+    delivery,
+    jobType,
+    companyId,
+    phase.kind,
+    repriceAt,
+  ]);
 
-  const fail = useCallback(
-    async (jobId: string, result: ComputeResult | null, message: string) => {
-      const first = result?.blocking[0];
-      const r = await api<{ capturedCredits: string }>(`/api/jobs/${jobId}/fail`, {
-        body: {
-          failureClass: result?.failureClass ?? "platform_fault",
-          code: first?.id ?? "browser_error",
-          detail: first === undefined ? message : `${first.message} ${first.fix}`.trim(),
-        },
-      });
-      setPhase({
-        kind: "failed",
-        jobId,
-        message: first?.message ?? message,
-        checks: result?.checks ?? [],
-        captured: r.ok ? r.data.capturedCredits : "0",
-      });
-    },
-    [],
-  );
-
-  const finish = async (
-    jobId: string,
-    confirmed: readonly {
-      ledgerKey: string;
-      head: string;
-      applyToAllCompanies: boolean;
-      source?: string;
-    }[],
-    unmappedAccepted: boolean,
-  ) => {
-    const pipeline = pipelineClient();
-    await advance(jobId, "computing");
-    const result = await pipeline.compute({
-      confirmed,
-      unmappedAccepted,
-      tierLabel: TIER_LABELS[tier],
-    });
-    await advance(jobId, "validating");
-    if (result.failureClass !== null) return fail(jobId, result, "Validation failed.");
-    await advance(jobId, "rendering");
-    const done = await api<{ capturedCredits: string; outputId: string | null }>(
-      `/api/jobs/${jobId}/complete`,
-      {
-        body: {
-          snapshot: result.snapshot,
-          blueprint: result.blueprint,
-          accountRules: result.accountRules,
-          output: { fileName: result.fileName, base64: result.workbookBase64 },
-        },
-        idempotencyKey: newIdempotencyKey(),
-      },
-    );
-    if (!done.ok) return fail(jobId, null, done.message);
-    if (heartbeat.current !== null) clearInterval(heartbeat.current);
-    setPhase({
-      kind: "done",
-      jobId,
-      outputId: done.data.outputId,
-      captured: done.data.capturedCredits,
-      result,
-    });
-  };
-
-  const run = async (job: CreatedJob) => {
+  const run = useCallback(async (job: CreatedJob) => {
     setError(null);
     setStarting(true);
     const hold = await api(
       job.quote === null
         ? `/api/jobs/${job.jobId}/confirm`
         : `/api/jobs/${job.jobId}/accept-quote`,
-      {
-        body: {},
-        idempotencyKey: newIdempotencyKey(),
-      },
+      { body: {}, idempotencyKey: newIdempotencyKey() },
     );
     setStarting(false);
     if (!hold.ok) {
       setError(hold.message);
       return;
     }
+    setPhase({ kind: "running", jobId: job.jobId, step: "reserved" });
     heartbeat.current = setInterval(
       () => void api(`/api/jobs/${job.jobId}/heartbeat`, { body: {} }),
       60_000,
     );
-    try {
-      await advance(job.jobId, "preflight");
-      await advance(job.jobId, "profiling");
-      await advance(job.jobId, "classifying");
-      await recognise(job.jobId);
-    } catch (e) {
-      await fail(
-        job.jobId,
-        null,
-        e instanceof Error ? e.message : "The job stopped unexpectedly.",
-      );
-    }
-  };
-
-  /**
-   * What the files contain. Unplaceable sheets are ignored while there are balances to work
-   * with; only when there are none does AI look at them. A sheet with no month anywhere is
-   * asked about instead of silently left out.
-   */
-  const recognise = async (jobId: string): Promise<void> => {
-    const pipeline = pipelineClient();
-    let seen = await pipeline.recognition();
-    if (!seen.hasBalances && seen.unrecognised > 0) {
-      const input = await pipeline.classificationInput();
-      if (input !== null) {
-        const ai = await api<{
-          output: {
-            sheets: {
-              ref: string;
-              report_type: Parameters<
-                typeof pipeline.applyClassification
-              >[0][number]["report_type"];
-              confidence: "high" | "medium" | "low";
-              reason: string;
-            }[];
-          };
-        }>(`/api/jobs/${jobId}/ai/sheet_classification`, { body: input });
-        if (ai.ok) {
-          await pipeline.applyClassification(ai.data.output.sheets);
-          seen = await pipeline.recognition();
-        }
-      }
-    }
-    if (!seen.usable) {
-      // Nothing recognised and AI could not say: read whatever is shaped like balances
-      // rather than refuse, and say plainly that it was a best guess.
-      await pipeline.useBestEffort();
-      seen = await pipeline.recognition();
-      if (seen.guessed > 0)
-        notice(
-          "We couldn't tell for certain which sheets hold your balances, so we used the ones that looked most like them. Check the figures and the warnings below.",
-        );
-    }
-    if (seen.needsPeriod.length > 0) {
+    poll.current = setInterval(() => {
+      void api<{ state: string }>(`/api/jobs/${job.jobId}`).then((s) => {
+        if (s.ok)
+          setPhase((cur) =>
+            cur.kind === "running" ? { ...cur, step: s.data.state } : cur,
+          );
+      });
+    }, 1500);
+    const r = await api<RunOutcome>(`/api/jobs/${job.jobId}/run`, { body: {} });
+    stopTimers();
+    if (!r.ok) {
       setPhase({
-        kind: "period",
-        jobId,
-        sheets: seen.needsPeriod,
-        suggested: seen.suggestedPeriod,
-      });
-      return;
-    }
-    if (!seen.usable) {
-      await fail(jobId, null, NOTHING_USABLE);
-      return;
-    }
-    if (seen.unrecognised > 0)
-      notice(
-        `${seen.unrecognised.toString()} ${seen.unrecognised === 1 ? "sheet was" : "sheets were"} not needed for the MIS and ${seen.unrecognised === 1 ? "was" : "were"} left out.`,
-      );
-    await mapAndReview(jobId);
-  };
-
-  const mapAndReview = async (jobId: string): Promise<void> => {
-    const pipeline = pipelineClient();
-    await advance(jobId, "mapping");
-    let mapped = await pipeline.map();
-    if (mapped.unmatched.length > 0) {
-      const ai = await api<{
-        output: {
-          mappings: {
-            ref: string;
-            head: string | null;
-            confidence: "high" | "medium" | "low";
-          }[];
-        };
-      }>(`/api/jobs/${jobId}/ai/ledger_mapping`, {
-        body: { ledgers: mapped.unmatched },
-      });
-      if (!ai.ok && ai.error === "needs_quote") {
-        setPhase({
-          kind: "failed",
-          jobId,
-          message: ai.message,
+        kind: "failed",
+        jobId: job.jobId,
+        outcome: {
+          status: "failed",
+          message: r.message,
+          capturedCredits: "0",
+          outputId: null,
+          fileName: null,
           checks: [],
-          captured: "0",
-        });
-        return;
-      }
-      // Without AI suggestions the unmatched ledgers simply come to review for a choice.
-      if (!ai.ok)
-        notice(
-          "A few ledgers couldn't be matched automatically. Pick a line for them below.",
-        );
-      mapped = await pipeline.applyAi(ai.ok ? ai.data.output.mappings : []);
-    }
-    let references: readonly ReferenceReviewRow[] | null = null;
-    if (reference !== null) {
-      const layout = await pipeline.referenceLayout();
-      const bound = await api<{ bindings: RowBinding[] }>(
-        `/api/jobs/${jobId}/ai/reference_layout`,
-        { body: { layout } },
-      );
-      if (!bound.ok && bound.error === "needs_quote") {
-        setPhase({
-          kind: "failed",
-          jobId,
-          message: bound.message,
-          checks: [],
-          captured: "0",
-        });
-        return;
-      }
-      if (bound.ok) {
-        references = await pipeline.referenceReview(bound.data.bindings);
-      } else {
-        await pipeline.dropReference();
-        notice(
-          "Your MIS layout couldn't be read this time, so the standard layout is used.",
-        );
-      }
-    }
-    if (mapped.reviewRows.length === 0 && references === null) {
-      // SPEC §19: nothing new or changed on refresh — review is skipped.
-      await finish(jobId, [], false);
-      return;
-    }
-    await advance(jobId, "awaiting_review");
-    if (mapped.reviewRows.length === 0 && references !== null) {
-      setPhase({
-        kind: "bindings",
-        jobId,
-        rows: references,
-        confirmed: [],
-        unmappedAccepted: false,
+          notices: [],
+        },
       });
       return;
     }
-    setPhase({ kind: "review", jobId, rows: mapped.reviewRows, references });
-  };
+    setPhase(
+      r.data.status === "completed"
+        ? { kind: "done", jobId: job.jobId, outcome: r.data }
+        : { kind: "failed", jobId: job.jobId, outcome: r.data },
+    );
+  }, []);
 
   const busy = phase.kind === "running" || starting;
-  const step: 1 | 2 | 3 =
-    phase.kind === "files" ? 1 : phase.kind === "done" || phase.kind === "failed" ? 3 : 2;
-
+  const step: 1 | 2 | 3 = phase.kind === "files" ? 1 : phase.kind === "running" ? 2 : 3;
   const price = quote === null ? null : (quote.quote?.credits ?? quote.priceCredits);
   const shortfall =
     quote === null || price === null
@@ -580,38 +355,6 @@ export function JobRunner({
       <Steps current={step} />
 
       {error === null ? null : <Alert tone="error">{error}</Alert>}
-      {notices.length === 0 || phase.kind === "files" ? null : (
-        <div data-testid="job-notices">
-          <Alert tone="info">
-            <ul className="flex flex-col gap-1">
-              {notices.map((n) => (
-                <li key={n}>{n}</li>
-              ))}
-            </ul>
-          </Alert>
-        </div>
-      )}
-
-      {phase.kind === "period" ? (
-        <PeriodQuestion
-          sheets={phase.sheets}
-          suggested={phase.suggested}
-          onAnswer={(periods) => {
-            const jobId = phase.jobId;
-            setPhase({ kind: "running", jobId, step: "classifying" });
-            void pipelineClient()
-              .setPeriods(periods)
-              .then(() => recognise(jobId))
-              .catch((e: unknown) =>
-                fail(
-                  jobId,
-                  null,
-                  e instanceof Error ? e.message : "The job stopped unexpectedly.",
-                ),
-              );
-          }}
-        />
-      ) : null}
 
       {phase.kind === "files" ? (
         <ProcessingNotice>
@@ -623,8 +366,8 @@ export function JobRunner({
               icon="upload"
               description={
                 mode === "setup"
-                  ? "Include every month you want in the MIS. Files are read in your browser and never uploaded."
-                  : "Include the new month. Files are read in your browser and never uploaded."
+                  ? "Include every month you want in the MIS. Files are encrypted when they arrive and deleted after processing."
+                  : "Include the new month. Files are encrypted when they arrive and deleted after processing."
               }
             >
               <FileDropZone
@@ -635,24 +378,11 @@ export function JobRunner({
                 }
                 hint="Any format from any accounting software: Excel, CSV, PDF, text or HTML exports. Extra sheets are fine."
                 inputLabel="Choose files"
-                disabled={!ready || busy}
-                busy={reading}
+                disabled={busy}
+                busy={uploading}
                 onFiles={onFiles}
                 testId="job-drop"
               />
-              {skipped.length === 0 ? null : (
-                <div className="mt-4" data-testid="job-skipped">
-                  <Alert tone="warning" title="Some files couldn't be used">
-                    <ul className="mt-1 flex flex-col gap-1">
-                      {skipped.map((x) => (
-                        <li key={x.name}>
-                          <span className="font-medium">{x.name}</span>: {x.message}
-                        </li>
-                      ))}
-                    </ul>
-                  </Alert>
-                </div>
-              )}
               {files.length === 0 ? null : (
                 <div className="mt-4">
                   <DataTable
@@ -664,17 +394,52 @@ export function JobRunner({
                         <Th numeric>Size</Th>
                         <Th numeric>Sheets</Th>
                         <Th numeric>Rows</Th>
+                        <Th />
                       </>
                     }
                   >
                     {files.map((f) => (
-                      <Tr key={f.name}>
-                        <Td className="font-medium text-neutral-900">{f.name}</Td>
+                      <Tr key={f.key}>
+                        <Td className="font-medium text-neutral-900">
+                          {f.name}
+                          {f.problem === null ? null : (
+                            <span
+                              className="mt-0.5 block text-[0.75rem] font-normal text-warning"
+                              data-testid="job-file-problem"
+                            >
+                              {f.problem}
+                            </span>
+                          )}
+                          {f.progress < 1 ? (
+                            <span className="mt-1 block h-1 w-40 overflow-hidden rounded-full bg-neutral-100">
+                              <span
+                                className="block h-full rounded-full bg-accent-500 transition-[width]"
+                                style={{
+                                  width: `${(f.progress * 100).toFixed(0)}%`,
+                                }}
+                              />
+                            </span>
+                          ) : null}
+                        </Td>
                         <Td numeric>
                           {Math.ceil(f.size / 1024).toLocaleString("en-IN")} KB
                         </Td>
-                        <Td numeric>{f.sheets}</Td>
-                        <Td numeric>{f.rows}</Td>
+                        <Td numeric>{f.sheets ?? "–"}</Td>
+                        <Td numeric>
+                          {f.rows === null ? "–" : formatCount(f.rows.toString())}
+                        </Td>
+                        <Td className="text-right">
+                          <button
+                            type="button"
+                            aria-label={`Remove ${f.name}`}
+                            className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+                            onClick={() => {
+                              remove(f);
+                            }}
+                          >
+                            <Icon name="close" size={14} />
+                          </button>
+                        </Td>
                       </Tr>
                     ))}
                   </DataTable>
@@ -687,7 +452,7 @@ export function JobRunner({
                       Your current MIS workbook (optional)
                     </span>
                     <span className="text-[0.75rem] text-neutral-500">
-                      We recreate its layout. Only the layout is read; every figure comes
+                      We recreate its layout. Only the layout is used; every figure comes
                       from your trial balances.
                     </span>
                   </div>
@@ -698,20 +463,28 @@ export function JobRunner({
                       title="Drag your current MIS here"
                       hint="Any spreadsheet or PDF of it."
                       inputLabel="Choose reference MIS"
-                      disabled={!ready || busy}
-                      busy={readingReference}
+                      disabled={busy}
+                      busy={(reference?.progress ?? 1) < 1}
                       onFiles={onReference}
                     />
                   </div>
-                  {reference === null ? null : (
+                  {reference === null || reference.progress < 1 ? null : (
                     <p
                       className="mt-2 flex items-center gap-1.5 text-[0.8125rem] text-neutral-700"
                       data-testid="job-reference"
                     >
-                      <Icon name="check" size={14} className="text-positive" />
+                      <Icon
+                        name={reference.problem === null ? "check" : "alert"}
+                        size={14}
+                        className={
+                          reference.problem === null ? "text-positive" : "text-warning"
+                        }
+                      />
                       {reference.name} ·{" "}
-                      {Math.ceil(reference.size / 1024).toLocaleString("en-IN")} KB ·{" "}
-                      {reference.sheets} sheets
+                      {Math.ceil(reference.size / 1024).toLocaleString("en-IN")} KB
+                      {reference.problem === null
+                        ? ` · ${(reference.sheets ?? 0).toString()} sheets`
+                        : ` · ${reference.problem}`}
                     </p>
                   )}
                 </div>
@@ -719,10 +492,8 @@ export function JobRunner({
             </Panel>
 
             {/*
-              The SPEC §12 confirmation, kept on screen beside the files instead of behind
-              a "Get price" button and a second page. Everything the spec requires is here
-              — action, tier, delivery, exact credits, available now, available after —
-              and nothing is held or charged until the one button is pressed.
+              The SPEC §12 confirmation, beside the files. Everything the spec requires is
+              here, and nothing is held or charged until the one button is pressed.
             */}
             <Panel
               title="Ready to run"
@@ -735,6 +506,10 @@ export function JobRunner({
                   Add your files and the price appears here. You confirm it before
                   anything is charged.
                 </p>
+              ) : readyIds.length === 0 && !uploading ? (
+                <p className="px-5 pb-5 text-[0.8125rem] text-neutral-500">
+                  None of these files can be used. Add a trial balance export.
+                </p>
               ) : quote === null ? (
                 <p className="flex items-center gap-2 px-5 pb-5 text-[0.8125rem] text-neutral-500">
                   <Icon
@@ -742,7 +517,11 @@ export function JobRunner({
                     size={14}
                     className="animate-spin [animation-duration:1.6s]"
                   />
-                  {quoting ? "Working out the price…" : "Reading your files…"}
+                  {uploading
+                    ? "Uploading your files…"
+                    : quoting
+                      ? "Working out the price…"
+                      : "Reading your files…"}
                 </p>
               ) : (
                 <>
@@ -790,13 +569,11 @@ export function JobRunner({
                         {new Date(quote.quote.expiresAt).toLocaleString("en-IN")}.
                       </Alert>
                     )}
-
                     {shortfall > 0n ? (
                       <BuyCreditsInline
                         need={shortfall}
                         businessName={businessName}
                         onCredited={() => {
-                          // Re-price against the new balance; the files never moved.
                           priced.current.clear();
                           setQuote(null);
                           setRepriceAt(Date.now());
@@ -807,7 +584,7 @@ export function JobRunner({
                         onClick={() => void run(quote)}
                         size="lg"
                         className="w-full"
-                        disabled={busy}
+                        disabled={busy || uploading}
                       >
                         {starting
                           ? "Starting…"
@@ -887,70 +664,18 @@ export function JobRunner({
               className="animate-spin text-accent-600 [animation-duration:1.6s]"
             />
             <p className="text-sm text-neutral-700" role="status" data-testid="job-step">
-              {phase.step.replace(/_/gu, " ")}…
+              {STEP_LABELS[phase.step] ?? "Working"}…
             </p>
           </div>
           <p className="mt-2 text-[0.8125rem] text-neutral-500">
-            Keep this tab open. Your files are being processed here in the browser.
+            This usually takes under a minute. You can keep this tab open to collect the
+            workbook.
           </p>
         </Panel>
       ) : null}
 
-      {phase.kind === "review" ? (
-        <Panel
-          title="Review mappings"
-          icon="table"
-          description="Confirm how your ledgers map to the MIS schema. This is learned once and reused every month."
-        >
-          <MappingReview
-            rows={phase.rows}
-            currencySymbol={currencySymbol}
-            onConfirm={(confirmed) => {
-              const accepted = confirmed.some((c) => c.head === "UNMAPPED");
-              if (phase.references !== null) {
-                setPhase({
-                  kind: "bindings",
-                  jobId: phase.jobId,
-                  rows: phase.references,
-                  confirmed,
-                  unmappedAccepted: accepted,
-                });
-                return;
-              }
-              void finish(phase.jobId, confirmed, accepted).catch((e: unknown) =>
-                fail(
-                  phase.jobId,
-                  null,
-                  e instanceof Error ? e.message : "The job stopped unexpectedly.",
-                ),
-              );
-            }}
-          />
-        </Panel>
-      ) : null}
-
-      {phase.kind === "bindings" ? (
-        <Panel
-          title="Review your MIS rows"
-          icon="table"
-          description="Tell us what each row of your own workbook shows, so the recreated layout means the same thing."
-        >
-          <ReferenceBindingReview
-            rows={phase.rows}
-            onConfirm={(bindings) => {
-              void pipelineClient()
-                .useReferenceBindings(bindings)
-                .then(() => finish(phase.jobId, phase.confirmed, phase.unmappedAccepted))
-                .catch((e: unknown) =>
-                  fail(
-                    phase.jobId,
-                    null,
-                    e instanceof Error ? e.message : "The job stopped unexpectedly.",
-                  ),
-                );
-            }}
-          />
-        </Panel>
+      {phase.kind === "done" || phase.kind === "failed" ? (
+        <Notices notices={phase.outcome.notices} />
       ) : null}
 
       {phase.kind === "done" ? (
@@ -966,36 +691,36 @@ export function JobRunner({
                 </h2>
                 <p className="mt-0.5 text-[0.8125rem] text-neutral-500">
                   <span data-testid="job-done">
-                    {formatCredits(phase.captured)} credits charged
+                    {formatCredits(phase.outcome.capturedCredits)} credits charged
                   </span>
                   .{" "}
-                  {warningsOf(phase.result.checks).length === 0
+                  {warningsOf(phase.outcome.checks).length === 0
                     ? "Every figure was checked against its source."
                     : "Every figure traces to its source; a few things in the data are worth a look."}
                 </p>
               </div>
             </div>
-            {phase.outputId === null ? null : (
+            {phase.outcome.outputId === null ? null : (
               <a
                 className="inline-flex h-10 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-700"
-                href={`/api/outputs/${phase.outputId}`}
+                href={`/api/outputs/${phase.outcome.outputId}`}
                 data-testid="job-download"
               >
                 <Icon name="download" size={16} />
-                Download {phase.result.fileName}
+                Download {phase.outcome.fileName}
               </a>
             )}
           </div>
-          {warningsOf(phase.result.checks).length === 0 ? null : (
+          {warningsOf(phase.outcome.checks).length === 0 ? null : (
             <div className="px-5 pt-4" data-testid="job-warnings">
               <Alert
                 tone="warning"
-                title={`${warningsOf(phase.result.checks).length.toString()} ${
-                  warningsOf(phase.result.checks).length === 1 ? "thing" : "things"
+                title={`${warningsOf(phase.outcome.checks).length.toString()} ${
+                  warningsOf(phase.outcome.checks).length === 1 ? "thing" : "things"
                 } to check in your data`}
               >
                 <ul className="mt-1 flex flex-col gap-1.5">
-                  {warningsOf(phase.result.checks).map((c) => (
+                  {warningsOf(phase.outcome.checks).map((c) => (
                     <li key={c.id}>
                       {c.message}
                       {c.fix === "" ? null : (
@@ -1010,91 +735,45 @@ export function JobRunner({
               </Alert>
             </div>
           )}
-          <ChecksTable checks={phase.result.checks} />
+          <ChecksTable checks={phase.outcome.checks} />
         </Panel>
       ) : null}
 
       {phase.kind === "failed" ? (
         <Panel title="The job could not be completed" icon="alert" padding="none">
           <div className="flex flex-col gap-3 px-5 pb-5">
-            <Alert tone="error">{phase.message}</Alert>
+            <Alert tone="error">
+              {phase.outcome.message ?? "The job stopped unexpectedly."}
+            </Alert>
             <p className="text-sm text-neutral-700" data-testid="job-failed">
-              {phase.captured === "0"
+              {phase.outcome.capturedCredits === "0"
                 ? "No credits were charged."
-                : `${formatCredits(phase.captured)} credits were charged for the diagnostic.`}
+                : `${formatCredits(phase.outcome.capturedCredits)} credits were charged for the diagnostic.`}
             </p>
           </div>
-          <ChecksTable checks={phase.checks} />
+          <ChecksTable checks={phase.outcome.checks} />
         </Panel>
       ) : null}
     </div>
   );
 }
 
-const warningsOf = (checks: ComputeResult["checks"]) =>
+const warningsOf = (checks: readonly Check[]) =>
   checks.filter((c) => c.status === "fail" && c.severity === "warning");
 
-/**
- * The one question a run may need to ask: which month a sheet is for, when nothing in the
- * file, its title, its sheet name or its file name says. Pre-filled with the likeliest month.
- */
-function PeriodQuestion({
-  sheets,
-  suggested,
-  onAnswer,
-}: {
-  sheets: readonly { key: string; fileName: string; sheet: string }[];
-  suggested: string;
-  onAnswer: (periods: Record<string, string>) => void;
-}) {
-  const [values, setValues] = useState<Record<string, string>>(() =>
-    Object.fromEntries(sheets.map((s) => [s.key, suggested])),
-  );
-  const complete = sheets.every((s) => /^\d{4}-\d{2}$/u.test(values[s.key] ?? ""));
+/** Anything the run assumed or left out, said plainly. */
+function Notices({ notices }: { notices: readonly string[] }) {
+  if (notices.length === 0) return null;
   return (
-    <Panel
-      title="Which month are these for?"
-      icon="calendar"
-      description="These files don't say which month they cover. Pick the month and the run carries on."
-    >
-      <div className="flex flex-col gap-3" data-testid="job-period">
-        {sheets.map((s) => (
-          <label
-            key={s.key}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-neutral-25 px-4 py-3"
-          >
-            <span className="text-[0.8125rem] text-neutral-800">
-              <span className="font-medium">{s.fileName}</span>
-              {s.sheet === "" ? null : (
-                <span className="text-neutral-500"> · {s.sheet}</span>
-              )}
-            </span>
-            <input
-              type="month"
-              required
-              aria-label={`Month for ${s.fileName}`}
-              value={values[s.key] ?? ""}
-              onChange={(e) => {
-                const v = e.target.value;
-                setValues((prev) => ({ ...prev, [s.key]: v }));
-              }}
-              className="h-9 rounded-md border border-neutral-200 bg-white px-2 text-[0.8125rem]"
-            />
-          </label>
-        ))}
-        <div>
-          <Button
-            icon="check"
-            disabled={!complete}
-            onClick={() => {
-              onAnswer(values);
-            }}
-          >
-            Continue
-          </Button>
-        </div>
-      </div>
-    </Panel>
+    <div data-testid="job-notices">
+      <Alert tone="info">
+        <ul className="flex flex-col gap-1">
+          {notices.map((n) => (
+            <li key={n}>{n}</li>
+          ))}
+        </ul>
+      </Alert>
+    </div>
   );
 }
 
@@ -1148,7 +827,7 @@ const CHECK_TONE: Record<string, BadgeTone> = {
   not_applicable: "muted",
 };
 
-function ChecksTable({ checks }: { checks: ComputeResult["checks"] }) {
+function ChecksTable({ checks }: { checks: readonly Check[] }) {
   if (checks.length === 0) return null;
   return (
     <DataTable

@@ -23,5 +23,5 @@ Outstanding supplier bills with due dates, used for ageing.
 
 ## If a file is refused
 
-- Any export format is accepted and read in your browser; photos and scans are not, because they have no text to read. Macros are never run.
+- Any export format is accepted; files are encrypted when they arrive and deleted automatically. Photos and scans are refused, because they have no text to read. Macros are never run.
 - Very large files: split the period into smaller exports.

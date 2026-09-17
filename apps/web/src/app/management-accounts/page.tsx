@@ -110,7 +110,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} produce them?`,
     answer:
-      "You load the trial balance your accounting system exports, confirm the ledger mapping once, and take an Excel workbook with live formulas, a dashboard and written commentary. Every figure traces back to the ledger it came from, and later months reuse the mapping — a refresh on unchanged structure makes no AI calls at all.",
+      "You upload the trial balance your accounting system exports and take an Excel workbook with live formulas, a dashboard and written commentary. Every figure traces back to the ledger it came from, and later months reuse the mapping — a refresh on unchanged structure makes no AI calls at all.",
   },
 ];
 
@@ -227,7 +227,7 @@ export default function ManagementAccountsPage() {
       <ReadNext paths={["/for-accountants", "/how-it-works", "/mis-report-format"]} />
       <ClosingCta
         heading="Or stop rebuilding them every month"
-        body={`${PRODUCT_NAME} produces a set from the trial balance your accounting system already exports, with live formulas and every figure traceable. Confirm the mapping once; later months reuse it.`}
+        body={`${PRODUCT_NAME} produces a set from the trial balance your accounting system already exports, with live formulas and every figure traceable. The mapping is built once and reused every month.`}
       />
     </PublicShell>
   );

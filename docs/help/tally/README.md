@@ -4,7 +4,7 @@ These pages describe which TallyPrime reports to export and the settings that gi
 
 > **TODO(review): R-07** — exact TallyPrime menu paths and option names are not written here because they could not be verified against TallyPrime documentation. Each page marks where the path belongs.
 
-Files are read in your browser. Only file names, sizes, sheet counts and row counts are shown before you run a paid action.
+Files are uploaded, encrypted when they arrive and deleted automatically. Only file names, sizes, sheet counts and row counts are shown before you run a paid action.
 
 | Report                                    | Use                                                                                              |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------ |

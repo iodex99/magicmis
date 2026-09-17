@@ -14,10 +14,9 @@ import type { WalletView } from "@/lib/billing";
 /**
  * Buying credits without leaving the screen that needs them (ADR 0027, R-57).
  *
- * Leaving a run unmounts the browser pipeline and destroys the files already loaded, so
- * "go to the Wallet and come back" costs a setup its thirteen months of uploads. The
- * purchase happens here instead; the CSP allows Razorpay on this path for that reason and
- * no other (`proxy.ts`).
+ * Leaving a run loses the files chosen on the screen, so "go to the Wallet and come back"
+ * costs a setup its thirteen months of uploads. The purchase happens here instead; the CSP
+ * allows Razorpay on this path for that reason and no other (`proxy.ts`).
  *
  * `onCredited` fires once the webhook has actually granted the credits, so the caller can
  * re-price and let the run proceed. Nothing about the job is touched here.

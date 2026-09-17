@@ -78,11 +78,11 @@ export default async function TermsPage() {
             about that data.
           </p>
           <p>
-            Your source files are read in your browser. Figures in every output are
-            computed by a deterministic calculation engine. Artificial intelligence is
-            used to help recognise files, suggest how ledgers map to report lines, write
-            commentary around computed figures, and answer questions; it does not produce
-            the figures themselves.
+            Your source files are uploaded to us and processed on our servers. Figures in
+            every output are computed by a deterministic calculation engine. Artificial
+            intelligence is used to help recognise files, suggest how ledgers map to
+            report lines, write commentary around computed figures, and answer questions;
+            it does not produce the figures themselves.
           </p>
           <p>
             The service runs in current desktop versions of Chrome, Edge and Firefox. It
@@ -237,7 +237,9 @@ export default async function TermsPage() {
             </li>
             <li>
               protect it with appropriate technical and organisational security measures,
-              including encryption and redaction in your browser before anything is sent;
+              including encryption of uploaded files under a key unique to each company,
+              their deletion on a fixed schedule, and redaction before anything is sent to
+              an AI provider;
             </li>
             <li>
               use only the subprocessors listed in the privacy notice, and give notice

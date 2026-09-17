@@ -123,9 +123,9 @@ export interface JobSession {
     fyStartMonth: number;
     lifecycleState: string;
     /**
-     * This company's own reporting conventions (ADR 0030). They travel with the
-     * session because the pipeline runs in the browser: the date order decides how
-     * files are read, and the currency and grouping decide how the workbook reads.
+     * This company's own reporting conventions (ADR 0030). The server run reads them from
+     * the session: the date order decides how files are read, and the currency and
+     * grouping decide how the workbook reads.
      */
     currency: string;
     currencySymbol: string;
@@ -160,7 +160,7 @@ export interface JobSession {
   };
 }
 
-/** Everything the browser pipeline needs for this company, decrypted for its owner only. */
+/** Everything a server run needs for this company, decrypted on the server only (ADR 0032). */
 export async function jobSession(
   pool: Pool,
   accountId: string,

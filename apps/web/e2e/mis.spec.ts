@@ -1,8 +1,8 @@
 /**
  * Phase 6 browser acceptance (SPEC §23, §24.1, §34): a company is set up from 13 monthly trial
- * balances and then refreshed with the next month, entirely through the UI. Files are processed
- * in the pipeline worker; the server holds, captures and stores. The refresh on a matching file
- * skips review and makes zero AI calls. The workbook downloads and opens.
+ * balances and then refreshed with the next month, entirely through the UI. Files are uploaded and
+ * processed on the server (ADR 0032); nothing stops for review. The refresh on a matching file
+ * makes zero AI calls. The workbook downloads and opens.
  */
 
 import { randomUUID } from "node:crypto";
@@ -84,7 +84,7 @@ async function aiCallsForAccount(): Promise<number> {
   return r.rows[0]?.n ?? -1;
 }
 
-async function runJob(files: string[], expectReview: boolean) {
+async function runJob(files: string[]) {
   await page.getByLabel("Choose files").setInputFiles(files);
   await expect(page.getByTestId("job-files").getByRole("row")).toHaveCount(
     files.length + 1,
@@ -93,19 +93,12 @@ async function runJob(files: string[], expectReview: boolean) {
   await expect(page.locator("main")).not.toContainText(
     /Sundry Debtors|Northwind|Revenue/u,
   );
-  // The price appears on its own once the files are read; the single button is the
-  // SPEC §12 confirmation, and nothing is held until it is pressed.
-  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 60_000 });
+  // The price appears once the uploads are in; the single button is the SPEC §12
+  // confirmation, and nothing is held until it is pressed.
+  await expect(page.getByTestId("job-price")).toBeVisible({ timeout: 120_000 });
   await page.getByRole("button", { name: /^Run (setup|refresh) —/u }).click();
-  if (expectReview) {
-    await expect(page.getByRole("button", { name: "Confirm mappings" })).toBeVisible({
-      timeout: 120_000,
-    });
-    const accept = page.getByRole("button", { name: "Accept remaining as proposed" });
-    if (await accept.isVisible()) await accept.click();
-    await page.getByRole("button", { name: "Confirm mappings" }).click();
-  }
-  await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 180_000 });
+  // The server runs it through: no review, no questions.
+  await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 240_000 });
 }
 
 test("sets up a company from thirteen months of trial balances", async () => {
@@ -115,7 +108,7 @@ test("sets up a company from thirteen months of trial balances", async () => {
   await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+\/run$/u);
   await expect(page.getByLabel("Choose files")).toBeEnabled();
 
-  await runJob(SETUP_MONTHS.map(tb), true);
+  await runJob(SETUP_MONTHS.map(tb));
   await expect(page.getByTestId("job-checks")).toContainText("V11");
   await expect(page.getByTestId("job-done")).toContainText("999 credits charged");
 
@@ -146,7 +139,7 @@ test("refreshes the next month with no review and zero AI calls", async () => {
   await page.goto("/app");
   await page.getByRole("link", { name: "Refresh" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
-  await runJob([tb("2026-05")], false);
+  await runJob([tb("2026-05")]);
   await expect(page.getByTestId("job-done")).toContainText("299 credits charged");
 
   expect(await aiCallsForAccount()).toBe(0);
@@ -212,7 +205,7 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   expect(await aiCallsForAccount()).toBe(0);
 });
 
-test("sets up a company that recreates the user's reference MIS, with binding review and no AI call", async () => {
+test("sets up a company that recreates the user's reference MIS with no AI call", async () => {
   const { referenceMisWorkbook } = await import("@magicmis/fixtures");
   const { mkdtemp, writeFile } = await import("node:fs/promises");
   const { tmpdir } = await import("node:os");
@@ -226,7 +219,9 @@ test("sets up a company that recreates the user's reference MIS, with binding re
   await expect(page.getByLabel("Choose files")).toBeEnabled();
   await page.getByLabel("Choose files").setInputFiles(SETUP_MONTHS.map(tb));
   await page.getByLabel("Choose reference MIS").setInputFiles(referencePath);
-  await expect(page.getByTestId("job-reference")).toContainText("2 sheets");
+  await expect(page.getByTestId("job-reference")).toContainText("sheets", {
+    timeout: 60_000,
+  });
   // Before payment, nothing from the reference's rows is shown.
   await expect(page.locator("main")).not.toContainText(/Sundry Debtors|Net Profit/u);
 
@@ -234,23 +229,9 @@ test("sets up a company that recreates the user's reference MIS, with binding re
   await expect(page.getByTestId("job-price")).toContainText("1,498", { timeout: 60_000 });
   await page.getByRole("button", { name: /^Run setup —/u }).click();
 
-  await expect(page.getByRole("button", { name: "Confirm mappings" })).toBeVisible({
-    timeout: 120_000,
-  });
-  const accept = page.getByRole("button", { name: "Accept remaining as proposed" });
-  if (await accept.isVisible()) await accept.click();
-  await page.getByRole("button", { name: "Confirm mappings" }).click();
-
-  const review = page.getByTestId("binding-review");
-  await expect(review).toBeVisible();
-  await expect(review).toContainText("Total Income");
-  // The user decides one row has no source in these files.
-  await page
-    .getByLabel("What Interest shows")
-    .selectOption({ label: "Not available from supplied data" });
-  await page.getByRole("button", { name: "Confirm rows" }).click();
+  // The layout is bound by rules and accepted as proposed: no review screen.
   await expect(page.getByTestId("job-done")).toContainText("1,498 credits charged", {
-    timeout: 180_000,
+    timeout: 240_000,
   });
 
   await expect(page.getByTestId("job-checks")).toContainText("V11");
@@ -272,8 +253,6 @@ test("sets up a company that recreates the user's reference MIS, with binding re
     workbook.Sheets["P&L Summary"] ?? {},
     { header: 1 },
   );
-  const interest = rows.find((r) => r[0] === "Interest");
-  expect(interest?.[1]).toBe("Not available from supplied data");
   const totalIncome = rows.find((r) => r[0] === "Total Income");
   expect(typeof totalIncome?.[1]).toBe("number");
 
@@ -350,17 +329,14 @@ test.describe("chat with the MIS", () => {
     ]);
   });
 
-  test("deep answers query the loaded files in the browser and link cells to their query", async () => {
+  test("deep answers query the company's figures on the server and link cells to their query", async () => {
     await page.goto(`/app/companies/${await companyId()}/chat`);
     await page.getByTestId("chat-type").selectOption("deep");
     await page
       .getByLabel("Your question")
       .fill("Which head has the largest closing balance?");
-    await expect(page.getByTestId("chat-send")).toBeDisabled();
-    await page
-      .getByLabel("Load files for Deep answers")
-      .setInputFiles([...SETUP_MONTHS, "2026-05"].map(tb));
-    await expect(page.getByTestId("chat-session")).toBeVisible({ timeout: 120_000 });
+    // Nothing to load: the queries run on the server (ADR 0032).
+    await expect(page.getByTestId("chat-session")).toBeVisible();
     await expect(page.getByTestId("chat-send")).toContainText("99 credits");
     await page.getByTestId("chat-send").click();
     const answer = page.getByTestId("chat-answer").last();

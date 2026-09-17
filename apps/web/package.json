@@ -10,9 +10,7 @@
     "lint": "eslint src e2e",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "e2e": "playwright test",
-    "predev": "node scripts/copy-duckdb-assets.mjs",
-    "prebuild": "node scripts/copy-duckdb-assets.mjs"
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.32.0",
@@ -42,6 +40,7 @@
     "echarts": "6.1.0",
     "libpg-query": "17.7.4",
     "next": "16.3.5",
+    "pdfjs-dist": "6.3.289",
     "pg": "^8.16.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",

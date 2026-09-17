@@ -19,9 +19,9 @@ Invoice-level purchases with input GST.
 
 ## What we handle for you
 
-- Party names are tokenised before anything leaves your browser.
+- Party names are tokenised before anything is sent to the AI.
 
 ## If a file is refused
 
-- Any export format is accepted and read in your browser; photos and scans are not, because they have no text to read. Macros are never run.
+- Any export format is accepted; files are encrypted when they arrive and deleted automatically. Photos and scans are refused, because they have no text to read. Macros are never run.
 - Very large files: split the period into smaller exports.

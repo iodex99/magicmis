@@ -57,6 +57,7 @@ export interface LegalFacts {
   readonly archiveMonths: number;
   readonly deletionPurgeDelayDays: number;
   readonly outputRetentionDays: number;
+  readonly uploadRetentionDays: number;
   readonly exportLinkHours: number;
 }
 
@@ -73,6 +74,7 @@ export async function legalFacts(): Promise<LegalFacts> {
     purgeDelay,
     outputs,
     link,
+    uploads,
   ] = await Promise.all([
     readConfig(pool, "billing.seller", sellerSchema),
     readConfig(pool, "legal.contacts", contactsSchema),
@@ -83,6 +85,7 @@ export async function legalFacts(): Promise<LegalFacts> {
     readConfig(pool, "lifecycle.deletion_purge_delay_days", n),
     readConfig(pool, "outputs.retention_days", n),
     readConfig(pool, "privacy.export_link_hours", n),
+    readConfig(pool, "sources.retention_days", n),
   ]);
 
   const address = seller.address.filter((line) => real(line) !== null);
@@ -101,6 +104,7 @@ export async function legalFacts(): Promise<LegalFacts> {
     archiveMonths: archive,
     deletionPurgeDelayDays: purgeDelay,
     outputRetentionDays: outputs,
+    uploadRetentionDays: uploads,
     exportLinkHours: link,
   };
 }

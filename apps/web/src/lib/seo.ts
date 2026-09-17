@@ -51,7 +51,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/how-it-works",
     title: "How it works",
     description:
-      "Load your accounting exports, confirm the ledger mapping once, and take the workbook. Later months reuse the mapping and make no AI calls at all. Here is each step in detail.",
+      "Upload your accounting exports and take the workbook. Ledgers are mapped for you, and later months reuse the mapping with no AI calls at all. Here is each step in detail.",
     changeFrequency: "monthly",
     priority: 0.9,
   },
@@ -171,7 +171,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/security",
     title: "Security and data handling",
     description:
-      "Raw accounting files are read in your browser and never uploaded. The server receives redacted profiles and aggregates. Exactly what leaves your machine, and what does not.",
+      "Where your accounting files go: encrypted under each company's own key, redacted before the AI sees any of them, and deleted automatically on a schedule. Stated exactly.",
     changeFrequency: "monthly",
     priority: 0.7,
   },
@@ -193,7 +193,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
     path: "/legal/privacy",
     title: "Privacy notice",
-    description: `How ${PRODUCT_NAME} handles personal data: what is collected, what leaves your browser, who processes it, and your rights in India, the UK and the EEA.`,
+    description: `How ${PRODUCT_NAME} handles personal data: what is collected, what happens to the files you upload, who processes it, and your rights in India, the UK and the EEA.`,
     changeFrequency: "monthly",
     priority: 0.3,
   },

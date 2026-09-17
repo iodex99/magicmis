@@ -35,8 +35,8 @@ const STEPS = [
   },
   {
     icon: "sliders",
-    title: "Confirm the account mapping, once",
-    body: "Each account is proposed a line in the report. You review the ones flagged and confirm; next month they carry forward.",
+    title: "Accounts are mapped for you",
+    body: "Each account is matched to a line in the report automatically, and anything that cannot be placed is shown as Unmapped. Next month the mapping carries forward.",
   },
   {
     icon: "wallet",
@@ -108,9 +108,12 @@ export default function MonthlyFinancialReportingPage() {
           engine computes every figure.
         </p>
         <p>
-          <strong className="font-medium text-neutral-900">Private by design.</strong>{" "}
-          Your files are processed in your browser and never uploaded; customer and vendor
-          names are redacted before anything is sent.
+          <strong className="font-medium text-neutral-900">
+            Encrypted and deleted on schedule.
+          </strong>{" "}
+          Files are encrypted under a key unique to each company and deleted
+          automatically; customer and vendor names are redacted before anything is sent to
+          the AI.
         </p>
       </Section>
 

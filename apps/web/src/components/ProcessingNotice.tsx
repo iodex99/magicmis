@@ -65,21 +65,23 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
       </p>
       <ul className="list-disc space-y-1.5 pl-5 leading-relaxed">
         <li>
-          Your files are opened in this browser. They are not uploaded to our servers.
+          Your files are uploaded over an encrypted connection and encrypted as they
+          arrive, under a key that belongs to this company alone.
         </li>
         <li>
-          Before anything leaves the browser, names and identifiers — party and employee
+          They are read on our servers only to prepare the reports you pay for and answer
+          your questions, and deleted automatically after a fixed period — sooner if you
+          delete them from Uploaded files.
+        </li>
+        <li>
+          Before anything goes to the AI, names and identifiers — party and employee
           names, tax and registration numbers, bank details, emails and phone numbers —
-          are replaced with tokens. The key that restores them stays here.
-        </li>
-        <li>
-          Only for an action you confirm and pay for, our server receives a description of
-          the files&rsquo; structure, a small limited sample of redacted rows and computed
-          totals.
+          are replaced with tokens. The AI receives a sheet&rsquo;s structure, a small
+          redacted sample and ledger names, never a whole file.
         </li>
         <li>
           AI requests are processed by Anthropic as our subprocessor, and are not used to
-          train its models.
+          train its models. Every figure is calculated by our own engine.
         </li>
         <li>
           The company&rsquo;s memory — mapping, templates and monthly figures — is kept

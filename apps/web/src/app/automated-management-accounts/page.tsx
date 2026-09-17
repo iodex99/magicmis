@@ -116,10 +116,11 @@ export default function AutomatedManagementAccountsPage() {
       <Section title="Why automate it this way">
         <p>
           <strong className="font-medium text-neutral-900">
-            Your data does not leave your browser.
+            Your files are encrypted and deleted on schedule.
           </strong>{" "}
-          Files are read locally. The server receives redacted structure and totals, never
-          the file itself, and never your customers&rsquo; or suppliers&rsquo; names.
+          Each company&rsquo;s files are encrypted under its own key and deleted
+          automatically. The AI receives redacted samples and ledger names, never the file
+          and never your customers&rsquo; or suppliers&rsquo; names.
         </p>
         <p>
           <strong className="font-medium text-neutral-900">

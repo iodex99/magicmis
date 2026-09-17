@@ -193,8 +193,8 @@ export default function ProductPage() {
           the same row order, the same headings — bound to your ledgers so it refreshes.
         </p>
         <p>
-          You review each binding before anything is generated. It recreates; it does not
-          redesign, and it will not quietly improve a report you did not ask it to change.
+          It recreates; it does not redesign, and it will not quietly improve a report you
+          did not ask it to change.
         </p>
       </Section>
 

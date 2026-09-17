@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata("/legal/privacy");
  * Privacy notice (R-11).
  *
  * Written from the processing register (docs/compliance/processing-register.md) and the
- * code it points to, not from a template: what is collected, what stays in the browser,
+ * code it points to, not from a template: what is collected, what happens to uploaded files,
  * who receives what, and for how long. Periods come from configuration through
  * `legalFacts`, so they cannot drift from the product.
  *
@@ -124,26 +124,27 @@ export default async function PrivacyPage() {
     },
     {
       id: "files",
-      title: "The files you load",
+      title: "The files you upload",
       body: (
         <>
           <p>
-            Your source files are opened and processed{" "}
-            <strong>inside your browser</strong>. They are not uploaded to our servers,
-            and they are cleared when you sign out, clear your session or close the tab
-            where your browser allows.
+            Files you upload are sent to our servers over an encrypted connection and
+            encrypted as they arrive, under a key that belongs to that company alone. We
+            read them to prepare the reports you pay for and to answer your questions
+            about them, and for nothing else.
           </p>
           <p>
-            Before anything leaves your browser, names and identifiers — such as party and
-            employee names, tax and registration numbers, bank details, email addresses
-            and phone numbers — are replaced with tokens. The key that turns tokens back
-            into names stays in your browser.
+            Uploaded files are deleted automatically {f.uploadRetentionDays} days after
+            upload. You can see every file we keep, and delete any of them sooner, on the
+            Uploaded files page. Deleting a company or your account deletes its files.
           </p>
           <p>
-            Only for an action you have confirmed and paid for, your browser sends our
-            server: a description of your files&rsquo; structure, a small limited sample
-            of redacted rows, computed totals, and — for chat — your question and query
-            results within fixed size limits.
+            Before any part of a file is sent to our AI provider, names and identifiers —
+            such as party and employee names, tax and registration numbers, bank details,
+            email addresses and phone numbers — are replaced with tokens. What is sent is
+            limited to a sheet&rsquo;s structure, a small sample of redacted rows, the
+            names of ledgers, and — for chat — your question and the results of queries
+            over your figures, within fixed size limits.
           </p>
           <p>
             We keep each company&rsquo;s memory — its mapping, templates, dashboard,
@@ -188,7 +189,7 @@ export default async function PrivacyPage() {
           <p>
             AI requests are processed by Anthropic, acting as our subprocessor. It
             receives only the redacted content our server sends for the specific action
-            you confirmed — never your files, and never the key that restores names.
+            you confirmed — never a whole file, and never the key that restores names.
           </p>
           <p>
             Anthropic does not use content sent through its commercial API to train its
@@ -296,6 +297,10 @@ export default async function PrivacyPage() {
             terms).
           </li>
           <li>
+            <strong>Uploaded files:</strong> {f.uploadRetentionDays} days after upload, or
+            sooner when you delete them.
+          </li>
+          <li>
             <strong>Generated workbooks:</strong> {f.outputRetentionDays} days after they
             are created.
           </li>
@@ -318,11 +323,11 @@ export default async function PrivacyPage() {
         <>
           <p>
             Company data is encrypted under a key unique to each company, and those keys
-            are themselves protected by a managed key service. Names and identifiers are
-            redacted in your browser before anything is sent. Access to each
-            account&rsquo;s data is enforced in the database as well as in the
-            application, and changes to credits and to sensitive settings are written to a
-            tamper-evident log.
+            are themselves protected by a managed key service; uploaded files are stored
+            only in that encrypted form. Names and identifiers are redacted before
+            anything is sent to our AI provider. Access to each account&rsquo;s data is
+            enforced in the database as well as in the application, and changes to credits
+            and to sensitive settings are written to a tamper-evident log.
           </p>
           <p>
             Sign-in is by password alone, with one active session per account, limits on
@@ -419,9 +424,10 @@ export default async function PrivacyPage() {
       lastUpdated={f.lastUpdated}
       intro={
         <p>
-          The short version: your files are processed in your browser, identifiers are
-          replaced before anything leaves it, and what we store is encrypted per company.
-          The detail follows.
+          The short version: the files you upload are encrypted under a key for that
+          company alone and deleted on a schedule, identifiers are replaced before
+          anything reaches our AI provider, and every figure is calculated by our own
+          engine. The detail follows.
         </p>
       }
       sections={sections}

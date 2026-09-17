@@ -27,7 +27,7 @@ interface NavItem {
 
 const PRIMARY: readonly NavItem[] = [
   { href: "/app", label: "Companies", icon: "building", match: "/app/companies" },
-  { href: "/app/data", label: "Source files", icon: "file" },
+  { href: "/app/data", label: "Uploaded files", icon: "file" },
   { href: "/wallet", label: "Wallet", icon: "wallet" },
 ];
 

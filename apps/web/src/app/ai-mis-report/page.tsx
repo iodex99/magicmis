@@ -36,7 +36,7 @@ const DOES: readonly { title: string; body: string }[] = [
   },
   {
     title: "Maps the ledgers nothing else could",
-    body: "Your confirmed mapping, a library of common ledger names and the ledger's group are tried first. AI proposes a report head only for what is left, and marks it for your review.",
+    body: "Your confirmed mapping, a library of common ledger names and the ledger's group are tried first. AI proposes a report head only for what is left, and anything it cannot place is shown as Unmapped, never guessed.",
   },
   {
     title: "Drafts the commentary",
@@ -50,7 +50,7 @@ const DOES: readonly { title: string; body: string }[] = [
 
 const DOES_NOT: readonly string[] = [
   "Calculate, round or restate any figure. Totals, ratios and variances come from a deterministic engine and are the same every time.",
-  "See your raw files. They are processed in your browser; AI receives redacted structure, a small limited sample and totals, for a paid action you confirmed.",
+  "See your whole files. It receives a sheet's structure, a small redacted sample of rows and ledger names, for a paid action you confirmed.",
   "Run on a routine month. When the ledger structure has not changed, the monthly refresh makes no AI calls at all.",
   "Choose its own model or budget. Those are fixed on the server for each action, and the price is shown before anything runs.",
 ];
@@ -68,7 +68,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is my financial data used to train AI models?",
     answer:
-      "No. AI requests are sent to Anthropic, which does not use API data to train its models by default. And what is sent is already redacted in your browser: party names and identifiers are replaced with tokens before anything leaves it.",
+      "No. AI requests are sent to Anthropic, which does not use API data to train its models by default. And what is sent is redacted first: party names and identifiers are replaced with tokens before anything goes to the model.",
   },
   {
     question: "Does it work with my accounting system?",

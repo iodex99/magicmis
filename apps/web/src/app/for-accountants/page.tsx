@@ -61,8 +61,8 @@ const ANSWERS: readonly { title: string; body: string }[] = [
     body: "Click a number in the dashboard and it shows the ledgers and vouchers behind it. Commentary never contains a written number: figures are computed and inserted through placeholders.",
   },
   {
-    title: "Client files stay on the machine that opened them",
-    body: "Files are read in the browser. The server receives redacted structural profiles and aggregates, never the raw file and never the party names.",
+    title: "Client files are encrypted and deleted on schedule",
+    body: "Each client's files are encrypted under that company's own key and deleted automatically. The AI receives redacted samples and ledger names, never a whole file.",
   },
 ];
 

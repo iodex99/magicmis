@@ -8,23 +8,28 @@ paths:
   - "packages/render-dashboard/**"
 ---
 
-# Browser-side data rules (Zone A)
+# Source data rules
 
-The browser holds the raw data and is treated as an **untrusted client** (SPEC §7).
+**ADR 0032 moved processing to the server.** The browser uploads files and shows results; it
+holds no data and is still an **untrusted client** (SPEC §7) — never trust a count, a mapping
+or a figure it sends. Parsing, recognition, mapping, computation and rendering happen in
+`apps/web/src/lib/server/run-job.ts` over files read back from `source_uploads`.
 
-## What may leave the browser
-Only these four things, and only after redaction:
-1. redacted structural profiles
+## Uploaded files
+- Every chunk is sealed with `sealForCompany` (purpose `source_chunk`) **before** it touches
+  the store. Never write plaintext file bytes anywhere, including logs and error reports.
+- Uploads expire after `sources.retention_days`; `purgeExpiredUploads` removes them. A new
+  place that keeps file bytes must be covered by that purge or by crypto-shredding.
+- Before payment only name, size, sheet count and row count leave the server (SPEC §2.3).
+
+## What may be sent to Anthropic
+Only from action-specific server code, and only after redaction:
+1. redacted structural profiles (`buildOutboundSheet`)
 2. capped redacted samples
-3. aggregates (ledger × period balances, metric store)
-4. chat query results that pass the row cap and redaction
+3. redacted ledger names and group paths
+4. chat query results that pass the SQL guard, row cap and redaction
 
-**Raw files never leave the browser.** They live in DuckDB memory and OPFS temp only,
-cleared on logout, on "Clear session data", on new-session start, and on tab close where
-possible. The **redaction token map never leaves the browser at all.**
-
-Redaction (`packages/redact`) runs **before** any payload is sent. Not after, not
-server-side.
+Never a whole file. Redaction (`packages/redact`) runs **before** the payload is built.
 
 ## Redaction tokens must be stable across months (SPEC §17)
 
@@ -36,10 +41,10 @@ compare two different entities.
   redaction key**, prefixed by type — `PARTY_9f3a1c2e`. Not a random ID, not a counter,
   not a plain hash. **Test the collision rate at the chosen truncation length.**
 - The per-company redaction key is created at company creation, stored encrypted under
-  the company DEK, and released only to the authenticated owner's browser.
-- Server-side snapshots key party and employee rows **by token**. The browser rehydrates
-  names by hashing names in the *currently loaded* files; a token with no match displays
-  as the token plus a "name not in loaded files" hint.
+  the company DEK, and opened only on the server for that company's runs (ADR 0032).
+- Server-side snapshots key party and employee rows **by token**. The server rehydrates
+  names by hashing names in the files of the run (or, for chat, the most recent kept
+  upload); a token with no match displays as the token.
 - Company setting **"Store party and employee names encrypted"** (default **off**): when
   on, the browser uploads the token→name dictionary encrypted under the company DEK. The
   UI must explain the trade-off.
@@ -50,7 +55,7 @@ compare two different entities.
   **party ledgers** under Sundry Debtors/Creditors → `PARTY_*` (their group already
   determines the MIS head, so the name is never needed for mapping).
 - The developer-mode payload inspector (SPEC §17) was **removed by the owner** (ADR 0031).
-  What leaves the browser is enforced by `buildOutboundSheet` and
+  What reaches Anthropic is enforced by `buildOutboundSheet` and
   `assertNoRawIdentifiers`, not by a viewer — keep every outbound payload on that builder.
 - Tests: positive *and* negative cases per detector, including false positives such as
   invoice numbers and amounts.
@@ -63,8 +68,8 @@ compare two different entities.
   amount pair = debit/credit) — and a sheet is a trial balance on content alone only if it
   nets to zero. PDF positions only rebuild the table; header detection still reads it.
 - **Any file type** (ADR 0031): decide the format from the bytes (`readSourceFile`), never
-  the extension; refuse only what cannot be read in the browser, always with a reason.
-- All parsing runs in **Web Workers** (Comlink). The main thread never blocks.
+  the extension; refuse only what has no readable text, always with a reason.
+- Parsing runs on the server inside the job run (ADR 0032); the browser never parses.
 - SheetJS reads **cached cell values — never evaluate formulas** — plus formatted text
   for type inference. `.xlsm` macros are never executed.
 - Merged cells, hidden sheets and hidden rows are **flagged in the profile**, never
@@ -91,9 +96,9 @@ Excel). Original header text is kept in a header map.
   `TODO(review)`.
 
 ## Trust
-Metrics computed in the browser are trusted only as *that account's own data*. They
-affect that account's outputs and nothing else — never pricing, never billing, never
-another tenant.
+Nothing the browser sends about a file is trusted: counts, fingerprints, mappings and
+figures are all derived on the server from the uploaded bytes. Uploads are checked to
+belong to the account and company before any job uses them.
 
 ## Nothing is free (SPEC §2.3)
 Before a paid action the UI may show **only** file name, size, sheet count, row count.

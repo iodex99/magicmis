@@ -32,13 +32,13 @@ export const metadata: Metadata = pageMetadata("/");
 const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "upload",
-    title: "Load your exports",
-    body: "Trial balances, ledgers and registers as your accounting system exports them. Files are read in your browser and never uploaded.",
+    title: "Upload your exports",
+    body: "Trial balances, ledgers and registers as your accounting system exports them, in any format. Files are encrypted when they arrive and deleted automatically.",
   },
   {
     icon: "table",
-    title: "Confirm the mapping once",
-    body: "Ledgers are matched to a standard reporting schema. You review and correct it the first time; later months reuse it.",
+    title: "The mapping is done for you",
+    body: "Ledgers are matched to a standard reporting schema, by rules first and AI for the rest. Nothing waits on you, and later months reuse the mapping.",
   },
   {
     icon: "check-circle",
@@ -50,8 +50,8 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
 const PROOF: readonly { icon: IconName; title: string; body: string; href: string }[] = [
   {
     icon: "shield",
-    title: "Raw files stay in your browser",
-    body: "The server receives redacted structural profiles and aggregates. Party names are re-inserted locally, in the workbook you download.",
+    title: "Files encrypted, then deleted",
+    body: "Each company's files are encrypted under its own key and deleted automatically. The AI sees redacted samples and ledger names, never a whole file.",
     href: "/security",
   },
   {
@@ -87,7 +87,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does my accounting data get uploaded?",
     answer:
-      "No. Files are parsed and queried in your browser. The server receives a redacted structural profile and aggregate figures for the action you paid for — never the raw file, and never the party names, which are re-inserted locally in the workbook you download.",
+      "Yes, so there is nothing to install and nothing to wait for on your computer. Files are encrypted when they arrive under a key unique to that company, used only for the runs you pay for, and deleted automatically. The AI model receives only redacted samples and ledger names, never a whole file.",
   },
   {
     question: "Is there a free trial?",
@@ -102,7 +102,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Which accounting systems does it work with?",
     answer:
-      "No. There is no connector and nothing to install. You export a trial balance from your accounting system as you would anyway — Tally, Xero, QuickBooks, Sage, Zoho Books or anything else that exports Excel, CSV or PDF — and load the file in your browser. Columns are read by their headers, never by position.",
+      "Any of them. There is no connector and nothing to install. You export a trial balance from your accounting system as you would anyway — Tally, Xero, QuickBooks, Sage, Zoho Books or anything else that exports Excel, CSV or PDF — and upload the file. Columns are read by their headers, never by position.",
   },
   {
     question: "Can several people in my firm use one account?",
