@@ -27,7 +27,7 @@ import { Drawer } from "@/components/Drawer";
 import { Icon, type IconName } from "@/components/Icon";
 import { LineagePanel } from "@/components/LineagePanel";
 import { Alert, Button } from "@/components/ui";
-import { formatCredits, TIER_LABELS } from "@/lib/actions";
+import { formatCredits, TIER_LABELS, TIER_NOTES } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 
@@ -154,6 +154,12 @@ function Segments({
   );
 }
 
+/** A rendered answer as plain text, for copying into a mail or a board pack. */
+const plainText = (paragraphs: readonly (readonly AnswerSegment[])[]): string =>
+  paragraphs
+    .map((p) => p.map((seg) => (seg.kind === "text" ? seg.text : seg.display)).join(""))
+    .join("\n\n");
+
 const when = (iso: string) =>
   new Date(iso).toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -217,10 +223,14 @@ export function Assistant({
   const [applied, setApplied] = useState<
     Record<string, { target: string; blueprintVersion: number; undone: boolean }>
   >({});
+  const [copied, setCopied] = useState<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
 
-  const format = useMemo(() => companyFormat(money), [money]);
+  const format = useMemo(
+    () => companyFormat(money, currencySymbol),
+    [money, currencySymbol],
+  );
 
   const loadThreads = useCallback(async () => {
     const r = await api<{ threads: { id: string; status: string; createdAt: string }[] }>(
@@ -408,6 +418,23 @@ export function Assistant({
     } else setError(r.message);
   };
 
+  /**
+   * Where to go next, taken from the figures the answer actually used: a question about one of
+   * them is the one a reader asks, and it saves typing the metric's name correctly.
+   */
+  const followUps = (m: MessageView): string[] => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const v of m.values) {
+      const base = v.metricId.split(".")[0] ?? v.metricId;
+      if (seen.has(base)) continue;
+      seen.add(base);
+      out.push(`What drove ${format.label(base).toLowerCase()}?`);
+      if (out.length === 2) break;
+    }
+    return out;
+  };
+
   const latest = periods[0] ?? null;
   const suggestions: readonly { label: string; run: () => void }[] = [
     ...(latest === null
@@ -451,7 +478,7 @@ export function Assistant({
 
   return (
     <aside
-      className="relative flex h-[calc(100vh-7rem)] min-h-[34rem] flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm"
+      className="relative flex h-[calc(100vh-7rem)] min-h-[34rem] flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-surface shadow-sm"
       data-testid="assistant"
       aria-label="Assistant"
     >
@@ -500,7 +527,7 @@ export function Assistant({
 
       {history ? (
         <div
-          className="scroll-slim absolute inset-x-0 top-[3.6rem] bottom-0 z-10 overflow-y-auto bg-white p-4"
+          className="scroll-slim absolute inset-x-0 top-[3.6rem] bottom-0 z-10 overflow-y-auto bg-surface p-4"
           data-testid="assistant-history"
         >
           <p className="eyebrow mb-2">Conversations</p>
@@ -601,7 +628,7 @@ export function Assistant({
               return (
                 <div
                   key={c.id}
-                  className="message-in rounded-xl border border-neutral-200 bg-white p-4 shadow-sm"
+                  className="message-in rounded-xl border border-neutral-200 bg-surface p-4 shadow-sm"
                 >
                   <p className="eyebrow mb-2 flex items-center gap-1.5">
                     <Icon name="document" size={12} />
@@ -701,23 +728,55 @@ export function Assistant({
                     This answer did not pass the figure check, so it is not shown.
                   </Alert>
                 ) : (
-                  rendered.paragraphs.map((p, i) => (
-                    <p
-                      key={i}
-                      className="mb-2 leading-relaxed text-neutral-800 last:mb-0"
-                    >
-                      <Segments
-                        segments={p}
-                        onMetric={(key) => {
-                          setLineage({ kind: "metric", key, values: m.values });
+                  <>
+                    {rendered.paragraphs.map((p, i) => (
+                      <p
+                        key={i}
+                        className="mb-2 leading-relaxed text-neutral-800 last:mb-0"
+                      >
+                        <Segments
+                          segments={p}
+                          onMetric={(key) => {
+                            setLineage({ kind: "metric", key, values: m.values });
+                          }}
+                          onQuery={(ref) => {
+                            const q = m.queries.find((x) => x.ref === ref);
+                            if (q !== undefined) setLineage({ kind: "query", query: q });
+                          }}
+                        />
+                      </p>
+                    ))}
+                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-neutral-200/70 pt-2">
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[0.6875rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                        onClick={() => {
+                          void navigator.clipboard
+                            .writeText(plainText(rendered.paragraphs))
+                            .then(() => {
+                              setCopied(m.id);
+                            });
                         }}
-                        onQuery={(ref) => {
-                          const q = m.queries.find((x) => x.ref === ref);
-                          if (q !== undefined) setLineage({ kind: "query", query: q });
-                        }}
-                      />
-                    </p>
-                  ))
+                      >
+                        <Icon name="document" size={11} />
+                        {copied === m.id ? "Copied" : "Copy"}
+                      </button>
+                      {followUps(m).map((q) => (
+                        <button
+                          key={q}
+                          type="button"
+                          className="rounded-full px-2 py-1 text-[0.6875rem] font-medium text-accent-700 hover:bg-accent-50"
+                          onClick={() => {
+                            setMode("deep");
+                            setText(q);
+                            input.current?.focus();
+                          }}
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
             );
@@ -800,7 +859,7 @@ export function Assistant({
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.75rem] font-medium transition-colors ${
                 mode === m.key
                   ? "bg-accent-600 text-white"
-                  : "bg-white text-neutral-600 ring-1 ring-neutral-200 hover:text-neutral-900"
+                  : "bg-surface text-neutral-600 ring-1 ring-neutral-200 hover:text-neutral-900"
               }`}
               onClick={() => {
                 setMode(m.key);
@@ -814,7 +873,7 @@ export function Assistant({
         </div>
 
         {mode === "commentary" ? (
-          <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3">
+          <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 bg-surface p-3">
             {periods.length === 0 ? (
               <p className="text-[0.8125rem] text-neutral-500">
                 Commentary needs a month of figures. Upload the trial balances first.
@@ -824,7 +883,7 @@ export function Assistant({
                 <label className="flex items-center justify-between gap-3 text-[0.8125rem] text-neutral-600">
                   <span>Month to write up</span>
                   <select
-                    className="h-8 rounded-md border border-neutral-200 bg-white px-2 text-[0.8125rem] text-neutral-900"
+                    className="h-8 rounded-md border border-neutral-200 bg-surface px-2 text-[0.8125rem] text-neutral-900"
                     value={month}
                     onChange={(e) => {
                       setMonth(e.target.value);
@@ -850,7 +909,7 @@ export function Assistant({
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-neutral-200 bg-white focus-within:border-accent-300 focus-within:ring-2 focus-within:ring-accent-100">
+          <div className="rounded-xl border border-neutral-200 bg-surface focus-within:border-accent-300 focus-within:ring-2 focus-within:ring-accent-100">
             <textarea
               ref={input}
               className="block max-h-40 min-h-[4.5rem] w-full resize-none rounded-xl bg-transparent px-3 pt-2.5 text-sm text-neutral-900 outline-none placeholder:text-neutral-400"
@@ -878,7 +937,7 @@ export function Assistant({
               {mode === "edit" ? (
                 <select
                   aria-label="What to change"
-                  className="h-7 rounded-md border border-neutral-200 bg-white px-1.5 text-[0.75rem] text-neutral-700"
+                  className="h-7 rounded-md border border-neutral-200 bg-surface px-1.5 text-[0.75rem] text-neutral-700"
                   value={editTarget}
                   onChange={(e) => {
                     setEditTarget(e.target.value as "dashboard" | "template");
@@ -913,21 +972,27 @@ export function Assistant({
 
         <div className="mt-2 flex items-center justify-between gap-2 text-[0.6875rem] text-neutral-500">
           <span>Every message uses credits, including questions outside this MIS.</span>
-          <select
-            aria-label="Intelligence tier"
-            className="rounded border-0 bg-transparent py-0 pr-5 pl-1 text-[0.6875rem] text-neutral-600 hover:text-neutral-900"
-            value={tier}
-            onChange={(e) => {
-              setTier(e.target.value as Tier);
-            }}
-          >
-            {(Object.keys(TIER_LABELS) as Tier[]).map((t) => (
-              <option key={t} value={t}>
-                {TIER_LABELS[t]}
-              </option>
-            ))}
-          </select>
+          <label className="flex shrink-0 items-center gap-1" title={TIER_NOTES[tier]}>
+            <span className="text-neutral-400">Depth</span>
+            <select
+              aria-label="Intelligence tier"
+              className="rounded border-0 bg-transparent py-0 pr-5 pl-1 text-[0.6875rem] font-medium text-neutral-600 hover:text-neutral-900"
+              value={tier}
+              onChange={(e) => {
+                setTier(e.target.value as Tier);
+              }}
+            >
+              {(Object.keys(TIER_LABELS) as Tier[]).map((t) => (
+                <option key={t} value={t}>
+                  {TIER_LABELS[t]}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
+        <p className="mt-0.5 text-right text-[0.6875rem] text-neutral-400">
+          {TIER_NOTES[tier]}
+        </p>
       </div>
 
       <Drawer
@@ -954,7 +1019,7 @@ export function Assistant({
           />
         ) : (
           <aside
-            className="rounded-xl border border-neutral-200/80 bg-white p-4 text-sm shadow-sm"
+            className="rounded-xl border border-neutral-200/80 bg-surface p-4 text-sm shadow-sm"
             data-testid="query-lineage"
           >
             <div className="mb-3 flex items-start justify-between gap-2">

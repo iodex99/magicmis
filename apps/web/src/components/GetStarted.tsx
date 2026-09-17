@@ -70,7 +70,7 @@ export function GetStarted({
           return (
             <li
               key={step.title}
-              className={`rounded-xl border bg-white p-4 ${
+              className={`rounded-xl border bg-surface p-4 ${
                 isCurrent ? "border-accent-300 shadow-sm" : "border-neutral-200/70"
               }`}
             >

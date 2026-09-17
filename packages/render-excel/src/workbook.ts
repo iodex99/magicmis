@@ -28,6 +28,17 @@ import type { ColumnKind, ResolvedSection, TemplateSpec } from "@magicmis/templa
 import ExcelJS from "exceljs";
 
 import { DATA_COLUMNS, dataRowsFromCube, periodIndex } from "./data";
+import {
+  chrome,
+  FONT,
+  headerBand,
+  line,
+  PALETTE,
+  solid,
+  titleBlock,
+  widths,
+  writeHeadings,
+} from "./theme";
 import { DAYS_FORMAT, moneyFormat, PERCENT_FORMAT, RATIO_FORMAT } from "./formats";
 import {
   DataRange,
@@ -73,10 +84,11 @@ export interface RenderInput {
   readonly companyName: string;
   /**
    * The currency the company's books are in, as its symbol or ISO code (ADR 0030).
-   * Printed on every sheet so a reader never has to assume, and defaulting to the rupee
-   * keeps an Indian workbook byte-identical to what it was.
+   * Printed on every sheet so a reader never has to assume, and required with no default:
+   * a workbook that says ₹ for a company whose books are in dollars is worse than one that
+   * says nothing (ADR 0034).
    */
-  readonly currencySymbol?: string;
+  readonly currencySymbol: string;
   readonly template: TemplateSpec;
   readonly sections: readonly ResolvedSection[];
   readonly period: PeriodId;
@@ -255,31 +267,69 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
   });
 
   // Cover and Index first so they open first.
+  const footer = `${input.companyName} · ${template.name} · ${periodLabel(period)} · ${DISCLAIMER}`;
+
   const cover = wb.addWorksheet("Cover", { pageSetup: pageSetup("1:1") });
+  chrome(cover, { footer });
+  // A title band, then the facts that identify this workbook, then the disclaimer.
+  cover.mergeCells(1, 1, 3, 4);
+  const coverTitle = cover.getCell(1, 1);
+  coverTitle.value = `${input.companyName}\n${template.name} · ${periodLabel(period)}`;
+  coverTitle.font = FONT.title;
+  coverTitle.fill = solid(PALETTE.ink);
+  coverTitle.alignment = { vertical: "middle", indent: 1, wrapText: true };
+  cover.getRow(1).height = 30;
+  cover.getRow(2).height = 30;
+  cover.getRow(3).height = 14;
+
   const coverRows: [string, string][] = [
     ["Company", input.companyName],
     ["Period", periodLabel(period)],
-    ["Generated", `${formatIstDateTime(input.generatedAt)} IST`],
+    ["Amounts in", input.currencySymbol],
+    ["Generated", formatIstDateTime(input.generatedAt)],
     ["Intelligence tier", input.tierLabel],
     ["Template", `${template.name} (v${template.version.toString()})`],
     ["Snapshot version", input.snapshotVersion.toString()],
   ];
-  cover.getCell(1, 1).value = `${input.companyName} — ${template.name}`;
-  cover.getCell(1, 1).font = { bold: true, size: 14 };
   coverRows.forEach(([k, v], i) => {
-    cover.getCell(3 + i, 1).value = k;
-    cover.getCell(3 + i, 1).font = { bold: true };
-    cover.getCell(3 + i, 2).value = v;
+    const row = 5 + i;
+    const key = cover.getCell(row, 1);
+    key.value = k;
+    key.font = FONT.muted;
+    key.alignment = { vertical: "middle" };
+    const value = cover.getCell(row, 2);
+    value.value = v;
+    value.font = FONT.bodyBold;
+    value.alignment = { vertical: "middle" };
+    for (const col of [1, 2, 3, 4])
+      cover.getCell(row, col).border = { bottom: line("hair", PALETTE.hairline) };
+    cover.getRow(row).height = 19;
   });
-  cover.getCell(10, 1).value = DISCLAIMER;
-  cover.getCell(10, 1).font = { italic: true };
-  template.notes.forEach((n, i) => (cover.getCell(12 + i, 1).value = n));
-  cover.getColumn(1).width = 24;
-  cover.getColumn(2).width = 48;
+
+  const disclaimerRow = 5 + coverRows.length + 1;
+  cover.mergeCells(disclaimerRow, 1, disclaimerRow, 4);
+  const disclaimer = cover.getCell(disclaimerRow, 1);
+  disclaimer.value = DISCLAIMER;
+  disclaimer.font = FONT.mutedItalic;
+  template.notes
+    .filter((n) => n.trim() !== DISCLAIMER)
+    .forEach((n, i) => {
+      const row = disclaimerRow + 2 + i;
+      cover.mergeCells(row, 1, row, 4);
+      const cell = cover.getCell(row, 1);
+      cell.value = n;
+      cell.font = FONT.muted;
+      cell.alignment = { wrapText: true, vertical: "top" };
+      cover.getRow(row).height = 16;
+    });
+  cover.getColumn(1).width = 22;
+  cover.getColumn(2).width = 46;
+  cover.getColumn(3).width = 18;
+  cover.getColumn(4).width = 18;
 
   const index = wb.addWorksheet("Index");
-  index.getCell(1, 1).value = "Contents";
-  index.getCell(1, 1).font = { bold: true };
+  chrome(index, { freezeRows: 1, footer });
+  writeHeadings(index, 1, ["Contents", "What it holds"]);
 
   // Data sheet rows are needed to size the formula ranges.
   const dataRows = dataRowsFromCube(cube, input.displayName);
@@ -287,33 +337,39 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
 
   for (const { section } of included) {
     const ws = wb.addWorksheet(section.sheet, {
-      views: [{ state: "frozen", xSplit: 1, ySplit: HEADER_ROWS.header }],
       pageSetup: pageSetup(
         `${HEADER_ROWS.header.toString()}:${HEADER_ROWS.header.toString()}`,
       ),
     });
-    ws.getCell(HEADER_ROWS.title, 1).value = `${input.companyName} — ${section.title}`;
-    ws.getCell(HEADER_ROWS.title, 1).font = { bold: true, size: 13 };
-    ws.getCell(HEADER_ROWS.subtitle, 1).value =
-      `Period: ${periodLabel(period)} · Amounts in ${input.currencySymbol ?? "₹"} · ${DISCLAIMER}`;
+    chrome(ws, {
+      freezeRows: HEADER_ROWS.header,
+      freezeCols: 1,
+      footer: `${footer} · ${section.title}`,
+    });
     ws.getCell(HEADER_ROWS.index, 1).value = "period index";
     ws.getCell(HEADER_ROWS.fy, 1).value = "FY start index";
     ws.getRow(HEADER_ROWS.index).hidden = true;
     ws.getRow(HEADER_ROWS.fy).hidden = true;
-    ws.getColumn(1).width = 34;
+    ws.getColumn(1).width = 38;
 
     const metricRows = section.rows.filter(
       (r) => r.kind === "metric" || r.kind === "subtotal",
     );
     const hasMetrics = metricRows.length > 0;
     const cols = hasMetrics ? buildColumns(section.columns, period, cube) : [];
+    titleBlock(
+      ws,
+      { title: HEADER_ROWS.title, subtitle: HEADER_ROWS.subtitle },
+      {
+        title: `${input.companyName} — ${section.title}`,
+        subtitle: `${periodLabel(period)} · Amounts in ${input.currencySymbol}`,
+        columns: cols.length + 1,
+      },
+    );
     cols.forEach((c, i) => {
       const col = i + 2;
       ws.getColumn(col).width = 16;
-      const header = ws.getCell(HEADER_ROWS.header, col);
-      header.value = c.header;
-      header.font = { bold: true };
-      header.alignment = { horizontal: "right", wrapText: true };
+      ws.getCell(HEADER_ROWS.header, col).value = c.header;
       if (c.kind === "period" || c.kind === "ytd") {
         ws.getCell(HEADER_ROWS.index, col).value = periodIndex(c.period);
         ws.getCell(HEADER_ROWS.fy, col).value = periodIndex(
@@ -322,7 +378,7 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
       }
     });
     ws.getCell(HEADER_ROWS.header, 1).value = "Particulars";
-    ws.getCell(HEADER_ROWS.header, 1).font = { bold: true };
+    headerBand(ws, HEADER_ROWS.header, cols.length + 1);
 
     const rowOf = new Map<string, number>();
     section.rows.forEach((r, i) => {
@@ -341,20 +397,52 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
       return m;
     };
 
+    const lastColumn = cols.length + 1;
+    /** A rule across the whole row: what separates a subtotal from the lines above it. */
+    const ruleAcross = (
+      row: number,
+      edge: "top" | "bottom",
+      style: "thin" | "double",
+    ) => {
+      for (let col = 1; col <= lastColumn; col += 1) {
+        const cell = ws.getCell(row, col);
+        cell.border = { ...cell.border, [edge]: line(style, PALETTE.rule) };
+      }
+    };
+
     section.rows.forEach((r, i) => {
       const row = HEADER_ROWS.first + i;
       const label = ws.getCell(row, 1);
       label.value = input.labelText ? input.labelText(r.label) : r.label;
+      label.font = FONT.body;
+      label.alignment = { vertical: "middle" };
+      for (let col = 2; col <= lastColumn; col += 1) {
+        const cell = ws.getCell(row, col);
+        cell.font = FONT.body;
+        cell.alignment = { vertical: "middle", horizontal: "right" };
+      }
       if (r.kind === "heading") {
-        label.font = { bold: true };
+        label.font = { ...FONT.bodyBold, color: { argb: PALETTE.ink } };
+        for (let col = 1; col <= lastColumn; col += 1)
+          ws.getCell(row, col).fill = solid(PALETTE.subtle);
+        ws.getRow(row).height = 18;
         return;
       }
       if (r.kind === "unavailable") {
-        ws.getCell(row, 2).value = "Not available from supplied data";
+        const cell = ws.getCell(row, 2);
+        cell.value = "Not available from supplied data";
+        cell.font = FONT.mutedItalic;
+        cell.alignment = { vertical: "middle", horizontal: "left" };
         return;
       }
-      label.alignment = { indent: r.indent };
-      if (r.emphasis) label.font = { bold: true };
+      label.alignment = { vertical: "middle", indent: r.indent };
+      if (r.emphasis) {
+        label.font = FONT.bodyBold;
+        for (let col = 2; col <= lastColumn; col += 1)
+          ws.getCell(row, col).font = FONT.bodyBold;
+      }
+      if (r.kind === "subtotal") ruleAcross(row, "top", "thin");
+      if (r.emphasis) ruleAcross(row, "bottom", "double");
       if (r.kind === "subtotal") {
         writeSubtotal(r, row);
         return;
@@ -545,35 +633,75 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
   }
 
   // Checks.
-  const checks = wb.addWorksheet("Checks", { views: [{ state: "frozen", ySplit: 1 }] });
-  ["Check", "Status", "Severity", "Class", "Result", "How to fix"].forEach((h, i) => {
-    const c = checks.getCell(1, i + 1);
-    c.value = h;
-    c.font = { bold: true };
-  });
+  const checks = wb.addWorksheet("Checks");
+  chrome(checks, { freezeRows: 1, footer: `${footer} · Checks` });
+  writeHeadings(checks, 1, [
+    "Check",
+    "Status",
+    "Severity",
+    "Class",
+    "Result",
+    "How to fix",
+  ]);
+  /** A failed check has to be visible at a glance, and readable without the colour. */
+  const STATUS_FILL: Record<string, string> = {
+    pass: PALETTE.positiveFill,
+    fail: PALETTE.negativeFill,
+    warn: PALETTE.warningFill,
+  };
+  const STATUS_TEXT: Record<string, string> = {
+    pass: PALETTE.positive,
+    fail: PALETTE.negative,
+    warn: PALETTE.warning,
+  };
   let checkRow = 2;
+  const styleCheckRow = (row: number, status: string, columns: number) => {
+    for (let col = 1; col <= columns; col += 1) {
+      const cell = checks.getCell(row, col);
+      cell.font = FONT.body;
+      cell.alignment = { vertical: "top", wrapText: col >= 5 };
+      cell.border = { bottom: line("hair", PALETTE.hairline) };
+    }
+    const cell = checks.getCell(row, 2);
+    const fill = STATUS_FILL[status];
+    if (fill !== undefined) {
+      cell.fill = solid(fill);
+      cell.font = {
+        ...FONT.bodyBold,
+        color: { argb: STATUS_TEXT[status] ?? PALETTE.text },
+      };
+      cell.alignment = { vertical: "top", horizontal: "center" };
+    }
+  };
   for (const r of input.validation) {
     [r.id, r.status, r.severity, r.failureClass, r.message, r.fix].forEach(
       (v, i) => (checks.getCell(checkRow, i + 1).value = v),
     );
+    styleCheckRow(checkRow, r.status, 6);
     checkRow += 1;
   }
   for (const s of input.sections.filter((x) => !x.included)) {
     checks.getCell(checkRow, 1).value = "Section";
     checks.getCell(checkRow, 2).value = "omitted";
     checks.getCell(checkRow, 5).value = s.omittedReason ?? "";
+    styleCheckRow(checkRow, "omitted", 6);
     checkRow += 1;
   }
+  checks.getColumn(1).width = 12;
+  checks.getColumn(2).width = 10;
+  checks.getColumn(3).width = 12;
+  checks.getColumn(4).width = 16;
   checks.getColumn(5).width = 80;
   checks.getColumn(6).width = 60;
+  checks.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: 6 } };
 
   // Data.
-  const data = wb.addWorksheet("Data", { views: [{ state: "frozen", ySplit: 1 }] });
-  DATA_COLUMNS.forEach((h, i) => {
-    const c = data.getCell(1, i + 1);
-    c.value = h;
-    c.font = { bold: true };
-  });
+  const data = wb.addWorksheet("Data");
+  chrome(data, { freezeRows: 1, footer: `${footer} · Data` });
+  writeHeadings(data, 1, [...DATA_COLUMNS], { alignRight: [2, 3, 8] });
+  widths(data, 12, 16, DATA_COLUMNS.length - 1);
+  data.getColumn(5).width = 34;
+  data.getColumn(6).width = 42;
   dataRows.forEach((d, i) => {
     const values = [
       d.period,
@@ -594,12 +722,9 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
   };
 
   // Lineage: every report metric for the current period.
-  const lineage = wb.addWorksheet("Lineage", { views: [{ state: "frozen", ySplit: 1 }] });
-  ["metric_id", "label", "formula", "source references"].forEach((h, i) => {
-    const c = lineage.getCell(1, i + 1);
-    c.value = h;
-    c.font = { bold: true };
-  });
+  const lineage = wb.addWorksheet("Lineage");
+  chrome(lineage, { freezeRows: 1, footer: `${footer} · Lineage` });
+  writeHeadings(lineage, 1, ["Metric", "Label", "Formula", "Source references"]);
   let lineageRow = 2;
   const seen = new Set<string>();
   for (const { section } of included) {
@@ -641,18 +766,44 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
       lineageRow += 1;
     }
   }
+  lineage.getColumn(1).width = 26;
+  lineage.getColumn(2).width = 34;
   lineage.getColumn(3).width = 60;
   lineage.getColumn(4).width = 80;
+  for (let row = 2; row < lineageRow; row += 1)
+    for (const col of [1, 2, 3, 4]) {
+      const cell = lineage.getCell(row, col);
+      cell.font = FONT.body;
+      cell.alignment = { vertical: "top", wrapText: col >= 3 };
+      cell.border = { bottom: line("hair", PALETTE.hairline) };
+    }
 
-  [...included.map((s) => s.section.sheet), "Checks", "Data", "Lineage"].forEach(
-    (name, i) => {
-      index.getCell(3 + i, 1).value = {
-        text: name,
-        hyperlink: `#'${name.replace(/'/gu, "''")}'!A1`,
-      };
-    },
-  );
+  const INDEX_NOTES: Record<string, string> = {
+    Checks: "Every validation this workbook passed or failed, and how to fix it",
+    Data: "The mapped ledger balances every figure is built from",
+    Lineage: "The formula and sources behind each metric",
+  };
+  [
+    ...included.map((s) => [s.section.sheet, s.section.title] as const),
+    ...(["Checks", "Data", "Lineage"] as const).map(
+      (n) => [n, INDEX_NOTES[n] ?? ""] as const,
+    ),
+  ].forEach(([name, note], i) => {
+    const row = 2 + i;
+    const cell = index.getCell(row, 1);
+    cell.value = { text: name, hyperlink: `#'${name.replace(/'/gu, "''")}'!A1` };
+    cell.font = FONT.link;
+    cell.alignment = { vertical: "middle" };
+    const description = index.getCell(row, 2);
+    description.value = note;
+    description.font = FONT.muted;
+    description.alignment = { vertical: "middle" };
+    for (const col of [1, 2])
+      index.getCell(row, col).border = { bottom: line("hair", PALETTE.hairline) };
+    index.getRow(row).height = 19;
+  });
   index.getColumn(1).width = 30;
+  index.getColumn(2).width = 64;
 
   const safe = (s: string) => s.replace(/[^A-Za-z0-9]+/gu, "_").replace(/^_+|_+$/gu, "");
   const fileName = `${safe(input.companyName)}_${safe(template.name)}_${period}_v${input.snapshotVersion.toString()}.xlsx`;

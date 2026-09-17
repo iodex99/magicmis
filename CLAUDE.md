@@ -9,7 +9,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), and the one-workspace flow, ADR [0033](docs/adr/0033-one-workspace-no-price-step.md), plan [ui-redesign](docs/plans/ui-redesign.md)) the friction pass (ADR [0027](docs/adr/0027-friction.md)), the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)), the public site (plan [seo-marketing](docs/plans/seo-marketing.md)) and selling worldwide in two currencies (ADR [0030](docs/adr/0030-worldwide-two-currencies.md), plan [worldwide](docs/plans/worldwide.md)). **Deployment target is Vercel.** What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the apex domain (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26), the export LUT (R-59), Razorpay international activation (R-60) and a data-protection review (R-50).
+**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), and the one-workspace flow, ADR [0033](docs/adr/0033-one-workspace-no-price-step.md), and the currency, report and dark-mode pass, ADR [0034](docs/adr/0034-one-currency-boardroom-reports-dark-mode.md), plan [ui-redesign](docs/plans/ui-redesign.md)) the friction pass (ADR [0027](docs/adr/0027-friction.md)), the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)), the public site (plan [seo-marketing](docs/plans/seo-marketing.md)) and selling worldwide in two currencies (ADR [0030](docs/adr/0030-worldwide-two-currencies.md), plan [worldwide](docs/plans/worldwide.md)). **Deployment target is Vercel.** What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the apex domain (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26), the export LUT (R-59), Razorpay international activation (R-60) and a data-protection review (R-50).
 
 Design system: tokens in `packages/ui/src/tokens.ts`, mirrored into both apps' `globals.css`.
 Primitives in `apps/web/src/components/ui.tsx`; icons are hand-drawn in `Icon.tsx` (no icon
@@ -24,7 +24,11 @@ establishes the session and lands in the app; **customers sign in with a passwor
 on the active session alone, migration 0036); **there is no price step** — pressing an
 action's button holds its credits, and only a quote over the AI cost cap or a short wallet
 stops it (ADR 0033); **a company is one workspace** — setup when new, then the dashboard
-with the assistant (chat and commentary merged) beside it, no separate tabs (ADR 0033); **a run gets the customer to a workbook**
+with the assistant (chat and commentary merged) beside it, no separate tabs (ADR 0033); **every figure carries the company's own currency** — `formatValue`, `companyFormat`,
+`buildFactsPack`, `retrieveFacts` and `renderWorkbook` all require the symbol, with no rupee
+default, and the scale is stated on screen and in the workbook (ADR 0034); **light and dark**
+are one inverted neutral ramp plus semantic surfaces, chosen by a `theme` cookie read in the
+root layout (ADR 0034); **a run gets the customer to a workbook**
 (ADR 0031, ADR 0032) — files are uploaded and the whole run happens on the server
 (`lib/server/run-job.ts`, one request, no review); any file format is read (text PDFs included) or refused with a
 reason, unplaceable sheets are set aside rather than failing the job, AI classification is

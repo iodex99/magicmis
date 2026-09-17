@@ -74,7 +74,7 @@ function SampleCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-200/80 bg-white p-5">
+    <div className="rounded-xl border border-neutral-200/80 bg-surface p-5">
       <p className="text-[0.75rem] font-medium tracking-wide text-neutral-500 uppercase">
         {label}
       </p>
@@ -127,7 +127,7 @@ export default function ProductPage() {
             </SampleCard>
           </div>
 
-          <div className="mt-4 rounded-xl border border-neutral-200/80 bg-white p-6">
+          <div className="mt-4 rounded-xl border border-neutral-200/80 bg-surface p-6">
             <div className="flex items-center gap-2 text-[0.75rem] font-medium tracking-wide text-neutral-500 uppercase">
               <Icon name="file" size={14} />
               Commentary
@@ -154,7 +154,7 @@ export default function ProductPage() {
           {DELIVERABLES.map((d) => (
             <li
               key={d.title}
-              className="flex gap-4 rounded-xl border border-neutral-200/80 bg-white p-5"
+              className="flex gap-4 rounded-xl border border-neutral-200/80 bg-surface p-5"
             >
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-700">
                 <Icon name={d.icon} size={18} />

@@ -47,7 +47,7 @@ export function AddCompany({
         onClick={() => {
           setOpen(true);
         }}
-        className="group flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-neutral-200 bg-white px-6 py-5 text-left transition-colors hover:border-accent-300 hover:bg-accent-50/40"
+        className="group flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-neutral-200 bg-surface px-6 py-5 text-left transition-colors hover:border-accent-300 hover:bg-accent-50/40"
       >
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-600 text-white transition-transform group-hover:scale-105">
           <Icon name="plus" size={20} />
@@ -70,7 +70,7 @@ export function AddCompany({
 
   return (
     <section
-      className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm"
+      className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-surface shadow-sm"
       data-testid="add-company"
     >
       <div className="grid items-center gap-10 p-8 lg:grid-cols-[minmax(0,1fr)_26rem] lg:p-12">
@@ -101,7 +101,7 @@ export function AddCompany({
           </ol>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-lg">
+        <div className="rounded-2xl border border-neutral-200/80 bg-surface p-6 shadow-lg">
           <div className="mb-5 flex items-center justify-between">
             <p className="text-[1.0625rem] font-semibold text-neutral-900">
               Company details

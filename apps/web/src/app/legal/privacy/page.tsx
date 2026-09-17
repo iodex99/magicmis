@@ -213,7 +213,7 @@ export default async function PrivacyPage() {
             trackers. We share information only with these service providers, and only to
             run the service:
           </p>
-          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
             <table className="w-full min-w-[520px] border-collapse text-[0.875rem]">
               <thead>
                 <tr className="border-b border-neutral-200/80 text-left text-[0.8125rem] text-neutral-500">

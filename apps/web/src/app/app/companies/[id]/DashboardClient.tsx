@@ -50,6 +50,29 @@ interface Payload {
 
 type Operation = Record<string, unknown>;
 
+/**
+ * What a KPI card calls its supporting figures. The full metric label ("Revenue from
+ * operations, % change on last month") is too long beside the headline, and the headline
+ * already names the metric, so only the comparison is named here.
+ */
+const MOVEMENTS: Record<string, string> = {
+  mom_abs: "vs last month",
+  mom_pct: "vs last month",
+  yoy_abs: "vs last year",
+  yoy_pct: "vs last year",
+  ytd: "year to date",
+  ly_ytd: "last year to date",
+};
+
+function movementLabel(
+  metricKey: string,
+  format: { label: (metricId: string) => string },
+): string {
+  const metricId = metricKey.split("@")[0] ?? "";
+  const suffix = metricId.split(".")[1];
+  return suffix === undefined ? format.label(metricId) : (MOVEMENTS[suffix] ?? suffix);
+}
+
 function ValueButton({
   value,
   onOpen,
@@ -95,7 +118,7 @@ function WidgetCard({
   onInvestigate: (metric: string, period: PeriodId) => void;
 }) {
   const format = useMemo(
-    () => companyFormat(payload.company.money),
+    () => companyFormat(payload.company.money, payload.company.currencySymbol),
     [payload.company.money],
   );
   const view = useMemo(
@@ -113,12 +136,15 @@ function WidgetCard({
     <section
       // Beside the assistant the grid can be narrow, so a card takes twice its width there
       // and its designed width once the grid has room.
-      className="flex flex-col rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm [grid-column:span_var(--span-narrow)/span_var(--span-narrow)] @3xl:[grid-column:span_var(--span)/span_var(--span)]"
+      className="print-block flex flex-col rounded-xl border border-neutral-200/80 bg-surface p-4 shadow-sm [grid-column:span_var(--span-narrow)/span_var(--span-narrow)] @3xl:[grid-column:span_var(--span)/span_var(--span)]"
       style={
         {
           "--span": widget.layout.w.toString(),
           "--span-narrow": Math.min(12, widget.layout.w * 2).toString(),
           minHeight: `${(widget.layout.h * 4).toString()}rem`,
+          // A chart needs a height in pixels to draw into; without one it is measured
+          // mid-layout and stays that size, spilling out of the card (ADR 0034).
+          "--chart-height": `${Math.max(11, widget.layout.h * 3.5).toString()}rem`,
         } as CSSProperties
       }
       data-testid={`widget-${widget.id}`}
@@ -180,23 +206,32 @@ function WidgetCard({
       {view.kind === "empty" ? (
         <p className="text-[0.8125rem] text-neutral-500">{view.reason}</p>
       ) : view.kind === "kpi" ? (
-        <div className="flex flex-col gap-1">
-          {view.values.map((v, i) => (
-            <div
-              key={v.metricKey}
-              className={
-                i === 0
-                  ? "text-[1.75rem] leading-none font-semibold tracking-tight text-neutral-900"
-                  : "text-[0.8125rem] text-neutral-500"
-              }
-            >
-              <ValueButton value={v} onOpen={onOpen} />
-            </div>
-          ))}
+        <div className="flex flex-1 flex-col">
+          <div className="num text-[1.75rem] leading-none font-semibold tracking-tight text-neutral-900">
+            {view.values[0] === undefined ? (
+              "—"
+            ) : (
+              <ValueButton value={view.values[0]} onOpen={onOpen} />
+            )}
+          </div>
+          {view.values.length < 2 ? null : (
+            <dl className="mt-3 flex flex-col gap-1 text-[0.75rem]">
+              {view.values.slice(1).map((v) => (
+                <div key={v.metricKey} className="flex items-baseline gap-1.5">
+                  <dt className="truncate text-neutral-500">
+                    {movementLabel(v.metricKey, format)}
+                  </dt>
+                  <dd className="num ml-auto">
+                    <ValueButton value={v} onOpen={onOpen} />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
           {/* SPEC §27: Investigate sends a Deep question about this metric's movement. */}
           <button
             type="button"
-            className="mt-3 -ml-2 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
+            className="mt-auto -mb-1 -ml-2 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 pt-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
             onClick={() => {
               onInvestigate(widget.metrics[0] ?? "", period);
             }}
@@ -233,17 +268,19 @@ function WidgetCard({
           </table>
         </div>
       ) : (
-        <div className="flex-1">
-          <EChart
-            option={view.option}
-            label={widget.title}
-            onPoint={(s, d) => {
-              const key = view.points[s]?.[d]?.metricKey;
-              if (key !== undefined && key !== "") onOpen(key);
-            }}
-          />
+        <div className="flex flex-1 flex-col">
+          <div className="h-[var(--chart-height)] w-full">
+            <EChart
+              option={view.option}
+              label={widget.title}
+              onPoint={(s, d) => {
+                const key = view.points[s]?.[d]?.metricKey;
+                if (key !== undefined && key !== "") onOpen(key);
+              }}
+            />
+          </div>
           {/* The same values as text: every charted number is reachable without a pointer. */}
-          <details className="mt-3 text-[0.75rem] text-neutral-600">
+          <details className="mt-3 border-t border-neutral-100 pt-2 text-[0.75rem] text-neutral-500">
             <summary className="cursor-pointer select-none hover:text-neutral-900">
               Values
             </summary>
@@ -252,9 +289,15 @@ function WidgetCard({
                 .flat()
                 .filter((p) => p.metricKey !== "")
                 .map((p) => (
-                  <li key={p.metricKey}>
-                    {p.metricKey.split("@")[0]} {p.metricKey.split("@")[1]}:{" "}
-                    <ValueButton value={p} onOpen={onOpen} />
+                  <li key={p.metricKey} className="flex items-baseline gap-2">
+                    <span className="truncate">
+                      {format.label(p.metricKey.split("@")[0] ?? "")}
+                      {", "}
+                      {format.period(p.metricKey.split("@")[1] ?? "")}
+                    </span>
+                    <span className="num ml-auto">
+                      <ValueButton value={p} onOpen={onOpen} />
+                    </span>
                   </li>
                 ))}
             </ul>
@@ -314,7 +357,7 @@ export function DashboardClient({
   if (payload.dashboard === null) {
     return (
       <section
-        className="rounded-2xl border border-neutral-200/80 bg-white p-8 shadow-sm"
+        className="rounded-2xl border border-neutral-200/80 bg-surface p-8 shadow-sm"
         data-testid="dashboard-empty"
       >
         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
@@ -360,6 +403,7 @@ export function DashboardClient({
 
   const dashboard = payload.dashboard;
   const spec = pending?.spec ?? dashboard.spec;
+  const format = companyFormat(payload.company.money, payload.company.currencySymbol);
   const current = period ?? ((payload.periods[0] ?? "") as PeriodId);
   const display = (v: MetricValue) =>
     v.value === null
@@ -411,11 +455,8 @@ export function DashboardClient({
         <Panel title="A newer month is available" icon="refresh">
           <p className="mb-3 text-sm text-neutral-600">
             The dashboard shows months up to{" "}
-            {dashboard.dataThrough === null
-              ? "—"
-              : companyFormat(payload.company.money).period(dashboard.dataThrough)}
-            . Refresh it to include{" "}
-            {companyFormat(payload.company.money).period(payload.latestPeriod)}.
+            {dashboard.dataThrough === null ? "—" : format.period(dashboard.dataThrough)}.
+            Refresh it to include {format.period(payload.latestPeriod)}.
           </p>
           <PaidJobButton
             companyId={companyId}
@@ -434,24 +475,43 @@ export function DashboardClient({
           />
         </Panel>
       ) : null}
-      <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 shadow-sm">
-        <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-500">
-          <span>Month</span>
-          <select
-            className="h-9 rounded-md border border-neutral-200 bg-white px-2.5 text-[0.8125rem] text-neutral-900 hover:border-neutral-300"
-            value={current}
-            onChange={(e) => {
-              setPeriod(e.target.value as PeriodId);
-            }}
-            data-testid="period-filter"
+      <p
+        className="hidden text-[0.8125rem] text-neutral-600"
+        data-print="show"
+        aria-hidden="true"
+      >
+        {format.period(current)} · {format.units}
+      </p>
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200/80 bg-surface px-4 py-3 shadow-sm"
+        data-print="hide"
+      >
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-[0.8125rem] font-medium text-neutral-600">
+            <span>Month</span>
+            <select
+              className="h-9 rounded-md border border-neutral-200 bg-surface px-2.5 text-[0.8125rem] font-medium text-neutral-900 hover:border-neutral-300"
+              value={current}
+              onChange={(e) => {
+                setPeriod(e.target.value as PeriodId);
+              }}
+              data-testid="period-filter"
+            >
+              {payload.periods.map((p) => (
+                <option key={p} value={p}>
+                  {format.period(p)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {/* ADR 0034: the reader never has to work out the currency or the scale. */}
+          <span
+            className="hidden rounded-full bg-neutral-100 px-2.5 py-1 text-[0.75rem] font-medium text-neutral-600 sm:inline"
+            data-testid="dashboard-units"
           >
-            {payload.periods.map((p) => (
-              <option key={p} value={p}>
-                {companyFormat(payload.company.money).period(p)}
-              </option>
-            ))}
-          </select>
-        </label>
+            {format.units}
+          </span>
+        </div>
         <div className="flex gap-2">
           {dashboard.canUndo && pending === null ? (
             <Button
@@ -531,7 +591,9 @@ export function DashboardClient({
           <LineagePanel
             selected={selected}
             values={payload.values}
-            label={companyFormat(payload.company.money).label}
+            label={
+              companyFormat(payload.company.money, payload.company.currencySymbol).label
+            }
             display={display}
             onSelect={setSelected}
             onClose={() => {

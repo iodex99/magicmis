@@ -118,7 +118,7 @@ export default function TrialBalanceGuide() {
         intro="A few rows from the mapping of a fictional manufacturer. Balances in thousands; credits shown in brackets, as a trial balance holds them."
       >
         <div className="mx-auto max-w-[900px]">
-          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
             <table className="w-full min-w-[620px] border-collapse text-[0.9375rem]">
               <thead>
                 <tr className="border-b border-neutral-200/80 text-[0.8125rem] text-neutral-500">

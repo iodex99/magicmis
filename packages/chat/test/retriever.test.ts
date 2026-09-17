@@ -1,5 +1,5 @@
 import type { PeriodId } from "@magicmis/core/time";
-import type { MetricValue } from "@magicmis/engine";
+import { INDIAN_REPORTING, type MetricValue } from "@magicmis/engine";
 import { describe, expect, it } from "vitest";
 
 import { metricsIn, periodsIn, retrieveFacts } from "../src/retriever";
@@ -57,6 +57,7 @@ describe("retriever", () => {
   it("returns facts with the facts-pack placeholder IDs and caps them", () => {
     const r = retrieveFacts("Why did sales change this month, and year to date?", store, {
       maxFacts: 20,
+      conventions: INDIAN_REPORTING,
     });
     expect(r.facts.map((f) => f.id)).toEqual([
       "m:revenue@2026-05",
@@ -64,7 +65,20 @@ describe("retriever", () => {
       "mv:revenue.mom@2026-05:pct",
       "m:revenue.ytd@2026-05",
     ]);
-    expect(retrieveFacts("anything", store, { maxFacts: 2 }).facts).toHaveLength(2);
-    expect(retrieveFacts("anything", [], { maxFacts: 5 }).facts).toEqual([]);
+    const opts = { conventions: INDIAN_REPORTING };
+    expect(retrieveFacts("anything", store, { maxFacts: 2, ...opts }).facts).toHaveLength(
+      2,
+    );
+    expect(retrieveFacts("anything", [], { maxFacts: 5, ...opts }).facts).toEqual([]);
+  });
+
+  it("writes the figures in the company's own currency (ADR 0034)", () => {
+    const dollars = { currencySymbol: "$", numberFormat: "millions" } as const;
+    const facts = retrieveFacts("revenue this month", store, {
+      maxFacts: 5,
+      conventions: dollars,
+    }).facts;
+    expect(facts[0]?.text.startsWith("$")).toBe(true);
+    expect(facts.some((f) => f.text.includes("₹"))).toBe(false);
   });
 });

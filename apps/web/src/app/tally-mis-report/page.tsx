@@ -170,7 +170,7 @@ export default function TallyMisReportPage() {
         title="The exports worth taking"
         intro="Only the first is required. Each of the others adds a section to the report rather than being needed to produce one."
       >
-        <div className="mx-auto max-w-[860px] overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+        <div className="mx-auto max-w-[860px] overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
           <table className="w-full min-w-[520px] border-collapse text-[0.9375rem]">
             <thead>
               <tr className="border-b border-neutral-200/80 text-[0.8125rem] text-neutral-500">

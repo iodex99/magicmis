@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { PRODUCT_NAME } from "@/lib/brand";
 
 import { Icon, type IconName } from "./Icon";
+import { ThemeToggle } from "./ThemeToggle";
 import { Avatar, BrandMark } from "./ui";
 
 /**
@@ -156,6 +157,7 @@ export function Sidebar({
           >
             {businessName}
           </span>
+          <ThemeToggle />
           {onSignOut}
         </div>
       </div>

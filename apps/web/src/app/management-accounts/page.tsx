@@ -143,7 +143,7 @@ export default function ManagementAccountsPage() {
         title="A worked example"
         intro="One month of a fictional trading company, in the shape the profit and loss section usually takes. Figures in £000."
       >
-        <div className="mx-auto max-w-[760px] overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+        <div className="mx-auto max-w-[760px] overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
           <table className="w-full min-w-[420px] border-collapse text-[0.9375rem]">
             <caption className="border-b border-neutral-200/80 px-5 py-3 text-left text-[0.8125rem] font-medium text-neutral-500">
               Profit and loss for the month

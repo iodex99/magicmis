@@ -38,10 +38,11 @@ export function formatValue(
   unit: MetricValue["unit"],
   money: NumberFormatOptions,
   /**
-   * The company's reporting currency symbol (ADR 0030). Defaults to the rupee, which
-   * is what every existing company's books are in and what SPEC §2.14 assumed.
+   * The company's reporting currency symbol (ADR 0030). Required, with no default: a
+   * rupee default let a company whose books are in dollars show `₹` on one surface and
+   * `$` on another, which is worse than either (ADR 0034).
    */
-  currencySymbol = "₹",
+  currencySymbol: string,
 ): string {
   switch (unit) {
     case "paise":
@@ -78,11 +79,71 @@ export function metricLabel(metricId: string): string {
   return `${label}, ${SUFFIXES[suffix] ?? suffix.replace(/_/gu, " ")}`;
 }
 
-export function companyFormat(money: NumberFormatOptions) {
+/**
+ * How the company's own books are written, in words: what a reader needs to know before
+ * reading a figure on a chart axis or a card (ADR 0034). `millions` shows figures divided
+ * by a million with no suffix, so the scale has to be said somewhere on the screen.
+ */
+export function unitsNote(money: NumberFormatOptions, currencySymbol: string): string {
+  return money.style === "millions"
+    ? `Amounts in ${currencySymbol} millions`
+    : `Amounts in ${currencySymbol}`;
+}
+
+const SHORT: readonly {
+  readonly at: number;
+  readonly by: number;
+  readonly tag: string;
+}[] = [
+  { at: 1e7, by: 1e7, tag: " Cr" },
+  { at: 1e5, by: 1e5, tag: " L" },
+];
+const SHORT_WESTERN: readonly {
+  readonly at: number;
+  readonly by: number;
+  readonly tag: string;
+}[] = [
+  { at: 1e9, by: 1e9, tag: "bn" },
+  { at: 1e6, by: 1e6, tag: "m" },
+  { at: 1e3, by: 1e3, tag: "k" },
+];
+
+const trim = (n: number): string =>
+  n
+    .toFixed(Math.abs(n) >= 100 ? 0 : Math.abs(n) >= 10 ? 1 : 2)
+    .replace(/\.0+$/u, "")
+    .replace(/(\.\d)0$/u, "$1");
+
+/**
+ * A chart axis label: the same currency as every other figure, shortened so the axis does
+ * not become a wall of digits. Major units in (rupees, dollars), never paise.
+ */
+export function compactMoney(
+  value: number,
+  money: NumberFormatOptions,
+  currencySymbol: string,
+): string {
+  const negative = value < 0;
+  const abs = Math.abs(value);
+  const scale = money.style === "lakhs_crores" ? SHORT : SHORT_WESTERN;
+  const step = scale.find((s) => abs >= s.at);
+  const body = step === undefined ? trim(abs) : `${trim(abs / step.by)}${step.tag}`;
+  return `${negative ? "-" : ""}${currencySymbol}${body}`;
+}
+
+/**
+ * Every display function a dashboard, commentary or answer needs, bound to one company's
+ * conventions. The currency symbol is required for the same reason as in `formatValue`.
+ */
+export function companyFormat(money: NumberFormatOptions, currencySymbol: string) {
   return {
-    money: (p: string) => formatValue(p, "paise", money),
-    decimal: (v: string, unit: MetricValue["unit"]) => formatValue(v, unit, money),
+    money: (p: string) => formatValue(p, "paise", money, currencySymbol),
+    decimal: (v: string, unit: MetricValue["unit"]) =>
+      formatValue(v, unit, money, currencySymbol),
+    axis: (value: number) => compactMoney(value, money, currencySymbol),
     period: periodLabel,
     label: metricLabel,
+    units: unitsNote(money, currencySymbol),
+    symbol: currencySymbol,
   };
 }

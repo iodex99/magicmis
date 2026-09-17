@@ -707,13 +707,13 @@ function Steps({ current }: { current: 1 | 2 | 3 }) {
                   ? "bg-accent-600 text-white"
                   : done
                     ? "bg-positive-subtle text-positive"
-                    : "bg-white text-neutral-400 ring-1 ring-neutral-200"
+                    : "bg-surface text-neutral-400 ring-1 ring-neutral-200"
               }`}
             >
               <span
                 className={`flex h-5 w-5 items-center justify-center rounded-full text-[0.6875rem] ${
                   now
-                    ? "bg-white/20"
+                    ? "bg-surface/20"
                     : done
                       ? "bg-positive text-white"
                       : "bg-neutral-100 text-neutral-500"

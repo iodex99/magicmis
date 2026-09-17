@@ -36,7 +36,12 @@ import {
 import { readConfig } from "@magicmis/db/config";
 import { withTransaction } from "@magicmis/db/tx";
 import type { KeyWrapper } from "@magicmis/crypto";
-import { ANSWER_PLACEHOLDER, type MetricValue } from "@magicmis/engine";
+import { currencySymbol } from "@magicmis/core/reporting-conventions";
+import {
+  ANSWER_PLACEHOLDER,
+  type MetricValue,
+  type ReportingContext,
+} from "@magicmis/engine";
 import {
   latestBlueprint,
   latestSnapshot,
@@ -61,6 +66,19 @@ import { retrieveFacts } from "./retriever";
 
 export type MessageType = "quick" | "deep" | "edit" | "investigate";
 export type ChatTier = "efficient" | "professional" | "expert";
+
+/**
+ * The company’s own currency and grouping, for the figures handed to the model (ADR 0034).
+ * A company row that could not be read falls back to the Indian conventions the price book
+ * and the seed configuration assume.
+ */
+const reportingOf = (
+  company:
+    { currency: string; number_format: ReportingContext["numberFormat"] } | undefined,
+): ReportingContext => ({
+  currencySymbol: currencySymbol(company?.currency ?? "INR"),
+  numberFormat: company?.number_format ?? "lakhs_crores",
+});
 
 const ACTION: Record<MessageType, ActionKey> = {
   quick: "chat_quick",
@@ -643,11 +661,17 @@ export async function processMessage(
       "chat.quick_max_facts",
       z.number().int().positive(),
     );
-    const retrieved = retrieveFacts(content.text, store, { maxFacts });
-    const company = await pool.query<{ name: string }>(
-      `select name from public.companies where id = $1`,
-      [msg.company_id],
-    );
+    const company = await pool.query<{
+      name: string;
+      currency: string;
+      number_format: "lakhs_crores" | "absolute" | "millions";
+    }>(`select name, currency, number_format from public.companies where id = $1`, [
+      msg.company_id,
+    ]);
+    const retrieved = retrieveFacts(content.text, store, {
+      maxFacts,
+      conventions: reportingOf(company.rows[0]),
+    });
     const r = await chatQuick(ctx, {
       companyName: company.rows[0]?.name ?? "",
       facts: [...retrieved.facts],
@@ -775,11 +799,18 @@ async function deepLoop(
     threadSummary(env, msg),
     history(env, msg),
     companyMetricValues(env.pool, env.wrapper, scope),
-    env.pool.query<{ name: string }>(`select name from public.companies where id = $1`, [
+    env.pool.query<{
+      name: string;
+      currency: string;
+      number_format: "lakhs_crores" | "absolute" | "millions";
+    }>(`select name, currency, number_format from public.companies where id = $1`, [
       msg.company_id,
     ]),
   ]);
-  const retrieved = retrieveFacts(question, store, { maxFacts: 40 });
+  const retrieved = retrieveFacts(question, store, {
+    maxFacts: 40,
+    conventions: reportingOf(company.rows[0]),
+  });
 
   for (let guardLoops = 0; guardLoops <= maxRounds; guardLoops += 1) {
     const steps = await loadSteps(env, msg);

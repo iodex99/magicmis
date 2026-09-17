@@ -1,0 +1,50 @@
+{
+  "07d0d875d6990bc5bddfcf79445bd85e22e924ffcb8c20ba4efcd38f14b58ae7": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Contains account groups and ledgers with opening balance debit and credit columns, transactions debit and credit columns, and closing balance debit and credit columns in a hierarchical structure typical of trial balance reports from accounting software.\"}]}",
+    "usage": {
+      "input_tokens": 1311,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 73,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ed37aa5148047fc673b21ac203a0b6c448e5791856b1cfbae85a968cdf10ed1c": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"profit_and_loss\", \"confidence\": \"high\", \"reason\": \"Sheet displays income and expenditure accounts with purchase accounts, sales accounts, direct expenses, indirect expenses, and net profit. The layout with revenues on one side and expenses on the other, balanced at the bottom, is characteristic of a profit and loss statement.\"}]}",
+    "usage": {
+      "input_tokens": 1230,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 89,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "95daa112363fa5ad491da02253f129fc98cf87747f0c8851f7049fb46f9e4664": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"balance_sheet\", \"confidence\": \"high\", \"reason\": \"Sheet shows assets and liabilities with hierarchical groupings typical of a balance sheet. Left side displays liabilities (Capital Account, Loans, Current Liabilities) and right side displays assets (Fixed Assets, Current Assets) with amounts, characteristic of a classified balance sheet format.\"}]}",
+    "usage": {
+      "input_tokens": 1383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 93,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  }
+}

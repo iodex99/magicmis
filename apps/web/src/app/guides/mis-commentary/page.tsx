@@ -132,7 +132,7 @@ export default function CommentaryGuide() {
           {PAIRS.map((pair) => (
             <li
               key={pair.weak}
-              className="rounded-xl border border-neutral-200/80 bg-white p-5"
+              className="rounded-xl border border-neutral-200/80 bg-surface p-5"
             >
               <p className="text-[0.9375rem] text-neutral-500 line-through decoration-neutral-300">
                 {pair.weak}

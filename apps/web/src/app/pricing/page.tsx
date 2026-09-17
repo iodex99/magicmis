@@ -77,7 +77,7 @@ export default async function PricingPage() {
           ].map((item) => (
             <div
               key={item.title}
-              className="rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm"
+              className="rounded-xl border border-neutral-200/80 bg-surface p-4 shadow-sm"
             >
               <h2 className="text-[0.875rem] font-semibold text-neutral-900">
                 {item.title}

@@ -98,7 +98,7 @@ export default function DebtorsAgeingGuide() {
         intro="Customer by bucket, with totals and the share of the whole in each bucket. Figures in thousands of dollars, for a fictional wholesaler."
       >
         <div className="mx-auto max-w-[900px]">
-          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
             <table className="w-full min-w-[620px] border-collapse text-[0.9375rem]">
               <thead>
                 <tr className="border-b border-neutral-200/80 text-[0.8125rem] text-neutral-500">

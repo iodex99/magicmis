@@ -8,6 +8,7 @@
 import { addMonths, periodParts, type PeriodId } from "@magicmis/core/time";
 import {
   formatFactText,
+  type ReportingContext,
   METRIC_LABELS,
   type Fact,
   type MetricValue,
@@ -96,7 +97,11 @@ export function metricsIn(question: string): string[] {
 export function retrieveFacts(
   question: string,
   store: readonly MetricValue[],
-  options: { maxFacts: number },
+  /**
+   * `conventions` is the company's own currency and grouping (ADR 0034): the facts handed
+   * to the model read in the same units as the dashboard and the workbook.
+   */
+  options: { maxFacts: number; conventions: ReportingContext },
 ): Retrieved {
   const available = new Set(store.map((v) => v.period));
   const latest = [...available].sort().at(-1);
@@ -122,7 +127,7 @@ export function retrieveFacts(
       facts.push({
         id: `m:${metric}@${period}`,
         label: `${label}, ${period}`,
-        text: formatFactText(current),
+        text: formatFactText(current, options.conventions),
       });
       for (const kind of ["mom", "yoy"] as const) {
         for (const form of ["abs", "pct"] as const) {
@@ -131,7 +136,7 @@ export function retrieveFacts(
           facts.push({
             id: `mv:${metric}.${kind}@${period}:${form}`,
             label: `${label}, ${form === "pct" ? "% " : ""}change ${kind === "mom" ? "on the previous month" : "on the same month last year"}, ${period}`,
-            text: formatFactText(v),
+            text: formatFactText(v, options.conventions),
           });
         }
       }
@@ -140,7 +145,7 @@ export function retrieveFacts(
         facts.push({
           id: `m:${metric}.ytd@${period}`,
           label: `${label}, year to date, ${period}`,
-          text: formatFactText(ytd),
+          text: formatFactText(ytd, options.conventions),
         });
       if (facts.length >= options.maxFacts) break;
     }

@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildFactsPack,
   checkCommentary,
+  INDIAN_REPORTING,
   type CommentaryOutput,
 } from "../src/commentary";
 import type { MetricValue } from "../src/values";
@@ -45,6 +46,7 @@ const pack = buildFactsPack({
   store,
   materiality: { pct: "0.05", absMinor: "0" },
   warnings: [],
+  conventions: INDIAN_REPORTING,
 });
 const ALLOW = ["Schedule III", "Ind AS 115", "GSTR-3B"];
 const one = (text: string): CommentaryOutput => ({

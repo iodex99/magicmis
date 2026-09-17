@@ -37,9 +37,95 @@ export type WidgetView =
 export interface ViewFormat {
   readonly money: (paise: string) => string;
   readonly decimal: (value: string, unit: MetricValue["unit"]) => string;
+  /** A chart axis label in the company's own currency, shortened (ADR 0034). */
+  readonly axis: (value: number) => string;
   readonly period: (period: string) => string;
   readonly label: (metricId: string) => string;
 }
+
+/**
+ * Chart styling (SPEC §32): the one accent plus neutrals that stay apart under the common
+ * forms of colour vision deficiency, axes drawn as faint rules rather than boxes, and no
+ * decoration. Kept here so every chart in the product looks like the same chart.
+ */
+const PALETTE = ["#5846d2", "#15724a", "#8a5300", "#6f6c85", "#ab9ef5", "#b03024"];
+const AXIS_TEXT = "#6f6c85";
+const GRID_LINE = "#eceaf3";
+
+interface TooltipParam {
+  readonly marker?: string;
+  readonly seriesName?: string;
+  readonly seriesIndex?: number;
+  readonly dataIndex?: number;
+  readonly axisValueLabel?: string;
+}
+
+/**
+ * The tooltip reads the exact strings shown everywhere else for those points, so hovering
+ * a line can never disagree with the card, the table or the workbook.
+ */
+function tooltipFrom(
+  points: readonly (readonly ValueRef[])[],
+  heading?: (index: number) => string,
+): NonNullable<EChartsOption["tooltip"]> {
+  return {
+    trigger: "axis",
+    borderWidth: 0,
+    textStyle: { fontSize: 12 },
+    formatter: (raw: unknown) => {
+      const list = (Array.isArray(raw) ? raw : [raw]) as TooltipParam[];
+      const first = list[0];
+      if (first === undefined) return "";
+      const head = heading?.(first.dataIndex ?? 0) ?? first.axisValueLabel ?? "";
+      const rows = list
+        .map((p) => {
+          const ref = points[p.seriesIndex ?? 0]?.[p.dataIndex ?? 0];
+          if (ref === undefined || ref.metricKey === "") return null;
+          return `${p.marker ?? ""} ${p.seriesName ?? ""} <b>${ref.display}</b>`;
+        })
+        .filter((r): r is string => r !== null);
+      return rows.length === 0 ? "" : [head, ...rows].join("<br/>");
+    },
+  };
+}
+
+/** Axes, grid and legend, identical for every chart kind. */
+function frame(format: ViewFormat, money: boolean): EChartsOption {
+  return {
+    color: PALETTE,
+    grid: { left: 4, right: 12, top: 12, bottom: 4, containLabel: true },
+    textStyle: { fontFamily: "inherit" },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        color: AXIS_TEXT,
+        fontSize: 11,
+        ...(money ? { formatter: (v: number) => format.axis(v) } : {}),
+      },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: GRID_LINE } },
+    },
+  };
+}
+
+const categoryAxis = (data: readonly string[]): NonNullable<EChartsOption["xAxis"]> => ({
+  type: "category",
+  data: [...data],
+  axisLabel: { color: AXIS_TEXT, fontSize: 11 },
+  axisLine: { lineStyle: { color: GRID_LINE } },
+  axisTick: { show: false },
+});
+
+const legendFor = (names: readonly string[]): NonNullable<EChartsOption["legend"]> => ({
+  data: [...names],
+  bottom: 0,
+  icon: "roundRect",
+  itemWidth: 9,
+  itemHeight: 9,
+  itemGap: 14,
+  textStyle: { color: AXIS_TEXT, fontSize: 11 },
+});
 
 export const metricKey = (
   metricId: string,
@@ -137,18 +223,25 @@ export function buildWidgetView(
           title: widget.title,
           reason: "No bills were loaded for this month.",
         };
+      const points = [buckets.map((b) => ref(metric, input.period, b.dims))];
       return {
         kind: "chart",
         title: widget.title,
         option: {
-          tooltip: { trigger: "axis" },
-          xAxis: { type: "category", data: buckets.map((b) => b.dims["bucket"] ?? "") },
-          yAxis: { type: "value" },
+          ...frame(input.format, buckets[0]?.unit === "paise"),
+          tooltip: tooltipFrom(points),
+          xAxis: categoryAxis(buckets.map((b) => b.dims["bucket"] ?? "")),
           series: [
-            { type: "bar", name: input.format.label(metric), data: buckets.map(plotted) },
+            {
+              type: "bar",
+              name: input.format.label(metric),
+              barMaxWidth: 36,
+              itemStyle: { borderRadius: [3, 3, 0, 0] },
+              data: buckets.map(plotted),
+            },
           ],
         },
-        points: [buckets.map((b) => ref(metric, input.period, b.dims))],
+        points,
       };
     }
 
@@ -178,13 +271,18 @@ export function buildWidgetView(
       base.push(0);
       bars.push(plotted(byKey.get(metricKey(result, input.period))));
       const labels = widget.metrics.map((m) => input.format.label(m));
+      const points = [
+        widget.metrics.map(() => ({ metricKey: "", display: "", unit: null })),
+        widget.metrics.map((m) => ref(m, input.period)),
+      ];
       return {
         kind: "chart",
         title: widget.title,
         option: {
-          tooltip: { trigger: "axis" },
-          xAxis: { type: "category", data: labels },
-          yAxis: { type: "value" },
+          ...frame(input.format, true),
+          // Each bar is one step of the bridge, so the tooltip names the step, not the axis.
+          tooltip: tooltipFrom(points, (i) => labels[i] ?? ""),
+          xAxis: categoryAxis(labels),
           series: [
             {
               type: "bar",
@@ -193,13 +291,16 @@ export function buildWidgetView(
               itemStyle: { color: "transparent" },
               data: base,
             },
-            { type: "bar", stack: "bridge", name: widget.title, data: bars },
+            {
+              type: "bar",
+              stack: "bridge",
+              name: widget.title,
+              barMaxWidth: 44,
+              data: bars,
+            },
           ],
         },
-        points: [
-          widget.metrics.map(() => ({ metricKey: "", display: "", unit: null })),
-          widget.metrics.map((m) => ref(m, input.period)),
-        ],
+        points,
       };
     }
 
@@ -207,22 +308,37 @@ export function buildWidgetView(
     case "bar":
     case "stacked_bar": {
       const type = widget.kind === "line" ? "line" : "bar";
+      const names = widget.metrics.map((m) => input.format.label(m));
+      const points = widget.metrics.map((m) => periods.map((p) => ref(m, p)));
+      const money = widget.metrics.some((m) =>
+        periods.some((p) => byKey.get(metricKey(m, p))?.unit === "paise"),
+      );
       return {
         kind: "chart",
         title: widget.title,
         option: {
-          tooltip: { trigger: "axis" },
-          legend: { data: widget.metrics.map((m) => input.format.label(m)) },
-          xAxis: { type: "category", data: periods.map((p) => input.format.period(p)) },
-          yAxis: { type: "value" },
-          series: widget.metrics.map((m) => ({
+          ...frame(input.format, money),
+          tooltip: tooltipFrom(points),
+          ...(names.length > 1 ? { legend: legendFor(names) } : {}),
+          grid: {
+            left: 4,
+            right: 12,
+            top: 12,
+            bottom: names.length > 1 ? 26 : 4,
+            containLabel: true,
+          },
+          xAxis: categoryAxis(periods.map((p) => input.format.period(p))),
+          series: widget.metrics.map((m, i) => ({
             type,
-            name: input.format.label(m),
+            name: names[i] ?? "",
             ...(widget.kind === "stacked_bar" ? { stack: "total" } : {}),
+            ...(type === "line"
+              ? { smooth: false, symbolSize: 6, lineStyle: { width: 2 } }
+              : { barMaxWidth: 28, itemStyle: { borderRadius: [3, 3, 0, 0] } }),
             data: periods.map((p) => plotted(byKey.get(metricKey(m, p)))),
           })),
         },
-        points: widget.metrics.map((m) => periods.map((p) => ref(m, p))),
+        points,
       };
     }
   }

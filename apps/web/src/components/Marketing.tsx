@@ -117,7 +117,7 @@ export function Steps({
       {steps.map((step, i) => (
         <li
           key={step.title}
-          className="flex gap-4 rounded-xl border border-neutral-200/80 bg-white p-5"
+          className="flex gap-4 rounded-xl border border-neutral-200/80 bg-surface p-5"
         >
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-700">
             <Icon name={step.icon} size={18} />
@@ -150,7 +150,7 @@ export function Faqs({
   faqs: readonly { question: string; answer: string }[];
 }) {
   return (
-    <div className="divide-y divide-neutral-200/80 overflow-hidden rounded-xl border border-neutral-200/80 bg-white">
+    <div className="divide-y divide-neutral-200/80 overflow-hidden rounded-xl border border-neutral-200/80 bg-surface">
       {faqs.map((faq) => (
         <details key={faq.question} className="group p-5 open:bg-neutral-50/60">
           <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-[0.9375rem] font-medium text-neutral-900">
@@ -202,7 +202,7 @@ export function ClosingCta({
 }) {
   return (
     <section className="mx-auto w-full max-w-[1120px] px-6 py-14">
-      <div className="rounded-2xl border border-neutral-200/80 bg-white p-8 sm:p-10">
+      <div className="rounded-2xl border border-neutral-200/80 bg-surface p-8 sm:p-10">
         <div className="mx-auto max-w-[620px] text-center">
           <h2 className="text-[1.5rem] font-semibold tracking-tight text-neutral-900">
             {heading}
@@ -233,7 +233,7 @@ export function ReadNext({ paths }: { paths: readonly string[] }) {
       <h2 className="text-[0.8125rem] font-medium tracking-wide text-neutral-500 uppercase">
         Read next
       </h2>
-      <ul className="mt-3 divide-y divide-neutral-200/80 overflow-hidden rounded-xl border border-neutral-200/80 bg-white">
+      <ul className="mt-3 divide-y divide-neutral-200/80 overflow-hidden rounded-xl border border-neutral-200/80 bg-surface">
         {paths.map((path) => {
           const page = publicPage(path);
           return (

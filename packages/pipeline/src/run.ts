@@ -258,8 +258,8 @@ export async function computeAndRender(
     period: PeriodId;
     template: TemplateSpec;
     companyName: string;
-    /** The company's reporting currency symbol (ADR 0030). Rupee if not stated. */
-    currencySymbol?: string;
+    /** The company's reporting currency symbol (ADR 0030, ADR 0034). */
+    currencySymbol: string;
     tierLabel: string;
     snapshotVersion: number;
     generatedAt: Date;
@@ -302,9 +302,7 @@ export async function computeAndRender(
 
   const rendered = renderWorkbook({
     companyName: input.companyName,
-    ...(input.currencySymbol === undefined
-      ? {}
-      : { currencySymbol: input.currencySymbol }),
+    currencySymbol: input.currencySymbol,
     template: input.template,
     sections: resolveSections(input.template, prepared.available),
     period: input.period,

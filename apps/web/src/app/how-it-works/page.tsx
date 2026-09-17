@@ -112,7 +112,7 @@ export default function HowItWorksPage() {
           {STAGES.map((stage) => (
             <li
               key={stage.n}
-              className="rounded-xl border border-neutral-200/80 bg-white p-6"
+              className="rounded-xl border border-neutral-200/80 bg-surface p-6"
             >
               <div className="flex items-baseline gap-3">
                 <span className="text-[0.8125rem] font-semibold tabular-nums text-accent-700">

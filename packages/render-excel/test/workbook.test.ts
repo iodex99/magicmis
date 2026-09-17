@@ -120,6 +120,7 @@ describe.each(["trading", "services", "manufacturing"])("%s workbook", (company)
     const period = "2026-05" as PeriodId;
     const rendered = renderWorkbook({
       companyName: `Synthetic ${company}`,
+      currencySymbol: "₹",
       template: MONTHLY_FINANCIAL_MIS,
       sections: resolveSections(MONTHLY_FINANCIAL_MIS, new Set(["balances"])),
       period,
@@ -188,6 +189,7 @@ describe("V11 fails on a wrong formula", () => {
     const cube = await cubeFor("trading");
     const rendered = renderWorkbook({
       companyName: "Tamper",
+      currencySymbol: "₹",
       template: MONTHLY_FINANCIAL_MIS,
       sections: resolveSections(MONTHLY_FINANCIAL_MIS, new Set(["balances"])),
       period: "2025-06" as PeriodId,

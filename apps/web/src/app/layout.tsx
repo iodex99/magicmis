@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
@@ -54,12 +55,24 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-/** Every page renders per request so Next.js can apply the CSP nonce (proxy.ts, SPEC §30). */
+/**
+ * Every page renders per request so Next.js can apply the CSP nonce (proxy.ts, SPEC §30).
+ *
+ * The theme is read from a cookie here rather than set by a script after paint, so a reader who
+ * has chosen dark never sees a white flash on the way in (ADR 0034). With no cookie the attribute
+ * is absent and the stylesheet follows the operating system.
+ */
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await connection();
+  const theme = (await cookies()).get("theme")?.value;
+  const chosen = theme === "dark" || theme === "light" ? theme : undefined;
   return (
-    <html lang="en-IN" className={inter.variable}>
-      <body className="min-h-screen bg-neutral-50 antialiased">{children}</body>
+    <html
+      lang="en-IN"
+      className={inter.variable}
+      {...(chosen === undefined ? {} : { "data-theme": chosen })}
+    >
+      <body className="min-h-screen bg-canvas antialiased">{children}</body>
     </html>
   );
 }

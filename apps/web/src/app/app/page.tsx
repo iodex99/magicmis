@@ -171,7 +171,7 @@ export default async function AppHomePage() {
               return (
                 <li
                   key={c.id}
-                  className="group relative flex flex-col rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+                  className="group relative flex flex-col rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="flex items-start gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600">

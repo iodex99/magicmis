@@ -96,7 +96,7 @@ export default function AutomatedManagementAccountsPage() {
           {PACK.map((item) => (
             <div
               key={item.title}
-              className="rounded-xl border border-neutral-200/80 bg-white p-5"
+              className="rounded-xl border border-neutral-200/80 bg-surface p-5"
             >
               <h3 className="text-[0.9375rem] font-semibold text-neutral-900">
                 {item.title}

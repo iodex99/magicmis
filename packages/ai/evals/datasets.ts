@@ -13,7 +13,7 @@
  */
 
 import type { PeriodId } from "@magicmis/core/time";
-import { buildFactsPack, type MetricValue } from "@magicmis/engine";
+import { buildFactsPack, INDIAN_REPORTING, type MetricValue } from "@magicmis/engine";
 import {
   buildFixtureSet,
   REFERENCE_MIS_SHEETS,
@@ -359,6 +359,7 @@ export function commentaryDataset(limit = 60): EvalItem<GenerateCommentaryInput,
       store: m.store,
       materiality: { pct: "0.05", absMinor: "0" },
       warnings: m.warnings,
+      conventions: INDIAN_REPORTING,
     });
     return {
       id: m.id,
@@ -417,6 +418,7 @@ export function chatQuickDataset(limit = 60): EvalItem<ChatQuickInput, ScopeLabe
           store: month.store,
           materiality: { pct: "0.05", absMinor: "0" },
           warnings: [],
+          conventions: INDIAN_REPORTING,
         }).facts;
   return QUICK_QUESTIONS.slice(0, limit).map((q) => ({
     id: q.id,

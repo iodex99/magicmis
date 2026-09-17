@@ -88,8 +88,9 @@ function formatMoney(minor: string, conventions: ReportingContext): string {
 }
 
 /**
- * How this company's figures are written. Defaults to the Indian set so a caller that
- * has not been updated still behaves as it did (SPEC §2.14).
+ * How this company's figures are written: its own currency and grouping (ADR 0030). Every
+ * caller states it — a silent Indian default is how a company whose books are in dollars
+ * came to read its own figures in rupees (ADR 0034).
  */
 export interface ReportingContext {
   readonly currencySymbol: string;
@@ -101,10 +102,7 @@ export const INDIAN_REPORTING: ReportingContext = {
   numberFormat: "lakhs_crores",
 };
 
-const formatValue = (
-  v: MetricValue,
-  conventions: ReportingContext = INDIAN_REPORTING,
-): string =>
+const formatValue = (v: MetricValue, conventions: ReportingContext): string =>
   v.value === null
     ? "not available"
     : v.unit === "paise"
@@ -142,10 +140,10 @@ export function buildFactsPack(input: {
   materiality: { pct: string; absMinor: string };
   warnings: readonly string[];
   contributors?: readonly { token: string; label: string }[];
-  /** The company's currency and grouping. Indian if the caller does not say. */
-  conventions?: ReportingContext;
+  /** The company's own currency and grouping (ADR 0030, ADR 0034). */
+  conventions: ReportingContext;
 }): FactsPack {
-  const conventions = input.conventions ?? INDIAN_REPORTING;
+  const conventions = input.conventions;
   const at = (id: string) =>
     input.store.find(
       (v) =>

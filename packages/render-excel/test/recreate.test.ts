@@ -209,6 +209,7 @@ describe("reference MIS recreate", () => {
     const period = "2026-05" as PeriodId;
     const rendered = renderWorkbook({
       companyName: "Synthetic Hardware Traders",
+      currencySymbol: "₹",
       template,
       sections: resolveSections(template, new Set(["balances"])),
       period,

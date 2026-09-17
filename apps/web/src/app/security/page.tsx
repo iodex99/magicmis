@@ -142,7 +142,7 @@ export default async function SecurityPage() {
               className={`rounded-xl border p-5 ${
                 zone.highlight
                   ? "border-accent-200 bg-accent-50/50"
-                  : "border-neutral-200/80 bg-white"
+                  : "border-neutral-200/80 bg-surface"
               }`}
             >
               <h3 className="text-[0.9375rem] font-semibold text-neutral-900">

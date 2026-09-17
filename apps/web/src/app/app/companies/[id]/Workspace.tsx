@@ -47,11 +47,11 @@ export function Workspace({
       const name = metricLabel(metric.split(".")[0] ?? metric);
       setPrefill({
         type: "investigate",
-        text: `Why did ${name} move in ${companyFormat(money).period(period)}? Which ledgers drove the change?`,
+        text: `Why did ${name} move in ${companyFormat(money, currencySymbol).period(period)}? Which ledgers drove the change?`,
         nonce: Date.now(),
       });
     },
-    [money],
+    [money, currencySymbol],
   );
 
   return (

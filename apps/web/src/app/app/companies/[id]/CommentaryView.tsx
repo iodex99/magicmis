@@ -81,7 +81,10 @@ export function CommentaryView({ jobId }: { jobId: string }) {
 
   const rendered = useMemo(() => {
     if (payload === null) return null;
-    const format = { ...companyFormat(payload.company.money), name: () => null };
+    const format = {
+      ...companyFormat(payload.company.money, payload.company.currencySymbol),
+      name: () => null,
+    };
     return renderCommentary(
       payload.output,
       payload.pack,
@@ -130,7 +133,9 @@ export function CommentaryView({ jobId }: { jobId: string }) {
           <LineagePanel
             selected={selected}
             values={payload.values}
-            label={companyFormat(payload.company.money).label}
+            label={
+              companyFormat(payload.company.money, payload.company.currencySymbol).label
+            }
             display={(v) =>
               v.value === null
                 ? "—"

@@ -28,7 +28,7 @@ export function LineagePanel({
   const value = values.find((v) => metricKey(v.metricId, v.period, v.dims) === selected);
   return (
     <aside
-      className="rounded-xl border border-neutral-200/80 bg-white p-4 text-sm shadow-sm"
+      className="rounded-xl border border-neutral-200/80 bg-surface p-4 text-sm shadow-sm"
       data-testid="lineage-panel"
       aria-label="Lineage"
     >

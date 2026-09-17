@@ -160,7 +160,7 @@ export default function KpisAndRatiosGuide() {
         intro="One month of a fictional distribution company, in thousands of dollars."
       >
         <div className="mx-auto max-w-[760px]">
-          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
             <table className="w-full border-collapse text-[0.9375rem]">
               <tbody>
                 {INPUTS.map(([label, value]) => (

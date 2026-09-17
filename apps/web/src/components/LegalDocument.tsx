@@ -52,7 +52,7 @@ export function LegalDocument({
 
         <nav
           aria-label="Contents"
-          className="mt-8 rounded-xl border border-neutral-200/80 bg-white p-5"
+          className="mt-8 rounded-xl border border-neutral-200/80 bg-surface p-5"
         >
           <h2 className="text-[0.75rem] font-medium tracking-wide text-neutral-500 uppercase">
             Contents

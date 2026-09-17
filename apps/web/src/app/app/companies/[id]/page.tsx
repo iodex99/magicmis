@@ -22,6 +22,8 @@ import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 
+import { PrintButton } from "@/components/PrintButton";
+
 import { CompanyFiles } from "./CompanyFiles";
 import { DeleteCompany } from "./DeleteCompany";
 import { JobRunner } from "./run/JobRunner";
@@ -164,7 +166,7 @@ export default async function CompanyPage({
         )}
         {kept.files.length === 0 ? null : (
           <details
-            className="group mt-5 rounded-xl border border-neutral-200/80 bg-white shadow-sm"
+            className="group mt-5 rounded-xl border border-neutral-200/80 bg-surface shadow-sm"
             data-testid="kept-files"
           >
             <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.875rem] font-semibold text-neutral-900 select-none">
@@ -237,6 +239,7 @@ export default async function CompanyPage({
         }
         actions={
           <>
+            <PrintButton label="Print or save as PDF" />
             {latestOutput === undefined ? null : (
               <ButtonLink
                 href={`/api/outputs/${latestOutput.id}`}
@@ -323,7 +326,7 @@ export default async function CompanyPage({
           </Panel>
         </div>
 
-        <details className="group rounded-xl border border-neutral-200/80 bg-white shadow-sm">
+        <details className="group rounded-xl border border-neutral-200/80 bg-surface shadow-sm">
           <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.9375rem] font-semibold text-neutral-900 select-none">
             <span className="flex items-center gap-2">
               <Icon name="clock" size={16} className="text-neutral-400" />
@@ -380,7 +383,7 @@ export default async function CompanyPage({
           )}
         </details>
 
-        <details className="group rounded-xl border border-neutral-200/80 bg-white shadow-sm">
+        <details className="group rounded-xl border border-neutral-200/80 bg-surface shadow-sm">
           <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.9375rem] font-semibold text-neutral-900 select-none">
             <span className="flex items-center gap-2">
               <Icon name="trash" size={16} className="text-neutral-400" />

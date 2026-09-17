@@ -28,6 +28,17 @@ export const TIER_LABELS = {
   expert: "Expert",
 } as const;
 
+/**
+ * What choosing a tier actually changes, in the customer's terms (SPEC §2.10). Never model
+ * names, never tokens: a tier reasons harder on unfamiliar ledgers and awkward questions, and
+ * it never changes a figure, because figures come from the engine (locked decision 7).
+ */
+export const TIER_NOTES = {
+  efficient: "Quick and cheapest. Good for familiar books and simple questions.",
+  professional: "The default. Suits most books and most questions.",
+  expert: "Reasons hardest on unusual ledgers and awkward questions. Costs more.",
+} as const;
+
 export const DELIVERY_LABELS = { standard: "Standard", instant: "Instant" } as const;
 
 /** Indian grouping for a credit count held as a decimal string. */

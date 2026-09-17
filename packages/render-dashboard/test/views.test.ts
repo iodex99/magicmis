@@ -40,6 +40,7 @@ const store: MetricValue[] = [
 const format: ViewFormat = {
   money: (p) => `₹${p}p`,
   decimal: (x, unit) => `${x}${unit === "percent" ? "%" : ""}`,
+  axis: (n) => `~${n.toString()}`,
   period: (p) => `P${p}`,
   label: (m) => m.toUpperCase(),
 };

@@ -142,7 +142,7 @@ function Table({
   priorLabel: string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+    <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
       <table className="w-full min-w-[420px] border-collapse text-[0.9375rem]">
         <caption className="border-b border-neutral-200/80 px-5 py-3 text-left text-[0.8125rem] font-medium text-neutral-500">
           {caption}

@@ -146,7 +146,7 @@ export default function HomePage() {
           </div>
 
           {/* Illustration only. Fictional figures, stated as such (SPEC §2.3). */}
-          <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-lg">
+          <div className="rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="eyebrow">Revenue · illustration</p>
@@ -189,7 +189,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-neutral-200/70 bg-white">
+      <section className="border-y border-neutral-200/70 bg-surface">
         <div className="mx-auto w-full max-w-[1120px] px-6 py-14">
           <h2 className="text-[1.375rem] font-semibold tracking-tight text-neutral-900">
             Three steps, then it repeats itself
@@ -238,7 +238,7 @@ export default function HomePage() {
             <Link
               key={item.title}
               href={item.href}
-              className="group flex gap-3.5 rounded-xl p-3 -m-3 hover:bg-white"
+              className="group flex gap-3.5 rounded-xl p-3 -m-3 hover:bg-surface"
             >
               <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600">
                 <Icon name={item.icon} size={17} />
@@ -256,7 +256,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-neutral-200/70 bg-white">
+      <section className="border-t border-neutral-200/70 bg-surface">
         <div className="mx-auto w-full max-w-[1120px] px-6 py-14">
           <h2 className="text-[1.375rem] font-semibold tracking-tight text-neutral-900">
             Guides
@@ -320,7 +320,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/sign-up"
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-white px-5 text-[0.9375rem] font-semibold text-ink-900 hover:bg-neutral-100"
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-surface px-5 text-[0.9375rem] font-semibold text-ink-900 hover:bg-neutral-100"
           >
             Get started
             <Icon name="arrow-right" size={16} />

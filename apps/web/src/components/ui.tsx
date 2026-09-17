@@ -29,7 +29,7 @@ const BUTTON: Record<ButtonVariant, string> = {
   primary:
     "bg-accent-600 text-white shadow-sm hover:bg-accent-700 active:bg-accent-800 disabled:bg-neutral-200 disabled:text-neutral-500 disabled:shadow-none",
   secondary:
-    "border border-neutral-200 bg-white text-neutral-800 shadow-sm hover:border-neutral-300 hover:bg-neutral-25 disabled:text-neutral-400 disabled:shadow-none",
+    "border border-neutral-200 bg-surface text-neutral-800 shadow-sm hover:border-neutral-300 hover:bg-neutral-25 disabled:text-neutral-400 disabled:shadow-none",
   ghost:
     "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-400",
   danger:
@@ -130,7 +130,7 @@ export function IconButton({
     <button
       aria-label={label}
       title={label}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 transition-colors hover:border-neutral-300 hover:text-neutral-900 disabled:cursor-not-allowed disabled:text-neutral-300 ${className}`}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-surface text-neutral-600 transition-colors hover:border-neutral-300 hover:text-neutral-900 disabled:cursor-not-allowed disabled:text-neutral-300 ${className}`}
       {...props}
     >
       <Icon name={icon} size={16} />
@@ -166,7 +166,7 @@ export function Panel({
   const pad = { none: "", sm: "p-4", md: "p-5" }[padding];
   return (
     <section
-      className={`rounded-xl border border-neutral-200/80 bg-white shadow-sm ${className}`}
+      className={`rounded-xl border border-neutral-200/80 bg-surface shadow-sm ${className}`}
     >
       {title === undefined ? null : (
         <header
@@ -262,7 +262,7 @@ export function StatCard({
     </>
   );
   const shell =
-    "block rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm transition-shadow";
+    "block rounded-xl border border-neutral-200/80 bg-surface p-4 shadow-sm transition-shadow";
   return href === undefined ? (
     <div className={shell}>{body}</div>
   ) : (
@@ -459,7 +459,7 @@ export function Progress({
 /* ------------------------------------------------------------------ forms */
 
 const CONTROL =
-  "h-10 w-full rounded-md border bg-white px-3 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300 disabled:bg-neutral-50 disabled:text-neutral-500";
+  "h-10 w-full rounded-md border bg-surface px-3 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300 disabled:bg-neutral-50 disabled:text-neutral-500";
 
 function describedBy(id: string, error?: string, hint?: string): string | undefined {
   const ids = [error ? `${id}-error` : null, hint ? `${id}-hint` : null].filter(Boolean);
@@ -588,7 +588,7 @@ export function TextareaField({
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy(id, error, hint)}
-        className={`w-full rounded-md border bg-white px-3 py-2 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300 ${error ? "border-negative" : "border-neutral-200"} ${className}`}
+        className={`w-full rounded-md border bg-surface px-3 py-2 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300 ${error ? "border-negative" : "border-neutral-200"} ${className}`}
         {...props}
       />
       <Help id={id} error={error} hint={hint} />
@@ -621,7 +621,7 @@ export function DataTable({
       style={maxHeight === undefined ? undefined : { maxHeight }}
     >
       <table className="w-full border-collapse text-sm" data-testid={testId}>
-        <thead className="sticky top-0 z-10 bg-white">
+        <thead className="sticky top-0 z-10 bg-surface">
           <tr className="border-b border-neutral-200 text-left">{head}</tr>
         </thead>
         <tbody>{children}</tbody>
@@ -741,7 +741,7 @@ export function Tabs({
   return (
     <nav
       aria-label="Section"
-      className="inline-flex items-center gap-0.5 rounded-full border border-neutral-200/80 bg-white p-1 shadow-sm"
+      className="inline-flex items-center gap-0.5 rounded-full border border-neutral-200/80 bg-surface p-1 shadow-sm"
     >
       {items.map((item) => {
         const active = item.href === current;
@@ -789,7 +789,7 @@ export function AuthShell({
             {PRODUCT_NAME}
           </span>
         </Link>
-        <div className="rounded-2xl border border-neutral-200/80 bg-white p-7 shadow-lg">
+        <div className="rounded-2xl border border-neutral-200/80 bg-surface p-7 shadow-lg">
           <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
             {title}
           </h1>

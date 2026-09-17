@@ -20,7 +20,7 @@ function Card({ path }: { path: string }) {
     <li>
       <Link
         href={path}
-        className="group flex h-full flex-col rounded-xl border border-neutral-200/80 bg-white p-5 hover:border-accent-200"
+        className="group flex h-full flex-col rounded-xl border border-neutral-200/80 bg-surface p-5 hover:border-accent-200"
       >
         <h3 className="text-[0.9375rem] font-semibold text-neutral-900 group-hover:text-accent-700">
           {page.title.split(":")[0]}

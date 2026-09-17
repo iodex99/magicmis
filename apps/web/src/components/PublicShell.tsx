@@ -99,7 +99,7 @@ export function PublicShell({
             </Link>
             <Link
               href="/sign-in"
-              className="ml-1 inline-flex h-9 items-center rounded-md border border-neutral-200 bg-white px-3.5 font-medium text-neutral-800 shadow-sm hover:border-neutral-300"
+              className="ml-1 inline-flex h-9 items-center rounded-md border border-neutral-200 bg-surface px-3.5 font-medium text-neutral-800 shadow-sm hover:border-neutral-300"
             >
               Sign in
             </Link>
@@ -113,7 +113,7 @@ export function PublicShell({
       {/* A real footer, not a copyright line: it is how a reader who arrived on one guide
           from search finds the rest of the site, and how a crawler reaches every page from
           every page. */}
-      <footer className="border-t border-neutral-200/70 bg-white">
+      <footer className="border-t border-neutral-200/70 bg-surface">
         <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
             <div>

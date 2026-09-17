@@ -122,7 +122,7 @@ export default function MonthEndCloseChecklist() {
               <li key={item} className="flex items-start gap-3">
                 <span
                   aria-hidden="true"
-                  className="mt-1 h-4 w-4 shrink-0 rounded border border-neutral-300 bg-white"
+                  className="mt-1 h-4 w-4 shrink-0 rounded border border-neutral-300 bg-surface"
                 />
                 <span className="leading-relaxed text-neutral-700">{item}</span>
               </li>

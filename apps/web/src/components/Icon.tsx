@@ -39,12 +39,14 @@ export type IconName =
   | "logout"
   | "mail"
   | "menu"
+  | "moon"
   | "pause"
   | "play"
   | "plus"
   | "refresh"
   | "search"
   | "settings"
+  | "sun"
   | "shield"
   | "sliders"
   | "table"
@@ -110,6 +112,9 @@ const PATHS: Record<IconName, string> = {
     "M4 7h16M10 4h4a1 1 0 0 1 1 1v2H9V5a1 1 0 0 1 1-1ZM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10.5 11v6m3-6v6",
   upload: "M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2",
   user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0",
+  // A crescent, and a disc with rays: the two states of the theme switch.
+  moon: "M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z",
+  sun: "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-14v2m0 18v-2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10-1.4 1.4",
   wallet:
     "M19 8V6.5a1.5 1.5 0 0 0-1.5-1.5H5a2 2 0 0 0 0 4h13.5A1.5 1.5 0 0 1 20 10.5v8A1.5 1.5 0 0 1 18.5 20H5a2 2 0 0 1-2-2V7m13.5 6.5v.01",
 };
