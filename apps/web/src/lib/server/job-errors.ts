@@ -29,6 +29,21 @@ export function jobErrorResponse(error: unknown): Response {
         );
   }
   if (error instanceof DashboardError) {
+    // Saved but unreadable is our fault, not the reader's, and is never answered as "none
+    // saved": that answer is what offers to build a new one over it (ADR 0045). What failed to
+    // parse is for the log, not the browser.
+    if (error.code === "unreadable") {
+      // Schema paths and messages only: no figure or name from the company's data.
+      console.error(
+        "layout_unreadable: a saved company layout does not parse",
+        error.errors,
+      );
+      return apiError(
+        500,
+        "layout_unreadable",
+        `${error.message} Contact support and we will put it right.`,
+      );
+    }
     const status =
       error.code === "no_blueprint" || error.code === "no_dashboard"
         ? 404

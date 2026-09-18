@@ -8,6 +8,7 @@ import { randomUUID } from "node:crypto";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import { latestBlueprint, storeBlueprint, storeSnapshot } from "@magicmis/engine/server";
 import { DEFAULT_DASHBOARD } from "@magicmis/render-dashboard";
+import { MONTHLY_FINANCIAL_MIS } from "@magicmis/templates";
 import { priceFor } from "@magicmis/wallet";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -49,7 +50,7 @@ const ZERO = {
   referenceMisSheets: 0,
 };
 const PARTS = {
-  templateSpec: { id: "monthly_financial_mis" },
+  templateSpec: MONTHLY_FINANCIAL_MIS,
   recipe: { v: 1 },
   mappingRules: [],
   dashboardSpec: null,
@@ -59,7 +60,12 @@ const PARTS = {
 
 async function companyWithDashboard() {
   const c = await accountWithCompany(pool(), 5_000n);
-  await storeBlueprint(pool(), wrapper, { ...c, jobId: null, parts: PARTS });
+  await storeBlueprint(pool(), wrapper, {
+    ...c,
+    jobId: null,
+    parts: PARTS,
+    basedOn: null,
+  });
   await storeSnapshot(pool(), wrapper, {
     ...c,
     jobId: null,
@@ -119,7 +125,12 @@ describe("dashboard add-on", () => {
 
   it("requires a confirmed price", async () => {
     const c = await accountWithCompany(pool(), 5_000n);
-    await storeBlueprint(pool(), wrapper, { ...c, jobId: null, parts: PARTS });
+    await storeBlueprint(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      parts: PARTS,
+      basedOn: null,
+    });
     const job = await createJob(pool(), {
       ...c,
       type: "dashboard_addon",
@@ -289,7 +300,12 @@ describe("dashboard patches and undo", () => {
 
   it("a dashboard refresh needs a dashboard", async () => {
     const c = await accountWithCompany(pool(), 5_000n);
-    await storeBlueprint(pool(), wrapper, { ...c, jobId: null, parts: PARTS });
+    await storeBlueprint(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      parts: PARTS,
+      basedOn: null,
+    });
     const job = await createJob(pool(), {
       ...c,
       type: "dashboard_refresh",

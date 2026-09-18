@@ -12,6 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ENGINE_VERSION } from "../src/compute";
 import {
   CompanyKeyDestroyed,
+  BlueprintConflict,
   latestBlueprint,
   latestSnapshot,
   loadAccountRules,
@@ -177,11 +178,13 @@ describe("blueprints", () => {
       ...c,
       jobId: null,
       parts: parts(1),
+      basedOn: null,
     });
     const v2 = await storeBlueprint(pool(), wrapper, {
       ...c,
       jobId: null,
       parts: parts(2),
+      basedOn: 1,
     });
     expect([v1.version, v2.version]).toEqual([1, 2]);
     expect(await verifyBlueprintChain(pool(), wrapper, c)).toEqual({
@@ -206,6 +209,112 @@ describe("blueprints", () => {
     expect(await verifyBlueprintChain(pool(), wrapper, c)).toEqual({
       ok: false,
       version: 1,
+    });
+  });
+});
+
+describe("a blueprint write made from a version that is no longer the latest", () => {
+  const parts = (name: string) => ({
+    templateSpec: { name },
+    recipe: { schemaVersion: 1 },
+    mappingRules: { schemaVersion: 1, headsVersion: 1, rules: [], acceptedUnmapped: [] },
+    dashboardSpec: null,
+    materiality: {},
+    sourceFingerprints: {},
+  });
+
+  it("is refused, so parts copied from an older version never go back over a newer one", async () => {
+    const c = await company();
+    await storeBlueprint(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      parts: parts("first"),
+      basedOn: null,
+    });
+    // A rename lands as version 2 while something else still holds version 1.
+    await storeBlueprint(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      parts: parts("renamed"),
+      basedOn: 1,
+    });
+    await expect(
+      storeBlueprint(pool(), wrapper, {
+        ...c,
+        jobId: null,
+        parts: parts("first"),
+        basedOn: 1,
+      }),
+    ).rejects.toBeInstanceOf(BlueprintConflict);
+    // Nor may a writer that found nothing create a first version over one that now exists.
+    await expect(
+      storeBlueprint(pool(), wrapper, {
+        ...c,
+        jobId: null,
+        parts: parts("first"),
+        basedOn: null,
+      }),
+    ).rejects.toBeInstanceOf(BlueprintConflict);
+    expect(await latestBlueprint(pool(), wrapper, c)).toMatchObject({
+      version: 2,
+      parts: { templateSpec: { name: "renamed" } },
+    });
+    expect(await verifyBlueprintChain(pool(), wrapper, c)).toEqual({
+      ok: true,
+      checked: 2,
+    });
+  });
+
+  it("lets exactly one of several simultaneous writers through", async () => {
+    const c = await company();
+    await storeBlueprint(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      parts: parts("first"),
+      basedOn: null,
+    });
+    const results = await Promise.allSettled(
+      ["a", "b", "c", "d", "e"].map((name) =>
+        storeBlueprint(pool(), wrapper, {
+          ...c,
+          jobId: null,
+          parts: parts(name),
+          basedOn: 1,
+        }),
+      ),
+    );
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    for (const r of results)
+      if (r.status === "rejected") expect(r.reason).toBeInstanceOf(BlueprintConflict);
+    expect((await latestBlueprint(pool(), wrapper, c))?.version).toBe(2);
+    expect(await verifyBlueprintChain(pool(), wrapper, c)).toEqual({
+      ok: true,
+      checked: 2,
+    });
+  });
+
+  it("keeps one company's versions out of another's", async () => {
+    const a = await company();
+    const b = await company();
+    await storeBlueprint(pool(), wrapper, {
+      ...a,
+      jobId: null,
+      parts: parts("a"),
+      basedOn: null,
+    });
+    // Company B has nothing yet, whatever version A is at.
+    const first = await storeBlueprint(pool(), wrapper, {
+      ...b,
+      jobId: null,
+      parts: parts("b"),
+      basedOn: null,
+    });
+    expect(first.version).toBe(1);
+    expect((await latestBlueprint(pool(), wrapper, a))?.parts.templateSpec).toEqual({
+      name: "a",
+    });
+    expect((await latestBlueprint(pool(), wrapper, b))?.parts.templateSpec).toEqual({
+      name: "b",
     });
   });
 });

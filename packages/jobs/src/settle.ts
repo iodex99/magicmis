@@ -21,6 +21,7 @@ import { readConfig } from "@magicmis/db/config";
 import { withTransaction } from "@magicmis/db/tx";
 import type { KeyWrapper } from "@magicmis/crypto";
 import {
+  BlueprintConflict,
   latestBlueprint,
   sealForCompany,
   storeBlueprint,
@@ -136,6 +137,14 @@ export interface CompletionInput {
   readonly snapshot: SnapshotPayload;
   /** A new blueprint version when the template, recipe or rules changed; null keeps the current one. */
   readonly blueprint: BlueprintParts | null;
+  /**
+   * What happens to the MIS layout the company already has. `keep` (the default) carries it into
+   * the new version whatever `blueprint.templateSpec` says, so `templateSpec` is only the layout
+   * of a company that has none yet. `replace` is for the one action that asks for a new layout:
+   * recreating a reference MIS. A run reads its template minutes before it finishes; without this
+   * it would write that copy back over a row renamed in the meantime (ADR 0045).
+   */
+  readonly layout?: "keep" | "replace";
   readonly output: { readonly fileName: string; readonly bytes: Buffer } | null;
   readonly outputStore: OutputStore;
   readonly now?: Date;
@@ -146,6 +155,53 @@ export interface CompletionResult {
   readonly snapshotVersion: number;
   readonly blueprintVersion: number | null;
   readonly outputId: string | null;
+}
+
+/**
+ * A run's new blueprint version: its rules, recipe and fingerprints, and **the company's own
+ * layout** (ADR 0045). What a company named its tables and rows, and how it arranged its dashboard,
+ * is read from the newest version at the moment of writing and carried into this one **exactly as
+ * stored**. It is copied, never interpreted, so it is not parsed here: a copy loses nothing even
+ * of a layout that no longer parses, whereas refusing at this point would fail a run after all of
+ * its AI spend. Whoever renders from a layout reads it strictly, and does so before spending
+ * (`stored-layout.ts`). If an edit lands between the read and the write the writer refuses
+ * (`BlueprintConflict`) and this reads again, so neither the run nor the edit is lost.
+ */
+async function storeRunBlueprint(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    accountId: string;
+    companyId: string;
+    jobId: string;
+    parts: BlueprintParts;
+    layout: "keep" | "replace";
+  },
+): Promise<number> {
+  const scope = { accountId: input.accountId, companyId: input.companyId };
+  for (let attempt = 1; ; attempt += 1) {
+    const previous = await latestBlueprint(pool, wrapper, scope);
+    const keep =
+      input.layout === "keep" && previous !== null && previous.parts.templateSpec != null;
+    try {
+      const stored = await storeBlueprint(pool, wrapper, {
+        ...scope,
+        jobId: input.jobId,
+        parts: {
+          ...input.parts,
+          templateSpec: keep ? previous.parts.templateSpec : input.parts.templateSpec,
+          // Materiality is part of the layout it was chosen with.
+          materiality: keep ? previous.parts.materiality : input.parts.materiality,
+          dashboardSpec:
+            input.parts.dashboardSpec ?? previous?.parts.dashboardSpec ?? null,
+        },
+        basedOn: previous?.version ?? null,
+      });
+      return stored.version;
+    } catch (error) {
+      if (!(error instanceof BlueprintConflict) || attempt >= 4) throw error;
+    }
+  }
 }
 
 /**
@@ -192,20 +248,14 @@ export async function completeJob(
 
   let blueprintVersion = (cp["blueprint_version"] as number | undefined) ?? null;
   if (blueprintVersion === null && input.blueprint !== null) {
-    // A restructure rewrites the template and rules; the company's dashboard carries forward.
-    const dashboardSpec =
-      input.blueprint.dashboardSpec ??
-      (await latestBlueprint(pool, wrapper, { accountId: input.accountId, companyId }))
-        ?.parts.dashboardSpec ??
-      null;
-    const b = await storeBlueprint(pool, wrapper, {
+    blueprintVersion = await storeRunBlueprint(pool, wrapper, {
       accountId: input.accountId,
       companyId,
       jobId: job.id,
-      parts: { ...input.blueprint, dashboardSpec },
+      parts: input.blueprint,
+      layout: input.layout ?? "keep",
     });
-    blueprintVersion = b.version;
-    await checkpoint({ blueprint_version: b.version });
+    await checkpoint({ blueprint_version: blueprintVersion });
   }
 
   let outputId = (cp["output_id"] as string | undefined) ?? null;

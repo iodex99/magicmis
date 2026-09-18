@@ -10,13 +10,14 @@ import { randomUUID } from "node:crypto";
 
 import type { PeriodId } from "@magicmis/core/time";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
-import { storeBlueprint, storeSnapshot } from "@magicmis/engine/server";
+import { latestBlueprint, storeBlueprint, storeSnapshot } from "@magicmis/engine/server";
 import {
   applyDashboardPatch,
   completeDashboardAddon,
   confirmJob,
   createJob,
 } from "@magicmis/jobs";
+import { MONTHLY_FINANCIAL_MIS } from "@magicmis/templates";
 import { priceFor } from "@magicmis/wallet";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -91,13 +92,14 @@ async function company(credits = 5_000n) {
     ...c,
     jobId: null,
     parts: {
-      templateSpec: { id: "t" },
+      templateSpec: MONTHLY_FINANCIAL_MIS,
       recipe: {},
       mappingRules: [],
       dashboardSpec: null,
       materiality: {},
       sourceFingerprints: {},
     },
+    basedOn: null,
   });
   await pool().query(`update companies set first_setup_at = now() where id = $1`, [
     c.companyId,
@@ -568,6 +570,45 @@ describe("Edit", () => {
       operations: reply.operations,
     });
     expect(applied.spec.widgets[0]?.title).toBe("Sales");
+  });
+});
+
+describe("Edit against a saved layout that cannot be read", () => {
+  it("ends uncharged without calling the model, and leaves what is saved alone", async () => {
+    const c = await company();
+    const broken = { spec: { widgets: "not a list" }, parentVersion: null };
+    await storeBlueprint(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      parts: {
+        templateSpec: MONTHLY_FINANCIAL_MIS,
+        recipe: {},
+        mappingRules: [],
+        dashboardSpec: broken,
+        materiality: {},
+        sourceFingerprints: {},
+      },
+      basedOn: 1,
+    });
+    const sent = await sendMessage(pool(), wrapper, {
+      ...c,
+      threadId: null,
+      type: "edit",
+      tier: "professional",
+      text: "Call the first card Sales",
+      editTarget: "dashboard",
+      idempotencyKey: randomUUID(),
+    });
+    // No scripted reply: a call to the model would throw, and the test would fail on it.
+    const r = await processMessage(pool(), wrapper, new ScriptedTransport([]), {
+      accountId: c.accountId,
+      messageId: sent.messageId,
+    });
+    expect(r).toEqual({ status: "failed", reason: "layout_unreadable" });
+    expect(await wallet(pool(), c.accountId)).toEqual({ balance: 5_000n, held: 0n });
+    const after = await latestBlueprint(pool(), wrapper, c);
+    expect(after?.version).toBe(2);
+    expect(after?.parts.dashboardSpec).toEqual(broken);
   });
 });
 

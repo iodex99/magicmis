@@ -13,8 +13,9 @@ import {
   openForCompany,
   sealForCompany,
 } from "@magicmis/engine/server";
+import { readStoredTemplate } from "@magicmis/jobs";
 import { mappingRulesSchema, type LibraryEntry } from "@magicmis/semantic";
-import { templateSpecSchema, type TemplateSpec } from "@magicmis/templates";
+import type { TemplateSpec } from "@magicmis/templates";
 import type { Pool } from "pg";
 import { z } from "zod";
 
@@ -200,6 +201,12 @@ export async function jobSession(
   pool: Pool,
   accountId: string,
   companyId: string,
+  /**
+   * `skip` for a reader that only needs the keys and conventions (the chat): it gets no layout at
+   * all, so a layout fault cannot stop a question about figures. Anything that may write a
+   * blueprint reads it, strictly.
+   */
+  options: { layout?: "read" | "skip" } = {},
 ): Promise<JobSession | null> {
   const r = await pool.query<{
     id: string;
@@ -262,6 +269,21 @@ export async function jobSession(
     [companyId],
   );
 
+  // Read strictly (ADR 0045): a layout that is saved but does not parse throws here. Read
+  // leniently it came back null, the run fell back to the standard layout, and the standard
+  // layout was stored over every name the company had chosen. The decrypted key does not
+  // outlive the throw.
+  let templateSpec: TemplateSpec | null;
+  try {
+    templateSpec =
+      blueprint === null || options.layout === "skip"
+        ? null
+        : readStoredTemplate(blueprint.parts.templateSpec);
+  } catch (error) {
+    key.fill(0);
+    throw error;
+  }
+
   const session: JobSession = {
     company: {
       id: c.id,
@@ -305,10 +327,7 @@ export async function jobSession(
           closing,
         })) ?? [],
       sourceFingerprints: fingerprints.rows[0]?.source_fingerprints ?? {},
-      templateSpec:
-        blueprint === null
-          ? null
-          : (templateSpecSchema.safeParse(blueprint.parts.templateSpec).data ?? null),
+      templateSpec,
     },
   };
   key.fill(0);

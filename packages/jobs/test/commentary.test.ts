@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 
 import type { PeriodId } from "@magicmis/core/time";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
-import { storeSnapshot } from "@magicmis/engine/server";
+import { storeBlueprint, storeSnapshot } from "@magicmis/engine/server";
 import { priceFor } from "@magicmis/wallet";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -248,6 +248,33 @@ describe("commentary on Standard delivery (Message Batches)", () => {
     expect(
       await commentaryForJob(pool(), wrapper, { accountId: c.accountId, jobId }),
     ).toBeNull();
+  });
+
+  it("a saved layout that cannot be read stops a paid commentary before any AI call and releases the hold", async () => {
+    const c = await companyWithSnapshot();
+    await storeBlueprint(pool(), wrapper, {
+      ...c,
+      jobId: null,
+      parts: {
+        templateSpec: { name: "Ours", defaultCommentarySections: "not a list" },
+        recipe: {},
+        mappingRules: [],
+        dashboardSpec: null,
+        materiality: {},
+        sourceFingerprints: {},
+      },
+      basedOn: null,
+    });
+    // Not structured by the standard headings instead, as it used to be.
+    await expect(commentaryJob(c, "instant")).rejects.toMatchObject({
+      code: "unreadable",
+    });
+    expect(await wallet(pool(), c.accountId)).toEqual({ balance: 5_000n, held: 0n });
+    const jobs = await pool().query<{ state: string }>(
+      `select state from jobs where company_id = $1`,
+      [c.companyId],
+    );
+    expect(jobs.rows).toEqual([{ state: "failed_platform" }]);
   });
 
   it("Instant delivery completes in the request", async () => {

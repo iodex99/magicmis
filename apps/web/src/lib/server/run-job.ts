@@ -27,6 +27,7 @@ import {
 import {
   advanceJob,
   completeJob,
+  DashboardError,
   failJob,
   heartbeatJob,
   loadStageOutput,
@@ -231,7 +232,27 @@ export async function runJobOnServer(
     };
   };
 
-  const session = await jobSession(pool, accountId, companyId);
+  // A saved layout that cannot be read stops the run before it changes anything, and the hold
+  // is released: running on the standard layout instead would store it over the company's own.
+  const UNREADABLE =
+    "This company's saved layout could not be read, so nothing was run or changed and no credits were charged. Contact support and we will put it right.";
+  const unreadable = (error: unknown): error is DashboardError => {
+    if (!(error instanceof DashboardError) || error.code !== "unreadable") return false;
+    // Schema paths and messages only: no figure or name from the company's data.
+    console.error("layout_unreadable: a saved company layout does not parse", {
+      companyId,
+      jobId,
+      issues: error.errors,
+    });
+    return true;
+  };
+  let session: Awaited<ReturnType<typeof jobSession>>;
+  try {
+    session = await jobSession(pool, accountId, companyId);
+  } catch (error) {
+    if (unreadable(error)) return fail(UNREADABLE);
+    throw error;
+  }
   if (session === null) return fail("This company could not be opened.");
   const wrapper = keyWrapper();
   const redactor = await Redactor.create(Buffer.from(session.redactionKey, "base64"));
@@ -444,7 +465,11 @@ export async function runJobOnServer(
           referenceUsed = true;
         }
       } catch {
-        notice("Your MIS layout couldn't be read, so the standard layout is used.");
+        notice(
+          session.memory.templateSpec === null
+            ? "Your MIS layout couldn't be read, so the standard layout is used."
+            : "Your MIS layout couldn't be read, so this company keeps the layout it already has.",
+        );
       }
     }
 
@@ -589,6 +614,9 @@ export async function runJobOnServer(
             sourceFingerprints: signed.fingerprints,
           }
         : null,
+      // Only recreating a reference MIS asks for a new layout. Every other run keeps the
+      // company's own, read again at the moment of writing (ADR 0045).
+      layout: referenceUsed ? "replace" : "keep",
       output: { fileName: out.rendered.fileName, bytes: workbook },
       outputStore: await outputStore(),
     });
@@ -612,6 +640,7 @@ export async function runJobOnServer(
       notices,
     };
   } catch (error) {
+    if (unreadable(error)) return fail(UNREADABLE);
     if (error instanceof NeedsQuote)
       return {
         status: "needs_quote",

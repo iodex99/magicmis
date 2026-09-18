@@ -34,6 +34,24 @@ export class CompanyKeyDestroyed extends Error {
   }
 }
 
+/**
+ * Someone else stored a blueprint version after the one this write was made from. Every blueprint
+ * write copies the parts it does not change from the version it read, so writing anyway would
+ * silently put back an older layout over a newer one (ADR 0045).
+ */
+export class BlueprintConflict extends Error {
+  constructor(
+    readonly companyId: string,
+    readonly basedOn: number | null,
+    readonly latest: number | null,
+  ) {
+    super(
+      `blueprint for company ${companyId} is at version ${String(latest)}, not ${String(basedOn)}`,
+    );
+    this.name = "BlueprintConflict";
+  }
+}
+
 const keyContext = (accountId: string, companyId: string): EncryptionContext => ({
   purpose: "company_dek",
   account_id: accountId,
@@ -250,16 +268,29 @@ export async function storeBlueprint(
     companyId: string;
     jobId: string | null;
     parts: BlueprintParts;
+    /**
+     * The version `parts` were made from: the latest the caller read, or null when it found
+     * none. The write is refused with `BlueprintConflict` if that is no longer the latest.
+     */
+    basedOn: number | null;
   },
 ): Promise<{ blueprintId: string; version: number; hash: string }> {
   return withTransaction(pool, async (tx) => {
+    // One writer per company at a time, so the check below and the insert are one step.
+    await tx.query(
+      `select pg_advisory_xact_lock(hashtextextended('blueprint:' || $1, 0))`,
+      [input.companyId],
+    );
     const dek = await companyDek(tx, wrapper, input.accountId, input.companyId);
     try {
       const last = await tx.query<{ version: number; hash: string }>(
         `select version, hash from public.blueprints where company_id = $1 order by version desc limit 1`,
         [input.companyId],
       );
-      const version = (last.rows[0]?.version ?? 0) + 1;
+      const latest = last.rows[0]?.version ?? null;
+      if (latest !== input.basedOn)
+        throw new BlueprintConflict(input.companyId, input.basedOn, latest);
+      const version = (latest ?? 0) + 1;
       const prevHash = last.rows[0]?.hash ?? GENESIS_HASH;
       const plain: Record<string, Buffer | null> = {};
       const sealed: Record<string, Buffer | null> = {};

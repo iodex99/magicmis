@@ -174,6 +174,8 @@ export default function MisReportTemplatePage() {
             <strong className="font-medium text-neutral-900">Or skip the mapping.</strong>{" "}
             Upload the trial balance instead and {PRODUCT_NAME} maps the ledgers, builds
             this workbook on your figures, and remembers the mapping for next month.
+            Rename a table, a row or a dashboard card and that is remembered too, for that
+            company alone, so every company you add can keep its own layout.
           </li>
         </ol>
       </Section>

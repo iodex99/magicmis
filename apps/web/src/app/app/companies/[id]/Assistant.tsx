@@ -752,8 +752,17 @@ export function Assistant({
                           <span className="text-neutral-700">Undone.</span>
                         ) : (
                           <>
-                            <span className="text-neutral-700">
-                              Applied to the {done.target}.
+                            {/* What was just changed is this company's own, and stays (ADR 0045). */}
+                            <span
+                              className="text-neutral-700"
+                              data-testid="chat-edit-applied"
+                            >
+                              {done.target === "dashboard"
+                                ? "Applied to the dashboard."
+                                : "Applied to the MIS, from the next workbook on."}{" "}
+                              <span className="text-neutral-500">
+                                Kept for {companyName} only, until you change it.
+                              </span>
                             </span>
                             <Button
                               size="sm"

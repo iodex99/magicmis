@@ -18,49 +18,24 @@
 import type { KeyWrapper } from "@magicmis/crypto";
 import { withTransaction } from "@magicmis/db/tx";
 import {
+  BlueprintConflict,
   latestBlueprint,
   storeBlueprint,
   type BlueprintParts,
 } from "@magicmis/engine/server";
 import {
   DEFAULT_DASHBOARD,
-  dashboardSpecSchema,
   patchDashboard,
   type DashboardSpec,
 } from "@magicmis/render-dashboard";
 import type { Pool } from "pg";
-import { z } from "zod";
 
+import { DashboardError } from "./layout-error";
+import { releasingOnLayoutFault } from "./layout-fault";
+import { readStoredDashboard, type StoredDashboard } from "./stored-layout";
 import { captureDelivered, finish } from "./settle";
 import { queueNotification } from "./notify";
 import { lockJob, transition } from "./states";
-
-export class DashboardError extends Error {
-  constructor(
-    readonly code:
-      | "no_blueprint"
-      | "no_dashboard"
-      | "stale"
-      | "invalid_patch"
-      | "nothing_to_undo"
-      | "wrong_job",
-    message: string,
-    readonly errors: readonly string[] = [],
-  ) {
-    super(message);
-    this.name = "DashboardError";
-  }
-}
-
-const storedSchema = z.object({
-  spec: dashboardSpecSchema,
-  parentVersion: z.number().int().positive().nullable(),
-  dataThrough: z
-    .string()
-    .regex(/^\d{4}-\d{2}$/u)
-    .nullable(),
-});
-export type StoredDashboard = z.infer<typeof storedSchema>;
 
 export interface CompanyDashboard {
   readonly blueprintVersion: number;
@@ -93,38 +68,68 @@ async function current(
       "no_blueprint",
       "Set up this company before adding a dashboard.",
     );
-  const stored = storedSchema.safeParse(blueprint.parts.dashboardSpec);
-  return { blueprint, stored: stored.success ? stored.data : null };
+  return { blueprint, stored: readStoredDashboard(blueprint.parts.dashboardSpec) };
 }
 
 async function storeDashboard(
   pool: Pool,
   wrapper: KeyWrapper,
   scope: { accountId: string; companyId: string; jobId: string | null },
-  parts: BlueprintParts,
+  from: { version: number; parts: BlueprintParts },
   dashboard: StoredDashboard,
 ): Promise<number> {
-  const b = await storeBlueprint(pool, wrapper, {
-    ...scope,
-    parts: { ...parts, dashboardSpec: dashboard },
-  });
-  return b.version;
+  try {
+    const b = await storeBlueprint(pool, wrapper, {
+      ...scope,
+      parts: { ...from.parts, dashboardSpec: dashboard },
+      basedOn: from.version,
+    });
+    return b.version;
+  } catch (error) {
+    // Everything but the dashboard is copied from the version that was read. If another version
+    // landed meanwhile (a renamed MIS row, a run finishing), writing would put the old one back.
+    if (error instanceof BlueprintConflict)
+      throw new DashboardError(
+        "stale",
+        "This company's layout changed a moment ago. Reload and try again.",
+      );
+    throw error;
+  }
 }
 
-/** The company's current dashboard, or null when none was added. */
+/**
+ * A paid job is not failed because an edit landed while it was writing: it reads the newer
+ * version and writes again on top of it, so neither change is lost.
+ */
+export async function retryStale<T>(work: () => Promise<T>, attempts = 4): Promise<T> {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await work();
+    } catch (error) {
+      const stale = error instanceof DashboardError && error.code === "stale";
+      if (!stale || attempt >= attempts) throw error;
+    }
+  }
+}
+
+/**
+ * The company's current dashboard, or null when none was added. Throws `unreadable` for one that
+ * was saved and does not parse; that is not the same thing as none.
+ */
 export async function companyDashboard(
   pool: Pool,
   wrapper: KeyWrapper,
   scope: { accountId: string; companyId: string },
 ): Promise<CompanyDashboard | null> {
   const blueprint = await latestBlueprint(pool, wrapper, scope);
-  const stored = storedSchema.safeParse(blueprint?.parts.dashboardSpec);
-  if (blueprint === null || !stored.success) return null;
+  if (blueprint === null) return null;
+  const stored = readStoredDashboard(blueprint.parts.dashboardSpec);
+  if (stored === null) return null;
   return {
     blueprintVersion: blueprint.version,
-    spec: stored.data.spec,
-    canUndo: stored.data.parentVersion !== null,
-    dataThrough: stored.data.dataThrough,
+    spec: stored.spec,
+    canUndo: stored.parentVersion !== null,
+    dataThrough: stored.dataThrough,
   };
 }
 
@@ -159,26 +164,31 @@ export async function completeDashboardAddon(
 
   let version = job.stage_checkpoints["blueprint_version"] as number | undefined;
   if (version === undefined) {
-    const { blueprint, stored } = await current(pool, wrapper, scope);
-    const through = await latestPeriod(pool, companyId);
-    if (job.type === "dashboard_refresh" && stored === null)
-      throw new DashboardError("no_dashboard", "Add the dashboard before refreshing it.");
-    const next: StoredDashboard | null =
-      stored === null
-        ? { spec: DEFAULT_DASHBOARD, parentVersion: null, dataThrough: through }
-        : stored.dataThrough === through
-          ? null
-          : { ...stored, dataThrough: through };
-    version =
-      next === null
+    const deliver = async (): Promise<number> => {
+      // An unreadable saved dashboard throws here, so the default is only ever stored for a
+      // company that has none: a paid refresh can never reset the names a company chose.
+      const { blueprint, stored } = await current(pool, wrapper, scope);
+      const through = await latestPeriod(pool, companyId);
+      if (job.type === "dashboard_refresh" && stored === null)
+        throw new DashboardError(
+          "no_dashboard",
+          "Add the dashboard before refreshing it.",
+        );
+      const next: StoredDashboard | null =
+        stored === null
+          ? { spec: DEFAULT_DASHBOARD, parentVersion: null, dataThrough: through }
+          : stored.dataThrough === through
+            ? null
+            : { ...stored, dataThrough: through };
+      return next === null
         ? blueprint.version
-        : await storeDashboard(
-            pool,
-            wrapper,
-            { ...scope, jobId: job.id },
-            blueprint.parts,
-            next,
-          );
+        : storeDashboard(pool, wrapper, { ...scope, jobId: job.id }, blueprint, next);
+    };
+    version = await releasingOnLayoutFault(
+      pool,
+      { accountId: input.accountId, jobId: job.id },
+      () => retryStale(deliver),
+    );
     await pool.query(
       `update public.jobs set stage_checkpoints = stage_checkpoints || $2::jsonb where id = $1`,
       [job.id, JSON.stringify({ blueprint_version: version })],
@@ -198,8 +208,12 @@ export async function completeDashboardAddon(
   return { captured, blueprintVersion: version };
 }
 
-/** Previews a patch against the current dashboard without storing anything. */
-export async function previewDashboardPatch(
+/**
+ * The patched dashboard and the one version it was read from, checked against, and (when applied)
+ * written on top of. One read: a second would let a version that landed in between pass as the
+ * base of a change that was computed from the one before it.
+ */
+async function proposedDashboard(
   pool: Pool,
   wrapper: KeyWrapper,
   input: {
@@ -208,7 +222,7 @@ export async function previewDashboardPatch(
     baseVersion: number;
     operations: unknown;
   },
-): Promise<{ spec: DashboardSpec }> {
+) {
   const { blueprint, stored } = await current(pool, wrapper, input);
   if (stored === null)
     throw new DashboardError("no_dashboard", "This company has no dashboard yet.");
@@ -224,7 +238,21 @@ export async function previewDashboardPatch(
       "That change would make the dashboard invalid.",
       result.errors,
     );
-  return { spec: result.spec };
+  return { blueprint, stored, spec: result.spec };
+}
+
+/** Previews a patch against the current dashboard without storing anything. */
+export async function previewDashboardPatch(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    accountId: string;
+    companyId: string;
+    baseVersion: number;
+    operations: unknown;
+  },
+): Promise<{ spec: DashboardSpec }> {
+  return { spec: (await proposedDashboard(pool, wrapper, input)).spec };
 }
 
 /** Applies a confirmed patch as a new blueprint version. */
@@ -238,15 +266,12 @@ export async function applyDashboardPatch(
     operations: unknown;
   },
 ): Promise<CompanyDashboard> {
-  const { spec } = await previewDashboardPatch(pool, wrapper, input);
-  const { blueprint, stored } = await current(pool, wrapper, input);
-  if (stored === null)
-    throw new DashboardError("no_dashboard", "This company has no dashboard yet.");
+  const { blueprint, stored, spec } = await proposedDashboard(pool, wrapper, input);
   const version = await storeDashboard(
     pool,
     wrapper,
     { accountId: input.accountId, companyId: input.companyId, jobId: null },
-    blueprint.parts,
+    blueprint,
     {
       spec,
       parentVersion: input.baseVersion,
@@ -290,7 +315,7 @@ export async function undoDashboard(
     pool,
     wrapper,
     { accountId: input.accountId, companyId: input.companyId, jobId: null },
-    blueprint.parts,
+    blueprint,
     // The layout goes back; the paid-for data stays.
     { ...parent.stored, dataThrough: stored.dataThrough },
   );

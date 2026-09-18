@@ -40,7 +40,9 @@ export async function answerDeepOnServer(
   let progress = input.first;
   if (progress.status !== "needs_query") return progress;
 
-  const session = await jobSession(pool, input.accountId, input.companyId);
+  const session = await jobSession(pool, input.accountId, input.companyId, {
+    layout: "skip",
+  });
   if (session === null) return { status: "failed", reason: "company not found" };
   const redactor = await Redactor.create(Buffer.from(session.redactionKey, "base64"));
   const [caps, timeoutMs] = await Promise.all([
@@ -112,7 +114,9 @@ export async function displayNamesOnServer(
   const names: Record<string, string | null> = Object.fromEntries(
     input.tokens.map((t) => [t, null]),
   );
-  const session = await jobSession(pool, input.accountId, input.companyId);
+  const session = await jobSession(pool, input.accountId, input.companyId, {
+    layout: "skip",
+  });
   if (session === null) return names;
   const redactor = await Redactor.create(Buffer.from(session.redactionKey, "base64"));
   try {

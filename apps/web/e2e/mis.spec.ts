@@ -490,6 +490,79 @@ test.describe("chat with the MIS", () => {
   });
 });
 
+test("a company's own tables and names are remembered through the next month, and belong to it alone (ADR 0045)", async () => {
+  const companies = await db.query<{ id: string; name: string }>(
+    `select c.id, c.name from companies c join accounts a on a.id = c.account_id where a.email = $1`,
+    [email],
+  );
+  const idOf = (name: string) => companies.rows.find((c) => c.name === name)?.id ?? "";
+  const recreated = idOf("Synthetic Recreated Traders");
+  const first = idOf("Synthetic Hardware Traders");
+  expect(recreated).not.toBe("");
+  expect(first).not.toBe("");
+
+  // This company has its own tables (recreated from its reference MIS) through April. Give it
+  // a dashboard and a name of its own for the first card.
+  await page.goto(`/app/companies/${recreated}`);
+  await page.getByRole("button", { name: "Build the dashboard" }).click();
+  const card = page.getByTestId("widget-kpi_revenue");
+  await expect(card).toBeVisible();
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-04");
+  await page.getByRole("button", { name: "Edit layout" }).click();
+  page.once("dialog", (d) => void d.accept("Turnover"));
+  await card.getByRole("button", { name: "Rename" }).click();
+  await page.getByRole("button", { name: "Apply" }).click();
+  await expect(page.getByTestId("patch-preview")).toHaveCount(0);
+  await page.getByRole("button", { name: "Done editing" }).click();
+  await expect(card).toContainText("Turnover");
+
+  // The next month arrives. The workbook still has this company's tables, not the standard ones.
+  await page.goto(`/app/companies/${recreated}/run`);
+  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await runJob([tb("2026-05")]);
+  const download = page.waitForEvent("download");
+  await page.getByTestId("job-download").click();
+  const workbook = XLSX.read(await readFile(await (await download).path()), {
+    type: "buffer",
+  });
+  expect(workbook.SheetNames).toEqual([
+    "Cover",
+    "Index",
+    "P&L Summary",
+    "Working Capital",
+    "Checks",
+    "Data",
+    "Lineage",
+  ]);
+
+  // The name survives the run, the paid dashboard refresh that brings May in, and a reload.
+  await page.goto(`/app/companies/${recreated}`);
+  await expect(card).toContainText("Turnover");
+  await page.getByRole("button", { name: "Refresh the dashboard" }).click();
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-05", {
+    timeout: 60_000,
+  });
+  await expect(card).toContainText("Turnover");
+  await page.reload();
+  await expect(card).toContainText("Turnover");
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-05");
+
+  // The other company of the same account never heard of it.
+  await page.goto(`/app/companies/${first}`);
+  const other = page.getByTestId("widget-kpi_revenue");
+  await expect(other).toBeVisible();
+  await expect(other).toContainText("Revenue");
+  await expect(other).not.toContainText("Turnover");
+
+  // Every change was a new version on top of the last; none was written over.
+  const versions = await db.query<{ version: number }>(
+    `select version from blueprints where company_id = $1 order by version`,
+    [recreated],
+  );
+  // v1 recreate, v2 dashboard, v3 rename, v4 dashboard refresh (the run changed no rules).
+  expect(versions.rows.map((r) => r.version)).toEqual([1, 2, 3, 4]);
+});
+
 test("no Content Security Policy violations anywhere in the flow (SPEC §30)", () => {
   expect(csp).toEqual([]);
 });

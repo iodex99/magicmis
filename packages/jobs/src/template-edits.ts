@@ -7,11 +7,17 @@
 
 import { patchDocument } from "@magicmis/core/json-patch";
 import type { KeyWrapper } from "@magicmis/crypto";
-import { latestBlueprint, storeBlueprint } from "@magicmis/engine/server";
+import {
+  BlueprintConflict,
+  latestBlueprint,
+  storeBlueprint,
+  type BlueprintParts,
+} from "@magicmis/engine/server";
 import { templateSpecSchema, type TemplateSpec } from "@magicmis/templates";
 import type { Pool } from "pg";
 
-import { DashboardError } from "./dashboard";
+import { DashboardError } from "./layout-error";
+import { readStoredTemplate } from "./stored-layout";
 
 async function currentTemplate(
   pool: Pool,
@@ -28,13 +34,39 @@ async function currentTemplate(
       "no_blueprint",
       "Set up this company before editing its MIS.",
     );
-  const template = templateSpecSchema.safeParse(blueprint.parts.templateSpec);
-  if (!template.success)
+  const template = readStoredTemplate(blueprint.parts.templateSpec);
+  if (template === null)
     throw new DashboardError(
       "no_blueprint",
-      "This company's template could not be read.",
+      "Set up this company before editing its MIS.",
     );
-  return { blueprint, template: template.data };
+  return { blueprint, template };
+}
+
+async function storeTemplate(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  scope: { accountId: string; companyId: string },
+  from: { version: number; parts: BlueprintParts },
+  template: TemplateSpec,
+): Promise<number> {
+  try {
+    const b = await storeBlueprint(pool, wrapper, {
+      accountId: scope.accountId,
+      companyId: scope.companyId,
+      jobId: null,
+      parts: { ...from.parts, templateSpec: template },
+      basedOn: from.version,
+    });
+    return b.version;
+  } catch (error) {
+    if (error instanceof BlueprintConflict)
+      throw new DashboardError(
+        "stale",
+        "This company's layout changed a moment ago. Ask again.",
+      );
+    throw error;
+  }
 }
 
 export interface TemplateEdit {
@@ -43,8 +75,8 @@ export interface TemplateEdit {
   readonly canUndo: boolean;
 }
 
-/** Validates operations against the current template without storing anything. */
-export async function previewTemplatePatch(
+/** The patched template and the one version it was read from and checked against. One read. */
+async function proposedTemplate(
   pool: Pool,
   wrapper: KeyWrapper,
   input: {
@@ -53,7 +85,7 @@ export async function previewTemplatePatch(
     baseVersion: number;
     operations: unknown;
   },
-): Promise<{ template: TemplateSpec }> {
+) {
   const { blueprint, template } = await currentTemplate(pool, wrapper, input);
   if (blueprint.version !== input.baseVersion)
     throw new DashboardError(
@@ -67,7 +99,21 @@ export async function previewTemplatePatch(
       "That change would make the MIS invalid.",
       r.errors,
     );
-  return { template: r.value };
+  return { blueprint, template: r.value };
+}
+
+/** Validates operations against the current template without storing anything. */
+export async function previewTemplatePatch(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    accountId: string;
+    companyId: string;
+    baseVersion: number;
+    operations: unknown;
+  },
+): Promise<{ template: TemplateSpec }> {
+  return { template: (await proposedTemplate(pool, wrapper, input)).template };
 }
 
 export async function applyTemplatePatch(
@@ -80,16 +126,10 @@ export async function applyTemplatePatch(
     operations: unknown;
   },
 ): Promise<TemplateEdit> {
-  const { template } = await previewTemplatePatch(pool, wrapper, input);
-  const { blueprint } = await currentTemplate(pool, wrapper, input);
+  const { blueprint, template } = await proposedTemplate(pool, wrapper, input);
   const next = { ...template, editedFrom: input.baseVersion };
-  const b = await storeBlueprint(pool, wrapper, {
-    accountId: input.accountId,
-    companyId: input.companyId,
-    jobId: null,
-    parts: { ...blueprint.parts, templateSpec: next },
-  });
-  return { blueprintVersion: b.version, template: next, canUndo: true };
+  const version = await storeTemplate(pool, wrapper, input, blueprint, next);
+  return { blueprintVersion: version, template: next, canUndo: true };
 }
 
 export async function undoTemplatePatch(
@@ -109,14 +149,9 @@ export async function undoTemplatePatch(
       "There is no earlier MIS layout to go back to.",
     );
   const parent = await currentTemplate(pool, wrapper, input, template.editedFrom);
-  const b = await storeBlueprint(pool, wrapper, {
-    accountId: input.accountId,
-    companyId: input.companyId,
-    jobId: null,
-    parts: { ...blueprint.parts, templateSpec: parent.template },
-  });
+  const version = await storeTemplate(pool, wrapper, input, blueprint, parent.template);
   return {
-    blueprintVersion: b.version,
+    blueprintVersion: version,
     template: parent.template,
     canUndo: parent.template.editedFrom != null,
   };

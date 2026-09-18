@@ -48,7 +48,7 @@ import {
   openForCompany,
   sealForCompany,
 } from "@magicmis/engine/server";
-import { companyDashboard } from "@magicmis/jobs";
+import { DashboardError, readStoredDashboard, readStoredTemplate } from "@magicmis/jobs";
 import { assertNoRawIdentifiers } from "@magicmis/redact";
 import { METRIC_CATALOG } from "@magicmis/templates";
 import {
@@ -624,12 +624,26 @@ export async function processMessage(
       const target = content.target ?? "dashboard";
       const blueprint = await latestBlueprint(pool, wrapper, scope);
       if (blueprint === null) return await fail(env, msg, "no_blueprint");
-      const dashboard =
-        target === "dashboard" ? await companyDashboard(pool, wrapper, scope) : null;
-      if (target === "dashboard" && dashboard === null)
-        return await fail(env, msg, "no_dashboard");
-      const spec =
-        target === "dashboard" ? dashboard?.spec : blueprint.parts.templateSpec;
+      // The layout the edit is proposed against comes from the same version the proposal is
+      // tied to, and is read strictly (ADR 0045): one that is saved but does not parse ends the
+      // message uncharged instead of being described to the model as something it is not.
+      let spec: unknown;
+      try {
+        spec =
+          target === "dashboard"
+            ? (readStoredDashboard(blueprint.parts.dashboardSpec)?.spec ?? null)
+            : readStoredTemplate(blueprint.parts.templateSpec);
+      } catch (error) {
+        if (error instanceof DashboardError && error.code === "unreadable")
+          return await fail(env, msg, "layout_unreadable");
+        throw error;
+      }
+      if (spec === null)
+        return await fail(
+          env,
+          msg,
+          target === "dashboard" ? "no_dashboard" : "no_blueprint",
+        );
       const r = await chatEditSpec(ctx, {
         target,
         spec: spec as never,

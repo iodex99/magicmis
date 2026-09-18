@@ -38,6 +38,7 @@ describe("template edits", () => {
         materiality: {},
         sourceFingerprints: {},
       },
+      basedOn: null,
     });
     const ops = [{ op: "replace", path: "/sections/0/rows/0/label", value: "Sales" }];
     const preview = await previewTemplatePatch(pool(), wrapper, {

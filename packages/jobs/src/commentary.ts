@@ -21,10 +21,13 @@ import { readConfig } from "@magicmis/db/config";
 import { withTransaction } from "@magicmis/db/tx";
 import { buildFactsPack, type MetricValue } from "@magicmis/engine";
 import { latestBlueprint, latestSnapshot } from "@magicmis/engine/server";
+import { MONTHLY_FINANCIAL_MIS } from "@magicmis/templates";
 import type { Pool } from "pg";
 import { z } from "zod";
 
 import { loadStageOutput, saveStageOutput } from "./checkpoints";
+import { releasingOnLayoutFault } from "./layout-fault";
+import { readStoredTemplate } from "./stored-layout";
 import { completeCommentaryJob, failJob } from "./settle";
 import { lockJob, transition } from "./states";
 
@@ -75,9 +78,11 @@ export async function commentaryInput(
     accountId: input.accountId,
     companyId: input.companyId,
   });
-  const sections = z
-    .object({ defaultCommentarySections: z.array(z.string()).min(1) })
-    .safeParse(blueprint?.parts.templateSpec);
+  // The company's own sections, read strictly (ADR 0045): a layout that is saved but does not
+  // parse stops a paid commentary rather than quietly structuring it by the standard headings.
+  const template =
+    blueprint === null ? null : readStoredTemplate(blueprint.parts.templateSpec);
+  const own = template?.defaultCommentarySections ?? [];
   const allowlist = await readConfig(
     pool,
     "commentary.digit_allowlist",
@@ -114,9 +119,7 @@ export async function commentaryInput(
       periods: [...pack.periods],
       warnings: [...pack.warnings],
     },
-    sections: sections.success
-      ? sections.data.defaultCommentarySections
-      : ["Performance", "Margins", "Working capital"],
+    sections: own.length > 0 ? own : MONTHLY_FINANCIAL_MIS.defaultCommentarySections,
     allowlist,
   };
 }
@@ -133,11 +136,17 @@ export async function queueCommentary(
   if (job.type !== "commentary" || job.company_id === null)
     throw new CommentaryError("wrong_job", "This is not a commentary job.");
   if (job.state === "commentary_queued") return { delivery: job.delivery_mode };
-  const payload = await commentaryInput(pool, wrapper, {
-    accountId: input.accountId,
-    companyId: job.company_id,
-    period: input.period,
-  });
+  const companyId = job.company_id;
+  const payload = await releasingOnLayoutFault(
+    pool,
+    { accountId: input.accountId, jobId: job.id },
+    () =>
+      commentaryInput(pool, wrapper, {
+        accountId: input.accountId,
+        companyId,
+        period: input.period,
+      }),
+  );
   await saveStageOutput(pool, wrapper, {
     accountId: input.accountId,
     companyId: job.company_id,
