@@ -14,6 +14,7 @@ export type IconName =
   | "alert"
   | "archive"
   | "arrow-down"
+  | "arrow-left"
   | "arrow-right"
   | "arrow-up"
   | "bank"
@@ -40,7 +41,9 @@ export type IconName =
   | "mail"
   | "menu"
   | "moon"
+  | "panel"
   | "pause"
+  | "pencil"
   | "play"
   | "plus"
   | "refresh"
@@ -64,6 +67,7 @@ const PATHS: Record<IconName, string> = {
     "M12 9v4m0 3.5v.01M10.3 4.3 2.7 17.4A2 2 0 0 0 4.4 20.4h15.2a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z",
   archive: "M3 7h18M5 7v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7M3 7l2-3h14l2 3M10 12h4",
   "arrow-down": "M12 5v14m0 0-6-6m6 6 6-6",
+  "arrow-left": "M19 12H5m0 0 6-6m-6 6 6 6",
   "arrow-right": "M5 12h14m0 0-6-6m6 6-6 6",
   "arrow-up": "M12 19V5m0 0-6 6m6-6 6 6",
   bank: "M3 10h18M5 10v8m5-8v8m4-8v8m5-8v8M3 21h18M12 3 3 7.5h18L12 3Z",
@@ -95,7 +99,11 @@ const PATHS: Record<IconName, string> = {
   logout: "M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M11 16l-4-4m0 0 4-4m-4 4h13",
   mail: "M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Zm0 1.5 8 5.5 8-5.5",
   menu: "M4 7h16M4 12h16M4 17h16",
+  // The navigation rail: a window with its left pane ruled off.
+  panel:
+    "M4.5 5h15a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1ZM9 5v14",
   pause: "M9.5 5v14m5-14v14",
+  pencil: "M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17l-1 3Zm10.5-12.5 3 3",
   play: "M7 5.5v13l11-6.5-11-6.5Z",
   plus: "M12 5v14M5 12h14",
   refresh:

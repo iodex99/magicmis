@@ -189,6 +189,8 @@ export function Assistant({
   periods,
   commentaries,
   prefill,
+  focusNonce,
+  onCollapse,
   onLayoutChanged,
 }: {
   companyId: string;
@@ -201,6 +203,10 @@ export function Assistant({
   commentaries: readonly CommentaryRow[];
   /** A question handed over by the dashboard's Investigate; `nonce` makes a repeat count. */
   prefill: { type: MessageType; text: string; nonce: number } | null;
+  /** Bumped each time the chat is opened, so the cursor lands in the question box. */
+  focusNonce: number;
+  /** Put the chat away; the workspace keeps a launcher on screen (ADR 0044). */
+  onCollapse: () => void;
   /** A layout change applied or undone here, so the dashboard beside it can reload. */
   onLayoutChanged: () => void;
 }) {
@@ -272,6 +278,11 @@ export function Assistant({
     setText(prefill.text);
     input.current?.focus();
   }, [prefill]);
+
+  // Opening the chat is a request to type in it.
+  useEffect(() => {
+    if (focusNonce > 0) input.current?.focus();
+  }, [focusNonce]);
 
   // A deep answer can take most of a minute. A counter is the honest way to say so: it is the
   // one thing about the wait that is actually known.
@@ -511,7 +522,7 @@ export function Assistant({
 
   return (
     <aside
-      className="relative flex h-[calc(100vh-7rem)] min-h-[34rem] flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-surface shadow-sm"
+      className="relative flex h-[calc(100vh-7rem)] max-h-[calc(100vh-2rem)] min-h-[min(34rem,calc(100vh-2rem))] flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-surface shadow-sm"
       data-testid="assistant"
       aria-label="Assistant"
     >
@@ -524,13 +535,15 @@ export function Assistant({
             Chat with the MIS
           </h2>
           <p className="truncate text-[0.75rem] text-neutral-500">
-            Every number computed from the books, never written by AI
+            Every number computed, never written
           </p>
         </div>
         <button
           type="button"
           aria-expanded={history}
-          className={`rounded-md px-2 py-1.5 text-[0.75rem] font-medium ${
+          aria-label="History"
+          title="History"
+          className={`rounded-md p-1.5 ${
             history
               ? "bg-accent-50 text-accent-800"
               : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
@@ -539,8 +552,7 @@ export function Assistant({
             setHistory((h) => !h);
           }}
         >
-          <Icon name="clock" size={14} className="mr-1 inline" />
-          History
+          <Icon name="clock" size={16} />
         </button>
         <button
           type="button"
@@ -555,6 +567,16 @@ export function Assistant({
           }}
         >
           <Icon name="plus" size={16} />
+        </button>
+        <button
+          type="button"
+          aria-label="Hide chat"
+          title="Hide chat (Ctrl K)"
+          className="rounded-md p-1.5 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+          onClick={onCollapse}
+          data-testid="chat-collapse"
+        >
+          <Icon name="chevron-right" size={16} />
         </button>
       </header>
 

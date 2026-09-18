@@ -1,6 +1,7 @@
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import { uploadLimits } from "@magicmis/jobs";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
@@ -21,6 +22,7 @@ import {
 import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
+import { CHAT_COOKIE } from "@/lib/prefs";
 
 import { PrintButton } from "@/components/PrintButton";
 
@@ -274,6 +276,10 @@ export default async function CompanyPage({
     keptFiles(pool, id, account.accountId),
   ]);
   const latestOutput = outputs.rows[0];
+  // Whether the chat was left open or put away, so the first paint is already that layout.
+  const chatCookie = (await cookies()).get(CHAT_COOKIE)?.value;
+  const chatPreference =
+    chatCookie === "open" || chatCookie === "closed" ? chatCookie : null;
 
   return (
     <AppFrame {...frame} wide>
@@ -322,6 +328,7 @@ export default async function CompanyPage({
           period: j.period,
           createdAt: j.created_at.toISOString(),
         }))}
+        chatPreference={chatPreference}
       >
         <div className="grid items-start gap-5 2xl:grid-cols-2">
           <Panel title="Workbooks" icon="download" padding="none">

@@ -26,7 +26,7 @@ import { EChart } from "@/components/EChart";
 import { LineagePanel } from "@/components/LineagePanel";
 import { PaidJobButton } from "@/components/PaidJobButton";
 import { RollingNumber } from "@/components/RollingNumber";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import { Alert, Button, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
@@ -73,6 +73,40 @@ function movementLabel(
   const metricId = metricKey.split("@")[0] ?? "";
   const suffix = metricId.split(".")[1];
   return suffix === undefined ? format.label(metricId) : (MOVEMENTS[suffix] ?? suffix);
+}
+
+/**
+ * One control on a card while the layout is being edited: an icon with its name as the
+ * accessible label and tooltip. Words were the first version, and four of them beside a title
+ * did not fit a narrow card — they ran out through its rounded corner.
+ */
+function EditTool({
+  label,
+  icon,
+  onClick,
+  disabled = false,
+  danger = false,
+}: {
+  label: string;
+  icon: IconName;
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={`press flex size-7 shrink-0 items-center justify-center rounded-md text-neutral-600 transition-colors hover:bg-surface hover:shadow-sm disabled:text-neutral-300 disabled:hover:bg-transparent disabled:hover:shadow-none ${
+        danger ? "hover:text-negative" : "hover:text-neutral-900"
+      }`}
+    >
+      <Icon name={icon} size={14} />
+    </button>
+  );
 }
 
 function ValueButton({
@@ -182,58 +216,57 @@ function WidgetCard({
             <Sparkline values={trend} width={88} height={26} />
           </span>
         ) : null}
-        {editing ? (
-          <div className="-mt-1 -mr-1 flex gap-0.5">
-            <button
-              type="button"
-              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
-              onClick={() => {
-                const title = window.prompt("Widget title", widget.title);
-                if (title !== null && title.trim() !== "")
-                  onEdit([{ op: "replace", path: `${path}/title`, value: title.trim() }]);
-              }}
-            >
-              Rename
-            </button>
-            <button
-              type="button"
-              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
-              disabled={index === 0}
-              onClick={() => {
-                onEdit([
-                  { op: "move", from: path, path: `/widgets/${(index - 1).toString()}` },
-                ]);
-              }}
-            >
-              Earlier
-            </button>
-            <button
-              type="button"
-              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
-              disabled={index === count - 1}
-              onClick={() => {
-                onEdit([
-                  { op: "move", from: path, path: `/widgets/${(index + 1).toString()}` },
-                ]);
-              }}
-            >
-              Later
-            </button>
-            <button
-              type="button"
-              className="rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-300 disabled:hover:bg-transparent"
-              onClick={() => {
-                onEdit([
-                  { op: "test", path: `${path}/id`, value: widget.id },
-                  { op: "remove", path },
-                ]);
-              }}
-            >
-              Remove
-            </button>
-          </div>
-        ) : null}
       </div>
+      {editing ? (
+        <div
+          className="mb-3 flex flex-wrap items-center gap-1 rounded-lg bg-neutral-100 p-1"
+          role="toolbar"
+          aria-label={`Edit ${widget.title}`}
+          data-testid="widget-tools"
+        >
+          <EditTool
+            label="Rename"
+            icon="pencil"
+            onClick={() => {
+              const title = window.prompt("Widget title", widget.title);
+              if (title !== null && title.trim() !== "")
+                onEdit([{ op: "replace", path: `${path}/title`, value: title.trim() }]);
+            }}
+          />
+          <EditTool
+            label="Earlier"
+            icon="arrow-left"
+            disabled={index === 0}
+            onClick={() => {
+              onEdit([
+                { op: "move", from: path, path: `/widgets/${(index - 1).toString()}` },
+              ]);
+            }}
+          />
+          <EditTool
+            label="Later"
+            icon="arrow-right"
+            disabled={index === count - 1}
+            onClick={() => {
+              onEdit([
+                { op: "move", from: path, path: `/widgets/${(index + 1).toString()}` },
+              ]);
+            }}
+          />
+          <span className="flex-1" />
+          <EditTool
+            label="Remove"
+            icon="trash"
+            danger
+            onClick={() => {
+              onEdit([
+                { op: "test", path: `${path}/id`, value: widget.id },
+                { op: "remove", path },
+              ]);
+            }}
+          />
+        </div>
+      ) : null}
       {view.kind === "empty" ? (
         <p className="text-[0.8125rem] text-neutral-500">{view.reason}</p>
       ) : view.kind === "kpi" ? (

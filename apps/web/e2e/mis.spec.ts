@@ -206,6 +206,104 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   expect(await aiCallsForAccount()).toBe(0);
 });
 
+test("the rail and the chat fold away, the chat stays one press from anywhere, and edit tools stay inside their cards", async () => {
+  const company = await db.query<{ id: string }>(
+    `select c.id from companies c join accounts a on a.id = c.account_id where a.email = $1`,
+    [email],
+  );
+  const companyId = company.rows[0]?.id ?? "";
+  await page.goto(`/app/companies/${companyId}`);
+  const revenue = page.getByTestId("widget-kpi_revenue");
+  await expect(revenue).toBeVisible();
+
+  // ADR 0044: four words beside a title did not fit a narrow card and ran out through its
+  // rounded corner. Measured, not eyeballed: every control sits inside its card, and no card
+  // scrolls sideways. Checked with the chat open, which is when the cards are narrowest.
+  await page.getByRole("button", { name: "Edit layout" }).click();
+  const cards = page.locator("section[data-testid^='widget-']");
+  const count = await cards.count();
+  expect(count).toBeGreaterThan(3);
+  for (let i = 0; i < count; i += 1) {
+    const card = cards.nth(i);
+    const box = await card.boundingBox();
+    if (box === null) throw new Error("card has no box");
+    const tools = card.getByTestId("widget-tools").getByRole("button");
+    expect(await tools.count()).toBe(4);
+    for (const tool of await tools.all()) {
+      const t = await tool.boundingBox();
+      if (t === null) throw new Error("tool has no box");
+      expect(t.x).toBeGreaterThanOrEqual(box.x);
+      expect(t.x + t.width).toBeLessThanOrEqual(box.x + box.width + 0.5);
+      expect(t.y + t.height).toBeLessThanOrEqual(box.y + box.height + 0.5);
+    }
+    expect(
+      await card.evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
+      "a card scrolls sideways",
+    ).toBe(true);
+  }
+  await page.getByRole("button", { name: "Done editing" }).click();
+
+  // The chat can be put away, and stays put away across a reload…
+  const panel = page.getByTestId("chat-panel");
+  const launcher = page.getByTestId("chat-launcher");
+  const question = page.getByLabel("Your question");
+  await expect(panel).toBeVisible();
+  const grid = revenue.locator("xpath=..");
+  const narrow = (await grid.boundingBox())?.width ?? 0;
+  await page.getByTestId("chat-collapse").click();
+  await expect(panel).toBeHidden();
+  await expect(launcher).toBeVisible();
+  // …which gives the dashboard the room it took.
+  await expect
+    .poll(async () => (await grid.boundingBox())?.width ?? 0)
+    .toBeGreaterThan(narrow + 200);
+  await page.reload();
+  await expect(launcher).toBeVisible();
+  await expect(panel).toBeHidden();
+
+  // …and is never out of reach: the launcher, the keyboard, and Investigate all bring it back
+  // with the cursor in the question box.
+  await launcher.click();
+  await expect(panel).toBeVisible();
+  await expect(question).toBeFocused();
+  await page.keyboard.press("Control+k");
+  await expect(panel).toBeHidden();
+  await page.keyboard.press("Control+k");
+  await expect(panel).toBeVisible();
+  await expect(question).toBeFocused();
+  await page.getByTestId("chat-collapse").click();
+  await revenue.getByRole("button", { name: "Investigate" }).click();
+  await expect(panel).toBeVisible();
+  await expect(question).toHaveValue(/Why did/u);
+  await question.fill("");
+
+  // The rail folds to icons, keeps every name, and remembers.
+  const rail = page.getByTestId("rail");
+  await page.getByTestId("rail-toggle").click();
+  await expect(rail).toHaveAttribute("data-collapsed", "true");
+  // The width eases over a fifth of a second, so it is polled rather than read once.
+  await expect
+    .poll(async () => (await rail.boundingBox())?.width ?? 999)
+    .toBeLessThan(90);
+  await expect(rail.getByRole("link", { name: "Wallet" })).toBeVisible();
+  await expect(rail.getByRole("link", { name: "Chat with the MIS" })).toBeVisible();
+  await page.reload();
+  await expect(rail).toHaveAttribute("data-collapsed", "true");
+
+  // From a page that is not about any company, the rail still opens this company's chat.
+  await page.getByTestId("chat-collapse").click();
+  await rail.getByRole("link", { name: "Wallet" }).click();
+  await expect(page).toHaveURL(/\/wallet$/u);
+  await page.getByTestId("rail-chat").click();
+  await expect(page).toHaveURL(new RegExp(`/app/companies/${companyId}$`, "u"));
+  await expect(panel).toBeVisible();
+  await expect(question).toBeFocused();
+
+  // Left as the rest of the file expects it: rail open, chat open.
+  await page.getByTestId("rail-toggle").click();
+  await expect(rail).toHaveAttribute("data-collapsed", "false");
+});
+
 test("sets up a company that recreates the user's reference MIS with no AI call", async () => {
   const { referenceMisWorkbook } = await import("@magicmis/fixtures");
   const { mkdtemp, writeFile } = await import("node:fs/promises");
