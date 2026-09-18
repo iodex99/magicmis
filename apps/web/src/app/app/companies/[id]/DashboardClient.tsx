@@ -20,10 +20,12 @@ import {
 } from "@magicmis/render-dashboard";
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 
+import { Sparkline } from "@/components/Charts";
 import { Drawer } from "@/components/Drawer";
 import { EChart } from "@/components/EChart";
 import { LineagePanel } from "@/components/LineagePanel";
 import { PaidJobButton } from "@/components/PaidJobButton";
+import { RollingNumber } from "@/components/RollingNumber";
 import { Icon } from "@/components/Icon";
 import { Alert, Button, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
@@ -76,22 +78,43 @@ function movementLabel(
 function ValueButton({
   value,
   onOpen,
+  rolling = false,
 }: {
   value: ValueRef;
   onOpen: (key: string) => void;
+  /** Roll the figure in a character at a time (ADR 0036), for a card's headline only. */
+  rolling?: boolean;
 }) {
   return (
     <button
       type="button"
-      className="tabular-nums underline decoration-neutral-300 underline-offset-4 hover:decoration-accent-600"
+      className="tabular-nums underline decoration-neutral-300 underline-offset-4 transition-colors hover:decoration-accent-600"
       onClick={() => {
         onOpen(value.metricKey);
       }}
       data-metric-key={value.metricKey}
     >
-      {value.display}
+      {rolling ? <RollingNumber value={value.display} /> : value.display}
     </button>
   );
+}
+
+/**
+ * The last twelve months of a metric, for the sparkline beside its headline (ADR 0036). Chart
+ * values only, never a displayed figure: the number on the card is the one that is read.
+ */
+function trendOf(values: readonly MetricValue[], metricId: string): number[] {
+  return values
+    .filter(
+      (v) =>
+        v.metricId === metricId && v.value !== null && Object.keys(v.dims).length === 0,
+    )
+    .sort((a, b) => a.period.localeCompare(b.period))
+    .slice(-12)
+    .map((v) => {
+      const n = Number.parseFloat(v.value ?? "0");
+      return v.unit === "paise" ? n / 100 : n;
+    });
 }
 
 function WidgetCard({
@@ -132,13 +155,16 @@ function WidgetCard({
     [widget, values, period, payload.company.fyStartMonth, format],
   );
   const path = `/widgets/${index.toString()}`;
+  const trend =
+    widget.kind === "kpi_card" ? trendOf(values, widget.metrics[0] ?? "") : [];
   return (
     <section
       // Beside the assistant the grid can be narrow, so a card takes twice its width there
       // and its designed width once the grid has room.
-      className="print-block flex flex-col rounded-xl border border-neutral-200/80 bg-surface p-4 shadow-sm [grid-column:span_var(--span-narrow)/span_var(--span-narrow)] @3xl:[grid-column:span_var(--span)/span_var(--span)]"
+      className="print-block rise lift flex flex-col rounded-xl border border-neutral-200/80 bg-surface p-4 shadow-sm [grid-column:span_var(--span-narrow)/span_var(--span-narrow)] @3xl:[grid-column:span_var(--span)/span_var(--span)]"
       style={
         {
+          "--i": index.toString(),
           "--span": widget.layout.w.toString(),
           "--span-narrow": Math.min(12, widget.layout.w * 2).toString(),
           minHeight: `${(widget.layout.h * 4).toString()}rem`,
@@ -151,6 +177,11 @@ function WidgetCard({
     >
       <div className="mb-3 flex items-start justify-between gap-2">
         <h3 className="eyebrow">{widget.title}</h3>
+        {!editing && trend.length >= 3 ? (
+          <span className="-mt-1.5 shrink-0 opacity-90" title="Last twelve months">
+            <Sparkline values={trend} width={88} height={26} />
+          </span>
+        ) : null}
         {editing ? (
           <div className="-mt-1 -mr-1 flex gap-0.5">
             <button
@@ -207,25 +238,37 @@ function WidgetCard({
         <p className="text-[0.8125rem] text-neutral-500">{view.reason}</p>
       ) : view.kind === "kpi" ? (
         <div className="flex flex-1 flex-col">
-          <div className="num text-[1.75rem] leading-none font-semibold tracking-tight text-neutral-900">
+          <div className="num text-[1.75rem] leading-none font-semibold tracking-tight whitespace-nowrap text-neutral-900">
             {view.values[0] === undefined ? (
               "—"
             ) : (
-              <ValueButton value={view.values[0]} onOpen={onOpen} />
+              <ValueButton value={view.values[0]} onOpen={onOpen} rolling />
             )}
           </div>
           {view.values.length < 2 ? null : (
-            <dl className="mt-3 flex flex-col gap-1 text-[0.75rem]">
-              {view.values.slice(1).map((v) => (
-                <div key={v.metricKey} className="flex items-baseline gap-1.5">
-                  <dt className="truncate text-neutral-500">
-                    {movementLabel(v.metricKey, format)}
-                  </dt>
-                  <dd className="num ml-auto">
-                    <ValueButton value={v} onOpen={onOpen} />
-                  </dd>
-                </div>
-              ))}
+            <dl className="mt-3 flex flex-wrap gap-1.5 text-[0.75rem]">
+              {view.values.slice(1).map((v) => {
+                const down = v.display.startsWith("-") || v.display.startsWith("(");
+                return (
+                  <div
+                    key={v.metricKey}
+                    className="inline-flex items-center gap-1 rounded-full bg-neutral-100 py-0.5 pr-2 pl-1.5"
+                  >
+                    <dt className="sr-only">{movementLabel(v.metricKey, format)}</dt>
+                    <Icon
+                      name={down ? "arrow-down" : "arrow-up"}
+                      size={11}
+                      className={down ? "text-negative" : "text-positive"}
+                    />
+                    <dd className="num font-medium text-neutral-700">
+                      <ValueButton value={v} onOpen={onOpen} />
+                    </dd>
+                    <span className="text-neutral-400">
+                      {movementLabel(v.metricKey, format)}
+                    </span>
+                  </div>
+                );
+              })}
             </dl>
           )}
           {/* SPEC §27: Investigate sends a Deep question about this metric's movement. */}
@@ -349,7 +392,13 @@ export function DashboardClient({
 
   if (payload === null)
     return error === null ? (
-      <p className="text-sm text-neutral-500">Loading…</p>
+      <div className="grid grid-cols-12 gap-4" aria-busy="true" aria-label="Loading">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="skeleton col-span-3 h-32" />
+        ))}
+        <div className="skeleton col-span-8 h-72" />
+        <div className="skeleton col-span-4 h-72" />
+      </div>
     ) : (
       <Alert tone="error">{error}</Alert>
     );

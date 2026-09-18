@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
 
@@ -18,6 +18,17 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+});
+
+/**
+ * Headlines and page titles (ADR 0036). A geometric grotesk beside Inter gives the product a
+ * voice of its own without touching the figures, which stay in Inter's tabular numerals.
+ */
+const grotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  variable: "--font-grotesk",
 });
 
 /**
@@ -69,7 +80,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html
       lang="en-IN"
-      className={inter.variable}
+      className={`${inter.variable} ${grotesk.variable}`}
       {...(chosen === undefined ? {} : { "data-theme": chosen })}
     >
       <body className="min-h-screen bg-canvas antialiased">{children}</body>

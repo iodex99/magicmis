@@ -93,6 +93,10 @@ function tooltipFrom(
 function frame(format: ViewFormat, money: boolean): EChartsOption {
   return {
     color: PALETTE,
+    // A chart draws itself in rather than appearing (ADR 0036); the option is data, and the
+    // browser honours reduced-motion by drawing at once.
+    animationDuration: 900,
+    animationEasing: "cubicOut",
     grid: { left: 4, right: 12, top: 12, bottom: 4, containLabel: true },
     textStyle: { fontFamily: "inherit" },
     yAxis: {

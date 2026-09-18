@@ -629,7 +629,7 @@ export function Assistant({
       >
         {timeline.length === 0 ? (
           <div className="my-auto flex flex-col items-start gap-3">
-            <p className="text-[0.9375rem] font-semibold text-neutral-900">
+            <p className="display text-[1.125rem] font-semibold text-neutral-900">
               What would you like to know?
             </p>
             <p className="text-[0.8125rem] leading-relaxed text-neutral-500">
@@ -642,14 +642,18 @@ export function Assistant({
                 <button
                   key={s.label}
                   type="button"
-                  className="flex items-center justify-between gap-2 rounded-xl border border-neutral-200 bg-neutral-25 px-3 py-2.5 text-left text-[0.8125rem] text-neutral-700 transition-colors hover:border-accent-200 hover:bg-accent-50 hover:text-accent-800"
+                  className="press group flex items-center justify-between gap-2 rounded-xl border border-neutral-200 bg-neutral-25 px-3 py-2.5 text-left text-[0.8125rem] text-neutral-700 hover:border-accent-200 hover:bg-accent-50 hover:text-accent-800"
                   onClick={() => {
                     s.run();
                     input.current?.focus();
                   }}
                 >
                   {s.label}
-                  <Icon name="arrow-right" size={13} className="shrink-0" />
+                  <Icon
+                    name="arrow-right"
+                    size={13}
+                    className="shrink-0 transition-transform group-hover:translate-x-0.5"
+                  />
                 </button>
               ))}
             </div>
@@ -849,11 +853,14 @@ export function Assistant({
             className="message-in flex w-fit items-center gap-2 rounded-2xl rounded-bl-sm bg-neutral-100 px-3.5 py-2.5 text-[0.8125rem] text-neutral-600"
             role="status"
           >
-            <Icon
-              name="loader"
-              size={14}
-              className="animate-spin [animation-duration:1.6s]"
-            />
+            <span
+              className="typing flex items-center gap-1 text-accent-600"
+              aria-hidden="true"
+            >
+              <span />
+              <span />
+              <span />
+            </span>
             {busy}
             {waited < 3 ? null : (
               <span className="tabular-nums text-neutral-400">{waited.toString()}s</span>

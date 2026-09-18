@@ -69,7 +69,7 @@ export default async function AppHomePage() {
       {companies.length === 0 ? (
         <>
           <div className="mb-6">
-            <h1 className="text-[1.625rem] leading-tight font-semibold tracking-tight text-neutral-900">
+            <h1 className="display text-[1.75rem] leading-tight font-semibold text-neutral-900">
               Welcome to {PRODUCT_NAME}
             </h1>
           </div>
@@ -162,7 +162,7 @@ export default async function AppHomePage() {
             className="mb-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
             data-testid="company-list"
           >
-            {companies.map((c) => {
+            {companies.map((c, i) => {
               const state = STATE[c.lifecycleState] ?? {
                 label: c.lifecycleState,
                 tone: "neutral" as BadgeTone,
@@ -171,7 +171,8 @@ export default async function AppHomePage() {
               return (
                 <li
                   key={c.id}
-                  className="group relative flex flex-col rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
+                  className="lift rise group relative flex flex-col rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-sm hover:border-accent-200"
+                  style={{ "--i": i.toString() } as React.CSSProperties}
                 >
                   <div className="flex items-start gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
@@ -207,7 +208,11 @@ export default async function AppHomePage() {
                         Add a month
                       </Link>
                     ) : (
-                      <Icon name="arrow-right" size={15} className="text-neutral-400" />
+                      <Icon
+                        name="arrow-right"
+                        size={15}
+                        className="text-neutral-400 transition-transform group-hover:translate-x-0.5 group-hover:text-accent-600"
+                      />
                     )}
                   </div>
                 </li>

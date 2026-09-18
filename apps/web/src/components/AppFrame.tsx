@@ -46,7 +46,7 @@ export async function AppFrame({
         {...(company === undefined ? {} : { company })}
         onSignOut={<SignOutButton />}
       />
-      <main className="min-w-0 flex-1 px-8 py-7">
+      <main className="canvas-grid min-w-0 flex-1 px-8 py-7">
         <div className={`mx-auto w-full ${wide ? "max-w-[1680px]" : "max-w-[1180px]"}`}>
           {children}
         </div>

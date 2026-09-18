@@ -10,6 +10,7 @@ import type {
 import { PRODUCT_NAME } from "@/lib/brand";
 
 import { Icon, type IconName } from "./Icon";
+import { RollingNumber } from "./RollingNumber";
 
 /**
  * Base components (SPEC §32): precise, calm, dense.
@@ -43,7 +44,7 @@ const BUTTON_SIZE: Record<ControlSize, string> = {
 };
 
 const BUTTON_BASE =
-  "inline-flex items-center justify-center font-medium transition-[background-color,border-color,color,box-shadow] disabled:cursor-not-allowed";
+  "press inline-flex items-center justify-center font-medium disabled:cursor-not-allowed";
 
 export function Button({
   variant = "primary",
@@ -243,16 +244,20 @@ export function StatCard({
       </div>
       <p className="mt-3 flex items-baseline gap-1.5">
         <span className="num text-[1.75rem] leading-none font-semibold tracking-tight text-neutral-900">
-          {value}
+          <RollingNumber value={value} />
         </span>
         {unit === undefined ? null : (
           <span className="text-[0.8125rem] text-neutral-500">{unit}</span>
         )}
       </p>
       {delta === undefined ? null : (
-        <p className={`mt-2 text-[0.8125rem] font-medium ${deltaColour}`}>
-          <span aria-hidden="true">{arrow} </span>
-          {delta.text}
+        <p className="mt-2.5">
+          <span
+            className={`inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[0.75rem] font-medium ${deltaColour}`}
+          >
+            <span aria-hidden="true">{arrow}</span>
+            {delta.text}
+          </span>
         </p>
       )}
       {hint === undefined ? null : (
@@ -262,11 +267,11 @@ export function StatCard({
     </>
   );
   const shell =
-    "block rounded-xl border border-neutral-200/80 bg-surface p-4 shadow-sm transition-shadow";
+    "lift rise block rounded-xl border border-neutral-200/80 bg-surface p-4 shadow-sm";
   return href === undefined ? (
     <div className={shell}>{body}</div>
   ) : (
-    <Link href={href} className={`${shell} hover:border-accent-200 hover:shadow-md`}>
+    <Link href={href} className={`${shell} hover:border-accent-200`}>
       {body}
     </Link>
   );
@@ -386,7 +391,7 @@ export function EmptyState({
       className="flex flex-col items-center px-6 py-10 text-center"
       data-testid={testId}
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-neutral-100 text-neutral-400">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-100 text-neutral-500 ring-8 ring-neutral-50">
         <Icon name={icon} size={20} />
       </span>
       <p className="mt-3 text-sm font-semibold text-neutral-900">{title}</p>
@@ -713,7 +718,7 @@ export function PageHeader({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-[1.625rem] leading-tight font-semibold tracking-tight text-neutral-900">
+            <h1 className="display text-[1.75rem] leading-tight font-semibold text-neutral-900">
               {title}
             </h1>
             {meta}

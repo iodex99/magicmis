@@ -56,13 +56,21 @@ function NavLink({ item, current }: { item: NavItem; current: boolean }) {
     <Link
       href={item.href}
       aria-current={current ? "page" : undefined}
-      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.8125rem] font-medium transition-colors ${
+      className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[0.8125rem] font-medium transition-colors ${
         current
-          ? "bg-accent-600 text-white"
-          : "text-neutral-300 hover:bg-ink-700 hover:text-white"
+          ? "bg-ink-700 text-white before:absolute before:top-1/2 before:left-0 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-accent-400"
+          : "text-neutral-300 hover:bg-ink-700/70 hover:text-white"
       }`}
     >
-      <Icon name={item.icon} size={16} />
+      <span
+        className={`flex h-6 w-6 items-center justify-center rounded-md transition-colors ${
+          current
+            ? "bg-accent-600 text-white"
+            : "bg-white/5 text-neutral-400 group-hover:text-white"
+        }`}
+      >
+        <Icon name={item.icon} size={14} />
+      </span>
       {item.label}
     </Link>
   );
@@ -135,17 +143,22 @@ export function Sidebar({
       <div className="mt-auto flex flex-col gap-3 pt-6">
         <Link
           href="/wallet"
-          className="rounded-xl bg-ink-700 p-3 transition-colors hover:bg-ink-600"
+          className="group rounded-xl border border-white/5 bg-ink-700 p-3 transition-colors hover:border-accent-400/40 hover:bg-ink-600"
         >
-          <p className="text-[0.6875rem] font-semibold tracking-[0.06em] text-neutral-400 uppercase">
+          <p className="flex items-center gap-1.5 text-[0.6875rem] font-semibold tracking-[0.06em] text-neutral-400 uppercase">
+            <Icon name="wallet" size={12} />
             Credits available
           </p>
-          <p className="num mt-1 text-left text-xl font-semibold text-white">
+          <p className="num display mt-1.5 text-left text-[1.375rem] leading-none font-semibold text-white">
             {availableCredits}
           </p>
-          <p className="mt-1.5 flex items-center gap-1 text-[0.75rem] font-medium text-accent-300">
+          <p className="mt-2 flex items-center gap-1 text-[0.75rem] font-medium text-accent-300">
             Buy credits
-            <Icon name="arrow-right" size={12} />
+            <Icon
+              name="arrow-right"
+              size={12}
+              className="transition-transform group-hover:translate-x-0.5"
+            />
           </p>
         </Link>
 

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
-import { Sparkline } from "@/components/Charts";
 import { Icon, type IconName } from "@/components/Icon";
 import { Faqs } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
@@ -122,17 +121,41 @@ export default function HomePage() {
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div>
             <Badge tone="accent">For accountants and finance teams</Badge>
-            <h1 className="mt-5 text-[2.5rem] leading-[1.1] font-semibold tracking-tight text-neutral-900 sm:text-[3.25rem]">
-              The monthly management report, built from the exports you already have.
+            <h1 className="display rise mt-5 text-[2.625rem] leading-[1.05] font-semibold text-neutral-900 sm:text-[3.5rem]">
+              The monthly management report, built from the exports you{" "}
+              <span className="relative inline-block">
+                already have.
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 200 12"
+                  preserveAspectRatio="none"
+                  className="absolute -bottom-1 left-0 h-3 w-full text-accent-500"
+                >
+                  <path
+                    d="M2 9 C 40 3, 80 3, 118 7 S 180 9, 198 4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    className="draw"
+                  />
+                </svg>
+              </span>
             </h1>
-            <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-neutral-600">
+            <p
+              className="rise mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-neutral-600"
+              style={{ "--i": "1" } as React.CSSProperties}
+            >
               {PRODUCT_NAME} turns a trial balance from any accounting system into a
               validated Excel workbook with live formulas, a dashboard and written
               commentary — and does it again next month without being re-taught.
               Management accounts, a monthly reporting pack, an MIS — the same report
               under whichever name your market uses.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div
+              className="rise mt-8 flex flex-wrap items-center gap-3"
+              style={{ "--i": "2" } as React.CSSProperties}
+            >
               <ButtonLink href="/sign-up" size="lg" iconAfter="arrow-right">
                 Create an account
               </ButtonLink>
@@ -146,7 +169,10 @@ export default function HomePage() {
           </div>
 
           {/* Illustration only. Fictional figures, stated as such (SPEC §2.3). */}
-          <div className="rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-lg">
+          <div
+            className="rise rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-xl"
+            style={{ "--i": "3" } as React.CSSProperties}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="eyebrow">Revenue · illustration</p>
@@ -159,17 +185,51 @@ export default function HomePage() {
               </span>
             </div>
             <div className="mt-4">
-              <Sparkline
-                values={[38, 41, 39, 44, 47, 46, 52, 55, 53, 58, 61, 64]}
-                width={340}
+              {/* Drawn once on arrival: a line that is still being computed is the product. */}
+              <svg
+                viewBox="0 0 340 82"
+                width="100%"
                 height={82}
-              />
+                aria-hidden="true"
+                className="overflow-visible"
+              >
+                {[20, 41, 62].map((y) => (
+                  <line
+                    key={y}
+                    x1={0}
+                    x2={340}
+                    y1={y}
+                    y2={y}
+                    stroke="currentColor"
+                    className="text-neutral-200"
+                    strokeDasharray="2 4"
+                  />
+                ))}
+                <path
+                  d="M4 66 L34 60 L64 63 L94 52 L124 46 L154 48 L184 36 L214 30 L244 34 L274 22 L304 16 L334 10"
+                  fill="none"
+                  stroke="#6c5ce7"
+                  strokeWidth={2.4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="draw"
+                />
+                <circle cx={334} cy={10} r={4} fill="#6c5ce7" />
+                <circle cx={334} cy={10} r={9} fill="#6c5ce7" fillOpacity={0.15} />
+              </svg>
             </div>
-            <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-neutral-100 pt-4">
+            <p className="mt-3 flex items-center gap-2 text-[0.75rem] font-medium text-positive">
+              <span className="relative inline-flex h-2 w-2 items-center justify-center">
+                <span className="ping-soft absolute inset-0 rounded-full" />
+                <span className="relative h-2 w-2 rounded-full bg-positive" />
+              </span>
+              12 of 12 checks passed against the trial balance
+            </p>
+            <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-neutral-100 pt-4">
               {[
                 ["Gross margin", "31.4%"],
                 ["Debtor days", "47"],
-                ["Checks passed", "12 / 12"],
+                ["EBITDA", "$212k"],
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-[0.6875rem] tracking-[0.04em] text-neutral-500 uppercase">
