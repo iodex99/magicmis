@@ -13,7 +13,9 @@ export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 15_000 },
   retries: 0,
-  reporter: [["list"]],
+  // Under CI, failures are also written as annotations, which the public checks API serves
+  // without a token: a failed run can be read, not guessed at (CLAUDE.md, "read the log").
+  reporter: process.env["CI"] ? [["list"], ["github"]] : [["list"]],
   use: {
     baseURL: "http://127.0.0.1:3000",
     trace: "retain-on-failure",
