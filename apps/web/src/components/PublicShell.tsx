@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { PRODUCT_NAME } from "@/lib/brand";
 
-import { BrandMark } from "./ui";
+import { Logo } from "./Logo";
 
 /**
  * The shell for pages a signed-out visitor can reach (SPEC §32).
@@ -68,11 +68,8 @@ export function PublicShell({
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-20 border-b border-neutral-200/70 bg-neutral-50/85 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-4 px-6">
-          <Link href="/" className="flex items-center gap-2.5">
-            <BrandMark size={28} />
-            <span className="text-[0.9375rem] font-semibold tracking-tight text-neutral-900">
-              {PRODUCT_NAME}
-            </span>
+          <Link href="/" className="flex items-center" aria-label={PRODUCT_NAME}>
+            <Logo size={28} animate />
           </Link>
           <nav aria-label="Site" className="flex items-center gap-1 text-[0.8125rem]">
             {/* The three a visitor evaluating the product needs, in the order they ask:
@@ -117,11 +114,8 @@ export function PublicShell({
         <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
             <div>
-              <Link href="/" className="flex items-center gap-2.5">
-                <BrandMark size={26} />
-                <span className="text-[0.875rem] font-semibold tracking-tight text-neutral-900">
-                  {PRODUCT_NAME}
-                </span>
+              <Link href="/" className="flex items-center" aria-label={PRODUCT_NAME}>
+                <Logo size={26} />
               </Link>
               <p className="mt-3 text-[0.8125rem] leading-relaxed text-neutral-500">
                 Monthly management reports from your accounting data, for accountants and

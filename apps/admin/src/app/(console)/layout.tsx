@@ -36,17 +36,16 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
       <aside className="on-ink sticky top-0 flex h-screen w-60 shrink-0 flex-col bg-ink-900 px-3 py-4">
         <p className="mb-6 flex items-center gap-2.5 px-2">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[28%] bg-accent-600">
-            <svg
-              width={16}
-              height={16}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth={2.4}
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M7 16.5V11m5 5.5V6m5 10.5v-3.5M4.5 20.5h15" />
+            <svg width={18} height={18} viewBox="0 0 64 64" aria-hidden="true">
+              <path
+                d="M13 47 L23 19 L32 33 L42 13 L51 29"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle cx={51} cy={29} r={5.5} fill="#ffffff" />
             </svg>
           </span>
           <span className="text-[0.9375rem] font-semibold tracking-tight text-white">

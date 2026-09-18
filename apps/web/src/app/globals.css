@@ -416,3 +416,46 @@ html {
     background: #fff !important;
   }
 }
+
+/*
+ * The mark draws itself (ADR 0037): the M as a stroke, then the ring pops in at its end. Plays
+ * once on arrival; never loops. Reduced motion collapses it with everything else above.
+ */
+@keyframes logo-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes logo-ring {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes logo-tile {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+}
+.logo-animate {
+  animation: logo-tile 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.logo-animate .logo-stroke {
+  stroke-dasharray: 140;
+  stroke-dashoffset: 140;
+  animation: logo-stroke 900ms cubic-bezier(0.4, 0, 0.2, 1) 220ms forwards;
+}
+.logo-animate .logo-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-ring 420ms cubic-bezier(0.2, 0.7, 0.2, 1) 1000ms both;
+}

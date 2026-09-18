@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 
+import { MARK_END, MARK_PATH } from "@/components/Logo";
+
 import { PRODUCT_NAME } from "@/lib/brand";
 
 /**
@@ -43,16 +45,17 @@ export default function OpengraphImage() {
             borderRadius: 18,
           }}
         >
-          <svg
-            width={40}
-            height={40}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth={2.4}
-            strokeLinecap="round"
-          >
-            <path d="M7 16.5V11m5 5.5V6m5 10.5v-3.5M4.5 20.5h15" />
+          <svg width={64} height={64} viewBox="0 0 64 64">
+            <path
+              d={MARK_PATH}
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <circle cx={MARK_END.x} cy={MARK_END.y} r={5.5} fill="#ffffff" />
+            <circle cx={MARK_END.x} cy={MARK_END.y} r={2.4} fill="#5846d2" />
           </svg>
         </div>
         <div style={{ fontSize: 34, fontWeight: 600, color: "#17171c" }}>

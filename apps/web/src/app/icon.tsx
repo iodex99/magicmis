@@ -1,12 +1,14 @@
 import { ImageResponse } from "next/og";
 
+import { MARK_END, MARK_PATH } from "@/components/Logo";
+
 /**
  * The favicon, drawn rather than shipped as a binary
  * (https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons).
  *
- * The same ledger-column mark as `BrandMark`, so a pinned tab and the header agree. Keeping
- * it as code means the accent colour has exactly one definition to change, which matters
- * while the brand itself is still a placeholder (R-01).
+ * The same mark as `LogoMark` (ADR 0037), from the same path constant, so a pinned tab and the
+ * header cannot disagree. At 32 px the ring is drawn a touch larger than in the full mark so it
+ * still reads as a point.
  */
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
@@ -24,16 +26,17 @@ export default function Icon() {
         borderRadius: 9,
       }}
     >
-      <svg
-        width={20}
-        height={20}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth={2.6}
-        strokeLinecap="round"
-      >
-        <path d="M7 16.5V11m5 5.5V6m5 10.5v-3.5M4.5 20.5h15" />
+      <svg width={32} height={32} viewBox="0 0 64 64">
+        <path
+          d={MARK_PATH}
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth={7}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx={MARK_END.x} cy={MARK_END.y} r={6.5} fill="#ffffff" />
+        <circle cx={MARK_END.x} cy={MARK_END.y} r={2.8} fill="#5846d2" />
       </svg>
     </div>,
     size,

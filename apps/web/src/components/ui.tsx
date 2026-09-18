@@ -10,6 +10,7 @@ import type {
 import { PRODUCT_NAME } from "@/lib/brand";
 
 import { Icon, type IconName } from "./Icon";
+import { Logo, LogoMark } from "./Logo";
 import { RollingNumber } from "./RollingNumber";
 
 /**
@@ -788,11 +789,12 @@ export function AuthShell({
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
       <div className={`w-full ${width === "wide" ? "max-w-[32rem]" : "max-w-[26rem]"}`}>
-        <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-          <BrandMark size={30} />
-          <span className="text-[0.9375rem] font-semibold tracking-tight text-neutral-900">
-            {PRODUCT_NAME}
-          </span>
+        <Link
+          href="/"
+          className="mb-8 flex items-center justify-center"
+          aria-label={PRODUCT_NAME}
+        >
+          <Logo size={34} animate />
         </Link>
         <div className="rounded-2xl border border-neutral-200/80 bg-surface p-7 shadow-lg">
           <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
@@ -824,23 +826,6 @@ export function BrandMark({
   size?: number | undefined;
   className?: string | undefined;
 }) {
-  return (
-    <span
-      style={{ width: size, height: size }}
-      className={`inline-flex shrink-0 items-center justify-center rounded-[28%] bg-accent-600 ${className}`}
-    >
-      <svg
-        width={size * 0.62}
-        height={size * 0.62}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth={2.4}
-        strokeLinecap="round"
-        aria-hidden="true"
-      >
-        <path d="M7 16.5V11m5 5.5V6m5 10.5v-3.5M4.5 20.5h15" />
-      </svg>
-    </span>
-  );
+  // One drawing for the whole brand (ADR 0037); this keeps the name every caller already uses.
+  return <LogoMark size={size} className={className} />;
 }

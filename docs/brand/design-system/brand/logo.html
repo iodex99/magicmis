@@ -1,0 +1,243 @@
+<!-- @dsCard group="Brand" -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Magic MIS — Logo</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --accent: #5846d2;
+        --accent-500: #6c5ce7;
+        --accent-300: #ab9ef5;
+        --ink: #141029;
+        --n900: #191824;
+        --n500: #6f6c85;
+        --n200: #dedce8;
+        --n50: #f5f5f9;
+      }
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: Inter, system-ui, sans-serif;
+        color: var(--n900);
+        background: #fff;
+      }
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: -0.02em;
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+      p {
+        color: var(--n500);
+        font-size: 13px;
+        margin: 0 0 24px;
+        max-width: 60ch;
+        line-height: 1.5;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .tile {
+        border: 1px solid var(--n200);
+        border-radius: 14px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 150px;
+        position: relative;
+      }
+      .tile.dark {
+        background: var(--ink);
+      }
+      .tile.grey {
+        background: var(--n50);
+      }
+      .label {
+        position: absolute;
+        left: 14px;
+        bottom: 10px;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--n500);
+        font-weight: 600;
+      }
+      .dark .label {
+        color: #9d99bd;
+      }
+      .word {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .clear {
+        position: relative;
+        display: inline-block;
+      }
+      .clear::before {
+        content: "";
+        position: absolute;
+        inset: -6px;
+        border: 1px dashed var(--accent-300);
+        border-radius: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Logo</h1>
+    <p>
+      An M that is also a rising line — a management report and its trend in one shape —
+      with the sparkline's live endpoint as a ring. One accent, one tile radius (18/64).
+      Clear space is one stroke width; minimum 16&nbsp;px.
+    </p>
+    <div class="grid">
+      <div class="tile">
+        <span class="clear"
+          ><svg width="96" height="96" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="18" fill="#5846d2" />
+            <path
+              d="M13 47 L23 19 L32 33 L42 13 L51 29"
+              fill="none"
+              stroke="#fff"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="51" cy="29" r="5.5" fill="#fff" />
+            <circle cx="51" cy="29" r="2.4" fill="#5846d2" /></svg></span
+        ><span class="label">Mark · clear space</span>
+      </div>
+      <div class="tile">
+        <svg width="64" height="64" viewBox="0 0 64 64" style="color: #191824">
+          <path
+            d="M13 47 L23 19 L32 33 L42 13 L51 29"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="51" cy="29" r="5.5" fill="currentColor" />
+          <circle cx="51" cy="29" r="2.4" fill="#fff" /></svg
+        ><span class="label">Mono</span>
+      </div>
+      <div class="tile">
+        <span style="display: inline-flex; align-items: center; gap: 12px"
+          ><svg width="44" height="44" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="18" fill="#5846d2" />
+            <path
+              d="M13 47 L23 19 L32 33 L42 13 L51 29"
+              fill="none"
+              stroke="#fff"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="51" cy="29" r="5.5" fill="#fff" />
+            <circle cx="51" cy="29" r="2.4" fill="#5846d2" /></svg
+          ><span class="word" style="font-size: 28px"
+            >Magic <span style="color: #5846d2">MIS</span></span
+          ></span
+        ><span class="label">Lockup · light</span>
+      </div>
+      <div class="tile dark">
+        <span style="display: inline-flex; align-items: center; gap: 12px"
+          ><svg width="44" height="44" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="18" fill="#6c5ce7" />
+            <path
+              d="M13 47 L23 19 L32 33 L42 13 L51 29"
+              fill="none"
+              stroke="#fff"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="51" cy="29" r="5.5" fill="#fff" />
+            <circle cx="51" cy="29" r="2.4" fill="#6c5ce7" /></svg
+          ><span class="word" style="font-size: 28px; color: #fff"
+            >Magic <span style="color: #ab9ef5">MIS</span></span
+          ></span
+        ><span class="label">Lockup · on ink</span>
+      </div>
+      <div class="tile grey" style="gap: 18px">
+        <svg width="16" height="16" viewBox="0 0 64 64">
+          <rect width="64" height="64" rx="18" fill="#5846d2" />
+          <path
+            d="M13 47 L23 19 L32 33 L42 13 L51 29"
+            fill="none"
+            stroke="#fff"
+            stroke-width="7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="51" cy="29" r="6.5" fill="#fff" />
+        </svg>
+        <svg width="24" height="24" viewBox="0 0 64 64">
+          <rect width="64" height="64" rx="18" fill="#5846d2" />
+          <path
+            d="M13 47 L23 19 L32 33 L42 13 L51 29"
+            fill="none"
+            stroke="#fff"
+            stroke-width="6.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="51" cy="29" r="6" fill="#fff" />
+        </svg>
+        <svg width="32" height="32" viewBox="0 0 64 64">
+          <rect width="64" height="64" rx="18" fill="#5846d2" />
+          <path
+            d="M13 47 L23 19 L32 33 L42 13 L51 29"
+            fill="none"
+            stroke="#fff"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="51" cy="29" r="5.5" fill="#fff" />
+          <circle cx="51" cy="29" r="2.4" fill="#5846d2" />
+        </svg>
+        <svg width="48" height="48" viewBox="0 0 64 64">
+          <rect width="64" height="64" rx="18" fill="#5846d2" />
+          <path
+            d="M13 47 L23 19 L32 33 L42 13 L51 29"
+            fill="none"
+            stroke="#fff"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="51" cy="29" r="5.5" fill="#fff" />
+          <circle cx="51" cy="29" r="2.4" fill="#5846d2" />
+        </svg>
+        <span class="label">16 · 24 · 32 · 48</span>
+      </div>
+      <div
+        class="tile"
+        style="
+          flex-direction: column;
+          gap: 8px;
+          align-items: flex-start;
+          justify-content: flex-start;
+          font-size: 12px;
+          color: var(--n500);
+        "
+      >
+        <b style="color: var(--n900)">Don't</b>
+        <span
+          >Stretch it · recolour it outside the accent and neutrals · add a gradient or a
+          glow · set it on a busy photograph · let it loop.</span
+        >
+        <span class="label">Rules</span>
+      </div>
+    </div>
+  </body>
+</html>

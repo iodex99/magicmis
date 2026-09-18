@@ -7,7 +7,8 @@ import { PRODUCT_NAME } from "@/lib/brand";
 
 import { Icon, type IconName } from "./Icon";
 import { ThemeToggle } from "./ThemeToggle";
-import { Avatar, BrandMark } from "./ui";
+import { Logo } from "./Logo";
+import { Avatar } from "./ui";
 
 /**
  * Primary navigation (SPEC §32).
@@ -107,11 +108,8 @@ export function Sidebar({
 
   return (
     <aside className="on-ink sticky top-0 flex h-screen w-60 shrink-0 flex-col bg-ink-900 px-3 py-4">
-      <Link href="/app" className="mb-6 flex items-center gap-2.5 px-2">
-        <BrandMark size={30} />
-        <span className="text-[0.9375rem] font-semibold tracking-tight text-white">
-          {PRODUCT_NAME}
-        </span>
+      <Link href="/app" className="mb-6 flex items-center px-2" aria-label={PRODUCT_NAME}>
+        <Logo size={30} onInk animate />
       </Link>
 
       <nav aria-label="Main" className="flex flex-col gap-5 overflow-y-auto">

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="248" height="64" viewBox="0 0 248 64" role="img" aria-label="Magic MIS">
+  <title>Magic MIS</title>
+  <rect width="64" height="64" rx="18" fill="#5846d2"/>
+  <path d="M13 47 L23 19 L32 33 L42 13 L51 29" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="51" cy="29" r="5.5" fill="#ffffff"/>
+  <circle cx="51" cy="29" r="2.4" fill="#5846d2"/>
+  <text x="80" y="42" font-family="'Space Grotesk', 'Inter', system-ui, sans-serif" font-size="30" font-weight="600" letter-spacing="-0.6" fill="#191824">Magic <tspan fill="#5846d2">MIS</tspan></text>
+</svg>

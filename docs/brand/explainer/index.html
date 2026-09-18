@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Magic MIS — the 45-second tour</title>
+    <meta name="viewport" content="width=1280" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /*
+   * A motion explainer that plays like a video (ADR 0037): six scenes on a JS timeline, every
+   * movement in CSS, recorded to .webm with Playwright. 1280×720, ~46 seconds. Figures are
+   * fictional and are stated as such on the closing card (SPEC §2.3).
+   */
+      :root {
+        --ink-900: #141029;
+        --ink-800: #1b1739;
+        --ink-700: #252048;
+        --accent: #5846d2;
+        --accent-500: #6c5ce7;
+        --accent-300: #ab9ef5;
+        --accent-50: #f1effe;
+        --n0: #fff;
+        --n25: #fbfbfd;
+        --n50: #f5f5f9;
+        --n100: #ecebf2;
+        --n200: #dedce8;
+        --n400: #928fa6;
+        --n500: #6f6c85;
+        --n700: #403e50;
+        --n900: #191824;
+        --positive: #15724a;
+        --positive-subtle: #e4f5ec;
+        --negative: #b03024;
+        --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html,
+      body {
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background: var(--ink-900);
+        font-family: Inter, system-ui, sans-serif;
+        color: var(--n900);
+      }
+      .display {
+        font-family: "Space Grotesk", Inter, sans-serif;
+        letter-spacing: -0.02em;
+      }
+      .num {
+        font-variant-numeric: tabular-nums;
+      }
+      #stage {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 500ms ease;
+      }
+      .scene.on {
+        opacity: 1;
+        visibility: visible;
+      }
+      .scene.off {
+        opacity: 0;
+      }
+
+      /* dark scenes */
+      .dark {
+        background: var(--ink-900);
+        color: #fff;
+      }
+      .dark .muted {
+        color: #b8b4d2;
+      }
+      .grid::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: #ffffff;
+        opacity: 0.06;
+        -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><circle cx='1' cy='1' r='0.9' fill='black'/></svg>");
+        mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><circle cx='1' cy='1' r='0.9' fill='black'/></svg>");
+        -webkit-mask-size: 22px 22px;
+        mask-size: 22px 22px;
+      }
+      .light {
+        background: var(--n50);
+      }
+      .light.grid::before {
+        background: var(--n400);
+        opacity: 0.35;
+      }
+
+      /* motion primitives */
+      .rise {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      .on .rise {
+        animation: rise 520ms var(--ease) both;
+        animation-delay: calc(var(--i, 0) * 120ms);
+      }
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .pop {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      .on .pop {
+        animation: pop 420ms var(--ease) both;
+        animation-delay: calc(var(--i, 0) * 120ms);
+      }
+      @keyframes pop {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .draw {
+        stroke-dasharray: 1400;
+        stroke-dashoffset: 1400;
+      }
+      .on .draw {
+        animation: draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation-delay: calc(var(--i, 0) * 120ms);
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      .cursor::after {
+        content: "";
+        display: inline-block;
+        width: 2px;
+        height: 1em;
+        background: currentColor;
+        margin-left: 2px;
+        vertical-align: -2px;
+        animation: blink 1s steps(1) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* logo */
+      .logo-tile rect {
+        fill: var(--accent);
+      }
+      .on .logo-stroke {
+        stroke-dasharray: 140;
+        stroke-dashoffset: 140;
+        animation: stroke 900ms cubic-bezier(0.4, 0, 0.2, 1) 300ms forwards;
+      }
+      @keyframes stroke {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      .on .logo-ring {
+        transform-box: fill-box;
+        transform-origin: center;
+        transform: scale(0);
+        animation: ring 420ms var(--ease) 1100ms forwards;
+      }
+      @keyframes ring {
+        70% {
+          transform: scale(1.25);
+        }
+        to {
+          transform: scale(1);
+        }
+      }
+
+      /* chrome */
+      .caption {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 92px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 64px;
+        background: var(--ink-900);
+        color: #fff;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .caption .step {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--accent);
+        font-weight: 700;
+        font-family: "Space Grotesk";
+      }
+      .caption .t {
+        font-family: "Space Grotesk";
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .caption .s {
+        color: #b8b4d2;
+        font-size: 16px;
+        margin-left: 6px;
+      }
+      .progress {
+        position: absolute;
+        left: 0;
+        bottom: 92px;
+        height: 3px;
+        background: var(--accent-500);
+        width: 0;
+        transition: width 400ms linear;
+      }
+
+      /* mock ui */
+      .card {
+        background: var(--n0);
+        border: 1px solid rgba(20, 16, 41, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(20, 16, 41, 0.08);
+      }
+      .eyebrow {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--n500);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 44px;
+        padding: 0 20px;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+      }
+      .field {
+        height: 46px;
+        border: 1px solid var(--n200);
+        border-radius: 10px;
+        padding: 0 14px;
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        color: var(--n900);
+        background: #fff;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--n100);
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--n700);
+      }
+      .pill.good {
+        background: var(--positive-subtle);
+        color: var(--positive);
+      }
+      .check {
+        display: inline-flex;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: var(--positive);
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+      }
+      .file {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        background: #fff;
+        border: 1px solid var(--n200);
+        font-size: 14px;
+      }
+      .bar {
+        height: 5px;
+        border-radius: 999px;
+        background: var(--n100);
+        overflow: hidden;
+      }
+      .bar > i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--accent-500);
+        border-radius: 999px;
+      }
+      .on .bar > i {
+        animation: fill 1.1s var(--ease) forwards;
+        animation-delay: calc(var(--i, 0) * 180ms + 500ms);
+      }
+      @keyframes fill {
+        to {
+          width: 100%;
+        }
+      }
+      .bubble {
+        max-width: 520px;
+        padding: 14px 18px;
+        border-radius: 18px;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+      .bubble.me {
+        background: var(--accent);
+        color: #fff;
+        border-bottom-right-radius: 6px;
+        margin-left: auto;
+      }
+      .bubble.ai {
+        background: #fff;
+        border: 1px solid var(--n200);
+        border-bottom-left-radius: 6px;
+      }
+      .bubble.ai u {
+        text-decoration: underline;
+        text-decoration-color: var(--accent-300);
+        text-underline-offset: 4px;
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+      }
+      .dots {
+        display: inline-flex;
+        gap: 5px;
+        padding: 12px 16px;
+        background: var(--n100);
+        border-radius: 16px;
+      }
+      .dots i {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--accent);
+        animation: dot 1.1s ease-in-out infinite;
+      }
+      .dots i:nth-child(2) {
+        animation-delay: 150ms;
+      }
+      .dots i:nth-child(3) {
+        animation-delay: 300ms;
+      }
+      @keyframes dot {
+        0%,
+        80%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.35;
+        }
+        40% {
+          transform: translateY(-3px);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <!-- 1 · intro -->
+      <section class="scene dark grid" data-in="0" data-out="6.5">
+        <div
+          style="
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 26px;
+          "
+        >
+          <svg class="logo-tile" width="120" height="120" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="18" />
+            <path
+              class="logo-stroke"
+              d="M13 47 L23 19 L32 33 L42 13 L51 29"
+              fill="none"
+              stroke="#fff"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <g class="logo-ring">
+              <circle cx="51" cy="29" r="5.5" fill="#fff" />
+              <circle cx="51" cy="29" r="2.4" fill="#5846d2" />
+            </g>
+          </svg>
+          <div class="display rise" style="--i: 8; font-size: 64px; font-weight: 600">
+            Magic <span style="color: var(--accent-300)">MIS</span>
+          </div>
+          <div class="rise muted" style="--i: 10; font-size: 24px">
+            Your monthly management report, in minutes.
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 · add a company -->
+      <section class="scene light grid" data-in="6.5" data-out="14">
+        <div style="position: absolute; left: 64px; top: 96px; width: 520px">
+          <div
+            class="display rise"
+            style="--i: 0; font-size: 44px; font-weight: 600; line-height: 1.08"
+          >
+            Name the company.
+          </div>
+          <p
+            class="rise"
+            style="
+              --i: 1;
+              margin-top: 16px;
+              font-size: 20px;
+              color: var(--n500);
+              line-height: 1.5;
+            "
+          >
+            Its reporting conventions — currency, financial year, number style — are
+            filled in for you. Adding it is free.
+          </p>
+        </div>
+        <div
+          class="card pop"
+          style="
+            --i: 2;
+            position: absolute;
+            right: 96px;
+            top: 150px;
+            width: 440px;
+            padding: 28px;
+          "
+        >
+          <div
+            class="display"
+            style="font-size: 20px; font-weight: 600; margin-bottom: 18px"
+          >
+            Company details
+          </div>
+          <div class="eyebrow" style="margin-bottom: 8px">Company name</div>
+          <div class="field"><span id="typed-name" class="cursor"></span></div>
+          <div
+            style="
+              margin-top: 14px;
+              padding: 12px 14px;
+              border-radius: 10px;
+              background: var(--n25);
+              border: 1px solid var(--n100);
+              display: flex;
+              justify-content: space-between;
+              font-size: 14px;
+            "
+          >
+            <span
+              ><b>Reporting conventions</b><br /><span style="color: var(--n500)"
+                >INR · year starts April · day-first dates</span
+              ></span
+            ><span style="color: var(--accent); font-weight: 600">Change</span>
+          </div>
+          <div
+            class="btn pop"
+            style="--i: 14; margin-top: 18px; width: 100%; justify-content: center"
+          >
+            Add company →
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 · drop files -->
+      <section class="scene light grid" data-in="14" data-out="24">
+        <div style="position: absolute; left: 64px; top: 96px; width: 500px">
+          <div
+            class="display rise"
+            style="--i: 0; font-size: 44px; font-weight: 600; line-height: 1.08"
+          >
+            Drop in the trial balances.
+          </div>
+          <p
+            class="rise"
+            style="
+              --i: 1;
+              margin-top: 16px;
+              font-size: 20px;
+              color: var(--n500);
+              line-height: 1.5;
+            "
+          >
+            Excel, CSV or PDF, from any accounting software. Files are encrypted on
+            arrival and deleted on a schedule.
+          </p>
+          <div
+            class="rise"
+            style="
+              --i: 2;
+              margin-top: 26px;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              width: 440px;
+            "
+          >
+            <div class="file pop" style="--i: 3">
+              <span class="check">✓</span>trial_balance_2026-01.xlsx
+              <span class="pill" style="margin-left: auto">62 rows</span>
+            </div>
+            <div class="file pop" style="--i: 5">
+              <span class="check">✓</span>trial_balance_2026-02.xlsx
+              <span class="pill" style="margin-left: auto">63 rows</span>
+            </div>
+            <div class="file pop" style="--i: 7">
+              <span class="check">✓</span>trial_balance_2026-03.csv
+              <span class="pill" style="margin-left: auto">61 rows</span>
+            </div>
+            <div class="file pop" style="--i: 9">
+              <span class="check">✓</span>TB March.pdf
+              <span class="pill" style="margin-left: auto">60 rows</span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="card pop"
+          style="
+            --i: 4;
+            position: absolute;
+            right: 96px;
+            top: 150px;
+            width: 420px;
+            padding: 26px;
+          "
+        >
+          <div class="display" style="font-size: 20px; font-weight: 600">
+            Build the MIS
+          </div>
+          <div style="color: var(--n500); font-size: 14px; margin-top: 4px">
+            4 files ready.
+          </div>
+          <div
+            class="btn pop"
+            style="--i: 12; margin-top: 18px; width: 100%; justify-content: center"
+          >
+            ▶ Build my MIS
+          </div>
+          <div
+            style="
+              margin-top: 22px;
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+              font-size: 14px;
+            "
+          >
+            <div>
+              <div
+                style="display: flex; justify-content: space-between; margin-bottom: 6px"
+              >
+                <span>Reading your files</span
+                ><span
+                  class="check pop"
+                  style="--i: 16; width: 18px; height: 18px; font-size: 11px"
+                  >✓</span
+                >
+              </div>
+              <div class="bar" style="--i: 12"><i></i></div>
+            </div>
+            <div>
+              <div
+                style="display: flex; justify-content: space-between; margin-bottom: 6px"
+              >
+                <span>Matching ledgers to MIS lines</span
+                ><span
+                  class="check pop"
+                  style="--i: 22; width: 18px; height: 18px; font-size: 11px"
+                  >✓</span
+                >
+              </div>
+              <div class="bar" style="--i: 18"><i></i></div>
+            </div>
+            <div>
+              <div
+                style="display: flex; justify-content: space-between; margin-bottom: 6px"
+              >
+                <span>Checking every figure</span
+                ><span
+                  class="check pop"
+                  style="--i: 28; width: 18px; height: 18px; font-size: 11px"
+                  >✓</span
+                >
+              </div>
+              <div class="bar" style="--i: 24"><i></i></div>
+            </div>
+            <div>
+              <div
+                style="display: flex; justify-content: space-between; margin-bottom: 6px"
+              >
+                <span>Building your workbook</span
+                ><span
+                  class="check pop"
+                  style="--i: 34; width: 18px; height: 18px; font-size: 11px"
+                  >✓</span
+                >
+              </div>
+              <div class="bar" style="--i: 30"><i></i></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 · the MIS -->
+      <section class="scene light grid" data-in="24" data-out="33">
+        <div style="position: absolute; left: 64px; top: 72px">
+          <div class="display rise" style="--i: 0; font-size: 40px; font-weight: 600">
+            A checked workbook. A live dashboard.
+          </div>
+          <p
+            class="rise"
+            style="--i: 1; margin-top: 8px; font-size: 18px; color: var(--n500)"
+          >
+            Every figure computed from your books and one click from its source. Nothing
+            written by a model.
+          </p>
+        </div>
+        <div
+          style="
+            position: absolute;
+            left: 64px;
+            right: 64px;
+            top: 190px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+          "
+        >
+          <div class="card pop" style="--i: 2; padding: 18px">
+            <div class="eyebrow">Revenue</div>
+            <div
+              class="display num"
+              style="font-size: 32px; font-weight: 600; margin-top: 10px"
+            >
+              ₹1.28 Cr
+            </div>
+            <div class="pill good" style="margin-top: 10px">↑ 6.4% vs last month</div>
+          </div>
+          <div class="card pop" style="--i: 3; padding: 18px">
+            <div class="eyebrow">Gross margin</div>
+            <div
+              class="display num"
+              style="font-size: 32px; font-weight: 600; margin-top: 10px"
+            >
+              31.4%
+            </div>
+            <div class="pill" style="margin-top: 10px">↓ 0.6 pts vs last month</div>
+          </div>
+          <div class="card pop" style="--i: 4; padding: 18px">
+            <div class="eyebrow">EBITDA</div>
+            <div
+              class="display num"
+              style="font-size: 32px; font-weight: 600; margin-top: 10px"
+            >
+              ₹21.2 L
+            </div>
+            <div class="pill good" style="margin-top: 10px">↑ 9.1% vs last month</div>
+          </div>
+          <div class="card pop" style="--i: 5; padding: 18px">
+            <div class="eyebrow">Debtor days</div>
+            <div
+              class="display num"
+              style="font-size: 32px; font-weight: 600; margin-top: 10px"
+            >
+              47
+            </div>
+            <div class="pill good" style="margin-top: 10px">↓ 3 days</div>
+          </div>
+        </div>
+        <div
+          class="card pop"
+          style="
+            --i: 6;
+            position: absolute;
+            left: 64px;
+            top: 340px;
+            width: 720px;
+            height: 260px;
+            padding: 18px 22px;
+          "
+        >
+          <div class="eyebrow">Revenue and profit, year to date</div>
+          <svg width="676" height="196" viewBox="0 0 676 196" style="margin-top: 10px">
+            <g stroke="var(--n100)">
+              <line x1="0" x2="676" y1="40" y2="40" />
+              <line x1="0" x2="676" y1="90" y2="90" />
+              <line x1="0" x2="676" y1="140" y2="140" />
+            </g>
+            <path
+              class="draw"
+              style="--i: 8"
+              d="M10 150 L100 138 L190 128 L280 118 L370 104 L460 96 L550 74 L640 52"
+              fill="none"
+              stroke="#5846d2"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              class="draw"
+              style="--i: 10"
+              d="M10 170 L100 166 L190 160 L280 156 L370 150 L460 142 L550 132 L640 118"
+              fill="none"
+              stroke="#15724a"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <g class="pop" style="--i: 20">
+              <circle cx="640" cy="52" r="5" fill="#5846d2" />
+              <circle cx="640" cy="52" r="11" fill="#5846d2" fill-opacity=".15" />
+            </g>
+          </svg>
+        </div>
+        <div
+          class="card pop"
+          style="
+            --i: 7;
+            position: absolute;
+            right: 64px;
+            top: 340px;
+            width: 400px;
+            height: 260px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 14px;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 14px">
+            <span
+              style="
+                display: inline-flex;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                background: var(--positive-subtle);
+                color: var(--positive);
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+              "
+              >✓</span
+            >
+            <div>
+              <div style="font-weight: 600; font-size: 17px">Every figure checked</div>
+              <div style="color: var(--n500); font-size: 14px">
+                12 of 12 checks passed against the trial balance
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px">
+            <span
+              style="
+                display: inline-flex;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                background: var(--accent-50);
+                color: var(--accent);
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+              "
+              >⬇</span
+            >
+            <div>
+              <div style="font-weight: 600; font-size: 17px">
+                Northwind_MIS_2026-04.xlsx
+              </div>
+              <div style="color: var(--n500); font-size: 14px">
+                Live formulas, lineage on every cell, print-ready
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 · the assistant -->
+      <section class="scene light grid" data-in="33" data-out="41">
+        <div style="position: absolute; left: 64px; top: 96px; width: 480px">
+          <div
+            class="display rise"
+            style="--i: 0; font-size: 44px; font-weight: 600; line-height: 1.08"
+          >
+            Ask anything.
+          </div>
+          <p
+            class="rise"
+            style="
+              --i: 1;
+              margin-top: 16px;
+              font-size: 20px;
+              color: var(--n500);
+              line-height: 1.5;
+            "
+          >
+            An assistant that knows the books sits beside the dashboard. Every number in
+            an answer is computed, never guessed, and links to its source.
+          </p>
+        </div>
+        <div
+          class="card pop"
+          style="
+            --i: 2;
+            position: absolute;
+            right: 64px;
+            top: 110px;
+            width: 600px;
+            height: 470px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding-bottom: 12px;
+              border-bottom: 1px solid var(--n100);
+            "
+          >
+            <svg width="30" height="30" viewBox="0 0 64 64">
+              <rect width="64" height="64" rx="18" fill="#5846d2" />
+              <path
+                d="M13 47 L23 19 L32 33 L42 13 L51 29"
+                fill="none"
+                stroke="#fff"
+                stroke-width="6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <circle cx="51" cy="29" r="5.5" fill="#fff" />
+            </svg>
+            <div>
+              <div style="font-weight: 600">Ask about Northwind Traders</div>
+              <div style="font-size: 12px; color: var(--n500)">
+                Answers, analysis and commentary from its figures
+              </div>
+            </div>
+          </div>
+          <div class="bubble me pop" style="--i: 6">
+            Why did gross margin move this month?
+          </div>
+          <div class="dots pop" id="dots" style="--i: 12; width: fit-content">
+            <i></i><i></i><i></i>
+          </div>
+          <div class="bubble ai pop" id="answer" style="--i: 26">
+            Gross margin fell to <u>31.4%</u> from <u>32.0%</u>. Direct costs rose
+            <u>9.2%</u> while revenue rose <u>6.4%</u>; the largest driver was
+            <u>Packing material</u>, up <u>₹4.1 L</u> on last month.
+          </div>
+          <div class="pop" style="--i: 34; display: flex; gap: 8px; margin-top: auto">
+            <span class="pill" style="background: var(--accent-50); color: var(--accent)"
+              >What drove direct costs?</span
+            ><span class="pill" style="background: var(--accent-50); color: var(--accent)"
+              >Write the commentary for April</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 · outro -->
+      <section class="scene dark grid" data-in="41" data-out="47">
+        <div
+          style="
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            text-align: center;
+          "
+        >
+          <svg class="logo-tile" width="88" height="88" viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="18" />
+            <path
+              class="logo-stroke"
+              d="M13 47 L23 19 L32 33 L42 13 L51 29"
+              fill="none"
+              stroke="#fff"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <g class="logo-ring">
+              <circle cx="51" cy="29" r="5.5" fill="#fff" />
+              <circle cx="51" cy="29" r="2.4" fill="#5846d2" />
+            </g>
+          </svg>
+          <div
+            class="display rise"
+            style="
+              --i: 6;
+              font-size: 48px;
+              font-weight: 600;
+              line-height: 1.1;
+              max-width: 900px;
+            "
+          >
+            Prepaid credits. No subscription.<br />Every figure traceable.
+          </div>
+          <div class="rise muted" style="--i: 8; font-size: 20px">
+            Create an account, add a company, and drop in last month.
+          </div>
+          <div
+            class="btn rise"
+            style="--i: 10; height: 52px; padding: 0 26px; font-size: 17px"
+          >
+            Create an account →
+          </div>
+          <div
+            class="rise"
+            style="
+              --i: 12;
+              position: absolute;
+              bottom: 110px;
+              font-size: 12px;
+              color: #7b77a0;
+            "
+          >
+            Figures shown are fictional, for illustration only.
+          </div>
+        </div>
+      </section>
+
+      <div class="progress" id="progress"></div>
+      <div class="caption" id="caption">
+        <span class="step" id="step"></span><span class="t" id="ctitle"></span
+        ><span class="s" id="csub"></span>
+      </div>
+    </div>
+
+    <script>
+      const CAPTIONS = [
+        [0, "", "Magic MIS", "the 45-second tour"],
+        [6.5, "1", "Add a company", "free · conventions filled in"],
+        [14, "2", "Drop in the trial balances", "any format · encrypted on arrival"],
+        [24, "3", "Get the MIS", "workbook + dashboard · every figure checked"],
+        [33, "4", "Ask the assistant", "computed answers with lineage"],
+        [41, "", "magicmis", "prepaid · no subscription"],
+      ];
+      const TOTAL = 47;
+      const scenes = [...document.querySelectorAll(".scene")];
+      const start = performance.now();
+      const typed = document.getElementById("typed-name");
+      let typing = false;
+      function type(el, text, per) {
+        let i = 0;
+        const tick = () => {
+          el.textContent = text.slice(0, ++i);
+          if (i < text.length) setTimeout(tick, per);
+          else el.classList.remove("cursor");
+        };
+        tick();
+      }
+      function frame() {
+        const t = (performance.now() - start) / 1000;
+        for (const s of scenes) {
+          const on = t >= +s.dataset.in && t < +s.dataset.out;
+          if (on && !s.classList.contains("on")) s.classList.add("on");
+          if (!on && s.classList.contains("on")) s.classList.remove("on");
+        }
+        if (t >= 8 && !typing) {
+          typing = true;
+          type(typed, "Northwind Traders Pvt Ltd", 55);
+        }
+        const dots = document.getElementById("dots");
+        // The answer replaces the dots; display beats the pop animation's fill, opacity would not.
+        if (dots && t >= 33 + 26 * 0.12 + 0.3) dots.style.display = "none";
+        const c = CAPTIONS.filter((x) => t >= x[0]).at(-1);
+        if (c) {
+          document.getElementById("step").textContent = c[1];
+          document.getElementById("step").style.display = c[1] ? "inline-flex" : "none";
+          document.getElementById("ctitle").textContent = c[2];
+          document.getElementById("csub").textContent = c[3];
+        }
+        document.getElementById("progress").style.width =
+          Math.min(100, (t / TOTAL) * 100) + "%";
+        if (t < TOTAL + 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    </script>
+  </body>
+</html>

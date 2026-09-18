@@ -1,0 +1,159 @@
+<!-- @dsCard group="Brand" -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Magic MIS — Animated mark</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: Inter, system-ui, sans-serif;
+        color: #191824;
+        background: #fff;
+      }
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: -0.02em;
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+      p {
+        color: #6f6c85;
+        font-size: 13px;
+        margin: 0 0 20px;
+        max-width: 60ch;
+        line-height: 1.5;
+      }
+      .stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        height: 200px;
+        border: 1px solid #dedce8;
+        border-radius: 14px;
+        background: #141029;
+      }
+      button {
+        font: inherit;
+        border: 1px solid #dedce8;
+        background: #fff;
+        border-radius: 8px;
+        padding: 8px 14px;
+        cursor: pointer;
+        margin-top: 14px;
+      }
+      @keyframes tile {
+        from {
+          transform: scale(0.85);
+          opacity: 0;
+        }
+      }
+      @keyframes stroke {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes ring {
+        from {
+          transform: scale(0);
+          opacity: 0;
+        }
+        70% {
+          transform: scale(1.25);
+          opacity: 1;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .play svg {
+        animation: tile 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      .play .stroke {
+        stroke-dasharray: 140;
+        stroke-dashoffset: 140;
+        animation: stroke 900ms cubic-bezier(0.4, 0, 0.2, 1) 220ms forwards;
+      }
+      .play .ring {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: ring 420ms cubic-bezier(0.2, 0.7, 0.2, 1) 1000ms both;
+      }
+      .word {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        font-size: 40px;
+        color: #fff;
+        opacity: 0;
+      }
+      .play .word {
+        animation: word 500ms cubic-bezier(0.2, 0.7, 0.2, 1) 1200ms both;
+      }
+      @keyframes word {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .play *,
+        .play svg {
+          animation-duration: 0.01ms !important;
+          animation-delay: 0s !important;
+        }
+        .word {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Animated mark</h1>
+    <p>
+      The M draws as a stroke, then the ring pops in with a small overshoot — about 1.4 s.
+      It plays once on arrival and never loops: a logo that keeps moving is a distraction
+      on a screen full of figures. Collapses under reduced motion.
+    </p>
+    <div class="stage play" id="stage">
+      <svg width="120" height="120" viewBox="0 0 64 64">
+        <rect width="64" height="64" rx="18" fill="#6c5ce7" />
+        <path
+          class="stroke"
+          d="M13 47 L23 19 L32 33 L42 13 L51 29"
+          fill="none"
+          stroke="#fff"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <g class="ring">
+          <circle cx="51" cy="29" r="5.5" fill="#fff" />
+          <circle cx="51" cy="29" r="2.4" fill="#6c5ce7" />
+        </g>
+      </svg>
+      <span class="word">Magic <span style="color: #ab9ef5">MIS</span></span>
+    </div>
+    <button
+      onclick="
+        const s = document.getElementById('stage');
+        s.classList.remove('play');
+        void s.offsetWidth;
+        s.classList.add('play');
+      "
+    >
+      Play again
+    </button>
+  </body>
+</html>

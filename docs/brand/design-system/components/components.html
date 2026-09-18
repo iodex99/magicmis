@@ -1,0 +1,268 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Magic MIS — Components</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: Inter, system-ui, sans-serif;
+        color: #191824;
+        background: #f5f5f9;
+        font-size: 14px;
+      }
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: -0.02em;
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #6f6c85;
+        margin: 24px 0 10px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: transform 120ms;
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+      .primary {
+        background: #5846d2;
+        color: #fff;
+        box-shadow: 0 1px 2px rgba(20, 16, 41, 0.06);
+      }
+      .secondary {
+        background: #fff;
+        border: 1px solid #dedce8;
+        color: #2a2937;
+      }
+      .ghost {
+        color: #403e50;
+      }
+      .danger {
+        background: #b03024;
+        color: #fff;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .badge i {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid rgba(222, 220, 232, 0.8);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 1px 2px rgba(20, 16, 41, 0.06);
+        width: 220px;
+        transition:
+          transform 180ms,
+          box-shadow 180ms;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 6px rgba(20, 16, 41, 0.07);
+      }
+      .eyebrow {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #6f6c85;
+      }
+      .num {
+        font-variant-numeric: tabular-nums;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px 2px 6px;
+        border-radius: 999px;
+        background: #ecebf2;
+        font-size: 12px;
+        font-weight: 500;
+        color: #403e50;
+      }
+      .bubble {
+        max-width: 340px;
+        padding: 10px 14px;
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .me {
+        background: #5846d2;
+        color: #fff;
+        border-bottom-right-radius: 4px;
+      }
+      .ai {
+        background: #fbfbfd;
+        border: 1px solid #dedce8;
+        border-bottom-left-radius: 4px;
+      }
+      .ai u {
+        text-decoration-color: #ab9ef5;
+        text-underline-offset: 4px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      .alert {
+        display: flex;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid;
+        font-size: 14px;
+        max-width: 520px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Components</h1>
+    <h2>Buttons</h2>
+    <div class="row">
+      <span class="btn primary">Build my MIS</span
+      ><span class="btn secondary">Latest workbook</span
+      ><span class="btn ghost">Cancel</span><span class="btn danger">Delete company</span>
+    </div>
+    <h2>Badges</h2>
+    <div class="row">
+      <span class="badge" style="background: #e4f5ec; color: #15724a"><i></i>Active</span>
+      <span class="badge" style="background: #fdf2e2; color: #8a5300"
+        ><i></i>Grace period</span
+      >
+      <span class="badge" style="background: #fceceb; color: #b03024"
+        ><i></i>Failed — check the data</span
+      >
+      <span class="badge" style="background: #f1effe; color: #4736ac"
+        ><i></i>Running</span
+      >
+      <span class="badge" style="background: #f5f5f9; color: #6f6c85"
+        ><i></i>Archived</span
+      >
+    </div>
+    <h2>KPI card</h2>
+    <div class="row">
+      <div class="card">
+        <div
+          style="display: flex; justify-content: space-between; align-items: flex-start"
+        >
+          <span class="eyebrow">Revenue</span>
+          <svg width="88" height="26" viewBox="0 0 88 26">
+            <path
+              d="M3 20 L14 17 L25 18 L36 13 L47 11 L58 12 L69 7 L80 5 L85 4"
+              fill="none"
+              stroke="#6c5ce7"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+            <circle cx="85" cy="4" r="2.6" fill="#6c5ce7" />
+          </svg>
+        </div>
+        <div
+          class="num"
+          style="
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-top: 6px;
+            text-decoration: underline;
+            text-decoration-color: #dedce8;
+            text-underline-offset: 5px;
+          "
+        >
+          ₹1.28 Cr
+        </div>
+        <div style="margin-top: 10px; display: flex; gap: 6px">
+          <span class="pill"
+            ><span style="color: #15724a">↑</span>6.4%
+            <span style="color: #928fa6">vs last month</span></span
+          >
+        </div>
+        <div style="margin-top: 12px; font-size: 12px; color: #4736ac; font-weight: 500">
+          🔍 Investigate
+        </div>
+      </div>
+      <div class="card" style="width: 300px">
+        <span class="eyebrow">Working capital</span>
+        <table
+          class="num"
+          style="width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 13px"
+        >
+          <tr style="border-bottom: 1px solid #ecebf2">
+            <td style="padding: 6px 0; color: #403e50">Trade receivables</td>
+            <td style="text-align: right; font-weight: 500">₹42.1 L</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #ecebf2">
+            <td style="padding: 6px 0; color: #403e50">Inventories</td>
+            <td style="text-align: right; font-weight: 500">₹63.7 L</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #403e50">Debtor days</td>
+            <td style="text-align: right; font-weight: 500">47 days</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <h2>Assistant</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px; max-width: 420px">
+      <div class="bubble me" style="align-self: flex-end">Why did gross margin move?</div>
+      <div class="bubble ai">
+        Gross margin fell to <u>31.4%</u> from <u>32.0%</u>; direct costs rose
+        <u>9.2%</u> against revenue up <u>6.4%</u>.
+      </div>
+    </div>
+    <h2>Alerts</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div
+        class="alert"
+        style="border-color: #e4e0fd; background: #f1effe; color: #392c86"
+      >
+        <b>ℹ</b> These files run a financial year starting in April, but this company is
+        set to January.
+      </div>
+      <div
+        class="alert"
+        style="border-color: rgba(138, 83, 0, 0.25); background: #fdf2e2; color: #8a5300"
+      >
+        <b>⚠</b> Not enough credits. Top up your wallet and press it again. Nothing has
+        been charged.
+      </div>
+    </div>
+  </body>
+</html>
