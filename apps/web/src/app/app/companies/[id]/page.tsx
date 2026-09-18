@@ -445,7 +445,7 @@ export default async function CompanyPage({
           <div className="px-5 pb-5">
             <p className="mb-3 text-[0.8125rem] text-neutral-500">
               How this company&rsquo;s own books are kept. The financial year has to match
-              the exports: a January year reading April&ndash;March files turns each
+              the raw data: a January year reading April&ndash;March files turns each
               year&rsquo;s first month into a whole year.
             </p>
             <ReportingConventions companyId={id} current={conventions} />

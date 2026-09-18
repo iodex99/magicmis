@@ -127,7 +127,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} produce the format above?`,
     answer:
-      "You upload the exports and the ledger mapping is built for you. The workbook is then generated with live Excel formulas, a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
+      "You upload the raw data and the ledger mapping is built for you. The workbook is then generated with live Excel formulas, a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
   },
 ];
 
@@ -283,7 +283,7 @@ export default function MisReportFormatPage() {
           <strong className="font-medium text-neutral-900">
             Dates are parsed month-first.
           </strong>{" "}
-          Indian exports are day-first. A spreadsheet that reads 03/04 as 4 March silently
+          Indian files are day-first. A spreadsheet that reads 03/04 as 4 March silently
           moves a month of transactions into the wrong period.
         </p>
       </Section>
@@ -295,7 +295,7 @@ export default function MisReportFormatPage() {
       <ReadNext paths={["/tally-mis-report", "/for-accountants", "/how-it-works"]} />
       <ClosingCta
         heading="Or stop rebuilding it every month"
-        body={`${PRODUCT_NAME} produces this format from your accounting exports, with live formulas and every figure traceable. The ledger mapping is built once and reused every month.`}
+        body={`${PRODUCT_NAME} produces this format from your raw accounting data, with live formulas and every figure traceable. The ledger mapping is built once and reused every month.`}
       />
     </PublicShell>
   );

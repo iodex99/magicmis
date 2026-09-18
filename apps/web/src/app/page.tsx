@@ -31,8 +31,8 @@ export const metadata: Metadata = pageMetadata("/");
 const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "upload",
-    title: "Upload your exports",
-    body: "Trial balances, ledgers and registers as your accounting system exports them, in any format. Files are encrypted when they arrive and deleted automatically.",
+    title: "Upload your raw data",
+    body: "Trial balances, ledgers and registers exactly as your accounting system gives them to you, in any format. Files are encrypted when they arrive and deleted automatically.",
   },
   {
     icon: "table",
@@ -81,7 +81,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `What does ${PRODUCT_NAME} do?`,
     answer:
-      "It turns your accounting exports — a trial balance, and optionally ledgers and registers — into a monthly management report: a validated Excel workbook with live formulas, a dashboard and written commentary, where every figure traces back to the ledger it came from. India calls this an MIS report and the UK calls it management accounts.",
+      "It turns your raw accounting data — a trial balance, and optionally ledgers and registers — into a monthly management report: a validated Excel workbook with live formulas, a dashboard and written commentary, where every figure traces back to the ledger it came from. India calls this an MIS report and the UK calls it management accounts.",
   },
   {
     question: "Does my accounting data get uploaded?",
@@ -101,7 +101,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Which accounting systems does it work with?",
     answer:
-      "Any of them. There is no connector and nothing to install. You export a trial balance from your accounting system as you would anyway — Tally, Xero, QuickBooks, Sage, Zoho Books or anything else that exports Excel, CSV or PDF — and upload the file. Columns are read by their headers, never by position.",
+      "Any of them. There is no connector and nothing to install. You take a trial balance out of your accounting system as you would anyway — Tally, Xero, QuickBooks, Sage, Zoho Books or anything else that gives you Excel, CSV or PDF — and upload the raw file. Columns are read by their headers, never by position.",
   },
   {
     question: "Can several people in my firm use one account?",
@@ -122,7 +122,7 @@ export default function HomePage() {
           <div>
             <Badge tone="accent">For accountants and finance teams</Badge>
             <h1 className="display rise mt-5 text-[2.625rem] leading-[1.05] font-semibold text-neutral-900 sm:text-[3.5rem]">
-              The monthly management report, built from the exports you{" "}
+              The monthly management report, built from the raw data you{" "}
               <span className="relative inline-block">
                 already have.
                 <svg

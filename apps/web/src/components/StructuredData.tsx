@@ -90,7 +90,7 @@ export function SoftwareApplicationSchema() {
           "Dashboard with KPIs, charts and drill-down to source",
           "Written commentary with every figure computed, never generated",
           "Validation checks against the trial balance before delivery",
-          "Works from exports of any accounting system — no connector",
+          "Works from the raw data of any accounting system — no connector",
         ],
         publisher: { "@id": `${absoluteUrl("/")}#organization` },
       }}

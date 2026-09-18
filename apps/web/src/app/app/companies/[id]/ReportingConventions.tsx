@@ -50,7 +50,7 @@ export interface Conventions {
 /**
  * How this company's own books are kept (ADR 0030), changeable after the fact (ADR 0035).
  *
- * The financial year is the one that bites: exports that run April–March loaded into a company
+ * The financial year is the one that bites: raw data that runs April–March loaded into a company
  * set to January read every year's first month as the whole year. A run says so when it sees it,
  * and this is where it gets fixed. Changing nothing here costs nothing and reads no data.
  */
@@ -101,7 +101,7 @@ export function ReportingConventions({
           id="conventions-fy"
           label="Financial year starts in"
           value={form.fyStartMonth.toString()}
-          hint="Match the accounting system the exports come from."
+          hint="Match the accounting system the raw data comes from."
           onChange={(e) => {
             setForm((f) => ({ ...f, fyStartMonth: Number.parseInt(e.target.value, 10) }));
           }}
@@ -143,7 +143,7 @@ export function ReportingConventions({
         </SelectField>
         <SelectField
           id="conventions-date-order"
-          label="Dates in exports are written"
+          label="Dates in your files are written"
           value={form.dateOrder}
           onChange={(e) => {
             setForm((f) => ({

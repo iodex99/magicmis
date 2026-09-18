@@ -30,7 +30,10 @@ const FOOTER_GROUPS: readonly {
   {
     heading: "Solutions",
     links: [
-      ["/ai-mis-report", "AI MIS reports"],
+      ["/ai-mis-report", "MIS with AI"],
+      ["/ai-management-accounts", "AI management accounts"],
+      ["/ai-financial-reporting", "AI financial reporting"],
+      ["/mis-dashboard", "MIS dashboard"],
       ["/mis-in-minutes", "MIS in minutes"],
       ["/automated-management-accounts", "Automated management accounts"],
       ["/monthly-financial-reporting", "Monthly financial reporting"],

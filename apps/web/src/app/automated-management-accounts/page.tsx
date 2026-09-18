@@ -64,7 +64,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Which accounting software does it work with?",
     answer:
-      "Any system that can export a trial balance, as Excel, CSV, PDF or plain text. It works from exports rather than a live connection, so there is nothing to install and no access to grant to your accounting system.",
+      "Any system that can give you a trial balance, as Excel, CSV, PDF or plain text. It works from raw data files rather than a live connection, so there is nothing to install and no access to grant to your accounting system.",
   },
   {
     question: "Can I set my financial year and date format?",
@@ -89,7 +89,7 @@ export default function AutomatedManagementAccountsPage() {
         path={PATH}
         eyebrow="Management accounts"
         heading="Automated management accounts from your trial balance"
-        intro="A monthly management accounts pack is the same work every month: export the trial balance, map it, roll the workbook forward, write the commentary. Map it once, and the rest is produced for you — with every figure traceable to the ledger it came from."
+        intro="A monthly management accounts pack is the same work every month: pull the raw trial balance, map it, roll the workbook forward, write the commentary. Map it once, and the rest is produced for you — with every figure traceable to the ledger it came from."
       />
       <AlsoCalled path={PATH} />
 
@@ -153,7 +153,7 @@ export default function AutomatedManagementAccountsPage() {
       />
       <ClosingCta
         heading="Your next pack, without the rebuild"
-        body={`${PRODUCT_NAME} produces monthly management accounts from a trial balance export. Pay per action from prepaid credits.`}
+        body={`${PRODUCT_NAME} produces monthly management accounts from the raw trial balance. Pay per action from prepaid credits.`}
       />
     </PublicShell>
   );

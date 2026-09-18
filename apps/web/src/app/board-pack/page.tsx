@@ -62,7 +62,7 @@ const STEPS: readonly {
   icon: "upload" | "table" | "document";
 }[] = [
   {
-    title: "Export the trial balance",
+    title: "Take the raw trial balance",
     body: "From Xero, Sage, QuickBooks or any system, once the month is closed. Excel, CSV or PDF.",
     icon: "upload",
   },
@@ -139,7 +139,7 @@ export default function BoardPackPage() {
       <Section title="Where the month goes">
         <p>
           Ask a finance manager how long the pack takes and the answer is usually three to
-          five working days after the close: a day pulling exports and re-keying them into
+          five working days after the close: a day pulling raw data and re-keying it into
           the pack&rsquo;s spreadsheet, a day fixing the formulas the new month broke, a
           day writing commentary, and a day of review because a figure did not tie. The
           board sees the pack in the second week of the month, for a month that ended a

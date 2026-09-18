@@ -307,7 +307,7 @@ export function JobRunner({
                     ? "Drag your trial balances here"
                     : "Drag this month's trial balance here"
                 }
-                hint="Any format from any accounting software: Excel, CSV, PDF, text or HTML exports. Extra sheets are fine."
+                hint="Raw data in any format from any accounting software: Excel, CSV, PDF, text or HTML. Extra sheets are fine."
                 inputLabel="Choose files"
                 disabled={busy}
                 busy={uploading}
@@ -437,7 +437,7 @@ export function JobRunner({
                   {files.length === 0
                     ? "Add your files. We read every sheet, match every ledger and check every figure — nothing to map by hand."
                     : readyIds.length === 0 && !uploading
-                      ? "None of these files can be used. Add a trial balance export."
+                      ? "None of these files can be used. Add a raw trial balance."
                       : uploading
                         ? "Uploading your files…"
                         : `${readyIds.length.toString()} ${readyIds.length === 1 ? "file" : "files"} ready.`}

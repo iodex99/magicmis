@@ -82,9 +82,9 @@ export const REPORT_NAMES: readonly {
 export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
     path: "/",
-    title: `${PRODUCT_NAME} — monthly management reports from your accounting data`,
+    title: `${PRODUCT_NAME} — monthly MIS and management accounts from your raw data`,
     description:
-      "Turn a trial balance from any accounting system into a validated Excel report with live formulas, a dashboard and written commentary. Prepaid credits, no subscription.",
+      "Turn the raw trial balance from any accounting system into a checked Excel MIS with live formulas, a dashboard and written commentary. Prepaid credits, no subscription.",
     changeFrequency: "weekly",
     priority: 1,
     locale: "en_IN",
@@ -104,7 +104,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/how-it-works",
     title: "How it works",
     description:
-      "Upload your accounting exports and take the workbook. Ledgers are mapped for you, and later months reuse the mapping with no AI calls at all. Here is each step in detail.",
+      "Upload your raw accounting data and take the workbook. Ledgers are mapped for you, and later months reuse the mapping with no AI calls at all. Here is each step in detail.",
     changeFrequency: "monthly",
     priority: 0.9,
     locale: "en_IN",
@@ -132,9 +132,9 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/tally-mis-report",
-    title: "MIS report from Tally: which exports to take and what to do with them",
+    title: "MIS report from Tally: which raw reports to take and what to do with them",
     description:
-      "How to produce a monthly MIS from TallyPrime or Tally.ERP 9 exports: which reports to take, the export settings that matter, and how to stop rebuilding it monthly.",
+      "How to produce a monthly MIS from TallyPrime or Tally.ERP 9 raw data: which reports to take, the export settings that matter, and how to stop rebuilding it monthly.",
     changeFrequency: "monthly",
     priority: 0.8,
     locale: "en_IN",
@@ -152,9 +152,9 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/ai-mis-report",
-    title: "AI MIS report generator: AI maps the ledgers, never writes the numbers",
+    title: "MIS with AI: an AI MIS report generator that never writes the numbers",
     description:
-      "MIS with AI, done safely: AI recognises your sheets, maps ledgers and drafts commentary, while every figure comes from a deterministic engine and traces back to a ledger.",
+      "MIS with AI, done safely: AI recognises your raw data, maps ledgers and drafts commentary, while every figure comes from a deterministic engine and traces back to a ledger.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_IN",
@@ -162,9 +162,9 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/mis-in-minutes",
-    title: "MIS in minutes: automate the monthly MIS report you rebuild by hand",
+    title: "MIS in minutes: automated MIS report from Tally or any raw trial balance",
     description:
-      "Confirm the ledger mapping once, then each month's MIS refreshes from the new trial balance in minutes, with live Excel formulas and no AI calls when nothing has changed.",
+      "MIS automation without a macro: confirm the ledger mapping once, then each month's MIS refreshes from the new raw trial balance in minutes, with live Excel formulas.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_IN",
@@ -174,7 +174,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/automated-management-accounts",
     title: "Automated management accounts from your trial balance",
     description:
-      "Monthly management accounts produced from a trial balance export: P&L, balance sheet, KPIs, aged debtors and commentary in Excel, every figure traceable, paid per report.",
+      "Monthly management accounts produced from the raw trial balance: P&L, balance sheet, KPIs, aged debtors and commentary in Excel, every figure traceable, paid per report.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_GB",
@@ -251,6 +251,36 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     updated: "2026-09-18",
   },
   {
+    path: "/ai-management-accounts",
+    title: "AI management accounts: the AI maps and writes, never the numbers",
+    description:
+      "Management accounts with AI, honestly: AI recognises the raw data, maps nominal codes and drafts commentary; every figure is computed and checked. From Xero, Sage or any trial balance.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_GB",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/ai-financial-reporting",
+    title: "AI financial reporting for small businesses, from the raw trial balance",
+    description:
+      "Automated monthly financial reporting with no integration project: upload the trial balance after the close and get statements, KPIs, A/R aging and commentary, every figure checked.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_US",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/mis-dashboard",
+    title: "MIS dashboard: KPIs and charts where every number opens its lineage",
+    description:
+      "An MIS dashboard built from the same raw trial balance as the Excel MIS — KPI cards, trends, a revenue-to-profit bridge and ageing — with the formula and ledgers behind every figure.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_IN",
+    updated: "2026-09-18",
+  },
+  {
     path: "/what-is-an-mis-report",
     title: "What is an MIS report? Meaning, contents and its name in every market",
     description:
@@ -292,9 +322,9 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/management-reporting-software",
-    title: "Management reporting software that works from your accounting exports",
+    title: "Management reporting software that works from your raw accounting data",
     description:
-      "Management reporting software with no connector: upload a trial balance from any system and get a checked Excel report, a dashboard and commentary. Prepaid, per report.",
+      "Management reporting software with no connector: upload the raw trial balance from any system and get a checked Excel report, a dashboard and commentary. Prepaid, per report.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_GB",
@@ -362,6 +392,9 @@ export const GUIDE_PATHS: readonly string[] = [
 export const SOLUTION_PATHS: readonly string[] = [
   "/management-reporting-software",
   "/ai-mis-report",
+  "/ai-management-accounts",
+  "/ai-financial-reporting",
+  "/mis-dashboard",
   "/mis-in-minutes",
   "/automated-management-accounts",
   "/monthly-financial-reporting",

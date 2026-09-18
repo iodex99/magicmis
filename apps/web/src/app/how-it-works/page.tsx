@@ -30,8 +30,8 @@ const STAGES: readonly {
 }[] = [
   {
     n: "01",
-    title: "Upload your exports",
-    body: "You add the exports from your accounting system, in any format. They are encrypted as they arrive, used only for the runs you pay for, and deleted automatically.",
+    title: "Upload your raw data",
+    body: "You add the raw data from your accounting system, in any format. They are encrypted as they arrive, used only for the runs you pay for, and deleted automatically.",
     detail:
       "Before you pay for anything, the screen shows file names, sizes, sheet counts and row counts. Not what is in them: no sheet recognition, no mapping preview, no data-quality findings. Those are results, and results appear inside a paid action.",
   },
@@ -40,7 +40,7 @@ const STAGES: readonly {
     title: "Ledgers are matched to a canonical schema",
     body: "Each ledger is matched to a standard MIS head for you, and the mapping is kept for this company so later months reuse it.",
     detail:
-      "Matching is by header name, never by column position, so a reordered export does not break it. Where a name is unambiguous it is matched deterministically without any model involved; only genuinely ambiguous ledgers go to the AI, and anything it cannot place is shown as Unmapped rather than guessed.",
+      "Matching is by header name, never by column position, so a reordered file does not break it. Where a name is unambiguous it is matched deterministically without any model involved; only genuinely ambiguous ledgers go to the AI, and anything it cannot place is shown as Unmapped rather than guessed.",
   },
   {
     n: "03",

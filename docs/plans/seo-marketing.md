@@ -129,3 +129,42 @@ What changed:
 Not done, and why: vendor export guides (Xero, QuickBooks, Zoho) still wait on verified menu
 paths (§0.4); `hreflang` is not used because the market pages are different articles that
 share an intent, not translations of one article — cross-linking them is the honest signal.
+
+### 7. Raw data, and the words the market types (2026-09-18, ADR 0039)
+
+The site called the input "exports" — an accounting system's word for the act of getting a
+file out, and one that also means the GST term this business bills under. The owner asked
+for the input to be called **raw data** and positioned that way, and for the phrases the
+market actually types — "MIS with AI", "MIS in minutes" and their kin — to be researched
+and used. Researched against live results, per §0.4:
+
+| Query family | What ranks today | Where it is searched | Source |
+|---|---|---|---|
+| AI MIS, MIS with AI, MIS from Tally with AI | Tally add-ons promising a "live MIS", and generic "make an MIS in Excel with ChatGPT" guides | India | [AI Accountant](https://www.aiaccountant.com/), [EasyReports](https://www.easyreports.in/), [Bricks](https://www.thebricks.com/resources/how-to-make-mis-report-in-excel-using-ai) |
+| Raw data to dashboard, upload raw CSV | Spreadsheet-AI tools that phrase the input as "your raw CSV or Excel file" | Everywhere | [Bricks](https://www.thebricks.com/) |
+| AI management accounts, management accounts with AI | General "AI in accounting" explainers from ledger vendors; no page that is the pack itself | UK, Ireland, Australia | [Xero](https://www.xero.com/uk/guides/ai-in-accounting/), [Wolters Kluwer](https://www.wolterskluwer.com/en-gb/expert-insights/ai-in-accounting), [befree](https://befree.com.au/) |
+| AI financial reporting, financial reporting automation, monthly reporting automation | Enterprise close tools and SMB guides listing what to automate (cash, P&L vs budget, A/R aging) | US | [HighRadius](https://www.highradius.com/resources/Blog/ai-in-financial-reporting/), [Numeric](https://www.numeric.io/), [SuperDupr](https://www.superdupr.com/blog/financial-reporting-automation-small-business) |
+| MIS dashboard, MIS automation, MIS in Excel dashboard | Analytics add-ons and Excel templates; "founders see the P&L twenty days after month end" | India | [BUSY](https://busy.in/), [WeAudit](https://weaudit.in/), [accountingtool.in](https://accountingtool.in/) |
+
+What changed:
+
+- **"Raw data" is the word for the input** on every customer-facing surface — hero, share
+  cards, how-it-works, every solution page, the run screen, the conventions forms and the
+  structured data. The verb survives where a guide tells the reader how to get a report out
+  of Tally (`docs/help/tally/*`, the Tally guide's steps), and "export of services" is the
+  GST term and untouched. The account data export under Privacy is a different feature and
+  keeps its name.
+- **The two phrases the owner named lead their pages**: `/ai-mis-report` is titled "MIS with
+  AI"; `/mis-in-minutes` is titled for "MIS in minutes" and "automated MIS report", with "MIS
+  automation" in the description. The home title now carries "monthly MIS and management
+  accounts from your raw data".
+- **Three pages for the families no page answered**: `/ai-management-accounts` (UK
+  vocabulary; the honest split between what AI does and never does), `/ai-financial-reporting`
+  (US vocabulary; starts from the raw trial balance, not a connector) and `/mis-dashboard`
+  (the dashboard intent, shown on fictional figures per §2.3, with lineage as the difference).
+  All three carry `AlsoCalled` and sit in the solutions list and the footer.
+
+Not done, and why: no page for "MIS in Excel with ChatGPT" — that query wants a how-to for
+doing it by hand, and a page written to catch it would have to teach what the product exists
+to replace. "MIS software" as a bare term is owned by directory sites; the buyer's comparison
+query is already `/management-reporting-software`.

@@ -74,7 +74,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does it work with my accounting system?",
     answer:
-      "It works from exports rather than a live connection, so any system that can export a trial balance — to Excel, CSV, PDF or plain text — can be used. Tally exports are recognised in detail, including their group structure.",
+      "It works from raw data files rather than a live connection, so any system that can give you a trial balance — to Excel, CSV, PDF or plain text — can be used. Tally's raw reports are recognised in detail, including their group structure.",
   },
 ];
 
@@ -88,7 +88,7 @@ export default function AiMisReportPage() {
       <MarketingHeader
         path={PATH}
         eyebrow="MIS with AI"
-        heading="An AI MIS report generator that never writes the numbers"
+        heading="MIS with AI: an AI MIS report generator that never writes the numbers"
         intro="Most of the time spent on a monthly MIS is judgement about text: which sheet is which, which ledger belongs where, what to say about the month. That is what AI is good at. The figures are a different matter — so in this product, AI never produces one."
       />
       <AlsoCalled path={PATH} />

@@ -40,7 +40,7 @@ const PRESSURES: readonly { title: string; body: string }[] = [
   },
   {
     title: "A figure nobody can trace cannot be defended",
-    body: "Pasted values survive until someone asks where a number came from in a client meeting. Then the answer has to be reconstructed from the export, if the export still exists.",
+    body: "Pasted values survive until someone asks where a number came from in a client meeting. Then the answer has to be reconstructed from the raw file, if it still exists.",
   },
   {
     title: "Client data lives in email and shared drives",
@@ -91,7 +91,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is the output a file we can edit and put our name on?",
     answer:
-      "Yes. It is an ordinary Excel workbook with live formulas — not an image or a locked export. You can change it, extend it, and issue it however your firm issues its reports.",
+      "Yes. It is an ordinary Excel workbook with live formulas — not an image or a locked file. You can change it, extend it, and issue it however your firm issues its reports.",
   },
 ];
 
@@ -140,9 +140,9 @@ export default function ForAccountantsPage() {
         <p>
           There are no team logins, client portals or share links, and none are planned —
           one account is one login. There is no live connector to any accounting system:
-          you export the reports and load the files. There is no scheduled refresh without
-          someone uploading the month. And there is no free tier or trial, so evaluating
-          it means buying credits for a real month.
+          you take the raw reports and load the files. There is no scheduled refresh
+          without someone uploading the month. And there is no free tier or trial, so
+          evaluating it means buying credits for a real month.
         </p>
         <p>
           The professional judgement stays yours. The workbook is a prepared report to be

@@ -31,7 +31,7 @@ export const metadata: Metadata = pageMetadata(PATH);
 const STEPS = [
   {
     icon: "upload",
-    title: "Export the trial balance",
+    title: "Pull the raw trial balance",
     body: "From your accounting system, as Excel, CSV or PDF. Add the open invoices and open bills reports if you want A/R and A/P aging.",
   },
   {
@@ -65,7 +65,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Can I use a fiscal year that does not start in January?",
     answer:
-      "Yes. Each company records the month its fiscal year starts, its reporting currency and how dates are written in its exports, and every report follows those settings.",
+      "Yes. Each company records the month its fiscal year starts, its reporting currency and how dates are written in its raw data, and every report follows those settings.",
   },
   {
     question: "Is there a subscription?",

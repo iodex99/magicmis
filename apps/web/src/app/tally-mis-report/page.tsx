@@ -106,7 +106,7 @@ const STEPS = [
   {
     icon: "upload" as const,
     title: "Export the reports and upload them",
-    body: "Drop the exports in, in any format. They are encrypted as they arrive, and before you pay for anything the screen shows only file names, sizes, sheet counts and row counts.",
+    body: "Drop the raw files in, in any format. They are encrypted as they arrive, and before you pay for anything the screen shows only file names, sizes, sheet counts and row counts.",
   },
   {
     icon: "table" as const,
@@ -139,7 +139,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does my accounting data leave my computer?",
     answer:
-      "The export files are uploaded, encrypted under a key unique to that company, and deleted automatically. The AI model receives only redacted samples and ledger names, never a whole file and never your parties' names.",
+      "The raw files are uploaded, encrypted under a key unique to that company, and deleted automatically. The AI model receives only redacted samples and ledger names, never a whole file and never your parties' names.",
   },
   {
     question: "What if ledger names change between months?",
@@ -149,7 +149,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does it work with Tally.ERP 9 as well as TallyPrime?",
     answer:
-      "Yes. Parsing is driven by the column headers in the export rather than by fixed positions, so both versions' exports are read the same way and a changed column order does not break it.",
+      "Yes. Parsing is driven by the column headers in the export rather than by fixed positions, so both versions' files are read the same way and a changed column order does not break it.",
   },
 ];
 
@@ -163,13 +163,13 @@ export default function TallyMisReportPage() {
       <MarketingHeader
         path={PATH}
         eyebrow="Guide"
-        heading="MIS report from Tally: which exports to take, and what to do with them"
+        heading="MIS report from Tally: which raw reports to take, and what to do with them"
         intro="Tally holds everything a monthly MIS needs, in reports it already produces. What it does not do is assemble them into one management report with comparatives, ratios, ageing and commentary. This is how to bridge that gap — by hand, or without."
       />
       <AlsoCalled path={PATH} />
 
       <WideSection
-        title="The exports worth taking"
+        title="The raw reports worth taking"
         intro="Only the first is required. Each of the others adds a section to the report rather than being needed to produce one."
       >
         <div className="mx-auto max-w-[860px] overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">

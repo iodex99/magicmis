@@ -74,7 +74,7 @@ export default function OpengraphImage() {
             maxWidth: 940,
           }}
         >
-          The monthly MIS, built from the exports you already have.
+          The monthly MIS, built from the raw data you already have.
         </div>
         <div style={{ fontSize: 30, color: "#5b5b68", maxWidth: 900 }}>
           Trial balances in. A validated Excel workbook, dashboard and commentary out —

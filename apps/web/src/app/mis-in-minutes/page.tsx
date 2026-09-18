@@ -33,7 +33,7 @@ export const metadata: Metadata = pageMetadata(PATH);
 const FIRST_MONTH = [
   {
     icon: "upload",
-    title: "Load the exports",
+    title: "Load the raw data",
     body: "The trial balance, and if you want ageing, the bills outstanding registers, in any format.",
   },
   {
@@ -100,7 +100,7 @@ export default function MisInMinutesPage() {
         path={PATH}
         eyebrow="Automated MIS"
         heading="Your monthly MIS in minutes, not days"
-        intro="The slow part of a monthly MIS is not the maths — it is re-deciding, every month, where each ledger goes. Decide once, and each month after that is a refresh."
+        intro="The slow part of a monthly MIS is not the maths — it is re-deciding, every month, where each ledger goes. Decide once, and each month after that is a refresh: an automated MIS report from the raw trial balance, in minutes."
       />
       <AlsoCalled path={PATH} />
 

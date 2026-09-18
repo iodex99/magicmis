@@ -31,7 +31,7 @@ export const metadata: Metadata = pageMetadata(PATH);
 const DIFFERENCES: readonly { title: string; body: string }[] = [
   {
     title: "No connector, no integration project",
-    body: "Most management reporting software starts with connecting your accounting system and mapping its chart of accounts in a setup wizard. This starts with a file: the trial balance you already export. Nothing to install, no access to grant, and it works with any system that can export one.",
+    body: "Most management reporting software starts with connecting your accounting system and mapping its chart of accounts in a setup wizard. This starts with raw data: the trial balance you already have. Nothing to install, no access to grant, and it works with any system that can give you one.",
   },
   {
     title: "The output is a workbook you own",
@@ -59,7 +59,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Which accounting software does it work with?",
     answer:
-      "Any that exports a trial balance: Tally, Xero, QuickBooks, Sage, Zoho Books, NetSuite, Busy, MYOB and the rest. Excel, CSV, PDF and plain-text exports are all read, and columns are recognised by their headers rather than their positions, so a new export layout does not break anything.",
+      "Any that can give you a raw trial balance: Tally, Xero, QuickBooks, Sage, Zoho Books, NetSuite, Busy, MYOB and the rest. Excel, CSV, PDF and plain-text files are all read, and columns are recognised by their headers rather than their positions, so a new file layout does not break anything.",
   },
   {
     question: "Is it management accounts software or MIS software?",
@@ -88,8 +88,8 @@ export default function ManagementReportingSoftwarePage() {
       <MarketingHeader
         path={PATH}
         eyebrow="Software"
-        heading="Management reporting software that starts from a file, not a connector"
-        intro="Most management reporting tools want to connect to your accounting system, learn its chart of accounts in a setup project, and show you a dashboard. This one takes the trial balance you already export and gives you back a checked Excel workbook, a dashboard and written commentary — paid per report."
+        heading="Management reporting software that starts from raw data, not a connector"
+        intro="Most management reporting tools want to connect to your accounting system, learn its chart of accounts in a setup project, and show you a dashboard. This one takes the raw trial balance you already have and gives you back a checked Excel workbook, a dashboard and written commentary — paid per report."
       />
       <AlsoCalled path={PATH} />
 

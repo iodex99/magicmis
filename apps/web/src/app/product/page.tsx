@@ -43,7 +43,7 @@ const DELIVERABLES: readonly {
   {
     icon: "table",
     title: "An Excel workbook with live formulas",
-    body: "Not an image and not a locked export. The statements calculate in the sheet, so you can extend it, add a schedule, or change a presentation and have it recompute.",
+    body: "Not an image and not a locked file. The statements calculate in the sheet, so you can extend it, add a schedule, or change a presentation and have it recompute.",
   },
   {
     icon: "chart",

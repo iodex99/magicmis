@@ -111,7 +111,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} produce them?`,
     answer:
-      "You upload the trial balance your accounting system exports and take an Excel workbook with live formulas, a dashboard and written commentary. Every figure traces back to the ledger it came from, and later months reuse the mapping — a refresh on unchanged structure makes no AI calls at all.",
+      "You upload the raw trial balance your accounting system gives you and take an Excel workbook with live formulas, a dashboard and written commentary. Every figure traces back to the ledger it came from, and later months reuse the mapping — a refresh on unchanged structure makes no AI calls at all.",
   },
 ];
 
@@ -210,7 +210,7 @@ export default function ManagementAccountsPage() {
             Chasing a figure nobody can trace.
           </strong>{" "}
           Pasted values survive until the meeting where someone asks where a number came
-          from, and then the answer has to be reconstructed from an export that may no
+          from, and then the answer has to be reconstructed from a raw file that may no
           longer exist.
         </p>
         <p>
@@ -229,7 +229,7 @@ export default function ManagementAccountsPage() {
       <ReadNext paths={["/for-accountants", "/how-it-works", "/mis-report-format"]} />
       <ClosingCta
         heading="Or stop rebuilding them every month"
-        body={`${PRODUCT_NAME} produces a set from the trial balance your accounting system already exports, with live formulas and every figure traceable. The mapping is built once and reused every month.`}
+        body={`${PRODUCT_NAME} produces a set from the raw trial balance you already have, with live formulas and every figure traceable. The mapping is built once and reused every month.`}
       />
     </PublicShell>
   );

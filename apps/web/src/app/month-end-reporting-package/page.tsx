@@ -93,7 +93,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `Does ${PRODUCT_NAME} connect to our accounting system?`,
     answer:
-      "No, deliberately. It works from the trial balance you export — from QuickBooks, NetSuite, Sage Intacct, Xero or anything else — so there is nothing to install and no access to grant. Upload the export, and the statements, KPIs, aging and commentary are produced from it, every figure checked against the trial balance and traceable to its account.",
+      "No, deliberately. It works from the raw trial balance you pull — from QuickBooks, NetSuite, Sage Intacct, Xero or anything else — so there is nothing to install and no access to grant. Upload the raw file, and the statements, KPIs, aging and commentary are produced from it, every figure checked against the trial balance and traceable to its account.",
   },
 ];
 
@@ -164,7 +164,7 @@ export default function MonthEndReportingPackagePage() {
           which a spreadsheet does badly only because it was built by hand.
         </p>
         <p>
-          {PRODUCT_NAME} takes the trial balance export, maps each account to a statement
+          {PRODUCT_NAME} takes the raw trial balance, maps each account to a statement
           line — by rules first, with AI for the accounts rules cannot place — and
           computes the statements, KPIs and aging with every figure checked against the
           trial balance. The commentary is drafted around those figures; it never writes a

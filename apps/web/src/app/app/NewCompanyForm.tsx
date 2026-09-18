@@ -183,7 +183,7 @@ export function NewCompanyForm({
           <SelectField
             id="company-date-order"
             name="dateOrder"
-            label="Dates in exports are written"
+            label="Dates in your files are written"
             defaultValue={defaults.dateOrder}
             hint="Checked against every file you load — if a file disagrees, nothing is generated until it is sorted out."
           >
