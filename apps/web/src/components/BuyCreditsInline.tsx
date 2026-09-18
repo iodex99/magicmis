@@ -181,7 +181,7 @@ export function BuyCreditsInline({
     covering.length > 0 ? covering.slice(0, 2) : (view?.packs.slice(-1) ?? []);
 
   return (
-    <Panel title="Buy credits" icon="wallet" padding="sm">
+    <Panel title="Add credits" icon="wallet" padding="sm">
       <div className="flex flex-col gap-3">
         {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
         <p className="text-[0.8125rem] text-neutral-600">

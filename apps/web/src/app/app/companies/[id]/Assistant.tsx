@@ -31,6 +31,8 @@ import { formatCredits, TIER_LABELS, TIER_NOTES } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 
+import type { ChatPrices } from "@/lib/server/chat-prices";
+
 import { CommentaryView } from "./CommentaryView";
 
 type MessageType = "quick" | "deep" | "edit" | "investigate";
@@ -100,6 +102,14 @@ const MODES: readonly { key: Mode; label: string; icon: IconName; hint: string }
     hint: "A written review of a month",
   },
 ];
+
+/** What the chosen mode is called where a price is shown beside it. */
+const MODE_WORDS: Record<Mode, string> = {
+  quick: "a question",
+  deep: "digging deeper",
+  edit: "a layout change",
+  commentary: "commentary",
+};
 
 const TYPE_WORDS: Record<MessageType, string> = {
   quick: "Ask",
@@ -188,6 +198,7 @@ export function Assistant({
   currencySymbol,
   periods,
   commentaries,
+  prices,
   prefill,
   onLayoutChanged,
 }: {
@@ -199,6 +210,8 @@ export function Assistant({
   /** Months with figures, newest first. */
   periods: readonly string[];
   commentaries: readonly CommentaryRow[];
+  /** Credits per message, by what is being asked and by tier (SPEC §2.5). */
+  prices: ChatPrices;
   /** A question handed over by the dashboard's Investigate; `nonce` makes a repeat count. */
   prefill: { type: MessageType; text: string; nonce: number } | null;
   /** A layout change applied or undone here, so the dashboard beside it can reload. */
@@ -521,10 +534,10 @@ export function Assistant({
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-[0.875rem] font-semibold text-neutral-900">
-            Ask about {companyName}
+            Chat with the MIS
           </h2>
           <p className="truncate text-[0.75rem] text-neutral-500">
-            Answers, analysis and commentary from its figures
+            Every number computed from the books, never written by AI
           </p>
         </div>
         <button
@@ -873,7 +886,8 @@ export function Assistant({
               The commentary for {format.period(quote.period)} needs more analysis than
               the standard price covers:{" "}
               <strong className="tabular-nums">{formatCredits(quote.credits)}</strong>{" "}
-              credits, held until {new Date(quote.expiresAt).toLocaleString("en-IN")}.
+              credits. The offer stands until{" "}
+              {new Date(quote.expiresAt).toLocaleString("en-IN")}.
             </p>
             <div className="mt-2.5 flex gap-2">
               <Button
@@ -907,7 +921,7 @@ export function Assistant({
           <Alert tone="warning" title="Not enough credits">
             Top up and send it again. Nothing was charged.{" "}
             <Link href="/wallet" className="font-medium underline">
-              Buy credits
+              Add credits
             </Link>
           </Alert>
         ) : null}
@@ -1042,29 +1056,61 @@ export function Assistant({
           </div>
         )}
 
-        <div className="mt-2 flex items-center justify-between gap-2 text-[0.6875rem] text-neutral-500">
-          <span>Every message uses credits, including questions outside this MIS.</span>
-          <label className="flex shrink-0 items-center gap-1" title={TIER_NOTES[tier]}>
-            <span className="text-neutral-400">Depth</span>
-            <select
-              aria-label="Intelligence tier"
-              className="rounded border-0 bg-transparent py-0 pr-5 pl-1 text-[0.6875rem] font-medium text-neutral-600 hover:text-neutral-900"
-              value={tier}
-              onChange={(e) => {
-                setTier(e.target.value as Tier);
-              }}
-            >
-              {(Object.keys(TIER_LABELS) as Tier[]).map((t) => (
-                <option key={t} value={t}>
-                  {TIER_LABELS[t]}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div
+          className="mt-3 rounded-xl border border-line bg-raised p-2.5"
+          data-testid="tier-chooser"
+        >
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="eyebrow">How hard it thinks</span>
+            <span className="text-[0.6875rem] text-neutral-500">
+              Price for {MODE_WORDS[mode]}
+            </span>
+          </div>
+          <div
+            role="radiogroup"
+            aria-label="Intelligence tier"
+            className="mt-2 grid grid-cols-3 gap-1.5"
+          >
+            {(Object.keys(TIER_LABELS) as Tier[]).map((t) => {
+              const on = t === tier;
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  data-testid={`tier-${t}`}
+                  className={`press rounded-lg border px-2 py-1.5 text-left transition-colors ${
+                    on
+                      ? "border-accent-300 bg-accent-50 text-accent-900"
+                      : "border-transparent text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+                  }`}
+                  onClick={() => {
+                    setTier(t);
+                  }}
+                >
+                  <span className="block text-[0.75rem] font-medium">
+                    {TIER_LABELS[t]}
+                  </span>
+                  <span
+                    className={`block text-[0.6875rem] tabular-nums ${
+                      on ? "text-accent-700" : "text-neutral-500"
+                    }`}
+                  >
+                    {formatCredits(prices[mode][t])} credits
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[0.75rem] leading-snug text-neutral-500">
+            {TIER_NOTES[tier]}
+          </p>
+          <p className="mt-1.5 text-[0.6875rem] text-neutral-400">
+            The price is fixed whatever the work turns out to take, and every message is
+            charged, including questions outside this MIS.
+          </p>
         </div>
-        <p className="mt-0.5 text-right text-[0.6875rem] text-neutral-400">
-          {TIER_NOTES[tier]}
-        </p>
       </div>
 
       <Drawer

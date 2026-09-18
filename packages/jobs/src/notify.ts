@@ -9,7 +9,7 @@ import type { Queryable } from "@magicmis/db/tx";
  * The notices this package queues.
  *
  * It is not the whole catalogue: `packages/accounts` owns the `security.*` sign-in notices
- * and `packages/wallet` inserts `billing.lot_expiry_notice` in SQL. The list that must be
+ * The list that must be
  * complete is `TEMPLATE_TYPES` in `apps/worker/src/templates.ts`, which the worker's own
  * test pins to the rendered templates exactly — a type queued with no template there is
  * never delivered.

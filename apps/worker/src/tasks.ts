@@ -23,12 +23,7 @@ import {
   sweepJobs,
   type OutputStore,
 } from "@magicmis/jobs";
-import {
-  expireLotsSweep,
-  expireQuotes,
-  queueLotExpiryNotices,
-  sweepExpiredReservations,
-} from "@magicmis/wallet";
+import { expireQuotes, sweepExpiredReservations } from "@magicmis/wallet";
 import { sweepChatMessages } from "@magicmis/chat/server";
 import type { Pool } from "pg";
 
@@ -72,20 +67,6 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
     cron: "*/5 * * * *",
     expireInSeconds: 240,
     run: ({ pool }, now) => sweepExpiredReservations(pool, now),
-  },
-  {
-    // SPEC §11.5: nightly. Wallet operations also expire due lots on touch.
-    queue: "wallet-lot-expiry",
-    cron: "10 0 * * *",
-    expireInSeconds: 3600,
-    run: ({ pool }, now) => expireLotsSweep(pool, now),
-  },
-  {
-    // SPEC §11.5: notices 30 and 7 days before expiry (days from config), deduplicated.
-    queue: "wallet-lot-expiry-notices",
-    cron: "0 9 * * *",
-    expireInSeconds: 1800,
-    run: ({ pool }, now) => queueLotExpiryNotices(pool, now),
   },
   {
     // SPEC §12: quotes lapse after their validity window.

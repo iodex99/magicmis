@@ -148,9 +148,8 @@ export default async function TermsPage() {
             by us.
           </p>
           <p>
-            Credits from each purchase are valid for {f.creditValidityMonths} months,
-            after which any unused credits from that purchase expire. Credits are used in
-            the order they expire.
+            Credits do not expire. They remain available on your account until you spend
+            them or the account is closed, and are used in the order they were bought.
           </p>
           <p>
             Credits are non-refundable, cannot be transferred to another account and
@@ -365,7 +364,7 @@ export default async function TermsPage() {
           <p>
             If we stop providing the service altogether, or close your account for a
             reason other than your breach, we will refund the purchase price of your
-            unused, unexpired credits.
+            unused credits.
           </p>
         </>
       ),

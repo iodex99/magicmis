@@ -33,11 +33,24 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 const ENTRY_LABELS: Record<string, string> = {
   grant: "Credits added",
-  reserve: "Held for an action",
-  release: "Hold released",
+  reserve: "Action started",
+  release: "Returned, unused",
   capture: "Charged",
   expire: "Expired",
   admin_adjust: "Adjustment",
+};
+
+/**
+ * Which way an entry moves the balance. Reserving and returning move the *held* figure, not
+ * the balance, so they get no sign at all rather than a misleading one. An adjustment is the
+ * only entry whose amount carries its own sign.
+ */
+const DIRECTION: Record<string, "up" | "down" | "none"> = {
+  grant: "up",
+  capture: "down",
+  expire: "down",
+  reserve: "none",
+  release: "none",
 };
 
 const istDate = (iso: string): string =>
@@ -47,10 +60,6 @@ const istDate = (iso: string): string =>
     month: "short",
     year: "numeric",
   }).format(new Date(iso));
-
-/** Days until a lot expires, for the "expiring soon" warning. */
-const daysUntil = (iso: string): number =>
-  Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
 
 /**
  * What a credit balance actually buys, in the customer's own terms.
@@ -217,7 +226,6 @@ export function WalletClient({
 
   const available = BigInt(view.available);
   const held = BigInt(view.held);
-  const expiringSoon = view.lots.filter((l) => daysUntil(l.expiresAt) <= 30);
 
   // The pack to point at: the smallest that covers what the run needs, or the one most
   // accounts choose when nothing in particular is waiting.
@@ -250,14 +258,14 @@ export function WalletClient({
           hint="Ready to spend on an action"
         />
         <StatCard
-          label="Held for running actions"
+          label="Running now"
           value={formatCredits(view.held)}
           unit="credits"
-          icon="lock"
+          icon="loader"
           hint={
             held === 0n
-              ? "Nothing is held right now"
-              : "Released or charged when the action finishes"
+              ? "Nothing is running right now"
+              : "Being spent by actions in progress. Back in your balance if one fails."
           }
         />
         <StatCard
@@ -265,7 +273,7 @@ export function WalletClient({
           value={formatCredits(view.balance)}
           unit="credits"
           icon="bank"
-          hint={`Credits expire ${String(view.lotValidityMonths)} months after purchase`}
+          hint="Credits never expire"
           chart={
             available + held === 0n ? undefined : (
               <div className="flex items-center gap-3">
@@ -291,7 +299,7 @@ export function WalletClient({
                       aria-hidden="true"
                       className="h-2 w-2 rounded-full bg-warning"
                     />
-                    Held
+                    Running now
                   </span>
                 </span>
               </div>
@@ -300,19 +308,9 @@ export function WalletClient({
         />
       </div>
 
-      {expiringSoon.length === 0 ? null : (
-        <Alert tone="warning" title="Credits expiring within 30 days">
-          {formatCredits(
-            expiringSoon.reduce((sum, l) => sum + BigInt(l.remaining), 0n).toString(),
-          )}{" "}
-          credits expire by {istDate(expiringSoon.at(-1)?.expiresAt ?? "")}. Oldest
-          credits are always spent first.
-        </Alert>
-      )}
-
       {view.billingReady ? (
         <Panel
-          title="Buy credits"
+          title="Add credits"
           description="Credits are prepaid and non-refundable, and there is no free tier. Prices below are in your billing currency, before tax."
           icon="plus"
           padding="none"
@@ -407,7 +405,7 @@ export function WalletClient({
         >
           {view.lots.length === 0 ? (
             <EmptyState icon="wallet" title="No credits yet">
-              Buy a pack above. Credits appear here as lots, each with its own expiry.
+              Add a pack above. Credits appear here as lots and are spent oldest first.
             </EmptyState>
           ) : (
             <DataTable
@@ -416,7 +414,7 @@ export function WalletClient({
                 <>
                   <Th>Source</Th>
                   <Th numeric>Remaining</Th>
-                  <Th numeric>Expires</Th>
+                  <Th numeric>Bought</Th>
                 </>
               }
             >
@@ -424,9 +422,7 @@ export function WalletClient({
                 <Tr key={l.id}>
                   <Td>{SOURCE_LABELS[l.source] ?? l.source}</Td>
                   <Td numeric>{formatCredits(l.remaining)}</Td>
-                  <Td numeric className="whitespace-nowrap">
-                    {istDate(l.expiresAt)}
-                  </Td>
+                  <Td numeric>{formatCredits(l.granted)}</Td>
                 </Tr>
               ))}
             </DataTable>
@@ -506,16 +502,27 @@ export function WalletClient({
             }
           >
             {view.ledger.map((e) => {
-              const negative = e.amount.startsWith("-");
+              const direction =
+                DIRECTION[e.entryType] ?? (e.amount.startsWith("-") ? "down" : "up");
+              const magnitude = formatCredits(e.amount.replace(/^-/u, ""));
               return (
                 <Tr key={e.seq}>
                   <Td className="whitespace-nowrap">{istDate(e.createdAt)}</Td>
                   <Td className="text-neutral-900">
                     {ENTRY_LABELS[e.entryType] ?? e.entryType}
                   </Td>
-                  <Td numeric className={negative ? "text-negative" : "text-positive"}>
-                    {negative ? "" : "+"}
-                    {formatCredits(e.amount)}
+                  <Td
+                    numeric
+                    className={
+                      direction === "up"
+                        ? "text-positive"
+                        : direction === "down"
+                          ? "text-negative"
+                          : "text-neutral-500"
+                    }
+                  >
+                    {direction === "up" ? "+" : direction === "down" ? "−" : ""}
+                    {magnitude}
                   </Td>
                   <Td numeric>{formatCredits(e.balanceAfter)}</Td>
                 </Tr>

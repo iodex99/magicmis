@@ -342,9 +342,9 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/pricing",
-    title: "Pricing",
+    title: "Pricing: prepaid credits, no subscription, nothing expires",
     description:
-      "Prepaid credits, a fixed price per action, shown and confirmed before anything runs. Billed in US dollars, or in rupees for customers in India. No subscription and no free tier.",
+      "Buy credits up front and spend them when you run something. A fixed price per action, no subscription, no per-seat fee, and credits that never expire. Rupees in India, dollars elsewhere.",
     changeFrequency: "weekly",
     priority: 0.9,
     locale: "en_IN",

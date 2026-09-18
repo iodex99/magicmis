@@ -19,7 +19,7 @@ rules are not style preferences.
 - DuckDB: `DECIMAL(38,4)` or integer paise.
 
 ## Invariants (SPEC §11)
-- `balance_credits` = Σ `credits_remaining` over unexpired lots.
+- `balance_credits` = Σ `credits_remaining` over all lots. Credits never expire (ADR 0040).
 - `held_credits` = Σ active reservations.
 - `available` = balance − held.
 - **Balance and held can never go negative.** Enforced by CHECK constraints *and* tests.
@@ -32,7 +32,7 @@ rules are not style preferences.
 - Every operation writes `credit_ledger` rows carrying `balance_after`, `held_after`,
   and the `prev_hash`/`hash` chain.
 - `credit_ledger` is **append-only**: the DB role has no UPDATE or DELETE grant on it.
-- Capture consumes lots **FIFO by earliest `expires_at`**, and releases any remainder.
+- Capture consumes lots **FIFO, oldest first by `created_at`**, and releases any remainder.
 
 ## Idempotency
 - Every mutating operation takes an idempotency key; `credit_ledger.idempotency_key` is
@@ -56,4 +56,4 @@ rules are not style preferences.
 - **Concurrency:** 50 parallel reservations, balance fits 10 → exactly 10 succeed, no
   overdraft. Use a real Postgres (Testcontainers/Supabase local), not a mock.
 - **Idempotency:** same key twice → one effect.
-- **Time travel:** lot expiry, reservation expiry, FIFO ordering.
+- **Time travel:** reservation expiry and FIFO ordering. Lots do not expire (ADR 0040).

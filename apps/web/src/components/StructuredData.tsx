@@ -160,3 +160,30 @@ export function ArticleSchema({ path }: { path: string }) {
     />
   );
 }
+
+/**
+ * The product tour, so it can be understood as a video rather than an opaque file
+ * (https://developers.google.com/search/docs/appearance/video). Every field here is checked
+ * against the recording itself: 46 seconds, silent, no transcript published yet.
+ */
+export function VideoSchema({ path }: { path: string }) {
+  return (
+    <Json
+      data={{
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        name: `${PRODUCT_NAME} — the tour`,
+        description:
+          "A silent, forty-six second tour of how a monthly management report is produced: raw data in, mapped ledgers, a checked workbook, a dashboard and written commentary.",
+        thumbnailUrl: absoluteUrl("/brand/tour-poster.png"),
+        contentUrl: absoluteUrl("/brand/tour.webm"),
+        uploadDate: "2026-09-18",
+        duration: "PT46S",
+        isFamilyFriendly: true,
+        inLanguage: "en",
+        publisher: { "@id": `${absoluteUrl("/")}#organization` },
+        embedUrl: absoluteUrl(path),
+      }}
+    />
+  );
+}

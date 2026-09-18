@@ -450,14 +450,14 @@ async function creditPurchaseInTx(
   if (main.status !== "granted")
     throw new Error(`purchase ${purchase.id} was granted but not marked credited`);
   if (purchase.bonusCredits > 0n) {
-    // SPEC §11.1: bonus credits are a separate lot with the same expiry.
+    // SPEC §11.1: bonus credits are a separate lot, granted after the purchase lot so it
+    // is the purchase's own credits that are spent first.
     await grantCreditsInTx(tx, {
       accountId: purchase.accountId,
       credits: purchase.bonusCredits,
       source: "bonus",
       idempotencyKey: `purchase:${purchase.id}:bonus`,
       purchaseId: purchase.id,
-      expiresAt: main.expiresAt,
       now: input.now,
     });
   }

@@ -2,27 +2,35 @@ import type { Metadata } from "next";
 
 import { pageMetadata } from "@/lib/seo";
 import { readConfig } from "@magicmis/db/config";
-import { priceList } from "@magicmis/wallet";
 import { z } from "zod";
 
 import { PublicShell } from "@/components/PublicShell";
 import { Badge, ButtonLink, DataTable, Panel, Td, Th, Tr } from "@/components/ui";
-import { ACTION_LABELS, formatCredits, formatMoney } from "@/lib/actions";
+import { formatCredits, formatMoney } from "@/lib/actions";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = pageMetadata("/pricing");
-// Read from the versioned price book on each request; never prerendered at build time.
+// Read from the versioned pack prices on each request; never prerendered at build time.
 export const dynamic = "force-dynamic";
 
-/** Public pricing (SPEC §2.3: viewing the price book is never charged). */
+/**
+ * What it costs to buy in (ADR 0040).
+ *
+ * The per-action price book is no longer published here: a table of credits per action per
+ * tier answered a question nobody had bought their way into yet, and read as complexity
+ * rather than as the reassurance it was meant to be. It moved to the wallet, where it is
+ * still free to read (SPEC §2.3) and where it is actually useful — beside a balance.
+ *
+ * What stays is what is actually sold for money: credit packs, priced in rupees for India
+ * and dollars everywhere else. Razorpay requires the price of what you sell to be visible
+ * and in INR before a merchant account is activated, so this page is not optional.
+ */
 export default async function PricingPage() {
   const pool = db();
-  const [rows, gstRate, validityMonths, packs] = await Promise.all([
-    priceList(pool),
+  const [gstRate, packs] = await Promise.all([
     readConfig(pool, "billing.gst_rate_percent", z.string()),
-    readConfig(pool, "wallet.lot_validity_months", z.number().int().positive()),
-    // Both currencies: the price book is public, and a visitor abroad should see what
-    // they would actually pay rather than a rupee figure to convert themselves.
+    // Both currencies: a visitor abroad should see what they would actually pay rather
+    // than a rupee figure to convert themselves.
     pool.query<{
       price_inr_minor: string | null;
       price_usd_minor: string | null;
@@ -45,13 +53,13 @@ export default async function PricingPage() {
       <div className="mx-auto w-full max-w-[1120px] px-6 py-14">
         <header className="max-w-2xl">
           <Badge tone="accent">Prepaid credits</Badge>
-          <h1 className="mt-4 text-[2.25rem] leading-tight font-semibold tracking-tight text-neutral-900">
-            A fixed price per action, paid up front.
+          <h1 className="display mt-4 text-[2.25rem] leading-tight font-semibold tracking-tight text-neutral-900">
+            Buy credits. Spend them when you run something.
           </h1>
           <p className="mt-4 text-[1.0625rem] leading-relaxed text-neutral-600">
-            Every action has a fixed price from a published price book, in US dollars or —
-            for customers in India — rupees. Credits are charged only for what you run,
-            and you are never billed by the minute or by how much work it took.
+            There is no subscription, no per-seat fee and no minimum. You buy credits up
+            front, each action costs a fixed number of them, and nothing is charged in a
+            month you do not run anything.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <ButtonLink href="/sign-up" iconAfter="arrow-right">
@@ -63,12 +71,12 @@ export default async function PricingPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {[
             {
-              title: "Three intelligence tiers",
-              body: "Efficient, Professional and Expert. You pick the tier; we pick everything behind it.",
+              title: "Credits never expire",
+              body: "What you buy stays yours until you spend it. No validity period, no quiet reset at twelve months.",
             },
             {
-              title: "Nothing recurring but usage",
-              body: `Each active company carries a monthly memory fee. Credits expire ${String(validityMonths)} months after purchase.`,
+              title: "A fixed price per action",
+              body: "Each action costs the same every time, however hard it turned out to be. You see the number on the button before you press it.",
             },
             {
               title: "No free tier",
@@ -91,52 +99,13 @@ export default async function PricingPage() {
 
         <div className="mt-10">
           <Panel
-            title="Price book"
-            description="Credits per action, by intelligence tier."
-            icon="table"
-            padding="none"
-          >
-            <DataTable
-              testId="price-list"
-              className="px-2 pb-2"
-              head={
-                <>
-                  <Th>Action</Th>
-                  <Th numeric>Efficient</Th>
-                  <Th numeric>Professional</Th>
-                  <Th numeric>Expert</Th>
-                </>
-              }
-            >
-              {rows.map((r) => (
-                <Tr key={r.actionKey}>
-                  <Td className="text-neutral-900">
-                    <span className="font-medium">{ACTION_LABELS[r.actionKey]}</span>
-                    {r.instant ? (
-                      <span className="mt-0.5 block text-[0.75rem] text-neutral-500">
-                        Instant delivery: {formatCredits(r.instant.efficient.toString())}{" "}
-                        / {formatCredits(r.instant.professional.toString())} /{" "}
-                        {formatCredits(r.instant.expert.toString())}
-                      </span>
-                    ) : null}
-                  </Td>
-                  <Td numeric>{formatCredits(r.standard.efficient.toString())}</Td>
-                  <Td numeric>{formatCredits(r.standard.professional.toString())}</Td>
-                  <Td numeric>{formatCredits(r.standard.expert.toString())}</Td>
-                </Tr>
-              ))}
-            </DataTable>
-          </Panel>
-        </div>
-
-        <div className="mt-6">
-          <Panel
             title="Credit packs"
             description="Larger packs carry bonus credits. Oldest credits are spent first."
             icon="wallet"
             padding="none"
           >
             <DataTable
+              testId="pack-list"
               className="px-2 pb-2"
               head={
                 <>
@@ -175,9 +144,11 @@ export default async function PricingPage() {
           </Panel>
         </div>
 
-        <p className="mt-5 text-[0.8125rem] text-neutral-500">
-          GST at {gstRate}% is added at checkout. Credits expire {validityMonths} months
-          after purchase and are non-refundable. There is no free tier or trial.
+        <p className="mt-5 max-w-2xl text-[0.8125rem] leading-relaxed text-neutral-500">
+          GST at {gstRate}% is added at checkout for customers in India; sales outside
+          India are a zero-rated export of services. Credits are non-refundable once
+          bought, and there is no free tier or trial. What each action costs is listed in
+          your wallet, and shown on the button before you press it.
         </p>
       </div>
     </PublicShell>

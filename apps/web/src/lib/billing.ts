@@ -9,9 +9,7 @@ import {
   type PaymentGateway,
 } from "@magicmis/billing";
 import type { Currency } from "@magicmis/core/money";
-import { readConfig } from "@magicmis/db/config";
 import { walletSummary } from "@magicmis/wallet";
-import { z } from "zod";
 
 import { db } from "./db";
 import { serverEnv } from "./env";
@@ -35,12 +33,11 @@ export interface WalletView {
   readonly balance: string;
   readonly held: string;
   readonly available: string;
-  readonly lotValidityMonths: number;
   readonly lots: readonly {
     id: string;
     source: string;
     remaining: string;
-    expiresAt: string;
+    granted: string;
   }[];
   /**
    * What the account is billed in: INR for India, USD for everywhere else (ADR 0030).
@@ -111,8 +108,7 @@ export async function walletView(accountId: string): Promise<WalletView> {
     throw error;
   });
 
-  const [validity, summary, quotes, purchases, invoices, ledger] = await Promise.all([
-    readConfig(pool, "wallet.lot_validity_months", z.number().int().positive()),
+  const [summary, quotes, purchases, invoices, ledger] = await Promise.all([
     walletSummary(pool, accountId),
     quoting,
     listPurchases(pool, accountId),
@@ -135,12 +131,11 @@ export async function walletView(accountId: string): Promise<WalletView> {
     balance: summary.balance.toString(),
     held: summary.held.toString(),
     available: summary.available.toString(),
-    lotValidityMonths: validity,
     lots: summary.lots.map((l) => ({
       id: l.id,
       source: l.source,
       remaining: l.remaining.toString(),
-      expiresAt: l.expiresAt.toISOString(),
+      granted: l.granted.toString(),
     })),
     // Taken from the quotes rather than queried again: they were all priced in the
     // account's currency, so if there are any, that is it.

@@ -251,7 +251,7 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
     const lots = await pool().query<{
       source: string;
       credits_granted: string;
-      expires_at: Date;
+      expires_at: Date | null;
     }>(
       `select source, credits_granted::text, expires_at from credit_lots where account_id = $1 order by source`,
       [accountId],
@@ -260,7 +260,8 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
       ["bonus", "750"],
       ["purchase", "10000"],
     ]);
-    expect(lots.rows[0]?.expires_at.getTime()).toBe(lots.rows[1]?.expires_at.getTime());
+    // ADR 0040: neither lot expires, so neither carries a date to expire on.
+    expect(lots.rows.map((l) => l.expires_at)).toEqual([null, null]);
 
     const [invoice, ...more] = await listInvoices(pool(), accountId);
     expect(more).toHaveLength(0);

@@ -41,23 +41,6 @@ const ttlSchema = z.object({
   chat: z.number().int().positive(),
 });
 
-async function lotValidityMonths(db: Queryable): Promise<number> {
-  return readConfig(db, "wallet.lot_validity_months", z.number().int().min(1).max(120));
-}
-
-/** Calendar-month arithmetic in UTC: 31 January + 1 month is the last day of February. */
-export function addCalendarMonthsUtc(date: Date, months: number): Date {
-  const target = new Date(date.getTime());
-  const day = target.getUTCDate();
-  target.setUTCDate(1);
-  target.setUTCMonth(target.getUTCMonth() + months);
-  const lastDay = new Date(
-    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
-  ).getUTCDate();
-  target.setUTCDate(Math.min(day, lastDay));
-  return target;
-}
-
 // ---------------------------------------------------------------------------
 // Internal helpers (all require the wallet row lock)
 // ---------------------------------------------------------------------------
@@ -99,122 +82,18 @@ async function keyAlreadyApplied(
   return (r.rowCount ?? 0) > 0;
 }
 
-/**
- * Shrink held reservations, newest first, until held ≤ `coverable`. Writes one release
- * ledger row per shrunk hold. Balance is unchanged here, so every row it writes already
- * satisfies held ≤ balance.
- */
-async function shrinkHoldsTo(
-  tx: PoolClient,
-  accountId: string,
-  state: WalletState,
-  coverable: bigint,
-  now: Date,
-): Promise<WalletState> {
-  let current = state;
-  let shortfall = current.held - coverable;
-  if (shortfall <= 0n) return current;
-
-  // Newest holds first: the oldest work has been running longest and is closest to done.
-  const holds = await tx.query<{ id: string; amount: string; job_id: string | null }>(
-    `select id, amount, job_id from public.reservations
-     where account_id = $1 and status = 'held'
-     order by created_at desc
-     for update`,
-    [accountId],
-  );
-  for (const hold of holds.rows) {
-    if (shortfall === 0n) break;
-    const amount = BigInt(hold.amount);
-    const cut = shortfall < amount ? shortfall : amount;
-    const remaining = amount - cut;
-    if (remaining === 0n) {
-      await tx.query(
-        `update public.reservations set status = 'released', settled_at = $2 where id = $1`,
-        [hold.id, now],
-      );
-    } else {
-      await tx.query(`update public.reservations set amount = $2 where id = $1`, [
-        hold.id,
-        remaining.toString(),
-      ]);
-    }
-    current = { balance: current.balance, held: current.held - cut };
-    shortfall -= cut;
-    await appendLedger(tx, {
-      accountId,
-      entryType: "release",
-      amount: cut,
-      reservationId: hold.id,
-      jobId: hold.job_id,
-      balanceAfter: current.balance,
-      heldAfter: current.held,
-      idempotencyKey: `expiry-cover:${hold.id}:${amount.toString()}`,
-    });
-  }
-  return current;
-}
-
-/**
- * Expire every due lot for the account (SPEC §11.5: "the expiry still applies and the
- * job's capture is limited").
- *
- * For each lot, holds the lot was backing are shrunk BEFORE the expire row is written.
- * The ledger's own CHECK constraint requires held ≤ balance on every row, so the order is
- * not cosmetic: expiring first and covering afterwards writes an invalid row, which the
- * database refuses (found by the time-travel tests).
- */
-async function expireDueLots(
-  tx: PoolClient,
-  accountId: string,
-  state: WalletState,
-  now: Date,
-): Promise<WalletState> {
-  let current = state;
-  const due = await tx.query<{ id: string; credits_remaining: string }>(
-    `select id, credits_remaining from public.credit_lots
-     where account_id = $1 and credits_remaining > 0 and expires_at <= $2
-     order by expires_at, created_at
-     for update`,
-    [accountId, now],
-  );
-
-  for (const lot of due.rows) {
-    const remaining = BigInt(lot.credits_remaining);
-    const balanceAfterExpiry = current.balance - remaining;
-    current = await shrinkHoldsTo(tx, accountId, current, balanceAfterExpiry, now);
-
-    await tx.query(`update public.credit_lots set credits_remaining = 0 where id = $1`, [
-      lot.id,
-    ]);
-    current = { balance: balanceAfterExpiry, held: current.held };
-    await appendLedger(tx, {
-      accountId,
-      entryType: "expire",
-      amount: remaining,
-      lotId: lot.id,
-      balanceAfter: current.balance,
-      heldAfter: current.held,
-      idempotencyKey: `expire:lot:${lot.id}`,
-    });
-  }
-
-  return current;
-}
-
-/** Take `amount` from unexpired lots, earliest expiry first. Returns per-lot takes. */
+/** Take `amount` from lots, oldest first. Returns per-lot takes. */
 async function consumeLotsFifo(
   tx: PoolClient,
   accountId: string,
   amount: bigint,
-  now: Date,
 ): Promise<{ lotId: string; taken: bigint }[]> {
   const lots = await tx.query<{ id: string; credits_remaining: string }>(
     `select id, credits_remaining from public.credit_lots
-     where account_id = $1 and credits_remaining > 0 and expires_at > $2
-     order by expires_at, created_at
+     where account_id = $1 and credits_remaining > 0
+     order by created_at
      for update`,
-    [accountId, now],
+    [accountId],
   );
   let needed = amount;
   const takes: { lotId: string; taken: bigint }[] = [];
@@ -244,7 +123,6 @@ export type GrantResult =
   | {
       readonly status: "granted";
       readonly lotId: string;
-      readonly expiresAt: Date;
       readonly state: WalletState;
     }
   | { readonly status: "duplicate" };
@@ -255,8 +133,6 @@ export interface GrantInput {
   readonly source: LotSource;
   readonly idempotencyKey: string;
   readonly purchaseId?: string | null;
-  /** Defaults to now + `wallet.lot_validity_months`. Bonus lots pass the purchase's expiry. */
-  readonly expiresAt?: Date;
   readonly now?: Date;
 }
 
@@ -278,20 +154,16 @@ export async function grantCreditsInTx(
 
   let state = await lockWallet(tx, input.accountId);
   if (await keyAlreadyApplied(tx, input.idempotencyKey)) return { status: "duplicate" };
-  state = await expireDueLots(tx, input.accountId, state, now);
 
-  const expiresAt =
-    input.expiresAt ?? addCalendarMonthsUtc(now, await lotValidityMonths(tx));
   const lot = await tx.query<{ id: string }>(
     `insert into public.credit_lots
-       (account_id, source, credits_granted, credits_remaining, expires_at, purchase_id, created_at)
-     values ($1, $2, $3, $3, $4, $5, $6)
-     returning id, expires_at`,
+       (account_id, source, credits_granted, credits_remaining, purchase_id, created_at)
+     values ($1, $2, $3, $3, $4, $5)
+     returning id`,
     [
       input.accountId,
       input.source,
       input.credits.toString(),
-      expiresAt,
       input.purchaseId ?? null,
       now,
     ],
@@ -310,7 +182,7 @@ export async function grantCreditsInTx(
     idempotencyKey: input.idempotencyKey,
   });
   await saveWallet(tx, input.accountId, state);
-  return { status: "granted", lotId, expiresAt, state };
+  return { status: "granted", lotId, state };
 }
 
 // ---------------------------------------------------------------------------
@@ -363,7 +235,6 @@ export async function reserveCredits(
       };
     }
 
-    state = await expireDueLots(tx, input.accountId, state, now);
     const available = state.balance - state.held;
     if (available < input.amount) {
       // Persist any expiry that just happened even though the reservation is refused.
@@ -484,8 +355,6 @@ export async function captureReservation(
       return { status: "duplicate", captured: BigInt(r.rows[0]?.captured_amount ?? "0") };
     }
 
-    state = await expireDueLots(tx, accountId, state, now);
-
     const resRows = await tx.query<ReservationRow>(
       `select id, account_id, job_id, amount, status, captured_amount
        from public.reservations where id = $1 for update`,
@@ -527,7 +396,7 @@ export async function captureReservation(
 
     let index = 0;
     if (capture > 0n) {
-      for (const take of await consumeLotsFifo(tx, accountId, capture, now)) {
+      for (const take of await consumeLotsFifo(tx, accountId, capture)) {
         state = { balance: state.balance - take.taken, held: state.held - take.taken };
         await appendLedger(tx, {
           accountId,
@@ -598,7 +467,6 @@ export async function releaseReservation(
 
   return withTransaction(pool, async (tx) => {
     let state = await lockWallet(tx, accountId);
-    state = await expireDueLots(tx, accountId, state, now);
     const resRows = await tx.query<ReservationRow>(
       `select id, account_id, job_id, amount, status, captured_amount
        from public.reservations where id = $1 for update`,
@@ -674,15 +542,13 @@ export async function adminAdjust(
   return withTransaction(pool, async (tx) => {
     let state = await lockWallet(tx, input.accountId);
     if (await keyAlreadyApplied(tx, input.idempotencyKey)) return { status: "duplicate" };
-    state = await expireDueLots(tx, input.accountId, state, now);
 
     if (input.delta > 0n) {
-      const expiresAt = addCalendarMonthsUtc(now, await lotValidityMonths(tx));
       const lot = await tx.query<{ id: string }>(
         `insert into public.credit_lots
-           (account_id, source, credits_granted, credits_remaining, expires_at, created_at)
-         values ($1, 'admin_grant', $2, $2, $3, $4) returning id`,
-        [input.accountId, input.delta.toString(), expiresAt, now],
+           (account_id, source, credits_granted, credits_remaining, created_at)
+         values ($1, 'admin_grant', $2, $2, $3) returning id`,
+        [input.accountId, input.delta.toString(), now],
       );
       state = { balance: state.balance + input.delta, held: state.held };
       await appendLedger(tx, {
@@ -703,7 +569,7 @@ export async function adminAdjust(
         return { status: "insufficient_available", available };
       }
       let index = 0;
-      for (const take of await consumeLotsFifo(tx, input.accountId, need, now)) {
+      for (const take of await consumeLotsFifo(tx, input.accountId, need)) {
         state = { balance: state.balance - take.taken, held: state.held };
         await appendLedger(tx, {
           accountId: input.accountId,
@@ -738,21 +604,6 @@ export async function adminAdjust(
 // ---------------------------------------------------------------------------
 // Sweeps (run by the worker)
 // ---------------------------------------------------------------------------
-
-/** Nightly: expire due lots for every account that has any (SPEC §11.5). */
-export async function expireLotsSweep(pool: Pool, now = new Date()): Promise<number> {
-  const accounts = await pool.query<{ account_id: string }>(
-    `select distinct account_id from public.credit_lots where credits_remaining > 0 and expires_at <= $1`,
-    [now],
-  );
-  for (const { account_id } of accounts.rows) {
-    await withTransaction(pool, async (tx) => {
-      const state = await lockWallet(tx, account_id);
-      await saveWallet(tx, account_id, await expireDueLots(tx, account_id, state, now));
-    });
-  }
-  return accounts.rows.length;
-}
 
 /**
  * Every 5 minutes: release expired holds whose job has stopped sending heartbeats, and
@@ -800,35 +651,6 @@ export async function sweepExpiredReservations(
   return released;
 }
 
-/** Queue "credits expiring soon" emails at the configured horizons (SPEC §11.5, §29). */
-export async function queueLotExpiryNotices(
-  pool: Pool,
-  now = new Date(),
-): Promise<number> {
-  const days = await readConfig(
-    pool,
-    "wallet.lot_expiry_notice_days",
-    z.array(z.number().int().positive()),
-  );
-  let queued = 0;
-  for (const d of days) {
-    const from = new Date(now.getTime() + (d - 1) * 86_400_000);
-    const to = new Date(now.getTime() + d * 86_400_000);
-    const result = await pool.query(
-      `insert into public.notifications (account_id, type, payload, dedupe_key)
-       select l.account_id, 'billing.lot_expiry_notice',
-              jsonb_build_object('credits', l.credits_remaining::text, 'expires_at', l.expires_at, 'days', $3::int),
-              'lot_expiry:' || l.id || ':' || $3::text
-       from public.credit_lots l
-       where l.credits_remaining > 0 and l.expires_at > $1 and l.expires_at <= $2
-       on conflict (account_id, dedupe_key) do nothing`,
-      [from, to, d],
-    );
-    queued += result.rowCount ?? 0;
-  }
-  return queued;
-}
-
 // ---------------------------------------------------------------------------
 // Reads
 // ---------------------------------------------------------------------------
@@ -842,14 +664,12 @@ export interface WalletSummary {
     source: LotSource;
     remaining: bigint;
     granted: bigint;
-    expiresAt: Date;
   }[];
 }
 
 export async function walletSummary(
   db: Queryable,
   accountId: string,
-  now = new Date(),
 ): Promise<WalletSummary> {
   const wallet = await db.query<{ balance_credits: string; held_credits: string }>(
     `select balance_credits, held_credits from public.wallets where account_id = $1`,
@@ -860,12 +680,11 @@ export async function walletSummary(
     source: LotSource;
     credits_remaining: string;
     credits_granted: string;
-    expires_at: Date;
   }>(
-    `select id, source, credits_remaining, credits_granted, expires_at from public.credit_lots
-     where account_id = $1 and credits_remaining > 0 and expires_at > $2
-     order by expires_at, created_at`,
-    [accountId, now],
+    `select id, source, credits_remaining, credits_granted from public.credit_lots
+     where account_id = $1 and credits_remaining > 0
+     order by created_at`,
+    [accountId],
   );
   const balance = BigInt(wallet.rows[0]?.balance_credits ?? "0");
   const held = BigInt(wallet.rows[0]?.held_credits ?? "0");
@@ -878,7 +697,6 @@ export async function walletSummary(
       source: l.source,
       remaining: BigInt(l.credits_remaining),
       granted: BigInt(l.credits_granted),
-      expiresAt: l.expires_at,
     })),
   };
 }

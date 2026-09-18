@@ -237,10 +237,6 @@ describe("templates", () => {
         type,
         { company_id: randomUUID(), company_name: "Synthetic <Co>", days: 7 },
       ]),
-      [
-        "billing.lot_expiry_notice",
-        { credits: "750", expires_at: "2027-12-31T10:00:00Z", days: 7 },
-      ],
     ];
     for (const [type, payload] of types) {
       const r = renderNotification(type, payload, CTX);

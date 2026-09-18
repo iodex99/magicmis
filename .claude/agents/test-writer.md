@@ -17,12 +17,12 @@ that is a spec requirement (SPEC §4), not a preference.
 
 The ledger suite is non-negotiable (SPEC §11):
 - *Property:* replaying `credit_ledger` reproduces `wallets` state exactly.
-- *Property:* no sequence of grant/reserve/capture/release/expire/adjust drives
+- *Property:* no sequence of grant/reserve/capture/release/adjust drives
   `balance_credits` or `held_credits` negative.
 - *Concurrency:* 50 parallel reservations against a balance that fits 10 → exactly 10
   succeed, zero overdraft. Run against **real Postgres**; a mock cannot prove this.
 - *Idempotency:* the same key applied twice produces one effect.
-- *Time travel:* lot expiry, reservation expiry, FIFO by earliest `expires_at`.
+- *Time travel:* reservation expiry, FIFO by `created_at`. Lots do not expire (ADR 0040).
 
 For parsers, drive tests from `fixtures/generator` output and its **machine-readable
 ground truth** — ledger × month balances, statement totals, expected metric values.

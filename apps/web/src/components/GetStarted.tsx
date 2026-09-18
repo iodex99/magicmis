@@ -35,7 +35,7 @@ export function GetStarted({
       done: state.hasCredits,
       title: "Put credits in your wallet",
       body: "Credits pay for each action as you use it. The wallet shows what a pack costs in your own currency before you buy.",
-      action: { href: "/wallet", label: "Buy credits" },
+      action: { href: "/wallet", label: "Add credits" },
     },
     {
       done: false,

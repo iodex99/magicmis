@@ -119,7 +119,7 @@ export function PaidJobButton({
         <Alert tone="warning" title="Not enough credits">
           Top up your wallet and press it again. Nothing has been charged.{" "}
           <Link href="/wallet" className="font-medium underline">
-            Buy credits
+            Add credits
           </Link>
         </Alert>
       ) : null}

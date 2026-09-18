@@ -294,3 +294,33 @@ export function AlsoCalled({ path }: { path: string }) {
     </p>
   );
 }
+
+/**
+ * The product tour (ADR 0037), served from `public/brand/`.
+ *
+ * The recording has no soundtrack, so it says so rather than leaving a viewer hunting for a
+ * volume control. `preload="none"` keeps three megabytes off every page load; the poster is
+ * the title card, so the still frame reads as the product even before anyone presses play.
+ */
+export function TourVideo() {
+  return (
+    <figure className="mx-auto w-full max-w-[880px]">
+      <video
+        className="w-full rounded-xl border border-neutral-200/80 bg-ink-900 shadow-sm"
+        controls
+        preload="none"
+        playsInline
+        poster="/brand/tour-poster.png"
+        width={1280}
+        height={720}
+      >
+        <source src="/brand/tour.webm" type="video/webm" />
+        Your browser cannot play this video. It is a silent screen tour of the product;
+        the same ground is covered in writing on this page.
+      </video>
+      <figcaption className="mt-3 text-center text-[0.8125rem] text-neutral-500">
+        Forty-six seconds, no sound. Figures shown are from a fictional company.
+      </figcaption>
+    </figure>
+  );
+}

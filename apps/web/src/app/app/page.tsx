@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 
 const STATE: Record<string, { label: string; tone: BadgeTone }> = {
   active: { label: "Active", tone: "positive" },
-  grace: { label: "Grace period", tone: "warning" },
+  grace: { label: "Paused — add credits", tone: "warning" },
   archived: { label: "Archived", tone: "muted" },
   purged: { label: "Deleted", tone: "muted" },
 };
@@ -83,7 +83,7 @@ export default async function AppHomePage() {
                 href="/wallet"
                 className="font-medium text-accent-700 hover:underline"
               >
-                Buy credits
+                Add credits
               </Link>{" "}
               whenever you are ready.
             </p>

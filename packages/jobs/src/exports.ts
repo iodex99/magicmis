@@ -146,8 +146,6 @@ function toJson(value: unknown): string {
   );
 }
 
-const iso = (d: Date | null) => d?.toISOString() ?? null;
-
 export async function buildAccountExport(
   pool: Pool,
   wrapper: KeyWrapper,
@@ -209,11 +207,10 @@ export async function buildAccountExport(
         source: string;
         credits_granted: string;
         credits_remaining: string;
-        expires_at: Date | null;
         created_at: Date;
       }>(
         `select source, credits_granted::text as credits_granted, credits_remaining::text as credits_remaining,
-           expires_at, created_at from public.credit_lots where account_id = $1 order by created_at`,
+           created_at from public.credit_lots where account_id = $1 order by created_at`,
       ),
       q<{
         number: string;
@@ -312,7 +309,6 @@ export async function buildAccountExport(
         source: l.source,
         creditsGranted: l.credits_granted,
         creditsRemaining: l.credits_remaining,
-        expiresAt: iso(l.expires_at),
         createdAt: l.created_at.toISOString(),
       })),
     },

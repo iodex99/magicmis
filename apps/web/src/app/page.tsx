@@ -162,6 +162,13 @@ export default function HomePage() {
               <ButtonLink href="/product" variant="secondary" size="lg" icon="chart">
                 See what you get
               </ButtonLink>
+              <Link
+                href="/how-it-works"
+                className="inline-flex items-center gap-1.5 text-[0.875rem] font-medium text-neutral-600 hover:text-accent-700"
+              >
+                <Icon name="play" className="size-4" />
+                Watch the 46-second tour
+              </Link>
             </div>
             <p className="mt-4 text-[0.8125rem] text-neutral-500">
               Prepaid credits, priced per action. No free tier, no trial, no subscription.

@@ -151,7 +151,7 @@ export function Sidebar({
             {availableCredits}
           </p>
           <p className="mt-2 flex items-center gap-1 text-[0.75rem] font-medium text-accent-300">
-            Buy credits
+            Add credits
             <Icon
               name="arrow-right"
               size={12}

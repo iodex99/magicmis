@@ -313,7 +313,7 @@ export async function queueLifecycleNotices(
     const nextKey = monthKey(next.getUTCFullYear(), next.getUTCMonth() + 1);
     if (c.lifecycle_state === "active" && lowDays.includes(daysAhead)) {
       const fee = await feeCredits(pool, "company_memory_monthly", now);
-      const wallet = await walletSummary(pool, c.account_id, now);
+      const wallet = await walletSummary(pool, c.account_id);
       if (wallet.available < fee) {
         if (
           await queueNotification(pool, {

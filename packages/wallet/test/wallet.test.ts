@@ -17,10 +17,8 @@ import { readLedger, replayLedger } from "../src/ledger";
 import {
   adminAdjust,
   captureReservation,
-  expireLotsSweep,
   grantCredits,
   heartbeatReservation,
-  queueLotExpiryNotices,
   releaseReservation,
   reserveCredits,
   sweepExpiredReservations,
@@ -78,7 +76,7 @@ async function walletRow(accountId: string) {
 }
 
 /** The invariants that must hold after any operation, checked against the database itself. */
-async function assertInvariants(accountId: string, now: Date) {
+async function assertInvariants(accountId: string) {
   const pool = testDb().pool;
   const wallet = await walletRow(accountId);
   const ledger = await readLedger(pool, accountId);
@@ -95,42 +93,38 @@ async function assertInvariants(accountId: string, now: Date) {
   );
 
   const lots = await pool.query<{ sum: string | null }>(
-    `select sum(credits_remaining)::text as sum from credit_lots where account_id = $1 and expires_at > $2`,
-    [accountId, now],
+    `select sum(credits_remaining)::text as sum from credit_lots where account_id = $1`,
+    [accountId],
   );
   const holds = await pool.query<{ sum: string | null }>(
     `select sum(amount)::text as sum from reservations where account_id = $1 and status = 'held'`,
     [accountId],
   );
-  expect(wallet.balance, "balance = Σ unexpired lots").toBe(
-    BigInt(lots.rows[0]?.sum ?? "0"),
-  );
+  expect(wallet.balance, "balance = Σ lots").toBe(BigInt(lots.rows[0]?.sum ?? "0"));
   expect(wallet.held, "held = Σ held reservations").toBe(
     BigInt(holds.rows[0]?.sum ?? "0"),
   );
 }
 
 describe("grant, reserve, capture, release", () => {
-  it("captures FIFO by earliest expiry and releases the remainder", async () => {
+  it("captures FIFO oldest first and releases the remainder", async () => {
     const pool = testDb().pool;
     const accountId = await newAccount();
-    const late = await grantCredits(pool, {
+    const older = await grantCredits(pool, {
       accountId,
       credits: 100n,
       source: "purchase",
       idempotencyKey: randomUUID(),
-      expiresAt: at(30),
       now: at(0),
     });
-    const early = await grantCredits(pool, {
+    const newer = await grantCredits(pool, {
       accountId,
       credits: 100n,
       source: "bonus",
       idempotencyKey: randomUUID(),
-      expiresAt: at(10),
-      now: at(0),
+      now: at(1),
     });
-    if (late.status !== "granted" || early.status !== "granted")
+    if (older.status !== "granted" || newer.status !== "granted")
       throw new Error("grant failed");
 
     const jobId = await newJob(accountId);
@@ -159,15 +153,15 @@ describe("grant, reserve, capture, release", () => {
     const remaining = Object.fromEntries(
       lots.rows.map((l) => [l.id, l.credits_remaining]),
     );
-    expect(remaining[early.lotId]).toBe("0"); // earliest expiry consumed first
-    expect(remaining[late.lotId]).toBe("50");
+    expect(remaining[older.lotId]).toBe("0"); // oldest credits consumed first
+    expect(remaining[newer.lotId]).toBe("50");
 
     const res = await pool.query(
       `select status, captured_amount from reservations where id = $1`,
       [reserved.reservationId],
     );
     expect(res.rows[0]).toEqual({ status: "partially_captured", captured_amount: "150" });
-    await assertInvariants(accountId, at(1));
+    await assertInvariants(accountId);
   });
 
   it("refuses a reservation beyond available credits and reports the shortfall", async () => {
@@ -203,7 +197,7 @@ describe("grant, reserve, capture, release", () => {
       available: 100n,
       shortfall: 899n,
     });
-    await assertInvariants(accountId, at(0));
+    await assertInvariants(accountId);
   });
 
   it("releases a hold in full", async () => {
@@ -232,8 +226,8 @@ describe("grant, reserve, capture, release", () => {
         now: at(0),
       }),
     ).toMatchObject({ status: "released", released: 400n });
-    expect((await walletSummary(pool, accountId, at(0))).available).toBe(500n);
-    await assertInvariants(accountId, at(0));
+    expect((await walletSummary(pool, accountId)).available).toBe(500n);
+    await assertInvariants(accountId);
   });
 
   it("refuses to capture more than was reserved, and after an ordinary release", async () => {
@@ -364,7 +358,7 @@ describe("idempotency (SPEC §11)", () => {
     ).toEqual({ status: "duplicate" });
 
     expect(await walletRow(accountId)).toEqual({ balance: 750n, held: 0n });
-    await assertInvariants(accountId, at(0));
+    await assertInvariants(accountId);
   });
 });
 
@@ -397,7 +391,7 @@ describe("concurrency (SPEC §11)", () => {
     expect(results.filter((r) => r.ok)).toHaveLength(10);
     expect(results.filter((r) => !r.ok)).toHaveLength(40);
     expect(await walletRow(accountId)).toEqual({ balance: 1000n, held: 1000n });
-    await assertInvariants(accountId, at(0));
+    await assertInvariants(accountId);
   });
 
   it("parallel captures and releases leave the ledger consistent", async () => {
@@ -439,144 +433,52 @@ describe("concurrency (SPEC §11)", () => {
       ),
     );
     expect(await walletRow(accountId)).toEqual({ balance: 2000n - 10n * 60n, held: 0n });
-    await assertInvariants(accountId, at(0));
+    await assertInvariants(accountId);
   });
 });
 
 describe("time travel (SPEC §11)", () => {
-  it("expires a lot at its expiry and records an expire entry", async () => {
+  it("leaves a years-old lot fully spendable: credits never expire", async () => {
     const pool = testDb().pool;
     const accountId = await newAccount();
-    await grantCredits(pool, {
+    const granted = await grantCredits(pool, {
       accountId,
       credits: 100n,
       source: "purchase",
       idempotencyKey: randomUUID(),
-      expiresAt: at(10),
       now: at(0),
     });
-    expect((await walletSummary(pool, accountId, at(9))).lots).toHaveLength(1);
+    if (granted.status !== "granted") throw new Error("grant failed");
 
-    const refused = await reserveCredits(pool, {
+    // Three years on, to the day the old twelve-month validity would have taken them.
+    const later = at(1095);
+    expect((await walletSummary(pool, accountId)).available).toBe(100n);
+
+    const jobId = await newJob(accountId);
+    const reserved = await reserveCredits(pool, {
       accountId,
-      amount: 1n,
+      amount: 100n,
       kind: "realtime",
-      subject: { jobId: await newJob(accountId) },
+      subject: { jobId },
       idempotencyKey: randomUUID(),
-      now: at(10, 1),
+      now: later,
     });
-    expect(refused).toMatchObject({ ok: false, available: 0n });
-    const ledger = await readLedger(pool, accountId);
-    expect(ledger.map((e) => e.entryType)).toEqual(["grant", "expire"]);
-    await assertInvariants(accountId, at(10, 1));
-  });
-
-  it("defaults lot validity to the configured 12 calendar months", async () => {
-    const pool = testDb().pool;
-    const accountId = await newAccount();
-    const g = await grantCredits(pool, {
-      accountId,
-      credits: 10n,
-      source: "purchase",
-      idempotencyKey: randomUUID(),
-      now: new Date("2026-01-31T00:00:00Z"),
-    });
-    if (g.status !== "granted") throw new Error("grant failed");
-    const lot = await pool.query<{ expires_at: Date }>(
-      `select expires_at from credit_lots where id = $1`,
-      [g.lotId],
-    );
-    expect(lot.rows[0]?.expires_at.toISOString()).toBe("2027-01-31T00:00:00.000Z");
-  });
-
-  it("nightly sweep expires lots for accounts with no other activity", async () => {
-    const pool = testDb().pool;
-    const accountId = await newAccount();
-    await grantCredits(pool, {
-      accountId,
-      credits: 70n,
-      source: "purchase",
-      idempotencyKey: randomUUID(),
-      expiresAt: at(5),
-      now: at(0),
-    });
-    expect(await expireLotsSweep(pool, at(6))).toBeGreaterThanOrEqual(1);
-    expect(await walletRow(accountId)).toEqual({ balance: 0n, held: 0n });
-    await assertInvariants(accountId, at(6));
-  });
-
-  it("shrinks a hold the expiring lot was backing, and limits the capture (SPEC §11.5)", async () => {
-    const pool = testDb().pool;
-    const accountId = await newAccount();
-    await grantCredits(pool, {
-      accountId,
-      credits: 100n,
-      source: "purchase",
-      idempotencyKey: randomUUID(),
-      expiresAt: at(5),
-      now: at(0),
-    });
-    await grantCredits(pool, {
-      accountId,
-      credits: 50n,
-      source: "purchase",
-      idempotencyKey: randomUUID(),
-      expiresAt: at(30),
-      now: at(0),
-    });
-    const r = await reserveCredits(pool, {
-      accountId,
-      amount: 120n,
-      kind: "review",
-      subject: { jobId: await newJob(accountId) },
-      idempotencyKey: randomUUID(),
-      now: at(1),
-    });
-    if (!r.ok) throw new Error("reserve failed");
-
-    await expireLotsSweep(pool, at(6));
-    expect(await walletRow(accountId)).toEqual({ balance: 50n, held: 50n });
-
-    const captured = await captureReservation(pool, {
-      reservationId: r.reservationId,
-      amount: 120n,
-      idempotencyKey: randomUUID(),
-      now: at(6),
-    });
-    expect(captured).toMatchObject({ status: "captured", captured: 50n });
-    await assertInvariants(accountId, at(6));
-  });
-
-  it("a hold fully shrunk by expiry captures zero rather than failing", async () => {
-    const pool = testDb().pool;
-    const accountId = await newAccount();
-    await grantCredits(pool, {
-      accountId,
-      credits: 100n,
-      source: "purchase",
-      idempotencyKey: randomUUID(),
-      expiresAt: at(5),
-      now: at(0),
-    });
-    const r = await reserveCredits(pool, {
-      accountId,
-      amount: 80n,
-      kind: "review",
-      subject: { jobId: await newJob(accountId) },
-      idempotencyKey: randomUUID(),
-      now: at(1),
-    });
-    if (!r.ok) throw new Error("reserve failed");
-    await expireLotsSweep(pool, at(6));
+    if (!reserved.ok) throw new Error("reserve failed");
     expect(
       await captureReservation(pool, {
-        reservationId: r.reservationId,
-        amount: 80n,
+        reservationId: reserved.reservationId,
+        amount: 100n,
         idempotencyKey: randomUUID(),
-        now: at(6),
+        now: later,
       }),
-    ).toMatchObject({ status: "captured", captured: 0n });
-    await assertInvariants(accountId, at(6));
+    ).toMatchObject({ status: "captured", captured: 100n });
+
+    const ledger = await pool.query<{ entry_type: string }>(
+      `select entry_type from credit_ledger where account_id = $1 order by seq`,
+      [accountId],
+    );
+    expect(ledger.rows.map((r) => r.entry_type)).not.toContain("expire");
+    await assertInvariants(accountId);
   });
 
   it("sweeps an expired reservation without a recent heartbeat and expires its job", async () => {
@@ -624,28 +526,7 @@ describe("time travel (SPEC §11)", () => {
       quiet,
     ]);
     expect(job.rows[0]).toEqual({ state: "expired", failure_class: "expired" });
-    await assertInvariants(accountId, at(0, 3));
-  });
-
-  it("queues lot expiry notices at 30 and 7 days, once each", async () => {
-    const pool = testDb().pool;
-    const accountId = await newAccount();
-    await grantCredits(pool, {
-      accountId,
-      credits: 40n,
-      source: "purchase",
-      idempotencyKey: randomUUID(),
-      expiresAt: at(40),
-      now: at(0),
-    });
-    await queueLotExpiryNotices(pool, at(10, 1)); // 29.96 days before: inside the 30-day window
-    await queueLotExpiryNotices(pool, at(10, 2)); // same window again: deduplicated
-    await queueLotExpiryNotices(pool, at(33, 1)); // inside the 7-day window
-    const notices = await pool.query<{ dedupe_key: string }>(
-      `select dedupe_key from notifications where account_id = $1 order by dedupe_key`,
-      [accountId],
-    );
-    expect(notices.rows.map((n) => n.dedupe_key.split(":").at(-1))).toEqual(["30", "7"]);
+    await assertInvariants(accountId);
   });
 });
 
@@ -690,7 +571,7 @@ describe("admin adjustment (SPEC §11.7)", () => {
         })
       ).status,
     ).toBe("adjusted");
-    await assertInvariants(accountId, at(0));
+    await assertInvariants(accountId);
   });
 
   it("requires a reason", async () => {
@@ -732,7 +613,7 @@ describe("admin adjustment (SPEC §11.7)", () => {
 
 describe("property (SPEC §11): arbitrary operation sequences", () => {
   type Op =
-    | { kind: "grant"; credits: number; validDays: number }
+    | { kind: "grant"; credits: number }
     | { kind: "reserve"; amount: number }
     | { kind: "capture"; pick: number; fraction: number }
     | { kind: "release"; pick: number }
@@ -743,7 +624,6 @@ describe("property (SPEC §11): arbitrary operation sequences", () => {
     fc.record({
       kind: fc.constant("grant" as const),
       credits: fc.integer({ min: 1, max: 500 }),
-      validDays: fc.integer({ min: 1, max: 90 }),
     }),
     fc.record({
       kind: fc.constant("reserve" as const),
@@ -781,7 +661,6 @@ describe("property (SPEC §11): arbitrary operation sequences", () => {
                 credits: BigInt(o.credits),
                 source: "purchase",
                 idempotencyKey: randomUUID(),
-                expiresAt: new Date(now.getTime() + o.validDays * DAY),
                 now,
               });
               break;
@@ -843,15 +722,13 @@ describe("property (SPEC §11): arbitrary operation sequences", () => {
               break;
             case "advance":
               now = new Date(now.getTime() + o.days * DAY);
-              await expireLotsSweep(pool, now);
               break;
           }
           const w = await walletRow(accountId);
           if (w.balance < 0n || w.held < 0n || w.held > w.balance) return false;
         }
 
-        await expireLotsSweep(pool, now);
-        await assertInvariants(accountId, now);
+        await assertInvariants(accountId);
         return true;
       }),
       { numRuns: 30 },

@@ -63,11 +63,6 @@ const deviceSchema = z.object({
   city: z.string().nullable().optional(),
 });
 const invoiceSchema = z.object({ invoiceId: z.uuid(), purchaseId: z.uuid() });
-const lotExpirySchema = z.object({
-  credits: z.string().regex(/^\d+$/u),
-  expires_at: z.string(),
-  days: z.number().int(),
-});
 
 const jobPayloadSchema = z.object({
   job_id: z.uuid(),
@@ -124,7 +119,6 @@ export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
   "security.break_glass_viewed",
   "account.deletion_scheduled",
   "account.export_ready",
-  "billing.lot_expiry_notice",
 ]);
 
 /** Notices a closed (deleted, not yet purged) account still receives: its deletion and any access to its data. */
@@ -434,22 +428,6 @@ export function renderNotification(
         ],
         ctx,
         { label: "Download export", path: "/settings/privacy" },
-      );
-    }
-    case "billing.lot_expiry_notice": {
-      const p = lotExpirySchema.safeParse(payload);
-      if (!p.success) return null;
-      const on = formatIstDate(new Date(p.data.expires_at));
-      return email(
-        `Credits expire in ${p.data.days.toString()} days`,
-        [
-          `${p.data.credits} credits in your wallet expire on ${on}. Unused credits cannot be refunded after expiry.`,
-        ],
-        ctx,
-        {
-          label: "Open wallet",
-          path: "/wallet",
-        },
       );
     }
     default:

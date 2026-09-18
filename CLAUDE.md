@@ -9,7 +9,7 @@ Full specification: [docs/SPEC.md](docs/SPEC.md) — complete, Sections 0–35.
 
 ## Current phase
 
-**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), and the one-workspace flow, ADR [0033](docs/adr/0033-one-workspace-no-price-step.md), and the currency, report and dark-mode pass, ADR [0034](docs/adr/0034-one-currency-boardroom-reports-dark-mode.md) with its follow-ups, ADR [0035](docs/adr/0035-year-mismatch-commentary-report-chat-admin-dark.md) and the character pass, ADR [0036](docs/adr/0036-character.md) and the brand mark and explainer, ADR [0037](docs/adr/0037-brand-mark-and-explainer.md), and every name the report goes by, ADR [0038](docs/adr/0038-every-name-the-report-goes-by.md), and raw data and the words the market types, ADR [0039](docs/adr/0039-raw-data-and-the-words-the-market-types.md), plan [ui-redesign](docs/plans/ui-redesign.md)) the friction pass (ADR [0027](docs/adr/0027-friction.md)), the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)), the public site (plan [seo-marketing](docs/plans/seo-marketing.md)) and selling worldwide in two currencies (ADR [0030](docs/adr/0030-worldwide-two-currencies.md), plan [worldwide](docs/plans/worldwide.md)). **Deployment target is Vercel.** What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the apex domain (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26), the export LUT (R-59), Razorpay international activation (R-60) and a data-protection review (R-50).
+**All ten phases built (§34)**, plus the Phase 9 follow-ups (ADR [0025](docs/adr/0025-reconciliation-anchors-break-glass-scope.md)), the interface redesign (ADR [0026](docs/adr/0026-ui-redesign.md), and the one-workspace flow, ADR [0033](docs/adr/0033-one-workspace-no-price-step.md), and the currency, report and dark-mode pass, ADR [0034](docs/adr/0034-one-currency-boardroom-reports-dark-mode.md) with its follow-ups, ADR [0035](docs/adr/0035-year-mismatch-commentary-report-chat-admin-dark.md) and the character pass, ADR [0036](docs/adr/0036-character.md) and the brand mark and explainer, ADR [0037](docs/adr/0037-brand-mark-and-explainer.md), and every name the report goes by, ADR [0038](docs/adr/0038-every-name-the-report-goes-by.md), and raw data and the words the market types, ADR [0039](docs/adr/0039-raw-data-and-the-words-the-market-types.md), and credits that keep with the price book in the wallet, ADR [0040](docs/adr/0040-credits-that-keep-a-price-book-that-moves.md), plan [ui-redesign](docs/plans/ui-redesign.md)) the friction pass (ADR [0027](docs/adr/0027-friction.md)), the launch decisions (ADR [0029](docs/adr/0029-launch-decisions.md)), the public site (plan [seo-marketing](docs/plans/seo-marketing.md)) and selling worldwide in two currencies (ADR [0030](docs/adr/0030-worldwide-two-currencies.md), plan [worldwide](docs/plans/worldwide.md)). **Deployment target is Vercel.** What remains needs facts only the owner holds: [docs/REVIEW_ITEMS.md](docs/REVIEW_ITEMS.md) — the apex domain (R-01), seller details and SAC (R-02/R-03), final prices (R-04/R-05, which wait on R-28's live evals for real AI costs), legal wording (R-10/R-11/R-12), a live Razorpay run (R-26), the export LUT (R-59), Razorpay international activation (R-60) and a data-protection review (R-50).
 
 Design system: tokens in `packages/ui/src/tokens.ts`, mirrored into both apps' `globals.css`.
 Headlines use Space Grotesk through `.display`; figures never leave Inter's tabular numerals.
@@ -192,15 +192,20 @@ content current.
    sub-users or shared access of any kind. One active session — a new login
    terminates the previous one.
 3. **Nothing is free.** No free tier, trial, free generation, free sample on user
-   data, or free preview of analysis. Before a paid action the UI may show **only**
+   data, or free preview of analysis. **Amended by ADR 0040: the price book is free to
+   read but no longer public** — it lives in the wallet; `/pricing` publishes the
+   credit packs, which Razorpay requires to be visible and in INR before it activates an
+   account. Before a paid action the UI may show **only**
    file names, sizes, sheet counts, row counts. Sheet recognition, mapping results,
    data-quality findings and all outputs appear **only inside a paid action**.
    Uncharged: account creation, buying credits, viewing the price book, help docs,
    public marketing samples on fictional data.
 4. **Prepaid credits only.** 1 credit = ₹1 ex-GST. No postpaid, no negative balance,
-   no credit lines.
+   no credit lines. **Credits never expire** (ADR 0040): lots are consumed oldest first
+   by `created_at`, and there is no validity period, sweeper or expiry notice.
 5. **Fixed credit price per action** from a configurable price book. Users never see
-   tokens, model names or AI cost. Tier multipliers apply.
+   tokens, model names or AI cost — the chat's tier chooser shows the **credits** a
+   message will cost, never tokens (ADR 0040). Tier multipliers apply.
 6. **Margin guardrail.** Every action has `max_ai_cost_ratio` (default 0.20). Estimate
    over cap → user must accept a quote first. Runtime cap hit → job **pauses**. It
    never silently overspends.

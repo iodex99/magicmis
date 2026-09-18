@@ -52,7 +52,6 @@ export interface LegalFacts {
   readonly jurisdictionCity: string | null;
   readonly lastUpdated: string;
   readonly versions: z.infer<typeof versionsSchema>;
-  readonly creditValidityMonths: number;
   readonly graceMonths: number;
   readonly archiveMonths: number;
   readonly deletionPurgeDelayDays: number;
@@ -64,29 +63,18 @@ export interface LegalFacts {
 export async function legalFacts(): Promise<LegalFacts> {
   const pool = db();
   const n = z.number().int().nonnegative();
-  const [
-    seller,
-    contacts,
-    versions,
-    validity,
-    grace,
-    archive,
-    purgeDelay,
-    outputs,
-    link,
-    uploads,
-  ] = await Promise.all([
-    readConfig(pool, "billing.seller", sellerSchema),
-    readConfig(pool, "legal.contacts", contactsSchema),
-    readConfig(pool, "legal.document_versions", versionsSchema),
-    readConfig(pool, "wallet.lot_validity_months", n),
-    readConfig(pool, "lifecycle.grace_months", n),
-    readConfig(pool, "lifecycle.archive_months", n),
-    readConfig(pool, "lifecycle.deletion_purge_delay_days", n),
-    readConfig(pool, "outputs.retention_days", n),
-    readConfig(pool, "privacy.export_link_hours", n),
-    readConfig(pool, "sources.retention_days", n),
-  ]);
+  const [seller, contacts, versions, grace, archive, purgeDelay, outputs, link, uploads] =
+    await Promise.all([
+      readConfig(pool, "billing.seller", sellerSchema),
+      readConfig(pool, "legal.contacts", contactsSchema),
+      readConfig(pool, "legal.document_versions", versionsSchema),
+      readConfig(pool, "lifecycle.grace_months", n),
+      readConfig(pool, "lifecycle.archive_months", n),
+      readConfig(pool, "lifecycle.deletion_purge_delay_days", n),
+      readConfig(pool, "outputs.retention_days", n),
+      readConfig(pool, "privacy.export_link_hours", n),
+      readConfig(pool, "sources.retention_days", n),
+    ]);
 
   const address = seller.address.filter((line) => real(line) !== null);
   return {
@@ -99,7 +87,6 @@ export async function legalFacts(): Promise<LegalFacts> {
     jurisdictionCity: real(contacts.jurisdiction_city),
     lastUpdated: contacts.last_updated,
     versions,
-    creditValidityMonths: validity,
     graceMonths: grace,
     archiveMonths: archive,
     deletionPurgeDelayDays: purgeDelay,

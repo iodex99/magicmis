@@ -163,12 +163,11 @@ export default async function AccountPage({
       </Panel>
       <Panel title="Lots">
         <Table
-          head={["Source", "Remaining", "Granted", "Expires"]}
+          head={["Source", "Remaining", "Granted"]}
           rows={wallet.lots.map((l) => [
             l.source,
             l.remaining.toString(),
             l.granted.toString(),
-            l.expiresAt.toISOString().slice(0, 10),
           ])}
         />
       </Panel>

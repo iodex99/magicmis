@@ -6,12 +6,15 @@ import {
   MarketingHeader,
   ReadNext,
   Section,
+  TourVideo,
+  WideSection,
 } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
 import {
   ArticleSchema,
   BreadcrumbSchema,
   FaqSchema,
+  VideoSchema,
   type Faq,
 } from "@/components/StructuredData";
 import { PRODUCT_NAME } from "@/lib/brand";
@@ -99,6 +102,7 @@ export default function HowItWorksPage() {
       <ArticleSchema path={PATH} />
       <BreadcrumbSchema path={PATH} />
       <FaqSchema faqs={FAQS} />
+      <VideoSchema path={PATH} />
 
       <MarketingHeader
         path={PATH}
@@ -106,6 +110,13 @@ export default function HowItWorksPage() {
         heading="Five stages, and what happens in each"
         intro="The interesting part of this product is not that it produces a workbook. It is where the numbers come from, what the model is allowed to touch, and why the second month costs so much less than the first."
       />
+
+      <WideSection
+        title="Watch it once"
+        intro="The whole thing, end to end, before reading the detail below."
+      >
+        <TourVideo />
+      </WideSection>
 
       <Section>
         <ol className="flex flex-col gap-6">
