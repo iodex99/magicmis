@@ -168,4 +168,15 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
     }
     expect(publicKeys).not.toContain("ANTHROPIC_API_KEY");
   });
+
+  it("offers no identity provider unless one is named, and refuses one it does not know", () => {
+    expect(loadServerEnv(VALID_SERVER).AUTH_OAUTH_PROVIDERS).toEqual([]);
+    expect(
+      loadServerEnv({ ...VALID_SERVER, AUTH_OAUTH_PROVIDERS: " Google, apple " })
+        .AUTH_OAUTH_PROVIDERS,
+    ).toEqual(["google", "apple"]);
+    expect(() =>
+      loadServerEnv({ ...VALID_SERVER, AUTH_OAUTH_PROVIDERS: "google,facebook" }),
+    ).toThrow(EnvValidationError);
+  });
 });

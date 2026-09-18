@@ -14,7 +14,12 @@ import { requireAccount } from "../src/claims";
 import { type AuthProvider } from "../src/provider";
 import { hasFreshReauth, reauthenticate } from "../src/reauth";
 import { claimSession } from "../src/session";
-import { provisionAccount, signupProfileSchema } from "../src/signup";
+import {
+  neverSignedInAccount,
+  provisionAccount,
+  refinishAccount,
+  signupProfileSchema,
+} from "../src/signup";
 
 let db: TestDb | undefined;
 
@@ -149,6 +154,71 @@ describe("provisioning", () => {
       [result.accountId],
     );
     expect(row.rows[0]).toEqual({ state_code: "29", gstin: "29AAGCB7383J1Z4" });
+  });
+});
+
+describe("an account nobody has signed in to (ADR 0043)", () => {
+  it("can be finished by whoever proves the address, once, and never after a sign-in", async () => {
+    const pool = testDb().pool;
+    // Someone filled in the password form for an address and never confirmed it.
+    const { authUserId, accountId } = await newAccount();
+    expect(await neverSignedInAccount(pool, authUserId)).toBe(accountId);
+
+    // Its owner arrives through an identity provider and finishes it themselves.
+    expect(
+      await refinishAccount(pool, {
+        accountId,
+        businessName: "The Real Owner LLP",
+        ip: "198.51.100.4",
+      }),
+    ).toBe(true);
+    const row = await pool.query<{ business_name: string; has_password: boolean }>(
+      `select business_name, has_password from accounts where id = $1`,
+      [accountId],
+    );
+    expect(row.rows[0]).toEqual({
+      business_name: "The Real Owner LLP",
+      has_password: false,
+    });
+    // Their consent is recorded against their own request, beside the earlier rows.
+    const consents = await pool.query<{ ip: string }>(
+      `select host(ip) as ip from consents where account_id = $1 order by accepted_at, document`,
+      [accountId],
+    );
+    expect(consents.rows.map((c) => c.ip)).toEqual([
+      "203.0.113.7",
+      "203.0.113.7",
+      "198.51.100.4",
+      "198.51.100.4",
+    ]);
+
+    // Once anyone has signed in, the account is theirs and cannot be finished again.
+    await claimSession(pool, new FakeProvider(), claimsFor(authUserId), {
+      ip: null,
+      userAgent: DESKTOP_UA,
+    });
+    expect(await neverSignedInAccount(pool, authUserId)).toBeNull();
+    expect(
+      await refinishAccount(pool, { accountId, businessName: "Too Late Ltd", ip: null }),
+    ).toBe(false);
+    const after = await pool.query<{ business_name: string }>(
+      `select business_name from accounts where id = $1`,
+      [accountId],
+    );
+    expect(after.rows[0]?.business_name).toBe("The Real Owner LLP");
+  });
+
+  it("refuses a closed account as closed, not as one that was never created", async () => {
+    const pool = testDb().pool;
+    const { authUserId, accountId } = await newAccount();
+    await pool.query(`update accounts set deleted_at = now() where id = $1`, [accountId]);
+    expect(
+      await claimSession(pool, new FakeProvider(), claimsFor(authUserId), {
+        ip: null,
+        userAgent: DESKTOP_UA,
+      }),
+    ).toEqual({ status: "refused", reason: "account_not_active" });
+    expect(await neverSignedInAccount(pool, authUserId)).toBeNull();
   });
 });
 
@@ -331,6 +401,38 @@ describe("re-authentication gates (SPEC §8)", () => {
     expect(await hasFreshReauth(pool, { ...account, sessionId: randomUUID() })).toBe(
       false,
     );
+  });
+
+  it("refuses, without counting a failure, when the account has no password (ADR 0043)", async () => {
+    const pool = testDb().pool;
+    const authUserId = randomUUID();
+    const created = await provisionAccount(pool, {
+      authUserId,
+      email: `${randomUUID()}@example.test`,
+      profile,
+      ip: null,
+      hasPassword: false,
+    });
+    if (created.status !== "created") throw new Error(created.status);
+    const provider = new FakeProvider();
+    const claims = claimsFor(authUserId);
+    await claimSession(pool, provider, claims, { ip: null, userAgent: DESKTOP_UA });
+    const decision = await requireAccount(pool, claims);
+    if (!decision.ok) throw new Error(decision.reason);
+
+    // Even the right password is refused: there is no password, so nothing was checked.
+    for (const password of ["wrong", provider.password]) {
+      expect(
+        (await reauthenticate(pool, provider, decision.account, { password, ip: null }))
+          .status,
+      ).toBe("password_not_set");
+    }
+    expect(await hasFreshReauth(pool, decision.account)).toBe(false);
+    const failures = await pool.query(
+      `select 1 from login_events where account_id = $1 and event_type = 'reauth_failed'`,
+      [decision.account.accountId],
+    );
+    expect(failures.rowCount).toBe(0);
   });
 
   it("expires the grant after the configured TTL", async () => {

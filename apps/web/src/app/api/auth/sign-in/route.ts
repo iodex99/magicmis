@@ -92,6 +92,11 @@ export async function POST(request: Request): Promise<Response> {
     after?.claims,
     { ip, userAgent },
   );
+  // ADR 0043: signed in, but the account row was never created (someone who came through
+  // Google or Apple and closed the tab before finishing). The finish step completes it.
+  if (claim.status === "refused" && claim.reason === "no_account") {
+    return ok({ next: "finish" as const });
+  }
   if (claim.status === "refused") {
     return apiError(
       403,
@@ -101,5 +106,5 @@ export async function POST(request: Request): Promise<Response> {
         : "Sign-in could not be completed. Try again.",
     );
   }
-  return ok({ next: "app" });
+  return ok({ next: "app" as const });
 }

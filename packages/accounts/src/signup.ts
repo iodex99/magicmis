@@ -9,7 +9,7 @@
 import { isValidGstin, normaliseGstin } from "@magicmis/core/identifiers";
 import { appendAudit } from "@magicmis/db/audit";
 import { readConfig } from "@magicmis/db/config";
-import { withTransaction } from "@magicmis/db/tx";
+import { one, withTransaction, type Queryable } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 import { z } from "zod";
 
@@ -149,6 +149,8 @@ export async function provisionAccount(
     email: string;
     profile: SignupProfile;
     ip: string | null;
+    /** False for an account created through Google or Apple (ADR 0043). */
+    hasPassword?: boolean;
   },
 ): Promise<ProvisionResult> {
   return withTransaction(pool, async (tx) => {
@@ -172,8 +174,9 @@ export async function provisionAccount(
       await tx.query("savepoint provision");
       const inserted = await tx.query<{ id: string }>(
         `insert into public.accounts
-           (auth_user_id, email, business_name, gstin, billing_address, state_code)
-         values ($1, $2, $3, $4, $5, $6)
+           (auth_user_id, email, business_name, gstin, billing_address, state_code,
+            has_password)
+         values ($1, $2, $3, $4, $5, $6, $7)
          returning id`,
         [
           input.authUserId,
@@ -182,6 +185,7 @@ export async function provisionAccount(
           input.profile.gstin ?? null,
           JSON.stringify(input.profile.billingAddress ?? {}),
           placeOfSupplyState(input.profile),
+          input.hasPassword ?? true,
         ],
       );
       const id = inserted.rows[0]?.id;
@@ -233,4 +237,85 @@ function isUniqueViolation(error: unknown, constraint: string): boolean {
   if (typeof error !== "object" || error === null) return false;
   const e = error as { code?: unknown; constraint?: unknown };
   return e.code === "23505" && e.constraint === constraint;
+}
+
+/**
+ * The account behind an auth user, if nobody has ever signed in to it (ADR 0043).
+ *
+ * The password form writes the account row when the form is submitted, before the address is
+ * proven. Anyone can therefore leave a row behind for an address that is not theirs, with a
+ * business name and a password of their choosing, and wait for its owner to arrive through
+ * Google or Apple — the identity provider links the two by email. A row in this state belongs
+ * to whoever first proves the address; if they prove it through a provider, they finish it
+ * themselves (`refinishAccount`) and whatever password was set before is destroyed.
+ */
+export async function neverSignedInAccount(
+  db: Queryable,
+  authUserId: string,
+): Promise<string | null> {
+  const row = await one<{ id: string }>(
+    db,
+    `select a.id from public.accounts a
+      where a.auth_user_id = $1 and a.deleted_at is null
+        and not exists (select 1 from public.login_events e
+                         where e.account_id = a.id and e.event_type = 'login')`,
+    [authUserId],
+  );
+  return row?.id ?? null;
+}
+
+/**
+ * Hand a never-signed-in account to the person who has just proved the address through an
+ * identity provider: their business name, their consent recorded against their own request,
+ * and no password. Refuses, changing nothing, once anyone has signed in to the account.
+ */
+export async function refinishAccount(
+  pool: Pool,
+  input: { accountId: string; businessName: string; ip: string | null },
+): Promise<boolean> {
+  return withTransaction(pool, async (tx) => {
+    const locked = await tx.query<{ id: string }>(
+      `select a.id from public.accounts a
+        where a.id = $1 and a.deleted_at is null
+          and not exists (select 1 from public.login_events e
+                           where e.account_id = a.id and e.event_type = 'login')
+        for update`,
+      [input.accountId],
+    );
+    if (locked.rows[0] === undefined) return false;
+
+    await tx.query(
+      `update public.accounts set business_name = $2, has_password = false where id = $1`,
+      [input.accountId, input.businessName],
+    );
+    const versions = await readConfig(
+      tx,
+      "legal.document_versions",
+      documentVersionsSchema,
+    );
+    for (const document of ["terms", "privacy"] as const) {
+      await tx.query(
+        `insert into public.consents (account_id, document, version, ip) values ($1, $2, $3, $4)`,
+        [input.accountId, document, versions[document], input.ip],
+      );
+      await appendAudit(tx, {
+        actorType: "account",
+        actorId: input.accountId,
+        action: "consent.recorded",
+        targetType: "consent",
+        metadata: { document, version: versions[document] },
+        ip: input.ip,
+      });
+    }
+    await appendAudit(tx, {
+      actorType: "account",
+      actorId: input.accountId,
+      action: "account.claimed_by_verified_identity",
+      targetType: "account",
+      targetId: input.accountId,
+      metadata: {},
+      ip: input.ip,
+    });
+    return true;
+  });
 }

@@ -1,15 +1,9 @@
-import {
-  enqueueNotification,
-  hasFreshReauth,
-  signupRequestSchema,
-} from "@magicmis/accounts";
-import { appendAudit } from "@magicmis/db/audit";
-import { withTransaction } from "@magicmis/db/tx";
+import { hasFreshReauth, signupRequestSchema } from "@magicmis/accounts";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { apiError, idempotent, parseJson, requestMeta, withAccount } from "@/lib/http";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { setAccountPassword } from "@/lib/server/password";
 
 const bodySchema = z.object({ newPassword: signupRequestSchema.shape.password });
 
@@ -35,13 +29,15 @@ export async function POST(request: Request): Promise<Response> {
       `account:${account.accountId}`,
       { action: "change_password" },
       async () => {
-        const { error } = await supabaseAdmin().auth.admin.updateUserById(
-          account.authUserId,
-          {
-            password: parsed.data.newPassword,
-          },
-        );
-        if (error !== null) {
+        const result = await setAccountPassword({
+          accountId: account.accountId,
+          authUserId: account.authUserId,
+          newPassword: parsed.data.newPassword,
+          ip,
+          dedupeKey: request.headers.get("idempotency-key") ?? "",
+          via: "settings",
+        });
+        if (result === "rejected") {
           return {
             status: 422,
             body: {
@@ -50,27 +46,6 @@ export async function POST(request: Request): Promise<Response> {
             },
           };
         }
-        await withTransaction(db(), async (tx) => {
-          await tx.query(
-            `insert into public.login_events (account_id, event_type, ip) values ($1, 'password_changed', $2)`,
-            [account.accountId, ip],
-          );
-          await enqueueNotification(tx, {
-            accountId: account.accountId,
-            type: "security.password_changed",
-            payload: {},
-            dedupeKey: `password_changed:${request.headers.get("idempotency-key") ?? ""}`,
-          });
-          await appendAudit(tx, {
-            actorType: "account",
-            actorId: account.accountId,
-            action: "auth.password_changed",
-            targetType: "account",
-            targetId: account.accountId,
-            metadata: {},
-            ip,
-          });
-        });
         return { status: 200, body: { status: "updated" } };
       },
     );

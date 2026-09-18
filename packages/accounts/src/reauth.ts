@@ -36,7 +36,9 @@ export type ReauthAction =
 export type ReauthResult =
   | { readonly status: "granted"; readonly expiresAt: Date }
   | { readonly status: "invalid_credentials"; readonly attemptsRemaining: number }
-  | { readonly status: "locked"; readonly lockedUntil: Date };
+  | { readonly status: "locked"; readonly lockedUntil: Date }
+  /** The account signs in through Google or Apple and has never set a password (ADR 0043). */
+  | { readonly status: "password_not_set" };
 
 export async function reauthenticate(
   pool: Pool,
@@ -50,6 +52,15 @@ export async function reauthenticate(
 
   const state = await checkThrottle(pool, key, now);
   if (state.locked) return { status: "locked", lockedUntil: state.lockedUntil };
+
+  // Nothing to compare against, so nothing to count as a failed attempt either: the way
+  // through is the emailed link that sets a password, not a guess.
+  const credentials = await one<{ has_password: boolean }>(
+    pool,
+    `select has_password from public.accounts where id = $1`,
+    [account.accountId],
+  );
+  if (credentials?.has_password === false) return { status: "password_not_set" };
 
   const passwordOk = await provider.verifyPassword(account.email, input.password);
 

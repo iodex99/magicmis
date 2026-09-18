@@ -63,8 +63,11 @@ export async function claimSession(
       [claims.sub],
     );
     const row = account.rows[0];
-    if (row === undefined || row.deleted_at !== null) {
+    if (row === undefined) {
       return { status: "refused", reason: "no_account" } as const;
+    }
+    if (row.deleted_at !== null) {
+      return { status: "refused", reason: "account_not_active" } as const;
     }
     if (row.status !== "active") {
       return { status: "refused", reason: "account_not_active" } as const;

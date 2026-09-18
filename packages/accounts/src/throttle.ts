@@ -24,7 +24,8 @@ export type ThrottleLimit = z.infer<typeof throttleLimitSchema>;
 
 export const throttleConfigSchema = z.record(z.string(), throttleLimitSchema);
 
-export type ThrottleScope = "reauth" | "backup_code" | "signup" | "sign_in";
+export type ThrottleScope =
+  "reauth" | "backup_code" | "signup" | "sign_in" | "password_reset";
 
 export async function throttleLimitFor(
   db: Queryable,

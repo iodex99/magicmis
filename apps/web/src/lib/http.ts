@@ -110,6 +110,23 @@ export async function readJsonBody(
       "payload_too_large",
       options.tooLargeMessage ?? "The request is larger than the allowed size.",
     );
+  // A cross-site form can post `text/plain` without a preflight, and a body that happens to
+  // parse as JSON would then be acted on as if the page had sent it. Requiring the JSON
+  // content type forces a preflight the browser will not grant to another origin.
+  const type = (request.headers.get("content-type") ?? "")
+    .split(";")[0]
+    ?.trim()
+    .toLowerCase();
+  if (type !== "application/json") {
+    return {
+      ok: false,
+      response: apiError(
+        415,
+        "unsupported_media_type",
+        "Send the request body as application/json.",
+      ),
+    };
+  }
   const declared = request.headers.get("content-length");
   if (declared !== null && /^\d+$/u.test(declared) && BigInt(declared) > BigInt(max))
     return { ok: false, response: tooLarge() };

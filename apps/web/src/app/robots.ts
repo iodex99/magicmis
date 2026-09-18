@@ -23,6 +23,8 @@ const PRIVATE: string[] = [
   "/sign-up",
   "/auth",
   "/signed-out",
+  "/forgot-password",
+  "/reset-password",
   "/desktop-required",
   "/og",
 ];

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type SyntheticEvent } from "react";
 
 import { api, formText } from "@/lib/client-api";
@@ -22,6 +23,7 @@ export function ReauthForm({
   onGranted: () => void;
 }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [noPassword, setNoPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(event: SyntheticEvent<HTMLFormElement>) {
@@ -34,7 +36,30 @@ export function ReauthForm({
     });
     setSubmitting(false);
     if (result.ok) onGranted();
+    else if (result.error === "password_not_set") setNoPassword(true);
     else setMessage(result.message);
+  }
+
+  // ADR 0043: an account that signs in with Google or Apple has nothing to type here. The
+  // emailed link sets a password, and opening it is itself the confirmation being asked for.
+  if (noPassword) {
+    return (
+      <div
+        className="flex flex-col gap-3 text-sm text-neutral-600"
+        data-testid="no-password"
+      >
+        <p>
+          This account signs in with Google or Apple and has no password yet. To{" "}
+          {actionLabel}, set one first: we will email you a link.
+        </p>
+        <Link
+          href="/forgot-password"
+          className="font-medium text-accent-700 hover:underline"
+        >
+          Email me the link
+        </Link>
+      </div>
+    );
   }
 
   return (

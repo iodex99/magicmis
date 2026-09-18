@@ -1,14 +1,22 @@
-import { claimSession, safeNextPath } from "@magicmis/accounts";
+import {
+  claimSession,
+  neverSignedInAccount,
+  safeNextPath,
+  sessionClaimsSchema,
+} from "@magicmis/accounts";
+import { randomBytes } from "node:crypto";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { requestMeta } from "@/lib/http";
-import { supabaseForRequest } from "@/lib/supabase/server";
+import { OAUTH_NEXT_COOKIE } from "@/lib/server/oauth";
+import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
 
 /**
- * GET /auth/callback — email verification landing.
+ * GET /auth/callback — where every link and every identity provider lands: email
+ * verification, a password-reset link, and the return from Google or Apple (ADR 0043).
  *
  * Handles both link styles Supabase can send: a PKCE `code` to exchange, or a
  * `token_hash` + `type` to verify (https://supabase.com/docs/guides/auth/server-side/nextjs).
@@ -27,7 +35,14 @@ const EMAIL_OTP_TYPES: readonly EmailOtpType[] = [
 
 export async function GET(request: NextRequest): Promise<Response> {
   const url = request.nextUrl;
-  const next = safeNextPath(url.searchParams.get("next"), "/sign-in");
+  // A provider return carries no `next`: the identity service only returns to a URL on its
+  // allow-list, which is matched exactly, so the start route leaves the destination in a
+  // cookie instead (ADR 0043). Validated the same way wherever it came from.
+  const carried = request.cookies.get(OAUTH_NEXT_COOKIE)?.value ?? null;
+  const next = safeNextPath(
+    url.searchParams.get("next") ?? carried,
+    carried === null ? "/sign-in" : "/app",
+  );
 
   const supabase = await supabaseForRequest();
   const code = url.searchParams.get("code");
@@ -59,19 +74,50 @@ export async function GET(request: NextRequest): Promise<Response> {
    */
   const claims = failed ? undefined : (await supabase.auth.getClaims()).data?.claims;
   let signedIn = false;
+  let newcomer = false;
   if (claims !== undefined) {
     const { ip, userAgent } = await requestMeta();
-    const claim = await claimSession(db(), new SupabaseAuthProvider(supabase), claims, {
-      ip,
-      userAgent,
-    });
-    signedIn = claim.status !== "refused";
+    const parsed = sessionClaimsSchema.safeParse(claims);
+    // The auth user, when and only when this session was opened through a provider.
+    const providerUser =
+      parsed.success && (parsed.data.amr ?? []).some((m) => m.method === "oauth")
+        ? parsed.data.sub
+        : null;
+
+    /**
+     * Someone arriving through Google or Apple, to an account nobody has ever signed in to
+     * (ADR 0043). The password form writes the account before the address is proven, so that
+     * row may have been left by a stranger who chose its name and its password and is waiting
+     * for the owner to walk into it. The provider has now proved who owns the address: any
+     * password set before is destroyed, the row is not claimed, and its owner finishes it
+     * themselves — their business name, their consent.
+     */
+    const unclaimed =
+      providerUser === null ? null : await neverSignedInAccount(db(), providerUser);
+    if (providerUser !== null && unclaimed !== null) {
+      await supabaseAdmin().auth.admin.updateUserById(providerUser, {
+        password: randomBytes(48).toString("base64url"),
+      });
+      newcomer = true;
+    } else {
+      const claim = await claimSession(db(), new SupabaseAuthProvider(supabase), claims, {
+        ip,
+        userAgent,
+      });
+      signedIn = claim.status !== "refused";
+      // A session with no account behind it is someone who arrived through Google or Apple
+      // for the first time: they have proved who they are and have not yet said what to
+      // call their business or accepted the terms. The finish step asks for exactly that.
+      newcomer = claim.status === "refused" && claim.reason === "no_account";
+    }
   }
   const path = failed
     ? "/sign-in?verification=failed"
     : signedIn
       ? next
-      : "/sign-in/verified";
+      : newcomer
+        ? "/sign-up/finish"
+        : "/sign-in/verified";
 
   /**
    * Redirect to the host the browser actually used.
@@ -82,5 +128,7 @@ export async function GET(request: NextRequest): Promise<Response> {
    * back at sign-in holding a session they cannot see.
    */
   const host = request.headers.get("host") ?? url.host;
-  return NextResponse.redirect(new URL(path, `${url.protocol}//${host}`));
+  const response = NextResponse.redirect(new URL(path, `${url.protocol}//${host}`));
+  if (carried !== null) response.cookies.delete(OAUTH_NEXT_COOKIE);
+  return response;
 }

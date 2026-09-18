@@ -32,6 +32,14 @@ export async function POST(request: Request): Promise<Response> {
           "invalid_credentials",
           `That password is incorrect. ${String(result.attemptsRemaining)} attempts left.`,
         );
+      case "password_not_set":
+        // ADR 0043: this account signs in through Google or Apple. The screen offers the
+        // emailed link that sets a password, which is itself a fresh re-authentication.
+        return apiError(
+          409,
+          "password_not_set",
+          "This account has no password yet. Set one from the link we email you, and you can continue.",
+        );
       case "locked":
         return apiError(
           429,

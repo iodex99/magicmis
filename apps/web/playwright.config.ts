@@ -33,6 +33,9 @@ export default defineConfig({
       OUTPUT_STORE: "local",
       // Chat E2E drives a deterministic fake model; refused outside development (lib/server/ai.ts).
       AI_TRANSPORT: "fake",
+      // ADR 0043: Google on and Apple off, so both branches of the provider gate are driven.
+      // No credentials exist locally; the tests stop at the redirect to the identity service.
+      AUTH_OAUTH_PROVIDERS: "google",
     },
     timeout: 120_000,
   },

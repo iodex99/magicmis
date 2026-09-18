@@ -94,6 +94,22 @@ export const serverEnvSchema = z.object({
     .string()
     .regex(/^([^<>]+<[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+>|[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+)$/u),
 
+  /**
+   * Identity providers offered beside the password (ADR 0043), comma-separated. Empty by
+   * default: a button for a provider whose credentials are not in Supabase leads to an error
+   * page, so nothing is shown until the owner has set one up and says so here.
+   */
+  AUTH_OAUTH_PROVIDERS: z
+    .string()
+    .default("")
+    .transform((v) =>
+      v
+        .split(",")
+        .map((p) => p.trim().toLowerCase())
+        .filter((p) => p !== ""),
+    )
+    .pipe(z.array(z.enum(["google", "apple"]))),
+
   SENTRY_DSN: z.url().optional(),
   LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]).default("info"),
 });

@@ -1,0 +1,17 @@
+<!-- SPEC §29: plain, branded, no financial figures. Token-hash link so it works in any
+     browser, not only the one that asked for it.
+
+     Opening the link signs the reader in and is recorded as a fresh re-authentication
+     (ADR 0043), so the next screen can set a password without asking for the old one. It is
+     also how an account created through Google or Apple gets a password in the first place. -->
+<h2>Set a new password</h2>
+<p>Open this link to set a new password for your account:</p>
+<p>
+  <a href="{{ .SiteURL }}/reset-password?token_hash={{ .TokenHash }}"
+    >Set a new password</a
+  >
+</p>
+<p>The link works once and expires within the hour.</p>
+<p>
+  If you did not ask for this, you can ignore this email. Your password has not changed.
+</p>
