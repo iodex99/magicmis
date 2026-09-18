@@ -21,6 +21,8 @@ import { PRODUCT_NAME } from "./brand";
  * rather than one page written in a compromise nobody types. Using the reader's own term
  * is most of what ranking for their query is.
  */
+export type PageLocale = "en_IN" | "en_GB" | "en_US";
+
 export interface PublicPage {
   readonly path: string;
   readonly title: string;
@@ -28,7 +30,54 @@ export interface PublicPage {
   /** Sitemap hint. The marketing pages change rarely; the home and pricing pages more. */
   readonly changeFrequency: "daily" | "weekly" | "monthly";
   readonly priority: number;
+  /**
+   * The market the page is written for, as the OpenGraph locale and the article language.
+   * A page in British vocabulary tagged `en_IN` tells a crawler the wrong audience.
+   */
+  readonly locale: PageLocale;
+  /**
+   * When the content last changed (ISO date). The sitemap and the article schema carry it,
+   * so a revised page is re-read and an unchanged one is not re-crawled for nothing.
+   */
+  readonly updated: string;
 }
+
+/**
+ * The same monthly report, by every name it is given (ADR 0038). Each market searches in
+ * its own words, and the site has a page written in each; this list is what the pages use
+ * to point at one another and what the glossary page explains.
+ */
+export const REPORT_NAMES: readonly {
+  readonly term: string;
+  readonly where: string;
+  readonly path: string;
+}[] = [
+  {
+    term: "MIS report",
+    where: "India, Pakistan, Bangladesh, Sri Lanka, Nepal and the Gulf",
+    path: "/mis-report-format",
+  },
+  {
+    term: "Management accounts",
+    where: "the UK, Ireland, Australia, New Zealand, South Africa and Singapore",
+    path: "/management-accounts",
+  },
+  {
+    term: "Monthly financial reporting",
+    where: "the United States and Canada",
+    path: "/monthly-financial-reporting",
+  },
+  {
+    term: "Board pack",
+    where: "boardrooms in the UK, Australia and beyond",
+    path: "/board-pack",
+  },
+  {
+    term: "Month-end reporting package",
+    where: "US controllers and finance teams",
+    path: "/month-end-reporting-package",
+  },
+];
 
 export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
@@ -38,6 +87,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Turn a trial balance from any accounting system into a validated Excel report with live formulas, a dashboard and written commentary. Prepaid credits, no subscription.",
     changeFrequency: "weekly",
     priority: 1,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/product",
@@ -46,6 +97,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "A validated Excel workbook with live formulas, a dashboard, and commentary where every figure traces back to the ledger it came from. See what the output actually looks like.",
     changeFrequency: "monthly",
     priority: 0.9,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/how-it-works",
@@ -54,6 +107,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Upload your accounting exports and take the workbook. Ledgers are mapped for you, and later months reuse the mapping with no AI calls at all. Here is each step in detail.",
     changeFrequency: "monthly",
     priority: 0.9,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/management-accounts",
@@ -62,6 +117,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "What monthly management accounts should include — P&L, balance sheet, cash flow, ratios and commentary — how long they take to prepare by hand, and how to stop rebuilding them every month.",
     changeFrequency: "monthly",
     priority: 0.85,
+    locale: "en_GB",
+    updated: "2026-09-18",
   },
   {
     path: "/mis-report-format",
@@ -70,6 +127,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "The monthly MIS report format used by Indian businesses, section by section: P&L summary, balance sheet, cash flow, ratios and ageing — with a worked example.",
     changeFrequency: "monthly",
     priority: 0.8,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/tally-mis-report",
@@ -78,6 +137,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "How to produce a monthly MIS from TallyPrime or Tally.ERP 9 exports: which reports to take, the export settings that matter, and how to stop rebuilding it monthly.",
     changeFrequency: "monthly",
     priority: 0.8,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/for-accountants",
@@ -86,6 +147,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Management reporting across a portfolio of clients, without a junior rebuilding each workbook by hand. One mapping per client, reused every month, with every number traceable.",
     changeFrequency: "monthly",
     priority: 0.8,
+    locale: "en_GB",
+    updated: "2026-09-18",
   },
   {
     path: "/ai-mis-report",
@@ -94,6 +157,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "MIS with AI, done safely: AI recognises your sheets, maps ledgers and drafts commentary, while every figure comes from a deterministic engine and traces back to a ledger.",
     changeFrequency: "monthly",
     priority: 0.85,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/mis-in-minutes",
@@ -102,6 +167,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Confirm the ledger mapping once, then each month's MIS refreshes from the new trial balance in minutes, with live Excel formulas and no AI calls when nothing has changed.",
     changeFrequency: "monthly",
     priority: 0.85,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/automated-management-accounts",
@@ -110,6 +177,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Monthly management accounts produced from a trial balance export: P&L, balance sheet, KPIs, aged debtors and commentary in Excel, every figure traceable, paid per report.",
     changeFrequency: "monthly",
     priority: 0.85,
+    locale: "en_GB",
+    updated: "2026-09-18",
   },
   {
     path: "/monthly-financial-reporting",
@@ -118,6 +187,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Month-end reporting from your accounting system's trial balance: P&L with year to date, balance sheet, KPIs, A/R and A/P aging and commentary, in an Excel workbook you can audit.",
     changeFrequency: "monthly",
     priority: 0.85,
+    locale: "en_US",
+    updated: "2026-09-18",
   },
   {
     path: "/guides",
@@ -126,6 +197,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Practical guides for accountants and finance teams: MIS format, ratios and KPIs, mapping a trial balance, ageing reports, commentary and the month-end close.",
     changeFrequency: "weekly",
     priority: 0.7,
+    locale: "en_GB",
+    updated: "2026-09-18",
   },
   {
     path: "/guides/mis-kpis-and-ratios",
@@ -134,6 +207,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "The ratios a monthly MIS or management accounts pack should carry — margins, debtor, creditor and inventory days, cash conversion cycle, current and quick ratio — with formulas.",
     changeFrequency: "monthly",
     priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/guides/trial-balance-to-management-report",
@@ -142,6 +217,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "How a trial balance becomes a P&L and balance sheet summary: grouping ledgers into report heads, sign conventions, checks that the totals tie, and reusing the mapping monthly.",
     changeFrequency: "monthly",
     priority: 0.7,
+    locale: "en_GB",
+    updated: "2026-09-18",
   },
   {
     path: "/guides/debtors-ageing-report",
@@ -150,6 +227,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "How to build a receivables ageing report (aged debtors, A/R aging): choosing buckets, ageing from bill date or due date, unallocated receipts, and acting on the result.",
     changeFrequency: "monthly",
     priority: 0.7,
+    locale: "en_GB",
+    updated: "2026-09-18",
   },
   {
     path: "/guides/mis-commentary",
@@ -158,6 +237,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Writing the commentary in a monthly MIS or management accounts pack: which variances to explain, a materiality threshold, sentence patterns that work, and ones to avoid.",
     changeFrequency: "monthly",
     priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/guides/month-end-close-checklist",
@@ -166,6 +247,58 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "The checks to finish before a month's figures go into an MIS or management accounts: bank reconciliation, cut-off, accruals, depreciation, control accounts and suspense.",
     changeFrequency: "monthly",
     priority: 0.7,
+    locale: "en_GB",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/what-is-an-mis-report",
+    title: "What is an MIS report? Meaning, contents and its name in every market",
+    description:
+      "What an MIS report is, what it contains each month, and what the same report is called elsewhere — management accounts, monthly financial reporting, a board pack.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_IN",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/mis-report-template",
+    title: "MIS report template in Excel: a sample monthly MIS to download",
+    description:
+      "A sample monthly MIS on fictional data — P&L, balance sheet, ratios, checks and lineage — to download and open in Excel, with what each sheet is for and how to fill your own.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_IN",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/board-pack",
+    title: "Board pack: what a monthly board report contains and how to produce it",
+    description:
+      "What a monthly board pack contains — management accounts, KPIs, variances, commentary — how long it takes by hand, and how to produce it from a trial balance each month.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_GB",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/month-end-reporting-package",
+    title: "Month-end reporting package: contents, timeline and how to build it",
+    description:
+      "What a month-end reporting package contains — statements, variances, KPIs, A/R aging, commentary — the close timeline it follows, and how to produce it from the trial balance.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_US",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/management-reporting-software",
+    title: "Management reporting software that works from your accounting exports",
+    description:
+      "Management reporting software with no connector: upload a trial balance from any system and get a checked Excel report, a dashboard and commentary. Prepaid, per report.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_GB",
+    updated: "2026-09-18",
   },
   {
     path: "/security",
@@ -174,6 +307,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Where your accounting files go: encrypted under each company's own key, redacted before the AI sees any of them, and deleted automatically on a schedule. Stated exactly.",
     changeFrequency: "monthly",
     priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/pricing",
@@ -182,6 +317,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Prepaid credits, a fixed price per action, shown and confirmed before anything runs. Billed in US dollars, or in rupees for customers in India. No subscription and no free tier.",
     changeFrequency: "weekly",
     priority: 0.9,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/legal/terms",
@@ -189,6 +326,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     description: `The terms on which ${PRODUCT_NAME} is provided: prepaid credits, what they buy, how long they last, and the limits of what a generated report is.`,
     changeFrequency: "monthly",
     priority: 0.3,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
   {
     path: "/legal/privacy",
@@ -196,6 +335,8 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     description: `How ${PRODUCT_NAME} handles personal data: what is collected, what happens to the files you upload, who processes it, and your rights in India, the UK and the EEA.`,
     changeFrequency: "monthly",
     priority: 0.3,
+    locale: "en_IN",
+    updated: "2026-09-18",
   },
 ];
 
@@ -205,7 +346,9 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
  * moving a page that already ranks throws the ranking away.
  */
 export const GUIDE_PATHS: readonly string[] = [
+  "/what-is-an-mis-report",
   "/mis-report-format",
+  "/mis-report-template",
   "/management-accounts",
   "/guides/mis-kpis-and-ratios",
   "/guides/trial-balance-to-management-report",
@@ -217,10 +360,13 @@ export const GUIDE_PATHS: readonly string[] = [
 
 /** Pages written for a search a buyer makes, rather than a question a practitioner asks. */
 export const SOLUTION_PATHS: readonly string[] = [
+  "/management-reporting-software",
   "/ai-mis-report",
   "/mis-in-minutes",
   "/automated-management-accounts",
   "/monthly-financial-reporting",
+  "/board-pack",
+  "/month-end-reporting-package",
   "/for-accountants",
 ];
 
@@ -257,6 +403,14 @@ export function absoluteUrl(path: string): string {
 export function pageMetadata(path: string): Metadata {
   const page = publicPage(path);
   const url = absoluteUrl(path);
+  // A share card that carries the page's own title is opened far more often than the
+  // site's generic one (ADR 0038). The image route validates the path against this list.
+  const image = {
+    url: absoluteUrl(`/og?path=${encodeURIComponent(path)}`),
+    width: 1200,
+    height: 630,
+    alt: page.title,
+  };
   return {
     title: { absolute: page.title },
     description: page.description,
@@ -264,15 +418,17 @@ export function pageMetadata(path: string): Metadata {
     openGraph: {
       type: "website",
       siteName: PRODUCT_NAME,
-      locale: "en_IN",
+      locale: page.locale,
       url,
       title: page.title,
       description: page.description,
+      images: [image],
     },
     twitter: {
       card: "summary_large_image",
       title: page.title,
       description: page.description,
+      images: [image.url],
     },
   };
 }

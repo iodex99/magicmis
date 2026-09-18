@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   MarketingHeader,
@@ -101,6 +102,7 @@ export default function MisInMinutesPage() {
         heading="Your monthly MIS in minutes, not days"
         intro="The slow part of a monthly MIS is not the maths — it is re-deciding, every month, where each ledger goes. Decide once, and each month after that is a refresh."
       />
+      <AlsoCalled path={PATH} />
 
       <Section title="The first month">
         <Steps steps={FIRST_MONTH} />

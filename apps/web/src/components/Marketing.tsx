@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/Icon";
 import { ButtonLink } from "@/components/ui";
 import { PRODUCT_NAME } from "@/lib/brand";
-import { publicPage } from "@/lib/seo";
+import { publicPage, REPORT_NAMES } from "@/lib/seo";
 
 /**
  * Shared furniture for the public pages (SPEC §32).
@@ -259,5 +259,38 @@ export function ReadNext({ paths }: { paths: readonly string[] }) {
         })}
       </ul>
     </section>
+  );
+}
+
+/**
+ * The other names this report goes by, with a link to the page written in each (ADR 0038).
+ *
+ * A reader who searched "management accounts" and landed on the MIS page is on the right
+ * page for the wrong reason; this line tells them so in one breath and hands them the one
+ * in their own words. It also puts every market's term on every market's page, which is
+ * most of what ranking for each of them is.
+ */
+export function AlsoCalled({ path }: { path: string }) {
+  const others = REPORT_NAMES.filter((n) => n.path !== path);
+  return (
+    <p className="mx-auto w-full max-w-[760px] px-6 pb-6 text-[0.875rem] leading-relaxed text-neutral-500">
+      Also called{" "}
+      {others.map((n, i) => (
+        <span key={n.term}>
+          <Link
+            href={n.path}
+            className="font-medium text-neutral-700 hover:text-accent-700"
+          >
+            {n.term.toLowerCase()}
+          </Link>
+          {i < others.length - 2 ? ", " : i === others.length - 2 ? " and " : ""}
+        </span>
+      ))}
+      , depending on where you are.{" "}
+      <Link href="/what-is-an-mis-report" className="text-accent-700 hover:underline">
+        Every name, explained
+      </Link>
+      .
+    </p>
   );
 }

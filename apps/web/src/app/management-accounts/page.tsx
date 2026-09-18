@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   FictionalNote,
@@ -127,6 +128,7 @@ export default function ManagementAccountsPage() {
         heading="Management accounts: what they contain, and how to prepare them monthly"
         intro="Management accounts are the monthly financial picture a business actually runs on — not the statutory accounts filed once a year. There is no prescribed format, because they exist to answer management's questions rather than a regulator's. What follows is the structure almost all of them share."
       />
+      <AlsoCalled path={PATH} />
 
       <Section title="What a set contains">
         <ol className="flex flex-col gap-5">

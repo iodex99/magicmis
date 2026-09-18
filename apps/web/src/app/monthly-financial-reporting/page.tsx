@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   MarketingHeader,
@@ -86,6 +87,7 @@ export default function MonthlyFinancialReportingPage() {
         heading="Monthly financial reporting, without the spreadsheet rebuild"
         intro="Closing the books is only half of month end. The other half — turning a trial balance into a reporting package someone will read — is usually a spreadsheet rebuilt by hand. That half can be automated without giving up control of a single number."
       />
+      <AlsoCalled path={PATH} />
 
       <Section title="How it works">
         <Steps steps={STEPS} />

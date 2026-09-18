@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   FictionalNote,
@@ -201,6 +202,7 @@ export default function MisReportFormatPage() {
         heading="MIS report format in Excel: what a monthly MIS should contain"
         intro="There is no prescribed format for a management information report — it is an internal document, so its contents follow what management needs to decide. But the structure is near-universal. Here is that structure, section by section, with a worked example."
       />
+      <AlsoCalled path={PATH} />
 
       <Section>
         <p>

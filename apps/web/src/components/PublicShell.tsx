@@ -35,12 +35,17 @@ const FOOTER_GROUPS: readonly {
       ["/automated-management-accounts", "Automated management accounts"],
       ["/monthly-financial-reporting", "Monthly financial reporting"],
       ["/for-accountants", "For accountants"],
+      ["/board-pack", "Board packs"],
+      ["/month-end-reporting-package", "Month-end reporting package"],
+      ["/management-reporting-software", "Management reporting software"],
     ],
   },
   {
     heading: "Guides",
     links: [
+      ["/what-is-an-mis-report", "What is an MIS report?"],
       ["/mis-report-format", "MIS report format"],
+      ["/mis-report-template", "Sample MIS to download"],
       ["/management-accounts", "Management accounts"],
       ["/guides/mis-kpis-and-ratios", "KPIs and ratios"],
       ["/guides/debtors-ageing-report", "Debtors ageing"],

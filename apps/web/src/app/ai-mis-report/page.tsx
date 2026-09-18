@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   MarketingHeader,
@@ -90,6 +91,7 @@ export default function AiMisReportPage() {
         heading="An AI MIS report generator that never writes the numbers"
         intro="Most of the time spent on a monthly MIS is judgement about text: which sheet is which, which ledger belongs where, what to say about the month. That is what AI is good at. The figures are a different matter — so in this product, AI never produces one."
       />
+      <AlsoCalled path={PATH} />
 
       <Section title="What AI does">
         <div className="grid gap-4 sm:grid-cols-2">

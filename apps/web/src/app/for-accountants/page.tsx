@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   MarketingHeader,
@@ -107,6 +108,7 @@ export default function ForAccountantsPage() {
         heading="Monthly reporting across a portfolio of clients"
         intro="The difficulty in monthly management reporting is rarely one client. It is twenty of them, in the same week, to the same standard, with the work spread across people who did not build the template."
       />
+      <AlsoCalled path={PATH} />
 
       <Section title="What actually costs the time">
         <ul className="flex flex-col gap-5">

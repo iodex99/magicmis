@@ -33,7 +33,16 @@ describe("public pages", () => {
   it("lists no device-agnostic marketing path that has no page", () => {
     // `DEVICE_AGNOSTIC_PATHS` also carries help, legal and webhook prefixes, which are
     // directories rather than pages; the marketing entries must all resolve.
-    const prefixes = ["/help", "/legal", "/desktop-required", "/api/webhooks"];
+    // `/samples` serves the downloadable sample workbook and `/og` the share cards (ADR
+    // 0038): files a phone must be able to fetch, not pages.
+    const prefixes = [
+      "/help",
+      "/legal",
+      "/desktop-required",
+      "/api/webhooks",
+      "/samples",
+      "/og",
+    ];
     const known = new Set(PUBLIC_PAGES.map((p) => p.path));
     for (const path of DEVICE_AGNOSTIC_PATHS) {
       if (prefixes.includes(path)) continue;

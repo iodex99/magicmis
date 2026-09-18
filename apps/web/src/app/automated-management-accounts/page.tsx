@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   MarketingHeader,
@@ -90,6 +91,7 @@ export default function AutomatedManagementAccountsPage() {
         heading="Automated management accounts from your trial balance"
         intro="A monthly management accounts pack is the same work every month: export the trial balance, map it, roll the workbook forward, write the commentary. Map it once, and the rest is produced for you — with every figure traceable to the ledger it came from."
       />
+      <AlsoCalled path={PATH} />
 
       <Section title="What is in the pack">
         <div className="grid gap-4 sm:grid-cols-2">

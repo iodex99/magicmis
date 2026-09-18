@@ -95,3 +95,37 @@ moving a page that ranks throws the ranking away. `GUIDE_PATHS` and `SOLUTION_PA
 and its JSON-LD. Vendor-specific export guides (Xero, QuickBooks Online, Zoho Books) are
 deliberately not written until their menu paths are verified against each vendor's own
 documentation (SPEC §0.4).
+
+### 6. Every name the report goes by (2026-09-18, ADR 0038)
+
+The site had a page for three vocabularies and nothing that said they were the same
+document, nothing for the words a board or a US controller uses, and no answer to the
+biggest query family of all — a template. Researched against live results, per §0.4:
+
+| Term | Where it is searched | Source |
+|---|---|---|
+| MIS report, MIS full form, MIS in Excel | India and South Asia; also the Gulf | [Tally Solutions](https://tallysolutions.com/accounting/mis-report/), [myBillBook](https://mybillbook.in/blog/accounting/mis-report/), [Busy](https://busy.in/accounting/what-is-mis/) |
+| Management accounts, management reporting, MI | UK, Ireland, Australia, NZ, South Africa | [Spendesk](https://www.spendesk.com/glossary/management-accounts/), [Bookcheck](https://www.bookcheck.co.uk/what-are-management-accounts), [OD Accountants](https://odaccountants.co.uk/resources/management-reporting/) |
+| Board pack, monthly management pack | UK boards; CIMA's 10–20 page guidance | [AccountingWEB / CIMA](https://www.accountingweb.co.uk/business/financial-reporting/the-ideal-monthly-management-pack-cimas-view), [Convene](https://www.azeusconvene.com/en-gb/articles/what-is-a-board-pack), [AccountsIQ](https://www.accountsiq.com/blog/management-reporting-packs-explained-what-cfos-should-include-every-month) |
+| Month-end reporting package, monthly reporting pack | US controllers and FP&A | [airCFO](https://www.aircfo.com/tools/month-end-reporting-package), [The CEO's Right Hand](https://theceosrighthand.co/the-importance-of-the-month-end-reporting-package/), [Pacera](https://pacera.com/knowledge-hub/blogs/the-monthly-reporting-pack-what-to-include/) |
+
+What changed:
+
+- **Five pages**: `/what-is-an-mis-report` (the glossary and hub: meaning, contents, MIS vs
+  financial statements, the table of names by market), `/mis-report-template` (a complete
+  sample month to download, rendered by the product from the synthetic fixtures — §2.3
+  permits a public sample on fictional data), `/board-pack`, `/month-end-reporting-package`
+  and `/management-reporting-software` (the buyer's comparison query).
+- **Every vocabulary page says the other names** through `AlsoCalled`, which links each term
+  to the page written in it and to the glossary. `REPORT_NAMES` in `lib/seo.ts` is the one
+  list.
+- **Metadata that tells the truth about the audience**: each page carries a `locale`
+  (`en_IN`, `en_GB`, `en_US`) used for the OpenGraph locale and the article language, and an
+  `updated` date used by the sitemap and the article schema instead of the build time.
+  `Organization.areaServed` lists the markets rather than India alone.
+- **A share card per page** (`/og?path=`), carrying the page's own title, validated against
+  `PUBLIC_PAGES`; an Apple touch icon from the same mark.
+
+Not done, and why: vendor export guides (Xero, QuickBooks, Zoho) still wait on verified menu
+paths (§0.4); `hreflang` is not used because the market pages are different articles that
+share an intent, not translations of one article — cross-linking them is the honest signal.

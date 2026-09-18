@@ -8,15 +8,13 @@ import { PUBLIC_PAGES, absoluteUrl } from "@/lib/seo";
  * Generated from `PUBLIC_PAGES`, so a page cannot be added without appearing here and an
  * entry cannot outlive its page.
  *
- * `lastModified` is the build time. A date that moves on every deploy would be a lie about
- * the content, but a fixed one is worse — it tells a crawler nothing has changed since the
- * day the constant was written, which is how a revised page stops being re-read.
+ * `lastModified` is each page's own `updated` date (ADR 0038): a deploy that changes nothing
+ * no longer claims every page changed, and a revised page is re-read because its date moved.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
   return PUBLIC_PAGES.map((page) => ({
     url: absoluteUrl(page.path),
-    lastModified,
+    lastModified: new Date(`${page.updated}T00:00:00Z`),
     changeFrequency: page.changeFrequency,
     priority: page.priority,
   }));

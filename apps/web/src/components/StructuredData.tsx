@@ -39,7 +39,26 @@ export function OrganizationSchema() {
         name: PRODUCT_NAME,
         url: absoluteUrl("/"),
         description: publicPage("/").description,
-        areaServed: { "@type": "Country", name: "India" },
+        // Sold worldwide (ADR 0030): the markets the pages are written for, by name.
+        areaServed: [
+          "India",
+          "United Kingdom",
+          "Ireland",
+          "United States",
+          "Canada",
+          "Australia",
+          "New Zealand",
+          "South Africa",
+          "Singapore",
+          "United Arab Emirates",
+        ].map((name) => ({ "@type": "Country", name })),
+        knowsAbout: [
+          "MIS reports",
+          "management accounts",
+          "monthly financial reporting",
+          "board packs",
+          "month-end reporting packages",
+        ],
       }}
     />
   );
@@ -64,7 +83,15 @@ export function SoftwareApplicationSchema() {
         applicationSubCategory: "Accounting and management reporting",
         operatingSystem: "Web browser (desktop)",
         description: publicPage("/").description,
-        inLanguage: "en-IN",
+        inLanguage: ["en-IN", "en-GB", "en-US"],
+        featureList: [
+          "Trial balance to monthly MIS, management accounts or reporting package",
+          "Excel workbook with live formulas and lineage on every cell",
+          "Dashboard with KPIs, charts and drill-down to source",
+          "Written commentary with every figure computed, never generated",
+          "Validation checks against the trial balance before delivery",
+          "Works from exports of any accounting system — no connector",
+        ],
         publisher: { "@id": `${absoluteUrl("/")}#organization` },
       }}
     />
@@ -125,7 +152,8 @@ export function ArticleSchema({ path }: { path: string }) {
         "@type": "Article",
         headline: page.title,
         description: page.description,
-        inLanguage: "en-IN",
+        inLanguage: page.locale.replace("_", "-"),
+        dateModified: page.updated,
         mainEntityOfPage: absoluteUrl(path),
         publisher: { "@id": `${absoluteUrl("/")}#organization` },
       }}

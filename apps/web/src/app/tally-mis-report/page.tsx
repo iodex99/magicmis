@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import {
+  AlsoCalled,
   ClosingCta,
   Faqs,
   FictionalNote,
@@ -165,6 +166,7 @@ export default function TallyMisReportPage() {
         heading="MIS report from Tally: which exports to take, and what to do with them"
         intro="Tally holds everything a monthly MIS needs, in reports it already produces. What it does not do is assemble them into one management report with comparatives, ratios, ageing and commentary. This is how to bridge that gap — by hand, or without."
       />
+      <AlsoCalled path={PATH} />
 
       <WideSection
         title="The exports worth taking"
