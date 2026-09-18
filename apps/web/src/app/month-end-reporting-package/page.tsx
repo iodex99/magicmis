@@ -6,6 +6,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
 } from "@/components/Marketing";
@@ -173,6 +174,8 @@ export default function MonthEndReportingPackagePage() {
           changed.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions people ask">
         <Faqs faqs={FAQS} />

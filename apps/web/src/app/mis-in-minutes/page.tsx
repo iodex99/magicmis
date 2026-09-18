@@ -5,6 +5,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   Steps,
@@ -133,6 +134,8 @@ export default function MisInMinutesPage() {
           refresh is paid from prepaid credits at its standard price. No subscription.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

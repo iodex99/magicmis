@@ -5,6 +5,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   WideSection,
@@ -258,6 +259,8 @@ export default function WhatIsAnMisReportPage() {
           ))}
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions people ask">
         <Faqs faqs={FAQS} />

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { priceFor } from "@magicmis/wallet";
 
 import { Icon } from "@/components/Icon";
-import { Faqs } from "@/components/Marketing";
+import { ClosingCta, Faqs } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
 import { BreadcrumbSchema, FaqSchema, type Faq } from "@/components/StructuredData";
 import { Badge, ButtonLink } from "@/components/ui";
@@ -245,6 +245,10 @@ export default async function PricingPage() {
           </section>
         </div>
       </div>
+      <ClosingCta
+        heading="Create the account first. Buy credits when you are ready."
+        body="Signing up and adding a company are free, so you can see exactly what a run will ask of you before you spend anything."
+      />
     </PublicShell>
   );
 }

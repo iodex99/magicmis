@@ -4,6 +4,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
 } from "@/components/Marketing";
@@ -130,6 +131,8 @@ export default function MonthEndCloseChecklist() {
           </ul>
         </Section>
       ))}
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

@@ -5,6 +5,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
 } from "@/components/Marketing";
@@ -150,6 +151,8 @@ export default function ForAccountantsPage() {
           reviewer decides what it means.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

@@ -267,6 +267,19 @@ export default function HomePage() {
           </h2>
         </div>
         <TourVideo />
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <ButtonLink href="/sign-up" size="lg" iconAfter="arrow-right">
+            Start with last month
+          </ButtonLink>
+          <ButtonLink
+            href="/mis-report-template"
+            size="lg"
+            variant="secondary"
+            icon="download"
+          >
+            Download a sample MIS
+          </ButtonLink>
+        </div>
       </section>
 
       <section className="border-y border-neutral-200/70 bg-surface">

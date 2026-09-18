@@ -6,6 +6,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   Steps,
@@ -166,6 +167,8 @@ export default function BoardPackPage() {
           for each step in detail.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions people ask">
         <Faqs faqs={FAQS} />

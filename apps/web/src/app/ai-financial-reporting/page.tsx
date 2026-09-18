@@ -6,6 +6,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   Steps,
@@ -124,6 +125,8 @@ export default function AiFinancialReportingPage() {
           samples for the one step it is doing. And it does not run when nothing changed.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions people ask">
         <Faqs faqs={FAQS} />

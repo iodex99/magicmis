@@ -7,6 +7,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   WideSection,
@@ -162,6 +163,8 @@ export default function MisDashboardPage() {
           .
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions people ask">
         <Faqs faqs={FAQS} />

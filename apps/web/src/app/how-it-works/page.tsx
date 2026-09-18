@@ -4,6 +4,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   TourVideo,
@@ -156,6 +157,8 @@ export default function HowItWorksPage() {
           provenance because it was computed rather than written.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

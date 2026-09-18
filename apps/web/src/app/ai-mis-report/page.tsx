@@ -5,6 +5,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
 } from "@/components/Marketing";
@@ -133,6 +134,8 @@ export default function AiMisReportPage() {
           mapping is confirmed, the refresh is arithmetic, and arithmetic needs no AI.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

@@ -100,7 +100,7 @@ export function PublicShell({
             ))}
             <Link
               href="/pricing"
-              className="rounded-md px-3 py-2 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+              className="hidden rounded-md px-3 py-2 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 sm:block"
             >
               Credit packs
             </Link>
@@ -109,6 +109,12 @@ export function PublicShell({
               className="ml-1 inline-flex h-9 items-center rounded-md border border-neutral-200 bg-surface px-3.5 font-medium text-neutral-800 shadow-sm hover:border-neutral-300"
             >
               Sign in
+            </Link>
+            <Link
+              href="/sign-up"
+              className="press ml-1 inline-flex h-9 items-center rounded-md bg-accent-600 px-3.5 font-medium text-white shadow-sm hover:bg-accent-700"
+            >
+              Get started
             </Link>
             {action}
           </nav>

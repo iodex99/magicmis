@@ -5,6 +5,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   WideSection,
@@ -210,6 +211,8 @@ export default function DebtorsAgeingGuide() {
           in the month, which is not a collections problem at all.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

@@ -5,6 +5,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
 } from "@/components/Marketing";
@@ -161,6 +162,8 @@ export default function CommentaryGuide() {
           trust.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

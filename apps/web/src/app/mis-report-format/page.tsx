@@ -6,6 +6,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   WideSection,
@@ -287,6 +288,8 @@ export default function MisReportFormatPage() {
           moves a month of transactions into the wrong period.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

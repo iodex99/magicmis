@@ -5,6 +5,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   WideSection,
@@ -228,6 +229,8 @@ export default function KpisAndRatiosGuide() {
           month&rdquo; is a question someone can answer.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

@@ -6,6 +6,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   WideSection,
@@ -221,6 +222,8 @@ export default function ManagementAccountsPage() {
           whenever that person is on another job.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

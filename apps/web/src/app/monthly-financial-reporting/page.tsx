@@ -5,6 +5,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   Steps,
@@ -118,6 +119,8 @@ export default function MonthlyFinancialReportingPage() {
           the AI.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

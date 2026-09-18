@@ -6,6 +6,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   Steps,
@@ -252,6 +253,8 @@ export default function TallyMisReportPage() {
           </FictionalNote>
         </div>
       </WideSection>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

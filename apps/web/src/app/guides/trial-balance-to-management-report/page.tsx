@@ -5,6 +5,7 @@ import {
   Faqs,
   FictionalNote,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   Steps,
@@ -191,6 +192,8 @@ export default function TrialBalanceGuide() {
           into a click.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={FAQS} />

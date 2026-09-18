@@ -6,6 +6,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   Steps,
@@ -175,6 +176,8 @@ export default function ChatWithYourMisPage() {
           </li>
         </ul>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions people ask">
         <Faqs faqs={FAQS} />

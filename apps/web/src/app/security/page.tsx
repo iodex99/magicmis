@@ -5,6 +5,7 @@ import {
   ClosingCta,
   Faqs,
   MarketingHeader,
+  MidCta,
   ReadNext,
   Section,
   WideSection,
@@ -172,6 +173,8 @@ export default async function SecurityPage() {
           those is a requirement for your firm, it is better to know now.
         </p>
       </Section>
+
+      <MidCta />
 
       <Section title="Questions">
         <Faqs faqs={faqs} />

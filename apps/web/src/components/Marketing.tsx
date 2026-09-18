@@ -54,6 +54,21 @@ export function MarketingHeader({
         {heading}
       </h1>
       <p className="mt-5 text-[1.0625rem] leading-relaxed text-neutral-600">{intro}</p>
+      <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <ButtonLink href="/sign-up" iconAfter="arrow-right">
+          Create an account
+        </ButtonLink>
+        <Link
+          href="/#tour"
+          className="inline-flex items-center gap-1.5 text-[0.875rem] font-medium text-neutral-600 hover:text-accent-700"
+        >
+          <Icon name="play" className="size-4" />
+          Watch the 30-second tour
+        </Link>
+      </div>
+      <p className="mt-3 text-[0.8125rem] text-neutral-500">
+        Free to create. No subscription, and credits never expire.
+      </p>
     </header>
   );
 }
@@ -223,6 +238,36 @@ export function ClosingCta({
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * The ask in the middle of a long page. A reader who is convinced halfway down
+ * should not have to scroll to the foot to act on it, and one who is not yet convinced is
+ * offered the thing that convinces without a sign-up: the sample workbook.
+ */
+export function MidCta() {
+  return (
+    <aside className="mx-auto w-full max-w-[760px] px-6 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-accent-200 bg-accent-50/50 px-5 py-4">
+        <p className="min-w-0 flex-1 text-[0.9375rem] font-medium text-neutral-900">
+          See it on a month you have already closed.
+        </p>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <ButtonLink href="/sign-up" size="sm" iconAfter="arrow-right">
+            Try it on your own month
+          </ButtonLink>
+          <ButtonLink
+            href="/mis-report-template"
+            size="sm"
+            variant="secondary"
+            icon="download"
+          >
+            Download a sample
+          </ButtonLink>
+        </div>
+      </div>
+    </aside>
   );
 }
 
