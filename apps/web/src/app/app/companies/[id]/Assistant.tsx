@@ -21,6 +21,7 @@ import {
   type AnswerSegment,
 } from "@magicmis/render-dashboard";
 import Link from "next/link";
+import { detectIntent } from "@magicmis/chat/intent";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Drawer } from "@/components/Drawer";
@@ -45,6 +46,8 @@ interface Reply {
   target?: "dashboard" | "template";
   baseVersion?: number;
   operations?: unknown[];
+  /** Set when the server applied the change as it was proposed (ADR 0046). */
+  appliedVersion?: number | null;
 }
 
 interface MessageView {
@@ -89,9 +92,9 @@ const MODES: readonly { key: Mode; label: string; icon: IconName; hint: string }
   },
   {
     key: "edit",
-    label: "Change layout",
+    label: "Build",
     icon: "sliders",
-    hint: "Rename, reorder or remove cards",
+    hint: "Add boxes, comparisons, charts and formulas; rename, move or remove them",
   },
   {
     key: "commentary",
@@ -105,7 +108,7 @@ const TYPE_WORDS: Record<MessageType, string> = {
   quick: "Ask",
   deep: "Dig deeper",
   investigate: "Investigate",
-  edit: "Change layout",
+  edit: "Build",
 };
 
 const ZERO_SIZE = {
@@ -192,6 +195,7 @@ export function Assistant({
   focusNonce,
   onCollapse,
   onLayoutChanged,
+  dashboardVersion,
 }: {
   companyId: string;
   companyName: string;
@@ -207,6 +211,8 @@ export function Assistant({
   focusNonce: number;
   /** Put the chat away; the workspace keeps a launcher on screen (ADR 0044). */
   onCollapse: () => void;
+  /** The version of the dashboard on screen beside the chat; null until it has loaded. */
+  dashboardVersion: number | null;
   /** A layout change applied or undone here, so the dashboard beside it can reload. */
   onLayoutChanged: () => void;
 }) {
@@ -218,6 +224,9 @@ export function Assistant({
   const [investigating, setInvestigating] = useState(false);
   const [tier, setTier] = useState<Tier>("professional");
   const [editTarget, setEditTarget] = useState<"dashboard" | "template">("dashboard");
+  // One box (ADR 0046): in Ask, a message that reads as a change to the dashboard is sent as
+  // one. The customer is told before they send, and can ask it as a question instead.
+  const [askAnyway, setAskAnyway] = useState(false);
   const [text, setText] = useState("");
   const [month, setMonth] = useState(periods[0] ?? "");
   const [busy, setBusy] = useState<string | null>(null);
@@ -329,6 +338,8 @@ export function Assistant({
     setShort(false);
   };
 
+  const building = mode === "quick" && !askAnyway && detectIntent(text) === "dashboard";
+
   const send = async () => {
     if (text.trim() === "" || busy !== null) return;
     reset();
@@ -338,7 +349,10 @@ export function Assistant({
         ? "investigate"
         : mode === "commentary"
           ? "quick"
-          : mode;
+          : building
+            ? "edit"
+            : mode;
+    const target = building ? "dashboard" : editTarget;
     setBusy(
       type === "quick" || type === "edit" ? "Thinking…" : "Looking through the figures…",
     );
@@ -352,7 +366,7 @@ export function Assistant({
             type,
             tier,
             text,
-            ...(type === "edit" ? { editTarget } : {}),
+            ...(type === "edit" ? { editTarget: target } : {}),
           },
           idempotencyKey: newIdempotencyKey(),
         },
@@ -367,7 +381,10 @@ export function Assistant({
         setError("This message could not be answered. No credits were charged.");
       setText("");
       setInvestigating(false);
+      setAskAnyway(false);
       await openThread(r.data.threadId);
+      // A dashboard change is applied as it is proposed: the dashboard beside this loads it.
+      if (type === "edit" && target === "dashboard") onLayoutChanged();
       await loadThreads();
     } catch (e) {
       setError(e instanceof Error ? e.message : "The message could not be sent.");
@@ -444,8 +461,25 @@ export function Assistant({
     } else setError(r.message);
   };
 
+  /**
+   * Whether a layout change is on the dashboard, and as which version: what this session did
+   * to it (applied by hand, or undone), else what the saved reply says the server did when it
+   * answered (ADR 0046). One place, because the first version let the bubble read the reply and
+   * Undo read only the session, so after a reload Undo was shown and did nothing.
+   */
+  const appliedOf = (m: MessageView) => {
+    const here = applied[m.id];
+    if (here !== undefined) return here;
+    const reply = m.reply;
+    return reply?.kind === "edit" &&
+      typeof reply.appliedVersion === "number" &&
+      reply.target !== undefined
+      ? { target: reply.target, blueprintVersion: reply.appliedVersion, undone: false }
+      : undefined;
+  };
+
   const undo = async (m: MessageView) => {
-    const done = applied[m.id];
+    const done = appliedOf(m);
     if (done === undefined) return;
     const r = await api(
       done.target === "dashboard"
@@ -722,7 +756,16 @@ export function Assistant({
               );
             const reply = m.reply;
             if (reply?.kind === "edit") {
-              const done = applied[m.id];
+              const done = appliedOf(m);
+              // Undo is offered only while this change is still the one on screen. Once the
+              // dashboard has moved past it (undone, or changed again) the reply says so: an
+              // Undo here could only fail, and "Done" would no longer be true of the board.
+              const moved =
+                done !== undefined &&
+                !done.undone &&
+                done.target === "dashboard" &&
+                dashboardVersion !== null &&
+                dashboardVersion > done.blueprintVersion;
               return (
                 <div
                   key={m.id}
@@ -750,6 +793,13 @@ export function Assistant({
                           </Button>
                         ) : done.undone ? (
                           <span className="text-neutral-700">Undone.</span>
+                        ) : moved ? (
+                          <span
+                            className="text-neutral-500"
+                            data-testid="chat-edit-moved"
+                          >
+                            Applied earlier. The dashboard has changed since.
+                          </span>
                         ) : (
                           <>
                             {/* What was just changed is this company's own, and stays (ADR 0045). */}
@@ -758,7 +808,7 @@ export function Assistant({
                               data-testid="chat-edit-applied"
                             >
                               {done.target === "dashboard"
-                                ? "Applied to the dashboard."
+                                ? "Done. It is on the dashboard."
                                 : "Applied to the MIS, from the next workbook on."}{" "}
                               <span className="text-neutral-500">
                                 Kept for {companyName} only, until you change it.
@@ -1020,15 +1070,16 @@ export function Assistant({
               aria-label="Your question"
               placeholder={
                 mode === "edit"
-                  ? "For example: rename the revenue card to Sales"
+                  ? "For example: add a box comparing revenue and profit with last year"
                   : mode === "deep"
                     ? "For example: which parties drove the rise in debtors?"
-                    : `Ask anything about ${companyName}`
+                    : `Ask about ${companyName}, or say what to put on the dashboard`
               }
               maxLength={2000}
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
+                if (e.target.value.trim() === "") setAskAnyway(false);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -1056,6 +1107,23 @@ export function Assistant({
                   data-testid="chat-session"
                 >
                   Queries this company&rsquo;s figures on our servers
+                </span>
+              ) : building ? (
+                <span
+                  className="flex min-w-0 items-center gap-1.5 text-[0.6875rem] text-neutral-600"
+                  data-testid="chat-building"
+                >
+                  <Icon name="chart" size={12} className="shrink-0 text-accent-600" />
+                  <span className="truncate">This will update the dashboard.</span>
+                  <button
+                    type="button"
+                    className="shrink-0 font-medium text-accent-700 underline underline-offset-2 hover:text-accent-800"
+                    onClick={() => {
+                      setAskAnyway(true);
+                    }}
+                  >
+                    Ask it instead
+                  </button>
                 </span>
               ) : (
                 <span />

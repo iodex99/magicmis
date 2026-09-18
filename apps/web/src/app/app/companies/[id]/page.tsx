@@ -24,8 +24,6 @@ import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { CHAT_COOKIE } from "@/lib/prefs";
 
-import { PrintButton } from "@/components/PrintButton";
-
 import { CompanyFiles } from "./CompanyFiles";
 import { ReportingConventions } from "./ReportingConventions";
 import { DeleteCompany } from "./DeleteCompany";
@@ -275,7 +273,6 @@ export default async function CompanyPage({
     ),
     keptFiles(pool, id, account.accountId),
   ]);
-  const latestOutput = outputs.rows[0];
   // Whether the chat was left open or put away, so the first paint is already that layout.
   const chatCookie = (await cookies()).get(CHAT_COOKIE)?.value;
   const chatPreference =
@@ -292,17 +289,9 @@ export default async function CompanyPage({
         }
         actions={
           <>
-            <PrintButton label="Print or save as PDF" />
-            {latestOutput === undefined ? null : (
-              <ButtonLink
-                href={`/api/outputs/${latestOutput.id}`}
-                variant="secondary"
-                icon="download"
-                data-testid="latest-workbook"
-              >
-                Latest workbook
-              </ButtonLink>
-            )}
+            {/* ADR 0046: no print and no export up here. The dashboard is presented from the
+                dashboard (Present), so what a room sees is live and traceable; the workbooks a
+                run produced stay listed below for whoever needs the Excel file. */}
             {active ? (
               <ButtonLink href={`/app/companies/${id}/run`} icon="upload">
                 Add a month

@@ -32,7 +32,27 @@ export type WidgetView =
       readonly columns: readonly string[];
       readonly rows: readonly { label: string; cells: readonly ValueRef[] }[];
     }
+  | {
+      /** Each metric this month against a basis month (ADR 0046). */
+      readonly kind: "comparison";
+      readonly title: string;
+      /** Column heads: the month shown and the month it is set against. */
+      readonly current: string;
+      readonly basis: string;
+      readonly rows: readonly ComparisonRow[];
+    }
   | { readonly kind: "empty"; readonly title: string; readonly reason: string };
+
+export interface ComparisonRow {
+  readonly label: string;
+  readonly current: ValueRef;
+  readonly prior: ValueRef;
+  readonly change: ValueRef;
+  /** Null where the store states no percent change (a change in a percentage is in points). */
+  readonly changePct: ValueRef | null;
+  /** From the sign of the stored change, never from a float. Null when there is no change to state. */
+  readonly direction: "up" | "down" | "flat" | null;
+}
 
 export interface ViewFormat {
   readonly money: (paise: string) => string;
@@ -202,6 +222,38 @@ export function buildWidgetView(
         values: widget.metrics.map((m) => ref(m, input.period)),
       };
 
+    case "comparison": {
+      const lastYear = widget.compare === "last_year";
+      const other = addMonths(input.period, lastYear ? -12 : -1);
+      const suffix = lastYear ? "yoy" : "mom";
+      return {
+        kind: "comparison",
+        title: widget.title,
+        current: input.format.period(input.period),
+        basis: input.format.period(other),
+        rows: widget.metrics.map((m) => {
+          const change = byKey.get(metricKey(`${m}.${suffix}_abs`, input.period));
+          const pct = byKey.get(metricKey(`${m}.${suffix}_pct`, input.period));
+          const raw = change?.value ?? null;
+          return {
+            label: input.format.label(m),
+            current: ref(m, input.period),
+            prior: ref(m, other),
+            change: ref(`${m}.${suffix}_abs`, input.period),
+            changePct: pct === undefined ? null : ref(`${m}.${suffix}_pct`, input.period),
+            direction:
+              raw === null
+                ? null
+                : BigInt(raw.replace(".", "")) === 0n
+                  ? "flat"
+                  : raw.startsWith("-")
+                    ? "down"
+                    : "up",
+          };
+        }),
+      };
+    }
+
     case "table":
       return {
         kind: "table",
@@ -312,8 +364,21 @@ export function buildWidgetView(
     case "bar":
     case "stacked_bar": {
       const type = widget.kind === "line" ? "line" : "bar";
-      const names = widget.metrics.map((m) => input.format.label(m));
-      const points = widget.metrics.map((m) => periods.map((p) => ref(m, p)));
+      // This year against last: each metric gets a second, quieter series holding the same
+      // months a year back, on the same axis positions. Stacks stay one year: two stacked
+      // years side by side read as one total.
+      const withLastYear =
+        widget.compare === "last_year" && widget.kind !== "stacked_bar";
+      const series = widget.metrics.flatMap((m) => [
+        { metric: m, shift: 0, name: input.format.label(m) },
+        ...(withLastYear
+          ? [{ metric: m, shift: -12, name: `${input.format.label(m)}, last year` }]
+          : []),
+      ]);
+      const names = series.map((x) => x.name);
+      const points = series.map((x) =>
+        periods.map((p) => ref(x.metric, addMonths(p, x.shift))),
+      );
       const money = widget.metrics.some((m) =>
         periods.some((p) => byKey.get(metricKey(m, p))?.unit === "paise"),
       );
@@ -332,14 +397,29 @@ export function buildWidgetView(
             containLabel: true,
           },
           xAxis: categoryAxis(periods.map((p) => input.format.period(p))),
-          series: widget.metrics.map((m, i) => ({
+          series: series.map((x) => ({
             type,
-            name: names[i] ?? "",
+            name: x.name,
             ...(widget.kind === "stacked_bar" ? { stack: "total" } : {}),
             ...(type === "line"
-              ? { smooth: false, symbolSize: 6, lineStyle: { width: 2 } }
-              : { barMaxWidth: 28, itemStyle: { borderRadius: [3, 3, 0, 0] } }),
-            data: periods.map((p) => plotted(byKey.get(metricKey(m, p)))),
+              ? {
+                  smooth: false,
+                  symbolSize: x.shift === 0 ? 6 : 4,
+                  lineStyle:
+                    x.shift === 0
+                      ? { width: 2 }
+                      : { width: 1.5, type: "dashed" as const },
+                }
+              : {
+                  barMaxWidth: 28,
+                  itemStyle: {
+                    borderRadius: [3, 3, 0, 0],
+                    ...(x.shift === 0 ? {} : { opacity: 0.45 }),
+                  },
+                }),
+            data: periods.map((p) =>
+              plotted(byKey.get(metricKey(x.metric, addMonths(p, x.shift)))),
+            ),
           })),
         },
         points,

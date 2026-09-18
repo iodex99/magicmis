@@ -45,6 +45,10 @@ export function TourPlayer() {
       width={1600}
       height={900}
       data-testid="tour"
+      // The visible caption was removed at the owner's request (ADR 0046). The film's closing
+      // card says its figures are fictional; this says it to a screen reader, which cannot see
+      // that card, so SPEC §2.3 still holds for every reader of the page.
+      aria-label="Product tour, silent. The company and every figure shown are fictional."
     >
       <source src="/brand/tour.webm" type="video/webm" />
       Your browser cannot play this video. It is a silent tour of the product; the same

@@ -14,11 +14,19 @@ import {
   buildWidgetView,
   companyFormat,
   formatValue,
+  labelsFor,
   type DashboardSpec,
   type ValueRef,
   type Widget,
 } from "@magicmis/render-dashboard";
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 import { Sparkline } from "@/components/Charts";
 import { Drawer } from "@/components/Drawer";
@@ -159,6 +167,8 @@ function WidgetCard({
   period,
   payload,
   editing,
+  presenting,
+  label,
   onOpen,
   onEdit,
   onInvestigate,
@@ -170,13 +180,20 @@ function WidgetCard({
   period: PeriodId;
   payload: Payload;
   editing: boolean;
+  /** On the boardroom screen: figures and charts only, nothing to operate. */
+  presenting: boolean;
+  /** This dashboard's names: its own formulas by their given names, the catalog otherwise. */
+  label: (metricId: string) => string;
   onOpen: (key: string) => void;
   onEdit: (ops: Operation[]) => void;
-  onInvestigate: (metric: string, period: PeriodId) => void;
+  onInvestigate: (metric: string, period: PeriodId, name: string) => void;
 }) {
   const format = useMemo(
-    () => companyFormat(payload.company.money, payload.company.currencySymbol),
-    [payload.company.money],
+    () => ({
+      ...companyFormat(payload.company.money, payload.company.currencySymbol),
+      label,
+    }),
+    [payload.company.money, payload.company.currencySymbol, label],
   );
   const view = useMemo(
     () =>
@@ -305,16 +322,70 @@ function WidgetCard({
             </dl>
           )}
           {/* SPEC §27: Investigate sends a Deep question about this metric's movement. */}
-          <button
-            type="button"
-            className="mt-auto -mb-1 -ml-2 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 pt-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
-            onClick={() => {
-              onInvestigate(widget.metrics[0] ?? "", period);
-            }}
-          >
-            <Icon name="search" size={12} />
-            Investigate
-          </button>
+          {presenting ? null : (
+            <button
+              type="button"
+              className="mt-auto -mb-1 -ml-2 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 pt-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
+              onClick={() => {
+                const metric = widget.metrics[0] ?? "";
+                onInvestigate(metric, period, label(metric.split(".")[0] ?? metric));
+              }}
+            >
+              <Icon name="search" size={12} />
+              Investigate
+            </button>
+          )}
+        </div>
+      ) : view.kind === "comparison" ? (
+        // ADR 0046: this month set against another, every figure the engine's own and every one
+        // of them open to its lineage. The arrow repeats the sign; it never stands in for it.
+        <div className="overflow-x-auto" data-testid="comparison">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-neutral-200 text-left text-[0.6875rem] font-semibold tracking-[0.06em] text-neutral-500 uppercase">
+                <th className="py-1.5" />
+                <th className="py-1.5 text-right">{view.current}</th>
+                <th className="py-1.5 text-right">{view.basis}</th>
+                <th className="py-1.5 text-right">Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              {view.rows.map((r) => (
+                <tr
+                  key={r.current.metricKey}
+                  className="border-b border-neutral-100 last:border-0"
+                >
+                  <td className="py-2 pr-3 text-neutral-700">{r.label}</td>
+                  <td className="num py-2 text-right font-semibold text-neutral-900">
+                    <ValueButton value={r.current} onOpen={onOpen} />
+                  </td>
+                  <td className="num py-2 text-right text-neutral-600">
+                    <ValueButton value={r.prior} onOpen={onOpen} />
+                  </td>
+                  <td className="num py-2 text-right">
+                    <span className="inline-flex items-center justify-end gap-1.5">
+                      {r.direction === null || r.direction === "flat" ? null : (
+                        <Icon
+                          name={r.direction === "down" ? "arrow-down" : "arrow-up"}
+                          size={11}
+                          className={
+                            r.direction === "down" ? "text-negative" : "text-positive"
+                          }
+                        />
+                      )}
+                      <ValueButton value={r.change} onOpen={onOpen} />
+                      {/* No prior month: one dash says it; a second beside it says nothing more. */}
+                      {r.changePct === null || r.direction === null ? null : (
+                        <span className="text-[0.75rem] text-neutral-500">
+                          <ValueButton value={r.changePct} onOpen={onOpen} />
+                        </span>
+                      )}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : view.kind === "table" ? (
         <div className="overflow-x-auto">
@@ -356,7 +427,10 @@ function WidgetCard({
             />
           </div>
           {/* The same values as text: every charted number is reachable without a pointer. */}
-          <details className="mt-3 border-t border-neutral-100 pt-2 text-[0.75rem] text-neutral-500">
+          <details
+            hidden={presenting}
+            className="mt-3 border-t border-neutral-100 pt-2 text-[0.75rem] text-neutral-500"
+          >
             <summary className="cursor-pointer select-none hover:text-neutral-900">
               Values
             </summary>
@@ -388,11 +462,14 @@ export function DashboardClient({
   companyId,
   onInvestigate,
   reloadKey,
+  onVersion,
 }: {
   companyId: string;
-  onInvestigate: (metric: string, period: PeriodId) => void;
+  onInvestigate: (metric: string, period: PeriodId, name: string) => void;
   /** Changes when the layout was changed elsewhere (the assistant), to load it again. */
   reloadKey: number;
+  /** The version of the layout on screen, so the chat knows which of its changes is current. */
+  onVersion?: (version: number | null) => void;
 }) {
   const [payload, setPayload] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -404,6 +481,78 @@ export function DashboardClient({
     spec: DashboardSpec;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+
+  /**
+   * Present (ADR 0046): the dashboard alone on the screen, for a boardroom. It is shown from
+   * here and nowhere else — there is no print and no export — so the figures a room sees are
+   * always the live ones, each still one click from its source. The stage asks the browser
+   * for the whole screen; where that is refused it still covers the window, so Present never
+   * fails to present.
+   */
+  const [presenting, setPresenting] = useState(false);
+  const stage = useRef<HTMLDivElement>(null);
+  const drawerOpen = useRef(false);
+  drawerOpen.current = selected !== null;
+  const present = useCallback(() => {
+    setEditing(false);
+    setPresenting(true);
+    const el = stage.current;
+    if (el !== null && typeof el.requestFullscreen === "function")
+      void el.requestFullscreen().catch(() => undefined);
+  }, []);
+  const stopPresenting = useCallback(() => {
+    setPresenting(false);
+    if (document.fullscreenElement !== null)
+      void document.exitFullscreen().catch(() => undefined);
+  }, []);
+  const months = payload?.periods;
+  const step = useCallback(
+    (by: number) => {
+      // Months are listed newest first; a step forward is the later month.
+      const list = months ?? [];
+      setPeriod((p) => {
+        const at = list.indexOf(p ?? list[0] ?? "");
+        const next = list[at - by];
+        return next === undefined ? p : (next as PeriodId);
+      });
+    },
+    [months],
+  );
+  useEffect(() => {
+    if (!presenting) return;
+    // Leaving full screen by the browser's own means (Esc, F11) leaves Present too.
+    const onScreen = () => {
+      if (document.fullscreenElement === null) setPresenting(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      // Esc closes an open lineage drawer first; only with nothing open does it end Present.
+      if (event.key === "Escape") {
+        if (drawerOpen.current) return;
+        stopPresenting();
+      } else if (event.key === "ArrowRight" || event.key === "PageDown") step(1);
+      else if (event.key === "ArrowLeft" || event.key === "PageUp") step(-1);
+    };
+    document.addEventListener("fullscreenchange", onScreen);
+    window.addEventListener("keydown", onKey);
+    // Where the browser refused the whole screen the stage only covers the window: the page
+    // behind it must not scroll under it, and the keyboard starts on the stage, not behind it.
+    const scroll = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    stage.current?.focus();
+    return () => {
+      document.removeEventListener("fullscreenchange", onScreen);
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = scroll;
+    };
+  }, [presenting, stopPresenting, step]);
+
+  const version = payload?.dashboard?.blueprintVersion ?? null;
+  useEffect(() => {
+    onVersion?.(version);
+  }, [onVersion, version]);
+
+  const calculated = payload?.dashboard?.spec.calculated;
+  const label = useMemo(() => labelsFor(calculated ?? []), [calculated]);
 
   const load = useCallback(async () => {
     const r = await api<Payload>(`/api/companies/${companyId}/dashboard`);
@@ -612,6 +761,19 @@ export function DashboardClient({
           >
             {editing ? "Done editing" : "Edit layout"}
           </Button>
+          <Button
+            icon="play"
+            onClick={present}
+            disabled={pending !== null}
+            title={
+              pending !== null
+                ? "Apply or discard the layout changes first"
+                : "Show the dashboard full screen"
+            }
+            data-testid="present"
+          >
+            Present
+          </Button>
         </div>
       </div>
 
@@ -645,45 +807,115 @@ export function DashboardClient({
       )}
       {error === null ? null : <Alert tone="error">{error}</Alert>}
 
-      <div className="@container grid grid-cols-12 gap-4" data-testid="dashboard-grid">
-        {spec.widgets.map((w, i) => (
-          <WidgetCard
-            key={w.id}
-            widget={w}
-            index={i}
-            count={spec.widgets.length}
-            values={payload.values}
-            period={current}
-            payload={payload}
-            editing={editing}
-            onOpen={setSelected}
-            onEdit={(ops) => void propose(ops)}
-            onInvestigate={onInvestigate}
-          />
-        ))}
-      </div>
-      <Drawer
-        open={selected !== null}
-        label="Lineage"
-        onClose={() => {
-          setSelected(null);
-        }}
-      >
-        {selected === null ? null : (
-          <LineagePanel
-            selected={selected}
-            values={payload.values}
-            label={
-              companyFormat(payload.company.money, payload.company.currencySymbol).label
+      {/* The stage holds the grid and the lineage drawer, so a figure can still be traced to its
+          source while presenting: only what is inside the full-screen element is visible. */}
+      <div
+        ref={stage}
+        className={
+          presenting
+            ? "canvas-grid fixed inset-0 z-50 overflow-y-auto bg-canvas px-10 py-8"
+            : undefined
+        }
+        data-presenting={presenting ? "true" : "false"}
+        data-testid="stage"
+        {...(presenting
+          ? {
+              role: "dialog",
+              "aria-modal": true,
+              "aria-label": `${payload.company.name}, presented`,
+              tabIndex: -1,
             }
-            display={display}
-            onSelect={setSelected}
-            onClose={() => {
-              setSelected(null);
-            }}
-          />
-        )}
-      </Drawer>
+          : {})}
+      >
+        {presenting ? (
+          <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">{format.units}</p>
+              <h2 className="display mt-1 text-[2rem] leading-tight font-semibold tracking-tight text-neutral-900">
+                {payload.company.name}
+              </h2>
+              <p
+                className="mt-0.5 text-[1.0625rem] text-neutral-600"
+                data-testid="present-period"
+              >
+                {format.period(current)}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 opacity-60 transition-opacity focus-within:opacity-100 hover:opacity-100">
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="arrow-left"
+                aria-label="Earlier month"
+                title="Earlier month (Left arrow)"
+                disabled={payload.periods.indexOf(current) >= payload.periods.length - 1}
+                onClick={() => {
+                  step(-1);
+                }}
+              />
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="arrow-right"
+                aria-label="Later month"
+                title="Later month (Right arrow)"
+                disabled={payload.periods.indexOf(current) <= 0}
+                onClick={() => {
+                  step(1);
+                }}
+              />
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="close"
+                onClick={stopPresenting}
+                data-testid="present-exit"
+              >
+                Exit
+              </Button>
+            </div>
+          </header>
+        ) : null}
+        <div className="@container grid grid-cols-12 gap-4" data-testid="dashboard-grid">
+          {spec.widgets.map((w, i) => (
+            <WidgetCard
+              key={w.id}
+              widget={w}
+              index={i}
+              count={spec.widgets.length}
+              values={payload.values}
+              period={current}
+              payload={payload}
+              editing={editing && !presenting}
+              presenting={presenting}
+              label={label}
+              onOpen={setSelected}
+              onEdit={(ops) => void propose(ops)}
+              onInvestigate={onInvestigate}
+            />
+          ))}
+        </div>
+        <Drawer
+          open={selected !== null}
+          label="Lineage"
+          onClose={() => {
+            setSelected(null);
+          }}
+        >
+          {selected === null ? null : (
+            <LineagePanel
+              selected={selected}
+              values={payload.values}
+              label={label}
+              display={display}
+              onSelect={setSelected}
+              onClose={() => {
+                setSelected(null);
+              }}
+            />
+          )}
+        </Drawer>
+      </div>
     </div>
   );
 }

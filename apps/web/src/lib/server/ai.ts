@@ -54,6 +54,101 @@ function reply(params: Params, content: unknown[]) {
   });
 }
 
+/**
+ * What the stand-in proposes for a change to the dashboard (ADR 0046), by the words of the
+ * request: a comparison box, a formula shown in a card, or the rename it always did. Every one is
+ * what the real stage's check accepts: allowed metrics, structural constants, no digits in words.
+ */
+function fakeDashboardChange(request: string) {
+  const asked = request.toLowerCase();
+  const suffix = crypto
+    .randomUUID()
+    .replace(/[^a-f]/gu, "")
+    .slice(0, 6)
+    .padEnd(6, "a");
+  const add = (path: string, value: unknown) => ({
+    op: "add",
+    path,
+    from: null,
+    value_json: JSON.stringify(value),
+  });
+  const box = (over: Record<string, unknown>) => ({
+    dimension: null,
+    periods: { kind: "current" },
+    drilldown: { kind: "lineage" },
+    compare: "none",
+    ...over,
+  });
+  if (asked.includes("compar") || asked.includes("versus") || asked.includes("against")) {
+    const lastYear = asked.includes("year");
+    return {
+      scope: "in_scope",
+      summary: lastYear
+        ? "Adds a box comparing revenue, gross profit and profit after tax with the same month last year."
+        : "Adds a box comparing revenue, gross profit and profit after tax with the previous month.",
+      operations: [
+        add(
+          "/widgets/-",
+          box({
+            id: `cmp_${suffix}`,
+            kind: "comparison",
+            title: lastYear
+              ? "This month against last year"
+              : "This month against last month",
+            metrics: ["revenue", "gross_profit", "pat"],
+            layout: { x: 0, y: 50, w: 6, h: 4 },
+            compare: lastYear ? "last_year" : "previous_month",
+          }),
+        ),
+      ],
+    };
+  }
+  if (asked.includes("share") || asked.includes("formula") || asked.includes("ratio")) {
+    const id = `calc_staff_share_${suffix}`;
+    return {
+      scope: "in_scope",
+      summary:
+        "Adds staff cost as a share of revenue, worked out from the books each month.",
+      operations: [
+        add("/calculated/-", {
+          id,
+          label: "Staff cost share of revenue",
+          unit: "percent",
+          expr: {
+            op: "mul",
+            args: [
+              { op: "div", args: [{ metric: "employee_cost" }, { metric: "revenue" }] },
+              { const: "100" },
+            ],
+          },
+        }),
+        add(
+          "/widgets/-",
+          box({
+            id: `kpi_staff_share_${suffix}`,
+            kind: "kpi_card",
+            title: "Staff cost share of revenue",
+            metrics: [id, `${id}.mom_abs`],
+            layout: { x: 0, y: 60, w: 3, h: 2 },
+          }),
+        ),
+      ],
+    };
+  }
+  return {
+    scope: "in_scope",
+    summary: "Renames the first card to Sales.",
+    operations: [
+      {
+        op: "replace",
+        path: "/widgets/0/title",
+        from: null,
+        value_json: JSON.stringify("Sales"),
+      },
+    ],
+  };
+}
+
 function fakeTransport(): AiTransport {
   return {
     create(params) {
@@ -89,18 +184,7 @@ function fakeTransport(): AiTransport {
       }
       let out: unknown;
       if (system.startsWith("You change a company's dashboard")) {
-        out = {
-          scope: "in_scope",
-          summary: "Renames the first card to Sales.",
-          operations: [
-            {
-              op: "replace",
-              path: "/widgets/0/title",
-              from: null,
-              value_json: JSON.stringify("Sales"),
-            },
-          ],
-        };
+        out = fakeDashboardChange(text.split("request:").pop() ?? "");
       } else if (system.startsWith("You summarise")) {
         out = { summary: "Earlier questions were about this company's figures." };
       } else if (/poem/iu.test(text)) {

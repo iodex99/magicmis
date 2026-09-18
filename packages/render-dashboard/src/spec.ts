@@ -2,8 +2,18 @@
  * Dashboard spec (SPEC §24.2): data, not code. A grid of widgets bound to metric IDs, dimensions
  * and periods; global period and dimension filters; drilldown to another widget or the lineage
  * panel. Renderers read only this spec and the metric store; nothing generated is executed.
+ *
+ * ADR 0046 made the dashboard something the chat builds: a `comparison` box, a last-year series on
+ * trend charts, and `calculated` metrics — formulas as data, computed by the engine. **Every
+ * addition is optional with a default**, because a saved dashboard is read strictly (ADR 0045): a
+ * field that an older saved dashboard lacks must never make it unreadable.
  */
 
+// The subpath, not the package root: this module reaches the browser, the engine does not.
+import {
+  calculatedMetricSchema,
+  metricsIn as metricIdsOf,
+} from "@magicmis/engine/calculated";
 import { z } from "zod";
 
 const id = z.string().regex(/^[a-z0-9_]{1,40}$/u);
@@ -17,7 +27,12 @@ export const WIDGET_KINDS = [
   "waterfall",
   "table",
   "ageing_chart",
+  /** Each metric this month against a basis month: both figures, the change and the change %. */
+  "comparison",
 ] as const;
+
+/** What a box compares against. On a trend chart `last_year` adds the same months a year back. */
+export const COMPARE_BASES = ["none", "previous_month", "last_year"] as const;
 
 export const widgetSchema = z
   .object({
@@ -46,6 +61,7 @@ export const widgetSchema = z
       z.object({ kind: z.literal("lineage") }),
       z.object({ kind: z.literal("widget"), widgetId: id }),
     ]),
+    compare: z.enum(COMPARE_BASES).default("none"),
   })
   .strict()
   .refine((w) => w.layout.x + w.layout.w <= 12, {
@@ -70,9 +86,26 @@ export const dashboardSpecSchema = z
       })
       .strict(),
     widgets: z.array(widgetSchema).max(40),
+    /** Formulas the customer asked for, computed by the engine (`evaluateCalculated`). */
+    calculated: z.array(calculatedMetricSchema).max(20).default([]),
   })
   .strict()
   .superRefine((spec, ctx) => {
+    const formulas = new Set<string>();
+    for (const c of spec.calculated) {
+      if (formulas.has(c.id))
+        ctx.addIssue({ code: "custom", message: `duplicate calculated metric ${c.id}` });
+      formulas.add(c.id);
+    }
+    for (const w of spec.widgets)
+      for (const m of w.metrics) {
+        const base = m.split(".")[0] ?? m;
+        if (base.startsWith("calc_") && !formulas.has(base))
+          ctx.addIssue({
+            code: "custom",
+            message: `widget ${w.id} shows ${base}, which has no formula in /calculated`,
+          });
+      }
     const ids = new Set<string>();
     for (const w of spec.widgets) {
       if (ids.has(w.id))
@@ -106,6 +139,7 @@ const w = (
   periods,
   layout,
   drilldown: { kind: "lineage" },
+  compare: "none",
 });
 
 /** Default dashboard for the Monthly Financial MIS template. */
@@ -170,3 +204,31 @@ export const DEFAULT_DASHBOARD: DashboardSpec = dashboardSpecSchema.parse({
     ),
   ],
 });
+
+const COMPARISON_SUFFIXES = new Set(["mom_abs", "mom_pct", "yoy_abs", "yoy_pct"]);
+const STORE_SUFFIXES = new Set([...COMPARISON_SUFFIXES, "ytd", "ly_ytd", "variance"]);
+
+/**
+ * Metric ids a dashboard shows that nothing will ever compute: not in the catalog, not a formula
+ * of this dashboard, or a suffix the store does not hold. Deliberately **not** part of the schema:
+ * a saved dashboard is read strictly (ADR 0045), and a catalog that later drops a metric must
+ * cost that box its figure, not the company its whole dashboard. It is checked where a change is
+ * proposed, so the chat is sent back to repair it before anything is stored.
+ */
+export function unknownMetrics(
+  spec: DashboardSpec,
+  catalogIds: ReadonlySet<string>,
+): string[] {
+  const formulas = new Set(spec.calculated.map((c) => c.id));
+  const bad = new Set<string>();
+  const check = (metricId: string, suffixes: ReadonlySet<string>) => {
+    const [base = "", suffix] = metricId.split(".");
+    const known = base.startsWith("calc_") ? formulas.has(base) : catalogIds.has(base);
+    const allowed = base.startsWith("calc_") ? COMPARISON_SUFFIXES : suffixes;
+    if (!known || (suffix !== undefined && !allowed.has(suffix))) bad.add(metricId);
+  };
+  for (const w of spec.widgets) for (const m of w.metrics) check(m, STORE_SUFFIXES);
+  for (const c of spec.calculated)
+    for (const m of metricIdsOf(c.expr)) check(m, STORE_SUFFIXES);
+  return [...bad];
+}

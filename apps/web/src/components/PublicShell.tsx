@@ -32,6 +32,7 @@ const FOOTER_GROUPS: readonly {
     links: [
       ["/ai-mis-report", "MIS with AI"],
       ["/chat-with-your-mis", "Chat with your MIS"],
+      ["/boardroom-ready-mis", "Boardroom-ready MIS"],
       ["/ai-variance-analysis", "AI variance analysis"],
       ["/ai-management-accounts", "AI management accounts"],
       ["/ai-financial-reporting", "AI financial reporting"],

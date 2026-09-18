@@ -62,6 +62,13 @@ const STAGES: readonly {
   },
   {
     n: "05",
+    title: "You chat the dashboard into shape, and present from it",
+    body: "The first dashboard is built for you. After that you say what the board should show — a comparison with last year, a trend, a ratio of your own — and it appears beside the chat, saved for that company.",
+    detail:
+      "The chat describes a box or writes a formula; it never writes a figure. The engine computes every number, including your own formulas, in exact arithmetic, and each one opens to its source. Present puts the dashboard full screen for the meeting. There is no export to slides, on purpose: a deck is out of date the moment it is made, and a number on a slide cannot be questioned.",
+  },
+  {
+    n: "06",
     title: "Next month reuses everything",
     body: "Load the new trial balance. If the ledger structure has not changed, the refresh makes no AI calls at all.",
     detail:
@@ -108,7 +115,7 @@ export default function HowItWorksPage() {
       <MarketingHeader
         path={PATH}
         eyebrow="How it works"
-        heading="Five stages, and what happens in each"
+        heading="Six stages, and what happens in each"
         intro="The interesting part of this product is not that it produces a workbook. It is where the numbers come from, what the model is allowed to touch, and why the second month costs so much less than the first."
       />
 

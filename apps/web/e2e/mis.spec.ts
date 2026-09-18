@@ -9,6 +9,7 @@ import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { periodLabel } from "@magicmis/render-dashboard";
 import { expect, test, type Page } from "@playwright/test";
 import pg from "pg";
 import * as XLSX from "xlsx";
@@ -382,7 +383,8 @@ test.describe("chat with the MIS", () => {
   test.beforeAll(async () => {
     // The local stack has no prompt activated (R-28); these tests drive the fake model.
     const r = await db.query<{ id: string }>(
-      `update tier_routing set prompt_version = 1 where stage = any($1) and prompt_version is null returning id`,
+      `update tier_routing set prompt_version = case when stage = 'chat_edit' then 2 else 1 end
+        where stage = any($1) and prompt_version is null returning id`,
       [CHAT_STAGES],
     );
     activated = r.rows.map((x) => x.id);
@@ -457,27 +459,51 @@ test.describe("chat with the MIS", () => {
     expect(steps.rows[0]?.row_count).toBeGreaterThan(0);
   });
 
-  test("edit proposes a patch, applies on confirmation, and undoes; Investigate opens a Deep question", async () => {
+  test("one box: a message that changes the dashboard says so, is applied as it is answered, and undoes; Investigate opens a Deep question", async () => {
     const id = await companyId();
     await page.goto(`/app/companies/${id}`);
-    await page
-      .getByTestId("chat-type")
-      .getByRole("radio", { name: "Change layout" })
-      .click();
-    await page.getByLabel("Your question").fill("Rename the first card to Sales");
+    const question = page.getByLabel("Your question");
+    // ADR 0046: no mode is picked. A question is a question…
+    await question.fill("Why did revenue fall in May?");
+    await expect(page.getByTestId("chat-building")).toHaveCount(0);
+    // …and a change to the dashboard is announced before it is sent, with a way out of it.
+    await question.fill("Rename the first card to Sales");
+    await expect(page.getByTestId("chat-building")).toContainText(
+      "This will update the dashboard",
+    );
+    await page.getByRole("button", { name: "Ask it instead" }).click();
+    await expect(page.getByTestId("chat-building")).toHaveCount(0);
+    await question.fill("");
+    await question.fill("Rename the first card to Sales");
+    await expect(page.getByTestId("chat-building")).toBeVisible();
     await page.getByTestId("chat-send").click();
-    await page.getByTestId("chat-edit").last().getByText("The exact change").click();
+
+    // Nothing to accept: the dashboard beside the conversation already shows it.
+    const edit = page.getByTestId("chat-edit").last();
+    await expect(edit).toContainText("Done. It is on the dashboard", { timeout: 60_000 });
+    await expect(edit.getByRole("button", { name: "Apply change" })).toHaveCount(0);
+    await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Sales");
+    await edit.getByText("The exact change").click();
     await expect(page.getByTestId("chat-edit-preview").last()).toContainText(
       "/widgets/0/title",
     );
-    await page.getByRole("button", { name: "Apply change" }).click();
-    await expect(page.getByTestId("chat-edit").last()).toContainText(
-      "Applied to the dashboard",
-    );
-    // The dashboard beside the conversation reloads with the change.
+    // It is still applied after a reload, and one press undoes it.
+    await page.reload();
     await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Sales");
-    await page.getByRole("button", { name: "Undo last change" }).click();
+    // The conversation is in History, newest first, and still says what it did.
+    await page.getByRole("button", { name: "History" }).click();
+    await page.getByTestId("assistant-history").getByRole("button").first().click();
+    await expect(page.getByTestId("chat-edit").last()).toContainText(
+      "Done. It is on the dashboard",
+    );
+    await page
+      .getByTestId("chat-edit")
+      .last()
+      .getByRole("button", { name: "Undo" })
+      .click();
     await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Revenue");
+    await expect(page.getByTestId("chat-edit").last()).toContainText("Undone");
+
     await page
       .getByTestId("widget-kpi_revenue")
       .getByRole("button", { name: "Investigate" })
@@ -487,6 +513,127 @@ test.describe("chat with the MIS", () => {
     await expect(page.getByLabel("Your question")).toHaveValue(
       /Why did Revenue from operations move/u,
     );
+    await page.getByLabel("Your question").fill("");
+    await page
+      .getByTestId("chat-type")
+      .getByRole("radio", { name: "Ask", exact: true })
+      .click();
+
+    // After a reload the reply no longer claims a change the dashboard has moved past, and no
+    // longer offers an Undo that could only fail.
+    await page.reload();
+    await expect(page.getByTestId("widget-kpi_revenue")).toContainText("Revenue");
+    await page.getByRole("button", { name: "History" }).click();
+    await page.getByTestId("assistant-history").getByRole("button").first().click();
+    await expect(page.getByTestId("chat-edit-moved").last()).toContainText(
+      "The dashboard has changed since",
+    );
+    await expect(
+      page.getByTestId("chat-edit").last().getByRole("button", { name: "Undo" }),
+    ).toHaveCount(0);
+  });
+
+  test("the dashboard is built by chatting: a comparison box and a formula the engine computes, then presented full screen", async () => {
+    const id = await companyId();
+    await page.goto(`/app/companies/${id}`);
+    const question = page.getByLabel("Your question");
+    await expect(page.getByTestId("widget-kpi_revenue")).toBeVisible();
+    const before = await page.locator("section[data-testid^='widget-']").count();
+    const MAY = periodLabel("2026-05");
+    const APRIL = periodLabel("2026-04");
+    const MAY_LAST_YEAR = periodLabel("2025-05");
+
+    await question.fill("Add a box comparing revenue and profit with last year");
+    await expect(page.getByTestId("chat-building")).toBeVisible();
+    await page.getByTestId("chat-send").click();
+    const comparison = page.getByTestId("comparison");
+    await expect(comparison).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator("section[data-testid^='widget-']")).toHaveCount(before + 1);
+    // This month, the same month last year, and the change: three figures a row, all the
+    // engine's own, each open to its lineage.
+    for (const head of [MAY, MAY_LAST_YEAR, "Change"])
+      await expect(comparison.getByRole("columnheader", { name: head })).toBeVisible();
+    const revenueRow = comparison.getByRole("row").filter({ hasText: "Revenue" });
+    await expect(revenueRow.locator("[data-metric-key='revenue@2026-05']")).toBeVisible();
+    await expect(revenueRow.locator("[data-metric-key='revenue@2025-05']")).toBeVisible();
+    await expect(
+      revenueRow.locator("[data-metric-key='revenue.yoy_abs@2026-05']"),
+    ).toBeVisible();
+
+    // A figure the catalog does not hold. The chat wrote the formula; the engine did the sum.
+    await question.fill("Add a card showing staff cost as a share of revenue");
+    await page.getByTestId("chat-send").click();
+    const card = page
+      .locator("section[data-testid^='widget-kpi_staff_share']")
+      .filter({ hasText: "Staff cost share of revenue" });
+    await expect(card).toBeVisible({ timeout: 60_000 });
+    const figure = card
+      .locator("[data-metric-key^='calc_staff_share'][data-metric-key$='@2026-05']")
+      .first();
+    await expect(figure).toHaveText(/^\d+\.\d%$/u);
+    await figure.click();
+    await expect(page.getByTestId("lineage-panel")).toContainText(
+      "Staff cost share of revenue = (Employee cost ÷ Revenue from operations) × 100",
+    );
+    await expect(page.getByTestId("lineage-panel")).toContainText("Employee cost");
+    await page.keyboard.press("Escape");
+
+    // Exactly what the engine computes from the two stored figures, to the displayed place.
+    const stored = await page.evaluate(async (companyId) => {
+      const r = await fetch(`/api/companies/${companyId}/dashboard`);
+      const body = (await r.json()) as {
+        values: { metricId: string; period: string; value: string | null }[];
+      };
+      const at = (metricId: string) =>
+        body.values.find((v) => v.metricId === metricId && v.period === "2026-05")?.value;
+      return {
+        revenue: at("revenue"),
+        staff: at("employee_cost"),
+        share: body.values.find(
+          (v) =>
+            v.metricId.startsWith("calc_staff_share") &&
+            !v.metricId.includes(".") &&
+            v.period === "2026-05",
+        )?.value,
+      };
+    }, id);
+    const expected =
+      (BigInt(stored.staff ?? "0") * 100n * 1_000_000n * 2n +
+        BigInt(stored.revenue ?? "1")) /
+      (BigInt(stored.revenue ?? "1") * 2n);
+    // Half-up here and half-even in the engine agree except on an exact tie, which this is not.
+    expect(stored.share?.replace(".", "")).toBe(expected.toString());
+
+    // Present: the dashboard alone, nothing to operate, months on the arrow keys, Esc to leave.
+    await expect(page.getByRole("button", { name: /Print/u })).toHaveCount(0);
+    await expect(page.getByTestId("latest-workbook")).toHaveCount(0);
+    await page.getByTestId("present").click();
+    const stage = page.getByTestId("stage");
+    await expect(stage).toHaveAttribute("data-presenting", "true");
+    await expect(page.getByTestId("present-period")).toHaveText(MAY);
+    await expect(stage.getByRole("button", { name: "Investigate" })).toHaveCount(0);
+    // It covers the window whether or not the browser granted the whole screen.
+    const box = await stage.boundingBox();
+    const viewport = page.viewportSize();
+    expect([box?.x, box?.y]).toEqual([0, 0]);
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual((viewport?.width ?? 0) - 20);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual((viewport?.height ?? 0) - 20);
+    // The chat launcher, the rail and the edit controls are all behind it.
+    await expect(stage.getByTestId("comparison")).toBeVisible();
+    await page.keyboard.press("ArrowLeft");
+    await expect(page.getByTestId("present-period")).toHaveText(APRIL);
+    await page.keyboard.press("ArrowRight");
+    await expect(page.getByTestId("present-period")).toHaveText(MAY);
+    // A director asks where a number came from: it still opens, on the stage.
+    await stage.locator("[data-metric-key='revenue@2026-05']").first().click();
+    await expect(stage.getByTestId("lineage-panel")).toContainText("revenue");
+    await stage
+      .getByTestId("lineage-panel")
+      .getByRole("button", { name: "Close" })
+      .click();
+    await page.getByTestId("present-exit").click();
+    await expect(stage).toHaveAttribute("data-presenting", "false");
+    await expect(page.getByRole("button", { name: "Edit layout" })).toBeVisible();
   });
 });
 

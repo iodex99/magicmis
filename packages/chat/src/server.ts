@@ -48,7 +48,12 @@ import {
   openForCompany,
   sealForCompany,
 } from "@magicmis/engine/server";
-import { DashboardError, readStoredDashboard, readStoredTemplate } from "@magicmis/jobs";
+import {
+  applyDashboardPatch,
+  DashboardError,
+  readStoredDashboard,
+  readStoredTemplate,
+} from "@magicmis/jobs";
 import { assertNoRawIdentifiers } from "@magicmis/redact";
 import { METRIC_CATALOG } from "@magicmis/templates";
 import {
@@ -372,6 +377,13 @@ interface StoredEdit {
   readonly target: "dashboard" | "template";
   readonly baseVersion: number;
   readonly operations: unknown[];
+  /**
+   * The blueprint version this change became when it was applied as it was proposed (ADR 0046),
+   * or null when it is still only a proposal: a change to the MIS template, which waits for the
+   * customer to confirm, or a dashboard change that lost a race and can be applied by hand.
+   * Absent on replies stored before ADR 0046.
+   */
+  readonly appliedVersion?: number | null;
 }
 type StoredReply = StoredAnswer | StoredEdit;
 
@@ -569,6 +581,25 @@ async function fail(env: Env, msg: MessageRow, reason: string): Promise<ChatProg
   return { status: "failed", reason };
 }
 
+/** Rewrites a stored edit reply to say which version it became once it was applied. */
+async function recordApplied(
+  env: Env,
+  msg: MessageRow,
+  reply: StoredEdit,
+): Promise<void> {
+  const scope = { accountId: msg.account_id, companyId: msg.company_id };
+  const row = await env.pool.query<{ id: string }>(
+    `select id from public.chat_messages where reply_to = $1 and role = 'assistant' order by created_at desc limit 1`,
+    [msg.id],
+  );
+  const replyId = row.rows[0]?.id;
+  if (replyId === undefined) return;
+  await env.pool.query(`update public.chat_messages set content = $2 where id = $1`, [
+    replyId,
+    await seal(env.pool, env.wrapper, scope, "chat.reply", replyId, reply),
+  ]);
+}
+
 const isAiFailure = (e: unknown) =>
   e instanceof AiStageError ||
   e instanceof RoutingError ||
@@ -653,20 +684,43 @@ export async function processMessage(
         request: content.text,
       });
       const { ops } = editOperations(r.output);
-      return await finish(
-        env,
-        msg,
-        {
-          kind: "edit",
-          scope: r.output.scope,
-          summary: r.output.summary,
-          target,
-          baseVersion: blueprint.version,
-          operations: ops,
-        },
-        { values: [], queries: [] },
-        0,
-      );
+      // The customer chats and the dashboard follows (ADR 0046): a dashboard change that passed
+      // every check is applied as it is answered, and the reply offers Undo. It is a layout over
+      // figures the engine computes, and one step from being undone, so nothing is gained by
+      // asking first. A change to the MIS template alters the next workbook and still waits for
+      // a confirmation.
+      //
+      // The order is charge, then apply, then record. Applying first would hand the change over
+      // for nothing if the capture then failed: the message would be swept as a platform fault
+      // and its hold released. This way round, the worst a failure leaves is a change that was
+      // paid for and is still a proposal, which the customer applies by hand at no charge.
+      const reply: StoredEdit = {
+        kind: "edit",
+        scope: r.output.scope,
+        summary: r.output.summary,
+        target,
+        baseVersion: blueprint.version,
+        operations: ops,
+        appliedVersion: null,
+      };
+      const progress = await finish(env, msg, reply, { values: [], queries: [] }, 0);
+      if (target === "dashboard" && r.output.scope === "in_scope") {
+        try {
+          const applied = await applyDashboardPatch(pool, wrapper, {
+            ...scope,
+            baseVersion: blueprint.version,
+            operations: ops,
+          });
+          await recordApplied(env, msg, {
+            ...reply,
+            appliedVersion: applied.blueprintVersion,
+          });
+        } catch (error) {
+          // Losing a race with another edit leaves it a proposal; it is not a failed message.
+          if (!(error instanceof DashboardError)) throw error;
+        }
+      }
+      return progress;
     }
 
     const store = await companyMetricValues(pool, wrapper, scope);

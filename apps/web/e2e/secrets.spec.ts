@@ -51,6 +51,7 @@ const STATIC_PATHS = [
   "/automated-management-accounts",
   "/monthly-financial-reporting",
   "/chat-with-your-mis",
+  "/boardroom-ready-mis",
   "/ai-variance-analysis",
   "/ai-management-accounts",
   "/ai-financial-reporting",

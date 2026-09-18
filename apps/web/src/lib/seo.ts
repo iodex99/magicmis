@@ -40,6 +40,12 @@ export interface PublicPage {
    * so a revised page is re-read and an unchanged one is not re-crawled for nothing.
    */
   readonly updated: string;
+  /**
+   * The phrases this page is written to be found by (ADR 0046). They go out as the page's
+   * keywords meta tag and into llms.txt. Search engines rank on the copy, not on this tag, so
+   * every phrase here must also be said, in a sentence, on the page itself.
+   */
+  readonly keywords?: readonly string[];
 }
 
 /**
@@ -82,13 +88,24 @@ export const REPORT_NAMES: readonly {
 export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
     path: "/",
-    title: `${PRODUCT_NAME} — monthly MIS and management accounts from your raw data`,
+    title: `${PRODUCT_NAME} — boardroom-ready MIS and management accounts from your raw data`,
     description:
-      "Turn the raw trial balance from any accounting system into a checked Excel MIS with live formulas, a dashboard and written commentary. Prepaid credits, no subscription.",
+      "Dump the raw trial balance from any accounting system and get a checked Excel MIS, a dashboard you build by chatting, and commentary. Present it live; every figure traces to its source.",
     changeFrequency: "weekly",
     priority: 1,
     locale: "en_US",
-    updated: "2026-09-18",
+    updated: "2026-09-19",
+    keywords: [
+      "MIS from raw data",
+      "dump raw data get MIS",
+      "boardroom-ready MIS",
+      "chat with your MIS",
+      "build a dashboard by chatting",
+      "AI MIS report",
+      "management accounts software",
+      "monthly financial reporting",
+      "trial balance to dashboard",
+    ],
   },
   {
     path: "/product",
@@ -254,11 +271,42 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/chat-with-your-mis",
     title: "Chat with your MIS: ask your financial data in plain English",
     description:
-      "Chat with your MIS or management accounts: ask why a margin moved or who is overdue, and get an answer where every number is computed from your books and links to its source.",
+      "Chat with your MIS or management accounts: ask why a margin moved, or say what to put on the dashboard. Every number is computed from your books and links to its source.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_US",
-    updated: "2026-09-18",
+    updated: "2026-09-19",
+    keywords: [
+      "chat with MIS",
+      "chat with your financial data",
+      "chat with Tally data",
+      "MIS chatbot",
+      "ask questions of management accounts",
+      "AI finance assistant",
+      "build dashboard with chat",
+    ],
+  },
+  {
+    path: "/boardroom-ready-mis",
+    title: "Boardroom-ready MIS from your raw data: chat to build it, present it live",
+    description:
+      "Dump your raw accounting data and get a checked MIS. Build the board by chatting: comparisons, trends against last year, your own formulas. Present it live, every figure traceable.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_US",
+    updated: "2026-09-19",
+    keywords: [
+      "boardroom-ready MIS",
+      "dump raw data",
+      "raw data to MIS",
+      "board meeting dashboard",
+      "board pack dashboard",
+      "AI dashboard builder for finance",
+      "build a dashboard by chatting",
+      "present MIS dashboard",
+      "trial balance to dashboard",
+      "dynamic MIS dashboard",
+    ],
   },
   {
     path: "/ai-variance-analysis",
@@ -413,6 +461,7 @@ export const SOLUTION_PATHS: readonly string[] = [
   "/management-reporting-software",
   "/ai-mis-report",
   "/chat-with-your-mis",
+  "/boardroom-ready-mis",
   "/ai-variance-analysis",
   "/ai-management-accounts",
   "/ai-financial-reporting",
@@ -469,6 +518,7 @@ export function pageMetadata(path: string): Metadata {
   return {
     title: { absolute: page.title },
     description: page.description,
+    ...(page.keywords === undefined ? {} : { keywords: [...page.keywords] }),
     alternates: { canonical: url },
     openGraph: {
       type: "website",

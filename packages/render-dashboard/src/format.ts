@@ -80,6 +80,23 @@ export function metricLabel(metricId: string): string {
 }
 
 /**
+ * Labels for one dashboard: its own formulas by the names the customer gave them (ADR 0046), the
+ * catalog's otherwise.
+ */
+export function labelsFor(
+  calculated: readonly { readonly id: string; readonly label: string }[],
+): (metricId: string) => string {
+  const own = new Map(calculated.map((c) => [c.id, c.label]));
+  return (metricId) => {
+    const [base = "", suffix] = metricId.split(".");
+    const label = own.get(base);
+    if (label === undefined) return metricLabel(metricId);
+    if (suffix === undefined) return label;
+    return `${label}, ${SUFFIXES[suffix] ?? suffix.replace(/_/gu, " ")}`;
+  };
+}
+
+/**
  * How the company's own books are written, in words: what a reader needs to know before
  * reading a figure on a chart axis or a card (ADR 0034). `millions` shows figures divided
  * by a million with no suffix, so the scale has to be said somewhere on the screen.

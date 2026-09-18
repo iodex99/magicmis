@@ -2,7 +2,7 @@
 
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import type { PeriodId } from "@magicmis/core/time";
-import { companyFormat, metricLabel } from "@magicmis/render-dashboard";
+import { companyFormat } from "@magicmis/render-dashboard";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
@@ -59,6 +59,7 @@ export function Workspace({
   const [focusNonce, setFocusNonce] = useState(0);
 
   const [layoutVersion, setLayoutVersion] = useState(0);
+  const [dashboardVersion, setDashboardVersion] = useState<number | null>(null);
   const layoutChanged = useCallback(() => {
     setLayoutVersion((v) => v + 1);
   }, []);
@@ -107,8 +108,7 @@ export function Workspace({
   }, [chatOpen, openChat, closeChat]);
 
   const investigate = useCallback(
-    (metric: string, period: PeriodId) => {
-      const name = metricLabel(metric.split(".")[0] ?? metric);
+    (metric: string, period: PeriodId, name: string) => {
       // Opened for the reader, and remembered as open: they asked a question of it.
       setChatOpen(true);
       remember(CHAT_COOKIE, "open");
@@ -133,6 +133,7 @@ export function Workspace({
           companyId={companyId}
           onInvestigate={investigate}
           reloadKey={layoutVersion}
+          onVersion={setDashboardVersion}
         />
         {children}
       </div>
@@ -154,6 +155,7 @@ export function Workspace({
           focusNonce={focusNonce}
           onCollapse={closeChat}
           onLayoutChanged={layoutChanged}
+          dashboardVersion={dashboardVersion}
         />
       </div>
 

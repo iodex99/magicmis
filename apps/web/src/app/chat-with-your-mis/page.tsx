@@ -37,7 +37,7 @@ const QUESTIONS: readonly string[] = [
   "Which customers make up most of the overdue receivables?",
   "What does working capital look like compared with March?",
   "How much of the revenue growth came from the top five customers?",
-  "Move the cash card to the top and rename it “Cash and bank”.",
+  "Add a box comparing revenue and profit with the same month last year.",
 ];
 
 const STEPS: readonly {
@@ -91,7 +91,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Can it change the dashboard as well as answer questions?",
     answer:
-      "Yes. Ask it to rename, reorder or remove cards and it shows a preview first; nothing is saved until you accept, and you can undo it afterwards.",
+      "Yes, and that is how the dashboard is built. Say what you want on it — a comparison box, a trend against last year, a formula of your own, a card renamed or moved — and it appears beside the chat as the reply arrives, saved for that company, with Undo on every change. The chat writes the layout and the formula; the engine computes every figure.",
   },
 ];
 
@@ -172,7 +172,7 @@ export default function ChatWithYourMisPage() {
           </li>
           <li>
             Write to your books. It reads the months you loaded, and the only thing it can
-            change is your dashboard’s layout, with your approval.
+            change is your own dashboard, where every change can be undone.
           </li>
         </ul>
       </Section>
@@ -183,7 +183,9 @@ export default function ChatWithYourMisPage() {
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/mis-dashboard", "/ai-variance-analysis", "/ai-mis-report"]} />
+      <ReadNext
+        paths={["/boardroom-ready-mis", "/mis-dashboard", "/ai-variance-analysis"]}
+      />
       <ClosingCta
         heading="Ask your own month a question"
         body={`Create an account, add a company, and drop in last month's raw trial balance. ${PRODUCT_NAME} builds the MIS — then you can chat with it.`}

@@ -5,6 +5,8 @@ import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { readConfig } from "@magicmis/db/config";
 import type { MetricValue } from "@magicmis/engine";
+import { evaluateCalculated } from "@magicmis/engine/calculated";
+import { labelsFor } from "@magicmis/render-dashboard";
 import { latestSnapshot } from "@magicmis/engine/server";
 import {
   commentaryForJob,
@@ -113,10 +115,22 @@ export async function dashboardPayload(
   const dashboard = await companyDashboard(pool, keyWrapper(), { accountId, companyId });
   const through = dashboard?.dataThrough ?? null;
   const paid = (period: string) => through !== null && period <= through;
+  const stored = metrics.values.filter((v) => paid(v.period));
+  // Formulas the customer asked the chat for (ADR 0046): computed here by the engine, exactly,
+  // from the months the dashboard has been paid for, and handed over as ordinary metric values
+  // — so a calculated figure is drawn, formatted and traced like any other.
+  const calculated =
+    dashboard === null
+      ? []
+      : evaluateCalculated(
+          dashboard.spec.calculated,
+          stored,
+          labelsFor(dashboard.spec.calculated),
+        );
   return {
     company: metrics.company,
     periods: metrics.periods.filter(paid),
-    values: metrics.values.filter((v) => paid(v.period)),
+    values: [...stored, ...calculated],
     dashboard,
     latestPeriod: metrics.periods[0] ?? null,
   };

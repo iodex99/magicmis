@@ -63,7 +63,7 @@ export function MarketingHeader({
           className="inline-flex items-center gap-1.5 text-[0.875rem] font-medium text-neutral-600 hover:text-accent-700"
         >
           <Icon name="play" className="size-4" />
-          Watch the 30-second tour
+          Watch the 40-second tour
         </Link>
       </div>
       <p className="mt-3 text-[0.8125rem] text-neutral-500">
@@ -342,16 +342,13 @@ export function AlsoCalled({ path }: { path: string }) {
 
 /**
  * The product tour (ADR 0037, ADR 0041), served from `public/brand/` and rendered frame by
- * frame by `e2e/support/record-tour.ts`. The recording has no soundtrack, so the caption says
- * so rather than leaving a viewer hunting for a volume control.
+ * frame by `e2e/support/record-tour.ts`. It carries no caption (the owner removed it): the
+ * film's own closing card says its figures are fictional, which is where SPEC §2.3 needs it said.
  */
 export function TourVideo() {
   return (
     <figure className="mx-auto w-full max-w-[960px]">
       <TourPlayer />
-      <figcaption className="mt-3 text-center text-[0.8125rem] text-neutral-500">
-        Thirty seconds, no sound. Figures shown are from a fictional company.
-      </figcaption>
     </figure>
   );
 }

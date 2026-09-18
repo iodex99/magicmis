@@ -19,9 +19,9 @@ const TOUR = {
   title: `${PRODUCT_NAME} — the tour`,
   thumbnail_loc: absoluteUrl("/brand/tour-poster.png"),
   description:
-    "A silent, thirty-second tour: raw data in, ledgers mapped, a checked workbook and dashboard out, and a chat that answers from the figures.",
+    "A silent, forty-second tour: raw data in, ledgers mapped, a checked workbook and dashboard out, a chat that answers from the figures and builds the dashboard, and Present for the boardroom. Figures shown are fictional.",
   content_loc: absoluteUrl("/brand/tour.webm"),
-  duration: 32,
+  duration: 39,
   family_friendly: "yes" as const,
 };
 

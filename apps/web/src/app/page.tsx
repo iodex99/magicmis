@@ -167,12 +167,9 @@ export default function HomePage() {
                 className="inline-flex items-center gap-1.5 text-[0.875rem] font-medium text-neutral-600 hover:text-accent-700"
               >
                 <Icon name="play" className="size-4" />
-                Watch the 30-second tour
+                Watch the 40-second tour
               </Link>
             </div>
-            <p className="mt-4 text-[0.8125rem] text-neutral-500">
-              Prepaid credits, priced per action. No free tier, no trial, no subscription.
-            </p>
           </div>
 
           {/* Illustration only. Fictional figures, stated as such (SPEC §2.3). */}
@@ -261,7 +258,7 @@ export default function HomePage() {
         className="mx-auto w-full max-w-[1120px] scroll-mt-20 px-6 pb-16"
       >
         <div className="mx-auto mb-7 max-w-2xl text-center">
-          <p className="eyebrow">The whole thing, in thirty seconds</p>
+          <p className="eyebrow">The whole thing, in forty seconds</p>
           <h2 className="display mt-2 text-[1.75rem] leading-tight font-semibold tracking-tight text-neutral-900">
             Raw data in. A checked MIS out. Then chat with it.
           </h2>

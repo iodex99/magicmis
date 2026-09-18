@@ -31,7 +31,17 @@ export async function GET(_request: Request, context: Ctx): Promise<Response> {
 }
 
 // Operations are validated as RFC 6902 and against the spec schema on the server.
-const operations = z.array(z.unknown()).max(100);
+/**
+ * What the dashboard's own controls do, and all the browser may send here: rename, move, resize,
+ * add or remove a **box**. Formulas (`/calculated`), the filters and the document root are not
+ * reachable from this endpoint. They change through the chat, where a change is checked against
+ * what may be computed and is a priced action (ADR 0046); leaving them open here would let a
+ * modified client define formulas past both.
+ */
+const boxPath = z.string().regex(/^\/widgets\//u);
+const operations = z
+  .array(z.looseObject({ path: boxPath, from: boxPath.optional() }))
+  .max(100);
 const bodySchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("preview"),

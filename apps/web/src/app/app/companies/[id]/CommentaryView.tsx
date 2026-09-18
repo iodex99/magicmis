@@ -179,15 +179,6 @@ export function CommentaryView({
                   <div className="flex shrink-0 gap-2">
                     <Button
                       variant="secondary"
-                      icon="document"
-                      onClick={() => {
-                        window.print();
-                      }}
-                    >
-                      Print or save as PDF
-                    </Button>
-                    <Button
-                      variant="secondary"
                       onClick={() => {
                         setReport(false);
                       }}

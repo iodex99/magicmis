@@ -13,9 +13,11 @@ import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import { latestBlueprint, storeBlueprint, storeSnapshot } from "@magicmis/engine/server";
 import {
   applyDashboardPatch,
+  companyDashboard,
   completeDashboardAddon,
   confirmJob,
   createJob,
+  undoDashboard,
 } from "@magicmis/jobs";
 import { MONTHLY_FINANCIAL_MIS } from "@magicmis/templates";
 import { priceFor } from "@magicmis/wallet";
@@ -505,7 +507,7 @@ describe("Deep", () => {
 });
 
 describe("Edit", () => {
-  it("proposes a validated patch that applies as a new dashboard version", async () => {
+  it("applies a validated dashboard change as it is proposed, and it can be undone", async () => {
     const c = await company();
     const job = await createJob(pool(), {
       ...c,
@@ -564,12 +566,72 @@ describe("Edit", () => {
     expect(reply.operations).toEqual([
       { op: "replace", path: "/widgets/0/title", value: "Sales" },
     ]);
-    const applied = await applyDashboardPatch(pool(), wrapper, {
-      ...c,
-      baseVersion: reply.baseVersion,
-      operations: reply.operations,
+    // ADR 0046: the customer chats and the dashboard follows. Nothing waits for an Apply.
+    expect(reply.appliedVersion).toBe(reply.baseVersion + 1);
+    const after = await companyDashboard(pool(), wrapper, c);
+    expect(after).toMatchObject({
+      blueprintVersion: reply.appliedVersion,
+      canUndo: true,
     });
-    expect(applied.spec.widgets[0]?.title).toBe("Sales");
+    expect(after?.spec.widgets[0]?.title).toBe("Sales");
+    // Applying it again by hand is refused rather than doubled: the base has moved on.
+    await expect(
+      applyDashboardPatch(pool(), wrapper, {
+        ...c,
+        baseVersion: reply.baseVersion,
+        operations: reply.operations,
+      }),
+    ).rejects.toMatchObject({ code: "stale" });
+    const undone = await undoDashboard(pool(), wrapper, {
+      ...c,
+      baseVersion: reply.appliedVersion ?? 0,
+    });
+    expect(undone.spec.widgets[0]?.title).toBe("Revenue");
+  });
+
+  it("a change to the MIS template is proposed and waits for the customer", async () => {
+    const c = await company();
+    const sent = await sendMessage(pool(), wrapper, {
+      ...c,
+      threadId: null,
+      type: "edit",
+      tier: "professional",
+      text: "Call the first row Sales",
+      editTarget: "template",
+      idempotencyKey: randomUUID(),
+    });
+    const t = new ScriptedTransport([
+      {
+        kind: "message",
+        message: message(
+          JSON.stringify({
+            scope: "in_scope",
+            summary: "Renames the first row.",
+            operations: [
+              {
+                op: "replace",
+                path: "/sections/0/rows/0/label",
+                from: null,
+                value_json: JSON.stringify("Sales"),
+              },
+            ],
+          }),
+        ),
+      },
+    ]);
+    await processMessage(pool(), wrapper, t, {
+      accountId: c.accountId,
+      messageId: sent.messageId,
+    });
+    const view = await threadView(pool(), wrapper, {
+      accountId: c.accountId,
+      threadId: sent.threadId,
+    });
+    const reply = view?.messages.find((m) => m.role === "assistant")?.reply;
+    if (reply?.kind !== "edit") throw new Error("no edit");
+    expect(reply.appliedVersion).toBeNull();
+    // Still version one: the next workbook is not changed by a sentence in a chat.
+    expect((await latestBlueprint(pool(), wrapper, c))?.version).toBe(1);
   });
 });
 

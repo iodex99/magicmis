@@ -6,8 +6,8 @@
  */
 
 import { patchDocument } from "@magicmis/core/json-patch";
-import { checkPlaceholderTexts } from "@magicmis/engine";
-import { dashboardSpecSchema } from "@magicmis/render-dashboard";
+import { checkPlaceholderTexts, formulaProblems } from "@magicmis/engine";
+import { dashboardSpecSchema, unknownMetrics } from "@magicmis/render-dashboard";
 import { templateSpecSchema } from "@magicmis/templates";
 import { z } from "zod";
 
@@ -220,16 +220,120 @@ export const chatEditStageSpec: StageSpec<ChatEditInput, ChatEditOutput> = {
     const { ops, problems } = editOperations(output);
     if (problems.length > 0) return problems;
     if (/\p{Nd}/u.test(output.summary)) problems.push("summary: must not contain digits");
-    const schema =
-      input.target === "dashboard" ? dashboardSpecSchema : templateSpecSchema;
-    const r = patchDocument(input.spec, ops, schema);
-    if (!r.ok) problems.push(...r.errors.map((e) => `patch: ${e}`));
     const known = new Set(input.metrics.map((m) => m.id));
+    problems.push(
+      ...wordsWithFigures(ops, input.request),
+      ...inventedConstants(ops, input.request),
+    );
+    if (input.target === "dashboard") {
+      const r = patchDocument(input.spec, ops, dashboardSpecSchema);
+      if (!r.ok) {
+        problems.push(...r.errors.map((e) => `patch: ${e}`));
+        return problems;
+      }
+      // Only what this change brings in is judged. A saved dashboard that names a metric the
+      // catalog has since dropped costs that box its figure; it must not stop every later
+      // change, twice over, at our expense (ADR 0046).
+      const before = dashboardSpecSchema.safeParse(input.spec);
+      const was = before.success ? before.data : null;
+      const stale = new Set(was === null ? [] : unknownMetrics(was, known));
+      for (const m of unknownMetrics(r.value, known))
+        if (!stale.has(m))
+          problems.push(
+            `metric ${m} is not allowed: use an allowed id or define a formula`,
+          );
+      // A formula must be a fact about the company, not a number somebody chose.
+      const had = new Map((was?.calculated ?? []).map((c) => [c.id, JSON.stringify(c)]));
+      for (const c of r.value.calculated)
+        if (had.get(c.id) !== JSON.stringify(c)) problems.push(...formulaProblems(c));
+      return problems;
+    }
+    const r = patchDocument(input.spec, ops, templateSpecSchema);
+    if (!r.ok) problems.push(...r.errors.map((e) => `patch: ${e}`));
     for (const m of JSON.stringify(ops).matchAll(/"metric"\s*:\s*"([^"]+)"/gu))
       if (!known.has(m[1] ?? "")) problems.push(`metric ${m[1] ?? ""} is not allowed`);
     return problems;
   },
 };
+
+/**
+ * Locked decision 7, for a change to a layout: the model writes names, never figures. A title or
+ * label may carry digits only if the customer typed them ("call it FY 2026 revenue"); anything
+ * else is refused, so "Revenue, 7.4 crore" can never be pinned to a board as if it had been
+ * computed.
+ */
+function wordsWithFigures(ops: readonly unknown[], request: string): string[] {
+  const typed = new Set([...request.matchAll(/\p{Nd}+/gu)].map((m) => m[0]));
+  const problems: string[] = [];
+  const walk = (value: unknown, key: string | null, path: string) => {
+    if (typeof value === "string") {
+      const named = key === "title" || key === "label" || /\/(title|label)$/u.test(path);
+      const own = [...value.matchAll(/\p{Nd}+/gu)].filter((m) => !typed.has(m[0]));
+      if (named && own.length > 0)
+        problems.push(
+          `${path}: a title or label may contain only digits the customer typed; write other counts in words`,
+        );
+    } else if (Array.isArray(value))
+      value.forEach((v) => {
+        walk(v, null, path);
+      });
+    else if (value !== null && typeof value === "object")
+      for (const [k, v] of Object.entries(value)) walk(v, k, `${path}/${k}`);
+  };
+  for (const op of ops) {
+    const o = op as { path?: string; value?: unknown };
+    walk(o.value, null, o.path ?? "");
+  }
+  return problems;
+}
+
+/** Percentages and the calendar: what a formula needs that is not a fact about the company. */
+const STRUCTURAL_CONSTANTS = new Set([
+  "1",
+  "2",
+  "4",
+  "7",
+  "12",
+  "30",
+  "100",
+  "360",
+  "365",
+]);
+
+/**
+ * A constant in a formula is either structural or one the customer typed. The model may not
+ * bring a number of its own into a computation: that would be a figure it wrote, reaching an
+ * output through the back door.
+ */
+function inventedConstants(ops: readonly unknown[], request: string): string[] {
+  const typed = new Set(
+    [...request.replace(/,/gu, "").matchAll(/\d+(?:\.\d+)?/gu)].map((m) =>
+      normaliseConstant(m[0]),
+    ),
+  );
+  const problems: string[] = [];
+  const walk = (value: unknown) => {
+    if (Array.isArray(value)) value.forEach(walk);
+    else if (value !== null && typeof value === "object") {
+      const c = (value as { const?: unknown }).const;
+      if (typeof c === "string") {
+        const n = normaliseConstant(c.replace("-", ""));
+        if (!STRUCTURAL_CONSTANTS.has(n) && !typed.has(n))
+          problems.push(
+            `constant ${c}: a formula may use only a number the customer gave or a structural one (${[...STRUCTURAL_CONSTANTS].join(", ")})`,
+          );
+      }
+      Object.values(value).forEach(walk);
+    }
+  };
+  for (const op of ops) walk((op as { value?: unknown }).value);
+  return problems;
+}
+
+const normaliseConstant = (s: string): string =>
+  s.includes(".")
+    ? s.replace(/0+$/u, "").replace(/\.$/u, "")
+    : s.replace(/^0+(?=\d)/u, "");
 
 export function chatEditSpec(
   ctx: AiContext,
