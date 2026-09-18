@@ -129,10 +129,8 @@ export default function MisInMinutesPage() {
           It must tie back to the trial balance before you receive it.
         </p>
         <p>
-          <strong className="font-medium text-neutral-900">
-            A fixed price per action.
-          </strong>{" "}
-          Each refresh is a fixed price in prepaid credits from the published price book.
+          <strong className="font-medium text-neutral-900">Paid per refresh.</strong> Each
+          refresh is paid from prepaid credits at its standard price. No subscription.
         </p>
       </Section>
 

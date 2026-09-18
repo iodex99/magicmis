@@ -24,13 +24,15 @@ const FOOTER_GROUPS: readonly {
       ["/product", "What you get"],
       ["/how-it-works", "How it works"],
       ["/security", "Security"],
-      ["/pricing", "Pricing"],
+      ["/pricing", "Credit packs"],
     ],
   },
   {
     heading: "Solutions",
     links: [
       ["/ai-mis-report", "MIS with AI"],
+      ["/chat-with-your-mis", "Chat with your MIS"],
+      ["/ai-variance-analysis", "AI variance analysis"],
       ["/ai-management-accounts", "AI management accounts"],
       ["/ai-financial-reporting", "AI financial reporting"],
       ["/mis-dashboard", "MIS dashboard"],
@@ -100,7 +102,7 @@ export function PublicShell({
               href="/pricing"
               className="rounded-md px-3 py-2 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
             >
-              Pricing
+              Credit packs
             </Link>
             <Link
               href="/sign-in"
@@ -151,8 +153,7 @@ export function PublicShell({
             ))}
           </div>
           <p className="mt-10 border-t border-neutral-200/70 pt-6 text-[0.8125rem] text-neutral-500">
-            © {new Date().getFullYear()} {PRODUCT_NAME}. Billed in rupees in India, US
-            dollars elsewhere.
+            © {new Date().getFullYear()} {PRODUCT_NAME}. Prepaid credits. No subscription.
           </p>
         </div>
       </footer>

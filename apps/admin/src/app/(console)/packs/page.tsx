@@ -30,6 +30,10 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
           className="flex flex-wrap items-end gap-3 text-sm"
         >
           <label className="flex flex-col gap-1">
+            Name
+            <input name="name" className={input} maxLength={40} required />
+          </label>
+          <label className="flex flex-col gap-1">
             Price ex-GST (₹)
             <input name="priceRupees" className={input} inputMode="numeric" required />
           </label>
@@ -71,13 +75,20 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
         <table className="w-full">
           <thead>
             <tr>
-              {["Price (₹)", "Price ($)", "Credits", "Bonus", "Sort", "Active", ""].map(
-                (h) => (
-                  <th key={h} className={th}>
-                    {h}
-                  </th>
-                ),
-              )}
+              {[
+                "Name",
+                "Price (₹)",
+                "Price ($)",
+                "Credits",
+                "Bonus",
+                "Sort",
+                "Active",
+                "",
+              ].map((h) => (
+                <th key={h} className={th}>
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -86,6 +97,7 @@ export default async function PacksPage({ searchParams }: { searchParams: FlashP
                 key={p.id}
                 className="border-b border-neutral-100 last:border-0 hover:bg-neutral-25"
               >
+                <td className={td}>{p.name ?? "—"}</td>
                 <td className={num}>
                   {p.price_inr_minor === null ? "—" : minorCell(p.price_inr_minor)}
                 </td>

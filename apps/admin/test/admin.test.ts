@@ -346,6 +346,7 @@ describe("catalog administration", () => {
     const id = await createPack(pool(), {
       adminId,
       pack: {
+        name: "Partner",
         priceInrMinor: 7_500_000n,
         priceUsdMinor: 89_900n,
         credits: 75_000n,
@@ -354,11 +355,11 @@ describe("catalog administration", () => {
       },
     });
     await setPackActive(pool(), { adminId, packId: id, active: false });
-    const r = await pool().query<{ active: boolean }>(
-      `select active from credit_packs where id = $1`,
+    const r = await pool().query<{ active: boolean; name: string | null }>(
+      `select active, name from credit_packs where id = $1`,
       [id],
     );
-    expect(r.rows[0]?.active).toBe(false);
+    expect(r.rows[0]).toEqual({ active: false, name: "Partner" });
     await expect(
       setPackActive(pool(), { adminId, packId: randomUUID(), active: true }),
     ).rejects.toThrow(/not found/u);

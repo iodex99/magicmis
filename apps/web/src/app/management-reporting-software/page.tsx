@@ -47,7 +47,7 @@ const DIFFERENCES: readonly { title: string; body: string }[] = [
   },
   {
     title: "Paid per report, not per seat",
-    body: "Prepaid credits with a fixed price per action. No subscription, no per-user licence, no annual contract. A company that reports monthly pays twelve times a year.",
+    body: "Prepaid credits with a standard price per action. No subscription, no per-user licence, no annual contract. A company that reports monthly pays twelve times a year.",
   },
   {
     title: "Written in your market's words",

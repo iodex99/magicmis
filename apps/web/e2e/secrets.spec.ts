@@ -50,6 +50,8 @@ const STATIC_PATHS = [
   "/mis-in-minutes",
   "/automated-management-accounts",
   "/monthly-financial-reporting",
+  "/chat-with-your-mis",
+  "/ai-variance-analysis",
   "/ai-management-accounts",
   "/ai-financial-reporting",
   "/mis-dashboard",

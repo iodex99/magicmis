@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Donut, MiniBars, Sparkline } from "@/components/Charts";
@@ -172,17 +173,21 @@ export default function ProductPage() {
         </ul>
       </Section>
 
-      <Section title="Ask it a question">
+      <Section title="Chat with the MIS">
         <p>
           The workbook is not the end of it. You can ask about the month in plain language
           — why a margin moved, which accounts drive the ageing, what changed against last
           quarter — and the answer is computed from your own loaded data, with the query
-          that produced it attached.
+          that produced it attached.{" "}
+          <Link href="/chat-with-your-mis" className="text-accent-700 hover:underline">
+            How chatting with your MIS works
+          </Link>
+          .
         </p>
         <p>
-          Chat costs credits per message at a fixed price per message type, like every
-          other action. An out-of-scope question is declined rather than guessed at, and
-          the decline is charged, because refusing accurately still costs a call.
+          Chatting with the MIS costs credits per message, by the kind of question, like
+          every other action. An out-of-scope question is declined rather than guessed at,
+          and the decline is charged, because refusing accurately still costs a call.
         </p>
       </Section>
 

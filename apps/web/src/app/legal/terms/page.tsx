@@ -121,8 +121,8 @@ export default async function TermsPage() {
       body: (
         <>
           <p>
-            The service is paid for with prepaid credits. Each action has a fixed credit
-            price from the published price book. Pressing the button for an action (for
+            The service is paid for with prepaid credits. Each action has a standard
+            credit price, listed in your wallet. Pressing the button for an action (for
             example, building an MIS, adding a month, writing commentary or sending a chat
             message) is your instruction to run it and to charge its price. Some larger
             actions need a quote, which you accept before anything runs. You are never

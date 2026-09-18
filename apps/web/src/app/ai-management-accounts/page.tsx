@@ -47,7 +47,7 @@ const NEVER: readonly string[] = [
   "Compute a figure. Every number in the accounts, the dashboard and the commentary is deterministic arithmetic over the trial balance, with lineage to the nominal code.",
   "See a whole file. It receives redacted structure, capped samples and redacted names for the one step it performs.",
   "Run when nothing changed. A monthly refresh on an unchanged chart of accounts makes no AI calls at all.",
-  "Decide what you pay. Each action has a fixed price from a published price book, whatever the AI had to do.",
+  "Decide what you pay. Each action has a standard price in credits, and a job that needs more than that stops and shows you a quote first.",
 ];
 
 const FAQS: readonly Faq[] = [
@@ -69,7 +69,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "What does it cost?",
     answer:
-      "A fixed price per action in prepaid credits, billed in pounds sterling equivalent through US dollars outside India, with no subscription and no per-seat fee. A monthly refresh on an unchanged structure is the cheapest action, because it does the least.",
+      "Prepaid credits, bought in US dollars, with a standard price per action and a quote first if a job needs more. No subscription and no per-seat fee. A monthly refresh on an unchanged structure is the cheapest action, because it does the least.",
   },
 ];
 

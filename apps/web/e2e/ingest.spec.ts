@@ -168,7 +168,7 @@ test("a 50 MB workbook is uploaded and read in under 60 seconds (SPEC §33)", as
   const started = Date.now();
   await page.getByLabel("Choose files").setInputFiles(large);
   const row = page.getByTestId("job-files").getByRole("row", { name: /large-day-book/u });
-  await expect(row).toContainText("3,70,004", { timeout: 90_000 });
+  await expect(row).toContainText("370,004", { timeout: 90_000 });
   const elapsed = Date.now() - started;
   console.warn(`50 MB workbook uploaded and read in ${(elapsed / 1000).toFixed(1)} s`);
   expect(elapsed).toBeLessThan(60_000);

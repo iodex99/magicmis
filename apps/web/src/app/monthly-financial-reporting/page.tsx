@@ -42,7 +42,7 @@ const STEPS = [
   {
     icon: "wallet",
     title: "Run it",
-    body: "One button, paid from prepaid credits at a fixed price per action.",
+    body: "One button, paid from prepaid credits at the action's standard price.",
   },
   {
     icon: "document",
@@ -70,7 +70,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is there a subscription?",
     answer:
-      "No. You buy prepaid credits in US dollars and each action has a fixed price you see before it runs. There are no seats and no monthly minimum.",
+      "No. You buy prepaid credits in US dollars and each action has a standard price; a job that needs more shows a quote before it runs. There are no seats and no monthly minimum.",
   },
 ];
 

@@ -79,7 +79,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const chosen = theme === "dark" || theme === "light" ? theme : undefined;
   return (
     <html
-      lang="en-IN"
+      lang="en"
       className={`${inter.variable} ${grotesk.variable}`}
       {...(chosen === undefined ? {} : { "data-theme": chosen })}
     >

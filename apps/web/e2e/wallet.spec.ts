@@ -9,19 +9,34 @@ import { expect, test } from "@playwright/test";
 
 import { createVerifiedAccount, uniqueEmail } from "./helpers";
 
-test("pricing is public, prices the packs, and never mentions AI cost", async ({
+test("credit packs are public, in dollars, and say nothing of AI cost or where we are", async ({
   page,
 }) => {
   await page.goto("/pricing");
   const packs = page.getByTestId("pack-list");
   await expect(packs).toBeVisible();
-  await expect(packs).toContainText("₹");
-  // ADR 0040: per-action credit prices are no longer public; they live in the wallet.
+  await expect(packs.getByTestId("pack")).toHaveCount(6);
+  await expect(packs).toContainText("Starter");
+  await expect(packs).toContainText("$1,099");
+  // ADR 0041: dollar positioning. A visitor abroad is never shown a rupee or a GST rate.
+  await expect(page.locator("main")).not.toContainText(/₹|GST|India/u);
+  // ADR 0040: per-action credit prices are not public; they live in the wallet.
   await expect(page.getByTestId("price-list")).toHaveCount(0);
   // AI cost and its vocabulary never appear; "KPIs and ratios" in the footer is a guide.
   await expect(page.locator("body")).not.toContainText(
-    /cost ratio|ai cost|token|\bmodel\b/iu,
+    /cost ratio|ai cost|token|\bmodel\b|fixed price/iu,
   );
+});
+
+test("a visitor in India is priced in rupees, the currency they will be billed in", async ({
+  page,
+}) => {
+  // Vercel sets this header; a rupee buyer must not be quoted dollars (ADR 0041).
+  await page.setExtraHTTPHeaders({ "x-vercel-ip-country": "IN" });
+  await page.goto("/pricing");
+  const packs = page.getByTestId("pack-list");
+  await expect(packs).toContainText("₹1,00,000");
+  await expect(packs).not.toContainText("$");
 });
 
 test("the price book is in the wallet, free to read, and credits never expire", async ({

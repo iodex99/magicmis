@@ -165,6 +165,8 @@ export async function listPriceBook(
 }
 
 export const packSchema = z.object({
+  /** What the tier is called on the pricing page and in the wallet (ADR 0041). */
+  name: z.string().trim().min(1, "Give the pack a name").max(40),
   /** Integer paise. Required: every pack is sold in India. */
   priceInrMinor: z.coerce.bigint().refine((v) => v >= 100n, "At least ₹1"),
   /**
@@ -187,9 +189,10 @@ export async function createPack(
 ): Promise<string> {
   return withTransaction(pool, async (tx) => {
     const r = await tx.query<{ id: string }>(
-      `insert into public.credit_packs (credits_granted, bonus_credits, sort_order)
-       values ($1, $2, $3) returning id`,
+      `insert into public.credit_packs (name, credits_granted, bonus_credits, sort_order)
+       values ($1, $2, $3, $4) returning id`,
       [
+        input.pack.name,
         input.pack.credits.toString(),
         input.pack.bonusCredits.toString(),
         input.pack.sortOrder,
@@ -253,6 +256,7 @@ export async function setPackActive(
 export async function listPacks(db: Queryable) {
   const r = await db.query<{
     id: string;
+    name: string | null;
     price_inr_minor: string | null;
     price_usd_minor: string | null;
     credits_granted: string;
@@ -262,7 +266,7 @@ export async function listPacks(db: Queryable) {
   }>(
     // One row per pack with a column per currency: the console lists packs, and a
     // pack offered in one currency and not the other is a real and visible state.
-    `select p.id,
+    `select p.id, p.name,
             max(pp.price_minor_ex_tax) filter (where pp.currency = 'INR')::text as price_inr_minor,
             max(pp.price_minor_ex_tax) filter (where pp.currency = 'USD')::text as price_usd_minor,
             p.credits_granted::text, p.bonus_credits::text, p.active, p.sort_order

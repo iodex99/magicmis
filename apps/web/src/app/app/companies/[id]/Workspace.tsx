@@ -5,8 +5,6 @@ import type { PeriodId } from "@magicmis/core/time";
 import { companyFormat, metricLabel } from "@magicmis/render-dashboard";
 import { useCallback, useState, type ReactNode } from "react";
 
-import type { ChatPrices } from "@/lib/server/chat-prices";
-
 import { Assistant, type CommentaryRow } from "./Assistant";
 import { DashboardClient } from "./DashboardClient";
 
@@ -22,7 +20,6 @@ export function Workspace({
   currencySymbol,
   periods,
   commentaries,
-  prices,
   children,
 }: {
   companyId: string;
@@ -31,8 +28,6 @@ export function Workspace({
   currencySymbol: string;
   periods: readonly string[];
   commentaries: readonly CommentaryRow[];
-  /** Credits per message, by what is being asked and by tier (SPEC §2.5). */
-  prices: ChatPrices;
   /** Workbooks, files and history, below the dashboard. */
   children: ReactNode;
 }) {
@@ -77,7 +72,6 @@ export function Workspace({
           currencySymbol={currencySymbol}
           periods={periods}
           commentaries={commentaries}
-          prices={prices}
           prefill={prefill}
           onLayoutChanged={layoutChanged}
         />

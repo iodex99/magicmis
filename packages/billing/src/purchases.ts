@@ -65,6 +65,8 @@ const roundingSchema = z.enum([
 
 export interface PackQuote {
   readonly packId: string;
+  /** The tier name (ADR 0041); null for a pack that was never given one. */
+  readonly name: string | null;
   readonly credits: bigint;
   readonly bonusCredits: bigint;
   /** GST for an Indian buyer, zero-rated export for anyone else (ADR 0030). */
@@ -76,6 +78,7 @@ export interface PackQuote {
 
 interface PackRow {
   id: string;
+  name: string | null;
   price_minor_ex_tax: string;
   credits_granted: string;
   bonus_credits: string;
@@ -180,6 +183,7 @@ async function buildQuote(
   });
   return {
     packId: pack.id,
+    name: pack.name,
     credits: BigInt(pack.credits_granted),
     bonusCredits: BigInt(pack.bonus_credits),
     tax,
@@ -201,7 +205,7 @@ export async function listPackQuotes(
   // currency is simply not offered there, which is a state the join expresses directly.
   const account = await accountTax(db, input.accountId);
   const packs = await db.query<PackRow>(
-    `select p.id, pp.price_minor_ex_tax::text, p.credits_granted::text, p.bonus_credits::text
+    `select p.id, p.name, pp.price_minor_ex_tax::text, p.credits_granted::text, p.bonus_credits::text
        from public.credit_packs p
        join public.credit_pack_prices pp
          on pp.pack_id = p.id and pp.currency = $1
@@ -221,7 +225,7 @@ export async function quotePack(
 ): Promise<PackQuote> {
   const account = await accountTax(db, input.accountId);
   const r = await db.query<PackRow>(
-    `select p.id, pp.price_minor_ex_tax::text, p.credits_granted::text, p.bonus_credits::text
+    `select p.id, p.name, pp.price_minor_ex_tax::text, p.credits_granted::text, p.bonus_credits::text
        from public.credit_packs p
        join public.credit_pack_prices pp
          on pp.pack_id = p.id and pp.currency = $2

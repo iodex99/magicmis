@@ -74,7 +74,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "How is it priced?",
     answer:
-      "Prepaid credits, with a fixed price for each action shown before it runs, and billed in US dollars outside India. There is no subscription and no per-seat fee.",
+      "Prepaid credits, bought in US dollars. Each action has a standard price, and a job that needs more shows you a quote before anything runs. There is no subscription and no per-seat fee.",
   },
 ];
 

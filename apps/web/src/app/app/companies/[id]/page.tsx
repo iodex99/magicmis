@@ -21,7 +21,6 @@ import {
 import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
-import { chatPrices } from "@/lib/server/chat-prices";
 
 import { PrintButton } from "@/components/PrintButton";
 
@@ -239,7 +238,7 @@ export default async function CompanyPage({
     );
   }
 
-  const [jobs, outputs, periods, commentaries, kept, prices] = await Promise.all([
+  const [jobs, outputs, periods, commentaries, kept] = await Promise.all([
     pool.query<{
       id: string;
       type: string;
@@ -273,7 +272,6 @@ export default async function CompanyPage({
       [id, account.accountId],
     ),
     keptFiles(pool, id, account.accountId),
-    chatPrices(pool),
   ]);
   const latestOutput = outputs.rows[0];
 
@@ -324,7 +322,6 @@ export default async function CompanyPage({
           period: j.period,
           createdAt: j.created_at.toISOString(),
         }))}
-        prices={prices}
       >
         <div className="grid items-start gap-5 2xl:grid-cols-2">
           <Panel title="Workbooks" icon="download" padding="none">

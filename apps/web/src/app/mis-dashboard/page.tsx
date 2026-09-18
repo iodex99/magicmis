@@ -69,12 +69,12 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is the MIS dashboard built in Excel or on the web?",
     answer:
-      "Both, from the same figures. The workbook is Excel with live formulas; the dashboard is on the web beside an assistant that answers questions about it, and it prints to PDF for a board pack. Every number on the dashboard opens its lineage — the formula and the ledgers behind it — so it is the same figure as the workbook, not a chart drawn separately.",
+      "Both, from the same figures. The workbook is Excel with live formulas; the dashboard is on the web beside a chat that answers questions about it, and it prints to PDF for a board pack. Every number on the dashboard opens its lineage — the formula and the ledgers behind it — so it is the same figure as the workbook, not a chart drawn separately.",
   },
   {
     question: "Can I change the dashboard layout?",
     answer:
-      "Yes. Rename, reorder and remove cards, with a preview before anything is saved and an undo afterwards — or ask the assistant to make the change in words. The layout is kept with the company, so next month's refresh lands on the same dashboard.",
+      "Yes. Rename, reorder and remove cards, with a preview before anything is saved and an undo afterwards — or ask in the chat, in words, for the change. The layout is kept with the company, so next month's refresh lands on the same dashboard.",
   },
   {
     question: "Does the dashboard update automatically each month?",
@@ -99,7 +99,7 @@ export default function MisDashboardPage() {
         path={PATH}
         eyebrow="Dashboard"
         heading="An MIS dashboard where every number opens its own lineage"
-        intro="KPIs, trends and a revenue-to-profit bridge, built from the same raw trial balance as the Excel MIS — not a chart pasted into a slide. Click a figure and see the formula and the ledgers behind it. Ask the assistant beside it why it moved."
+        intro="KPIs, trends and a revenue-to-profit bridge, built from the same raw trial balance as the Excel MIS — not a chart pasted into a slide. Click a figure and see the formula and the ledgers behind it. Chat with the MIS beside it and ask why it moved."
       />
       <AlsoCalled path={PATH} />
 
@@ -146,9 +146,9 @@ export default function MisDashboardPage() {
           hand, so the dashboard is two steps removed from the books and nobody can say
           where a figure came from when a director asks. Here the dashboard, the workbook
           and the commentary are three views of one computed set of figures. Every number
-          carries its lineage, and the assistant beside the dashboard answers &ldquo;why
-          did that move?&rdquo; from the same figures — every number in its answer
-          computed, never generated.
+          carries its lineage, and the chat beside the dashboard answers &ldquo;why did
+          that move?&rdquo; from the same figures — every number in its answer computed,
+          never generated.
         </p>
         <p>
           The dashboard is added once to a company and refreshed each month you add; see{" "}
@@ -157,7 +157,7 @@ export default function MisDashboardPage() {
           </Link>{" "}
           and{" "}
           <Link href="/pricing" className="text-accent-700 hover:underline">
-            what each action costs
+            the credit packs
           </Link>
           .
         </p>

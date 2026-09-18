@@ -41,11 +41,11 @@ export function OrganizationSchema() {
         description: publicPage("/").description,
         // Sold worldwide (ADR 0030): the markets the pages are written for, by name.
         areaServed: [
-          "India",
-          "United Kingdom",
-          "Ireland",
           "United States",
           "Canada",
+          "United Kingdom",
+          "Ireland",
+          "India",
           "Australia",
           "New Zealand",
           "South Africa",
@@ -164,7 +164,7 @@ export function ArticleSchema({ path }: { path: string }) {
 /**
  * The product tour, so it can be understood as a video rather than an opaque file
  * (https://developers.google.com/search/docs/appearance/video). Every field here is checked
- * against the recording itself: 46 seconds, silent, no transcript published yet.
+ * against the recording itself: 32 seconds, silent, no transcript published yet.
  */
 export function VideoSchema({ path }: { path: string }) {
   return (
@@ -174,11 +174,11 @@ export function VideoSchema({ path }: { path: string }) {
         "@type": "VideoObject",
         name: `${PRODUCT_NAME} — the tour`,
         description:
-          "A silent, forty-six second tour of how a monthly management report is produced: raw data in, mapped ledgers, a checked workbook, a dashboard and written commentary.",
+          "A silent, thirty-second tour of how a monthly management report is produced: raw data in, ledgers mapped, a checked workbook and dashboard out, and a chat that answers from the figures.",
         thumbnailUrl: absoluteUrl("/brand/tour-poster.png"),
         contentUrl: absoluteUrl("/brand/tour.webm"),
         uploadDate: "2026-09-18",
-        duration: "PT46S",
+        duration: "PT32S",
         isFamilyFriendly: true,
         inLanguage: "en",
         publisher: { "@id": `${absoluteUrl("/")}#organization` },

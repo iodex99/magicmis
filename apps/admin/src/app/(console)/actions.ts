@@ -84,8 +84,13 @@ export async function createPackAction(form: FormData): Promise<void> {
   const admin = await requireAdmin();
   const rupees = text(form, "priceRupees");
   if (!/^\d+$/u.test(rupees)) return back("/packs", "Price must be whole rupees");
+  const dollars = text(form, "priceDollars");
+  if (dollars !== "" && !/^\d+$/u.test(dollars))
+    return back("/packs", "Dollar price must be whole dollars");
   const parsed = packSchema.safeParse({
-    pricePaiseExGst: `${rupees}00`,
+    name: text(form, "name"),
+    priceInrMinor: `${rupees}00`,
+    ...(dollars === "" ? {} : { priceUsdMinor: `${dollars}00` }),
     credits: text(form, "credits"),
     bonusCredits: text(form, "bonusCredits") || "0",
     sortOrder: text(form, "sortOrder") || "0",

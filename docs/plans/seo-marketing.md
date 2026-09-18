@@ -168,3 +168,31 @@ Not done, and why: no page for "MIS in Excel with ChatGPT" — that query wants 
 doing it by hand, and a page written to catch it would have to teach what the product exists
 to replace. "MIS software" as a bare term is owned by directory sites; the buyer's comparison
 query is already `/management-reporting-software`.
+
+### 8. Chat with the MIS, and variance analysis (2026-09-18, ADR 0041)
+
+The owner asked for "chat with MIS" and phrases like it to be used for search. Researched
+against live results, per §0.4:
+
+| Query family | What ranks today | Where it is searched | Source |
+|---|---|---|---|
+| Chat with Tally data, Tally AI, ask Tally in plain English, MIS chatbot | Tally analytics add-ons with a natural-language box: the model writes SQL and states the result | India | [AnalytAI](https://analytai.in/product/chat-with-your-data/), [TallyKaro](https://tallykaro.com/), [FireAI](https://fireai.in/answers/what/tally-analytics), [Tally2AI](https://tally2ai.com/) |
+| Chat with your financial data, ask your financials, finance AI chatbot | Customer-service bots for banks, and ledger vendors' "natural-language queries" features | US, UK | [DualEntry](https://www.dualentry.com/blog/best-ai-accounting-software), [Botpress](https://botpress.com/blog/top-chatbots-financial-services), [OpenAI](https://openai.com/index/personal-finance-chatgpt/) |
+| AI variance analysis, flux analysis, variance explanations | Close-automation suites that attach a generated explanation to a variance | US controllers | [Ramp's roundup (Netgain, Docyt)](https://ramp.com/blog/ai-accounting-software), [Rillet](https://www.rillet.com/blog/the-best-ai-accounting-software-and-tools-for-2026) |
+
+What changed:
+
+- **`/chat-with-your-mis`** answers the first two families with the one argument none of
+  the ranking tools can make: they let a model read a result and *say* a number; here the
+  model never emits a digit, and every figure in an answer is a link to its lineage.
+- **`/ai-variance-analysis`** is the commentary feature in US controller vocabulary
+  ("flux"), pointing at the existing guide for readers who want to write it by hand.
+- The feature is called **Chat with the MIS** wherever the site describes it — the product
+  page, the dashboard page, the tour and the app itself — so the phrase people type is the
+  phrase on the page.
+- `/pricing` is titled **Credit packs** and carries its own FAQ schema; the global pages
+  are tagged `en_US` (ADR 0041's dollar positioning).
+
+Not done, and why: no "ChatGPT for accounting" page — it would rank on a competitor's brand
+for a product that is deliberately not a general chatbot, and the honest answer to that
+query is already the FAQ "Is this ChatGPT reading my accounts?" on the chat page.

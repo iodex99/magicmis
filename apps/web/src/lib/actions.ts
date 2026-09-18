@@ -39,29 +39,41 @@ export const TIER_NOTES = {
   expert: "Reasons hardest on unusual ledgers and awkward questions. Costs more.",
 } as const;
 
+/** The tier in two words, where a sentence will not fit. */
+export const TIER_TAGS = {
+  efficient: "Quick, light",
+  professional: "Balanced",
+  expert: "Deepest",
+} as const;
+
 export const DELIVERY_LABELS = { standard: "Standard", instant: "Instant" } as const;
 
-/** Indian grouping for a credit count held as a decimal string. */
-export function formatCredits(value: string): string {
-  const negative = value.startsWith("-");
-  const digits = negative ? value.slice(1) : value;
-  const grouped =
-    digits.length <= 3
-      ? digits
-      : `${digits.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/gu, ",")},${digits.slice(-3)}`;
-  return negative ? `-${grouped}` : grouped;
-}
-
-/** Indian digit grouping for any whole count held as a decimal string. */
-export const formatCount = (value: string): string => formatCredits(value);
-
-/** Western digit grouping, for the currencies that read that way. */
+/** 1,234,567 — how most of the world groups digits. */
 function groupWestern(digits: string): string {
-  const negative = digits.startsWith("-");
-  const d = negative ? digits.slice(1) : digits;
-  const grouped = d.replace(/B(?=(d{3})+(?!d))/gu, ",");
-  return negative ? `-${grouped}` : grouped;
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/gu, ",");
 }
+
+/** 12,34,567 — lakhs and crores, for rupee amounts. */
+function groupIndian(digits: string): string {
+  return digits.length <= 3
+    ? digits
+    : `${digits.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/gu, ",")},${digits.slice(-3)}`;
+}
+
+const signed = (value: string, group: (digits: string) => string): string =>
+  value.startsWith("-") ? `-${group(value.slice(1))}` : group(value);
+
+/**
+ * A credit count held as a decimal string. Credits are the platform's own unit and the
+ * platform is sold in dollars (ADR 0041), so they group the western way for everyone; only
+ * rupee *money* groups in lakhs, in `formatMoney`.
+ */
+export function formatCredits(value: string): string {
+  return signed(value, groupWestern);
+}
+
+/** Any whole count held as a decimal string: rows, sheets, files. */
+export const formatCount = (value: string): string => formatCredits(value);
 
 /**
  * Integer minor units as money in the billing currency (ADR 0030).
@@ -75,7 +87,7 @@ export function formatMoney(currency: "INR" | "USD", minor: string): string {
   const padded = (negative ? minor.slice(1) : minor).padStart(3, "0");
   const whole = padded.slice(0, -2);
   const fraction = padded.slice(-2);
-  const grouped = currency === "INR" ? formatCredits(whole) : groupWestern(whole);
+  const grouped = currency === "INR" ? groupIndian(whole) : groupWestern(whole);
   const symbol = currency === "INR" ? "₹" : "$";
   return `${negative ? "-" : ""}${symbol}${grouped}.${fraction}`;
 }

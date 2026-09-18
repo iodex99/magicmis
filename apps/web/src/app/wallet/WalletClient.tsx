@@ -336,6 +336,11 @@ export function WalletClient({
                   className={p.packId === suggested ? "bg-accent-50" : ""}
                 >
                   <Td>
+                    {p.name === null ? null : (
+                      <span className="mr-2 text-[0.8125rem] font-medium text-neutral-500">
+                        {p.name}
+                      </span>
+                    )}
                     <span className="num text-[0.9375rem] font-semibold text-neutral-900">
                       {formatCredits(p.credits)}
                     </span>
@@ -346,7 +351,7 @@ export function WalletClient({
                     ) : null}
                     {p.packId === suggested ? (
                       <Badge tone="accent" className="ml-2">
-                        {need === null ? "Most popular" : "Covers this run"}
+                        {need === null ? "Recommended" : "Covers this run"}
                       </Badge>
                     ) : null}
                   </Td>

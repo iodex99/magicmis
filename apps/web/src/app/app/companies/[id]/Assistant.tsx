@@ -27,11 +27,9 @@ import { Drawer } from "@/components/Drawer";
 import { Icon, type IconName } from "@/components/Icon";
 import { LineagePanel } from "@/components/LineagePanel";
 import { Alert, Button } from "@/components/ui";
-import { formatCredits, TIER_LABELS, TIER_NOTES } from "@/lib/actions";
+import { formatCredits, TIER_LABELS, TIER_NOTES, TIER_TAGS } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
-
-import type { ChatPrices } from "@/lib/server/chat-prices";
 
 import { CommentaryView } from "./CommentaryView";
 
@@ -102,14 +100,6 @@ const MODES: readonly { key: Mode; label: string; icon: IconName; hint: string }
     hint: "A written review of a month",
   },
 ];
-
-/** What the chosen mode is called where a price is shown beside it. */
-const MODE_WORDS: Record<Mode, string> = {
-  quick: "a question",
-  deep: "digging deeper",
-  edit: "a layout change",
-  commentary: "commentary",
-};
 
 const TYPE_WORDS: Record<MessageType, string> = {
   quick: "Ask",
@@ -198,7 +188,6 @@ export function Assistant({
   currencySymbol,
   periods,
   commentaries,
-  prices,
   prefill,
   onLayoutChanged,
 }: {
@@ -210,8 +199,6 @@ export function Assistant({
   /** Months with figures, newest first. */
   periods: readonly string[];
   commentaries: readonly CommentaryRow[];
-  /** Credits per message, by what is being asked and by tier (SPEC §2.5). */
-  prices: ChatPrices;
   /** A question handed over by the dashboard's Investigate; `nonce` makes a repeat count. */
   prefill: { type: MessageType; text: string; nonce: number } | null;
   /** A layout change applied or undone here, so the dashboard beside it can reload. */
@@ -1060,12 +1047,7 @@ export function Assistant({
           className="mt-3 rounded-xl border border-line bg-raised p-2.5"
           data-testid="tier-chooser"
         >
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="eyebrow">How hard it thinks</span>
-            <span className="text-[0.6875rem] text-neutral-500">
-              Price for {MODE_WORDS[mode]}
-            </span>
-          </div>
+          <span className="eyebrow">How hard it thinks</span>
           <div
             role="radiogroup"
             aria-label="Intelligence tier"
@@ -1093,11 +1075,11 @@ export function Assistant({
                     {TIER_LABELS[t]}
                   </span>
                   <span
-                    className={`block text-[0.6875rem] tabular-nums ${
+                    className={`block text-[0.6875rem] ${
                       on ? "text-accent-700" : "text-neutral-500"
                     }`}
                   >
-                    {formatCredits(prices[mode][t])} credits
+                    {TIER_TAGS[t]}
                   </span>
                 </button>
               );
@@ -1107,8 +1089,7 @@ export function Assistant({
             {TIER_NOTES[tier]}
           </p>
           <p className="mt-1.5 text-[0.6875rem] text-neutral-400">
-            The price is fixed whatever the work turns out to take, and every message is
-            charged, including questions outside this MIS.
+            Every message uses credits, including questions outside this MIS.
           </p>
         </div>
       </div>

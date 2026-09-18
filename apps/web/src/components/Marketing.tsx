@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Icon, type IconName } from "@/components/Icon";
+import { TourPlayer } from "@/components/TourPlayer";
 import { ButtonLink } from "@/components/ui";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { publicPage, REPORT_NAMES } from "@/lib/seo";
@@ -213,12 +214,11 @@ export function ClosingCta({
               Create an account
             </ButtonLink>
             <ButtonLink href="/pricing" size="lg" variant="secondary">
-              See pricing
+              See credit packs
             </ButtonLink>
           </div>
           <p className="mt-4 text-[0.8125rem] text-neutral-500">
-            Prepaid credits, no subscription. A fixed price per action from a published
-            price book.
+            Prepaid credits, no subscription. Credits never expire.
           </p>
         </div>
       </div>
@@ -296,30 +296,16 @@ export function AlsoCalled({ path }: { path: string }) {
 }
 
 /**
- * The product tour (ADR 0037), served from `public/brand/`.
- *
- * The recording has no soundtrack, so it says so rather than leaving a viewer hunting for a
- * volume control. `preload="none"` keeps three megabytes off every page load; the poster is
- * the title card, so the still frame reads as the product even before anyone presses play.
+ * The product tour (ADR 0037, ADR 0041), served from `public/brand/` and rendered frame by
+ * frame by `e2e/support/record-tour.ts`. The recording has no soundtrack, so the caption says
+ * so rather than leaving a viewer hunting for a volume control.
  */
 export function TourVideo() {
   return (
-    <figure className="mx-auto w-full max-w-[880px]">
-      <video
-        className="w-full rounded-xl border border-neutral-200/80 bg-ink-900 shadow-sm"
-        controls
-        preload="none"
-        playsInline
-        poster="/brand/tour-poster.png"
-        width={1280}
-        height={720}
-      >
-        <source src="/brand/tour.webm" type="video/webm" />
-        Your browser cannot play this video. It is a silent screen tour of the product;
-        the same ground is covered in writing on this page.
-      </video>
+    <figure className="mx-auto w-full max-w-[960px]">
+      <TourPlayer />
       <figcaption className="mt-3 text-center text-[0.8125rem] text-neutral-500">
-        Forty-six seconds, no sound. Figures shown are from a fictional company.
+        Thirty seconds, no sound. Figures shown are from a fictional company.
       </figcaption>
     </figure>
   );

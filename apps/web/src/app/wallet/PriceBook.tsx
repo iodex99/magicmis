@@ -20,7 +20,7 @@ export async function PriceBook() {
   return (
     <Panel
       title="What each action costs"
-      description="Credits per action, by intelligence tier. A fixed price: the same every time, however hard the work turns out to be."
+      description="The standard price of each action in credits, by intelligence tier. A job that needs more than its standard price stops and shows you a quote first."
       icon="table"
       padding="none"
     >

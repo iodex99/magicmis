@@ -50,6 +50,7 @@ export interface WalletView {
   readonly currency: Currency | null;
   readonly packs: readonly {
     packId: string;
+    name: string | null;
     credits: string;
     bonusCredits: string;
     taxableMinor: string;
@@ -142,6 +143,7 @@ export async function walletView(accountId: string): Promise<WalletView> {
     currency: quotes[0]?.currency ?? null,
     packs: quotes.map((p) => ({
       packId: p.packId,
+      name: p.name,
       credits: p.credits.toString(),
       bonusCredits: p.bonusCredits.toString(),
       taxableMinor: p.tax.taxableMinor.toString(),

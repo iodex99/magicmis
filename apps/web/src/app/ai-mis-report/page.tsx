@@ -53,7 +53,7 @@ const DOES_NOT: readonly string[] = [
   "Calculate, round or restate any figure. Totals, ratios and variances come from a deterministic engine and are the same every time.",
   "See your whole files. It receives a sheet's structure, a small redacted sample of rows and ledger names, for a paid action you confirmed.",
   "Run on a routine month. When the ledger structure has not changed, the monthly refresh makes no AI calls at all.",
-  "Choose its own model or budget. Those are fixed on the server for each action, and each action has a fixed price in the published price book.",
+  "Choose its own model or budget. Those are set on the server for each action, and what you pay is the action's standard price in credits, never the AI's running cost.",
 ];
 
 const FAQS: readonly Faq[] = [

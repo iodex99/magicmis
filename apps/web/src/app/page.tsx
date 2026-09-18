@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Icon, type IconName } from "@/components/Icon";
-import { Faqs } from "@/components/Marketing";
+import { Faqs, TourVideo } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
 import {
   FaqSchema,
@@ -62,7 +62,7 @@ const PROOF: readonly { icon: IconName; title: string; body: string; href: strin
   {
     icon: "wallet",
     title: "Pay only for what you run",
-    body: "Prepaid credits and a fixed price per action from a published price book. No subscription, no negative balance.",
+    body: "Prepaid credits, spent per action. No subscription, no seats, and credits that never expire.",
     href: "/pricing",
   },
 ];
@@ -91,12 +91,12 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is there a free trial?",
     answer:
-      "No. There is no free tier, trial or free sample on your own data. Creating an account, adding a company and reading the price book cost nothing; anything that produces analysis or output is a paid action at a fixed price.",
+      "No. There is no free tier, trial or free sample on your own data. Creating an account, adding a company and reading the price book cost nothing; anything that produces analysis or output is a paid action.",
   },
   {
     question: "How much does a monthly report cost?",
     answer:
-      "Each action has a fixed price in credits from a published price book, and one credit is one rupee excluding GST. A monthly refresh on unchanged ledger structure is much cheaper than the first setup, because it reuses the mapping and makes no AI calls at all.",
+      "You buy credits in packs and each action has a standard price in credits, listed in your wallet; a job that needs more than that shows you a quote first. A monthly refresh on unchanged ledger structure is much cheaper than the first setup, because it reuses the mapping and makes no AI calls at all.",
   },
   {
     question: "Which accounting systems does it work with?",
@@ -163,11 +163,11 @@ export default function HomePage() {
                 See what you get
               </ButtonLink>
               <Link
-                href="/how-it-works"
+                href="#tour"
                 className="inline-flex items-center gap-1.5 text-[0.875rem] font-medium text-neutral-600 hover:text-accent-700"
               >
                 <Icon name="play" className="size-4" />
-                Watch the 46-second tour
+                Watch the 30-second tour
               </Link>
             </div>
             <p className="mt-4 text-[0.8125rem] text-neutral-500">
@@ -254,6 +254,19 @@ export default function HomePage() {
             </p>
           </div>
         </div>
+      </section>
+
+      <section
+        id="tour"
+        className="mx-auto w-full max-w-[1120px] scroll-mt-20 px-6 pb-16"
+      >
+        <div className="mx-auto mb-7 max-w-2xl text-center">
+          <p className="eyebrow">The whole thing, in thirty seconds</p>
+          <h2 className="display mt-2 text-[1.75rem] leading-tight font-semibold tracking-tight text-neutral-900">
+            Raw data in. A checked MIS out. Then chat with it.
+          </h2>
+        </div>
+        <TourVideo />
       </section>
 
       <section className="border-y border-neutral-200/70 bg-surface">

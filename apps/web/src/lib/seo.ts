@@ -87,7 +87,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Turn the raw trial balance from any accounting system into a checked Excel MIS with live formulas, a dashboard and written commentary. Prepaid credits, no subscription.",
     changeFrequency: "weekly",
     priority: 1,
-    locale: "en_IN",
+    locale: "en_US",
     updated: "2026-09-18",
   },
   {
@@ -97,7 +97,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "A validated Excel workbook with live formulas, a dashboard, and commentary where every figure traces back to the ledger it came from. See what the output actually looks like.",
     changeFrequency: "monthly",
     priority: 0.9,
-    locale: "en_IN",
+    locale: "en_US",
     updated: "2026-09-18",
   },
   {
@@ -107,7 +107,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Upload your raw accounting data and take the workbook. Ledgers are mapped for you, and later months reuse the mapping with no AI calls at all. Here is each step in detail.",
     changeFrequency: "monthly",
     priority: 0.9,
-    locale: "en_IN",
+    locale: "en_US",
     updated: "2026-09-18",
   },
   {
@@ -251,6 +251,26 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     updated: "2026-09-18",
   },
   {
+    path: "/chat-with-your-mis",
+    title: "Chat with your MIS: ask your financial data in plain English",
+    description:
+      "Chat with your MIS or management accounts: ask why a margin moved or who is overdue, and get an answer where every number is computed from your books and links to its source.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_US",
+    updated: "2026-09-18",
+  },
+  {
+    path: "/ai-variance-analysis",
+    title: "AI variance analysis: flux commentary written from computed figures",
+    description:
+      "Automated variance and flux analysis: month-over-month movements computed from your trial balance, filtered by materiality and written up, with every figure traceable.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+    locale: "en_US",
+    updated: "2026-09-18",
+  },
+  {
     path: "/ai-management-accounts",
     title: "AI management accounts: the AI maps and writes, never the numbers",
     description:
@@ -337,17 +357,17 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
       "Where your accounting files go: encrypted under each company's own key, redacted before the AI sees any of them, and deleted automatically on a schedule. Stated exactly.",
     changeFrequency: "monthly",
     priority: 0.7,
-    locale: "en_IN",
+    locale: "en_US",
     updated: "2026-09-18",
   },
   {
     path: "/pricing",
-    title: "Pricing: prepaid credits, no subscription, nothing expires",
+    title: "Credit packs: prepaid, no subscription, credits never expire",
     description:
-      "Buy credits up front and spend them when you run something. A fixed price per action, no subscription, no per-seat fee, and credits that never expire. Rupees in India, dollars elsewhere.",
+      "Six credit packs from Starter to Scale. Buy once and spend credits when you run something: no subscription, no per-seat fee, no minimum, and credits that never expire.",
     changeFrequency: "weekly",
     priority: 0.9,
-    locale: "en_IN",
+    locale: "en_US",
     updated: "2026-09-18",
   },
   {
@@ -392,6 +412,8 @@ export const GUIDE_PATHS: readonly string[] = [
 export const SOLUTION_PATHS: readonly string[] = [
   "/management-reporting-software",
   "/ai-mis-report",
+  "/chat-with-your-mis",
+  "/ai-variance-analysis",
   "/ai-management-accounts",
   "/ai-financial-reporting",
   "/mis-dashboard",

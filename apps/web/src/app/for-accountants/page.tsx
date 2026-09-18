@@ -81,7 +81,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "How is it priced for a practice with many clients?",
     answer:
-      "By action, from a published price book, paid in prepaid credits — one credit is one rupee excluding GST. Credits are charged only for what you run, and each active company also carries a monthly memory fee. There is no per-seat or per-client subscription.",
+      "By action, paid from prepaid credits you buy in packs. Each action has a standard price, listed in your wallet. Credits are charged only for what you run, and each active company also carries a monthly memory fee. There is no per-seat or per-client subscription.",
   },
   {
     question: "What happens to a client's data when we stop acting for them?",
