@@ -407,8 +407,12 @@ describe("nightly integrity check (SPEC §30)", () => {
     );
     expect(failed.alerted).toBeGreaterThanOrEqual(1);
     expect(mail.sent[0]?.subject).toMatch(/^\[Integrity alert\]/u);
-    expect(mail.sent[0]?.text).toContain(a.id);
-    expect(mail.sent[0]?.text).not.toContain("700");
+    const body = mail.sent[0]?.text ?? "";
+    expect(body).toContain(a.id);
+    // The alert names the account and never its money. The identifiers are removed before
+    // that is checked: a random UUID is hex, so it can contain any run of digits by chance,
+    // and asserting on the raw body made this test fail roughly one run in a hundred.
+    expect(body.replace(/[0-9a-f]{8}-[0-9a-f-]{27}/gu, "")).not.toContain("700");
     const logged = await pool.query(
       `select count(*)::int as n from audit_log where action = 'integrity.check_failed'`,
     );

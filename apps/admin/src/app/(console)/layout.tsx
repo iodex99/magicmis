@@ -1,4 +1,6 @@
 import { PRODUCT_NAME } from "@magicmis/core/brand";
+
+import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -63,9 +65,12 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
           ))}
         </nav>
         <div className="mt-auto border-t border-ink-700 pt-4">
-          <p className="mb-2 truncate px-1 text-[0.75rem] text-neutral-400">
-            {admin.email}
-          </p>
+          <div className="mb-2 flex items-center gap-2 px-1">
+            <p className="min-w-0 flex-1 truncate text-[0.75rem] text-neutral-400">
+              {admin.email}
+            </p>
+            <ThemeToggle />
+          </div>
           <form action={signOutAction}>
             <button
               type="submit"

@@ -1,6 +1,7 @@
 export * from "./analysis";
 export * from "./compute";
 export * from "./facts";
+export * from "./financial-year";
 export * from "./metrics";
 export * from "./recipe";
 export * from "./snapshot";

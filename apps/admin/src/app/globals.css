@@ -61,11 +61,97 @@
   --shadow-md: 0 2px 6px rgba(20, 16, 41, 0.07);
   --shadow-lg: 0 8px 24px rgba(20, 16, 41, 0.1);
   --shadow-xl: 0 20px 48px rgba(20, 16, 41, 0.14);
+
+  /*
+   * Surfaces, named for what they are rather than what colour they happen to be (ADR 0034).
+   * `surface` is a card, `canvas` the page behind it, `raised` an inner panel. In dark mode
+   * these are redefined, and every `bg-surface` in the app follows without being touched.
+   */
+  --color-canvas: #f5f5f9;
+  --color-surface: #ffffff;
+  --color-raised: #fbfbfd;
+  --color-line: #dedce8;
+}
+
+/*
+ * Dark mode (ADR 0034).
+ *
+ * The neutral ramp is inverted rather than replaced, so `text-neutral-900`, `bg-neutral-25`
+ * and `border-neutral-200` keep meaning the same thing — darkest text, faintest surface, a
+ * quiet rule — in both themes. The accent keeps its 600 step, so a primary button is the same
+ * indigo in both; only its tints and its text steps move, because a tint on black has to be
+ * dark and link text on black has to be light. Figures stay on a near-black surface at AA
+ * contrast, which is the one thing SPEC §32 asks of a dark ground.
+ */
+@layer theme {
+  html[data-theme="dark"] {
+    --color-neutral-0: #14121c;
+    --color-neutral-25: #191823;
+    --color-neutral-50: #1e1c2a;
+    --color-neutral-100: #262436;
+    --color-neutral-200: #322f45;
+    --color-neutral-300: #464264;
+    --color-neutral-400: #7b77a0;
+    --color-neutral-500: #9d99bd;
+    --color-neutral-600: #b8b4d2;
+    --color-neutral-700: #ccc9e0;
+    --color-neutral-800: #e2e0ee;
+    --color-neutral-900: #f2f1f8;
+    --color-neutral-950: #ffffff;
+
+    --color-accent-50: #221d45;
+    --color-accent-100: #2b2456;
+    --color-accent-200: #3a3274;
+    --color-accent-300: #5747b4;
+    --color-accent-400: #6f5dda;
+    --color-accent-500: #7c6bec;
+    --color-accent-600: #6c5ce7;
+    --color-accent-700: #a99cf3;
+    --color-accent-800: #c6bdf8;
+    --color-accent-900: #ded8fb;
+
+    --color-ink-500: #322c5e;
+    --color-ink-600: #29244c;
+    --color-ink-700: #201c3d;
+    --color-ink-800: #17142c;
+    --color-ink-900: #100e20;
+
+    --color-positive: #5cd39b;
+    --color-positive-subtle: #12301f;
+    --color-negative: #ff8f84;
+    --color-negative-subtle: #351613;
+    --color-warning: #f0b45c;
+    --color-warning-subtle: #33230c;
+
+    --color-canvas: #14121c;
+    --color-surface: #1b192a;
+    --color-raised: #211f31;
+    --color-line: #322f45;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.55);
+    --shadow-xl: 0 22px 52px rgba(0, 0, 0, 0.6);
+
+    color-scheme: dark;
+  }
+
+  /*
+   * The navigation rail is dark in both themes, so the neutral steps it writes its labels in are
+   * pinned to their light-theme values. Without this the inverted ramp puts near-black text on a
+   * near-black ground — the one place where inverting the ramp is the wrong answer.
+   */
+  .on-ink {
+    --color-neutral-200: #dedce8;
+    --color-neutral-300: #c2bfd2;
+    --color-neutral-400: #928fa6;
+    --color-neutral-500: #6f6c85;
+  }
 }
 
 html {
   color: var(--color-neutral-900);
-  background: var(--color-neutral-50);
+  background: var(--color-canvas);
   font-family: var(--font-sans);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;

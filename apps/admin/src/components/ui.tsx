@@ -16,7 +16,7 @@ const BUTTON: Record<ButtonVariant, string> = {
   primary:
     "bg-accent-600 text-white shadow-sm hover:bg-accent-700 active:bg-accent-800 disabled:bg-neutral-200 disabled:text-neutral-500 disabled:shadow-none",
   secondary:
-    "border border-neutral-200 bg-white text-neutral-800 shadow-sm hover:border-neutral-300 hover:bg-neutral-25 disabled:text-neutral-400 disabled:shadow-none",
+    "border border-neutral-200 bg-surface text-neutral-800 shadow-sm hover:border-neutral-300 hover:bg-neutral-25 disabled:text-neutral-400 disabled:shadow-none",
   danger:
     "bg-negative text-white shadow-sm hover:brightness-110 disabled:bg-neutral-200 disabled:text-neutral-500",
 };
@@ -58,7 +58,7 @@ export function Field({
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy || undefined}
-        className={`h-10 rounded-md border bg-white px-3 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300 ${
+        className={`h-10 rounded-md border bg-surface px-3 text-sm text-neutral-900 transition-colors placeholder:text-neutral-400 hover:border-neutral-300 ${
           error ? "border-negative" : "border-neutral-200"
         }`}
         {...props}
@@ -136,7 +136,7 @@ export function Panel({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
+    <section className="rounded-xl border border-neutral-200/80 bg-surface p-5 shadow-sm">
       {title === undefined ? null : (
         <header className="mb-4 flex items-start justify-between gap-4">
           <div>

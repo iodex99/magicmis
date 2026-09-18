@@ -107,6 +107,41 @@ export async function createCompany(
   return companyId;
 }
 
+/**
+ * Change a company’s reporting conventions (ADR 0030, ADR 0035).
+ *
+ * Settled once at creation and usually never touched again — but a company set to the wrong
+ * financial year computes every year’s first month as a whole year, and the only honest fix is
+ * to let the owner correct it. It takes effect on the next run: stored months are not recomputed,
+ * because the figures already delivered are what the customer paid for.
+ */
+export async function updateCompanyConventions(
+  pool: Pool,
+  input: {
+    accountId: string;
+    companyId: string;
+    fyStartMonth: number;
+    currency: string;
+    numberFormat: NumberFormat;
+    dateOrder: DateOrder;
+  },
+): Promise<boolean> {
+  const r = await pool.query(
+    `update public.companies
+        set fy_start_month = $3, currency = $4, number_format = $5, date_order = $6
+      where id = $2 and account_id = $1 and deleted_at is null`,
+    [
+      input.accountId,
+      input.companyId,
+      input.fyStartMonth,
+      input.currency,
+      input.numberFormat,
+      input.dateOrder,
+    ],
+  );
+  return (r.rowCount ?? 0) > 0;
+}
+
 const validationConfigSchema = {
   tb: z.number().int().nonnegative(),
   recon: z.number().int().nonnegative(),

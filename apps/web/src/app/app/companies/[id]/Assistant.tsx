@@ -160,6 +160,18 @@ const plainText = (paragraphs: readonly (readonly AnswerSegment[])[]): string =>
     .map((p) => p.map((seg) => (seg.kind === "text" ? seg.text : seg.display)).join(""))
     .join("\n\n");
 
+/** A paragraph the model wrote as a bullet, so it can be shown as one. */
+const BULLET = /^\s*(?:[-•*]|\d+[.)])\s+/u;
+
+const bulletOf = (
+  paragraph: readonly AnswerSegment[],
+): readonly AnswerSegment[] | null => {
+  const first = paragraph[0];
+  if (first === undefined || first.kind !== "text" || !BULLET.test(first.text))
+    return null;
+  return [{ ...first, text: first.text.replace(BULLET, "") }, ...paragraph.slice(1)];
+};
+
 const when = (iso: string) =>
   new Date(iso).toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -224,6 +236,9 @@ export function Assistant({
     Record<string, { target: string; blueprintVersion: number; undone: boolean }>
   >({});
   const [copied, setCopied] = useState<string | null>(null);
+  /** The question just asked, shown before the server has anything to say about it. */
+  const [asking, setAsking] = useState<string | null>(null);
+  const [waited, setWaited] = useState(0);
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
 
@@ -258,8 +273,24 @@ export function Assistant({
     input.current?.focus();
   }, [prefill]);
 
+  // A deep answer can take most of a minute. A counter is the honest way to say so: it is the
+  // one thing about the wait that is actually known.
+  useEffect(() => {
+    if (busy === null) {
+      setWaited(0);
+      return;
+    }
+    const tick = setInterval(() => {
+      setWaited((n) => n + 1);
+    }, 1000);
+    return () => {
+      clearInterval(tick);
+    };
+  }, [busy]);
+
   // Keep the newest item in view.
-  const itemCount = (thread?.messages.length ?? 0) + shown.length;
+  const itemCount =
+    (thread?.messages.length ?? 0) + shown.length + (asking === null ? 0 : 1);
   useEffect(() => {
     const el = scroller.current;
     if (el !== null) el.scrollTop = el.scrollHeight;
@@ -290,6 +321,7 @@ export function Assistant({
   const send = async () => {
     if (text.trim() === "" || busy !== null) return;
     reset();
+    setAsking(text.trim());
     const type: MessageType =
       investigating && mode === "deep"
         ? "investigate"
@@ -330,6 +362,7 @@ export function Assistant({
       setError(e instanceof Error ? e.message : "The message could not be sent.");
     } finally {
       setBusy(null);
+      setAsking(null);
     }
   };
 
@@ -634,7 +667,11 @@ export function Assistant({
                     <Icon name="document" size={12} />
                     Commentary · {c.period === null ? "—" : format.period(c.period)}
                   </p>
-                  <CommentaryView jobId={c.id} />
+                  <CommentaryView
+                    jobId={c.id}
+                    companyName={companyName}
+                    periodLabel={c.period === null ? "" : format.period(c.period)}
+                  />
                 </div>
               );
             }
@@ -729,23 +766,40 @@ export function Assistant({
                   </Alert>
                 ) : (
                   <>
-                    {rendered.paragraphs.map((p, i) => (
-                      <p
-                        key={i}
-                        className="mb-2 leading-relaxed text-neutral-800 last:mb-0"
-                      >
-                        <Segments
-                          segments={p}
-                          onMetric={(key) => {
-                            setLineage({ kind: "metric", key, values: m.values });
-                          }}
-                          onQuery={(ref) => {
-                            const q = m.queries.find((x) => x.ref === ref);
-                            if (q !== undefined) setLineage({ kind: "query", query: q });
-                          }}
-                        />
-                      </p>
-                    ))}
+                    {rendered.paragraphs.map((p, i) => {
+                      const onMetric = (key: string) => {
+                        setLineage({ kind: "metric", key, values: m.values });
+                      };
+                      const onQuery = (ref: string) => {
+                        const q = m.queries.find((x) => x.ref === ref);
+                        if (q !== undefined) setLineage({ kind: "query", query: q });
+                      };
+                      const bullet = bulletOf(p);
+                      return bullet === null ? (
+                        <p
+                          key={i}
+                          className="mb-2 leading-relaxed text-neutral-800 last:mb-0"
+                        >
+                          <Segments segments={p} onMetric={onMetric} onQuery={onQuery} />
+                        </p>
+                      ) : (
+                        <p
+                          key={i}
+                          className="mb-1.5 flex gap-2 leading-relaxed text-neutral-800 last:mb-0"
+                        >
+                          <span aria-hidden="true" className="text-neutral-400">
+                            •
+                          </span>
+                          <span>
+                            <Segments
+                              segments={bullet}
+                              onMetric={onMetric}
+                              onQuery={onQuery}
+                            />
+                          </span>
+                        </p>
+                      );
+                    })}
                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-neutral-200/70 pt-2">
                       <button
                         type="button"
@@ -782,6 +836,14 @@ export function Assistant({
             );
           })
         )}
+        {asking === null ? null : (
+          <div
+            className="message-in ml-auto max-w-[88%] rounded-2xl rounded-br-sm bg-accent-600 px-3.5 py-2.5 text-white opacity-80"
+            data-testid="chat-asking"
+          >
+            <p className="leading-relaxed">{asking}</p>
+          </div>
+        )}
         {busy === null ? null : (
           <div
             className="message-in flex w-fit items-center gap-2 rounded-2xl rounded-bl-sm bg-neutral-100 px-3.5 py-2.5 text-[0.8125rem] text-neutral-600"
@@ -793,6 +855,9 @@ export function Assistant({
               className="animate-spin [animation-duration:1.6s]"
             />
             {busy}
+            {waited < 3 ? null : (
+              <span className="tabular-nums text-neutral-400">{waited.toString()}s</span>
+            )}
           </div>
         )}
         {quote === null ? null : (

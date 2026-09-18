@@ -1,9 +1,11 @@
 import { hasFreshReauth } from "@magicmis/accounts";
+import { isReportingCurrency } from "@magicmis/core/reporting-conventions";
 import { CompanyBusy, deleteCompany } from "@magicmis/jobs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { apiError, idempotent, ok, parseJson, withAccount } from "@/lib/http";
+import { updateCompanyConventions } from "@/lib/server/companies";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -138,5 +140,47 @@ export async function DELETE(request: Request, context: Ctx): Promise<Response> 
         "A job or chat message for this company is still in progress. Wait for it to finish or cancel it, then try again.",
       );
     }
+  });
+}
+
+const conventionsSchema = z.object({
+  fyStartMonth: z.number().int().min(1).max(12),
+  currency: z.string().refine(isReportingCurrency, "Unsupported reporting currency"),
+  numberFormat: z.enum(["lakhs_crores", "absolute", "millions"]),
+  dateOrder: z.enum(["day_first", "month_first"]),
+});
+
+/**
+ * PATCH /api/companies/:id — the company's own reporting conventions (ADR 0030, ADR 0035).
+ *
+ * A company set to the wrong financial year reads every year's first month as a whole year, and
+ * until now there was no way to correct it. Changing this reads no data and charges nothing; it
+ * takes effect on the next run.
+ */
+export async function PATCH(request: Request, context: Ctx): Promise<Response> {
+  return withAccount(async (account) => {
+    const { id } = await context.params;
+    if (!z.uuid().safeParse(id).success)
+      return apiError(404, "company_not_found", "Company not found.");
+    const parsed = await parseJson(request, conventionsSchema);
+    if (!parsed.ok) return parsed.response;
+    return idempotent(
+      request,
+      `company-conventions:${account.accountId}:${id}`,
+      parsed.raw,
+      async () => {
+        const updated = await updateCompanyConventions(db(), {
+          accountId: account.accountId,
+          companyId: id,
+          ...parsed.data,
+        });
+        return updated
+          ? { status: 200, body: { updated: true } }
+          : {
+              status: 404,
+              body: { error: "company_not_found", message: "Company not found." },
+            };
+      },
+    );
   });
 }

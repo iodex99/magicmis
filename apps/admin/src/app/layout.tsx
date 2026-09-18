@@ -1,5 +1,6 @@
 import { PRODUCT_NAME } from "@magicmis/core/brand";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
@@ -17,9 +18,16 @@ export const metadata: Metadata = {
 /** Every page renders per request so Next.js can apply the CSP nonce (proxy.ts, SPEC §30). */
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await connection();
+  // The same cookie and the same palette as the customer app (ADR 0034, ADR 0035).
+  const theme = (await cookies()).get("theme")?.value;
+  const chosen = theme === "dark" || theme === "light" ? theme : undefined;
   return (
-    <html lang="en-IN" className={inter.variable}>
-      <body className="min-h-screen bg-neutral-50 antialiased">{children}</body>
+    <html
+      lang="en-IN"
+      className={inter.variable}
+      {...(chosen === undefined ? {} : { "data-theme": chosen })}
+    >
+      <body className="min-h-screen bg-canvas antialiased">{children}</body>
     </html>
   );
 }

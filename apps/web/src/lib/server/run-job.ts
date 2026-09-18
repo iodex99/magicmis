@@ -10,8 +10,13 @@ import {
   type ClassifySheetsOutput,
 } from "@magicmis/ai";
 import { addMonths, periodId, type PeriodId } from "@magicmis/core/time";
-import { gateOutcome, type CheckResult } from "@magicmis/engine";
+import {
+  detectSourceFinancialYear,
+  gateOutcome,
+  type CheckResult,
+} from "@magicmis/engine";
 import { saveAccountRules } from "@magicmis/engine/server";
+import { primaryOf } from "@magicmis/tally";
 import {
   extractReferenceLayout,
   readSourceFile,
@@ -104,6 +109,22 @@ const NOTHING_USABLE =
   "We couldn't find account balances in these files. Add a trial balance exported from your accounting software (Excel, CSV or PDF all work) and run it again.";
 
 const MAX_AI_LEDGERS = 2000;
+
+/** The one notice that has to name a month in words (ADR 0035). */
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const monthLabel = (p: PeriodId): string =>
   new Date(`${p}-01T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -448,6 +469,21 @@ export async function runJobOnServer(
         .filter((b) => b.period === previousPeriod)
         .map((b) => [b.ledgerKey, BigInt(b.closing)]),
     );
+    // ADR 0035: an export on a different financial year from the company stays invisible until a
+    // month of revenue comes out as the whole year with a minus sign, so it is said plainly.
+    const sourceYear = detectSourceFinancialYear(
+      signed.facts,
+      (fact) => primaryOf(fact.groupPath[0] ?? "")?.statement === "profit_and_loss",
+    );
+    if (sourceYear !== null && sourceYear.startMonth !== session.company.fyStartMonth)
+      notice(
+        [
+          `These files run a financial year starting in ${MONTH_NAMES[sourceYear.startMonth - 1] ?? ""},`,
+          `but this company is set to start in ${MONTH_NAMES[session.company.fyStartMonth - 1] ?? ""}.`,
+          "Until they match, the first month of each year reads as a whole year.",
+          "Change the year under Reporting conventions on the company page, then run the month again.",
+        ].join(" "),
+      );
     const namesByKey = new Map(signed.facts.map((f) => [f.ledgerKey, f.name]));
     const labelText = (label: string) => label.replace(TOKEN_PATTERN, (t) => display(t));
     const duck = await openServerDuck();

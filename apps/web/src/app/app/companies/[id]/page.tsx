@@ -25,6 +25,7 @@ import { db } from "@/lib/db";
 import { PrintButton } from "@/components/PrintButton";
 
 import { CompanyFiles } from "./CompanyFiles";
+import { ReportingConventions } from "./ReportingConventions";
 import { DeleteCompany } from "./DeleteCompany";
 import { JobRunner } from "./run/JobRunner";
 import { Workspace } from "./Workspace";
@@ -124,8 +125,11 @@ export default async function CompanyPage({
     number_format: NumberFormatOptions["style"];
     decimals: number;
     currency: string;
+    fy_start_month: number;
+    date_order: "day_first" | "month_first";
   }>(
-    `select name, lifecycle_state, first_setup_at, number_format, decimals, currency
+    `select name, lifecycle_state, first_setup_at, number_format, decimals, currency,
+            fy_start_month, date_order
        from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
@@ -136,6 +140,12 @@ export default async function CompanyPage({
     tone: "neutral" as BadgeTone,
   };
   const active = company.lifecycle_state === "active";
+  const conventions = {
+    fyStartMonth: company.fy_start_month,
+    currency: company.currency,
+    numberFormat: company.number_format,
+    dateOrder: company.date_order,
+  };
   const frame = {
     accountId: account.accountId,
     businessName: account.businessName,
@@ -164,6 +174,43 @@ export default async function CompanyPage({
             </p>
           </Panel>
         )}
+        {active ? (
+          <details className="group mt-5 rounded-xl border border-neutral-200/80 bg-surface shadow-sm">
+            <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.875rem] font-semibold text-neutral-900 select-none">
+              <span className="flex items-center gap-2">
+                <Icon name="settings" size={16} className="text-neutral-400" />
+                Reporting conventions
+              </span>
+              <span className="flex items-center gap-2 text-[0.8125rem] font-normal text-neutral-500">
+                {company.currency} · year starts{" "}
+                {
+                  [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                  ][company.fy_start_month - 1]
+                }
+                <Icon
+                  name="chevron-down"
+                  size={16}
+                  className="text-neutral-400 group-open:rotate-180"
+                />
+              </span>
+            </summary>
+            <div className="px-5 pb-5">
+              <ReportingConventions companyId={id} current={conventions} />
+            </div>
+          </details>
+        ) : null}
         {kept.files.length === 0 ? null : (
           <details
             className="group mt-5 rounded-xl border border-neutral-200/80 bg-surface shadow-sm"
@@ -381,6 +428,28 @@ export default async function CompanyPage({
               })}
             </DataTable>
           )}
+        </details>
+
+        <details className="group rounded-xl border border-neutral-200/80 bg-surface shadow-sm">
+          <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[0.9375rem] font-semibold text-neutral-900 select-none">
+            <span className="flex items-center gap-2">
+              <Icon name="settings" size={16} className="text-neutral-400" />
+              Reporting conventions
+            </span>
+            <Icon
+              name="chevron-down"
+              size={16}
+              className="text-neutral-400 group-open:rotate-180"
+            />
+          </summary>
+          <div className="px-5 pb-5">
+            <p className="mb-3 text-[0.8125rem] text-neutral-500">
+              How this company&rsquo;s own books are kept. The financial year has to match
+              the exports: a January year reading April&ndash;March files turns each
+              year&rsquo;s first month into a whole year.
+            </p>
+            <ReportingConventions companyId={id} current={conventions} />
+          </div>
         </details>
 
         <details className="group rounded-xl border border-neutral-200/80 bg-surface shadow-sm">

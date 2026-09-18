@@ -253,3 +253,15 @@ html {
     display: block !important;
   }
 }
+
+/* A commentary opened as a report prints on its own, without the workspace behind it. */
+@media print {
+  body[data-printing="report"] > *:not(.report-overlay) {
+    display: none !important;
+  }
+  .report-overlay {
+    position: static !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+}
