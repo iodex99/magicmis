@@ -196,3 +196,7 @@ What changed:
 Not done, and why: no "ChatGPT for accounting" page — it would rank on a competitor's brand
 for a product that is deliberately not a general chatbot, and the honest answer to that
 query is already the FAQ "Is this ChatGPT reading my accounts?" on the chat page.
+
+### 9. Files for the machines that read us (2026-09-18, ADR 0042)
+
+`robots.txt`, `sitemap.xml` and the manifest existed. Added: `/llms.txt` and `/llms-full.txt` in the [llmstxt.org](https://llmstxt.org) shape, generated from `PUBLIC_PAGES`; the AI search and assistant crawlers named in `robots.txt` with the private paths repeated; the tour as a [video sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps) entry; and `/.well-known/security.txt` ([RFC 9116](https://www.rfc-editor.org/rfc/rfc9116)), which answers 404 until a real support address is configured (R-02). Not done: IndexNow, which waits for the production domain (R-01).

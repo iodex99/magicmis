@@ -7,6 +7,7 @@ export const metadata = { title: "Check your email" };
 export default function CheckEmailPage() {
   return (
     <AuthShell
+      moment="confirm"
       title="Check your email"
       description="We sent a verification link to the address you entered. Open it to confirm your email."
     >

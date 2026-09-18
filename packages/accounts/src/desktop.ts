@@ -58,6 +58,9 @@ export const DEVICE_AGNOSTIC_PATHS: readonly string[] = [
   "/guides",
   "/help",
   "/legal",
+  "/llms.txt",
+  "/llms-full.txt",
+  "/.well-known",
   "/desktop-required",
   "/api/webhooks",
 ];

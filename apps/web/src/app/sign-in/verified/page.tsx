@@ -4,7 +4,7 @@ export const metadata = { title: "Email verified" };
 
 export default function VerifiedPage() {
   return (
-    <AuthShell title="Email verified">
+    <AuthShell moment="welcome" title="Email verified">
       <div className="flex flex-col gap-4">
         <Alert tone="success">Your email address is confirmed.</Alert>
         <p className="text-sm text-neutral-600">

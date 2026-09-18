@@ -187,6 +187,46 @@ test("robots.txt and sitemap.xml are served and agree with the site", async ({
   }
 });
 
+test("llms.txt is served in the llmstxt.org shape, and robots welcomes the AI crawlers", async ({
+  request,
+}) => {
+  for (const path of ["/llms.txt", "/llms-full.txt"]) {
+    const res = await request.get(path);
+    expect(res.status(), path).toBe(200);
+    expect(res.headers()["content-type"], path).toContain("text/plain");
+    const text = await res.text();
+    expect(text.startsWith("# "), `${path} opens with an H1`).toBe(true);
+    expect(text).toContain("\n> ");
+    expect(text).toContain("## Product");
+  }
+  // The long form lists every public page, like the sitemap.
+  const full = await (await request.get("/llms-full.txt")).text();
+  for (const path of PUBLIC_PATHS) {
+    if (path === "/") continue;
+    expect(full, `${path} is missing from llms-full.txt`).toContain(path);
+  }
+
+  const robots = await (await request.get("/robots.txt")).text();
+  for (const agent of ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"])
+    expect(robots, `${agent} is not named`).toContain(`User-Agent: ${agent}`);
+
+  // No real contact is configured in this stack, so there is nothing honest to publish.
+  expect((await request.get("/.well-known/security.txt")).status()).toBe(404);
+});
+
+test("the public site says nothing about what it is built on (ADR 0042)", async ({
+  page,
+}) => {
+  // The privacy notice and the processing notice name processors because the law and the
+  // consent require it; nothing else on the site does.
+  for (const path of PUBLIC_PATHS.filter((p) => !p.startsWith("/legal"))) {
+    await page.goto(path);
+    await expect(page.locator("main"), path).not.toContainText(
+      /anthropic|\bclaude\b|openai|supabase|vercel|postgres|\bKMS\b|mumbai region/iu,
+    );
+  }
+});
+
 test("public pages show no figure without saying it is fictional (SPEC §2.3)", async ({
   page,
 }) => {

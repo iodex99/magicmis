@@ -69,7 +69,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is my financial data used to train AI models?",
     answer:
-      "No. AI requests are sent to Anthropic, which does not use API data to train its models by default. And what is sent is redacted first: party names and identifiers are replaced with tokens before anything goes to the model.",
+      "No. Your data is not used to train AI models. And what is sent to the model is redacted first: party names and identifiers are replaced with tokens before anything goes to the model.",
   },
   {
     question: "Does it work with my accounting system?",

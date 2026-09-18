@@ -68,10 +68,14 @@ export default async function AppHomePage() {
     <AppFrame accountId={account.accountId} businessName={account.businessName}>
       {companies.length === 0 ? (
         <>
-          <div className="mb-6">
-            <h1 className="display text-[1.75rem] leading-tight font-semibold text-neutral-900">
+          <div className="rise mb-6">
+            <p className="eyebrow mb-1.5">Workspace</p>
+            <h1 className="display text-[2rem] leading-tight font-semibold text-neutral-900">
               Welcome to {PRODUCT_NAME}
             </h1>
+            <p className="mt-1.5 text-sm text-neutral-500">
+              Add your first company and drop in last month. That is the whole setup.
+            </p>
           </div>
           <div data-testid="app-home">
             <AddCompany defaults={conventions} startOpen />
@@ -92,6 +96,7 @@ export default async function AppHomePage() {
       ) : (
         <>
           <PageHeader
+            eyebrow="Workspace"
             title="Companies"
             description="Open a company to see its dashboard, ask about its figures or add a month."
           />

@@ -11,7 +11,7 @@ export default async function SignedOutPage({
   const elsewhere = reason === "elsewhere";
   const deleted = reason === "deleted";
   return (
-    <AuthShell title="Signed out">
+    <AuthShell moment="leave" title="Signed out">
       <div className="flex flex-col gap-3 text-sm text-neutral-600">
         {/* SPEC §8: the exact explanation for a superseded session. */}
         <p data-testid="signed-out-reason">

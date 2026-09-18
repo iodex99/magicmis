@@ -144,7 +144,7 @@ export default function HowItWorksPage() {
 
       <Section title="The rule the rest follows from">
         <p>
-          Claude never outputs a number. Every figure in every workbook, dashboard,
+          The AI never outputs a number. Every figure in every workbook, dashboard,
           commentary line and chat answer is computed by the deterministic engine and
           inserted through a placeholder.
         </p>

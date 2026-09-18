@@ -57,6 +57,7 @@ export default function SignUpPage() {
 
   return (
     <AuthShell
+      moment="join"
       title="Create your account"
       description="Free to create. You buy credits when you are ready to run something."
       footer={
@@ -81,7 +82,7 @@ export default function SignUpPage() {
           name="email"
           type="email"
           label="Work email"
-          placeholder="you@firm.in"
+          placeholder="you@firm.com"
           autoComplete="email"
           autoFocus
           required
@@ -101,7 +102,7 @@ export default function SignUpPage() {
           id="businessName"
           name="businessName"
           label="Business name"
-          placeholder="Sharma & Associates"
+          placeholder="Northwind & Co"
           autoComplete="organization"
           required
           hint="Goes on your invoices. You can change it later."

@@ -121,7 +121,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `Which of these does ${PRODUCT_NAME} produce?`,
     answer:
-      "All of them, because they are the same report. From a trial balance export it produces the Excel workbook — P&L, balance sheet, ratios, ageing, checks and lineage — plus a dashboard and written commentary, in your own currency, number style and financial year. Which name you call it is up to you.",
+      "All of them, because they are the same report. From the raw trial balance it produces the Excel workbook — P&L, balance sheet, ratios, ageing, checks and lineage — plus a dashboard and written commentary, in your own currency, number style and financial year. Which name you call it is up to you.",
   },
 ];
 

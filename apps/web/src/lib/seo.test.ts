@@ -42,6 +42,9 @@ describe("public pages", () => {
       "/api/webhooks",
       "/samples",
       "/og",
+      "/llms.txt",
+      "/llms-full.txt",
+      "/.well-known",
     ];
     const known = new Set(PUBLIC_PAGES.map((p) => p.path));
     for (const path of DEVICE_AGNOSTIC_PATHS) {

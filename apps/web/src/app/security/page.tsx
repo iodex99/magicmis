@@ -23,13 +23,18 @@ const PATH = "/security";
 export const metadata: Metadata = pageMetadata(PATH);
 
 /**
- * Where the files go, and what happens to them there (ADR 0032).
+ * Where the files go, and what happens to them there (ADR 0032, trimmed in ADR 0042).
  *
- * A CA firm holds its clients' books; "we take security seriously" is worth nothing to them.
- * This page states the arrangement precisely, including the parts that are weaker than a
- * reader might assume — a security page that only lists strengths is not evidence. The
- * retention period is read from configuration, so the page cannot promise a different one
- * from the purge that enforces it.
+ * What a buyer needs in order to decide, and nothing about how it is built: no vendor, no
+ * product name, no region, no description of the internals. Naming the stack tells a reader
+ * nothing they can act on and tells an attacker where to start. What the law requires to be
+ * disclosed — who processes personal data, and where — lives in the privacy notice, which is
+ * the document written for that purpose.
+ *
+ * The limits stay. A security page that lists only strengths is not evidence, and the three
+ * things this one admits are the three a careful firm would ask about anyway. The retention
+ * period is read from configuration, so the page cannot promise a different one from the purge
+ * that enforces it.
  */
 
 export default async function SecurityPage() {
@@ -39,55 +44,47 @@ export default async function SecurityPage() {
   const zones: readonly { zone: string; holds: string; highlight: boolean }[] = [
     {
       zone: "Our servers",
-      holds: `Your uploaded files, each encrypted under a key that belongs to that company alone and deleted automatically ${days} after upload, or sooner when you delete them. Files are read, ledgers mapped and every figure computed here.`,
+      holds: `Your uploaded files, each encrypted under a key that belongs to that company alone, and deleted automatically ${days} after upload or sooner if you delete them. Every figure is computed here.`,
       highlight: true,
     },
     {
-      zone: "Anthropic",
+      zone: "The AI model",
       holds:
-        "Only what a specific step sends: the structure of a sheet, a small sample of its rows and the names of ledgers, with party names, employee names and identifiers replaced by tokens first. Never a whole file, never a figure to calculate, never a prompt chosen by the browser.",
+        "Only what one step needs: the shape of a sheet, a small sample and ledger names, with names and identifiers replaced by tokens first. Never a whole file, and never a figure to calculate.",
       highlight: false,
     },
     {
       zone: "Your browser",
       holds:
-        "Files leave it over an encrypted connection and the finished workbook comes back to it. Nothing from your files is kept in the browser.",
+        "Files leave it over an encrypted connection and the finished workbook comes back. Nothing from your files is kept in the browser.",
       highlight: false,
     },
   ];
 
   const controls: readonly { title: string; body: string }[] = [
     {
-      title: "Files are encrypted the moment they arrive",
-      body: "Each part of an uploaded file is encrypted under its company's own key before it is stored, so storage only ever holds ciphertext.",
+      title: "Encrypted the moment it arrives",
+      body: "Every file is encrypted under its company's own key before it is stored. Each company has a separate key.",
     },
     {
-      title: "Uploaded files are deleted on a schedule",
-      body: `Files are deleted automatically ${days} after upload. Each company's page lists every file kept for it and lets you delete any of them sooner. Deleting a company deletes its files.`,
+      title: "Deleted on a schedule",
+      body: `Uploaded files are deleted automatically ${days} after upload. Each company's page lists the files kept for it and lets you delete any of them sooner.`,
     },
     {
-      title: "Names and identifiers are redacted before the AI sees anything",
-      body: "Party names, employee names, tax numbers, bank details, emails and phone numbers are replaced with tokens before any part of a file is sent to the AI model. The model proposes which line a ledger belongs on; it never produces a figure.",
+      title: "Redacted before any AI sees it",
+      body: "Party names, employee names, tax numbers, bank details, emails and phone numbers are replaced with tokens first. The AI suggests where a ledger belongs and drafts sentences; it never produces a figure.",
     },
     {
-      title: "Company data is encrypted under its own key",
-      body: "Each company has its own data encryption key, wrapped by a master key held in a cloud KMS. Deleting a company destroys its key, which makes its stored data and files unreadable rather than merely flagged as deleted.",
+      title: "Deleting means unreadable",
+      body: "Deleting a company destroys its encryption key, so its data and files cannot be read again by anyone — not merely marked as deleted.",
     },
     {
-      title: "One active session per account",
-      body: "A new sign-in ends the previous session on its next request. There are no team logins, shared accounts or access links of any kind.",
+      title: "One session, and a second check for anything irreversible",
+      body: "A new sign-in ends the previous one; there are no shared logins or access links. Exporting data, deleting a company or an account, and changing credentials each ask for your password again.",
     },
     {
-      title: "Sensitive actions ask for the password again",
-      body: "Data export, account deletion, company deletion and credential changes each require re-authentication, within a short session-bound window, throttled with its own lockout.",
-    },
-    {
-      title: "The ledger is append-only and hash-chained",
-      body: "Credit movements and audit events are chained by hash and carry no UPDATE or DELETE permission at the database level, so a silent edit is not available even to us. Anchors over the chain are verified nightly.",
-    },
-    {
-      title: "Operator access is scoped and visible",
-      body: "Break-glass access covers one company at a time, needs a fresh authenticator code, is written to the audit log, and emails you every day it is used.",
+      title: "Our own access is limited and visible to you",
+      body: "Support access covers one company at a time, is recorded, and emails you on every day it is used.",
     },
   ];
 
@@ -97,24 +94,24 @@ export default async function SecurityPage() {
       answer: `Yes. It is sent over an encrypted connection, encrypted on arrival under a key unique to that company, used only for the runs you pay for, and deleted automatically ${days} after upload, or as soon as you delete it.`,
     },
     {
-      question: "Does Anthropic see my accounting data?",
+      question: "Does the AI see my accounting data?",
       answer:
-        "Anthropic receives only what a specific step sends: a sheet's structure, a small sample of rows and ledger names, with names and identifiers replaced by tokens. There is no endpoint that forwards a prompt chosen by the browser, the API key is server-side only, and API data is not used to train models by default.",
+        "Only a redacted fragment of it, for the one step it is performing: a sheet's structure, a small sample and ledger names, with names and identifiers replaced by tokens. It never receives a whole file, and your data is not used to train AI models.",
     },
     {
       question: "Is there two-factor authentication?",
       answer:
-        "Not for customer accounts. Sign-in is by password, with one active session per account, throttling by both IP and email address, re-authentication before anything irreversible, and login history with new-device email alerts. Stated plainly so you can weigh it: a leaked password is the single factor protecting an account, so use a password manager and a password unique to this service.",
-    },
-    {
-      question: "Where is the data stored?",
-      answer:
-        "In the Mumbai region, with encryption keys held in a cloud KMS in the same region. The processing register lists the subprocessors involved and what each one holds.",
+        "Not for customer accounts. Sign-in is by password, with one active session per account, sign-in throttling, a password check before anything irreversible, and an email alert when a new device signs in. Stated plainly so you can weigh it: use a password manager and a password unique to this service.",
     },
     {
       question: "What happens if I delete my account?",
       answer:
-        "Deletion requires re-authentication and typing your email address. The encryption keys are destroyed, which renders the stored data and files unreadable. Unused credits are forfeited, and deletion is refused while credits are held against running work.",
+        "Deletion asks for your password and your email address. The encryption keys are destroyed, which makes the stored data and files unreadable. Unused credits are forfeited, and an account cannot be deleted while work is still running.",
+    },
+    {
+      question: "Who else processes my data?",
+      answer:
+        "The privacy notice lists every processor involved and what each one handles. It is the document written for that question, and it is kept current.",
     },
   ];
 
@@ -128,12 +125,12 @@ export default async function SecurityPage() {
         path={PATH}
         eyebrow="Security"
         heading="Where your files go, and what happens to them"
-        intro="You hold your clients' books. That makes where they are sent, who can read them and when they are deleted the first things worth checking — so here they are exactly, including where the arrangement is weaker than you might assume."
+        intro="You hold your clients' books, so where they are sent, who can read them and when they are deleted are the first things worth checking. Here they are, including the limits."
       />
 
       <WideSection
         title="The three places"
-        intro="The architecture is arranged around this table. Everything else follows from it."
+        intro="Everything about how your data is handled follows from this."
       >
         <div className="mx-auto grid max-w-[1000px] gap-4 md:grid-cols-3">
           {zones.map((zone) => (
@@ -156,7 +153,7 @@ export default async function SecurityPage() {
         </div>
       </WideSection>
 
-      <Section title="The controls behind that">
+      <Section title="What protects it">
         <ul className="flex flex-col gap-5">
           {controls.map((c) => (
             <li key={c.title}>
@@ -169,20 +166,10 @@ export default async function SecurityPage() {
 
       <Section title="What we do not claim">
         <p>
-          No external security audit has been carried out, and no compliance certification
-          is held. The controls above are design decisions with automated tests behind
-          them, which is a different and weaker thing than an independent assessment — and
-          worth knowing before you decide.
-        </p>
-        <p>
-          Your files are on our servers while they are kept. They are encrypted and
-          deleted on a schedule, but they are there, and a service that never received the
-          file would be a stronger guarantee than this one.
-        </p>
-        <p>
-          Customer sign-in has one factor. That was a deliberate decision, recorded with
-          its cost, and the compensating controls are listed above. If a second factor is
-          a requirement for your firm, it is not available today.
+          No external security audit has been carried out and no compliance certification
+          is held. Your files are on our servers while they are kept — encrypted and
+          deleted on a schedule, but there. And customer sign-in has one factor. If any of
+          those is a requirement for your firm, it is better to know now.
         </p>
       </Section>
 

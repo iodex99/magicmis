@@ -698,8 +698,11 @@ export function PageHeader({
   actions,
   back,
   meta,
+  eyebrow,
 }: {
   title: string;
+  /** The small line above the title the site uses on every page; the app echoes it (ADR 0042). */
+  eyebrow?: string | undefined;
   description?: string | undefined;
   actions?: ReactNode | undefined;
   back?: { href: string; label: string } | undefined;
@@ -718,6 +721,7 @@ export function PageHeader({
       )}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
+          {eyebrow === undefined ? null : <p className="eyebrow mb-1.5">{eyebrow}</p>}
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="display text-[1.75rem] leading-tight font-semibold text-neutral-900">
               {title}
@@ -771,46 +775,207 @@ export function Tabs({
   );
 }
 
-/** The centred shell every unauthenticated screen uses. */
+/**
+ * The moment a visitor is in, which decides what the brand panel says to them (ADR 0042).
+ * Sign-up is three of these in a row, so those three also carry a step.
+ */
+export type AuthMoment = "return" | "join" | "confirm" | "welcome" | "leave";
+
+const AUTH_MOMENTS: Record<
+  AuthMoment,
+  { eyebrow: string; heading: string; points: readonly string[]; step: number | null }
+> = {
+  return: {
+    eyebrow: "Welcome back",
+    heading: "Your numbers are where you left them.",
+    points: [
+      "Every company, with its mapping and its months",
+      "Next month is a refresh, not a rebuild",
+      "Credits that never expire",
+    ],
+    step: null,
+  },
+  join: {
+    eyebrow: "Start here",
+    heading: "Raw data in. A checked MIS out.",
+    points: [
+      "Free to create. You pay only when you run something",
+      "Works from any accounting system's trial balance",
+      "Every figure traceable to the ledger it came from",
+    ],
+    step: 1,
+  },
+  confirm: {
+    eyebrow: "One more step",
+    heading: "The link in your inbox signs you in.",
+    points: [
+      "No second password, no code to type",
+      "It lands you in your workspace, ready for a company",
+    ],
+    step: 2,
+  },
+  welcome: {
+    eyebrow: "You are in",
+    heading: "Add a company and drop in last month.",
+    points: [
+      "Name it, and the conventions are filled in for you",
+      "Any format: Excel, CSV or PDF",
+    ],
+    step: 3,
+  },
+  leave: {
+    eyebrow: "Until next month",
+    heading: "Signed out. Everything is where you left it.",
+    points: [
+      "Files stay encrypted under each company's own key",
+      "Your credits never expire",
+      "Next month is a refresh, not a rebuild",
+    ],
+    step: null,
+  },
+};
+
+const AUTH_STEPS: readonly string[] = ["Account", "Confirm email", "First company"];
+
+/**
+ * The frame around sign-in, sign-up and sign-out (ADR 0042).
+ *
+ * Half of it is the ink the app's rail is made of, with the mark in the rail's own corner, so
+ * signing in reads as that panel folding down into the rail rather than as a jump between two
+ * products; the other half is the same dot-grid canvas the site and the app both stand on.
+ * The ink carries words only, never a figure (SPEC §32). Below the large breakpoint the panel
+ * goes and the mark sits above the form.
+ */
 export function AuthShell({
   title,
   description,
   children,
   footer,
   width = "narrow",
+  moment = "return",
 }: {
   title: string;
   description?: string | undefined;
   children: ReactNode;
   footer?: ReactNode | undefined;
-  /** Sign-up carries a billing address and needs the room; everything else does not. */
+  /** Sign-up carries more fields and needs the room; everything else does not. */
   width?: "narrow" | "wide" | undefined;
+  moment?: AuthMoment | undefined;
 }) {
+  const aside = AUTH_MOMENTS[moment];
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-12">
-      <div className={`w-full ${width === "wide" ? "max-w-[32rem]" : "max-w-[26rem]"}`}>
-        <Link
-          href="/"
-          className="mb-8 flex items-center justify-center"
-          aria-label={PRODUCT_NAME}
-        >
-          <Logo size={34} animate />
+    <main className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <aside className="on-ink ink-grid relative hidden flex-col justify-between overflow-hidden bg-ink-900 p-10 text-white lg:flex xl:p-14">
+        <Link href="/" aria-label={`${PRODUCT_NAME} home`} className="w-fit">
+          <Logo size={30} onInk animate />
         </Link>
-        <div className="rounded-2xl border border-neutral-200/80 bg-surface p-7 shadow-lg">
-          <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
-            {title}
-          </h1>
-          {description === undefined ? null : (
-            <p className="mt-1.5 text-[0.8125rem] text-neutral-500">{description}</p>
-          )}
-          <div className="mt-6">{children}</div>
+
+        <div className="max-w-[26rem]">
+          <p
+            className="rise text-[0.75rem] font-semibold tracking-[0.12em] text-accent-300 uppercase"
+            style={{ "--i": "0" } as React.CSSProperties}
+          >
+            {aside.eyebrow}
+          </p>
+          <p
+            className="display rise mt-3 text-[2.25rem] leading-[1.08] font-semibold"
+            style={{ "--i": "1" } as React.CSSProperties}
+          >
+            {aside.heading}
+          </p>
+          {/* The mark's own line, drawn once: the brand, not a chart, so it carries no figure. */}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 64 40"
+            className="mt-7 h-16 w-28 text-accent-300"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path className="draw" d="M4 36 L17 8 L29 22 L42 2 L54 18" />
+          </svg>
+          <ul className="mt-7 flex flex-col gap-3">
+            {aside.points.map((point, i) => (
+              <li
+                key={point}
+                className="rise flex items-start gap-3 text-[0.9375rem] text-neutral-200"
+                style={{ "--i": String(i + 2) } as React.CSSProperties}
+              >
+                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-ink-700 text-accent-300">
+                  <Icon name="check" size={12} />
+                </span>
+                {point}
+              </li>
+            ))}
+          </ul>
         </div>
-        {footer === undefined ? null : (
-          <div className="mt-5 text-center text-[0.8125rem] text-neutral-500">
-            {footer}
+
+        <p className="text-[0.8125rem] text-neutral-400">
+          Prepaid credits · No subscription · Every figure traceable
+        </p>
+      </aside>
+
+      <section className="canvas-grid flex items-center justify-center px-4 py-12">
+        <div className={`w-full ${width === "wide" ? "max-w-[32rem]" : "max-w-[26rem]"}`}>
+          <Link
+            href="/"
+            className="mb-8 flex items-center justify-center lg:hidden"
+            aria-label={PRODUCT_NAME}
+          >
+            <Logo size={34} animate />
+          </Link>
+
+          {aside.step === null ? null : (
+            <ol
+              className="rise mb-5 flex items-center gap-2 text-[0.75rem] font-medium"
+              aria-label="Getting started"
+            >
+              {AUTH_STEPS.map((label, i) => {
+                const reached = i + 1 <= (aside.step ?? 0);
+                return (
+                  <li
+                    key={label}
+                    className="flex flex-1 flex-col gap-1.5"
+                    aria-current={i + 1 === aside.step ? "step" : undefined}
+                  >
+                    <span
+                      className={`h-1 rounded-full ${reached ? "bg-accent-600" : "bg-neutral-200"}`}
+                    />
+                    <span className={reached ? "text-neutral-700" : "text-neutral-400"}>
+                      {label}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+
+          <div
+            className="rise rounded-2xl border border-neutral-200/80 bg-surface p-7 shadow-lg"
+            style={{ "--i": "1" } as React.CSSProperties}
+          >
+            <h1 className="display text-[1.5rem] leading-tight font-semibold tracking-tight text-neutral-900">
+              {title}
+            </h1>
+            {description === undefined ? null : (
+              <p className="mt-1.5 text-[0.8125rem] text-neutral-500">{description}</p>
+            )}
+            <div className="mt-6">{children}</div>
           </div>
-        )}
-      </div>
+          {footer === undefined ? null : (
+            <div className="mt-5 text-center text-[0.8125rem] text-neutral-500">
+              {footer}
+            </div>
+          )}
+          <p className="mt-6 text-center text-[0.75rem] text-neutral-400">
+            <Link href="/" className="hover:text-neutral-700">
+              ← Back to {PRODUCT_NAME}
+            </Link>
+          </p>
+        </div>
+      </section>
     </main>
   );
 }

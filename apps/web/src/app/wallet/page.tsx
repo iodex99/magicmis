@@ -22,6 +22,7 @@ export default async function WalletPage({
   return (
     <AppFrame accountId={account.accountId} businessName={account.businessName}>
       <PageHeader
+        eyebrow="Credits"
         title="Wallet"
         description="Your credits, what they buy, your invoices and every movement."
       />
