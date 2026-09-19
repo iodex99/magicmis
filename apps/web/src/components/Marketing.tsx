@@ -244,7 +244,7 @@ export function ClosingCta({
 /**
  * The ask in the middle of a long page. A reader who is convinced halfway down
  * should not have to scroll to the foot to act on it, and one who is not yet convinced is
- * offered the thing that convinces without a sign-up: the sample workbook.
+ * shown what a finished board looks like (ADR 0051: there is no sample to download).
  */
 export function MidCta() {
   return (
@@ -257,13 +257,8 @@ export function MidCta() {
           <ButtonLink href="/sign-up" size="sm" iconAfter="arrow-right">
             Try it on your own month
           </ButtonLink>
-          <ButtonLink
-            href="/mis-report-template"
-            size="sm"
-            variant="secondary"
-            icon="download"
-          >
-            Download a sample
+          <ButtonLink href="/mis-dashboard" size="sm" variant="secondary" icon="chart">
+            See a dashboard
           </ButtonLink>
         </div>
       </div>

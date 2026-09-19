@@ -72,7 +72,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is there a free trial?",
     answer:
-      "No. Creating an account and adding a company are free, and the sample workbook on this site shows exactly what the output looks like. Anything that analyses your own data is a paid action.",
+      "No. Creating an account and adding a company are free, and the sample dashboards on this site show what the output looks like. Anything that analyses your own data is a paid action.",
   },
 ];
 

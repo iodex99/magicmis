@@ -115,7 +115,9 @@ What changed:
   financial statements, the table of names by market), `/mis-report-template` (a complete
   sample month to download, rendered by the product from the synthetic fixtures — §2.3
   permits a public sample on fictional data), `/board-pack`, `/month-end-reporting-package`
-  and `/management-reporting-software` (the buyer's comparison query).
+  and `/management-reporting-software` (the buyer's comparison query). **Later:**
+  `/mis-report-template` and its download were removed and the address redirects to
+  `/mis-dashboard`; the home page shows sample dashboards instead (ADR 0051).
 - **Every vocabulary page says the other names** through `AlsoCalled`, which links each term
   to the page written in it and to the glossary. `REPORT_NAMES` in `lib/seo.ts` is the one
   list.

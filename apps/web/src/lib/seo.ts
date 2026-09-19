@@ -359,16 +359,6 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     updated: "2026-09-18",
   },
   {
-    path: "/mis-report-template",
-    title: "MIS report template in Excel: a sample monthly MIS to download",
-    description:
-      "A sample monthly MIS on fictional data — P&L, balance sheet, ratios, checks and lineage — to download and open in Excel, with what each sheet is for and how to fill your own.",
-    changeFrequency: "monthly",
-    priority: 0.85,
-    locale: "en_IN",
-    updated: "2026-09-18",
-  },
-  {
     path: "/board-pack",
     title: "Board pack: what a monthly board report contains and how to produce it",
     description:
@@ -446,7 +436,6 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
 export const GUIDE_PATHS: readonly string[] = [
   "/what-is-an-mis-report",
   "/mis-report-format",
-  "/mis-report-template",
   "/management-accounts",
   "/guides/mis-kpis-and-ratios",
   "/guides/trial-balance-to-management-report",

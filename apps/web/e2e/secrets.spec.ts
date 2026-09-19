@@ -57,7 +57,6 @@ const STATIC_PATHS = [
   "/ai-financial-reporting",
   "/mis-dashboard",
   "/what-is-an-mis-report",
-  "/mis-report-template",
   "/board-pack",
   "/month-end-reporting-package",
   "/management-reporting-software",

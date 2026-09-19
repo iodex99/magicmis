@@ -72,7 +72,6 @@ function sections(full: boolean): string {
     "## Optional",
     ...(full ? [] : SOLUTION_PATHS.slice(8).map(link)),
     ...legal.map(link),
-    `- [Sample monthly MIS workbook](${absoluteUrl("/samples/sample-monthly-mis.xlsx")}): A complete month for a fictional company, rendered by the product, to download.`,
   ];
   return out.join("\n");
 }

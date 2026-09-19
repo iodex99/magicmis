@@ -51,7 +51,6 @@ const FOOTER_GROUPS: readonly {
     links: [
       ["/what-is-an-mis-report", "What is an MIS report?"],
       ["/mis-report-format", "MIS report format"],
-      ["/mis-report-template", "Sample MIS to download"],
       ["/management-accounts", "Management accounts"],
       ["/guides/mis-kpis-and-ratios", "KPIs and ratios"],
       ["/guides/debtors-ageing-report", "Debtors ageing"],

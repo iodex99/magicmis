@@ -368,6 +368,61 @@ html {
   }
 }
 
+/*
+ * Sample dashboards drifting past on the public site (ADR 0051). Each row is laid out twice and
+ * slides by exactly one copy, so it meets itself without a seam; the group's trailing padding is
+ * the gap, which is what makes "one copy" exactly half the track. It stops under the pointer so a
+ * board can be read. No fade at the edges: a fade is a gradient (ADR 0036).
+ */
+.marquee {
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 80s linear infinite;
+}
+
+.marquee-reverse {
+  animation-direction: reverse;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  gap: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Nothing drifts for a reader who asked for stillness: the row scrolls by hand instead. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    overflow-x: auto;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+
+  .marquee-group[aria-hidden="true"] {
+    display: none;
+  }
+}
+
 /* The lineage drawer and new chat messages arrive with a short movement, not a jump. */
 @keyframes drawer-in {
   from {

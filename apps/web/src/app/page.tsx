@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { DashboardCarousel } from "@/components/DashboardCarousel";
 import { Icon, type IconName } from "@/components/Icon";
 import { Faqs, TourVideo } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
@@ -268,16 +269,10 @@ export default function HomePage() {
           <ButtonLink href="/sign-up" size="lg" iconAfter="arrow-right">
             Start with last month
           </ButtonLink>
-          <ButtonLink
-            href="/mis-report-template"
-            size="lg"
-            variant="secondary"
-            icon="download"
-          >
-            Download a sample MIS
-          </ButtonLink>
         </div>
       </section>
+
+      <DashboardCarousel />
 
       <section className="border-y border-neutral-200/70 bg-surface">
         <div className="mx-auto w-full max-w-[1120px] px-6 py-14">

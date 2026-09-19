@@ -32,7 +32,6 @@ const PUBLIC_PATHS = [
   "/ai-financial-reporting",
   "/mis-dashboard",
   "/what-is-an-mis-report",
-  "/mis-report-template",
   "/board-pack",
   "/month-end-reporting-package",
   "/management-reporting-software",
@@ -240,6 +239,70 @@ test("public pages show no figure without saying it is fictional (SPEC §2.3)", 
       /invented|fictional|illustration/iu,
     );
   }
+});
+
+test("the home page shows sample dashboards drifting in two directions, and offers no sample MIS to download (ADR 0051)", async ({
+  page,
+  browser,
+}) => {
+  await page.goto("/");
+  const carousel = page.getByTestId("dashboard-carousel");
+  await expect(carousel).toContainText(/invented/iu);
+  const rows = carousel.getByTestId("dashboard-row");
+  await expect(rows).toHaveCount(2);
+  // Five boards a row to a reader; the second copy of each row exists only to close the loop.
+  await expect(carousel.getByRole("article")).toHaveCount(10);
+  await expect(carousel.locator("article")).toHaveCount(20);
+
+  // One row runs right to left and the other left to right, and both are actually moving.
+  const motion = await rows.evaluateAll((els) =>
+    els.map((el) => {
+      const track = el.querySelector(".marquee-track");
+      const style = track === null ? null : getComputedStyle(track);
+      return {
+        name: style?.animationName,
+        direction: style?.animationDirection,
+        state: style?.animationPlayState,
+      };
+    }),
+  );
+  expect(motion).toEqual([
+    { name: "marquee", direction: "normal", state: "running" },
+    { name: "marquee", direction: "reverse", state: "running" },
+  ]);
+  // The drifting rows never make the page itself scroll sideways.
+  const sideways = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(sideways).toBeLessThanOrEqual(0);
+
+  // The sample MIS is gone from the site: no offer of it, and its old address moves for good.
+  for (const path of ["/", "/product", "/pricing", "/what-is-an-mis-report"]) {
+    await page.goto(path);
+    await expect(page.locator("body"), path).not.toContainText(
+      /sample MIS|download a sample|sample workbook/iu,
+    );
+  }
+  const old = await page.request.get("/mis-report-template", { maxRedirects: 0 });
+  expect(old.status()).toBe(308);
+  expect(old.headers()["location"]).toBe("/mis-dashboard");
+
+  // A reader who asked for stillness gets a row that stands still and scrolls by hand.
+  const still = await browser.newContext({ reducedMotion: "reduce" });
+  const calm = await still.newPage();
+  await calm.goto("/");
+  const names = await calm
+    .getByTestId("dashboard-row")
+    .evaluateAll((els) =>
+      els.map(
+        (el) => getComputedStyle(el.querySelector(".marquee-track") ?? el).animationName,
+      ),
+    );
+  expect(names).toEqual(["none", "none"]);
+  await expect(
+    calm.getByTestId("dashboard-carousel").locator("article:visible"),
+  ).toHaveCount(10);
+  await still.close();
 });
 
 test("the share card and favicon exist", async ({ page, request }) => {

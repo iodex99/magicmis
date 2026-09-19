@@ -220,9 +220,9 @@ export default function WhatIsAnMisReportPage() {
           <Link href="/mis-report-format" className="text-accent-700 hover:underline">
             the MIS report format
           </Link>
-          ; for a workbook you can open,{" "}
-          <Link href="/mis-report-template" className="text-accent-700 hover:underline">
-            download the sample MIS
+          ; for the board it becomes, see{" "}
+          <Link href="/mis-dashboard" className="text-accent-700 hover:underline">
+            the MIS dashboard
           </Link>
           .
         </p>

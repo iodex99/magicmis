@@ -40,6 +40,14 @@ const config: NextConfig = {
     "xlsx",
     "exceljs",
   ],
+  // The downloadable sample MIS is gone (ADR 0051). Its page ranked and is linked from outside,
+  // so the address moves for good to the page about the dashboard rather than ending in a 404.
+  async redirects() {
+    return [
+      { source: "/mis-report-template", destination: "/mis-dashboard", permanent: true },
+      { source: "/samples/:path*", destination: "/mis-dashboard", permanent: true },
+    ];
+  },
   poweredByHeader: false,
   reactStrictMode: true,
 };
