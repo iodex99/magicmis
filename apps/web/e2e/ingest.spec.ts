@@ -199,10 +199,11 @@ test("an empty wallet is said gently and early, and topped up in place without l
     .setInputFiles(fixture("trading", "clean", "trial_balance_2025-05.xlsx"));
   await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 120_000 });
   await page.getByTestId("job-run").click();
-  // The top-up is offered here, on this screen, and the file is still listed beside it.
-  await expect(page.getByRole("heading", { name: "Add credits" })).toBeVisible({
-    timeout: 60_000,
-  });
+  // This account has never bought anything, so the first thing asked is where to invoice. It
+  // is asked here, and answered in a new tab, so this page and its file are not replaced.
+  const billing = page.getByTestId("billing-first");
+  await expect(billing).toBeVisible({ timeout: 60_000 });
+  await expect(billing).toHaveAttribute("target", "_blank");
   await expect(page.getByTestId("job-files")).toContainText("trial_balance_2025-05.xlsx");
   await expect(page.getByText("The job could not be completed")).toHaveCount(0);
   // Nothing was held for the press: the rail still shows an empty wallet.

@@ -56,13 +56,19 @@ export function BuyCreditsInline({
   const isLive = () => live.current;
   useEffect(() => {
     live.current = true;
-    void api<WalletView>("/api/wallet").then((r) => {
-      if (!isLive()) return;
-      if (r.ok) setView(r.data);
-      else setNotice({ tone: "error", text: r.message });
-    });
+    const load = () =>
+      void api<WalletView>("/api/wallet").then((r) => {
+        if (!isLive()) return;
+        if (r.ok) setView(r.data);
+        else setNotice({ tone: "error", text: r.message });
+      });
+    load();
+    // Billing details are added in another tab (below), so that this one keeps its files or its
+    // message. Coming back to this tab looks again, and the packs are simply there (ADR 0049).
+    window.addEventListener("focus", load);
     return () => {
       live.current = false;
+      window.removeEventListener("focus", load);
     };
   }, []);
 
@@ -163,12 +169,21 @@ export function BuyCreditsInline({
 
   if (view !== null && !view.billingReady) {
     return (
-      <Alert tone="warning" title="Billing details needed first">
-        GST depends on where you are invoiced, so we need that once before you can buy.{" "}
-        <a href="/wallet" className="font-medium underline">
+      <Alert tone="info" title="One thing first: where to invoice you">
+        We ask once, before your first purchase, because tax depends on it.{" "}
+        {/* A new tab, deliberately. In this one it would replace the page, and with it the
+            files or the message this panel promises to keep. */}
+        <a
+          href="/wallet"
+          target="_blank"
+          rel="noopener"
+          className="font-medium underline"
+          data-testid="billing-first"
+        >
           Add it in the Wallet
-        </a>
-        . Your files stay loaded in this tab.
+        </a>{" "}
+        (opens in a new tab). Everything here stays as it is, and the credit packs appear
+        when you come back.
       </Alert>
     );
   }

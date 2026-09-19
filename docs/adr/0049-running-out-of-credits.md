@@ -43,6 +43,13 @@ decision 5); what they see is credits and, here, a pause.
    button is pressed. It is a note, not a wall: files are added as usual. No price is shown in
    advance, because there is no price step (ADR 0033) and the price depends on the files.
 
+5. **The first purchase asks where to invoice, without costing the work.** A brand-new account
+   has no billing details (they are collected at the first purchase, migration 0034), so the
+   in-place panel asks for them first. Its link used to open the Wallet in the same tab, which
+   replaced the page and lost the very files it promised to keep. It now opens in a new tab,
+   and the panel looks again when the customer returns, so the packs are simply there. CI on a
+   clean stack found this; a long-lived local database hid it behind a loading race.
+
 "Subtle" is taken to mean: never block reading or uploading, never navigate away, never lose
 the customer's files or message, and say what happens to their money in the same sentence.
 
