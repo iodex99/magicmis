@@ -13,18 +13,22 @@ import { failJob } from "./settle";
 export async function releasingOnLayoutFault<T>(
   pool: Pool,
   job: { accountId: string; jobId: string },
-  work: () => Promise<T>,
+  ...rest:
+    [work: () => Promise<T>] | [also: (error: unknown) => boolean, work: () => Promise<T>]
 ): Promise<T> {
+  const work = rest.length === 1 ? rest[0] : rest[1];
+  const also = rest.length === 1 ? () => false : rest[0];
   try {
     return await work();
   } catch (error) {
-    if (error instanceof DashboardError)
+    if (error instanceof DashboardError || also(error))
       await failJob(pool, {
         accountId: job.accountId,
         jobId: job.jobId,
         failureClass: "platform_fault",
-        code: `layout_${error.code}`,
-        detail: error.message,
+        code:
+          error instanceof DashboardError ? `layout_${error.code}` : "input_unavailable",
+        detail: error instanceof Error ? error.message : "The work could not start.",
         reportedBy: "server",
       });
     throw error;

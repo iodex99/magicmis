@@ -184,10 +184,8 @@ company not yet set up they are shown open, above the fold, before the first bui
 
 ## Known and left
 
-- **Deep questions and commentary still read hidden months.** A Deep question queries the
-  ledger balances directly and a commentary is written for a month the customer names; neither
-  goes through the metric filter. A customer who has hidden a month and asks about it by name
-  will be answered. Noted for the pass that gives the chat the dashboard's formulas.
+- ~~Deep questions and commentary still read hidden months.~~ Closed by ADR 0048: a hidden
+  month is hidden everywhere.
 - **The read log is not in the account data export yet**, and the processing register now
   describes it. **R-66.**
 - A year-to-date figure is hidden when its own end month is hidden even where it does not

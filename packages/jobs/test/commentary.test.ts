@@ -277,6 +277,25 @@ describe("commentary on Standard delivery (Message Batches)", () => {
     expect(jobs.rows).toEqual([{ state: "failed_platform" }]);
   });
 
+  it("is not written for a month the customer has taken off the dashboard, and the hold goes back", async () => {
+    const c = await companyWithSnapshot();
+    await pool().query(
+      `insert into source_uploads (account_id, company_id, file_name, byte_size, chunk_count, status, periods, on_dashboard)
+       values ($1, $2, 'month.xlsx', 1, 1, 'ready', $3, false)`,
+      [c.accountId, c.companyId, [PERIOD]],
+    );
+    await expect(commentaryJob(c, "instant")).rejects.toMatchObject({
+      code: "month_hidden",
+    });
+    expect(await wallet(pool(), c.accountId)).toEqual({ balance: 5_000n, held: 0n });
+    // Ticked again, it is written as usual.
+    await pool().query(
+      `update source_uploads set on_dashboard = true where company_id = $1`,
+      [c.companyId],
+    );
+    await expect(commentaryJob(c, "instant")).resolves.toBeTypeOf("string");
+  });
+
   it("Instant delivery completes in the request", async () => {
     const c = await companyWithSnapshot();
     const jobId = await commentaryJob(c, "instant");

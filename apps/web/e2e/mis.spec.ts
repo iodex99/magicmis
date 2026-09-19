@@ -838,6 +838,10 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
   await page.getByRole("button", { name: "Reset" }).click();
   await expect(page.getByTestId("company-outputs")).toContainText(".xlsx");
   await expect(page.getByTestId("company-activity")).toContainText("Completed");
+  // Kept files are capped, not priced, and the customer sees how much room is used (ADR 0048).
+  await expect(page.getByTestId("storage-used")).toContainText(
+    "of 2.0 GB used, in 14 files",
+  );
   await expect(page.getByTestId("file-promises")).toContainText(
     "No person here can open one",
   );

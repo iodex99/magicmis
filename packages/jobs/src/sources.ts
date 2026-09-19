@@ -31,6 +31,7 @@ export class UploadError extends Error {
     readonly code:
       | "upload_not_found"
       | "file_too_large"
+      | "storage_full"
       | "chunk_out_of_range"
       | "chunk_too_large"
       | "upload_incomplete"
@@ -71,12 +72,13 @@ const n = z.number().int().positive();
 const days = z.number().int().nonnegative();
 
 export async function uploadLimits(pool: Pool) {
-  const [chunkBytes, maxFileBytes, retentionDays] = await Promise.all([
+  const [chunkBytes, maxFileBytes, retentionDays, maxCompanyBytes] = await Promise.all([
     readConfig(pool, "sources.chunk_bytes", n),
     readConfig(pool, "sources.max_file_bytes", n),
     readConfig(pool, "sources.retention_days", days),
+    readConfig(pool, "sources.max_company_bytes", n),
   ]);
-  return { chunkBytes, maxFileBytes, retentionDays };
+  return { chunkBytes, maxFileBytes, retentionDays, maxCompanyBytes };
 }
 
 export async function createUpload(
@@ -98,6 +100,14 @@ export async function createUpload(
   );
   if (company.rows.length === 0)
     throw new UploadError("upload_not_found", "Company not found.");
+  // Kept files are capped per company, not priced (ADR 0048). Counted on what is stored now:
+  // deleting a file gives its room back at once.
+  const used = await companyStorage(pool, input);
+  if (used.bytes + input.byteSize > limits.maxCompanyBytes)
+    throw new UploadError(
+      "storage_full",
+      "This company's file storage is full. Delete files you no longer need on Files and settings, then add this one again.",
+    );
   const chunkCount = Math.max(1, Math.ceil(input.byteSize / limits.chunkBytes));
   const now = input.now ?? new Date();
   const expires =
@@ -463,4 +473,21 @@ export async function dashboardFiles(
     onDashboard: u.on_dashboard,
     deleted: u.deleted,
   }));
+}
+
+/** Bytes of source files a company has stored now, against its cap (ADR 0048). */
+export async function companyStorage(
+  pool: Pool,
+  input: { accountId: string; companyId: string },
+): Promise<{ bytes: number; files: number }> {
+  const r = await pool.query<{ bytes: string; files: string }>(
+    `select coalesce(sum(byte_size), 0)::text as bytes, count(*)::text as files
+     from source_uploads
+     where company_id = $1 and account_id = $2 and deleted_at is null`,
+    [input.companyId, input.accountId],
+  );
+  return {
+    bytes: Number.parseInt(r.rows[0]?.bytes ?? "0", 10),
+    files: Number.parseInt(r.rows[0]?.files ?? "0", 10),
+  };
 }

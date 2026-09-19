@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
   companyFiles,
+  companyStorage,
   createUpload,
   dashboardFiles,
   deleteUpload,
@@ -223,6 +224,35 @@ describe("files are kept, chosen for the dashboard, and every read is recorded (
     });
     return uploadId;
   }
+
+  it("caps what one company may keep, counts only what is stored now, and leaves other companies alone", async () => {
+    const c = await accountWithCompany(pool(), 0n);
+    const store = new MemoryOutputStore();
+    await pool().query(
+      `update app_config set value = '10'::jsonb where key = 'sources.max_company_bytes'`,
+    );
+    try {
+      const first = await stored(c, store, "a.csv"); // three bytes
+      await stored(c, store, "b.csv");
+      await stored(c, store, "c.csv");
+      await expect(
+        createUpload(pool(), { ...c, fileName: "d.csv", byteSize: 2 }),
+      ).rejects.toMatchObject({ code: "storage_full" });
+      expect(await companyStorage(pool(), c)).toEqual({ bytes: 9, files: 3 });
+      // One byte of room is one byte of room.
+      await createUpload(pool(), { ...c, fileName: "one.csv", byteSize: 1 });
+      // Deleting gives the room back at once.
+      await deleteUpload(pool(), store, { accountId: c.accountId, uploadId: first });
+      await createUpload(pool(), { ...c, fileName: "d.csv", byteSize: 2 });
+      // The cap is per company: another company of any account starts empty.
+      const other = await accountWithCompany(pool(), 0n);
+      await createUpload(pool(), { ...other, fileName: "x.csv", byteSize: 10 });
+    } finally {
+      await pool().query(
+        `update app_config set value = '2147483648'::jsonb where key = 'sources.max_company_bytes'`,
+      );
+    }
+  });
 
   it("keeps a file however old it is: there is no expiry to purge it by", async () => {
     const c = await accountWithCompany(pool(), 0n);

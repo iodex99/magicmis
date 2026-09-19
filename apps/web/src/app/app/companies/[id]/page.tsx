@@ -1,5 +1,6 @@
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { currencySymbol } from "@magicmis/core/reporting-conventions";
+import { hiddenPeriods } from "@magicmis/jobs";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -142,7 +143,9 @@ export default async function CompanyPage({
     );
   }
 
-  const [periods, commentaries] = await Promise.all([
+  const [hidden, periods, commentaries] = await Promise.all([
+    // Months off the dashboard are off the chat's month list too (ADR 0047).
+    hiddenPeriods(pool, { accountId: account.accountId, companyId: id }),
     pool.query<{ period: string }>(
       `select distinct period from snapshots where company_id = $1 order by period desc limit 36`,
       [id],
@@ -199,7 +202,7 @@ export default async function CompanyPage({
           negativesInBrackets: true,
         }}
         currencySymbol={currencySymbol(company.currency)}
-        periods={periods.rows.map((p) => p.period)}
+        periods={periods.rows.map((p) => p.period).filter((p) => !hidden.has(p))}
         commentaries={commentaries.rows.map((j) => ({
           id: j.id,
           state: j.state,

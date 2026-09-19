@@ -1,3 +1,4 @@
+import { companyStorage, uploadLimits } from "@magicmis/jobs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -114,7 +115,7 @@ export default async function ManageCompanyPage({
   if (company === undefined) notFound();
   const active = company.lifecycle_state === "active";
 
-  const [jobs, outputs, files] = await Promise.all([
+  const [jobs, outputs, files, storage, limits] = await Promise.all([
     pool.query<{
       id: string;
       type: string;
@@ -138,7 +139,20 @@ export default async function ManageCompanyPage({
       [id, account.accountId],
     ),
     fileRows(pool, { accountId: account.accountId, companyId: id }),
+    companyStorage(pool, { accountId: account.accountId, companyId: id }),
+    uploadLimits(pool),
   ]);
+  // Whole percent, for a bar's width only; the figures beside it are the exact ones.
+  const usedPercent = Math.min(
+    100,
+    Math.ceil((storage.bytes * 100) / Math.max(1, limits.maxCompanyBytes)),
+  );
+  const size = (n: number): string =>
+    n >= 1_073_741_824
+      ? `${(n / 1_073_741_824).toFixed(1)} GB`
+      : n >= 1_048_576
+        ? `${(n / 1_048_576).toFixed(1)} MB`
+        : `${Math.ceil(n / 1024).toString()} KB`;
 
   return (
     <AppFrame
@@ -203,6 +217,29 @@ export default async function ManageCompanyPage({
               </li>
             ))}
           </ul>
+          <div className="px-5 pb-3" data-testid="storage-used">
+            <div className="flex items-baseline justify-between gap-3 text-[0.75rem] text-neutral-600">
+              <span>
+                <span className="num font-medium text-neutral-900">
+                  {size(storage.bytes)}
+                </span>{" "}
+                of {size(limits.maxCompanyBytes)} used, in {storage.files.toString()}{" "}
+                {storage.files === 1 ? "file" : "files"}
+              </span>
+              <span className="text-neutral-500">
+                Keeping files is included. Delete one and its room is free again.
+              </span>
+            </div>
+            <div
+              className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-neutral-100"
+              role="presentation"
+            >
+              <div
+                className={`h-full rounded-full ${usedPercent >= 90 ? "bg-warning" : "bg-accent-600"}`}
+                style={{ width: `${usedPercent.toString()}%` }}
+              />
+            </div>
+          </div>
           <p className="px-5 pb-3 text-[0.75rem] text-neutral-500">
             More on how data is handled in{" "}
             <Link href="/security" className="text-accent-700 hover:underline">

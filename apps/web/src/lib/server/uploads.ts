@@ -10,7 +10,9 @@ export function uploadErrorResponse(error: unknown): Response | null {
   const status =
     error.code === "upload_not_found"
       ? 404
-      : error.code === "file_too_large" || error.code === "chunk_too_large"
+      : error.code === "file_too_large" ||
+          error.code === "chunk_too_large" ||
+          error.code === "storage_full"
         ? 413
         : 409;
   return apiError(status, error.code, error.message);

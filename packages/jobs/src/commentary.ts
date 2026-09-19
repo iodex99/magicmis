@@ -19,7 +19,7 @@ import type { KeyWrapper } from "@magicmis/crypto";
 import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import { readConfig } from "@magicmis/db/config";
 import { withTransaction } from "@magicmis/db/tx";
-import { buildFactsPack, type MetricValue } from "@magicmis/engine";
+import { buildFactsPack, visibleValues, type MetricValue } from "@magicmis/engine";
 import { latestBlueprint, latestSnapshot } from "@magicmis/engine/server";
 import { MONTHLY_FINANCIAL_MIS } from "@magicmis/templates";
 import type { Pool } from "pg";
@@ -27,6 +27,7 @@ import { z } from "zod";
 
 import { loadStageOutput, saveStageOutput } from "./checkpoints";
 import { releasingOnLayoutFault } from "./layout-fault";
+import { hiddenPeriods } from "./sources";
 import { readStoredTemplate } from "./stored-layout";
 import { completeCommentaryJob, failJob } from "./settle";
 import { lockJob, transition } from "./states";
@@ -36,7 +37,7 @@ const OUTPUT_STAGE = "commentary";
 
 export class CommentaryError extends Error {
   constructor(
-    readonly code: "no_snapshot" | "wrong_job" | "nothing_to_discuss",
+    readonly code: "no_snapshot" | "wrong_job" | "nothing_to_discuss" | "month_hidden",
     message: string,
   ) {
     super(message);
@@ -50,6 +51,12 @@ export async function commentaryInput(
   wrapper: KeyWrapper,
   input: { accountId: string; companyId: string; period: PeriodId },
 ): Promise<GenerateCommentaryInput> {
+  const hidden = await hiddenPeriods(pool, input);
+  if (hidden.has(input.period))
+    throw new CommentaryError(
+      "month_hidden",
+      "That month is off the dashboard because its files are unticked. Tick a file for it first.",
+    );
   const snapshot = await latestSnapshot(pool, wrapper, { ...input });
   if (snapshot === null)
     throw new CommentaryError(
@@ -61,10 +68,11 @@ export async function commentaryInput(
     materiality_abs_minor: string;
     currency: string;
     number_format: "lakhs_crores" | "absolute" | "millions";
+    fy_start_month: number;
   }>(
     `select materiality_pct::text as materiality_pct,
             materiality_abs_minor::text as materiality_abs_minor,
-            currency, number_format
+            currency, number_format, fy_start_month
        from companies where id = $1`,
     [input.companyId],
   );
@@ -90,7 +98,12 @@ export async function commentaryInput(
   );
   const pack = buildFactsPack({
     period: input.period,
-    store: snapshot.metricStore.values as unknown as MetricValue[],
+    // A movement against a hidden month is not discussed either (ADR 0047).
+    store: visibleValues(
+      snapshot.metricStore.values as unknown as MetricValue[],
+      hidden,
+      company.rows[0]?.fy_start_month ?? 4,
+    ),
     materiality: {
       pct: company.rows[0]?.materiality_pct ?? "0.05",
       absMinor: company.rows[0]?.materiality_abs_minor ?? "0",
@@ -137,9 +150,12 @@ export async function queueCommentary(
     throw new CommentaryError("wrong_job", "This is not a commentary job.");
   if (job.state === "commentary_queued") return { delivery: job.delivery_mode };
   const companyId = job.company_id;
+  // Whatever stops the input being built — an unreadable layout, a hidden month, a month with
+  // no MIS or nothing to discuss — stops it after the credits are held, so the hold goes back now.
   const payload = await releasingOnLayoutFault(
     pool,
     { accountId: input.accountId, jobId: job.id },
+    (error) => error instanceof CommentaryError,
     () =>
       commentaryInput(pool, wrapper, {
         accountId: input.accountId,

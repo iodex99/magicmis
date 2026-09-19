@@ -18,6 +18,8 @@ import { z } from "zod";
 import { aiTransport } from "./ai";
 import { jobSession } from "./companies";
 import { openServerDuck } from "./duck";
+import { hiddenPeriods } from "@magicmis/jobs";
+
 import { loadJobFiles } from "./run-job";
 import { keyWrapper } from "./runtime";
 
@@ -59,7 +61,13 @@ export async function answerDeepOnServer(
     readConfig(pool, "chat.query_timeout_ms", z.number().int().positive()),
   ]);
 
-  const snapshot = priorFacts(session.memory.priorBalances, new Set());
+  // Months the customer has taken off the dashboard are left out of what a Deep question can
+  // query, balances and bills alike (ADR 0047): the answer is read beside that dashboard.
+  const hidden = await hiddenPeriods(pool, {
+    accountId: input.accountId,
+    companyId: input.companyId,
+  });
+  const snapshot = priorFacts(session.memory.priorBalances, hidden);
   let bills: Prepared["bills"] = [];
   try {
     const uploads = await latestUploads(pool, input.accountId, input.companyId);
@@ -67,7 +75,9 @@ export async function answerDeepOnServer(
       const { files } = await loadJobFiles(pool, input.accountId, uploads, {
         purpose: "chat",
       });
-      bills = (await prepare(files, redactor, session.company.dateOrder)).bills;
+      bills = (await prepare(files, redactor, session.company.dateOrder)).bills.filter(
+        (b) => !hidden.has(b.period),
+      );
     }
   } catch {
     // The upload has been purged: balance questions still work, ageing ones say so.
