@@ -29,6 +29,7 @@ import { DashboardClient } from "./DashboardClient";
 export function Workspace({
   companyId,
   companyName,
+  businessName,
   money,
   currencySymbol,
   periods,
@@ -37,6 +38,8 @@ export function Workspace({
 }: {
   companyId: string;
   companyName: string;
+  /** Shown on the payment sheet when a chat message is short of credits. */
+  businessName: string;
   money: NumberFormatOptions;
   currencySymbol: string;
   periods: readonly string[];
@@ -162,6 +165,7 @@ export function Workspace({
           onCollapse={closeChat}
           onLayoutChanged={layoutChanged}
           dashboardVersion={dashboardVersion}
+          businessName={businessName}
         />
       </div>
 

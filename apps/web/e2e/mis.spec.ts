@@ -145,7 +145,50 @@ test("refreshes the next month with no review and zero AI calls", async () => {
   await page.goto("/app");
   await page.getByRole("link", { name: "Add a file" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
-  await runJob([tb("2026-05")]);
+  // A wallet with credits in it gets no nudge.
+  await expect(page.getByTestId("job-empty-wallet")).toHaveCount(0);
+
+  // ADR 0049: part-way through, a run can find it needs more analysis than its price covers.
+  // The server pauses it with a quote; the screen must offer to carry on, not call it a failure.
+  // The pause is simulated at the boundary (the first answer from the run is replaced, before
+  // it reaches the server, and the acceptance is acknowledged); the run that follows is real.
+  let paused = false;
+  await page.route(/\/api\/jobs\/[^/]+\/run$/u, async (route) => {
+    if (paused) return route.continue();
+    paused = true;
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "needs_quote",
+        message: "This job needs more analysis than its price covers.",
+        capturedCredits: "0",
+        outputId: null,
+        fileName: null,
+        checks: [],
+        notices: [],
+        quoteCredits: "450",
+      }),
+    });
+  });
+  await page.route(/\/api\/jobs\/[^/]+\/accept-quote$/u, (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
+  await page.getByLabel("Choose files").setInputFiles([tb("2026-05")]);
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 120_000 });
+  await page.getByTestId("job-run").click();
+  await expect(page.getByText("Paused: this one needs a little more")).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId("job-quote")).toHaveText("450");
+  await expect(page.getByText("Nothing has been charged")).toBeVisible();
+  await expect(page.getByText("The job could not be completed")).toHaveCount(0);
+  // The file is still there: nothing has to be added again.
+  await expect(page.getByTestId("job-files")).toContainText("trial_balance_2026-05.xlsx");
+  await page.getByRole("button", { name: "Accept and carry on" }).click();
+  await expect(page.getByTestId("job-done")).toBeVisible({ timeout: 240_000 });
+  await page.unroute(/\/api\/jobs\/[^/]+\/run$/u);
+  await page.unroute(/\/api\/jobs\/[^/]+\/accept-quote$/u);
   await expect(page.getByTestId("job-done")).toContainText("299 credits charged");
 
   expect(await aiCallsForAccount()).toBe(0);

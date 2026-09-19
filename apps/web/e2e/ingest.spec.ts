@@ -187,6 +187,28 @@ test("a company's kept files are listed and can be deleted", async () => {
   await expect(page.getByTestId("uploaded-files")).not.toContainText("tb.pdf");
 });
 
+test("an empty wallet is said gently and early, and topped up in place without losing the files (ADR 0049)", async () => {
+  // This account has never bought credits.
+  await page.goto(runUrl);
+  await expect(page.getByTestId("job-empty-wallet")).toContainText(
+    "Your wallet is empty",
+  );
+  // It is a note, not a wall: files are added as usual.
+  await page
+    .getByLabel("Choose files")
+    .setInputFiles(fixture("trading", "clean", "trial_balance_2025-05.xlsx"));
+  await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 120_000 });
+  await page.getByTestId("job-run").click();
+  // The top-up is offered here, on this screen, and the file is still listed beside it.
+  await expect(page.getByRole("heading", { name: "Add credits" })).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId("job-files")).toContainText("trial_balance_2025-05.xlsx");
+  await expect(page.getByText("The job could not be completed")).toHaveCount(0);
+  // Nothing was held for the press: the rail still shows an empty wallet.
+  await expect(page.getByTestId("rail")).toContainText("0");
+});
+
 test("pages carry a per-request nonce CSP and hardening headers (SPEC §30)", async () => {
   const first = await page.request.get("/app");
   const second = await page.request.get("/app");

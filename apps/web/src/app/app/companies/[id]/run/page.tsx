@@ -4,6 +4,8 @@ import { z } from "zod";
 import { AppFrame } from "@/components/AppFrame";
 import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
+import { walletSummary } from "@magicmis/wallet";
+
 import { db } from "@/lib/db";
 
 import { JobRunner } from "./JobRunner";
@@ -52,7 +54,14 @@ export default async function RunJobPage({
         }
         back={{ href: `/app/companies/${id}`, label: company.name }}
       />
-      <JobRunner companyId={id} mode={runMode} businessName={account.businessName} />
+      <JobRunner
+        companyId={id}
+        mode={runMode}
+        businessName={account.businessName}
+        availableCredits={(
+          await walletSummary(db(), account.accountId)
+        ).available.toString()}
+      />
     </AppFrame>
   );
 }

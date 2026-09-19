@@ -11,15 +11,21 @@
 
 import { api, newIdempotencyKey } from "./client-api";
 
+export interface QuoteResult {
+  readonly kind: "quote";
+  readonly jobId: string;
+  readonly credits: string;
+  /** Null for a quote raised part-way through a run, whose expiry the run does not report. */
+  readonly expiresAt: string | null;
+  /** True when a run paused part-way for this quote, rather than being quoted up front. */
+  readonly resumed?: boolean;
+}
+
 export type StartResult =
   | { readonly kind: "held"; readonly jobId: string }
-  | {
-      readonly kind: "quote";
-      readonly jobId: string;
-      readonly credits: string;
-      readonly expiresAt: string;
-    }
-  | { readonly kind: "short"; readonly need: bigint }
+  | QuoteResult
+  /** `quote`: the quote that was being accepted when the wallet fell short, to return to. */
+  | { readonly kind: "short"; readonly need: bigint; readonly quote?: QuoteResult }
   | { readonly kind: "error"; readonly message: string };
 
 interface CreatedJob {

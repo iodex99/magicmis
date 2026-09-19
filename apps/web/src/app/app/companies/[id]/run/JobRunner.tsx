@@ -56,6 +56,7 @@ interface RunOutcome {
   fileName: string | null;
   checks: Check[];
   notices: string[];
+  quoteCredits?: string;
   /** What happened to the dashboard after the run (ADR 0047). */
   dashboard?:
     | { status: "updated"; capturedCredits: string; first: boolean }
@@ -100,11 +101,14 @@ export function JobRunner({
   companyId,
   mode,
   businessName,
+  availableCredits,
 }: {
   companyId: string;
   mode: "setup" | "refresh";
   /** Shown on the payment sheet when a run is short of credits. */
   businessName: string;
+  /** The wallet as the page loaded. Only used to say, gently and early, that it is empty. */
+  availableCredits: string;
 }) {
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [reference, setReference] = useState<FileEntry | null>(null);
@@ -253,6 +257,20 @@ export function JobRunner({
           notices: [],
         },
       });
+      return;
+    }
+    if (r.data.status === "needs_quote" && r.data.quoteCredits !== undefined) {
+      // Part-way through, the work turned out to need more analysis than the standard price
+      // covers (locked decision 6). Nothing was charged and nothing is lost: accepting the
+      // quote resumes from the stage it stopped at, and a short wallet is topped up in place.
+      setStopped({
+        kind: "quote",
+        jobId: job.jobId,
+        credits: r.data.quoteCredits,
+        expiresAt: null,
+        resumed: true,
+      });
+      setPhase({ kind: "files" });
       return;
     }
     setPhase(
@@ -438,27 +456,45 @@ export function JobRunner({
                         : `${readyIds.length.toString()} ${readyIds.length === 1 ? "file" : "files"} ready.`}
                 </p>
                 {stopped?.kind === "quote" ? (
-                  <Alert tone="warning" title="This run needs a quote">
-                    It needs more analysis than the standard price covers:{" "}
-                    <strong className="tabular-nums">
+                  <Alert
+                    tone="warning"
+                    title={
+                      stopped.resumed === true
+                        ? "Paused: this one needs a little more"
+                        : "This run needs a quote"
+                    }
+                  >
+                    {stopped.resumed === true
+                      ? "Your files took more analysis than the standard price covers, so the run paused rather than overspend. Nothing has been charged, and nothing is lost: it carries on from where it stopped for "
+                      : "It needs more analysis than the standard price covers: "}
+                    <strong className="tabular-nums" data-testid="job-quote">
                       {formatCredits(stopped.credits)}
                     </strong>{" "}
-                    credits, held until{" "}
-                    {new Date(stopped.expiresAt).toLocaleString("en-IN")}.
+                    credits
+                    {stopped.expiresAt === null
+                      ? "."
+                      : `, held until ${new Date(stopped.expiresAt).toLocaleString("en-IN")}.`}
                     <div className="mt-2.5">
                       <Button
                         size="sm"
                         disabled={busy}
                         onClick={() => {
                           setStarting(true);
-                          void acceptQuote(stopped.jobId, stopped.credits)
-                            .then(follow)
+                          const quote = stopped;
+                          void acceptQuote(quote.jobId, quote.credits)
+                            .then(async (result) => {
+                              if (result.kind === "short")
+                                setStopped({ ...result, quote });
+                              else await follow(result);
+                            })
                             .finally(() => {
                               setStarting(false);
                             });
                         }}
                       >
-                        Accept and run
+                        {stopped.resumed === true
+                          ? "Accept and carry on"
+                          : "Accept and run"}
                       </Button>
                     </div>
                   </Alert>
@@ -467,7 +503,8 @@ export function JobRunner({
                     need={stopped.need}
                     businessName={businessName}
                     onCredited={() => {
-                      setStopped(null);
+                      // Back to the quote that was waiting, if there was one; else the button.
+                      setStopped(stopped.quote ?? null);
                     }}
                   />
                 ) : (
@@ -488,6 +525,24 @@ export function JobRunner({
                 )}
                 {stopped?.kind === "error" ? (
                   <Alert tone="error">{stopped.message}</Alert>
+                ) : null}
+                {/* Said early and quietly, not as a wall: files can be added either way, and
+                    the top-up is offered in place when the button is pressed. */}
+                {availableCredits === "0" && stopped === null ? (
+                  <p
+                    className="flex items-start gap-1.5 rounded-lg bg-accent-50/70 px-3 py-2 text-[0.75rem] leading-relaxed text-neutral-700"
+                    data-testid="job-empty-wallet"
+                  >
+                    <Icon
+                      name="wallet"
+                      size={13}
+                      className="mt-0.5 shrink-0 text-accent-600"
+                    />
+                    <span>
+                      Your wallet is empty. Add your files as usual: when you press the
+                      button you can add credits right here, and nothing is lost.
+                    </span>
+                  </p>
                 ) : null}
                 <p className="text-[0.75rem] leading-relaxed text-neutral-500">
                   One press reads the files, builds the workbook and puts the figures on

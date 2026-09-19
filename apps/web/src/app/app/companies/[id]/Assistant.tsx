@@ -20,7 +20,6 @@ import {
   type AnswerQuery,
   type AnswerSegment,
 } from "@magicmis/render-dashboard";
-import Link from "next/link";
 import { detectIntent } from "@magicmis/chat/intent";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -31,6 +30,8 @@ import { Alert, Button } from "@/components/ui";
 import { formatCredits, TIER_LABELS, TIER_NOTES, TIER_TAGS } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
+
+import { BuyCreditsInline } from "@/components/BuyCreditsInline";
 
 import { CommentaryView } from "./CommentaryView";
 
@@ -103,6 +104,10 @@ const MODES: readonly { key: Mode; label: string; icon: IconName; hint: string }
     hint: "A written review of a month",
   },
 ];
+
+/** A shortfall from the server's 402, or one credit if it did not say: enough to offer a pack. */
+const shortfallOf = (text: string | undefined): bigint =>
+  text !== undefined && /^[0-9]+$/u.test(text) && text !== "0" ? BigInt(text) : 1n;
 
 const TYPE_WORDS: Record<MessageType, string> = {
   quick: "Ask",
@@ -196,6 +201,7 @@ export function Assistant({
   onCollapse,
   onLayoutChanged,
   dashboardVersion,
+  businessName,
 }: {
   companyId: string;
   companyName: string;
@@ -211,6 +217,8 @@ export function Assistant({
   focusNonce: number;
   /** Put the chat away; the workspace keeps a launcher on screen (ADR 0044). */
   onCollapse: () => void;
+  /** Shown on the payment sheet when a message is short of credits. */
+  businessName: string;
   /** The version of the dashboard on screen beside the chat; null until it has loaded. */
   dashboardVersion: number | null;
   /** A layout change applied or undone here, so the dashboard beside it can reload. */
@@ -231,11 +239,11 @@ export function Assistant({
   const [month, setMonth] = useState(periods[0] ?? "");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [short, setShort] = useState(false);
+  const [short, setShort] = useState<bigint | null>(null);
   const [quote, setQuote] = useState<{
     jobId: string;
     credits: string;
-    expiresAt: string;
+    expiresAt: string | null;
     period: string;
   } | null>(null);
   const [history, setHistory] = useState(false);
@@ -335,7 +343,7 @@ export function Assistant({
 
   const reset = () => {
     setError(null);
-    setShort(false);
+    setShort(null);
   };
 
   const building = mode === "quick" && !askAnyway && detectIntent(text) === "dashboard";
@@ -372,7 +380,8 @@ export function Assistant({
         },
       );
       if (!r.ok) {
-        if (r.status === 402) setShort(true);
+        // The server says how far short: enough to offer the smallest pack that covers it.
+        if (r.status === 402) setShort(shortfallOf(r.fields["shortfall"]));
         else setError(r.message);
         return;
       }
@@ -401,7 +410,7 @@ export function Assistant({
     }
     setQuote(null);
     if (result.kind === "short") {
-      setShort(true);
+      setShort(result.need);
       return;
     }
     if (result.kind === "error") {
@@ -955,7 +964,10 @@ export function Assistant({
               the standard price covers:{" "}
               <strong className="tabular-nums">{formatCredits(quote.credits)}</strong>{" "}
               credits. The offer stands until{" "}
-              {new Date(quote.expiresAt).toLocaleString("en-IN")}.
+              {quote.expiresAt === null
+                ? "soon"
+                : new Date(quote.expiresAt).toLocaleString("en-IN")}
+              .
             </p>
             <div className="mt-2.5 flex gap-2">
               <Button
@@ -985,14 +997,23 @@ export function Assistant({
             </div>
           </Alert>
         )}
-        {short ? (
-          <Alert tone="warning" title="Not enough credits">
-            Top up and send it again. Nothing was charged.{" "}
-            <Link href="/wallet" className="font-medium underline">
-              Add credits
-            </Link>
-          </Alert>
-        ) : null}
+        {/* Out of credits mid-conversation: nothing was charged, the message is still in the
+            box, and the top-up happens here rather than on another page (ADR 0049). */}
+        {short === null ? null : (
+          <div data-testid="chat-short">
+            <p className="mb-2 text-[0.8125rem] text-neutral-600">
+              That one needs a few more credits. Nothing was charged, and your message is
+              still here to send.
+            </p>
+            <BuyCreditsInline
+              need={short}
+              businessName={businessName}
+              onCredited={() => {
+                setShort(null);
+              }}
+            />
+          </div>
+        )}
         {error === null ? null : <Alert tone="error">{error}</Alert>}
       </div>
 

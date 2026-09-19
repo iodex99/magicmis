@@ -78,7 +78,10 @@ export function PaidJobButton({
           <p>
             It needs more analysis than the standard price covers:{" "}
             <strong className="tabular-nums">{formatCredits(stopped.credits)}</strong>{" "}
-            credits, held until {new Date(stopped.expiresAt).toLocaleString("en-IN")}.
+            credits
+            {stopped.expiresAt === null
+              ? "."
+              : `, held until ${new Date(stopped.expiresAt).toLocaleString("en-IN")}.`}
           </p>
           <div className="mt-3 flex gap-2">
             <Button

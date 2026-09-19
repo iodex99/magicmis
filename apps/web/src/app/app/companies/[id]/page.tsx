@@ -1,6 +1,7 @@
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import { hiddenPeriods } from "@magicmis/jobs";
+import { walletSummary } from "@magicmis/wallet";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -10,6 +11,7 @@ import { Icon } from "@/components/Icon";
 import { Badge, ButtonLink, PageHeader, Panel, type BadgeTone } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { db } from "@/lib/db";
+
 import { CHAT_COOKIE } from "@/lib/prefs";
 import { fileRows } from "@/lib/server/files";
 
@@ -88,7 +90,14 @@ export default async function CompanyPage({
           description="Drop in the files you have, for every month you want in the MIS. We read them, map every ledger and build the first MIS and its dashboard; from there you chat it into shape."
         />
         {active ? (
-          <JobRunner companyId={id} mode="setup" businessName={account.businessName} />
+          <JobRunner
+            companyId={id}
+            mode="setup"
+            businessName={account.businessName}
+            availableCredits={(
+              await walletSummary(pool, account.accountId)
+            ).available.toString()}
+          />
         ) : (
           <Panel>
             <p className="text-sm text-neutral-600">
@@ -196,6 +205,7 @@ export default async function CompanyPage({
       <Workspace
         companyId={id}
         companyName={company.name}
+        businessName={account.businessName}
         money={{
           style: company.number_format,
           decimals: company.decimals,
