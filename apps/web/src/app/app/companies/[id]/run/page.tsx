@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 
 import { JobRunner } from "./JobRunner";
 
-export const metadata = { title: "Add a month" };
+export const metadata = { title: "Add a file" };
 export const dynamic = "force-dynamic";
 
 export default async function RunJobPage({
@@ -44,11 +44,11 @@ export default async function RunJobPage({
       company={{ id, name: company.name }}
     >
       <PageHeader
-        title={runMode === "setup" ? "Set up the MIS again" : "Add a month"}
+        title={runMode === "setup" ? "Set up the MIS again" : "Add a file"}
         description={
           runMode === "setup"
             ? "Load every month you have. The first run learns the mappings and builds the workbook."
-            : "Drop in the new month's trial balance. The dashboard, workbook and assistant pick it up."
+            : "Drop in a file and press one button. It is read, the workbook is built and the dashboard is updated."
         }
         back={{ href: `/app/companies/${id}`, label: company.name }}
       />

@@ -56,6 +56,10 @@ interface RunOutcome {
   fileName: string | null;
   checks: Check[];
   notices: string[];
+  /** What happened to the dashboard after the run (ADR 0047). */
+  dashboard?:
+    | { status: "updated"; capturedCredits: string; first: boolean }
+    | { status: "short" | "failed" };
 }
 
 /** One file on screen: uploading, read, or refused with a reason. */
@@ -278,35 +282,26 @@ export function JobRunner({
   };
 
   const busy = phase.kind === "running" || starting;
-  const step: 1 | 2 | 3 = phase.kind === "files" ? 1 : phase.kind === "running" ? 2 : 3;
   const ready = readyIds.length > 0 && !uploading;
 
   return (
     <div className="flex flex-col gap-5">
-      <Steps current={step} />
-
       {error === null ? null : <Alert tone="error">{error}</Alert>}
 
       {phase.kind === "files" ? (
         <ProcessingNotice>
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
             <Panel
-              title={
-                mode === "setup" ? "Upload trial balances" : "Upload this month's files"
-              }
+              title={mode === "setup" ? "Add your files" : "Add a file"}
               icon="upload"
               description={
                 mode === "setup"
-                  ? "Include every month you want in the MIS. Files are encrypted when they arrive and deleted after processing."
-                  : "Include the new month. Files are encrypted when they arrive and deleted after processing."
+                  ? "Any number of files, for every month you want in the MIS. Each is encrypted under this company's own key as it arrives, and kept for you until you delete it."
+                  : "One file or many: a new month, or more detail for one you have. Each is encrypted under this company's own key as it arrives, and kept for you until you delete it."
               }
             >
               <FileDropZone
-                title={
-                  mode === "setup"
-                    ? "Drag your trial balances here"
-                    : "Drag this month's trial balance here"
-                }
+                title={mode === "setup" ? "Drag your files here" : "Drag a file here"}
                 hint="Raw data in any format from any accounting software: Excel, CSV, PDF, text or HTML. Extra sheets are fine."
                 inputLabel="Choose files"
                 disabled={busy}
@@ -427,7 +422,7 @@ export function JobRunner({
               charged before it is pressed, and an unused hold is released.
             */}
             <Panel
-              title={mode === "setup" ? "Build the MIS" : "Add the month"}
+              title={mode === "setup" ? "Build the MIS" : "Process"}
               icon="play"
               padding="none"
               className="lg:sticky lg:top-7"
@@ -488,14 +483,15 @@ export function JobRunner({
                       ? "Starting…"
                       : mode === "setup"
                         ? "Build my MIS"
-                        : "Add this month"}
+                        : "Process and update the dashboard"}
                   </Button>
                 )}
                 {stopped?.kind === "error" ? (
                   <Alert tone="error">{stopped.message}</Alert>
                 ) : null}
-                <p className="text-[0.75rem] text-neutral-500">
-                  Credits are charged only when the workbook is delivered.
+                <p className="text-[0.75rem] leading-relaxed text-neutral-500">
+                  One press reads the files, builds the workbook and puts the figures on
+                  the dashboard. Credits are charged only for what is delivered.
                 </p>
               </div>
 
@@ -587,7 +583,9 @@ export function JobRunner({
               </span>
               <div>
                 <h2 className="text-[1.0625rem] font-semibold text-neutral-900">
-                  Your MIS is ready
+                  {phase.outcome.dashboard?.status === "updated"
+                    ? "Done. It is on the dashboard."
+                    : "Your MIS is ready"}
                 </h2>
                 <p className="mt-0.5 text-[0.8125rem] text-neutral-500">
                   <span data-testid="job-done">
@@ -598,23 +596,24 @@ export function JobRunner({
                     ? "Every figure was checked against its source."
                     : "Every figure traces to its source; a few things in the data are worth a look."}
                 </p>
+                {phase.outcome.dashboard === undefined ? null : (
+                  <p
+                    className="mt-0.5 text-[0.8125rem] text-neutral-500"
+                    data-testid="job-dashboard"
+                  >
+                    {phase.outcome.dashboard.status === "updated"
+                      ? `The dashboard was ${phase.outcome.dashboard.first ? "built" : "updated"}: ${formatCredits(phase.outcome.dashboard.capturedCredits)} credits.`
+                      : phase.outcome.dashboard.status === "short"
+                        ? "The dashboard was not updated: there were not enough credits left. Add credits, then press Refresh on the dashboard."
+                        : "The dashboard could not be updated just now. Press Refresh on the dashboard."}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="secondary"
-                iconAfter="arrow-right"
-                onClick={() => {
-                  router.push(`/app/companies/${companyId}`);
-                  router.refresh();
-                }}
-                data-testid="job-open-workspace"
-              >
-                {mode === "setup" ? "Open the dashboard" : "Back to the dashboard"}
-              </Button>
               {phase.outcome.outputId === null ? null : (
                 <a
-                  className="inline-flex h-10 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-700"
+                  className="inline-flex h-10 items-center gap-2 rounded-md border border-neutral-200 bg-surface px-4 text-sm font-medium text-neutral-800 shadow-sm hover:bg-neutral-50"
                   href={`/api/outputs/${phase.outcome.outputId}`}
                   data-testid="job-download"
                 >
@@ -622,6 +621,17 @@ export function JobRunner({
                   Download {phase.outcome.fileName}
                 </a>
               )}
+              {/* The board is where the work goes on (ADR 0047): it is the primary way out. */}
+              <Button
+                iconAfter="arrow-right"
+                onClick={() => {
+                  router.push(`/app/companies/${companyId}`);
+                  router.refresh();
+                }}
+                data-testid="job-open-workspace"
+              >
+                Open the dashboard
+              </Button>
             </div>
           </div>
           {warningsOf(phase.outcome.checks).length === 0 ? null : (
@@ -687,49 +697,6 @@ function Notices({ notices }: { notices: readonly string[] }) {
         </ul>
       </Alert>
     </div>
-  );
-}
-
-/** Where the run has got to. Each step is named, so the state is never a bare spinner. */
-function Steps({ current }: { current: 1 | 2 | 3 }) {
-  const labels = ["Load files", "Build", "Collect"] as const;
-  return (
-    <ol className="flex flex-wrap items-center gap-2">
-      {labels.map((label, i) => {
-        const n = i + 1;
-        const done = n < current;
-        const now = n === current;
-        return (
-          <li key={label} className="flex items-center gap-2">
-            <span
-              className={`flex items-center gap-2 rounded-full py-1.5 pr-3.5 pl-1.5 text-[0.8125rem] font-medium ${
-                now
-                  ? "bg-accent-600 text-white"
-                  : done
-                    ? "bg-positive-subtle text-positive"
-                    : "bg-surface text-neutral-400 ring-1 ring-neutral-200"
-              }`}
-            >
-              <span
-                className={`flex h-5 w-5 items-center justify-center rounded-full text-[0.6875rem] ${
-                  now
-                    ? "bg-surface/20"
-                    : done
-                      ? "bg-positive text-white"
-                      : "bg-neutral-100 text-neutral-500"
-                }`}
-              >
-                {done ? <Icon name="check" size={11} /> : n}
-              </span>
-              {label}
-            </span>
-            {n < labels.length ? (
-              <span aria-hidden="true" className="h-px w-4 bg-neutral-200" />
-            ) : null}
-          </li>
-        );
-      })}
-    </ol>
   );
 }
 

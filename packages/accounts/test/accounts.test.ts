@@ -106,7 +106,11 @@ describe("provisioning", () => {
       [accountId],
     );
     expect(consents.rows.map((r) => r.document)).toEqual(["privacy", "terms"]);
-    expect(consents.rows[0]?.version).toBe("1.1-draft");
+    // Whatever the current privacy notice is: the version moves when its wording does.
+    const current = await pool.query<{ value: { privacy: string } }>(
+      `select value from app_config where key = 'legal.document_versions' order by version desc limit 1`,
+    );
+    expect(consents.rows[0]?.version).toBe(current.rows[0]?.value.privacy);
   });
 
   it("is idempotent on the auth user id", async () => {

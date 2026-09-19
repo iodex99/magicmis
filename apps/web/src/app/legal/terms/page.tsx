@@ -240,8 +240,9 @@ export default async function TermsPage() {
             <li>
               protect it with appropriate technical and organisational security measures,
               including encryption of uploaded files under a key unique to each company,
-              their deletion on a fixed schedule, and redaction before anything is sent to
-              an AI provider;
+              keeping them only until you delete them (or for the period the privacy
+              notice states), giving no member of our staff a means of opening them, and
+              redaction before anything is sent to an AI provider;
             </li>
             <li>
               use only the subprocessors listed in the privacy notice, and give notice

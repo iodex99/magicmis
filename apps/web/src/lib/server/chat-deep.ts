@@ -64,7 +64,9 @@ export async function answerDeepOnServer(
   try {
     const uploads = await latestUploads(pool, input.accountId, input.companyId);
     if (uploads.length > 0) {
-      const { files } = await loadJobFiles(pool, input.accountId, uploads);
+      const { files } = await loadJobFiles(pool, input.accountId, uploads, {
+        purpose: "chat",
+      });
       bills = (await prepare(files, redactor, session.company.dateOrder)).bills;
     }
   } catch {
@@ -122,7 +124,9 @@ export async function displayNamesOnServer(
   try {
     const uploads = await latestUploads(pool, input.accountId, input.companyId);
     if (uploads.length === 0) return names;
-    const { files } = await loadJobFiles(pool, input.accountId, uploads);
+    const { files } = await loadJobFiles(pool, input.accountId, uploads, {
+      purpose: "chat",
+    });
     // Preparing the files registers every party and person name with the redactor.
     await prepare(files, redactor, session.company.dateOrder);
   } catch {

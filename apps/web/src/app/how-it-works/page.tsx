@@ -35,7 +35,7 @@ const STAGES: readonly {
   {
     n: "01",
     title: "Upload your raw data",
-    body: "You add the raw data from your accounting system, in any format. They are encrypted as they arrive, used only for the runs you pay for, and deleted automatically.",
+    body: "You add the raw data from your accounting system, in any format. They are encrypted as they arrive under that company's own key, used only for the runs you pay for, and kept for you until you delete them.",
     detail:
       "Before you pay for anything, the screen shows file names, sizes, sheet counts and row counts. Not what is in them: no sheet recognition, no mapping preview, no data-quality findings. Those are results, and results appear inside a paid action.",
   },

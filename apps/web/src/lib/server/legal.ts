@@ -73,7 +73,8 @@ export async function legalFacts(): Promise<LegalFacts> {
       readConfig(pool, "lifecycle.deletion_purge_delay_days", n),
       readConfig(pool, "outputs.retention_days", n),
       readConfig(pool, "privacy.export_link_hours", n),
-      readConfig(pool, "sources.retention_days", n),
+      // Zero: uploaded files are kept until their owner deletes them (ADR 0047).
+      readConfig(pool, "sources.retention_days", z.number().int().nonnegative()),
     ]);
 
   const address = seller.address.filter((line) => real(line) !== null);

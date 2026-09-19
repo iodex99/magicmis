@@ -75,7 +75,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "What happens to the files I upload?",
     answer:
-      "They are encrypted when they arrive, under a key that belongs to that company alone, read only to produce the reports you pay for, and deleted automatically on a schedule — or sooner when you delete them. The AI never receives a whole file; it sees redacted structure and samples for the specific step it performs.",
+      "They are encrypted when they arrive, under a key that belongs to that company alone, read only to produce the reports you pay for, and kept until you delete them. No member of our staff can open one, and every opening is recorded for you to see. They go when you delete them. The AI never receives a whole file; it sees redacted structure and samples for the specific step it performs.",
   },
 ];
 

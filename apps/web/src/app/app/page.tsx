@@ -98,7 +98,7 @@ export default async function AppHomePage() {
           <PageHeader
             eyebrow="Workspace"
             title="Companies"
-            description="Open a company to see its dashboard, ask about its figures or add a month."
+            description="Open a company to see its dashboard, ask about its figures or add a file."
           />
 
           <GetStarted
@@ -210,7 +210,7 @@ export default async function AppHomePage() {
                         className="relative z-10 inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
                       >
                         <Icon name="upload" size={13} />
-                        Add a month
+                        Add a file
                       </Link>
                     ) : (
                       <Icon

@@ -1,8 +1,11 @@
 "use client";
 
+import { currencySymbol } from "@magicmis/core/reporting-conventions";
+import { formatValue } from "@magicmis/render-dashboard";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
+import { Icon, type IconName } from "@/components/Icon";
 import { Alert, Button, SelectField } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
@@ -94,77 +97,157 @@ export function ReportingConventions({
     router.refresh();
   };
 
+  // What each choice does, shown as it is made: a setting nobody can picture gets left wrong.
+  const symbol = currencySymbol(form.currency);
+  const sample = formatValue(
+    "123456789",
+    "paise",
+    { style: form.numberFormat, decimals: 2, negativesInBrackets: true },
+    symbol,
+  );
+  const startsIn = MONTHS[form.fyStartMonth - 1] ?? "";
+  const endsIn = MONTHS[(form.fyStartMonth + 10) % 12] ?? "";
+
   return (
     <div className="flex flex-col gap-4" data-testid="reporting-conventions">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <SelectField
-          id="conventions-fy"
-          label="Financial year starts in"
-          value={form.fyStartMonth.toString()}
-          hint="Match the accounting system the raw data comes from."
-          onChange={(e) => {
-            setForm((f) => ({ ...f, fyStartMonth: Number.parseInt(e.target.value, 10) }));
-          }}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Setting
+          icon="clock"
+          example={`Your year runs ${startsIn} to ${endsIn}.`}
+          testId="conventions-fy-example"
         >
-          {MONTHS.map((m, i) => (
-            <option key={m} value={(i + 1).toString()}>
-              {m}
-            </option>
-          ))}
-        </SelectField>
-        <SelectField
-          id="conventions-currency"
-          label="Books are in"
-          value={form.currency}
-          onChange={(e) => {
-            setForm((f) => ({ ...f, currency: e.target.value }));
-          }}
+          <SelectField
+            id="conventions-fy"
+            label="Financial year starts in"
+            value={form.fyStartMonth.toString()}
+            onChange={(e) => {
+              setForm((f) => ({
+                ...f,
+                fyStartMonth: Number.parseInt(e.target.value, 10),
+              }));
+            }}
+          >
+            {MONTHS.map((m, i) => (
+              <option key={m} value={(i + 1).toString()}>
+                {m}
+              </option>
+            ))}
+          </SelectField>
+        </Setting>
+        <Setting icon="wallet" example={`Every figure carries ${symbol}.`}>
+          <SelectField
+            id="conventions-currency"
+            label="Books are in"
+            value={form.currency}
+            onChange={(e) => {
+              setForm((f) => ({ ...f, currency: e.target.value }));
+            }}
+          >
+            {CURRENCIES.map(([code, label]) => (
+              <option key={code} value={code}>
+                {label}
+              </option>
+            ))}
+          </SelectField>
+        </Setting>
+        <Setting
+          icon="chart"
+          example={
+            <>
+              1,234,567.89 is shown as <span className="num font-medium">{sample}</span>
+              {form.numberFormat === "millions" ? " (millions)" : ""}.
+            </>
+          }
+          testId="conventions-number-example"
         >
-          {CURRENCIES.map(([code, label]) => (
-            <option key={code} value={code}>
-              {label}
-            </option>
-          ))}
-        </SelectField>
-        <SelectField
-          id="conventions-number-format"
-          label="Numbers shown as"
-          value={form.numberFormat}
-          onChange={(e) => {
-            setForm((f) => ({
-              ...f,
-              numberFormat: e.target.value as Conventions["numberFormat"],
-            }));
-          }}
+          <SelectField
+            id="conventions-number-format"
+            label="Numbers shown as"
+            value={form.numberFormat}
+            onChange={(e) => {
+              setForm((f) => ({
+                ...f,
+                numberFormat: e.target.value as Conventions["numberFormat"],
+              }));
+            }}
+          >
+            <option value="lakhs_crores">Lakhs and crores</option>
+            <option value="absolute">Full figures</option>
+            <option value="millions">Millions</option>
+          </SelectField>
+        </Setting>
+        <Setting
+          icon="document"
+          example={
+            form.dateOrder === "day_first"
+              ? "03/04 in a file is read as 3 April."
+              : "03/04 in a file is read as 4 March."
+          }
         >
-          <option value="lakhs_crores">Lakhs and crores (12,34,567)</option>
-          <option value="absolute">Full figures (1,234,567)</option>
-          <option value="millions">Millions (1.23)</option>
-        </SelectField>
-        <SelectField
-          id="conventions-date-order"
-          label="Dates in your files are written"
-          value={form.dateOrder}
-          onChange={(e) => {
-            setForm((f) => ({
-              ...f,
-              dateOrder: e.target.value as Conventions["dateOrder"],
-            }));
-          }}
-        >
-          <option value="day_first">Day first — 03/04 is 3 April</option>
-          <option value="month_first">Month first — 03/04 is 4 March</option>
-        </SelectField>
+          <SelectField
+            id="conventions-date-order"
+            label="Dates in your files are written"
+            value={form.dateOrder}
+            onChange={(e) => {
+              setForm((f) => ({
+                ...f,
+                dateOrder: e.target.value as Conventions["dateOrder"],
+              }));
+            }}
+          >
+            <option value="day_first">Day first</option>
+            <option value="month_first">Month first</option>
+          </SelectField>
+        </Setting>
       </div>
       {note === null ? null : <Alert tone={note.tone}>{note.text}</Alert>}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button onClick={() => void save()} disabled={busy || !changed}>
           {busy ? "Saving…" : "Save conventions"}
         </Button>
+        {changed ? (
+          <Button
+            variant="ghost"
+            disabled={busy}
+            onClick={() => {
+              setForm(current);
+              setNote(null);
+            }}
+          >
+            Reset
+          </Button>
+        ) : null}
         <span className="text-[0.75rem] text-neutral-500">
-          Applies to the next run. Nothing already delivered changes.
+          Applies from the next file you add. Nothing already delivered changes, and
+          saving costs nothing.
         </span>
       </div>
+    </div>
+  );
+}
+
+/** One convention: the control, and underneath it what the current choice actually does. */
+function Setting({
+  icon,
+  example,
+  testId,
+  children,
+}: {
+  icon: IconName;
+  example: ReactNode;
+  testId?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2.5 rounded-xl border border-neutral-200/80 bg-raised p-4">
+      {children}
+      <p
+        className="flex items-start gap-1.5 text-[0.75rem] leading-relaxed text-neutral-600"
+        data-testid={testId}
+      >
+        <Icon name={icon} size={13} className="mt-0.5 shrink-0 text-accent-600" />
+        <span>{example}</span>
+      </p>
     </div>
   );
 }

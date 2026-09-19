@@ -39,6 +39,7 @@ import type { KeyWrapper } from "@magicmis/crypto";
 import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import {
   ANSWER_PLACEHOLDER,
+  visibleValues,
   type MetricValue,
   type ReportingContext,
 } from "@magicmis/engine";
@@ -51,6 +52,7 @@ import {
 import {
   applyDashboardPatch,
   DashboardError,
+  hiddenPeriods,
   readStoredDashboard,
   readStoredTemplate,
 } from "@magicmis/jobs";
@@ -161,7 +163,12 @@ const open = async <T>(
         ),
       ) as T);
 
-/** Metric values across the company's stored months, newest snapshot first. */
+/**
+ * Metric values across the company's stored months, newest snapshot first — **less the months
+ * the customer has taken off the dashboard** (ADR 0047). The chat sits beside the board and every
+ * box on it leads here; an answer that quoted a month, or a change on a month, the customer
+ * unticked would contradict the board it is read against. The same rule as the dashboard.
+ */
 export async function companyMetricValues(
   pool: Pool,
   wrapper: KeyWrapper,
@@ -182,7 +189,14 @@ export async function companyMetricValues(
       values.push(v);
     }
   }
-  return values;
+  const [hidden, company] = await Promise.all([
+    hiddenPeriods(pool, scope),
+    pool.query<{ fy_start_month: number }>(
+      `select fy_start_month from public.companies where id = $1 and account_id = $2`,
+      [scope.companyId, scope.accountId],
+    ),
+  ]);
+  return visibleValues(values, hidden, company.rows[0]?.fy_start_month ?? 4);
 }
 
 // ---------------------------------------------------------------------------

@@ -32,7 +32,7 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "upload",
     title: "Upload your raw data",
-    body: "Trial balances, ledgers and registers exactly as your accounting system gives them to you, in any format. Files are encrypted when they arrive and deleted automatically.",
+    body: "Trial balances, ledgers and registers exactly as your accounting system gives them to you, in any format. Files are encrypted when they arrive and kept for you until you delete them.",
   },
   {
     icon: "table",
@@ -50,7 +50,7 @@ const PROOF: readonly { icon: IconName; title: string; body: string; href: strin
   {
     icon: "shield",
     title: "Files encrypted, then deleted",
-    body: "Each company's files are encrypted under its own key and deleted automatically. The AI sees redacted samples and ledger names, never a whole file.",
+    body: "Each company's files are encrypted under its own key, and nobody on our side has a way to open one. The AI sees redacted samples and ledger names, never a whole file.",
     href: "/security",
   },
   {
@@ -86,7 +86,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does my accounting data get uploaded?",
     answer:
-      "Yes, so there is nothing to install and nothing to wait for on your computer. Files are encrypted when they arrive under a key unique to that company, used only for the runs you pay for, and deleted automatically. The AI model receives only redacted samples and ledger names, never a whole file.",
+      "Yes, so there is nothing to install and nothing to wait for on your computer. Files are encrypted when they arrive under a key unique to that company, used only for the runs you pay for, and kept until you delete them. No member of our staff has a way to open one, and every time a file is opened it is recorded where you can see it. The AI model receives only redacted samples and ledger names, never a whole file.",
   },
   {
     question: "Is there a free trial?",

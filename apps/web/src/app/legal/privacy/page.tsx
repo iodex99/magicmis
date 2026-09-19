@@ -134,10 +134,19 @@ export default async function PrivacyPage() {
             about them, and for nothing else.
           </p>
           <p>
-            Uploaded files are deleted automatically {f.uploadRetentionDays} days after
-            upload. You can see every file we keep for a company, and delete any of them
-            sooner, on that company&rsquo;s page. Deleting a company or your account
-            deletes its files.
+            {f.uploadRetentionDays === 0
+              ? "Uploaded files are kept, encrypted, until you delete them: they are your record of what each report was built from."
+              : `Uploaded files are deleted automatically ${f.uploadRetentionDays.toString()} days after upload.`}{" "}
+            You can see every file we keep for a company, download it, see each time it
+            was opened and why, and delete it, on that company&rsquo;s Files and settings
+            page. Deleting a company or your account deletes its files.
+          </p>
+          <p>
+            No member of our staff has a screen, tool or role that opens an uploaded file.
+            A file is decrypted only in memory, by the automated steps of something you
+            start (counting its sheets when it arrives, sizing and running a run,
+            answering a question) or by your own download, and each of those is recorded
+            where you can see it.
           </p>
           <p>
             Before any part of a file is sent to our AI provider, names and identifiers —
@@ -298,8 +307,10 @@ export default async function PrivacyPage() {
             terms).
           </li>
           <li>
-            <strong>Uploaded files:</strong> {f.uploadRetentionDays} days after upload, or
-            sooner when you delete them.
+            <strong>Uploaded files:</strong>{" "}
+            {f.uploadRetentionDays === 0
+              ? "until you delete them, or delete the company or your account."
+              : `${f.uploadRetentionDays.toString()} days after upload, or sooner when you delete them.`}
           </li>
           <li>
             <strong>Generated workbooks:</strong> {f.outputRetentionDays} days after they

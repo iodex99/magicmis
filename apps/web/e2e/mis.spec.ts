@@ -15,7 +15,12 @@ import pg from "pg";
 import * as XLSX from "xlsx";
 
 import { FIXTURES_OUT } from "./fixtures-setup";
-import { createVerifiedAccount, uniqueEmail, watchCspViolations } from "./helpers";
+import {
+  createVerifiedAccount,
+  PASSWORD,
+  uniqueEmail,
+  watchCspViolations,
+} from "./helpers";
 
 // The local Supabase stack's database (supabase/config.toml defaults; not a secret).
 const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
@@ -138,7 +143,7 @@ test("sets up a company from thirteen months of trial balances", async () => {
 
 test("refreshes the next month with no review and zero AI calls", async () => {
   await page.goto("/app");
-  await page.getByRole("link", { name: "Add a month" }).click();
+  await page.getByRole("link", { name: "Add a file" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
   await runJob([tb("2026-05")]);
   await expect(page.getByTestId("job-done")).toContainText("299 credits charged");
@@ -152,14 +157,20 @@ test("refreshes the next month with no review and zero AI calls", async () => {
   );
   expect(r.rows).toEqual([
     { type: "company_setup", state: "completed", captured_credits: "999" },
+    // One press: the run delivers the workbook, then the dashboard as its own priced action.
+    { type: "dashboard_addon", state: "completed", captured_credits: "299" },
     { type: "monthly_refresh", state: "completed", captured_credits: "299" },
+    { type: "dashboard_refresh", state: "completed", captured_credits: "99" },
   ]);
+  await expect(page.getByTestId("job-dashboard")).toContainText(
+    "The dashboard was updated: 99 credits",
+  );
   const wallet = await db.query<{ balance_credits: string; held_credits: string }>(
     `select w.balance_credits::text, w.held_credits::text from wallets w join accounts a on a.id = w.account_id where a.email = $1`,
     [email],
   );
   expect(wallet.rows[0]).toEqual({
-    balance_credits: (20_000 - 999 - 299).toString(),
+    balance_credits: (20_000 - 999 - 299 - 299 - 99).toString(),
     held_credits: "0",
   });
 });
@@ -173,7 +184,11 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   // The company page is the workspace: the dashboard with the assistant beside it.
   await page.goto(`/app/companies/${companyId}`);
   await expect(page.getByTestId("assistant")).toBeVisible();
-  await page.getByRole("button", { name: "Build the dashboard" }).click();
+  // Nothing to build or refresh by hand: the runs put both months on the board (ADR 0047).
+  await expect(page.getByRole("button", { name: "Build the dashboard" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Refresh the dashboard" })).toHaveCount(
+    0,
+  );
 
   const revenue = page.getByTestId("widget-kpi_revenue");
   await expect(revenue).toBeVisible();
@@ -202,8 +217,8 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
     `select count(*)::int as n from blueprints where company_id = $1`,
     [companyId],
   );
-  // v1 setup, v2 dashboard add-on, v3 rename, v4 undo.
-  expect(versions.rows[0]?.n).toBe(4);
+  // v1 setup, v2 dashboard (with the setup), v3 dashboard refresh (with May), v4 rename, v5 undo.
+  expect(versions.rows[0]?.n).toBe(5);
   expect(await aiCallsForAccount()).toBe(0);
 });
 
@@ -361,10 +376,14 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
   const job = await db.query<{ type: string; state: string }>(
     `select j.type, j.state from jobs j join companies c on c.id = j.company_id join accounts a on a.id = c.account_id
      where c.name = 'Synthetic Recreated Traders' and a.email = $1
-       and j.state not in ('draft', 'estimated', 'cancelled')`,
+       and j.state not in ('draft', 'estimated', 'cancelled')
+     order by j.created_at`,
     [email],
   );
-  expect(job.rows).toEqual([{ type: "reference_mis_recreate", state: "completed" }]);
+  expect(job.rows).toEqual([
+    { type: "reference_mis_recreate", state: "completed" },
+    { type: "dashboard_addon", state: "completed" },
+  ]);
 
   const abandoned = await db.query<{ state: string; captured: string }>(
     `select j.state, coalesce(j.captured_credits, 0)::text as captured
@@ -651,7 +670,6 @@ test("a company's own tables and names are remembered through the next month, an
   // This company has its own tables (recreated from its reference MIS) through April. Give it
   // a dashboard and a name of its own for the first card.
   await page.goto(`/app/companies/${recreated}`);
-  await page.getByRole("button", { name: "Build the dashboard" }).click();
   const card = page.getByTestId("widget-kpi_revenue");
   await expect(card).toBeVisible();
   await expect(page.getByTestId("period-filter")).toHaveValue("2026-04");
@@ -685,10 +703,8 @@ test("a company's own tables and names are remembered through the next month, an
   // The name survives the run, the paid dashboard refresh that brings May in, and a reload.
   await page.goto(`/app/companies/${recreated}`);
   await expect(card).toContainText("Turnover");
-  await page.getByRole("button", { name: "Refresh the dashboard" }).click();
-  await expect(page.getByTestId("period-filter")).toHaveValue("2026-05", {
-    timeout: 60_000,
-  });
+  // The run brought May onto the board itself; there is no second button to press.
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-05");
   await expect(card).toContainText("Turnover");
   await page.reload();
   await expect(card).toContainText("Turnover");
@@ -706,8 +722,199 @@ test("a company's own tables and names are remembered through the next month, an
     `select version from blueprints where company_id = $1 order by version`,
     [recreated],
   );
-  // v1 recreate, v2 dashboard, v3 rename, v4 dashboard refresh (the run changed no rules).
+  // v1 recreate, v2 dashboard (with the setup), v3 rename, v4 dashboard refresh (with May).
   expect(versions.rows.map((r) => r.version)).toEqual([1, 2, 3, 4]);
+});
+
+test("files are kept, chosen for the dashboard and opened by nobody unrecorded; every box leads to the chat; the rest has its own page (ADR 0047)", async () => {
+  const company = await db.query<{ id: string }>(
+    `select c.id from companies c join accounts a on a.id = c.account_id
+      where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+    [email],
+  );
+  const id = company.rows[0]?.id ?? "";
+  await page.goto(`/app/companies/${id}`);
+  await expect(page.getByTestId("widget-kpi_revenue")).toBeVisible();
+
+  // The workspace is the board and the chat, and nothing else.
+  for (const gone of [
+    "Workbooks",
+    "Files kept",
+    "Activity and charges",
+    "Delete company",
+  ])
+    await expect(page.getByRole("main").getByText(gone, { exact: true })).toHaveCount(0);
+
+  // Every box ends in the chat, not only the KPI cards.
+  const boxes = page.locator("section[data-testid^='widget-']");
+  const count = await boxes.count();
+  expect(count).toBeGreaterThan(8);
+  for (let i = 0; i < count; i += 1) {
+    const actions = boxes.nth(i).getByTestId("box-actions");
+    await expect(actions.getByRole("button", { name: "Investigate" })).toBeVisible();
+    await expect(actions.getByRole("button", { name: "Change" })).toBeVisible();
+  }
+  const question = page.getByLabel("Your question");
+  await page
+    .getByTestId("widget-trend_revenue")
+    .getByRole("button", { name: "Investigate" })
+    .click();
+  await expect(question).toHaveValue(
+    /Why did Revenue from operations, Gross profit and Profit after tax move/u,
+  );
+  await page.getByTestId("widget-costs").getByRole("button", { name: "Change" }).click();
+  await expect(question).toHaveValue('Change the "Costs by month" box: ');
+  await expect(
+    page.getByTestId("chat-type").getByRole("radio", { name: "Build" }),
+  ).toHaveAttribute("aria-checked", "true");
+  await question.fill("");
+  await page
+    .getByTestId("chat-type")
+    .getByRole("radio", { name: "Ask", exact: true })
+    .click();
+
+  // Untick May's file: May leaves the board, with every figure worked out from it.
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-05");
+  await expect(page.getByTestId("dashboard-files")).toContainText("14 of 14");
+  await page.getByTestId("dashboard-files").click();
+  const drawer = page.getByTestId("files-drawer");
+  const may = drawer
+    .getByRole("listitem")
+    .filter({ hasText: "trial_balance_2026-05.xlsx" });
+  await expect(may).toContainText(periodLabel("2026-05"));
+  await may.getByRole("checkbox").uncheck();
+  await expect(page.getByTestId("dashboard-files")).toContainText("13 of 14");
+  await drawer.getByRole("button", { name: "Close" }).click();
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-04");
+  expect(
+    await page.getByTestId("period-filter").locator("option").allTextContents(),
+  ).not.toContain(periodLabel("2026-05"));
+  await expect(page.getByTestId("hidden-months")).toContainText(
+    `${periodLabel("2026-05")} is left out`,
+  );
+  // It is a view, and a saved one: nothing was deleted, recomputed or charged.
+  const before = await db.query<{ n: number; balance: string }>(
+    `select (select count(*)::int from snapshots where company_id = $1) as n,
+            (select balance_credits::text from wallets w join accounts a on a.id = w.account_id where a.email = $2) as balance`,
+    [id, email],
+  );
+  await page.reload();
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-04");
+  await page
+    .getByTestId("hidden-months")
+    .getByRole("button", { name: "Choose files" })
+    .click();
+  await drawer
+    .getByRole("listitem")
+    .filter({ hasText: "trial_balance_2026-05.xlsx" })
+    .getByRole("checkbox")
+    .check();
+  await drawer.getByRole("button", { name: "Close" }).click();
+  await expect(page.getByTestId("period-filter")).toHaveValue("2026-05");
+  await expect(page.getByTestId("hidden-months")).toHaveCount(0);
+  const after = await db.query<{ n: number; balance: string }>(
+    `select (select count(*)::int from snapshots where company_id = $1) as n,
+            (select balance_credits::text from wallets w join accounts a on a.id = w.account_id where a.email = $2) as balance`,
+    [id, email],
+  );
+  expect(after.rows[0]).toEqual(before.rows[0]);
+
+  // Everything that is not the board is one press away, on its own page.
+  await page.getByTestId("open-manage").click();
+  await expect(page).toHaveURL(new RegExp(`/app/companies/${id}/manage$`, "u"));
+  await expect(page.getByRole("heading", { name: "Files and settings" })).toBeVisible();
+  // Conventions are laid out with what each choice does, and answer as it is changed.
+  await expect(page.getByTestId("conventions-fy-example")).toContainText(
+    "Your year runs January to December",
+  );
+  await page.getByLabel("Financial year starts in").selectOption("4");
+  await expect(page.getByTestId("conventions-fy-example")).toContainText(
+    "Your year runs April to March",
+  );
+  await page.getByLabel("Numbers shown as").selectOption("millions");
+  await expect(page.getByTestId("conventions-number-example")).toContainText(
+    "(millions)",
+  );
+  await page.getByRole("button", { name: "Reset" }).click();
+  await expect(page.getByTestId("company-outputs")).toContainText(".xlsx");
+  await expect(page.getByTestId("company-activity")).toContainText("Completed");
+  await expect(page.getByTestId("file-promises")).toContainText(
+    "No person here can open one",
+  );
+
+  // A file comes back to its owner exactly as it went in, and that opening is on the record.
+  const upload = await db.query<{ id: string }>(
+    `select id from source_uploads where company_id = $1 and file_name = 'trial_balance_2026-05.xlsx' and deleted_at is null`,
+    [id],
+  );
+  // A session alone does not take a file out: raw books need the password confirmed first.
+  const uploadUrl = `/api/uploads/${upload.rows[0]?.id ?? ""}`;
+  const refused = await page.request.get(uploadUrl);
+  expect(refused.status()).toBe(403);
+  expect(((await refused.json()) as { error: string }).error).toBe("reauth_required");
+  const mayRow = page
+    .getByTestId("uploaded-files")
+    .getByRole("row", { name: /trial_balance_2026-05\.xlsx/u });
+  await mayRow.getByRole("button", { name: "Download" }).click();
+  await page.getByLabel("Current password").fill(PASSWORD);
+  const saved = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Confirm" }).click();
+  const mine = await saved;
+  expect(mine.suggestedFilename()).toBe("trial_balance_2026-05.xlsx");
+  expect(
+    Buffer.compare(await readFile(await mine.path()), await readFile(tb("2026-05"))),
+  ).toBe(0);
+  // Asking whether a download is allowed decrypted nothing: one download, one record of it.
+  const downloads = await db.query<{ n: number }>(
+    `select count(*)::int as n from source_upload_reads where upload_id = $1 and purpose = 'download'`,
+    [upload.rows[0]?.id ?? ""],
+  );
+  expect(downloads.rows[0]?.n).toBe(1);
+  await page.reload();
+  const row = page
+    .getByTestId("uploaded-files")
+    .getByRole("row", { name: /trial_balance_2026-05\.xlsx/u });
+  await expect(row).toContainText("Last for your download");
+  await expect(row).toContainText(periodLabel("2026-05"));
+  // Every opening has a reason, and none of them is a person.
+  const reads = await db.query<{ purpose: string }>(
+    `select distinct purpose from source_upload_reads where upload_id = $1 order by purpose`,
+    [upload.rows[0]?.id ?? ""],
+  );
+  const purposes = reads.rows.map((r) => r.purpose);
+  expect(purposes).toEqual(
+    expect.arrayContaining(["download", "intake", "pricing", "run"]),
+  );
+  expect(
+    purposes.filter((p) => !["chat", "download", "intake", "pricing", "run"].includes(p)),
+  ).toEqual([]);
+  // Every file unticked: the board says so and offers the way back. It used to throw.
+  await db.query(`update source_uploads set on_dashboard = false where company_id = $1`, [
+    id,
+  ]);
+  await page.goto(`/app/companies/${id}`);
+  await expect(page.getByTestId("dashboard-all-hidden")).toContainText(
+    "No file is ticked",
+  );
+  await expect(page.getByTestId("present")).toBeDisabled();
+  await expect(page.locator("section[data-testid^='widget-']")).toHaveCount(0);
+  await page
+    .getByTestId("dashboard-all-hidden")
+    .getByRole("button", { name: "Choose files" })
+    .click();
+  await expect(page.getByTestId("files-drawer")).toBeVisible();
+  await db.query(`update source_uploads set on_dashboard = true where company_id = $1`, [
+    id,
+  ]);
+  await page.reload();
+  await expect(page.getByTestId("widget-kpi_revenue")).toBeVisible();
+
+  // Kept: nothing expires.
+  const expiring = await db.query<{ n: number }>(
+    `select count(*)::int as n from source_uploads where company_id = $1 and expires_at is not null`,
+    [id],
+  );
+  expect(expiring.rows[0]?.n).toBe(0);
 });
 
 test("no Content Security Policy violations anywhere in the flow (SPEC §30)", () => {

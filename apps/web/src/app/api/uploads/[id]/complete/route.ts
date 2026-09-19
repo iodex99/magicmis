@@ -33,6 +33,8 @@ export async function POST(
         {
           accountId: account.accountId,
           uploadId: id,
+          // Counted once on arrival, for the name, size, sheet and row counts shown before payment.
+          purpose: "intake",
         },
       );
       const limits = await uploadLimits(pool);

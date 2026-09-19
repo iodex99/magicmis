@@ -35,8 +35,10 @@ import { LineagePanel } from "@/components/LineagePanel";
 import { PaidJobButton } from "@/components/PaidJobButton";
 import { RollingNumber } from "@/components/RollingNumber";
 import { Icon, type IconName } from "@/components/Icon";
-import { Alert, Button, Panel } from "@/components/ui";
+import { Alert, Button, ButtonLink, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
+
+import { monthsLabel } from "./CompanyFiles";
 
 interface Payload {
   company: {
@@ -56,6 +58,16 @@ interface Payload {
     dataThrough: string | null;
   } | null;
   latestPeriod: string | null;
+  /** The company's stored files, each with the months it fed and its tick (ADR 0047). */
+  files: {
+    id: string;
+    fileName: string;
+    periods: string[];
+    onDashboard: boolean;
+    /** Deleted, but still hiding its months until it is ticked again. */
+    deleted: boolean;
+  }[];
+  hiddenPeriods: string[];
 }
 
 type Operation = Record<string, unknown>;
@@ -172,6 +184,7 @@ function WidgetCard({
   onOpen,
   onEdit,
   onInvestigate,
+  onChangeBox,
 }: {
   widget: Widget;
   index: number;
@@ -187,6 +200,7 @@ function WidgetCard({
   onOpen: (key: string) => void;
   onEdit: (ops: Operation[]) => void;
   onInvestigate: (metric: string, period: PeriodId, name: string) => void;
+  onChangeBox: (title: string) => void;
 }) {
   const format = useMemo(
     () => ({
@@ -205,6 +219,16 @@ function WidgetCard({
       }),
     [widget, values, period, payload.company.fyStartMonth, format],
   );
+  // What the box is about, for the question Investigate writes: its figures by name, once each,
+  // however many movement chips hang off them. "Revenue, Gross profit and Profit after tax".
+  const subject = useMemo(() => {
+    const names = [...new Set(widget.metrics.map((m) => m.split(".")[0] ?? m))]
+      .slice(0, 3)
+      .map((m) => label(m));
+    return names.length < 2
+      ? (names[0] ?? widget.title)
+      : `${names.slice(0, -1).join(", ")} and ${names.at(-1) ?? ""}`;
+  }, [widget.metrics, widget.title, label]);
   const path = `/widgets/${index.toString()}`;
   const trend =
     widget.kind === "kpi_card" ? trendOf(values, widget.metrics[0] ?? "") : [];
@@ -320,20 +344,6 @@ function WidgetCard({
                 );
               })}
             </dl>
-          )}
-          {/* SPEC §27: Investigate sends a Deep question about this metric's movement. */}
-          {presenting ? null : (
-            <button
-              type="button"
-              className="mt-auto -mb-1 -ml-2 inline-flex w-fit items-center gap-1 rounded-md px-2 py-1 pt-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
-              onClick={() => {
-                const metric = widget.metrics[0] ?? "";
-                onInvestigate(metric, period, label(metric.split(".")[0] ?? metric));
-              }}
-            >
-              <Icon name="search" size={12} />
-              Investigate
-            </button>
           )}
         </div>
       ) : view.kind === "comparison" ? (
@@ -454,6 +464,40 @@ function WidgetCard({
           </details>
         </div>
       )}
+      {/*
+        Every box ends in the chat (ADR 0047), not only the KPI cards: the chat is what the
+        product earns from, and a reader looking at a chart has a question about that chart.
+        Investigate asks why its figures moved (SPEC §27, a Deep question); Change hands the box
+        to the chat to be reshaped. Both only write the message: nothing is sent or charged
+        until the customer presses send.
+      */}
+      {view.kind === "empty" || presenting || editing ? null : (
+        <div
+          className="mt-auto -mb-1 -ml-2 flex flex-wrap items-center gap-0.5 pt-3"
+          data-testid="box-actions"
+        >
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
+            onClick={() => {
+              onInvestigate(widget.metrics[0] ?? "", period, subject);
+            }}
+          >
+            <Icon name="search" size={12} />
+            Investigate
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+            onClick={() => {
+              onChangeBox(widget.title);
+            }}
+          >
+            <Icon name="sliders" size={12} />
+            Change
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -463,11 +507,14 @@ export function DashboardClient({
   onInvestigate,
   reloadKey,
   onVersion,
+  onChangeBox,
 }: {
   companyId: string;
   onInvestigate: (metric: string, period: PeriodId, name: string) => void;
   /** Changes when the layout was changed elsewhere (the assistant), to load it again. */
   reloadKey: number;
+  /** A box's Change button: hands the box to the chat to be reshaped. */
+  onChangeBox: (title: string) => void;
   /** The version of the layout on screen, so the chat knows which of its changes is current. */
   onVersion?: (version: number | null) => void;
 }) {
@@ -489,6 +536,9 @@ export function DashboardClient({
    * for the whole screen; where that is refused it still covers the window, so Present never
    * fails to present.
    */
+  const [filesOpen, setFilesOpen] = useState(false);
+  // A tick answers at once; the board follows when the server has. Cleared by the reload.
+  const [ticks, setTicks] = useState<Record<string, boolean>>({});
   const [presenting, setPresenting] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
   const drawerOpen = useRef(false);
@@ -636,6 +686,8 @@ export function DashboardClient({
   const spec = pending?.spec ?? dashboard.spec;
   const format = companyFormat(payload.company.money, payload.company.currencySymbol);
   const current = period ?? ((payload.periods[0] ?? "") as PeriodId);
+  // Every file unticked: no month to show. Nothing below may format or chart an empty month.
+  const noMonths = payload.periods.length === 0;
   const display = (v: MetricValue) =>
     v.value === null
       ? "—"
@@ -645,6 +697,23 @@ export function DashboardClient({
           payload.company.money,
           payload.company.currencySymbol,
         );
+
+  // Only files a run has read can be ticked: a file that fed no month has nothing to show.
+  const usedFiles = payload.files
+    .filter((x) => x.periods.length > 0)
+    .map((x) => ({ ...x, onDashboard: ticks[x.id] ?? x.onDashboard }));
+  const tickFile = async (id: string, onDashboard: boolean) => {
+    setError(null);
+    setTicks((t) => ({ ...t, [id]: onDashboard }));
+    const r = await api(`/api/uploads/${id}`, { method: "PATCH", body: { onDashboard } });
+    if (!r.ok) setError(r.message);
+    setPeriod(null);
+    await load();
+    setTicks((t) => {
+      const { [id]: _settled, ...rest } = t;
+      return rest;
+    });
+  };
 
   const propose = async (ops: Operation[]) => {
     setError(null);
@@ -711,7 +780,7 @@ export function DashboardClient({
         data-print="show"
         aria-hidden="true"
       >
-        {format.period(current)} · {format.units}
+        {noMonths ? "" : format.period(current)} · {format.units}
       </p>
       <div
         className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200/80 bg-surface px-4 py-3 shadow-sm"
@@ -743,7 +812,21 @@ export function DashboardClient({
             {format.units}
           </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            icon="file"
+            onClick={() => {
+              setFilesOpen(true);
+            }}
+            data-testid="dashboard-files"
+          >
+            Files
+            <span className="num ml-1 rounded-full bg-neutral-100 px-1.5 text-[0.6875rem] text-neutral-600">
+              {usedFiles.filter((x) => x.onDashboard).length.toString()} of{" "}
+              {usedFiles.length.toString()}
+            </span>
+          </Button>
           {dashboard.canUndo && pending === null ? (
             <Button
               variant="secondary"
@@ -764,7 +847,7 @@ export function DashboardClient({
           <Button
             icon="play"
             onClick={present}
-            disabled={pending !== null}
+            disabled={pending !== null || noMonths}
             title={
               pending !== null
                 ? "Apply or discard the layout changes first"
@@ -776,6 +859,102 @@ export function DashboardClient({
           </Button>
         </div>
       </div>
+
+      {payload.hiddenPeriods.length === 0 ? null : (
+        <p
+          className="flex flex-wrap items-center gap-1.5 text-[0.8125rem] text-neutral-600"
+          data-testid="hidden-months"
+        >
+          <Icon name="file" size={14} className="text-neutral-400" />
+          {payload.hiddenPeriods.length === 1
+            ? `${format.period(payload.hiddenPeriods[0] ?? "")} is left out`
+            : `${payload.hiddenPeriods.length.toString()} months are left out`}
+          , because the files they came from are unticked.
+          <button
+            type="button"
+            className="font-medium text-accent-700 underline underline-offset-2"
+            onClick={() => {
+              setFilesOpen(true);
+            }}
+          >
+            Choose files
+          </button>
+        </p>
+      )}
+      <Drawer
+        open={filesOpen}
+        label="Files on this dashboard"
+        onClose={() => {
+          setFilesOpen(false);
+        }}
+      >
+        <div className="flex flex-col gap-4" data-testid="files-drawer">
+          <div>
+            <h2 className="text-[1.0625rem] font-semibold text-neutral-900">
+              Files on this dashboard
+            </h2>
+            <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-600">
+              The dashboard shows the months of the files you tick. Untick one and its
+              months, and every figure worked out from them, leave the board. Nothing is
+              recomputed, deleted or charged; tick it again and they are back.
+            </p>
+          </div>
+          {usedFiles.length === 0 ? (
+            <p className="text-[0.8125rem] text-neutral-500">
+              No file has been processed for this company yet.
+            </p>
+          ) : (
+            <ul className="flex flex-col divide-y divide-neutral-100 rounded-xl border border-neutral-200/80 bg-surface">
+              {usedFiles.map((x) => (
+                <li key={x.id}>
+                  <label className="flex cursor-pointer items-start gap-3 px-3.5 py-3 hover:bg-neutral-25">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 size-4 shrink-0 accent-accent-600"
+                      checked={x.onDashboard}
+                      disabled={x.id in ticks}
+                      onChange={(e) => void tickFile(x.id, e.target.checked)}
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate text-[0.8125rem] font-medium text-neutral-900">
+                        {x.fileName}
+                        {x.deleted ? (
+                          <span className="ml-1.5 font-normal text-neutral-500">
+                            (deleted; its months stay hidden until ticked)
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="block text-[0.75rem] text-neutral-500">
+                        {monthsLabel(x.periods)}
+                      </span>
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href={`/app/companies/${companyId}/run`} icon="upload" size="sm">
+              Add a file
+            </ButtonLink>
+            <ButtonLink
+              href={`/app/companies/${companyId}/manage`}
+              variant="secondary"
+              size="sm"
+            >
+              All files and settings
+            </ButtonLink>
+          </div>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setFilesOpen(false);
+            }}
+          >
+            Close
+          </Button>
+        </div>
+      </Drawer>
 
       {pending === null ? null : (
         <Alert tone="warning" title="Unsaved layout changes">
@@ -838,7 +1017,7 @@ export function DashboardClient({
                 className="mt-0.5 text-[1.0625rem] text-neutral-600"
                 data-testid="present-period"
               >
-                {format.period(current)}
+                {noMonths ? "" : format.period(current)}
               </p>
             </div>
             <div className="flex items-center gap-1.5 opacity-60 transition-opacity focus-within:opacity-100 hover:opacity-100">
@@ -876,8 +1055,36 @@ export function DashboardClient({
             </div>
           </header>
         ) : null}
-        <div className="@container grid grid-cols-12 gap-4" data-testid="dashboard-grid">
-          {spec.widgets.map((w, i) => (
+        {noMonths ? (
+          <section
+            className="rounded-2xl border border-neutral-200/80 bg-surface p-8 shadow-sm"
+            data-testid="dashboard-all-hidden"
+          >
+            <h2 className="text-[1.125rem] font-semibold text-neutral-900">
+              No file is ticked, so there is nothing on the board
+            </h2>
+            <p className="mt-2 max-w-lg text-sm leading-relaxed text-neutral-600">
+              The dashboard shows the months of the files you tick. Every figure is still
+              stored; tick a file and its months are back.
+            </p>
+            <div className="mt-4">
+              <Button
+                icon="file"
+                onClick={() => {
+                  setFilesOpen(true);
+                }}
+              >
+                Choose files
+              </Button>
+            </div>
+          </section>
+        ) : null}
+        <div
+          className="@container grid grid-cols-12 gap-4"
+          data-testid="dashboard-grid"
+          hidden={noMonths}
+        >
+          {(noMonths ? [] : spec.widgets).map((w, i) => (
             <WidgetCard
               key={w.id}
               widget={w}
@@ -892,6 +1099,7 @@ export function DashboardClient({
               onOpen={setSelected}
               onEdit={(ops) => void propose(ops)}
               onInvestigate={onInvestigate}
+              onChangeBox={onChangeBox}
             />
           ))}
         </div>

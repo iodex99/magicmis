@@ -5,12 +5,15 @@ import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { readConfig } from "@magicmis/db/config";
 import type { MetricValue } from "@magicmis/engine";
+import { visibleValues } from "@magicmis/engine";
 import { evaluateCalculated } from "@magicmis/engine/calculated";
 import { labelsFor } from "@magicmis/render-dashboard";
 import { latestSnapshot } from "@magicmis/engine/server";
 import {
   commentaryForJob,
   companyDashboard,
+  dashboardFiles,
+  hiddenPeriods,
   type CompanyDashboard,
 } from "@magicmis/jobs";
 import type { Pool } from "pg";
@@ -95,8 +98,22 @@ export async function companyMetrics(
   };
 }
 
+/** A stored file as the dashboard's Files control shows it: its months and its tick. */
+export interface DashboardFile {
+  readonly id: string;
+  readonly fileName: string;
+  readonly periods: readonly string[];
+  readonly onDashboard: boolean;
+  /** Deleted, but still hiding its months until it is ticked again. */
+  readonly deleted: boolean;
+}
+
 export interface DashboardPayload extends CompanyMetrics {
   readonly dashboard: CompanyDashboard | null;
+  /** The company's stored files, for ticking on and off the dashboard (ADR 0047). */
+  readonly files: readonly DashboardFile[];
+  /** Months left out because every file that fed them is unticked. */
+  readonly hiddenPeriods: readonly string[];
   /** The latest stored month, which may be newer than the dashboard's paid-for month. */
   readonly latestPeriod: string | null;
 }
@@ -114,8 +131,19 @@ export async function dashboardPayload(
   if (metrics === null) return null;
   const dashboard = await companyDashboard(pool, keyWrapper(), { accountId, companyId });
   const through = dashboard?.dataThrough ?? null;
-  const paid = (period: string) => through !== null && period <= through;
-  const stored = metrics.values.filter((v) => paid(v.period));
+  const [files, hidden] = await Promise.all([
+    dashboardFiles(pool, { accountId, companyId }),
+    hiddenPeriods(pool, { accountId, companyId }),
+  ]);
+  // Paid for, and not unticked. Unticking a file hides its months and every figure computed
+  // from them — a change on a hidden month, a year-to-date that includes one (ADR 0047).
+  const paid = (period: string) =>
+    through !== null && period <= through && !hidden.has(period);
+  const stored = visibleValues(
+    metrics.values.filter((v) => through !== null && v.period <= through),
+    hidden,
+    metrics.company.fyStartMonth,
+  );
   // Formulas the customer asked the chat for (ADR 0046): computed here by the engine, exactly,
   // from the months the dashboard has been paid for, and handed over as ordinary metric values
   // — so a calculated figure is drawn, formatted and traced like any other.
@@ -131,6 +159,8 @@ export async function dashboardPayload(
     company: metrics.company,
     periods: metrics.periods.filter(paid),
     values: [...stored, ...calculated],
+    files,
+    hiddenPeriods: [...hidden].sort(),
     dashboard,
     latestPeriod: metrics.periods[0] ?? null,
   };

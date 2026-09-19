@@ -40,12 +40,17 @@ export const metadata: Metadata = pageMetadata(PATH);
 
 export default async function SecurityPage() {
   const { retentionDays } = await uploadLimits(db());
-  const days = `${retentionDays.toString()} days`;
+  // Zero: files are kept until their owner deletes them (ADR 0047). Said either way round, so
+  // an operator who sets a period changes the page with it.
+  const kept =
+    retentionDays === 0
+      ? "kept until you delete them"
+      : `deleted automatically ${retentionDays.toString()} days after upload, or sooner if you delete them`;
 
   const zones: readonly { zone: string; holds: string; highlight: boolean }[] = [
     {
       zone: "Our servers",
-      holds: `Your uploaded files, each encrypted under a key that belongs to that company alone, and deleted automatically ${days} after upload or sooner if you delete them. Every figure is computed here.`,
+      holds: `Your uploaded files, each encrypted under a key that belongs to that company alone, and ${kept}. Every figure is computed here.`,
       highlight: true,
     },
     {
@@ -69,7 +74,7 @@ export default async function SecurityPage() {
     },
     {
       title: "Deleted on a schedule",
-      body: `Uploaded files are deleted automatically ${days} after upload. Each company's page lists the files kept for it and lets you delete any of them sooner.`,
+      body: `Uploaded files are ${kept}. Each company's Files and settings page lists them, lets you download or delete any of them, and shows every time one was opened and why. No member of our staff has a screen, tool or role that opens a file.`,
     },
     {
       title: "Redacted before any AI sees it",
@@ -92,7 +97,7 @@ export default async function SecurityPage() {
   const faqs: readonly Faq[] = [
     {
       question: "Does my client's trial balance get uploaded?",
-      answer: `Yes. It is sent over an encrypted connection, encrypted on arrival under a key unique to that company, used only for the runs you pay for, and deleted automatically ${days} after upload, or as soon as you delete it.`,
+      answer: `Yes. It is sent over an encrypted connection, encrypted on arrival under a key unique to that company, used only for the runs you pay for, and ${kept}. No member of our staff has a screen, tool or role that opens a file: one is decrypted only in memory, by a run or a question you start or by your own download, and every such opening is recorded on the company's Files and settings page where you can see it.`,
     },
     {
       question: "Does the AI see my accounting data?",

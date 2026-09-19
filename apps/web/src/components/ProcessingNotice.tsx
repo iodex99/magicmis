@@ -70,8 +70,10 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
         </li>
         <li>
           They are read on our servers only to prepare the reports you pay for and answer
-          your questions, and deleted automatically after a fixed period — sooner if you
-          delete them from the company&rsquo;s page.
+          your questions, and kept, encrypted, until you delete them (or for the period
+          the privacy notice states, if it states one). No member of our staff has a way
+          to open one, and every time a file is opened it is recorded beside it on the
+          company&rsquo;s Files and settings page.
         </li>
         <li>
           Before anything goes to the AI, names and identifiers — party and employee

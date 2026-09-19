@@ -402,7 +402,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/security",
     title: "Security and data handling",
     description:
-      "Where your accounting files go: encrypted under each company's own key, redacted before the AI sees any of them, and deleted automatically on a schedule. Stated exactly.",
+      "Where your accounting files go: encrypted under each company's own key, redacted before the AI sees any of them, and opened by no one on our side. Stated exactly.",
     changeFrequency: "monthly",
     priority: 0.7,
     locale: "en_US",

@@ -146,7 +146,7 @@ test("a text PDF of a trial balance is read", async () => {
 
 test("the drop zone reacts while a file is dragged over it", async () => {
   await openRun();
-  const zone = page.getByRole("button", { name: "Drag your trial balances here" });
+  const zone = page.getByRole("button", { name: "Drag your files here" });
   const data = await page.evaluateHandle(() => {
     const dt = new DataTransfer();
     dt.items.add(new File(["a,b"], "x.csv", { type: "text/csv" }));
@@ -174,13 +174,13 @@ test("a 50 MB workbook is uploaded and read in under 60 seconds (SPEC §33)", as
   expect(elapsed).toBeLessThan(60_000);
 });
 
-test("a company's kept files are listed with their deletion date and can be deleted now", async () => {
+test("a company's kept files are listed and can be deleted", async () => {
   await page.goto(runUrl);
   await page.getByTestId("kept-files").locator("summary").click();
   const table = page.getByTestId("uploaded-files");
   await expect(table).toContainText("trial_balance_2025-04.xlsx");
   const row = table.getByRole("row", { name: /tb\.pdf/u });
-  await row.getByRole("button", { name: "Delete now" }).click();
+  await row.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(table.getByRole("row", { name: /tb\.pdf/u })).toHaveCount(0);
   await page.reload();
   await page.getByTestId("kept-files").locator("summary").click();

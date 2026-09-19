@@ -26,6 +26,7 @@ import {
 } from "@magicmis/ingest";
 import {
   advanceJob,
+  bringDashboardUpToDate,
   completeJob,
   DashboardError,
   failJob,
@@ -33,8 +34,11 @@ import {
   loadStageOutput,
   loadUploadBytes,
   recordLibraryVotes,
+  recordUploadPeriods,
   saveStageOutput,
   uploadLimits,
+  type DashboardUpdate,
+  type ReadPurpose,
 } from "@magicmis/jobs";
 import {
   applyNormalSides,
@@ -99,6 +103,8 @@ export interface RunOutcome {
   readonly checks: readonly CheckResult[];
   readonly notices: readonly string[];
   readonly quoteCredits?: string;
+  /** What happened to the dashboard after a completed run (ADR 0047). */
+  readonly dashboard?: DashboardUpdate;
 }
 
 export interface JobSources {
@@ -145,6 +151,8 @@ export async function loadJobFiles(
   pool: Pool,
   accountId: string,
   uploadIds: readonly string[],
+  /** Why the files are being opened; written to each file's read log (ADR 0047). */
+  reason: { purpose: ReadPurpose; jobId?: string | null },
 ): Promise<{ files: PipelineFile[]; skipped: { name: string; message: string }[] }> {
   const wrapper = keyWrapper();
   const store = await outputStore();
@@ -155,6 +163,8 @@ export async function loadJobFiles(
     const { upload, bytes } = await loadUploadBytes(pool, wrapper, store, {
       accountId,
       uploadId: id,
+      purpose: reason.purpose,
+      jobId: reason.jobId ?? null,
     });
     const read = await readSourceFile(upload.fileName, new Uint8Array(bytes), {
       maxEntries: 10_000,
@@ -277,7 +287,10 @@ export async function runJobOnServer(
   try {
     const sources = await jobSources(pool, jobId);
     await step("preflight");
-    const loaded = await loadJobFiles(pool, accountId, sources.uploads);
+    const loaded = await loadJobFiles(pool, accountId, sources.uploads, {
+      purpose: "run",
+      jobId,
+    });
     for (const s of loaded.skipped) notice(`${s.name} was left out: ${s.message}`);
 
     await step("profiling");
@@ -429,7 +442,10 @@ export async function runJobOnServer(
     let referenceUsed = false;
     if (row.type === "reference_mis_recreate" && sources.reference !== null) {
       try {
-        const ref = await loadJobFiles(pool, accountId, [sources.reference]);
+        const ref = await loadJobFiles(pool, accountId, [sources.reference], {
+          purpose: "run",
+          jobId,
+        });
         const file = ref.files[0];
         if (file !== undefined) {
           const bytes = /^PK/u.test(
@@ -630,6 +646,20 @@ export async function runJobOnServer(
       `update jobs set stage_checkpoints = stage_checkpoints || jsonb_build_object('notices', $2::jsonb) where id = $1`,
       [jobId, JSON.stringify(notices)],
     );
+    // Each file remembers the months it fed, so its owner can untick it and have exactly those
+    // months leave the dashboard (ADR 0047). Recorded only for a run that delivered.
+    const fed = new Map<string, string[]>();
+    for (const report of p.reports)
+      if (report.period !== null)
+        fed.set(report.fileId, [...(fed.get(report.fileId) ?? []), report.period]);
+    await recordUploadPeriods(pool, { accountId, periods: fed });
+
+    // One press: the new figures go to the dashboard too, as its own priced action.
+    const dashboard = await bringDashboardUpToDate(pool, wrapper, {
+      accountId,
+      companyId,
+      runJobId: jobId,
+    });
     return {
       status: "completed",
       message: null,
@@ -638,6 +668,7 @@ export async function runJobOnServer(
       fileName: out.rendered.fileName,
       checks,
       notices,
+      dashboard,
     };
   } catch (error) {
     if (unreadable(error)) return fail(UNREADABLE);
@@ -665,12 +696,16 @@ export async function pricingFromUploads(
   uploadIds: readonly string[],
   referenceId: string | null,
 ) {
-  const { files } = await loadJobFiles(pool, accountId, uploadIds);
+  const { files } = await loadJobFiles(pool, accountId, uploadIds, {
+    purpose: "pricing",
+  });
   const redactor = await Redactor.create(Buffer.from(session.redactionKey, "base64"));
   const p = await prepare(files, redactor, session.company.dateOrder, {});
   let referenceSheets = 0;
   if (referenceId !== null) {
-    const ref = await loadJobFiles(pool, accountId, [referenceId]);
+    const ref = await loadJobFiles(pool, accountId, [referenceId], {
+      purpose: "pricing",
+    });
     referenceSheets = ref.files[0]?.sheets?.length ?? 0;
   }
   return {

@@ -189,6 +189,18 @@ test("another account's resources are unreachable through every id-scoped endpoi
       method: "DELETE",
       url: `/api/uploads/${upload}`,
     },
+    // ADR 0047: another account can neither take a file nor tick it off someone's dashboard.
+    {
+      route: "/api/uploads/[id]",
+      method: "GET",
+      url: `/api/uploads/${upload}`,
+    },
+    {
+      route: "/api/uploads/[id]",
+      method: "PATCH",
+      url: `/api/uploads/${upload}`,
+      body: { onDashboard: false },
+    },
     {
       route: "/api/uploads/[id]/complete",
       method: "POST",

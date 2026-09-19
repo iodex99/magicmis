@@ -52,7 +52,13 @@ function workspaceItems(id: string): readonly NavItem[] {
   return [
     // One workspace: the dashboard with the chat beside it (ADR 0033).
     { href: `/app/companies/${id}`, label: "Dashboard", icon: "chart" },
-    { href: `/app/companies/${id}/run`, label: "Add a month", icon: "upload" },
+    { href: `/app/companies/${id}/run`, label: "Add a file", icon: "upload" },
+    // Everything that is not the board: conventions, files, workbooks, charges (ADR 0047).
+    {
+      href: `/app/companies/${id}/manage`,
+      label: "Files and settings",
+      icon: "settings",
+    },
   ];
 }
 

@@ -18,8 +18,14 @@ or a figure it sends. Parsing, recognition, mapping, computation and rendering h
 ## Uploaded files
 - Every chunk is sealed with `sealForCompany` (purpose `source_chunk`) **before** it touches
   the store. Never write plaintext file bytes anywhere, including logs and error reports.
-- Uploads expire after `sources.retention_days`; `purgeExpiredUploads` removes them. A new
-  place that keeps file bytes must be covered by that purge or by crypto-shredding.
+- Uploads are **kept until their owner deletes them** (ADR 0047: `sources.retention_days` = 0
+  means no expiry; `purgeExpiredUploads` still honours a period an operator sets, and clears a
+  deleted company's ciphertext). A new place that keeps file bytes must be covered by
+  crypto-shredding.
+- **Every decryption is on the record.** `loadUploadBytes` takes a `purpose` and writes
+  `source_upload_reads` before it decrypts. Never read a file's bytes any other way, and never
+  add a staff-facing path to one: the product tells customers no person on our side can open
+  their files, and that has to stay true.
 - Before payment only name, size, sheet count and row count leave the server (SPEC §2.3).
 
 ## What may be sent to Anthropic

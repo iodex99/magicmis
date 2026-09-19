@@ -140,7 +140,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does my accounting data leave my computer?",
     answer:
-      "The raw files are uploaded, encrypted under a key unique to that company, and deleted automatically. The AI model receives only redacted samples and ledger names, never a whole file and never your parties' names.",
+      "The raw files are uploaded, encrypted under a key unique to that company, and kept for you until you delete them. The AI model receives only redacted samples and ledger names, never a whole file and never your parties' names.",
   },
   {
     question: "What if ledger names change between months?",

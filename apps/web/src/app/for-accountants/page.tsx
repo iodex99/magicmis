@@ -64,7 +64,7 @@ const ANSWERS: readonly { title: string; body: string }[] = [
   },
   {
     title: "Client files are encrypted and deleted on schedule",
-    body: "Each client's files are encrypted under that company's own key and deleted automatically. The AI receives redacted samples and ledger names, never a whole file.",
+    body: "Each client's files are encrypted under that company's own key, and nobody on our side has a way to open one. The AI receives redacted samples and ledger names, never a whole file.",
   },
 ];
 

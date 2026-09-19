@@ -23,5 +23,5 @@ Invoice-level sales with GST.
 
 ## If a file is refused
 
-- Any export format is accepted; files are encrypted when they arrive and deleted automatically. Photos and scans are refused, because they have no text to read. Macros are never run.
+- Any export format is accepted; files are encrypted when they arrive and kept for you until you delete them. Photos and scans are refused, because they have no text to read. Macros are never run.
 - Very large files: split the period into smaller exports.

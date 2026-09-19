@@ -4,7 +4,7 @@ import type { NumberFormatOptions } from "@magicmis/core/format";
 import type { PeriodId } from "@magicmis/core/time";
 import { companyFormat } from "@magicmis/render-dashboard";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Icon } from "@/components/Icon";
 import { CHAT_COOKIE, OPEN_CHAT_EVENT, OPEN_CHAT_PARAM, remember } from "@/lib/prefs";
@@ -14,8 +14,9 @@ import { DashboardClient } from "./DashboardClient";
 
 /**
  * The company workspace (ADR 0033): the dashboard with the chat beside it, so a question is
- * always asked with the figures in view. Investigate on a dashboard card hands its question
- * straight to the chat rather than opening another page.
+ * always asked with the figures in view. Every box on the dashboard hands a question or a change
+ * straight to the chat rather than opening another page. Nothing else is on this page (ADR
+ * 0047): files, workbooks, charges and settings are on Files and settings.
  *
  * The chat can be put away to give the dashboard the whole width (ADR 0044), and because it is
  * what the product earns from, putting it away never puts it out of reach: a launcher stays in
@@ -33,7 +34,6 @@ export function Workspace({
   periods,
   commentaries,
   chatPreference,
-  children,
 }: {
   companyId: string;
   companyName: string;
@@ -43,15 +43,13 @@ export function Workspace({
   commentaries: readonly CommentaryRow[];
   /** From the `chat` cookie; null when the reader has never chosen. */
   chatPreference: "open" | "closed" | null;
-  /** Workbooks, files and history, below the dashboard. */
-  children: ReactNode;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
 
   const [prefill, setPrefill] = useState<{
-    type: "investigate";
+    type: "investigate" | "edit";
     text: string;
     nonce: number;
   } | null>(null);
@@ -121,6 +119,14 @@ export function Workspace({
     [money, currencySymbol],
   );
 
+  // A box's Change button: the chat opens in Build with the box named, and the customer
+  // finishes the sentence. Nothing is sent until they do.
+  const changeBox = useCallback((title: string) => {
+    setChatOpen(true);
+    remember(CHAT_COOKIE, "open");
+    setPrefill({ type: "edit", text: `Change the "${title}" box: `, nonce: Date.now() });
+  }, []);
+
   return (
     <div
       className={`grid items-start gap-5 ${
@@ -134,8 +140,8 @@ export function Workspace({
           onInvestigate={investigate}
           reloadKey={layoutVersion}
           onVersion={setDashboardVersion}
+          onChangeBox={changeBox}
         />
-        {children}
       </div>
 
       <div
