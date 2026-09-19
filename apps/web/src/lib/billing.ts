@@ -13,6 +13,7 @@ import { walletSummary } from "@magicmis/wallet";
 
 import { db } from "./db";
 import { serverEnv } from "./env";
+import { listedPacks, packWorth } from "./server/packs";
 
 let gateway: PaymentGateway | undefined;
 
@@ -48,9 +49,27 @@ export interface WalletView {
    * in, and defaulting to one would show a visitor abroad a rupee figure.
    */
   readonly currency: Currency | null;
+  /**
+   * The packs at their list price before tax, for an account that has not yet said where to
+   * invoice it (ADR 0050). Tax and the total depend on that; what is for sale does not, and the
+   * Wallet must never open on a form with nothing to buy in sight. Empty once `packs` is priced.
+   */
+  readonly listed: {
+    readonly currency: Currency;
+    readonly packs: readonly {
+      packId: string;
+      name: string | null;
+      credits: string;
+      bonusCredits: string;
+      priceMinor: string;
+      worth: string;
+    }[];
+  } | null;
   readonly packs: readonly {
     packId: string;
     name: string | null;
+    /** What the pack covers in the customer's own terms, from the live price book. */
+    worth: string;
     credits: string;
     bonusCredits: string;
     taxableMinor: string;
@@ -90,7 +109,11 @@ export interface WalletView {
 }
 
 /** Everything the Wallet page shows, as JSON-safe strings (bigints never cross to the client). */
-export async function walletView(accountId: string): Promise<WalletView> {
+export async function walletView(
+  accountId: string,
+  /** The currency to list packs in until the billing country settles it (`visitorCurrency`). */
+  listCurrency: Currency,
+): Promise<WalletView> {
   const pool = db();
   /**
    * Packs can only be quoted once GST place of supply is known (SPEC §13), and billing
@@ -109,9 +132,10 @@ export async function walletView(accountId: string): Promise<WalletView> {
     throw error;
   });
 
-  const [summary, quotes, purchases, invoices, ledger] = await Promise.all([
+  const [summary, quotes, worth, purchases, invoices, ledger] = await Promise.all([
     walletSummary(pool, accountId),
     quoting,
+    packWorth(pool),
     listPurchases(pool, accountId),
     listInvoices(pool, accountId),
     pool.query<{
@@ -127,8 +151,21 @@ export async function walletView(accountId: string): Promise<WalletView> {
       [accountId],
     ),
   ]);
+  // Read through a call: the flag is set inside the catch above, which the compiler cannot see,
+  // so a bare read is narrowed to its initial `true`.
+  const ready = ((): boolean => billingReady)();
+  const listed = ready
+    ? null
+    : {
+        currency: listCurrency,
+        packs: (await listedPacks(pool, listCurrency)).map((p) => ({
+          ...p,
+          worth: worth(BigInt(p.credits) + BigInt(p.bonusCredits)),
+        })),
+      };
   return {
     billingReady,
+    listed,
     balance: summary.balance.toString(),
     held: summary.held.toString(),
     available: summary.available.toString(),
@@ -144,6 +181,7 @@ export async function walletView(accountId: string): Promise<WalletView> {
     packs: quotes.map((p) => ({
       packId: p.packId,
       name: p.name,
+      worth: worth(p.credits + p.bonusCredits),
       credits: p.credits.toString(),
       bonusCredits: p.bonusCredits.toString(),
       taxableMinor: p.tax.taxableMinor.toString(),

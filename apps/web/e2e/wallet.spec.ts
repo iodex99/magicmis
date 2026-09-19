@@ -39,19 +39,104 @@ test("a visitor in India is priced in rupees, the currency they will be billed i
   await expect(packs).not.toContainText("$");
 });
 
-test("the price book is in the wallet, free to read, and credits never expire", async ({
+test("the Wallet opens on credit packs with prices and a Buy button, and has no per-action price table (ADR 0050)", async ({
   page,
 }) => {
   await createVerifiedAccount(page, uniqueEmail());
   await page.getByRole("link", { name: "Wallet" }).click();
   await expect(page).toHaveURL(/\/wallet$/u);
 
-  const prices = page.getByTestId("price-list");
-  await expect(prices).toBeVisible();
-  await expect(prices.getByRole("row", { name: /Company setup/u })).toContainText("999");
-  // Reading it charges nothing (SPEC §2.3): the balance is still zero.
+  // A brand-new account, which has never said where to invoice it, still sees what is for sale.
+  const packs = page.getByTestId("wallet-pack");
+  await expect(packs).toHaveCount(6);
+  await expect(packs.first()).toContainText("$29");
+  await expect(packs.first()).toContainText("2,000");
+  await expect(packs.first()).toContainText("before tax");
+  for (const pack of await packs.all())
+    await expect(pack.getByRole("button", { name: "Buy" })).toBeEnabled();
+  // The packs come before any form, and before the fold.
+  const first = await packs.first().boundingBox();
+  expect(first?.y ?? 9999).toBeLessThan(700);
+  await expect(page.getByLabel("Address line 1")).toHaveCount(0);
+
+  // The per-action price table is gone from here (the owner's decision), and nothing about
+  // what an action costs us is said anywhere on the page.
+  await expect(page.getByTestId("price-list")).toHaveCount(0);
+  await expect(page.getByText("What each action costs")).toHaveCount(0);
+  await expect(page.locator("main")).not.toContainText(/token|model|AI cost/iu);
   await expect(page.getByTestId("wallet-balance")).toContainText("Credits never expire");
-  await expect(page.getByTestId("wallet-balance")).toContainText("0");
+
+  // It is one quiet link away, still free to read, and still says nothing of what an action costs us.
+  await page.getByRole("link", { name: "What actions cost" }).click();
+  await expect(page).toHaveURL(/\/wallet\/prices$/u);
+  const prices = page.getByTestId("price-list");
+  await expect(prices).toContainText("999");
+  await expect(prices).not.toContainText(/token|model|ratio|AI cost/iu);
+});
+
+test("Buy asks where to invoice once, then goes straight to payment for the pack that was chosen (ADR 0050)", async ({
+  page,
+}) => {
+  await createVerifiedAccount(page, uniqueEmail());
+  await page.getByRole("link", { name: "Wallet" }).click();
+
+  // The payment provider is stood in for at the network edge: our own flow runs for real up to
+  // the order, and the window that would open is recorded instead of loaded from the internet.
+  let ordered: { packId?: string } = {};
+  await page.route("**/api/wallet/purchases", async (route) => {
+    ordered = route.request().postDataJSON() as { packId?: string };
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        purchaseId: "00000000-0000-4000-8000-000000000001",
+        orderId: "order_e2e",
+        amountMinor: "6900",
+        currency: "USD",
+        keyId: "rzp_test_e2e",
+      }),
+    });
+  });
+  await page.route("https://checkout.razorpay.com/v1/checkout.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/javascript",
+      body: "window.Razorpay = function (o) { this.open = function () { window.__opened = { key: o.key, order_id: o.order_id, amount: o.amount, currency: o.currency }; o.modal.ondismiss(); }; this.on = function () {}; };",
+    }),
+  );
+
+  const plus = page.getByTestId("wallet-pack").filter({ hasText: "Plus" });
+  await plus.getByRole("button", { name: "Buy" }).click();
+  // One step, saying what it is for and which pack is waiting. Abroad, no Indian tax fields.
+  await expect(page.getByText("One thing before paying for Plus")).toBeVisible();
+  await expect(page.getByLabel("Country")).toHaveValue("US");
+  await expect(page.getByLabel(/GSTIN/u)).toHaveCount(0);
+  await page.getByLabel("Address line 1").fill("1 Test Street");
+  await page.getByLabel("City").fill("Austin");
+  await page.getByLabel("Postal code").fill("78701");
+  await page.getByRole("button", { name: "Save and continue to payment" }).click();
+
+  // Straight on to payment, for the pack that was chosen, with no second click.
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as unknown as { __opened?: unknown }).__opened),
+    )
+    .toEqual({
+      key: "rzp_test_e2e",
+      order_id: "order_e2e",
+      amount: "6900",
+      currency: "USD",
+    });
+  const chosen = await page.evaluate(async () => {
+    const r = await fetch("/api/wallet");
+    const v = (await r.json()) as { packs: { packId: string; name: string | null }[] };
+    return v.packs.find((p) => p.name === "Plus")?.packId;
+  });
+  expect(ordered.packId).toBe(chosen);
+
+  // From now on the cards carry the total and pay in one press.
+  await expect(plus.getByRole("button", { name: /^Pay \$69/u })).toBeVisible();
+  await expect(plus).toContainText("No tax added");
 });
 
 test("wallet shows GST before payment, issues a proforma and serves its PDF", async ({
@@ -62,22 +147,24 @@ test("wallet shows GST before payment, issues a proforma and serves its PDF", as
   await expect(page).toHaveURL(/\/wallet$/u);
   await expect(page.getByTestId("wallet-balance")).toContainText("0");
 
-  // Billing details are asked for here, at the first purchase, rather than at sign-up:
-  // GST place of supply is needed to quote a pack and at no earlier moment.
+  // Billing details are asked for at the first purchase rather than at sign-up: the place of
+  // supply is needed to work out tax and at no earlier moment. They can also be given ahead.
+  await page.getByRole("button", { name: "Add invoice details now" }).click();
   await expect(
     page.getByRole("heading", { name: "Where should we invoice this?" }),
   ).toBeVisible();
+  await page.getByLabel("Country").selectOption("IN");
   await page.getByLabel("Address line 1").fill("1 Test Road");
   await page.getByLabel("City").fill("Pune");
   await page.getByLabel("PIN code").fill("411001");
   await page.getByLabel("State").selectOption("27");
-  await page.getByRole("button", { name: "Save and show prices" }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
 
   // Maharashtra buyer, Maharashtra seller → CGST + SGST shown before paying.
-  const row = page.getByRole("row", { name: /25,000/u }).first();
-  await expect(row).toContainText("₹25,000.00");
-  await expect(row).toContainText("CGST ₹2,250.00 + SGST ₹2,250.00");
+  const row = page.getByTestId("wallet-pack").filter({ hasText: "25,000" }).first();
+  await expect(row).toContainText("₹25,000.00 + CGST ₹2,250.00 + SGST ₹2,250.00");
   await expect(row).toContainText("₹29,500.00");
+  await expect(row.getByRole("button", { name: "Pay ₹29,500.00" })).toBeEnabled();
 
   // SPEC §2.3: previewing a price is free and says whether the balance covers it.
   const preview = await page.request.post("/api/pricing/preview", {
@@ -88,7 +175,7 @@ test("wallet shows GST before payment, issues a proforma and serves its PDF", as
   expect(body).toMatchObject({ credits: "999", available: "0", sufficient: false });
   expect(JSON.stringify(body)).not.toMatch(/cap|ratio|paise/iu);
 
-  await row.getByRole("button", { name: "Bank transfer" }).click();
+  await row.getByRole("button", { name: "Pay by bank transfer" }).click();
   await expect(page.getByRole("status")).toContainText(
     /Proforma PRO\/\d\d-\d\d\/\d{6} issued/u,
   );

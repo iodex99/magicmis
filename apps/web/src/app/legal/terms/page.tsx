@@ -59,7 +59,7 @@ export default async function TermsPage() {
               privacy notice
             </Link>{" "}
             explains how personal data is handled, and the{" "}
-            <Link href="/pricing" className="text-accent-700 underline">
+            <Link href="/wallet/prices" className="text-accent-700 underline">
               price book
             </Link>{" "}
             sets out what each action costs.

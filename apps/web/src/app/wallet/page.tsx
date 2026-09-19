@@ -2,8 +2,8 @@ import { AppFrame } from "@/components/AppFrame";
 import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { walletView } from "@/lib/billing";
+import { visitorCurrency } from "@/lib/server/visitor-currency";
 
-import { PriceBook } from "./PriceBook";
 import { WalletClient } from "./WalletClient";
 
 export const metadata = { title: "Wallet" };
@@ -16,7 +16,7 @@ export default async function WalletPage({
 }) {
   const account = await accountOrRedirect("/wallet");
   const { need } = await searchParams;
-  const view = await walletView(account.accountId);
+  const view = await walletView(account.accountId, await visitorCurrency());
   // Only a plain credit count is honoured; anything else is ignored rather than shown.
   const needed = need !== undefined && /^[0-9]{1,9}$/u.test(need) ? need : null;
   return (
@@ -24,11 +24,10 @@ export default async function WalletPage({
       <PageHeader
         eyebrow="Credits"
         title="Wallet"
-        description="Your credits, what they buy, your invoices and every movement."
+        description="Add credits, and see your balance, your invoices and every movement."
       />
       <div className="flex flex-col gap-5">
         <WalletClient initial={view} businessName={account.businessName} need={needed} />
-        <PriceBook />
       </div>
     </AppFrame>
   );

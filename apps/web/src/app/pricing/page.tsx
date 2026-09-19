@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
  * Credit packs (ADR 0040, ADR 0041).
  *
  * What is sold for money is a pack of credits, so that is what this page prices: six tiers,
- * each a name, a price and a number of credits. The per-action price book is in the wallet.
+ * each a name, a price and a number of credits. The per-action price book is one link from the Wallet (ADR 0050).
  *
  * One currency per visitor, chosen by `visitorCurrency` — dollars for the world, rupees for a
  * visitor who will be billed in rupees — and no tax rate on the page: tax depends on who is

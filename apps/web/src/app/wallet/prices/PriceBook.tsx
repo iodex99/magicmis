@@ -7,10 +7,11 @@ import { db } from "@/lib/db";
 /**
  * What each action costs, in credits, by intelligence tier.
  *
- * This used to be the public pricing page. It reads better here: a customer looking at a
- * balance is the one who wants it, and the page they land on when a run is short is this
- * one. Viewing it is still uncharged (SPEC §2.3) and it is still read from the versioned
- * price book, so an admin price change is what the next render shows.
+ * It has a page of its own, one quiet link from the Wallet (ADR 0050). The Wallet is where
+ * credits are bought and this table is about spending them, so it no longer sits between a
+ * customer and the packs. It stays readable, and uncharged (SPEC §2.3), because a button that
+ * holds credits must have its price on record somewhere the customer can open. It is read from
+ * the versioned price book, so an admin price change is what the next render shows.
  *
  * Credits only — never the AI cost cap, the ratio behind it, tokens or a model name
  * (SPEC §2.5).

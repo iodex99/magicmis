@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import Link from "next/link";
+import { useCallback, useRef, useState } from "react";
 
 import { Donut, sharePercent } from "@/components/Charts";
 import { Icon } from "@/components/Icon";
@@ -60,19 +61,6 @@ const istDate = (iso: string): string =>
     month: "short",
     year: "numeric",
   }).format(new Date(iso));
-
-/**
- * What a credit balance actually buys, in the customer's own terms.
- *
- * Prices come from the price book and can change, so these are deliberately approximate
- * and hedged — the authority is the Pricing page, and nothing here is a quote.
- */
-const REFRESH_CREDITS = 299n;
-function covers(credits: bigint): string {
-  const refreshes = credits / REFRESH_CREDITS;
-  if (refreshes < 1n) return "Part of one monthly refresh";
-  return `About ${refreshes.toString()} monthly ${refreshes === 1n ? "refresh" : "refreshes"}`;
-}
 
 export function WalletClient({
   initial,
@@ -227,14 +215,75 @@ export function WalletClient({
   const available = BigInt(view.available);
   const held = BigInt(view.held);
 
+  // The pack chosen before billing details existed, so that saving them goes on to pay for it.
+  const [wanted, setWanted] = useState<string | null>(null);
+  const [askingBilling, setAskingBilling] = useState(false);
+  const billing = useRef<HTMLDivElement>(null);
+  const choose = (packId: string) => {
+    setWanted(packId);
+    setNotice(null);
+    // After the form has rendered: it is below the cards and must not be missed.
+    setTimeout(() => {
+      billing.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
+  const continuePurchase = async () => {
+    const next = await refresh();
+    const packId = wanted;
+    setWanted(null);
+    setAskingBilling(false);
+    if (next === null || !next.billingReady || packId === null) return;
+    if (next.packs.some((p) => p.packId === packId)) await buy(packId);
+  };
+
+  // One shape for a card, priced two ways: with tax and a total once the account has said
+  // where to invoice it, and at the list price before tax until then.
+  const cards = view.billingReady
+    ? view.packs.map((p) => ({
+        packId: p.packId,
+        name: p.name,
+        credits: p.credits,
+        bonusCredits: p.bonusCredits,
+        worth: p.worth,
+        price: money(p.totalMinor),
+        tax:
+          p.supply === "export"
+            ? "No tax added"
+            : p.supply === "intra_state"
+              ? `${money(p.taxableMinor)} + CGST ${money(p.cgstMinor)} + SGST ${money(p.sgstMinor)}`
+              : `${money(p.taxableMinor)} + IGST ${money(p.igstMinor)}`,
+        action: `Pay ${money(p.totalMinor)}`,
+        bankTransferEligible: p.bankTransferEligible,
+      }))
+    : (view.listed?.packs ?? []).map((p) => ({
+        packId: p.packId,
+        name: p.name,
+        credits: p.credits,
+        bonusCredits: p.bonusCredits,
+        worth: p.worth,
+        // A list price in whole units reads as "$29", as it does on the public page.
+        price: formatMoney(view.listed?.currency ?? "USD", p.priceMinor).replace(
+          /\.00$/u,
+          "",
+        ),
+        tax: "before tax",
+        action: "Buy",
+        bankTransferEligible: false,
+      }));
+  const chosenName =
+    cards.find((c) => c.packId === wanted)?.name ??
+    `${formatCredits(cards.find((c) => c.packId === wanted)?.credits ?? "0")} credits`;
+
   // The pack to point at: the smallest that covers what the run needs, or the one most
   // accounts choose when nothing in particular is waiting.
   const shortfall = need === null ? 0n : BigInt(need) - available;
+  const sellable: readonly { packId: string; credits: string; bonusCredits: string }[] =
+    view.billingReady ? view.packs : (view.listed?.packs ?? []);
   const suggested =
     shortfall > 0n
-      ? (view.packs.find((p) => BigInt(p.credits) + BigInt(p.bonusCredits) >= shortfall)
-          ?.packId ?? view.packs.at(-1)?.packId)
-      : view.packs[2]?.packId;
+      ? (sellable.find((p) => BigInt(p.credits) + BigInt(p.bonusCredits) >= shortfall)
+          ?.packId ?? sellable.at(-1)?.packId)
+      : (sellable[1]?.packId ?? sellable[0]?.packId);
 
   return (
     <div className="flex flex-col gap-5">
@@ -308,98 +357,152 @@ export function WalletClient({
         />
       </div>
 
-      {view.billingReady ? (
-        <Panel
-          title="Add credits"
-          description="Credits are prepaid and non-refundable, and there is no free tier. Prices below are in your billing currency, before tax."
-          icon="plus"
-          padding="none"
+      {/*
+        Buying is what this page is for (ADR 0050), so it is the first thing on it and it is
+        never behind a form. Every pack is shown with its price and a button, whether or not the
+        account has said where to invoice it yet. For a first purchase the button asks that one
+        thing and then carries straight on to payment with the pack that was chosen.
+      */}
+      <section aria-labelledby="add-credits" data-testid="add-credits">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2
+              id="add-credits"
+              className="display text-[1.25rem] font-semibold tracking-tight text-neutral-900"
+            >
+              Add credits
+            </h2>
+            <p className="mt-0.5 text-[0.8125rem] text-neutral-600">
+              One-time packs, no subscription. Credits never expire.
+              {view.billingReady ? "" : " Prices are before tax."}
+            </p>
+          </div>
+          <p className="flex items-center gap-1.5 text-[0.75rem] text-neutral-500">
+            <Icon name="lock" size={13} />
+            {/* Only a customer billed in rupees is told about Indian payment methods. */}
+            {(view.currency ?? view.listed?.currency) === "INR"
+              ? "Card, UPI, netbanking and wallets, through a secure payment window"
+              : "Card payment, through a secure payment window"}
+          </p>
+        </div>
+
+        <ul
+          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          data-testid="wallet-packs"
         >
-          <DataTable
-            className="px-2 pb-2"
-            head={
-              <>
-                <Th>Credits</Th>
-                <Th>What it covers</Th>
-                <Th numeric>Price (ex-GST)</Th>
-                <Th numeric>GST</Th>
-                <Th numeric>Total</Th>
-                <Th />
-              </>
-            }
-          >
-            {view.packs.map((p) => {
-              const total = BigInt(p.credits) + BigInt(p.bonusCredits);
-              return (
-                <Tr
-                  key={p.packId}
-                  className={p.packId === suggested ? "bg-accent-50" : ""}
+          {cards.map((p) => {
+            const recommended = p.packId === suggested;
+            return (
+              <li
+                key={p.packId}
+                className={`lift relative flex flex-col rounded-2xl border bg-surface p-5 shadow-sm ${
+                  recommended ? "border-accent-400 ring-1 ring-accent-400" : "border-line"
+                }`}
+                data-testid="wallet-pack"
+              >
+                {recommended ? (
+                  <span className="absolute -top-2.5 left-5 rounded-full bg-accent-600 px-2.5 py-0.5 text-[0.6875rem] font-semibold tracking-wide text-white uppercase">
+                    {need === null ? "Recommended" : "Covers this run"}
+                  </span>
+                ) : null}
+                <h3 className="text-[0.9375rem] font-semibold text-neutral-900">
+                  {p.name ?? `${formatCredits(p.credits)} credits`}
+                </h3>
+                <p className="mt-3 flex items-baseline gap-1.5">
+                  <span className="display num text-left text-[1.875rem] leading-none font-semibold tracking-tight text-neutral-900">
+                    {p.price}
+                  </span>
+                </p>
+                <p className="mt-1 min-h-[1.125rem] text-[0.75rem] text-neutral-500">
+                  {p.tax}
+                </p>
+                <p className="mt-3 text-[0.875rem] text-neutral-700">
+                  <span className="num font-semibold text-neutral-900">
+                    {formatCredits(p.credits)}
+                  </span>{" "}
+                  credits
+                  {p.bonusCredits === "0" ? null : (
+                    <Badge tone="positive" className="ml-2">
+                      +{formatCredits(p.bonusCredits)} bonus
+                    </Badge>
+                  )}
+                </p>
+                <p className="mt-1.5 text-[0.75rem] leading-relaxed text-neutral-500">
+                  {p.worth}
+                </p>
+                <div className="mt-4 flex-1" />
+                <Button
+                  variant={recommended ? "primary" : "secondary"}
+                  disabled={busy !== null}
+                  className="w-full"
+                  iconAfter="arrow-right"
+                  onClick={() => {
+                    if (view.billingReady) void buy(p.packId);
+                    else choose(p.packId);
+                  }}
                 >
-                  <Td>
-                    {p.name === null ? null : (
-                      <span className="mr-2 text-[0.8125rem] font-medium text-neutral-500">
-                        {p.name}
-                      </span>
-                    )}
-                    <span className="num text-[0.9375rem] font-semibold text-neutral-900">
-                      {formatCredits(p.credits)}
-                    </span>
-                    {p.bonusCredits !== "0" ? (
-                      <Badge tone="positive" className="ml-2">
-                        +{formatCredits(p.bonusCredits)} bonus
-                      </Badge>
-                    ) : null}
-                    {p.packId === suggested ? (
-                      <Badge tone="accent" className="ml-2">
-                        {need === null ? "Recommended" : "Covers this run"}
-                      </Badge>
-                    ) : null}
-                  </Td>
-                  <Td className="text-[0.8125rem] text-neutral-500">{covers(total)}</Td>
-                  <Td numeric>{money(p.taxableMinor)}</Td>
-                  <Td numeric className="text-[0.75rem] text-neutral-500">
-                    {p.supply === "export"
-                      ? "Zero-rated export"
-                      : p.supply === "intra_state"
-                        ? `CGST ${money(p.cgstMinor)} + SGST ${money(p.sgstMinor)}`
-                        : `IGST ${money(p.igstMinor)}`}
-                  </Td>
-                  <Td numeric className="font-semibold">
-                    {money(p.totalMinor)}
-                  </Td>
-                  <Td className="text-right whitespace-nowrap">
-                    <Button
-                      size="sm"
-                      variant={p.packId === suggested ? "primary" : "secondary"}
-                      disabled={busy !== null}
-                      onClick={() => void buy(p.packId)}
-                    >
-                      Pay {money(p.totalMinor)}
-                    </Button>
-                    {p.bankTransferEligible ? (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="ml-2"
-                        disabled={busy !== null}
-                        onClick={() => void bankTransfer(p.packId)}
-                      >
-                        Bank transfer
-                      </Button>
-                    ) : null}
-                  </Td>
-                </Tr>
-              );
-            })}
-          </DataTable>
-        </Panel>
-      ) : (
-        <BillingDetailsForm
-          onSaved={() => {
-            void refresh();
-          }}
-        />
-      )}
+                  {busy === p.packId ? "Opening payment…" : p.action}
+                </Button>
+                {p.bankTransferEligible ? (
+                  <button
+                    type="button"
+                    className="mt-2 text-center text-[0.75rem] font-medium text-neutral-600 underline underline-offset-2 hover:text-neutral-900 disabled:opacity-50"
+                    disabled={busy !== null}
+                    onClick={() => void bankTransfer(p.packId)}
+                  >
+                    Pay by bank transfer
+                  </button>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+
+        {view.billingReady ? null : (
+          <div ref={billing} className="mt-4 scroll-mt-6">
+            {wanted === null && !askingBilling ? (
+              <p className="text-[0.8125rem] text-neutral-600">
+                Your first purchase asks once where to invoice you, then goes to payment.{" "}
+                <button
+                  type="button"
+                  className="font-medium text-accent-700 underline underline-offset-2"
+                  onClick={() => {
+                    setAskingBilling(true);
+                  }}
+                >
+                  Add invoice details now
+                </button>
+              </p>
+            ) : (
+              <BillingDetailsForm
+                defaultCountry={view.listed?.currency === "INR" ? "IN" : "US"}
+                description={
+                  wanted === null
+                    ? "Asked once, to work out tax and print your invoice. You can change it later in Settings."
+                    : `One thing before paying for ${chosenName}: where to invoice you. Asked once; tax depends on it.`
+                }
+                submitLabel={wanted === null ? "Save" : "Save and continue to payment"}
+                onCancel={() => {
+                  setWanted(null);
+                  setAskingBilling(false);
+                }}
+                onSaved={() => {
+                  void continuePurchase();
+                }}
+              />
+            )}
+          </div>
+        )}
+        {/* Spending is one link away and never between a customer and the packs (ADR 0050). */}
+        <p className="mt-3 text-[0.75rem] text-neutral-500">
+          <Link
+            href="/wallet/prices"
+            className="underline underline-offset-2 hover:text-neutral-800"
+          >
+            What actions cost
+          </Link>
+        </p>
+      </section>
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <Panel

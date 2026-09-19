@@ -14,16 +14,30 @@ import { api, formText, newIdempotencyKey } from "@/lib/client-api";
  * so it must be known before a pack can be quoted — and at no earlier moment. Sign-up used
  * to demand all of this before the account had seen a single screen.
  */
-export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
+export function BillingDetailsForm({
+  onSaved,
+  defaultCountry,
+  description = "Needed once, to work out tax and print your invoice. You can change it later in Settings.",
+  submitLabel = "Save",
+  onCancel,
+}: {
+  onSaved: () => void;
+  /**
+   * Where the form starts (ADR 0050): India for a visitor priced in rupees, otherwise the
+   * first country that is not India. A customer abroad should not open on an Indian tax form.
+   */
+  defaultCountry: string;
+  description?: string;
+  /** What the button says: inside a purchase it carries on to payment. */
+  submitLabel?: string;
+  onCancel?: () => void;
+}) {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  /**
-   * Defaults to India because that is where most customers are, not because the rest are
-   * an afterthought: changing it switches the currency, drops the GST fields and changes
-   * the invoice, all of which the reader should see happen.
-   */
-  const [country, setCountry] = useState("IN");
+  // Changing the country switches the currency, drops the GST fields and changes the invoice,
+  // all of which the reader should see happen.
+  const [country, setCountry] = useState(defaultCountry);
   const isIndia = country === "IN";
   // Never ask twice for something already given: the business name came in at sign-up.
   const [known, setKnown] = useState<{ businessName: string; gstin: string } | null>(
@@ -85,7 +99,7 @@ export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
     <Panel
       title="Where should we invoice this?"
       icon="document"
-      description="Needed once, to work out GST and print your tax invoice. You can change it later in Settings."
+      description={description}
     >
       <form
         onSubmit={(e) => {
@@ -103,14 +117,16 @@ export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
           required
           error={fields["businessName"]}
         />
-        <Field
-          id="billing-gstin"
-          name="gstin"
-          label="GSTIN (optional)"
-          defaultValue={known.gstin}
-          hint="If you give one, its state decides the place of supply."
-          error={fields["gstin"]}
-        />
+        {isIndia ? (
+          <Field
+            id="billing-gstin"
+            name="gstin"
+            label="GSTIN (optional)"
+            defaultValue={known.gstin}
+            hint="If you give one, its state decides the place of supply."
+            error={fields["gstin"]}
+          />
+        ) : null}
         <Field
           id="billing-line1"
           name="line1"
@@ -190,9 +206,16 @@ export function BillingDetailsForm({ onSaved }: { onSaved: () => void }) {
             zero-rated under section 16 of the IGST Act, and your invoice will say so.
           </p>
         )}
-        <Button type="submit" disabled={saving} size="lg" className="w-fit">
-          {saving ? "Saving…" : "Save and show prices"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="submit" disabled={saving} size="lg" className="w-fit">
+            {saving ? "Saving…" : submitLabel}
+          </Button>
+          {onCancel === undefined ? null : (
+            <Button type="button" variant="ghost" disabled={saving} onClick={onCancel}>
+              Not now
+            </Button>
+          )}
+        </div>
       </form>
     </Panel>
   );

@@ -32,13 +32,12 @@ import {
   Tr,
   type BadgeTone,
 } from "@/components/ui";
-import { DELIVERY_LABELS, formatCount, formatCredits, TIER_LABELS } from "@/lib/actions";
+import { formatCount, formatCredits, TIER_LABELS } from "@/lib/actions";
 import { api } from "@/lib/client-api";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 import { removeUpload, uploadFile } from "@/lib/uploads";
 
 type Tier = keyof typeof TIER_LABELS;
-type Delivery = keyof typeof DELIVERY_LABELS;
 
 interface Check {
   id: string;
@@ -113,7 +112,8 @@ export function JobRunner({
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [reference, setReference] = useState<FileEntry | null>(null);
   const [tier, setTier] = useState<Tier>("professional");
-  const [delivery, setDelivery] = useState<Delivery>("instant");
+  // A file is processed when it is added (ADR 0050): there is no "queue it for later" to choose.
+  const delivery = "instant";
   const [phase, setPhase] = useState<Phase>({ kind: "files" });
   const [error, setError] = useState<string | null>(null);
   const [stopped, setStopped] = useState<Exclude<StartResult, { kind: "held" }> | null>(
@@ -578,21 +578,6 @@ export function JobRunner({
                       }}
                     >
                       {Object.entries(TIER_LABELS).map(([k, v]) => (
-                        <option key={k} value={k}>
-                          {v}
-                        </option>
-                      ))}
-                    </SelectField>
-                    <SelectField
-                      id="job-delivery"
-                      label="Delivery"
-                      value={delivery}
-                      hint="Instant runs now. Standard queues it and emails you when it is ready, for fewer credits."
-                      onChange={(e) => {
-                        setDelivery(e.target.value as Delivery);
-                      }}
-                    >
-                      {Object.entries(DELIVERY_LABELS).map(([k, v]) => (
                         <option key={k} value={k}>
                           {v}
                         </option>
