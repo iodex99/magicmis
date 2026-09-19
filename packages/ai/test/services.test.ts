@@ -377,11 +377,43 @@ describe("margin report", () => {
     const captured = (38n + 598n) * 100n;
     expect(report.grossMargin.capturedValuePaise).toBe(captured);
     expect(report.grossMargin.aiCostPaise).toBe(1760n);
-    // Payment fee config "2.00" percent, rounded up; infra cost 0.
-    expect(report.grossMargin.paymentFeesPaise).toBe((captured * 2n + 99n) / 100n);
-    expect(report.grossMargin.marginPaise).toBe(
-      captured - 1760n - report.grossMargin.paymentFeesPaise,
+    // The gateway is paid when money arrives, not as credits are spent (ADR 0052). Nothing
+    // has been bought in this window, so there is no fee at all, however much was spent.
+    expect(report.grossMargin.paymentFeesPaise).toBe(0n);
+    // Infra is a real cost per day, no longer seeded at zero; this window is under a day.
+    expect(report.grossMargin.infraCostPaise).toBe(25_000n);
+    expect(report.grossMargin.marginPaise).toBe(captured - 1760n - 25_000n);
+
+    // A rupee purchase through the gateway: ₹29,500 with tax, at 2.36%.
+    await pool().query(
+      `insert into purchases (account_id, amount_minor_ex_tax, tax_minor, igst_minor, total_minor,
+                              method, currency, status, credited_at)
+       values ($1, 2500000, 450000, 450000, 2950000, 'razorpay', 'INR', 'credited', now())`,
+      [account],
     );
+    // A bank transfer pays no gateway fee, so it must not add one.
+    await pool().query(
+      `insert into purchases (account_id, amount_minor_ex_tax, tax_minor, igst_minor, total_minor,
+                              method, currency, status, credited_at)
+       values ($1, 5000000, 900000, 900000, 5900000, 'bank_transfer', 'INR', 'credited', now())`,
+      [account],
+    );
+    const withInr = await marginReport(pool(), from, to, { accountId: account });
+    expect(withInr.grossMargin.paymentFeesPaise).toBe(69_620n);
+
+    // A dollar purchase is charged at the international rate, not the domestic one: $299
+    // converts to about ₹29,257 at the buffered rate, so 3.54% is about ₹1,036 and 2.36%
+    // would be about ₹691. The ranges cannot overlap, so this pins which rate was used.
+    await pool().query(
+      `insert into purchases (account_id, amount_minor_ex_tax, total_minor,
+                              method, currency, status, credited_at)
+       values ($1, 29900, 29900, 'razorpay', 'USD', 'credited', now())`,
+      [account],
+    );
+    const withUsd = await marginReport(pool(), from, to, { accountId: account });
+    const usdFee = withUsd.grossMargin.paymentFeesPaise - 69_620n;
+    expect(usdFee).toBeGreaterThan(100_000n);
+    expect(usdFee).toBeLessThan(110_000n);
   });
 
   it("flags stale registry entries", async () => {

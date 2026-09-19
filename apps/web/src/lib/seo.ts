@@ -88,14 +88,17 @@ export const REPORT_NAMES: readonly {
 export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
     path: "/",
-    title: `${PRODUCT_NAME} — boardroom-ready MIS and management accounts from your raw data`,
+    title: `${PRODUCT_NAME} — turn raw data into boardroom-ready insight`,
     description:
-      "Dump the raw trial balance from any accounting system and get a checked Excel MIS, a dashboard you build by chatting, and commentary. Present it live; every figure traces to its source.",
+      "Turn raw data into business insights. Dump the trial balance from any accounting system and get a checked MIS or management accounts, a dashboard you build by chatting, and commentary on what to act on.",
     changeFrequency: "weekly",
     priority: 1,
     locale: "en_US",
     updated: "2026-09-19",
     keywords: [
+      "turn raw data into business insights",
+      "raw data into actionable insights",
+      "raw data to business insights",
       "MIS from raw data",
       "dump raw data get MIS",
       "boardroom-ready MIS",
@@ -111,7 +114,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/product",
     title: "What you get each month",
     description:
-      "A validated Excel workbook with live formulas, a dashboard, and commentary where every figure traces back to the ledger it came from. See what the output actually looks like.",
+      "What lands each month: the movements that matter, explained, inside a checked Excel workbook with live formulas, a dashboard and commentary. Every figure traces back to its ledger.",
     changeFrequency: "monthly",
     priority: 0.9,
     locale: "en_US",
@@ -290,7 +293,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/boardroom-ready-mis",
     title: "Boardroom-ready MIS from your raw data: chat to build it, present it live",
     description:
-      "Dump your raw accounting data and get a checked MIS. Build the board by chatting: comparisons, trends against last year, your own formulas. Present it live, every figure traceable.",
+      "Dump raw data, get actionable insight in a form a board will accept. Build the board by chatting: comparisons, trends against last year, your own formulas. Present it live, every figure traceable.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_US",
@@ -312,7 +315,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/ai-variance-analysis",
     title: "AI variance analysis: flux commentary written from computed figures",
     description:
-      "Automated variance and flux analysis: month-over-month movements computed from your trial balance, filtered by materiality and written up, with every figure traceable.",
+      "Which movements matter and why, not a list of every change: month-over-month variances computed from your trial balance, filtered by materiality and written up, with every figure traceable.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_US",
@@ -342,7 +345,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/mis-dashboard",
     title: "MIS dashboard: KPIs and charts where every number opens its lineage",
     description:
-      "An MIS dashboard built from the same raw trial balance as the Excel MIS — KPI cards, trends, a revenue-to-profit bridge and ageing — with the formula and ledgers behind every figure.",
+      "Turn raw data into a dashboard that answers questions: KPI cards, trends, a revenue-to-profit bridge and ageing, built from the trial balance, with the formula and ledgers behind every figure.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_IN",

@@ -13,7 +13,13 @@
  * never hidden by rounding. 1 credit = ₹1 = 100 paise (SPEC §2.4).
  */
 
-import { divideRounded, percentOf } from "@magicmis/core/money";
+import {
+  divideRounded,
+  fxRate,
+  microUsd,
+  microUsdToPaise,
+  percentOf,
+} from "@magicmis/core/money";
 import { readConfig } from "@magicmis/db/config";
 import type { Queryable } from "@magicmis/db/tx";
 import {
@@ -272,15 +278,51 @@ export async function marginReport(
   );
   const memoryFeeCredits = BigInt(money.rows[0]?.fees ?? "0");
 
-  const [feePercent, infraPerDay] = await Promise.all([
-    readConfig(db, "admin.payment_fee_percent", z.string().regex(/^\d+(\.\d+)?$/u)),
+  /*
+   * The gateway takes its cut once, when money arrives, on the amount the customer paid —
+   * not on credits as they are spent (ADR 0052). Charging it against captured credits was
+   * wrong three ways: bonus credits carry no money, a pack bought in one month and spent
+   * over the next six put the whole fee in the wrong month, and a bank transfer pays no
+   * gateway fee at all. So the fee is computed from the purchases that settled inside the
+   * window, by the method that actually charges one, at the rate for their own currency.
+   */
+  const [feeByCurrency, infraPerDay, fx] = await Promise.all([
+    readConfig(
+      db,
+      "admin.payment_fee_percent_by_currency",
+      z.record(z.string(), z.string().regex(/^\d+(\.\d+)?$/u)),
+    ),
     readConfig(db, "admin.infra_cost_paise_per_day", z.number().int().nonnegative()),
+    readConfig(
+      db,
+      "ai.fx",
+      z.object({ inr_per_usd: z.string(), buffer_percent: z.string() }),
+    ),
   ]);
+  const settled = await db.query<{ currency: string; total: string }>(
+    `select currency, coalesce(sum(total_minor), 0)::text as total
+       from public.purchases
+      where method = 'razorpay'
+        and status in ('paid', 'credited')
+        and credited_at >= $1 and credited_at < $2
+        and ($3::uuid is null or account_id = $3)
+      group by currency`,
+    [from, to, account],
+  );
   const days = Math.max(1, Math.ceil((to.getTime() - from.getTime()) / 86_400_000));
   const capturedValuePaise =
     (actions.reduce((s, a) => s + a.capturedCredits, 0n) + memoryFeeCredits) * 100n;
   const aiCostPaise = actions.reduce((s, a) => s + a.aiCostPaise, 0n);
-  const paymentFeesPaise = percentOf(capturedValuePaise, feePercent, "ceil");
+  // A dollar purchase is in cents; the margin report is in paise throughout, so it is
+  // converted at the same buffered rate that values vendor cost. Reporting only: no
+  // customer-facing amount is ever converted (SPEC §2.14).
+  const rate = fxRate(fx.inr_per_usd, fx.buffer_percent);
+  const paymentFeesPaise = settled.rows.reduce((sum, row) => {
+    const minor = BigInt(row.total);
+    const paise =
+      row.currency === "USD" ? microUsdToPaise(microUsd(minor * 10_000n), rate) : minor;
+    return sum + percentOf(paise, feeByCurrency[row.currency] ?? "0", "ceil");
+  }, 0n);
   const infraCostPaise = BigInt(infraPerDay) * BigInt(days);
   const marginPaise =
     capturedValuePaise - aiCostPaise - paymentFeesPaise - infraCostPaise;

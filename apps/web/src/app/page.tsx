@@ -32,18 +32,18 @@ export const metadata: Metadata = pageMetadata("/");
 const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "upload",
-    title: "Upload your raw data",
-    body: "Trial balances, ledgers and registers exactly as your accounting system gives them to you, in any format. Files are encrypted when they arrive and kept for you until you delete them.",
+    title: "Dump it. Don’t format it.",
+    body: "Trial balances, ledgers and registers exactly as your accounting system gives them to you, in any format. Columns are read by their headers, so nothing needs rearranging. Files are encrypted when they arrive and kept until you delete them.",
   },
   {
     icon: "table",
-    title: "The mapping is done for you",
-    body: "Ledgers are matched to a standard reporting schema, by rules first and AI for the rest. Nothing waits on you, and later months reuse the mapping.",
+    title: "Teach it once, not every month",
+    body: "Ledgers are matched to a standard reporting schema, by rules first and AI for the rest. Nothing waits on you, and every later month reuses the mapping without a single AI call.",
   },
   {
     icon: "check-circle",
-    title: "Take the workbook",
-    body: "A validated Excel workbook with live formulas, a dashboard and written commentary. Every figure traces to its source.",
+    title: "Take the insight, not just the file",
+    body: "A checked Excel workbook, a dashboard and commentary that says what moved and why. Every figure opens to the ledger behind it, so the reasoning can be checked rather than trusted.",
   },
 ];
 
@@ -68,6 +68,25 @@ const PROOF: readonly { icon: IconName; title: string; body: string; href: strin
   },
 ];
 
+/**
+ * Three plain claims, stated flatly (ADR 0052). Punchy is a matter of what is said, not of
+ * type size or colour: each line is something the product can be held to today.
+ */
+const PUNCH: readonly { lead: string; body: string }[] = [
+  {
+    lead: "No template. No connector.",
+    body: "No template to fill, no connector to install and no mapping sheet to maintain. The file your accounting system already exports is the input.",
+  },
+  {
+    lead: "Numbers that answer back.",
+    body: "Ask why a margin moved, or say what to put on the board, and the dashboard changes as it answers. Every figure is computed from your books.",
+  },
+  {
+    lead: "Nothing you cannot trace.",
+    body: "Open any number and see the ledgers and vouchers behind it. The model never writes a figure, so there is nothing to take on faith.",
+  },
+];
+
 /** The guides, linked from here so a reader who arrived on one can find the rest. */
 const GUIDES = [
   "/mis-report-format",
@@ -83,6 +102,11 @@ const FAQS: readonly Faq[] = [
     question: `What does ${PRODUCT_NAME} do?`,
     answer:
       "It turns your raw accounting data — a trial balance, and optionally ledgers and registers — into a monthly management report: a validated Excel workbook with live formulas, a dashboard and written commentary, where every figure traces back to the ledger it came from. India calls this an MIS report and the UK calls it management accounts.",
+  },
+  {
+    question: "Does it tell me what the numbers mean, or just show them?",
+    answer:
+      "Both. The workbook and dashboard carry the figures, and the commentary turns raw data into actionable insights: which movements are material, what drove them, and where debtors, stock or margin need attention this month. Every figure in a sentence is computed by the engine and traces to its ledger, so the reasoning can be checked rather than trusted.",
   },
   {
     question: "Does my accounting data get uploaded?",
@@ -123,9 +147,9 @@ export default function HomePage() {
           <div>
             <Badge tone="accent">For accountants and finance teams</Badge>
             <h1 className="display rise mt-5 text-[2.625rem] leading-[1.05] font-semibold text-neutral-900 sm:text-[3.5rem]">
-              The monthly management report, built from the raw data you{" "}
+              Turn raw data into insight you can{" "}
               <span className="relative inline-block">
-                already have.
+                act on.
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 200 12"
@@ -147,11 +171,10 @@ export default function HomePage() {
               className="rise mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-neutral-600"
               style={{ "--i": "1" } as React.CSSProperties}
             >
-              {PRODUCT_NAME} turns a trial balance from any accounting system into a
-              validated Excel workbook with live formulas, a dashboard and written
-              commentary — and does it again next month without being re-taught.
-              Management accounts, a monthly reporting pack, an MIS — the same report
-              under whichever name your market uses.
+              {PRODUCT_NAME} turns raw data into business insights you can act on: what
+              moved, why it moved, and what deserves attention this month. You get a
+              checked Excel workbook, a dashboard you build by chatting, and written
+              commentary — and next month it runs again without being re-taught.
             </p>
             <div
               className="rise mt-8 flex flex-wrap items-center gap-3"
@@ -251,6 +274,23 @@ export default function HomePage() {
               figures.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section className="border-y border-neutral-200/70 bg-neutral-25">
+        <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
+          <ul className="grid gap-8 sm:grid-cols-3">
+            {PUNCH.map((p) => (
+              <li key={p.lead}>
+                <p className="display text-[1.125rem] leading-snug font-semibold tracking-tight text-neutral-900">
+                  {p.lead}
+                </p>
+                <p className="mt-2 text-[0.875rem] leading-relaxed text-neutral-600">
+                  {p.body}
+                </p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

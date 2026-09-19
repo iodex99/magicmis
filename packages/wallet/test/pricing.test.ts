@@ -270,7 +270,7 @@ describe("quotes (SPEC §12)", () => {
 });
 
 describe("public price list", () => {
-  it("lists credits per tier, instant prices only where a surcharge exists, and no AI cost", async () => {
+  it("lists credits per tier, no surcharge anywhere now delivery is gone, and no AI cost", async () => {
     const list = await priceList(testDb().pool);
     const setup = list.find((r) => r.actionKey === "company_setup");
     expect(setup?.standard).toEqual({
@@ -279,8 +279,13 @@ describe("public price list", () => {
       expert: 2498n,
     });
     expect(setup?.instant).toBeNull();
+    // Commentary was 149 plus a 49 instant surcharge. With the delivery choice gone every
+    // run paid the surcharge, so it is folded into the price (ADR 0052): the customer pays
+    // the same 198, and there is no longer a second price to show.
     const commentary = list.find((r) => r.actionKey === "commentary");
-    expect(commentary?.instant?.professional).toBe(198n);
+    expect(commentary?.standard.professional).toBe(198n);
+    expect(commentary?.instant).toBeNull();
+    expect(list.every((r) => r.instant === null)).toBe(true);
     expect(list.find((r) => r.actionKey === "dashboard_refresh")).toBeUndefined(); // disabled above
     expect(
       JSON.stringify(list, (_k, v: unknown) =>
