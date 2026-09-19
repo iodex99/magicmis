@@ -90,7 +90,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/",
     title: `${PRODUCT_NAME} — turn raw data into boardroom-ready insight`,
     description:
-      "Turn raw data into business insights. Dump the trial balance from any accounting system and get a checked MIS or management accounts, a dashboard you build by chatting, and commentary on what to act on.",
+      "Turn raw data into business insights. Dump a trial balance from any accounting system and get a checked MIS, a dashboard you build by chatting, and commentary on what to act on.",
     changeFrequency: "weekly",
     priority: 1,
     locale: "en_US",
@@ -114,7 +114,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/product",
     title: "What you get each month",
     description:
-      "What lands each month: the movements that matter, explained, inside a checked Excel workbook with live formulas, a dashboard and commentary. Every figure traces back to its ledger.",
+      "What lands each month: the movements that matter, explained, inside a checked Excel workbook with live formulas, a dashboard and commentary. Every figure traces to its ledger.",
     changeFrequency: "monthly",
     priority: 0.9,
     locale: "en_US",
@@ -293,7 +293,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/boardroom-ready-mis",
     title: "Boardroom-ready MIS from your raw data: chat to build it, present it live",
     description:
-      "Dump raw data, get actionable insight in a form a board will accept. Build the board by chatting: comparisons, trends against last year, your own formulas. Present it live, every figure traceable.",
+      "Dump raw data, get actionable insight a board will accept. Build it by chatting: comparisons, trends against last year, your own formulas. Present it live, every figure traceable.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_US",
@@ -315,7 +315,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/ai-variance-analysis",
     title: "AI variance analysis: flux commentary written from computed figures",
     description:
-      "Which movements matter and why, not a list of every change: month-over-month variances computed from your trial balance, filtered by materiality and written up, with every figure traceable.",
+      "Which movements matter and why, not every change: month-over-month variances computed from your trial balance, filtered by materiality and written up, every figure traceable.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_US",
@@ -345,7 +345,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     path: "/mis-dashboard",
     title: "MIS dashboard: KPIs and charts where every number opens its lineage",
     description:
-      "Turn raw data into a dashboard that answers questions: KPI cards, trends, a revenue-to-profit bridge and ageing, built from the trial balance, with the formula and ledgers behind every figure.",
+      "Turn raw data into a dashboard that answers questions: KPI cards, trends, a revenue-to-profit bridge and ageing, with the formula and ledgers behind every figure.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_IN",
