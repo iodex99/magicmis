@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Message Batches for standard-delivery stages (SPEC §14, §23), run by the worker.
  *

@@ -581,10 +581,17 @@ export async function sweepJobs(
     [now, new Date(now.getTime() - stale * 1000)],
   );
   let expired = 0;
+  // One job that cannot be settled must not stop the rest, nor skip the review reminders
+  // below it (ADR 0053). Failures are collected and thrown once the sweep has finished.
+  const failures: unknown[] = [];
   for (const d of due.rows) {
-    const job = await withTransaction(pool, (tx) => lockJob(tx, d.id, d.account_id));
-    await cancelLike(pool, job, "expired", now);
-    expired += 1;
+    try {
+      const job = await withTransaction(pool, (tx) => lockJob(tx, d.id, d.account_id));
+      await cancelLike(pool, job, "expired", now);
+      expired += 1;
+    } catch (error) {
+      failures.push(error);
+    }
   }
   const soon = await pool.query<{
     id: string;
@@ -598,19 +605,27 @@ export async function sweepJobs(
   );
   let reminded = 0;
   for (const j of soon.rows) {
-    if (
-      await queueNotification(pool, {
-        accountId: j.account_id,
-        type: "job.review_expiring",
-        payload: {
-          job_id: j.id,
-          company_id: j.company_id,
-          expires_at: j.expires_at.toISOString(),
-        },
-        dedupeKey: `review_expiring:${j.id}`,
-      })
-    )
-      reminded += 1;
+    try {
+      if (
+        await queueNotification(pool, {
+          accountId: j.account_id,
+          type: "job.review_expiring",
+          payload: {
+            job_id: j.id,
+            company_id: j.company_id,
+            expires_at: j.expires_at.toISOString(),
+          },
+          dedupeKey: `review_expiring:${j.id}`,
+        })
+      )
+        reminded += 1;
+    } catch (error) {
+      failures.push(error);
+    }
   }
+  // Everything that could be swept has been. Now say what could not, so it reaches the worker's
+  // error reporting rather than a silent count.
+  if (failures.length > 0)
+    throw new AggregateError(failures, `sweepJobs: ${failures.length.toString()} failed`);
   return { expired, reminded };
 }

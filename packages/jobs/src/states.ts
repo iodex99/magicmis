@@ -75,13 +75,25 @@ export function allowedNext(from: JobState): readonly JobState[] {
       const i = PIPELINE.indexOf(from as (typeof PIPELINE)[number]);
       if (i < 0) return [];
       const forward = PIPELINE.slice(i + 1);
+      /*
+       * `expired` belongs here with the other settles, not only after a review (ADR 0053).
+       *
+       * `sweepJobs` looks for any non-terminal job whose reservation has lapsed and whose
+       * heartbeat has gone quiet, including one abandoned part-way through `computing` or
+       * `rendering` because the process died. It captures the cancel-after-AI fee and then
+       * expires the job. While `expired` was reachable only from `awaiting_review`, that
+       * second step threw: the customer was charged for a crash that was ours and the job
+       * stayed in a running state for ever, invisible to both sweepers because its
+       * reservation was no longer held. Under ADR 0032 a server run never waits for review,
+       * so the sweeper's expiry path could never once complete.
+       */
       const settle: JobState[] = [
         "failed_data",
         "failed_platform",
         "cancelled",
         "needs_quote",
+        "expired",
       ];
-      if (from === "awaiting_review") settle.push("expired");
       if (from === "rendering") settle.push("completed", "commentary_queued");
       // A commentary job has no browser stages: once credits are held it is queued for analysis.
       if (from === "reserved") settle.push("commentary_queued");

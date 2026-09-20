@@ -113,7 +113,6 @@ export function JobRunner({
   const [reference, setReference] = useState<FileEntry | null>(null);
   const [tier, setTier] = useState<Tier>("professional");
   // A file is processed when it is added (ADR 0050): there is no "queue it for later" to choose.
-  const delivery = "instant";
   const [phase, setPhase] = useState<Phase>({ kind: "files" });
   const [error, setError] = useState<string | null>(null);
   const [stopped, setStopped] = useState<Exclude<StartResult, { kind: "held" }> | null>(
@@ -289,7 +288,6 @@ export function JobRunner({
         companyId,
         type: jobType,
         tier,
-        delivery,
         uploadIds: readyIds,
         referenceUploadId: referenceId,
       });

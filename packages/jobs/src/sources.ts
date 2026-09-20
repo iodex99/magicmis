@@ -35,7 +35,8 @@ export class UploadError extends Error {
       | "chunk_out_of_range"
       | "chunk_too_large"
       | "upload_incomplete"
-      | "upload_not_ready",
+      | "upload_not_ready"
+      | "upload_not_open",
     message: string,
   ) {
     super(message);
@@ -191,6 +192,31 @@ export async function storeChunk(
     throw new UploadError("chunk_out_of_range", "That part of the file is out of range.");
   if (input.bytes.length > chunkBytes)
     throw new UploadError("chunk_too_large", "That part of the file is too large.");
+  /*
+   * The browser declared this file's size, and that declared size is what the per-company
+   * cap is measured against (ADR 0053). So a chunk must also fit inside it, or the two
+   * numbers part company: declaring one byte and then sending a full 4 MB chunk stored four
+   * million times more than it was charged for, without limit, because nothing else ever
+   * compared them. `loadUploadBytes` does check the total, but only on a read, and a client
+   * that never asks to read simply never triggers it.
+   *
+   * Every chunk but the last is full; the last holds the remainder. Both are bounded here.
+   */
+  const declared = BigInt(upload.byteSize);
+  const offset = BigInt(input.index) * BigInt(chunkBytes);
+  const roomHere = declared - offset;
+  if (roomHere <= 0n || BigInt(input.bytes.length) > roomHere)
+    throw new UploadError(
+      "chunk_too_large",
+      "That part of the file does not fit the size this upload was started with.",
+    );
+  // A file that has been through `/complete` has been counted, priced and possibly run.
+  // Letting its bytes be replaced in place would price one file and process another.
+  if (upload.status !== "uploading")
+    throw new UploadError(
+      "upload_not_open",
+      "This file has already been received. Add it again to replace it.",
+    );
   const sealed = await sealForCompany(pool, wrapper, {
     accountId: upload.accountId,
     companyId: upload.companyId,

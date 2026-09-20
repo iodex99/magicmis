@@ -729,9 +729,17 @@ export async function processMessage(
             ...reply,
             appliedVersion: applied.blueprintVersion,
           });
-        } catch (error) {
-          // Losing a race with another edit leaves it a proposal; it is not a failed message.
-          if (!(error instanceof DashboardError)) throw error;
+        } catch {
+          /*
+           * The customer has already been charged and answered, so nothing that happens here
+           * may take the reply away from them (ADR 0053).
+           *
+           * Losing a race with another edit was already tolerated. Anything else was rethrown,
+           * which escaped as a 500: the charge stood, the change might already be on the board,
+           * and the screen showed neither the reply nor the new dashboard until a manual
+           * reload. The comment above promises the opposite, so every failure now lands where
+           * it says — paid for, still a proposal, undoable and re-appliable by hand.
+           */
         }
       }
       return progress;

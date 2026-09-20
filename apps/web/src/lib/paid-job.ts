@@ -41,6 +41,14 @@ const cancel = (jobId: string) =>
     idempotencyKey: newIdempotencyKey(),
   });
 
+/** The exact gap the server reported, which beats anything the browser can work out. */
+const shortfallOf = (fields: Record<string, string>, fallback: bigint): bigint => {
+  const raw = fields["shortfall"];
+  if (raw === undefined || !/^\d+$/u.test(raw)) return fallback > 0n ? fallback : 1n;
+  const n = BigInt(raw);
+  return n > 0n ? n : 1n;
+};
+
 async function hold(
   jobId: string,
   path: "confirm" | "accept-quote",
@@ -53,8 +61,17 @@ async function hold(
   });
   if (r.ok) return { kind: "held", jobId };
   if (r.status === 402) {
-    cancel(jobId);
-    return { kind: "short", need: credits > available ? credits - available : 1n };
+    /*
+     * Only a job that has not started is cancelled here (ADR 0053).
+     *
+     * Cancelling a run that paused for a quote would be the worst thing we could do to it:
+     * `cancelLike` captures the cancel-after-AI fee and moves the job to a terminal state, so
+     * the customer is charged for a job that delivered nothing and the stages already paid for
+     * are thrown away. A paused run stays in `needs_quote` with its checkpoint, the quote is
+     * handed back to the caller, and topping up lets the same quote be accepted (ADR 0049).
+     */
+    if (path === "confirm") cancel(jobId);
+    return { kind: "short", need: shortfallOf(r.fields, credits - available) };
   }
   return { kind: "error", message: r.message };
 }

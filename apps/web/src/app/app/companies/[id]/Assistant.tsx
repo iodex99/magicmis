@@ -447,7 +447,6 @@ export function Assistant({
           companyId,
           type: "commentary",
           tier,
-          delivery: "instant",
           size: ZERO_SIZE,
           fingerprints: {},
         }),

@@ -350,7 +350,9 @@ interface InvoiceRow {
   series: string;
   seller: unknown;
   buyer: unknown;
-  place_of_supply_state_code: string;
+  // Null on an export invoice: there is no Indian place of supply (migration 0037). The row
+  // type claimed `string`, so nothing stopped `toRecord` handing null to `stateName`.
+  place_of_supply_state_code: string | null;
   place_of_supply_state_name: string | null;
   sac_code: string;
   line_items: unknown;
@@ -370,8 +372,14 @@ function toRecord(r: InvoiceRow): InvoiceRecord {
     seller: sellerSchema.parse(r.seller),
     buyer: buyerSchema.parse(r.buyer),
     placeOfSupplyStateCode: r.place_of_supply_state_code,
+    // An export has neither, and `stateName` throws on anything that is not a GST state code.
+    // Reading one used to throw, which took the whole Wallet page down for every customer
+    // abroad from their first purchase onward (ADR 0053).
     placeOfSupplyStateName:
-      r.place_of_supply_state_name ?? stateName(r.place_of_supply_state_code),
+      r.place_of_supply_state_name ??
+      (r.place_of_supply_state_code === null
+        ? null
+        : stateName(r.place_of_supply_state_code)),
     sacCode: r.sac_code,
     lineItems: z.array(lineItemSchema).parse(r.line_items),
     totals: totalsSchema.parse(r.totals),

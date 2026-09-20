@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Jobs and the AI cost cap (SPEC §12, §23).
  *

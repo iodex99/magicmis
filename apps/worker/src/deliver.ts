@@ -96,41 +96,61 @@ export async function deliverNotifications(
         return true;
       }
 
+      /*
+       * Building the attachment must not be able to throw out of this loop (ADR 0053).
+       *
+       * Rows are claimed one at a time, oldest first. A throw here rolls the transaction back
+       * without incrementing `attempts`, so the same row is claimed again on the next tick and
+       * every tick after that: one invoice that cannot be loaded or rendered stops **all**
+       * email for ever, including job completions, quote offers, memory-fee failures, purge
+       * notices and break-glass alerts. Treating it as a send failure instead lets the normal
+       * backoff and give-up path apply, and the row stops blocking the queue.
+       */
       let attachments: { filename: string; content: Buffer }[] | undefined;
+      let attachmentError: string | null = null;
       if (rendered.attachInvoiceId !== undefined) {
-        const invoice = await loadInvoice(tx, {
-          invoiceId: rendered.attachInvoiceId,
-          accountId: row.account_id,
-        });
-        if (invoice === null) {
-          await tx.query(
-            `update public.notifications set status = 'suppressed', last_error = 'invoice not found' where id = $1`,
-            [row.id],
-          );
-          stats.suppressed += 1;
-          return true;
+        try {
+          const invoice = await loadInvoice(tx, {
+            invoiceId: rendered.attachInvoiceId,
+            accountId: row.account_id,
+          });
+          if (invoice === null) {
+            await tx.query(
+              `update public.notifications set status = 'suppressed', last_error = 'invoice not found' where id = $1`,
+              [row.id],
+            );
+            stats.suppressed += 1;
+            return true;
+          }
+          attachments = [
+            {
+              filename: `${invoice.number.replaceAll("/", "-")}.pdf`,
+              content: Buffer.from(await renderInvoicePdf(invoice)),
+            },
+          ];
+        } catch (error) {
+          attachmentError = `invoice attachment: ${
+            error instanceof Error ? error.message : "failed to render"
+          }`;
         }
-        attachments = [
-          {
-            filename: `${invoice.number.replaceAll("/", "-")}.pdf`,
-            content: Buffer.from(await renderInvoicePdf(invoice)),
-          },
-        ];
       }
 
-      const result = await sender
-        .send({
-          to: row.email,
-          subject: rendered.subject,
-          text: rendered.text,
-          html: rendered.html,
-          idempotencyKey: `notification:${row.id}`,
-          ...(attachments === undefined ? {} : { attachments }),
-        })
-        .catch((error: unknown) => ({
-          ok: false as const,
-          error: error instanceof Error ? error.message : "send threw",
-        }));
+      const result =
+        attachmentError !== null
+          ? { ok: false as const, error: attachmentError }
+          : await sender
+              .send({
+                to: row.email,
+                subject: rendered.subject,
+                text: rendered.text,
+                html: rendered.html,
+                idempotencyKey: `notification:${row.id}`,
+                ...(attachments === undefined ? {} : { attachments }),
+              })
+              .catch((error: unknown) => ({
+                ok: false as const,
+                error: error instanceof Error ? error.message : "send threw",
+              }));
 
       const attempts = row.attempts + 1;
       if (result.ok) {

@@ -52,7 +52,12 @@ import {
   type PrepareGuidance,
   type Prepared,
 } from "@magicmis/pipeline";
-import { buildOutboundSheet, Redactor, TOKEN_PATTERN } from "@magicmis/redact";
+import {
+  buildOutboundSheet,
+  isPartyColumn,
+  Redactor,
+  TOKEN_PATTERN,
+} from "@magicmis/redact";
 import {
   aiHeadList,
   applyAiMappings,
@@ -70,7 +75,9 @@ import {
   type RowBinding,
   type TemplateSpec,
 } from "@magicmis/templates";
+import { readConfig } from "@magicmis/db/config";
 import type { Pool } from "pg";
+import { z } from "zod";
 
 import { TIER_LABELS } from "@/lib/actions";
 
@@ -305,6 +312,14 @@ export async function runJobOnServer(
 
     await step("classifying");
     if (p.facts.length === 0 && p.unrecognised.length > 0) {
+      // How many sample rows may leave for the model is an operator's decision, not a
+      // literal (SPEC §0.5). It was hardcoded to 15 here, so lowering it to reduce what
+      // is exposed had no effect on the one server path that actually sends a sample.
+      const sampleRows = await readConfig(
+        pool,
+        "ai.payload_caps",
+        z.object({ sample_rows_per_sheet: z.number().int().positive() }).loose(),
+      ).then((c) => c.sample_rows_per_sheet);
       const refs = new Map<string, string>();
       const sheets: ClassifySheetsInput["sheets"][number][] = [];
       const cut = (t: string) => t.slice(0, 200);
@@ -313,13 +328,30 @@ export async function runJobOnServer(
           .find((f) => f.fileId === u.fileId)
           ?.sheets?.find((g) => g.name === u.sheet);
         if (grid === undefined || u.profile.columns.length === 0) continue;
+        /*
+         * These are the sheets nothing recognised, which is why they are being classified at
+         * all. Since we do not know what they hold, they are redacted as though they hold
+         * people (ADR 0053).
+         *
+         * `sheetKind: "other"` was passed here, which narrows the person-name heuristic to the
+         * literal headers "employee name", "emp name" and "staff name". A column headed simply
+         * "Name", or "Particulars", "Party", "Customer" or "Vendor", went to the model in
+         * clear — and the privacy notice promises in terms that party and employee names are
+         * replaced with tokens before any part of a file is sent. "payroll" is the wider
+         * setting, which is the right default when the alternative is guessing wrong about
+         * personal data.
+         */
+        const partyColumns = new Set(
+          u.profile.columns.flatMap((c, i) => (isPartyColumn(c.header) ? [i] : [])),
+        );
         const out = await buildOutboundSheet({
           fileId: u.fileId,
           grid,
           profile: u.profile,
           redactor,
-          caps: { sampleRowsPerSheet: 15, distinctValuesPerColumn: 0 },
-          sheetKind: "other",
+          caps: { sampleRowsPerSheet: sampleRows, distinctValuesPerColumn: 0 },
+          sheetKind: "payroll",
+          partyColumns,
         });
         const ref = `s${sheets.length.toString()}`;
         refs.set(ref, sheetKey(u.fileId, u.sheet));
@@ -480,7 +512,17 @@ export async function runJobOnServer(
           });
           referenceUsed = true;
         }
-      } catch {
+      } catch (error) {
+        /*
+         * A quote is not a failure and must not be swallowed here (ADR 0053).
+         *
+         * `runJobAiStage` has already released the hold and moved the job to `needs_quote`
+         * by the time it throws, so carrying on walked into an illegal transition at the
+         * next step and surfaced as a generic error. The customer lost the quote and the
+         * stages already paid for, because the checkpoint is keyed to the job that pressing
+         * the button again replaces.
+         */
+        if (error instanceof NeedsQuote) throw error;
         notice(
           session.memory.templateSpec === null
             ? "Your MIS layout couldn't be read, so the standard layout is used."
@@ -684,7 +726,26 @@ export async function runJobOnServer(
         notices,
         quoteCredits: error.credits,
       };
-    throw error;
+    /*
+     * Anything else is still ours to settle before it leaves (ADR 0053).
+     *
+     * Rethrowing alone left the job in whatever running state it had reached, with its credits
+     * held until the two-hour reservation lapsed, while the screen told the customer the run
+     * had failed and nothing was charged. Pressing the button again minted a fresh job and a
+     * second hold against a balance the first one was still sitting on.
+     *
+     * A platform fault releases the hold and charges nothing, which is what this is: the
+     * customer did nothing wrong and we could not finish. If settling itself fails there is
+     * nothing further to try, and the sweeper remains the backstop, so the original error is
+     * what surfaces either way.
+     */
+    try {
+      return await fail(
+        "Something went wrong while building this. Nothing has been charged — please try again.",
+      );
+    } catch {
+      throw error;
+    }
   }
 }
 

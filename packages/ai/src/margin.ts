@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Margin dashboard (SPEC §26), filterable by date, action, tier and account:
  *
@@ -273,7 +275,8 @@ export async function marginReport(
     `select (select coalesce(sum(abs(amount)), 0) from public.credit_ledger
               where entry_type = 'expire' and created_at >= $1 and created_at < $2 and ($3::uuid is null or account_id = $3))::text as breakage,
             (select coalesce(sum(credits), 0) from public.company_fee_charges
-              where status = 'captured' and created_at >= $1 and created_at < $2 and ($3::uuid is null or account_id = $3))::text as fees`,
+              where status = 'captured' and kind = 'memory_fee'
+                and created_at >= $1 and created_at < $2 and ($3::uuid is null or account_id = $3))::text as fees`,
     [from, to, account],
   );
   const memoryFeeCredits = BigInt(money.rows[0]?.fees ?? "0");
@@ -321,7 +324,15 @@ export async function marginReport(
     const minor = BigInt(row.total);
     const paise =
       row.currency === "USD" ? microUsdToPaise(microUsd(minor * 10_000n), rate) : minor;
-    return sum + percentOf(paise, feeByCurrency[row.currency] ?? "0", "ceil");
+    // A currency with no configured rate must not be reported as free to collect. That is
+    // exactly the shape of the bug ADR 0052 set out to remove, so it is refused rather than
+    // defaulted to zero: an operator who adds a currency has to price collecting it too.
+    const percent = feeByCurrency[row.currency];
+    if (percent === undefined)
+      throw new Error(
+        `admin.payment_fee_percent_by_currency has no rate for ${row.currency}`,
+      );
+    return sum + percentOf(paise, percent, "ceil");
   }, 0n);
   const infraCostPaise = BigInt(infraPerDay) * BigInt(days);
   const marginPaise =

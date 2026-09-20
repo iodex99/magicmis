@@ -72,6 +72,70 @@ describe("uploaded source files (ADR 0032)", () => {
     expect(loaded.bytes.equals(file)).toBe(true);
   });
 
+  it("refuses to store more bytes than the size the upload was started with (ADR 0053)", async () => {
+    // The per-company cap is measured against the size the browser declared, so a chunk that
+    // does not fit inside that size lets the two numbers part company. Declaring one byte and
+    // then sending a full chunk stored four million times more than was charged for, without
+    // limit, because nothing else ever compared them.
+    const { accountId, companyId } = await accountWithCompany(pool(), 0n);
+    const store = new MemoryOutputStore();
+    const { uploadId, chunkBytes } = await createUpload(pool(), {
+      accountId,
+      companyId,
+      fileName: "tiny.csv",
+      byteSize: 1,
+    });
+    await expect(
+      storeChunk(pool(), wrapper, store, {
+        accountId,
+        uploadId,
+        index: 0,
+        bytes: randomBytes(chunkBytes),
+      }),
+    ).rejects.toMatchObject({ code: "chunk_too_large" });
+    expect(store.files.size).toBe(0);
+
+    // The byte it did declare is still accepted.
+    await storeChunk(pool(), wrapper, store, {
+      accountId,
+      uploadId,
+      index: 0,
+      bytes: randomBytes(1),
+    });
+    expect(store.files.size).toBe(1);
+  });
+
+  it("refuses to replace the bytes of a file that has already been received (ADR 0053)", async () => {
+    // A file that has been through `/complete` has been counted and priced, and may already
+    // have been run. Replacing its bytes in place would price one file and process another.
+    const { accountId, companyId } = await accountWithCompany(pool(), 0n);
+    const store = new MemoryOutputStore();
+    const file = Buffer.from("Particulars,Debit,Credit\nCash,100,\n");
+    const { uploadId } = await createUpload(pool(), {
+      accountId,
+      companyId,
+      fileName: "tb.csv",
+      byteSize: file.length,
+    });
+    await storeChunk(pool(), wrapper, store, {
+      accountId,
+      uploadId,
+      index: 0,
+      bytes: file,
+    });
+    await pool().query(`update source_uploads set status = 'ready' where id = $1`, [
+      uploadId,
+    ]);
+    await expect(
+      storeChunk(pool(), wrapper, store, {
+        accountId,
+        uploadId,
+        index: 0,
+        bytes: Buffer.from("Particulars,Debit,Credit\nCash,999,\n"),
+      }),
+    ).rejects.toMatchObject({ code: "upload_not_open" });
+  });
+
   it("accepts chunks in any order and does not count a retried chunk twice", async () => {
     const { accountId, companyId } = await accountWithCompany(pool(), 0n);
     const store = new MemoryOutputStore();

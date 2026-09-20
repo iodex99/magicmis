@@ -73,6 +73,23 @@ const words = (header: string) =>
     .replace(/[^a-z0-9]+/gu, " ")
     .trim();
 
+/**
+ * Whether a column's values are the names of people or businesses the customer deals with,
+ * judged from its header alone (ADR 0053).
+ *
+ * These are the headers a trial balance, a register, a day book or an ageing report puts its
+ * counterparties under. They are not "sensitive" in the sense `columnSensitivity` means — a
+ * ledger name is the thing the mapping stage exists to read — but they are personal data, and
+ * the privacy notice promises party and employee names are tokenised before any part of a file
+ * reaches the model. Values in these columns go out as PARTY tokens.
+ */
+export function isPartyColumn(header: string): boolean {
+  const h = ` ${words(header)} `;
+  return /\b(particulars|party|party name|ledger|ledger name|account name|customer|customer name|client|vendor|supplier|debtor|creditor|payee|name of party|account holder)\b/u.test(
+    h,
+  );
+}
+
 /** What a column holds, judged from its header alone. */
 export function columnSensitivity(
   header: string,

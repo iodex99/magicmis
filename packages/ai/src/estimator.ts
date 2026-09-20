@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Job cost estimation (SPEC §12). The browser sends size descriptors only — counts, no content.
  * Per stage, tokens are estimated from characters (config `ai.estimator`: chars per token and a

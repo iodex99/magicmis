@@ -662,6 +662,44 @@ describe("selling outside India (ADR 0030)", () => {
     }
   });
 
+  it("issues an export invoice that can be read back, rendered and listed", async () => {
+    // An export has no Indian place of supply, so both place-of-supply columns are null.
+    // `toRecord` used to derive the name by calling `stateName` on the code, which throws on
+    // anything that is not a GST state code. Every read path went through it, so one purchase
+    // from abroad took down the whole Wallet page, the invoice PDF, the invoice email and the
+    // admin account page for that customer, permanently (ADR 0053).
+    const accountId = await account(null, null, "GB");
+    const quotes = await listPackQuotes(pool(), { accountId });
+    const pack = quotes[0];
+    if (pack === undefined) throw new Error("no USD packs");
+    const gateway = new FakeGateway();
+    const order = await createRazorpayPurchase(pool(), gateway, {
+      accountId,
+      packId: pack.packId,
+      idempotencyKey: randomUUID(),
+    });
+    await handleRazorpayWebhook(
+      pool(),
+      webhook("payment.captured", order.orderId, order.amountMinor, undefined, "USD"),
+    );
+
+    const invoices = await listInvoices(pool(), accountId);
+    const invoice = invoices[0];
+    expect(invoice, "the purchase issued no invoice").toBeDefined();
+    if (invoice === undefined) return;
+    expect(invoice.placeOfSupplyStateCode).toBeNull();
+    expect(invoice.placeOfSupplyStateName).toBeNull();
+    expect(invoice.totals.supply).toBe("export");
+    expect(invoice.totals.tax_minor).toBe("0");
+    expect(invoice.totals.currency).toBe("USD");
+
+    // The same row through the single-invoice path, and through the PDF the customer downloads.
+    const loaded = await loadInvoice(pool(), { accountId, invoiceId: invoice.id });
+    expect(loaded?.id).toBe(invoice.id);
+    const pdf = await renderInvoicePdf(invoice);
+    expect((await PDFDocument.load(pdf)).getPageCount()).toBeGreaterThan(0);
+  });
+
   it("charges a dollar buyer dollars, not the rupee price", async () => {
     // The failure this guards against is the worst one available: taking the INR
     // figure and sending it as USD, charging about eighty times the intended price.

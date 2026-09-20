@@ -6,7 +6,7 @@ import {
 } from "@magicmis/core/identifiers";
 import { describe, expect, it } from "vitest";
 
-import { columnSensitivity, findValueSpans } from "../src/detectors";
+import { columnSensitivity, findValueSpans, isPartyColumn } from "../src/detectors";
 import { buildOutboundSheet, inspectPayload } from "../src/payload";
 import { assertNoRawIdentifiers, Redactor } from "../src/redactor";
 import { normaliseForToken, Tokeniser, TOKEN_HEX_LENGTH } from "../src/tokens";
@@ -75,6 +75,35 @@ describe("value detectors: negative and false-positive cases", () => {
     expect(verhoeffCheckDigit(NOT_AADHAAR.slice(0, 11)).toString()).not.toBe(
       NOT_AADHAAR.slice(-1),
     );
+  });
+});
+
+describe("party columns (ADR 0053)", () => {
+  it("recognises the headers a counterparty is written under", () => {
+    // These are the columns a trial balance, register, day book or ageing report puts the
+    // names of people and businesses under. The privacy notice promises they are tokenised
+    // before any part of a file reaches the model, so the classifier passes them as party
+    // columns; before ADR 0053 it passed none and the values went out in clear.
+    for (const h of [
+      "Particulars",
+      "Party",
+      "Party Name",
+      "Ledger Name",
+      "Customer",
+      "Client",
+      "Vendor",
+      "Supplier",
+      "Debtor",
+      "Creditor",
+      "Payee",
+      "Account Name",
+    ])
+      expect(isPartyColumn(h), h).toBe(true);
+  });
+
+  it("leaves figures, dates and document numbers alone", () => {
+    for (const h of ["Amount", "Debit", "Credit", "Voucher No.", "Date", "Narration"])
+      expect(isPartyColumn(h), h).toBe(false);
   });
 });
 

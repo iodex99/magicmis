@@ -158,116 +158,130 @@ export async function debitMemoryFees(
   let failed = 0;
   let archived = 0;
 
+  // One company that cannot be charged must not stop every company after it, which would
+  // silently lose a night of revenue and repeat nightly (ADR 0053). Failures are collected and
+  // reported once the run has charged everyone it could, as the purge loops already do.
+  const failures: unknown[] = [];
   for (const company of await companies(
     pool,
     "deleted_at is null and lifecycle_state in ('active', 'grace') and first_setup_at is not null and memory_fee_anchor_date is not null",
   )) {
-    const due = dueMonths(company.memory_fee_anchor_date ?? "", now);
-    const settled = await pool.query<{ fee_month: string; status: string }>(
-      `select fee_month, status from public.company_fee_charges where company_id = $1 and kind = 'memory_fee'`,
-      [company.id],
-    );
-    const status = new Map(settled.rows.map((r) => [r.fee_month, r.status]));
-    const unpaid = due.filter((d) => status.get(d.key) !== "captured");
-    if (unpaid.length === 0) continue;
+    try {
+      const due = dueMonths(company.memory_fee_anchor_date ?? "", now);
+      const settled = await pool.query<{ fee_month: string; status: string }>(
+        `select fee_month, status from public.company_fee_charges where company_id = $1 and kind = 'memory_fee'`,
+        [company.id],
+      );
+      const status = new Map(settled.rows.map((r) => [r.fee_month, r.status]));
+      const unpaid = due.filter((d) => status.get(d.key) !== "captured");
+      if (unpaid.length === 0) continue;
 
-    const fee = await feeCredits(pool, "company_memory_monthly", now);
-    const total = fee * BigInt(unpaid.length);
-    const latest = unpaid[unpaid.length - 1]?.key ?? "";
-    const attempt = await chargeCompany(
-      pool,
-      company,
-      total,
-      `memory_fee:${company.id}:${unpaid.map((u) => u.key).join(",")}`,
-      now,
-    );
+      const fee = await feeCredits(pool, "company_memory_monthly", now);
+      const total = fee * BigInt(unpaid.length);
+      const latest = unpaid[unpaid.length - 1]?.key ?? "";
+      const attempt = await chargeCompany(
+        pool,
+        company,
+        total,
+        `memory_fee:${company.id}:${unpaid.map((u) => u.key).join(",")}`,
+        now,
+      );
 
-    if (attempt.ok) {
+      if (attempt.ok) {
+        await withTransaction(pool, async (tx) => {
+          for (const u of unpaid) {
+            await tx.query(
+              `insert into public.company_fee_charges (company_id, account_id, fee_month, kind, credits, status, reservation_id, created_at)
+             values ($1, $2, $3, 'memory_fee', $4, 'captured', $5, $6)
+             on conflict (company_id, fee_month, kind) do update set status = 'captured', credits = excluded.credits, reservation_id = excluded.reservation_id`,
+              [
+                company.id,
+                company.account_id,
+                u.key,
+                fee.toString(),
+                attempt.reservationId === "" ? null : attempt.reservationId,
+                now,
+              ],
+            );
+          }
+          await tx.query(
+            `update public.companies set lifecycle_state = 'active', unpaid_months = 0, grace_started_at = null, memory_fee_paid_through = $2::date where id = $1`,
+            [company.id, `${latest}-01`],
+          );
+          await queueNotification(tx, {
+            accountId: company.account_id,
+            type: "billing.memory_fee_debited",
+            payload: {
+              company_id: company.id,
+              company_name: company.name,
+              months: unpaid.length,
+              credits: total.toString(),
+            },
+            dedupeKey: `memory_fee_debited:${company.id}:${latest}`,
+          });
+        });
+        charged += unpaid.length;
+        continue;
+      }
+
+      // Could not pay. Record each unpaid month once and count them.
       await withTransaction(pool, async (tx) => {
         for (const u of unpaid) {
           await tx.query(
-            `insert into public.company_fee_charges (company_id, account_id, fee_month, kind, credits, status, reservation_id, created_at)
-             values ($1, $2, $3, 'memory_fee', $4, 'captured', $5, $6)
-             on conflict (company_id, fee_month, kind) do update set status = 'captured', credits = excluded.credits, reservation_id = excluded.reservation_id`,
-            [
-              company.id,
-              company.account_id,
-              u.key,
-              fee.toString(),
-              attempt.reservationId === "" ? null : attempt.reservationId,
-              now,
-            ],
+            `insert into public.company_fee_charges (company_id, account_id, fee_month, kind, credits, status, created_at)
+           values ($1, $2, $3, 'memory_fee', $4, 'failed', $5) on conflict (company_id, fee_month, kind) do nothing`,
+            [company.id, company.account_id, u.key, fee.toString(), now],
           );
         }
-        await tx.query(
-          `update public.companies set lifecycle_state = 'active', unpaid_months = 0, grace_started_at = null, memory_fee_paid_through = $2::date where id = $1`,
-          [company.id, `${latest}-01`],
-        );
-        await queueNotification(tx, {
-          accountId: company.account_id,
-          type: "billing.memory_fee_debited",
-          payload: {
-            company_id: company.id,
-            company_name: company.name,
-            months: unpaid.length,
-            credits: total.toString(),
-          },
-          dedupeKey: `memory_fee_debited:${company.id}:${latest}`,
-        });
-      });
-      charged += unpaid.length;
-      continue;
-    }
-
-    // Could not pay. Record each unpaid month once and count them.
-    await withTransaction(pool, async (tx) => {
-      for (const u of unpaid) {
-        await tx.query(
-          `insert into public.company_fee_charges (company_id, account_id, fee_month, kind, credits, status, created_at)
-           values ($1, $2, $3, 'memory_fee', $4, 'failed', $5) on conflict (company_id, fee_month, kind) do nothing`,
-          [company.id, company.account_id, u.key, fee.toString(), now],
-        );
-      }
-      const months = unpaid.length;
-      if (months >= graceMonths) {
-        await tx.query(
-          `update public.companies set lifecycle_state = 'archived', unpaid_months = $2, archived_at = $3, purge_after = $4 where id = $1`,
-          [company.id, months, now, new Date(now.getTime() + archiveMonths * 30 * DAY)],
-        );
-        await queueNotification(tx, {
-          accountId: company.account_id,
-          type: "lifecycle.archived",
-          payload: { company_id: company.id, company_name: company.name },
-          dedupeKey: `archived:${company.id}:${latest}`,
-        });
-        archived += 1;
-      } else {
-        await tx.query(
-          `update public.companies set lifecycle_state = 'grace', unpaid_months = $2, grace_started_at = coalesce(grace_started_at, $3) where id = $1`,
-          [company.id, months, now],
-        );
-        await queueNotification(tx, {
-          accountId: company.account_id,
-          type: "billing.memory_fee_failed",
-          payload: {
-            company_id: company.id,
-            company_name: company.name,
-            credits: total.toString(),
-          },
-          dedupeKey: `memory_fee_failed:${company.id}:${latest}`,
-        });
-        if (company.lifecycle_state === "active") {
+        const months = unpaid.length;
+        if (months >= graceMonths) {
+          await tx.query(
+            `update public.companies set lifecycle_state = 'archived', unpaid_months = $2, archived_at = $3, purge_after = $4 where id = $1`,
+            [company.id, months, now, new Date(now.getTime() + archiveMonths * 30 * DAY)],
+          );
           await queueNotification(tx, {
             accountId: company.account_id,
-            type: "lifecycle.grace",
+            type: "lifecycle.archived",
             payload: { company_id: company.id, company_name: company.name },
-            dedupeKey: `grace:${company.id}:${latest}`,
+            dedupeKey: `archived:${company.id}:${latest}`,
           });
+          archived += 1;
+        } else {
+          await tx.query(
+            `update public.companies set lifecycle_state = 'grace', unpaid_months = $2, grace_started_at = coalesce(grace_started_at, $3) where id = $1`,
+            [company.id, months, now],
+          );
+          await queueNotification(tx, {
+            accountId: company.account_id,
+            type: "billing.memory_fee_failed",
+            payload: {
+              company_id: company.id,
+              company_name: company.name,
+              credits: total.toString(),
+            },
+            dedupeKey: `memory_fee_failed:${company.id}:${latest}`,
+          });
+          if (company.lifecycle_state === "active") {
+            await queueNotification(tx, {
+              accountId: company.account_id,
+              type: "lifecycle.grace",
+              payload: { company_id: company.id, company_name: company.name },
+              dedupeKey: `grace:${company.id}:${latest}`,
+            });
+          }
         }
-      }
-    });
-    failed += 1;
+      });
+      failed += 1;
+    } catch (error) {
+      failures.push(error);
+      failed += 1;
+    }
   }
+  if (failures.length > 0)
+    throw new AggregateError(
+      failures,
+      `debitMemoryFees: ${failures.length.toString()} companies failed`,
+    );
   return { charged, failed, archived };
 }
 

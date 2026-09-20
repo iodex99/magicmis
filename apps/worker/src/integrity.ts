@@ -127,6 +127,7 @@ export async function verifyIntegrity(
     `select id, email from public.admin_users where status = 'active' order by email`,
   );
   let alerted = 0;
+  const failures: string[] = [];
   for (const a of admins.rows) {
     const r = await mail.send({
       to: a.email,
@@ -136,6 +137,12 @@ export async function verifyIntegrity(
       idempotencyKey: `integrity-alert:${a.id}:${day}`,
     });
     if (r.ok) alerted += 1;
+    else failures.push(`${a.email}: ${r.error}`);
   }
+  // An integrity alert says to treat the situation as a possible security incident, so a
+  // dropped one must not be reported as a clean run (ADR 0053). Throwing puts it in front of
+  // the worker's error reporting instead of leaving a zero in a log line.
+  if (failures.length > 0)
+    throw new Error(`integrity alert undelivered: ${failures.join("; ")}`);
   return { ...result, alerted };
 }

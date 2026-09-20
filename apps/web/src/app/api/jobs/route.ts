@@ -24,7 +24,6 @@ const bodySchema = z.object({
     "commentary",
   ]),
   tier: z.enum(["efficient", "professional", "expert"]),
-  delivery: z.enum(["standard", "instant"]),
   // Jobs without files (dashboard, commentary) are priced from counts the caller states.
   size: sizeDescriptorsSchema.optional(),
   fingerprints: z
@@ -108,7 +107,10 @@ export async function POST(request: Request): Promise<Response> {
             companyId: parsed.data.companyId,
             type: parsed.data.type,
             tier: parsed.data.tier,
-            delivery: parsed.data.delivery,
+            // Not from the browser: delivery is a price input, so the server picks it.
+            // Every run is instant since ADR 0050, and the price book still holds the
+            // surcharge so an operator can price a queued mode again without a code change.
+            delivery: "instant",
             idempotencyKey: key,
             size,
             ...(fingerprints === undefined ? {} : { sourceFingerprints: fingerprints }),

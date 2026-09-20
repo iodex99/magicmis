@@ -46,8 +46,6 @@ export const TIER_TAGS = {
   expert: "Deepest",
 } as const;
 
-export const DELIVERY_LABELS = { standard: "Standard", instant: "Instant" } as const;
-
 /** 1,234,567 — how most of the world groups digits. */
 function groupWestern(digits: string): string {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/gu, ",");

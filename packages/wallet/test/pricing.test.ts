@@ -279,13 +279,21 @@ describe("public price list", () => {
       expert: 2498n,
     });
     expect(setup?.instant).toBeNull();
-    // Commentary was 149 plus a 49 instant surcharge. With the delivery choice gone every
-    // run paid the surcharge, so it is folded into the price (ADR 0052): the customer pays
-    // the same 198, and there is no longer a second price to show.
+    // Commentary is 149 plus a 49 instant surcharge, and every run is instant (ADR 0053).
+    // Every tier is asserted, not just professional: the surcharge is added AFTER the tier
+    // multiplier, so folding it into the base changes two tiers out of three. Migration 0048
+    // did exactly that and moved expert by +73 credits before 0049 put it back.
     const commentary = list.find((r) => r.actionKey === "commentary");
-    expect(commentary?.standard.professional).toBe(198n);
-    expect(commentary?.instant).toBeNull();
-    expect(list.every((r) => r.instant === null)).toBe(true);
+    expect(commentary?.standard).toEqual({
+      efficient: 119n,
+      professional: 149n,
+      expert: 373n,
+    });
+    expect(commentary?.instant).toEqual({
+      efficient: 168n,
+      professional: 198n,
+      expert: 422n,
+    });
     expect(list.find((r) => r.actionKey === "dashboard_refresh")).toBeUndefined(); // disabled above
     expect(
       JSON.stringify(list, (_k, v: unknown) =>
