@@ -13,6 +13,8 @@ export const rateLimitsSchema = z.object({
   ai_per_account: z.number().int().positive(),
   chat_per_account: z.number().int().positive(),
   export_per_account: z.number().int().positive(),
+  /** Downloading your own stored files. Its own bucket so it cannot throttle the chat. */
+  download_per_account: z.number().int().positive().default(30),
   api_per_ip: z.number().int().positive(),
 });
 export type RateLimitName = keyof z.infer<typeof rateLimitsSchema>;

@@ -32,6 +32,7 @@ import { z } from "zod";
 import { removeAccountExports } from "./exports";
 import { removeLibraryVotes } from "./library";
 import { queueNotification } from "./notify";
+import { purgeCompanyUploads } from "./sources";
 import type { OutputStore } from "./settle";
 
 const DAY = 86_400_000;
@@ -407,6 +408,16 @@ export async function purgeCompanies(
         await store.remove(
           outputs.rows.map((o) => o.storage_path).filter((p) => p !== ""),
         );
+      /*
+       * The company's source files go too (ADR 0053).
+       *
+       * Shredding the key already makes their ciphertext unreadable for ever, so this is not
+       * a confidentiality gap — but a company purged down the archive path never sets
+       * `deleted_at`, and `purgeExpiredUploads` reclaims chunks only for a deleted company or
+       * an expired upload. Since ADR 0047 nothing expires, so every purged company left its
+       * files in the store for ever, and ADR 0047's own note says the purge clears them.
+       */
+      await purgeCompanyUploads(pool, store, c.id);
       await withTransaction(pool, async (tx) => {
         await shredCompanyKey(tx, c.id, now);
         await tx.query(`delete from public.outputs where company_id = $1`, [c.id]);

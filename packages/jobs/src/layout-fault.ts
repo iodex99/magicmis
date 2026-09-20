@@ -22,6 +22,9 @@ export async function releasingOnLayoutFault<T>(
     return await work();
   } catch (error) {
     if (error instanceof DashboardError || also(error))
+      // Releasing the hold must not replace the error the caller has to answer with
+      // (ADR 0053). A job that is already terminal makes `failJob` throw a state error,
+      // which would surface instead of the layout fault that actually stopped the work.
       await failJob(pool, {
         accountId: job.accountId,
         jobId: job.jobId,
@@ -30,7 +33,7 @@ export async function releasingOnLayoutFault<T>(
           error instanceof DashboardError ? `layout_${error.code}` : "input_unavailable",
         detail: error instanceof Error ? error.message : "The work could not start.",
         reportedBy: "server",
-      });
+      }).catch(() => undefined);
     throw error;
   }
 }

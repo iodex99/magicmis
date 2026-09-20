@@ -293,13 +293,25 @@ export async function commentaryBatchTick(
       const batch = await submitCommentaryBatch(
         unsubmitted.map((i) => ({ customId: i.customId, ctx: i.ctx, input: i.input })),
       );
-      for (const i of unsubmitted) {
-        await pool.query(
-          `update jobs set stage_checkpoints = stage_checkpoints || jsonb_build_object('batch_id', $2::text) where id = $1`,
-          [i.job.id, batch.batchId],
-        );
-        i.job.stage_checkpoints["batch_id"] = batch.batchId;
-      }
+      /*
+       * The batch is now costing money, so every job in it records that in one statement
+       * (ADR 0053).
+       *
+       * Writing them one at a time meant a crash between the submit and the last write left
+       * jobs with no `batch_id`. The next tick re-selected them as unsubmitted and **paid
+       * Anthropic a second time** for the same work, while the first batch was orphaned:
+       * nothing referenced its id, so nothing ever collected it and its results were thrown
+       * away. A partial loop was worse still, splitting one group across two batches.
+       *
+       * Gross margin is the product's first property, so a double vendor charge is the worst
+       * outcome available here.
+       */
+      await pool.query(
+        `update jobs set stage_checkpoints = stage_checkpoints || jsonb_build_object('batch_id', $2::text)
+          where id = any($1::uuid[])`,
+        [unsubmitted.map((i) => i.job.id), batch.batchId],
+      );
+      for (const i of unsubmitted) i.job.stage_checkpoints["batch_id"] = batch.batchId;
       submitted = unsubmitted.length;
     } catch (error) {
       // A cap or availability problem for any item: fall back to real time, which pauses or fails per job.

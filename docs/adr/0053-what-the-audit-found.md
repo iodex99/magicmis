@@ -92,6 +92,31 @@ passes independently. It is corrected below and the correction is the first item
 18. **Four `@magicmis/ai` entry points lacked `server-only`.** They carry model ids and prices,
     which SPEC §2.5 says a customer must never see.
 
+### Second pass
+
+19. **A dead reservation was handed back as a live hold.** A prior reservation was returned as
+    the idempotent answer whatever its status, so one that had expired or been released — that
+    is, one under which nothing ever happened — made the caller try to capture a hold that was
+    gone, which throws. The key is unique and the dead row kept it, so every later retry threw
+    too: **a company whose memory-fee hold lapsed could never be charged again, for any month.**
+    A dead row now gives up the key and a fresh hold is taken; captured rows still answer as
+    duplicates, because there the effect really did happen.
+20. **A crashed commentary batch paid Anthropic twice.** The batch was submitted and then each
+    job’s `batch_id` written in its own statement. A crash part-way left jobs looking
+    unsubmitted, so the next tick submitted a second batch for the same work while the first was
+    orphaned and never collected. The ids are now written in one statement.
+21. **Purging a company left its source files in the store for ever.** Shredding the key makes
+    them unreadable, so this was storage rather than confidentiality, but a company purged down
+    the archive path never sets `deleted_at`, which is the only thing the upload purge looks
+    for now that nothing expires. The purge now removes them, as ADR 0047 said it did.
+22. **Downloading your own file spent the AI rate limit.** A handful of downloads could throttle
+    the customer’s chat. Downloads have their own bucket (migration 0050).
+23. **Releasing a hold could replace the error that caused it.** A job already terminal made
+    `failJob` throw a state error over the layout fault the caller had to answer with.
+24. **A dashboard update refused for a short wallet left its job row stuck** in `estimated`
+    under an idempotency key a retried run kept re-confirming. Nothing was held, so no money was
+    at risk; the row is now cancelled so the key is free.
+
 ## Left, with reasons
 
 - **The dashboard decrypts every stored snapshot one at a time** to read metrics it then

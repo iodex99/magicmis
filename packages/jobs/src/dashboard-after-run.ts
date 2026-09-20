@@ -22,7 +22,7 @@ import type { Pool } from "pg";
 
 import { companyDashboard, completeDashboardAddon } from "./dashboard";
 import { confirmJob, createJob, JobError } from "./jobs";
-import { failJob } from "./settle";
+import { cancelJob, failJob } from "./settle";
 
 export type DashboardUpdate =
   | {
@@ -98,8 +98,19 @@ export async function bringDashboardUpToDate(
     });
     return { status: "updated", capturedCredits: done.captured.toString(), first };
   } catch (error) {
-    if (error instanceof JobError && error.code === "insufficient_credits")
+    if (error instanceof JobError && error.code === "insufficient_credits") {
+      // Nothing is held, so no money is at risk — but the job row exists and would sit in
+      // `estimated` for ever under the same idempotency key, which a retried run keeps
+      // re-confirming (ADR 0053). Cancelling it leaves the key free for a real attempt once
+      // the customer has topped up.
+      if (jobId !== null)
+        await cancelJob(pool, {
+          accountId: input.accountId,
+          jobId,
+          ...(input.now === undefined ? {} : { now: input.now }),
+        }).catch(() => undefined);
       return { status: "short" };
+    }
     // Anything else after the job exists: fail it as ours, so a hold is never left waiting for
     // the reservation to lapse. A job with nothing held is unaffected by this.
     if (jobId !== null)

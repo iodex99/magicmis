@@ -226,12 +226,36 @@ export async function reserveCredits(
   return withTransaction(pool, async (tx) => {
     let state = await lockWallet(tx, input.accountId);
 
-    const existing = await tx.query<{ id: string; expires_at: Date }>(
-      `select id, expires_at from public.reservations where account_id = $1 and idempotency_key = $2`,
+    const existing = await tx.query<{ id: string; expires_at: Date; status: string }>(
+      `select id, expires_at, status from public.reservations where account_id = $1 and idempotency_key = $2`,
       [input.accountId, input.idempotencyKey],
     );
     const prior = existing.rows[0];
-    if (prior !== undefined) {
+    /*
+     * A prior reservation is only an idempotent answer while it still stands for something
+     * (ADR 0053).
+     *
+     * `held` means the caller is retrying and the hold is theirs. `captured` and
+     * `partially_captured` mean the operation already completed, which is exactly what
+     * idempotency should report. But `expired` and `released` mean the hold went away
+     * without ever being captured: the operation did **not** happen, and handing that row
+     * back as though it were live made the caller try to capture a dead reservation, which
+     * throws. Because the key is unique and the dead row keeps it for ever, the same retry
+     * threw on every subsequent attempt — a company whose memory-fee hold lapsed could never
+     * be charged again, for any month.
+     *
+     * So a dead row gives up the key and a fresh hold is taken. Nothing was captured under
+     * it, so at most one effect still holds.
+     */
+    if (
+      prior !== undefined &&
+      (prior.status === "expired" || prior.status === "released")
+    ) {
+      await tx.query(
+        `update public.reservations set idempotency_key = idempotency_key || ':superseded:' || id::text where id = $1`,
+        [prior.id],
+      );
+    } else if (prior !== undefined) {
       return {
         ok: true,
         reservationId: prior.id,

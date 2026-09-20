@@ -274,6 +274,75 @@ describe("grant, reserve, capture, release", () => {
 });
 
 describe("idempotency (SPEC §11)", () => {
+  it("lets a retry take a fresh hold once the first one lapsed uncaptured (ADR 0053)", async () => {
+    // A reservation that expired or was released stood for nothing: the operation never
+    // happened. Handing that dead row back as though it were a live hold made the caller
+    // try to capture it, which throws — and because the key is unique and the dead row kept
+    // it for ever, every later retry threw too. A company whose memory-fee hold lapsed could
+    // then never be charged again, for any month, because the key never cleared.
+    const pool = testDb().pool;
+    const accountId = await newAccount();
+    await grantCredits(pool, {
+      accountId,
+      credits: 1000n,
+      source: "purchase",
+      idempotencyKey: randomUUID(),
+      now: at(0),
+    });
+    const jobId = await newJob(accountId);
+    const key = `memory_fee:${randomUUID()}`;
+    const first = await reserveCredits(pool, {
+      accountId,
+      amount: 99n,
+      kind: "realtime",
+      subject: { jobId },
+      idempotencyKey: key,
+      now: at(0),
+    });
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    await releaseReservation(pool, {
+      reservationId: first.reservationId,
+      idempotencyKey: `${key}:release`,
+      now: at(1),
+    });
+
+    // The same key again: a new hold, not the dead one, and it can actually be captured.
+    const retry = await reserveCredits(pool, {
+      accountId,
+      amount: 99n,
+      kind: "realtime",
+      subject: { jobId },
+      idempotencyKey: key,
+      now: at(2),
+    });
+    expect(retry.ok).toBe(true);
+    if (!retry.ok) return;
+    expect(retry.reservationId).not.toBe(first.reservationId);
+    expect(retry.duplicate).not.toBe(true);
+    const captured = await captureReservation(pool, {
+      reservationId: retry.reservationId,
+      amount: 99n,
+      idempotencyKey: `${key}:capture`,
+      now: at(3),
+    });
+    expect(captured.captured).toBe(99n);
+
+    // Now that it IS captured, the same key is a genuine idempotent replay again.
+    const third = await reserveCredits(pool, {
+      accountId,
+      amount: 99n,
+      kind: "realtime",
+      subject: { jobId },
+      idempotencyKey: key,
+      now: at(4),
+    });
+    expect(third.ok).toBe(true);
+    if (!third.ok) return;
+    expect(third.reservationId).toBe(retry.reservationId);
+    expect(third.duplicate).toBe(true);
+  });
+
   it("applies each operation once per key", async () => {
     const pool = testDb().pool;
     const accountId = await newAccount();

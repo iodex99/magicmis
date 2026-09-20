@@ -347,6 +347,35 @@ export async function purgeExpiredUploads(
   return r.rows.length;
 }
 
+/**
+ * Every source file of one company, removed from the store and soft-deleted (ADR 0053).
+ *
+ * Used by the lifecycle purge. Shredding the company key already makes the ciphertext
+ * unreadable, so this reclaims storage rather than protecting anything — but a company
+ * purged down the archive path never sets `deleted_at`, which is the only thing
+ * `purgeExpiredUploads` looks for now that uploads do not expire.
+ */
+export async function purgeCompanyUploads(
+  pool: Pool,
+  store: OutputStore | null,
+  companyId: string,
+): Promise<number> {
+  if (store === null) return 0;
+  let removed = 0;
+  for (;;) {
+    const r = await pool.query<{ id: string; account_id: string }>(
+      `select id, account_id from source_uploads
+        where company_id = $1 and deleted_at is null limit 500`,
+      [companyId],
+    );
+    if (r.rows.length === 0) return removed;
+    for (const row of r.rows) {
+      await deleteUpload(pool, store, { accountId: row.account_id, uploadId: row.id });
+      removed += 1;
+    }
+  }
+}
+
 /** What a run learnt about its files: the months each one fed. Replaces what was recorded before. */
 export async function recordUploadPeriods(
   pool: Pool,

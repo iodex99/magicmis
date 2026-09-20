@@ -57,7 +57,9 @@ export async function GET(request: Request, context: Ctx): Promise<Response> {
         return ok({ allowed: true });
       });
     }
-    const limited = await rateLimited("ai_per_account", account.accountId);
+    // Downloading a file spends none of our AI budget, so it must not share the AI bucket
+    // (ADR 0053): a handful of downloads could otherwise throttle the customer's chat.
+    const limited = await rateLimited("download_per_account", account.accountId);
     if (limited !== null) return limited;
     return guarded(async () => {
       const { upload, bytes } = await loadUploadBytes(
