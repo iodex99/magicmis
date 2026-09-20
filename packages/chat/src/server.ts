@@ -299,12 +299,38 @@ export async function sendMessage(
   });
   const scope = { accountId: input.accountId, companyId: input.companyId };
 
+  /*
+   * One message per key, however many times the request is retried (ADR 0053, migration 0051).
+   *
+   * A fresh row on every call meant a retry inserted a second message and was then handed the
+   * first message's hold back as a duplicate — so both ran the model and the thread showed two
+   * answers for one charge, with two lots of vendor spend against a single price cap. `jobs`
+   * has always been keyed this way, which is why the same retry was harmless there.
+   */
   const inserted = await pool.query<{ id: string }>(
-    `insert into public.chat_messages (thread_id, account_id, role, message_type, content, tier, price_credits, state, created_at)
-     values ($1, $2, 'user', $3, '\\x', $4, $5, 'pending', $6) returning id`,
-    [threadId, input.accountId, input.type, input.tier, price.credits.toString(), now],
+    `insert into public.chat_messages (thread_id, account_id, role, message_type, content, tier, price_credits, state, created_at, idempotency_key)
+     values ($1, $2, 'user', $3, '\\x', $4, $5, 'pending', $6, $7)
+     on conflict (account_id, idempotency_key) where idempotency_key is not null do nothing
+     returning id`,
+    [
+      threadId,
+      input.accountId,
+      input.type,
+      input.tier,
+      price.credits.toString(),
+      now,
+      input.idempotencyKey,
+    ],
   );
-  const messageId = inserted.rows[0]?.id ?? "";
+  const existing =
+    inserted.rows[0]?.id ??
+    (
+      await pool.query<{ id: string }>(
+        `select id from public.chat_messages where account_id = $1 and idempotency_key = $2`,
+        [input.accountId, input.idempotencyKey],
+      )
+    ).rows[0]?.id;
+  const messageId = existing ?? "";
   const reservation = await reserveCredits(pool, {
     accountId: input.accountId,
     amount: price.credits,

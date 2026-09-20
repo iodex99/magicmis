@@ -255,6 +255,44 @@ describe("Quick", () => {
     );
     expect(n.rows[0]).toEqual({ n: 0 });
   });
+
+  it("a retried send is the same message and the same hold, not a second one (ADR 0053)", async () => {
+    // The client retries whenever a slow answer looks stuck, and the stale window matches the
+    // chat route's own ceiling, so this is ordinary rather than exotic. A fresh row per call
+    // meant the retry was handed the first message's hold back as a duplicate: both ran the
+    // model, the thread showed two answers for one charge, and the second capture threw on a
+    // reservation the first had already settled.
+    const c = await company(5000n);
+    const key = randomUUID();
+    const once = await sendMessage(pool(), wrapper, {
+      ...c,
+      threadId: null,
+      type: "quick",
+      tier: "professional",
+      text: "Revenue?",
+      idempotencyKey: key,
+    });
+    const again = await sendMessage(pool(), wrapper, {
+      ...c,
+      threadId: once.threadId,
+      type: "quick",
+      tier: "professional",
+      text: "Revenue?",
+      idempotencyKey: key,
+    });
+    expect(again.messageId).toBe(once.messageId);
+
+    const rows = await pool().query<{ n: number }>(
+      `select count(*)::int as n from chat_messages where account_id = $1 and role = 'user'`,
+      [c.accountId],
+    );
+    expect(rows.rows[0]?.n).toBe(1);
+    const held = await pool().query<{ n: number }>(
+      `select count(*)::int as n from reservations where account_id = $1 and status = 'held'`,
+      [c.accountId],
+    );
+    expect(held.rows[0]?.n).toBe(1);
+  });
 });
 
 describe("Deep", () => {

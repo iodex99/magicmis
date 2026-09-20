@@ -85,6 +85,11 @@ export async function priceBookEntry(
             price_from_action_key, enabled, version
      from public.price_book
      where action_key = $1 and effective_from <= $2
+     -- Ordered by version, not by date. Every writer allocates the next version number, so
+     -- the highest version in effect is the latest edit. Ordering by effective_from instead
+     -- looks more natural and is a trap: seeded rows carry the migration's own timestamp, so
+     -- a deliberately back-dated row loses to them. Changing this changes live prices, so it
+     -- needs its own decision and its own tests (R-76), not a passing edit during an audit.
      order by version desc limit 1`,
     [actionKey, at],
   );

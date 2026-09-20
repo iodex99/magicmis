@@ -83,9 +83,25 @@ log.info({}, "worker started");
 
 async function shutdown(signal: string): Promise<void> {
   log.info({ signal }, "worker stopping");
-  await boss.stop({ graceful: true, timeout: 30_000 });
-  await pool.end();
+  // A rejection from either of these used to be unhandled, which on Node 22 hard-crashes the
+  // process mid-shutdown instead of letting the rest of the drain finish (ADR 0053). Both are
+  // best-effort by this point: the signal has been given and we are leaving either way.
+  await boss.stop({ graceful: true, timeout: 30_000 }).catch((error: unknown) => {
+    log.error({ err: error }, "worker stop failed");
+  });
+  await pool.end().catch((error: unknown) => {
+    log.error({ err: error }, "pool close failed");
+  });
   process.exit(0);
 }
 process.once("SIGTERM", () => void shutdown("SIGTERM"));
 process.once("SIGINT", () => void shutdown("SIGINT"));
+
+// A task that rejects outside a handler, or a throw with no catch anywhere, must be recorded
+// rather than killing the worker silently mid-tick.
+process.on("unhandledRejection", (reason) => {
+  log.error({ err: reason }, "unhandled rejection");
+});
+process.on("uncaughtException", (error) => {
+  log.error({ err: error }, "uncaught exception");
+});

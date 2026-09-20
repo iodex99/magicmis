@@ -193,6 +193,33 @@ describe("a formula must be a fact about the company, not a number somebody chos
       expect(formulaProblems(calc("money", expr))).toEqual([]);
   });
 
+  it("accepts a ratio of two differences, which the old probes refused (ADR 0053)", () => {
+    // Incremental margin: the change in gross profit over the change in revenue. The probe
+    // values used to be an arithmetic progression, so every metric differed by the same step
+    // and this came out as exactly 1 on all three rounds — judged constant, and the customer
+    // could never add the box. The formula plainly does depend on the books.
+    const incremental = op(
+      "div",
+      op("sub", m("gross_profit"), m("gross_profit_prev")),
+      op("sub", m("revenue"), m("revenue_prev")),
+    );
+    expect(formulaProblems(calc("percent", incremental))).toEqual([]);
+
+    // The same shape one level deeper, to show it is not one lucky arrangement.
+    expect(
+      formulaProblems(
+        calc(
+          "money",
+          op(
+            "div",
+            op("sub", m("revenue"), m("employee_cost")),
+            op("sub", m("pat"), m("other_opex")),
+          ),
+        ),
+      ),
+    ).toEqual([]);
+  });
+
   it("refuses a number built out of permitted constants", () => {
     // Three structural constants and one invented figure, hung on a metric multiplied by zero.
     const target = op(

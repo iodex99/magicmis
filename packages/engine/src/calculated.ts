@@ -228,18 +228,31 @@ export function formulaProblems(m: CalculatedMetric): string[] {
   };
   walk(m.expr);
 
-  const reads = metricsIn(m.expr);
   const unit = ENGINE_UNIT[m.unit];
-  const shown = [
-    [3n, 1_000_003n],
-    [11n, 7_000_121n],
-    [2n, 13_000_027n],
-  ].map(([offset = 0n, scale = 1n]) => {
+  /*
+   * Probe values must not lie on a line (ADR 0053).
+   *
+   * Each metric used to be fed `(its index + offset) × scale`, so every probe set was the same
+   * arithmetic progression at a different scale. Any formula invariant under that family was
+   * judged not to depend on the company's figures — which wrongly refused a whole class of
+   * legitimate ones. "The change in gross profit over the change in revenue", an incremental
+   * margin, is `(a − b) / (c − d)` over four consecutive indices, so every probe gave
+   * `(−s)/(−s) = 1` and the box could never be added, with a message that explained none of it.
+   *
+   * A deterministic per-metric value keeps the check reproducible while removing the shared
+   * structure the false positives depended on.
+   */
+  const probe = (id: string, round: number): bigint => {
+    let h = 2_166_136_261n;
+    for (const ch of `${round.toString()}:${id}`) {
+      h = ((h ^ BigInt(ch.codePointAt(0) ?? 0)) * 16_777_619n) % 4_294_967_296n;
+    }
+    // Never zero: a probe of zero would make a division degenerate for reasons of its own.
+    return h + 1n;
+  };
+  const shown = [0, 1, 2].map((round) => {
     const r = rounded(
-      evaluate(m.expr, (id) => ({
-        ok: true,
-        q: q((BigInt(reads.indexOf(id)) + offset) * scale, 1n),
-      })),
+      evaluate(m.expr, (id) => ({ ok: true, q: q(probe(id, round), 1n) })),
       unit,
     );
     return r.ok ? r.v.toString() : "none";

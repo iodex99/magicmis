@@ -117,6 +117,26 @@ passes independently. It is corrected below and the correction is the first item
     under an idempotency key a retried run kept re-confirming. Nothing was held, so no money was
     at risk; the row is now cancelled so the key is free.
 
+### Third pass
+
+25. **The chat could answer twice on one hold.** `sendMessage` inserted a fresh row every call
+    while keying the hold on the client’s idempotency key, so an ordinary retry — which the
+    client makes whenever a slow answer looks stuck, and the stale window matches the chat
+    route’s own ceiling — inserted a second message and was handed the first one’s hold back as
+    a duplicate. Both ran the model: two answers in the thread, one charge, two lots of vendor
+    spend against one price cap. `chat_messages` now has the unique key `jobs` always had
+    (migration 0051), which is exactly why the same retry was harmless for jobs.
+26. **A whole class of legitimate formulas was refused.** The three probes fed each metric
+    `index + offset` at a different scale, so all three were the same arithmetic progression.
+    Any formula invariant under it — notably a ratio of two differences, such as the change in
+    gross profit over the change in revenue — came out constant and was rejected as not
+    depending on the company’s figures, with a message that explained none of that. The probes
+    are now independent per metric and still deterministic.
+28. **The worker could hard-crash mid-shutdown.** A rejection from stopping the queue or closing
+    the pool was unhandled, which on Node 22 kills the process instead of letting the drain
+    finish. Both are now best-effort and logged, and the worker records unhandled rejections and
+    uncaught exceptions rather than dying silently.
+
 ## Left, with reasons
 
 - **The dashboard decrypts every stored snapshot one at a time** to read metrics it then
@@ -130,6 +150,11 @@ passes independently. It is corrected below and the correction is the first item
 - **No refund or chargeback path exists.** Credits are sold as non-refundable, so this may be
   deliberate, but a refund in the gateway dashboard would silently diverge from our ledger
   (R-74).
+- **How the price in force is chosen** (R-76). Ordering by version means a correction with a
+  later effective date but a lower version number is ignored. I changed it to order by date,
+  which broke three tests: seeded rows carry the migration’s own timestamp, so a deliberately
+  back-dated row loses to them. Both orderings are defensible, it changes live prices, and I had
+  just caused one pricing incident this way, so it was reverted to be decided on its own.
 - **`vitest` is below the version that patches a path-traversal advisory.** It is a test-runner
   dependency, the advisory needs control of test code, and CI audits at high severity, so the
   major upgrade is not being done inside an audit (R-75).
