@@ -15,6 +15,7 @@ import { signOutAction } from "../login/actions";
 
 const NAV: readonly (readonly [string, string])[] = [
   ["/", "Overview"],
+  ["/business", "Business"],
   ["/accounts", "Accounts"],
   ["/bank-transfers", "Bank transfers"],
   ["/price-book", "Price book"],

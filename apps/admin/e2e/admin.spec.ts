@@ -199,6 +199,26 @@ test("margin dashboard flags a seeded over-ratio action; break-glass, jobs and p
     "reserved → commentary_queued",
   );
 
+  // The owner's business page (ADR 0055). The account seeded above has a company, a completed
+  // commentary job and an ai_calls row, so every panel has something real to report.
+  await page.goto("/business");
+  await expect(page.getByRole("heading", { name: "Business" })).toBeVisible();
+  await expect(page.getByTestId("business-growth")).toContainText("Activated");
+  await expect(page.getByTestId("business-companies")).toContainText(
+    "Ran in the last 30 days",
+  );
+  // Cash collected and revenue recognised are different questions and both are answered.
+  const revenue = page.getByTestId("business-revenue");
+  await expect(revenue).toContainText("Cash collected");
+  await expect(revenue).toContainText("Revenue recognised");
+  await expect(revenue).toContainText("Deferred revenue");
+  // The contracted fee and the consumption run rate are never merged into one "MRR".
+  const recurring = page.getByTestId("business-recurring");
+  await expect(recurring).toContainText("Committed monthly");
+  await expect(recurring).toContainText("Consumption run rate");
+  await expect(recurring).not.toContainText(/\bMRR\b/u);
+  await expect(page.getByTestId("business-ai")).toContainText("Share of revenue");
+
   await page.goto("/prompts");
   await expect(page.getByRole("heading", { name: "Prompts and evals" })).toBeVisible();
   await page.goto("/models");
