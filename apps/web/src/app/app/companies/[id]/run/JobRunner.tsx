@@ -239,7 +239,11 @@ export function JobRunner({
             cur.kind === "running" ? { ...cur, step: s.data.state } : cur,
           );
       });
-    }, 1500);
+      // Four seconds, not one and a half (ADR 0054). This only moves a progress label, and it
+      // runs for the whole length of a run that may take minutes: at 1.5 s a five-minute run
+      // spent two hundred function invocations on it, each able to wake a cold instance and
+      // open its own pool. The label is no less useful for arriving a moment later.
+    }, 4000);
     const r = await api<RunOutcome>(`/api/jobs/${job.jobId}/run`, { body: {} });
     stopTimers();
     if (!r.ok) {

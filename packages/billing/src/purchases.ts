@@ -656,6 +656,37 @@ async function processRazorpayEvent(
   event: z.infer<typeof razorpayWebhookSchema>,
   now: Date,
 ): Promise<string> {
+  /*
+   * A refund is recorded, never acted on (ADR 0054).
+   *
+   * Credits are sold non-refundable and there is no cash-out, so nothing here reverses a
+   * grant: taking credits back could drive a balance negative, and credits already spent
+   * cannot be taken back at all. That is a decision for a person, not a webhook.
+   *
+   * What must not happen is silence. Before this, a refund issued in the gateway dashboard
+   * returned "ignored": our ledger and the gateway's diverged with nothing anywhere to say
+   * so. Now the purchase is marked refunded and the fact is on the audit log, where the
+   * daily digest and any reconciliation will find it.
+   */
+  if (event.event.startsWith("refund.")) {
+    const refunded = event.payload.payment?.entity;
+    const orderId = refunded?.order_id ?? null;
+    if (orderId === null) return "refund_missing_order";
+    const purchase = await purchaseBy(tx, "razorpay_order_id = $1", [orderId], true);
+    if (purchase === null) return "refund_unknown_order";
+    await tx.query(
+      `update public.purchases set status = 'refunded', updated_at = $2 where id = $1`,
+      [purchase.id, now],
+    );
+    await appendAudit(tx, {
+      actorType: "system",
+      action: "billing.refund_recorded",
+      targetType: "purchase",
+      targetId: purchase.id,
+      metadata: { orderId, event: event.event },
+    });
+    return "refund_recorded";
+  }
   if (event.event !== "payment.captured" && event.event !== "order.paid") {
     return event.event === "payment.failed" ? "payment_failed_noted" : "ignored";
   }

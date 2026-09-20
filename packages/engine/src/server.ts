@@ -176,6 +176,73 @@ export async function storeSnapshot(
   });
 }
 
+/**
+ * The latest snapshot of several periods at once, metric stores only (ADR 0054).
+ *
+ * The dashboard and the chat both want one thing from a company's snapshots: the metric
+ * values, for every month on the board. They used to get them by calling `latestSnapshot`
+ * once per period, and each call opened its own transaction, took the `company_keys` row
+ * lock, made a KMS call to unwrap the same data key again, and then decrypted and validated
+ * the **ledger balances** as well — a blob that grows with every month the company has ever
+ * loaded, and which the caller threw away unread.
+ *
+ * At two dozen months and a few thousand ledgers that is hundreds of megabytes decrypted per
+ * page load for nothing, plus two dozen serial KMS round trips. Here the rows come back in
+ * one query, the key is unwrapped once, and only the metric store is touched. Decryption
+ * happens after the transaction has committed, so the company's key row is not locked while
+ * it runs.
+ */
+export async function latestMetricStores(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: { accountId: string; companyId: string; periods: readonly string[] },
+): Promise<Map<string, SnapshotPayload["metricStore"]>> {
+  const out = new Map<string, SnapshotPayload["metricStore"]>();
+  if (input.periods.length === 0) return out;
+
+  const { rows, dek } = await withTransaction(pool, async (tx) => {
+    const r = await tx.query<{ period: string; version: number; metric_store: Buffer }>(
+      `select distinct on (period) period, version, metric_store
+         from public.snapshots
+        where company_id = $1 and account_id = $2 and period = any($3::text[])
+        order by period, version desc`,
+      [input.companyId, input.accountId, [...input.periods]],
+    );
+    if (r.rows.length === 0) return { rows: r.rows, dek: null };
+    return {
+      rows: r.rows,
+      dek: await companyDek(tx, wrapper, input.accountId, input.companyId),
+    };
+  });
+  if (dek === null) return out;
+
+  try {
+    for (const row of rows) {
+      out.set(
+        row.period,
+        snapshotPayloadSchema.shape.metricStore.parse(
+          JSON.parse(
+            decryptWithKey(
+              dek,
+              row.metric_store,
+              partContext(
+                input.accountId,
+                input.companyId,
+                "snapshot.metric_store",
+                row.version,
+                row.period,
+              ),
+            ).toString("utf8"),
+          ),
+        ),
+      );
+    }
+  } finally {
+    dek.fill(0);
+  }
+  return out;
+}
+
 export async function latestSnapshot(
   pool: Pool,
   wrapper: KeyWrapper,

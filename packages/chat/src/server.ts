@@ -45,7 +45,7 @@ import {
 } from "@magicmis/engine";
 import {
   latestBlueprint,
-  latestSnapshot,
+  latestMetricStores,
   openForCompany,
   sealForCompany,
 } from "@magicmis/engine/server";
@@ -178,11 +178,16 @@ export async function companyMetricValues(
     `select distinct period from public.snapshots where company_id = $1 and account_id = $2 order by period desc limit 24`,
     [scope.companyId, scope.accountId],
   );
+  // One query, one key unwrap, and the ledger balances left alone (ADR 0054). Every chat
+  // message paid this, so it was the most-repeated version of the same waste.
+  const stores = await latestMetricStores(pool, wrapper, {
+    ...scope,
+    periods: periods.rows.map((p) => p.period),
+  });
   const seen = new Set<string>();
   const values: MetricValue[] = [];
   for (const { period } of periods.rows) {
-    const snapshot = await latestSnapshot(pool, wrapper, { ...scope, period });
-    for (const v of (snapshot?.metricStore.values ?? []) as unknown as MetricValue[]) {
+    for (const v of (stores.get(period)?.values ?? []) as unknown as MetricValue[]) {
       const key = `${v.metricId}@${v.period}|${JSON.stringify(v.dims)}`;
       if (seen.has(key)) continue;
       seen.add(key);

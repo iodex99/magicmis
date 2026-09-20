@@ -21,10 +21,25 @@ import { serverEnv } from "./env";
 let pool: pg.Pool | undefined;
 
 export function db(): pg.Pool {
+  /*
+   * Small on purpose (ADR 0054).
+   *
+   * On Vercel every warm function instance holds its own pool, so the connections in flight
+   * are `max` × instances, not `max`. Ten each meant twenty instances could ask for two
+   * hundred connections and exhaust a small Postgres, which shows up as
+   * "remaining connection slots are reserved" rather than as slowness. A request handles one
+   * logical operation at a time, so a handful of connections per instance is plenty; the
+   * pooler is what fans them out.
+   *
+   * `DATABASE_POOL_MAX` raises it for any process that is not one-request-at-a-time: the worker,
+   * and the single Node server that serves local development and the E2E run, where one process
+   * handles every concurrent chunk of an upload (see the deployment runbook).
+   */
+  const configured = Number.parseInt(process.env["DATABASE_POOL_MAX"] ?? "", 10);
   pool ??= new pg.Pool({
     connectionString: serverEnv().DATABASE_URL,
     options: "-c role=service_role",
-    max: 10,
+    max: Number.isInteger(configured) && configured > 0 ? configured : 5,
     idleTimeoutMillis: 30_000,
   });
   return pool;

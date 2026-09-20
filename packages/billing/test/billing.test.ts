@@ -346,6 +346,47 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
     expect(invoices[0]?.totals.igst_minor).toBe("36000");
   });
 
+  it("records a refund without taking credits back (ADR 0054)", async () => {
+    // Credits are sold non-refundable and there is no cash-out, so nothing reverses a grant:
+    // taking them back could drive a balance negative, and spent credits cannot be taken back
+    // at all. That is a person's decision. What must not happen is silence — before this, a
+    // refund issued in the gateway dashboard was "ignored" and the two ledgers diverged with
+    // nothing anywhere saying so.
+    const accountId = await account("27");
+    const gateway = new FakeGateway();
+    const order = await createRazorpayPurchase(pool(), gateway, {
+      accountId,
+      packId: await packId(200_000n),
+      idempotencyKey: randomUUID(),
+      now: NOW,
+    });
+    await handleRazorpayWebhook(
+      pool(),
+      webhook("payment.captured", order.orderId, order.amountMinor),
+    );
+    const afterPayment = await walletSummary(pool(), accountId);
+    expect(afterPayment.balance).toBeGreaterThan(0n);
+
+    const refund = await handleRazorpayWebhook(
+      pool(),
+      webhook("refund.processed", order.orderId, order.amountMinor),
+    );
+    expect(refund).toMatchObject({ status: "processed", outcome: "refund_recorded" });
+
+    // The credits stand, the purchase says what happened, and it is on the audit log.
+    expect((await walletSummary(pool(), accountId)).balance).toBe(afterPayment.balance);
+    const row = await pool().query<{ status: string }>(
+      `select status from purchases where id = $1`,
+      [order.purchaseId],
+    );
+    expect(row.rows[0]?.status).toBe("refunded");
+    const audit = await pool().query<{ n: number }>(
+      `select count(*)::int as n from audit_log where action = 'billing.refund_recorded' and target_id = $1`,
+      [order.purchaseId],
+    );
+    expect(audit.rows[0]?.n).toBe(1);
+  });
+
   it("rejects forged, malformed and mismatched webhooks without crediting", async () => {
     const accountId = await account();
     const order = await createRazorpayPurchase(pool(), new FakeGateway(), {

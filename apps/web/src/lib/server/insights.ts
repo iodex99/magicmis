@@ -8,7 +8,7 @@ import type { MetricValue } from "@magicmis/engine";
 import { visibleValues } from "@magicmis/engine";
 import { evaluateCalculated } from "@magicmis/engine/calculated";
 import { labelsFor } from "@magicmis/render-dashboard";
-import { latestSnapshot } from "@magicmis/engine/server";
+import { latestMetricStores } from "@magicmis/engine/server";
 import {
   commentaryForJob,
   companyDashboard,
@@ -65,15 +65,16 @@ export async function companyMetrics(
     `select distinct period from public.snapshots where company_id = $1 order by period desc limit $2`,
     [companyId, MAX_PERIODS],
   );
+  // One query, one key unwrap, and the ledger balances left alone (ADR 0054).
+  const stores = await latestMetricStores(pool, keyWrapper(), {
+    accountId,
+    companyId,
+    periods: periods.rows.map((p) => p.period),
+  });
   const seen = new Set<string>();
   const values: MetricValue[] = [];
   for (const { period } of periods.rows) {
-    const snapshot = await latestSnapshot(pool, keyWrapper(), {
-      accountId,
-      companyId,
-      period,
-    });
-    for (const v of (snapshot?.metricStore.values ?? []) as unknown as MetricValue[]) {
+    for (const v of (stores.get(period)?.values ?? []) as unknown as MetricValue[]) {
       const key = `${v.metricId}@${v.period}|${JSON.stringify(v.dims)}`;
       if (seen.has(key)) continue;
       seen.add(key);

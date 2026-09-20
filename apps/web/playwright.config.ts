@@ -28,6 +28,10 @@ export default defineConfig({
     // Company memory in local runs: the local key wrapper and file output store are accepted only
     // in development (the local Supabase stack runs without Storage). A fixed, test-only key.
     env: {
+      // One Node process serves every request here, unlike Vercel where each warm instance
+      // has its own pool. A 50 MB upload sends its chunks at once, so the serverless default
+      // of a few connections queues them behind each other (ADR 0054).
+      DATABASE_POOL_MAX: "12",
       KEY_WRAPPER: "local",
       LOCAL_MASTER_KEY: Buffer.from("0123456789abcdef0123456789abcdef").toString(
         "base64",

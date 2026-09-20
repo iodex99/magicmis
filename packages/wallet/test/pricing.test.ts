@@ -163,32 +163,51 @@ describe("price book in the database", () => {
 
   it("uses the newest version in effect, and ignores a future one", async () => {
     const pool = testDb().pool;
+    // Dates rise with versions, which migration 0052 now enforces: a later version may not
+    // come into force before an earlier one. That is what makes ordering by version and
+    // ordering by date the same answer (ADR 0054). The read is taken an hour after version 2
+    // takes effect and well before version 3 does, so no clock skew can decide the outcome.
     await pool.query(
       `insert into price_book (action_key, base_credits, tier_multipliers, max_ai_cost_ratio, version, effective_from)
-       values ('chat_edit', 25, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 2, now() - interval '1 minute'),
+       values ('chat_edit', 25, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 2, now()),
               ('chat_edit', 99, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 3, now() + interval '1 day')`,
     );
     const quote = await priceFor(pool, {
       actionKey: "chat_edit",
       tier: "professional",
       delivery: "standard",
+      at: new Date(Date.now() + 3_600_000),
     });
     expect(quote.credits).toBe(25n);
     expect(quote.priceBookVersion).toBe(2);
   });
 
+  it("refuses a later version that would come into force earlier (ADR 0054)", async () => {
+    // Without this the price book could hold two rows whose version order and date order
+    // disagree, and which of them is "the price in force" would depend on the query.
+    await expect(
+      testDb().pool.query(
+        `insert into price_book (action_key, base_credits, tier_multipliers, max_ai_cost_ratio, version, effective_from)
+         values ('chat_quick', 25, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 50, now() - interval '10 years')`,
+      ),
+    ).rejects.toThrow(/may not come into force earlier/u);
+  });
+
   it("refuses a disabled action", async () => {
     const pool = testDb().pool;
+    // Dated now rather than a minute ago: a later version may not come into force before an
+    // earlier one (migration 0052). The read is taken an hour later so the container clock and
+    // the test clock cannot disagree about whether this row is yet in force.
     await pool.query(
-      // effective_from in the past: the container clock and the test clock can differ slightly.
       `insert into price_book (action_key, base_credits, tier_multipliers, max_ai_cost_ratio, version, enabled, effective_from)
-       values ('dashboard_refresh', 99, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 2, false, now() - interval '1 minute')`,
+       values ('dashboard_refresh', 99, '{"efficient":"0.8","professional":"1.0","expert":"2.5"}', 0.2, 2, false, now())`,
     );
     await expect(
       priceFor(pool, {
         actionKey: "dashboard_refresh",
         tier: "professional",
         delivery: "standard",
+        at: new Date(Date.now() + 3_600_000),
       }),
     ).rejects.toThrow(/disabled/u);
   });
