@@ -23,11 +23,7 @@ import {
   storeBlueprint,
   type BlueprintParts,
 } from "@magicmis/engine/server";
-import {
-  DEFAULT_DASHBOARD,
-  patchDashboard,
-  type DashboardSpec,
-} from "@magicmis/render-dashboard";
+import { patchDashboard, type DashboardSpec } from "@magicmis/render-dashboard";
 import type { Pool } from "pg";
 
 import type { AiTransport } from "@magicmis/ai";

@@ -59,8 +59,9 @@ const widget = (over: Partial<Widget>): Widget => ({
   dimension: "designation",
   ...over,
 });
-const labels = (view: unknown): string[] =>
-  ((view as { option: { xAxis: { data: string[] } } }).option.xAxis.data ?? []).slice();
+const labels = (view: unknown): string[] => [
+  ...(view as { option: { xAxis: { data: string[] } } }).option.xAxis.data,
+];
 
 describe("a box split by a dimension", () => {
   it("leaves the engine's own order alone when nothing is asked for", () => {
