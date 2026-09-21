@@ -1,3 +1,4 @@
+-- GENERATED from packages/db/migrations/0055_audit_hardening.sql. Do not edit.
 -- What the audit found in the schema (ADR 0057).
 
 -- 1. An upload in flight now carries its own expiry, so a dropped connection cannot hold a

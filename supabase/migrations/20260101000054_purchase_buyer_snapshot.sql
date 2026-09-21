@@ -1,3 +1,4 @@
+-- GENERATED from packages/db/migrations/0054_purchase_buyer_snapshot.sql. Do not edit.
 -- The buyer, as they were when they bought (ADR 0057).
 --
 -- An invoice records what was sold, to whom, on the day. `purchases` already snapshots the
