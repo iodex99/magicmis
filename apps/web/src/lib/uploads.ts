@@ -26,7 +26,12 @@ export async function uploadFile(
 ): Promise<{ ok: true; file: UploadedFile } | { ok: false; message: string }> {
   const created = await api<{ uploadId: string; chunkBytes: number; chunkCount: number }>(
     `/api/companies/${companyId}/uploads`,
-    { body: { fileName: file.name, byteSize: file.size } },
+    {
+      body: { fileName: file.name, byteSize: file.size },
+      // One key per file per attempt: a retry of this call returns the upload it already
+      // started rather than starting a second one against the company's cap (ADR 0059).
+      idempotencyKey: crypto.randomUUID(),
+    },
   );
   if (!created.ok) return { ok: false, message: created.message };
   const { uploadId, chunkBytes, chunkCount } = created.data;
