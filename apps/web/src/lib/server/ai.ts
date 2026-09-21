@@ -26,6 +26,22 @@ export function aiTransport(): AiTransport {
 type Params = Parameters<AiTransport["create"]>[0];
 
 const textOf = (params: Params): string => JSON.stringify(params.messages);
+
+/**
+ * The same messages as plain text, with real newlines.
+ *
+ * `textOf` is JSON, so every newline in it is the two characters backslash and n, and every
+ * quote is escaped. Searching that for a word still works, which is why it was fine for years;
+ * reading a *line* out of it does not.
+ */
+const promptOf = (params: Params): string =>
+  params.messages
+    .flatMap((m) =>
+      typeof m.content === "string"
+        ? [m.content]
+        : m.content.map((b) => ("text" in b && typeof b.text === "string" ? b.text : "")),
+    )
+    .join("\n");
 const systemOf = (params: Params): string =>
   Array.isArray(params.system)
     ? params.system.map((b) => b.text).join("\n")
@@ -59,8 +75,8 @@ function reply(params: Params, content: unknown[]) {
  * request: a comparison box, a formula shown in a card, or the rename it always did. Every one is
  * what the real stage's check accepts: allowed metrics, structural constants, no digits in words.
  */
-function fakeDashboardChange(request: string) {
-  const asked = request.toLowerCase();
+function fakeDashboardChange(prompt: string) {
+  const asked = (prompt.split("request:").pop() ?? "").toLowerCase();
   const suffix = crypto
     .randomUUID()
     .replace(/[^a-f]/gu, "")
@@ -135,6 +151,53 @@ function fakeDashboardChange(request: string) {
       ],
     };
   }
+  /*
+   * Taking a box off and putting a different one in its place, which is one message and one
+   * patch. The index cannot be hardcoded: the board it is asked about is whatever the customer
+   * has already made of it, so the box is found by name in the spec the prompt carries, exactly
+   * as the real model must find it.
+   */
+  if (/\b(remove|delete|drop|get rid of|take off)\b/u.test(asked)) {
+    // The spec is one compact line of its own (chat-stages.ts). Matching a brace pair here
+    // would stop at the first nested closing brace and never parse.
+    const spec = /current spec \(JSON\):\n(.+)/u.exec(prompt)?.[1];
+    const widgets = (() => {
+      try {
+        return (JSON.parse(spec ?? "{}") as { widgets?: { id: string; title: string }[] })
+          .widgets;
+      } catch {
+        return undefined;
+      }
+    })();
+    const named = /\b(ebitda|revenue|cash|margin|profit)\b/u.exec(asked)?.[1] ?? "";
+    const at = (widgets ?? []).findIndex(
+      (w) => w.id.toLowerCase().includes(named) || w.title.toLowerCase().includes(named),
+    );
+    if (at >= 0)
+      return {
+        scope: "in_scope",
+        summary: `Takes the ${widgets?.[at]?.title ?? "box"} box off and puts a revenue trend in its place.`,
+        operations: [
+          {
+            op: "remove",
+            path: `/widgets/${at.toString()}`,
+            from: null,
+            value_json: null,
+          },
+          add(
+            "/widgets/-",
+            box({
+              id: `trend_${suffix}`,
+              kind: "line",
+              title: "Revenue trend",
+              metrics: ["revenue"],
+              layout: { x: 0, y: 70, w: 6, h: 4 },
+              periods: { kind: "last_n", n: 12 },
+            }),
+          ),
+        ],
+      };
+  }
   return {
     scope: "in_scope",
     summary: "Renames the first card to Sales.",
@@ -184,7 +247,7 @@ function fakeTransport(): AiTransport {
       }
       let out: unknown;
       if (system.startsWith("You change a company's dashboard")) {
-        out = fakeDashboardChange(text.split("request:").pop() ?? "");
+        out = fakeDashboardChange(promptOf(params));
       } else if (system.startsWith("You summarise")) {
         out = { summary: "Earlier questions were about this company's figures." };
       } else if (/poem/iu.test(text)) {

@@ -595,6 +595,55 @@ test.describe("chat with the MIS", () => {
     ).toHaveCount(0);
   });
 
+  test("a box can be taken off and another put in its place, in one message (ADR 0046)", async () => {
+    // The owner's question in their own words: "remove the EBITDA box and instead build
+    // something else". One message, one charge, one patch that both removes and adds.
+    const id = await companyId();
+    await page.goto(`/app/companies/${id}`);
+    const ebitda = page.getByTestId("widget-kpi_ebitda");
+    await expect(ebitda).toBeVisible();
+    const before = await page.locator("section[data-testid^='widget-']").count();
+
+    const question = page.getByLabel("Your question");
+    await question.fill("Remove the EBITDA box and put a revenue trend there instead");
+    // It is announced as a change before it is sent, like every other layout change.
+    await expect(page.getByTestId("chat-building")).toContainText(
+      "This will update the dashboard",
+    );
+    await page.getByTestId("chat-send").click();
+
+    await expect(page.getByTestId("chat-edit").last()).toContainText(
+      "Done. It is on the dashboard",
+      { timeout: 60_000 },
+    );
+    // The box is gone, the new one is there, and the count is unchanged because one replaced one.
+    await expect(ebitda).toHaveCount(0);
+    const trend = page
+      .locator("section[data-testid^='widget-trend_']")
+      .filter({ hasText: "Revenue trend" });
+    await expect(trend).toBeVisible();
+    await expect(page.locator("section[data-testid^='widget-']")).toHaveCount(before);
+
+    // It is the saved layout now, not a view of it: a reload shows the same board.
+    await page.reload();
+    await expect(page.getByTestId("widget-kpi_ebitda")).toHaveCount(0);
+    await expect(
+      page
+        .locator("section[data-testid^='widget-trend_']")
+        .filter({ hasText: "Revenue trend" }),
+    ).toBeVisible();
+
+    // And it is one press to put it back.
+    await page.getByRole("button", { name: "History" }).click();
+    await page.getByTestId("assistant-history").getByRole("button").first().click();
+    await page
+      .getByTestId("chat-edit")
+      .last()
+      .getByRole("button", { name: "Undo" })
+      .click();
+    await expect(page.getByTestId("widget-kpi_ebitda")).toBeVisible();
+  });
+
   test("the dashboard is built by chatting: a comparison box and a formula the engine computes, then presented full screen", async () => {
     const id = await companyId();
     await page.goto(`/app/companies/${id}`);

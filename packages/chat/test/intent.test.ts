@@ -63,4 +63,25 @@ describe("detectIntent", () => {
     );
     expect(detectIntent("Please, what is revenue?")).toBe("ask");
   });
+
+  it("reads 'take this box off and build something else' as a change, typos included", () => {
+    // The owner's own phrasings. The last one misspells EBITDA, which is why naming a box
+    // has to be enough on its own: the figure word cannot be relied on.
+    for (const said of [
+      "remove the EBITDA box and instead build something else",
+      "delete the ebitda card and put a revenue chart there",
+      "drop the working capital tile",
+      "replace the cash box with a trend line",
+      "remove the ebidta box and instead build something else",
+    ])
+      expect(detectIntent(said), said).toBe("dashboard");
+
+    // Asking about the same figure is still a question, not a change to the layout.
+    for (const said of [
+      "why did EBITDA fall in May?",
+      "what is EBITDA this month?",
+      "explain the EBITDA movement",
+    ])
+      expect(detectIntent(said), said).toBe("ask");
+  });
 });
