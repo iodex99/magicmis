@@ -1,3 +1,5 @@
+import { cancelJob } from "@magicmis/jobs";
+
 import { z } from "zod";
 
 import { db } from "@/lib/db";
@@ -32,10 +34,25 @@ export async function POST(
     );
     const row = job.rows[0];
     if (row === undefined) return apiError(404, "job_not_found", "Job not found.");
+    // `refresh_with_restructure` belongs here: `createJob` silently upgrades a refresh to it
+    // whenever the files drift past the threshold, prices it higher, and `confirm` holds that
+    // price — so leaving it out held 599 credits for a job that could never be run, and every
+    // press of the button held another lot (ADR 0057).
     if (
-      !["company_setup", "monthly_refresh", "reference_mis_recreate"].includes(row.type)
-    )
+      ![
+        "company_setup",
+        "monthly_refresh",
+        "refresh_with_restructure",
+        "reference_mis_recreate",
+      ].includes(row.type)
+    ) {
+      // Whatever is refused here was confirmed, so its credits are held. Nothing has run, so
+      // cancelling releases them in full rather than leaving them for the sweeper two hours on.
+      await cancelJob(pool, { accountId: account.accountId, jobId: id }).catch(
+        () => undefined,
+      );
       return apiError(409, "wrong_job", "This job does not run from uploaded files.");
+    }
     if (row.state !== "reserved")
       return apiError(
         409,

@@ -202,9 +202,8 @@ export async function priceFor(
 
 export interface PriceListRow {
   readonly actionKey: ActionKey;
-  readonly standard: Readonly<Record<Tier, bigint>>;
-  /** Present only where the action has an instant surcharge. */
-  readonly instant: Readonly<Record<Tier, bigint>> | null;
+  /** What the button charges, per tier. There is only one delivery now (ADR 0050). */
+  readonly credits: Readonly<Record<Tier, bigint>>;
 }
 
 /**
@@ -219,26 +218,20 @@ export async function priceList(db: Queryable, at = new Date()): Promise<PriceLi
       throw error;
     });
     if (entry === null || !entry.enabled) continue;
-    const price = async (tier: Tier, delivery: DeliveryMode) =>
-      (await priceFor(db, { actionKey, tier, delivery, at })).credits;
-    const standard = {
-      efficient: await price("efficient", "standard"),
-      professional: await price("professional", "standard"),
-      expert: await price("expert", "standard"),
-    };
-    const source =
-      entry.price_from_action_key === null
-        ? entry
-        : await priceBookEntry(db, entry.price_from_action_key, at);
-    const instant =
-      source.instant_surcharge_credits > 0n
-        ? {
-            efficient: await price("efficient", "instant"),
-            professional: await price("professional", "instant"),
-            expert: await price("expert", "instant"),
-          }
-        : null;
-    rows.push({ actionKey, standard, instant });
+    // `instant`, because that is what the server picks for every job (ADR 0050 removed the
+    // choice). Publishing the standard price put the one action with a surcharge — commentary —
+    // on the page at 119/149/373 while the button charged 168/198/422. A page that exists so a
+    // button's price is on record has to show the price the button charges (ADR 0057).
+    const price = async (tier: Tier) =>
+      (await priceFor(db, { actionKey, tier, delivery: "instant", at })).credits;
+    rows.push({
+      actionKey,
+      credits: {
+        efficient: await price("efficient"),
+        professional: await price("professional"),
+        expert: await price("expert"),
+      },
+    });
   }
   return rows;
 }

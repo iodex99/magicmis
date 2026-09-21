@@ -292,23 +292,19 @@ describe("public price list", () => {
   it("lists credits per tier, no surcharge anywhere now delivery is gone, and no AI cost", async () => {
     const list = await priceList(testDb().pool);
     const setup = list.find((r) => r.actionKey === "company_setup");
-    expect(setup?.standard).toEqual({
+    expect(setup?.credits).toEqual({
       efficient: 799n,
       professional: 999n,
       expert: 2498n,
     });
-    expect(setup?.instant).toBeNull();
-    // Commentary is 149 plus a 49 instant surcharge, and every run is instant (ADR 0053).
-    // Every tier is asserted, not just professional: the surcharge is added AFTER the tier
-    // multiplier, so folding it into the base changes two tiers out of three. Migration 0048
-    // did exactly that and moved expert by +73 credits before 0049 put it back.
+    // Commentary is 149 plus a 49 instant surcharge, and every run is instant (ADR 0053), so
+    // these are the numbers the button charges and therefore the numbers the page must print.
+    // The page used to publish the surcharge-free ones beside a button that charged these
+    // (ADR 0057). Every tier is asserted, not just professional: the surcharge is added AFTER
+    // the tier multiplier, so folding it into the base changes two tiers out of three. Migration
+    // 0048 did exactly that and moved expert by +73 credits before 0049 put it back.
     const commentary = list.find((r) => r.actionKey === "commentary");
-    expect(commentary?.standard).toEqual({
-      efficient: 119n,
-      professional: 149n,
-      expert: 373n,
-    });
-    expect(commentary?.instant).toEqual({
+    expect(commentary?.credits).toEqual({
       efficient: 168n,
       professional: 198n,
       expert: 422n,

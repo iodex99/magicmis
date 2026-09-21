@@ -15,7 +15,8 @@ export const maxDuration = 120;
 const bodySchema = z.object({
   companyId: z.uuid(),
   type: z.enum([
-    "data_diagnostic",
+    // `data_diagnostic` is deliberately absent: it is the price a data fault settles at, not an
+    // action anyone starts. Accepting it let a caller hold its price for a job nothing can run.
     "company_setup",
     "reference_mis_recreate",
     "monthly_refresh",
@@ -31,7 +32,16 @@ const bodySchema = z.object({
     .refine((r) => Object.keys(r).length <= 200)
     .optional(),
   // Setup and refresh are priced from the uploaded files themselves, read here (ADR 0032).
-  uploadIds: z.array(z.uuid()).min(1).max(200).optional(),
+  // Unique: the ownership check below counts distinct ids, so a repeated one passed it, and the
+  // pipeline then read the same file twice. Two rows per ledger and period fan the engine's grid
+  // join out, so every figure in the MIS doubled — and V1, V3 and V4 all still passed, because
+  // both sides of each check doubled together (ADR 0057).
+  uploadIds: z
+    .array(z.uuid())
+    .min(1)
+    .max(200)
+    .refine((a) => new Set(a).size === a.length, "Each file may be listed once")
+    .optional(),
   referenceUploadId: z.uuid().nullable().optional(),
 });
 
@@ -58,6 +68,16 @@ export async function POST(request: Request): Promise<Response> {
           const uploadIds = parsed.data.uploadIds ?? [];
           const referenceId = parsed.data.referenceUploadId ?? null;
           if (uploadIds.length > 0) {
+            // The reference MIS is read as a template, not as a source of balances; the same
+            // file cannot be both.
+            if (referenceId !== null && uploadIds.includes(referenceId))
+              return {
+                status: 409,
+                body: {
+                  error: "uploads_not_ready",
+                  message: "The reference MIS cannot also be one of the source files.",
+                },
+              };
             const wanted = [...uploadIds, ...(referenceId === null ? [] : [referenceId])];
             const owned = await pool.query<{ n: number }>(
               `select count(*)::int as n from source_uploads

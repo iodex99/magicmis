@@ -1,5 +1,10 @@
 import { isDesktopUserAgent, isDeviceAgnosticPath } from "@magicmis/accounts/desktop";
-import { isHttps, newNonce, securityHeaders } from "@magicmis/core/security-headers";
+import {
+  authCookieOptions,
+  isHttps,
+  newNonce,
+  securityHeaders,
+} from "@magicmis/core/security-headers";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -61,6 +66,13 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (url === undefined || key === undefined) return secure(response);
 
   const supabase = createServerClient(url, key, {
+    // The same flags the route handlers write them with, or a refresh here would hand back a
+    // readable cookie and undo it (ADR 0057).
+    cookieOptions: authCookieOptions(
+      process.env["NEXT_PUBLIC_ENVIRONMENT"] === "development"
+        ? "development"
+        : "production",
+    ),
     cookies: {
       getAll() {
         return request.cookies.getAll();

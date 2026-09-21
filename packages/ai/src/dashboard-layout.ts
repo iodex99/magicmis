@@ -42,13 +42,19 @@ export const dashboardLayoutInput = z.object({
     .max(400),
   /** Of those, the ones this company actually has figures for. The model may use no others. */
   present: z.array(z.string().max(60)).max(400),
-  /** Metrics the books split up, and the values that split takes. */
+  /**
+   * Metrics the books split up, and **how many** values that split takes — never the values
+   * themselves (ADR 0057). A designation column holds whatever the payroll export put there,
+   * which can be a person's name or a location, and nothing on this path runs the redactor. The
+   * count is all the choice needs: it says whether a breakdown is worth a box and whether it
+   * wants a limit.
+   */
   dimensioned: z
     .array(
       z.object({
         metricId: z.string().max(60),
         dimension: z.string().max(30),
-        values: z.array(z.string().max(80)).max(30),
+        valueCount: z.number().int().min(1).max(10000),
       }),
     )
     .max(20),
@@ -159,9 +165,9 @@ export const dashboardLayoutStageSpec: StageSpec<
       `months of figures: ${input.months.toString()}`,
       "metrics this company has figures for:",
       input.present.join(", "),
-      "metrics the books split up (metric, dimension, values):",
+      "metrics the books split up (metric, dimension, how many values):",
       table(
-        input.dimensioned.map((d) => [d.metricId, d.dimension, d.values.join(" | ")]),
+        input.dimensioned.map((d) => [d.metricId, d.dimension, d.valueCount.toString()]),
       ),
     ].join("\n"),
   check: (input, output) => {

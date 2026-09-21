@@ -20,7 +20,7 @@
 
 import { readConfig } from "@magicmis/db/config";
 import type { KeyWrapper } from "@magicmis/crypto";
-import { openForCompany, sealForCompany } from "@magicmis/engine/server";
+import { openManyForCompany, sealForCompany } from "@magicmis/engine/server";
 import type { Pool } from "pg";
 import { z } from "zod";
 
@@ -73,13 +73,26 @@ const n = z.number().int().positive();
 const days = z.number().int().nonnegative();
 
 export async function uploadLimits(pool: Pool) {
-  const [chunkBytes, maxFileBytes, retentionDays, maxCompanyBytes] = await Promise.all([
+  const [
+    chunkBytes,
+    maxFileBytes,
+    retentionDays,
+    maxCompanyBytes,
+    incompleteUploadHours,
+  ] = await Promise.all([
     readConfig(pool, "sources.chunk_bytes", n),
     readConfig(pool, "sources.max_file_bytes", n),
     readConfig(pool, "sources.retention_days", days),
     readConfig(pool, "sources.max_company_bytes", n),
+    readConfig(pool, "sources.incomplete_upload_hours", n),
   ]);
-  return { chunkBytes, maxFileBytes, retentionDays, maxCompanyBytes };
+  return {
+    chunkBytes,
+    maxFileBytes,
+    retentionDays,
+    maxCompanyBytes,
+    incompleteUploadHours,
+  };
 }
 
 export async function createUpload(
@@ -111,10 +124,13 @@ export async function createUpload(
     );
   const chunkCount = Math.max(1, Math.ceil(input.byteSize / limits.chunkBytes));
   const now = input.now ?? new Date();
-  const expires =
-    limits.retentionDays === 0
-      ? null
-      : new Date(now.getTime() + limits.retentionDays * 86_400_000);
+  // An upload in flight always carries an expiry, whatever the retention period is, and
+  // `finishUpload` replaces it the moment the file is complete (ADR 0057). Without one the row
+  // counted its declared size against the company's cap for ever: a dropped connection, or
+  // twenty-one `createUpload` calls that never sent a chunk, filled the cap with files
+  // `companyFiles` does not list and nobody can delete, and the company could never add another
+  // file.
+  const expires = new Date(now.getTime() + limits.incompleteUploadHours * 3_600_000);
   const r = await pool.query<{ id: string }>(
     `insert into source_uploads (account_id, company_id, file_name, byte_size, chunk_count, expires_at, created_at, updated_at)
      values ($1, $2, $3, $4, $5, $6, $7, $7) returning id`,
@@ -239,6 +255,12 @@ export async function storeChunk(
   return { chunksStored: stored, complete: stored >= upload.chunkCount };
 }
 
+/**
+ * How many chunks are fetched and decrypted together. At the configured four megabytes a chunk
+ * this holds at most thirty-two megabytes of sealed bytes above what the file already costs.
+ */
+const CHUNK_GROUP = 8;
+
 /** The whole file, decrypted, for the server pipeline. */
 export async function loadUploadBytes(
   pool: Pool,
@@ -261,18 +283,33 @@ export async function loadUploadBytes(
      values ($1, $2, $3, $4, $5)`,
     [upload.id, upload.accountId, upload.companyId, input.purpose, input.jobId ?? null],
   );
+  // A group at a time (ADR 0057). One chunk at a time cost a transaction, a `for update` lock on
+  // the company's key row and a KMS unwrap per four megabytes — twenty-five of each for a file at
+  // the limit, serialised, while any other work on that company waited behind the lock. Taking the
+  // whole file at once would instead hold every sealed chunk in memory beside every plain one, so
+  // the group is the compromise: the unwraps fall by `CHUNK_GROUP`, the extra memory is bounded.
   const parts: Buffer[] = [];
-  for (let i = 0; i < upload.chunkCount; i += 1) {
-    const sealed = await store.get(chunkPath(upload, i));
-    parts.push(
-      await openForCompany(pool, wrapper, {
-        accountId: upload.accountId,
-        companyId: upload.companyId,
+  for (let from = 0; from < upload.chunkCount; from += CHUNK_GROUP) {
+    const indexes = [];
+    for (let i = from; i < Math.min(from + CHUNK_GROUP, upload.chunkCount); i += 1)
+      indexes.push(i);
+    const sealed = await Promise.all(indexes.map((i) => store.get(chunkPath(upload, i))));
+    const opened = await openManyForCompany(pool, wrapper, {
+      accountId: upload.accountId,
+      companyId: upload.companyId,
+      items: indexes.map((i, at) => ({
         purpose: "source_chunk",
         id: `${upload.id}:${i.toString()}`,
-        sealed,
-      }),
-    );
+        sealed: sealed[at] ?? null,
+      })),
+    });
+    for (const [at, part] of opened.entries())
+      if (part === null)
+        throw new UploadError(
+          "upload_incomplete",
+          `Part ${(indexes[at] ?? 0).toString()} of this file is missing.`,
+        );
+      else parts.push(part);
   }
   const bytes = Buffer.concat(parts);
   if (bytes.length !== upload.byteSize)
@@ -291,8 +328,15 @@ export async function finishUpload(
   },
 ): Promise<void> {
   const o = input.outcome;
+  // The in-flight expiry is replaced by the retention rule: zero days means kept until deleted
+  // (ADR 0047), which is the normal case.
+  const limits = await uploadLimits(pool);
+  const expires =
+    limits.retentionDays === 0
+      ? null
+      : new Date(Date.now() + limits.retentionDays * 86_400_000);
   await pool.query(
-    `update source_uploads set status = $3, refusal = $4, sheet_count = $5, row_count = $6, updated_at = now()
+    `update source_uploads set status = $3, refusal = $4, sheet_count = $5, row_count = $6, expires_at = $7, updated_at = now()
      where id = $1 and account_id = $2`,
     [
       input.uploadId,
@@ -301,6 +345,7 @@ export async function finishUpload(
       o.status === "refused" ? o.refusal : null,
       o.status === "ready" ? o.sheets : null,
       o.status === "ready" ? o.rows : null,
+      expires,
     ],
   );
 }

@@ -36,7 +36,14 @@ import { z } from "zod";
 
 import { jobChargeBase, jobPrice, type JobType, type PricedTier } from "./jobs";
 import { queueNotification } from "./notify";
-import { lockJob, transition, type JobRow, type JobState } from "./states";
+import {
+  JobStateError,
+  lockJob,
+  TERMINAL,
+  transition,
+  type JobRow,
+  type JobState,
+} from "./states";
 
 export interface OutputStore {
   put(path: string, bytes: Buffer, contentType: string): Promise<void>;
@@ -78,21 +85,39 @@ async function aiCallCount(pool: Pool, jobId: string): Promise<number> {
   return r.rows[0]?.n ?? 0;
 }
 
+/**
+ * `required` is set by the one caller that is charging for something the customer now has
+ * (ADR 0057). A hold that has gone and captured nothing means the reservation was released
+ * underneath us — a cancel that landed while the workbook was being written — and answering 0
+ * there let `completeJob` mark the job delivered for free. It has to be an error, so the job is
+ * not completed and the output is not reachable.
+ */
 async function capture(
   pool: Pool,
   job: JobRow,
   amount: bigint,
   label: string,
   now: Date,
+  required = false,
 ): Promise<bigint> {
-  if (job.reservation_id === null) return 0n;
+  if (job.reservation_id === null) {
+    if (required) throw new JobStateError("no_hold", "this job holds no credits");
+    return 0n;
+  }
   const held = await heldAmount(pool, job.reservation_id);
   if (held === 0n) {
     const prior = await pool.query<{ captured_amount: string | null }>(
       `select captured_amount::text as captured_amount from public.reservations where id = $1`,
       [job.reservation_id],
     );
-    return BigInt(prior.rows[0]?.captured_amount ?? "0");
+    const already = BigInt(prior.rows[0]?.captured_amount ?? "0");
+    // Already captured is the resume case and is fine. Nothing captured is not.
+    if (required && already === 0n)
+      throw new JobStateError(
+        "no_hold",
+        "the credits for this job were released before it was delivered",
+      );
+    return already;
   }
   const result = await captureReservation(pool, {
     reservationId: job.reservation_id,
@@ -337,11 +362,12 @@ export async function captureDelivered(
       type: job.type as JobType,
       tier: delivered,
       delivery: job.delivery_mode,
-      at: now,
+      // As sold, not as priced today (ADR 0057).
+      at: job.created_at,
     });
     amount = min(base, lower.credits);
   }
-  return capture(pool, job, amount, "capture", now);
+  return capture(pool, job, amount, "capture", now, true);
 }
 
 /**
@@ -399,7 +425,11 @@ export async function failJob(
   const job = await withTransaction(pool, (tx) =>
     lockJob(tx, input.jobId, input.accountId),
   );
-  if (job.state === "failed_data" || job.state === "failed_platform") {
+  // Any terminal state, not only the two failures (ADR 0057). A job that completed, was
+  // cancelled or expired has already been settled; running the platform-fault branch over it
+  // wrote a "charged 0" notice to a customer who had just been charged in full, and counted the
+  // run's AI cost as absorbed on top of a captured job — before `finish` threw anyway.
+  if (TERMINAL.has(job.state)) {
     return {
       state: job.state,
       captured: BigInt(job.captured_credits ?? "0"),
@@ -489,7 +519,7 @@ export async function failJob(
     actionKey: "data_diagnostic",
     tier: pricedTier(job.tier),
     delivery: job.delivery_mode,
-    at: now,
+    at: job.created_at,
   });
   const captured = await capture(
     pool,
@@ -528,7 +558,7 @@ async function cancelLike(
       actionKey: "cancel_after_ai_fee",
       tier: pricedTier(job.tier),
       delivery: job.delivery_mode,
-      at: now,
+      at: job.created_at,
     });
     captured = await capture(pool, job, fee.credits, `capture_${to}`, now);
   } else {
@@ -542,6 +572,16 @@ async function cancelLike(
   return captured;
 }
 
+/**
+ * Cancelling a run mid-AI is allowed and keeps the cancel-after-AI fee (SPEC §23). Cancelling
+ * once it is **rendering** is not (ADR 0057): that is the window in which `completeJob` writes
+ * the snapshot, the blueprint and the workbook, none of it in one transaction with the capture.
+ * A cancel landing inside it released the hold, the workbook was already stored, and the job
+ * settled as cancelled with nothing captured. The worker's sweep still expires an abandoned
+ * render, which charges the fee rather than releasing the hold.
+ */
+const DELIVERING: ReadonlySet<JobState> = new Set(["rendering", "commentary_done"]);
+
 export async function cancelJob(
   pool: Pool,
   input: { accountId: string; jobId: string; now?: Date },
@@ -550,7 +590,12 @@ export async function cancelJob(
   const job = await withTransaction(pool, (tx) =>
     lockJob(tx, input.jobId, input.accountId),
   );
-  if (job.state === "cancelled") return { captured: BigInt(job.captured_credits ?? "0") };
+  if (TERMINAL.has(job.state)) return { captured: BigInt(job.captured_credits ?? "0") };
+  if (DELIVERING.has(job.state))
+    throw new JobStateError(
+      "already_running",
+      "this job is being delivered and can no longer be cancelled",
+    );
   return { captured: await cancelLike(pool, job, "cancelled", now) };
 }
 

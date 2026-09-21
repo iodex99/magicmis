@@ -415,7 +415,11 @@ export async function runJobOnServer(
       }
       p = await run();
     }
-    if (!usable(p)) return await fail(NOTHING_USABLE);
+    // A data fault, not ours: the files were read, and they hold no balances. SPEC §23 settles
+    // that at the `data_diagnostic` price. Passing the default here charged nothing and released
+    // the whole hold, so a caller could spend our AI on unrecognisable files for free, over and
+    // over, on one balance (ADR 0057).
+    if (!usable(p)) return await fail(NOTHING_USABLE, false);
     if (p.unrecognised.length > 0)
       notice(
         `${p.unrecognised.length.toString()} ${p.unrecognised.length === 1 ? "sheet was" : "sheets were"} not needed for the MIS and ${p.unrecognised.length === 1 ? "was" : "were"} left out.`,

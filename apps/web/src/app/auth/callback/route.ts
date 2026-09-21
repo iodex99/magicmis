@@ -24,14 +24,19 @@ import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
  * `next` is restricted to same-origin relative paths, or anyone could craft a verification
  * link that bounces a freshly verified user to a phishing page.
  */
-const EMAIL_OTP_TYPES: readonly EmailOtpType[] = [
-  "signup",
-  "invite",
-  "magiclink",
-  "recovery",
-  "email_change",
-  "email",
-];
+/**
+ * **Only `signup`.** This route establishes a session and claims it, so whatever it accepts is a
+ * link that signs its holder in. A reset token must never be one of those (ADR 0043): it is spent
+ * on the POST that sets the new password, and it authorises nothing else. While `recovery` was
+ * accepted here, anyone holding a reset link — their own, or a victim's seen once in a forwarded
+ * mailbox — could turn it into a claimed session without setting a password, and could send a
+ * victim a link that quietly signed them into the attacker's account instead of their own.
+ *
+ * `confirmation.html` is the only template that points here, and it sends `type=signup`. Nothing
+ * issues `invite`, `magiclink`, `email_change` or `email`: there is no invitation, no magic-link
+ * sign-in, and no way to change an email address in the product at all.
+ */
+const EMAIL_OTP_TYPES: readonly EmailOtpType[] = ["signup"];
 
 export async function GET(request: NextRequest): Promise<Response> {
   const url = request.nextUrl;

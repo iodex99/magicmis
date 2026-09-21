@@ -4,6 +4,8 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
+import { authCookieOptions } from "@magicmis/core/security-headers";
+
 import { appPublicEnv, serverEnv } from "../env";
 
 /**
@@ -19,6 +21,7 @@ export async function supabaseForRequest(): Promise<SupabaseClient> {
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {
+      cookieOptions: authCookieOptions(env.NEXT_PUBLIC_ENVIRONMENT),
       cookies: {
         getAll() {
           return store.getAll();

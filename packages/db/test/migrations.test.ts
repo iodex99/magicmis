@@ -156,8 +156,8 @@ describe("GST invariants (SPEC §13)", () => {
     testDb().pool.query(
       `insert into public.purchases
          (account_id, amount_minor_ex_tax, tax_minor, cgst_minor, sgst_minor, igst_minor,
-          total_minor, method, status)
-       values ($1, 200000, $2, $3, $4, $5, $6, 'razorpay', 'created')`,
+          total_minor, method, status, buyer_country)
+       values ($1, 200000, $2, $3, $4, $5, $6, 'razorpay', 'created', 'IN')`,
       [accountId, gst, cgst, sgst, igst, 200000 + gst],
     );
 

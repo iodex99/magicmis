@@ -134,8 +134,13 @@ export default async function ManageCompanyPage({
       [id, account.accountId],
     ),
     pool.query<{ id: string; file_name: string | null; created_at: Date }>(
-      `select id, file_name, created_at from outputs
-        where company_id = $1 and account_id = $2 order by created_at desc limit 50`,
+      // Only the workbooks of runs that were paid for: the row is written before the credits
+      // are captured, so a run that never completed can leave one behind (ADR 0057).
+      `select o.id, o.file_name, o.created_at from outputs o
+         left join jobs j on j.id = o.job_id
+        where o.company_id = $1 and o.account_id = $2
+          and (j.id is null or j.state = 'completed')
+        order by o.created_at desc limit 50`,
       [id, account.accountId],
     ),
     fileRows(pool, { accountId: account.accountId, companyId: id }),

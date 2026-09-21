@@ -47,6 +47,7 @@ import {
   latestBlueprint,
   latestMetricStores,
   openForCompany,
+  openManyForCompany,
   sealForCompany,
 } from "@magicmis/engine/server";
 import {
@@ -162,6 +163,26 @@ const open = async <T>(
           "utf8",
         ),
       ) as T);
+
+/**
+ * Many sealed values of one company, opened under a single unwrap of its key (ADR 0057).
+ *
+ * Every `open` is its own transaction, its own `for update` lock on the company key row and its
+ * own KMS unwrap. Reading a thread message by message multiplied all three by the length of the
+ * conversation. Ask for them together instead.
+ */
+const openAll = async (
+  pool: Pool,
+  wrapper: KeyWrapper,
+  scope: Scope,
+  items: readonly { purpose: string; id: string; sealed: Uint8Array | null }[],
+): Promise<readonly unknown[]> =>
+  (await openManyForCompany(pool, wrapper, { ...scope, items })).map((b) =>
+    b === null ? null : (JSON.parse(b.toString("utf8")) as unknown),
+  );
+
+/** One opened value, at the position it was asked for. The caller names its shape. */
+const at = (opened: readonly unknown[], i: number): unknown => opened[i] ?? null;
 
 /**
  * Metric values across the company's stored months, newest snapshot first — **less the months
@@ -449,27 +470,24 @@ async function history(
      order by created_at, role desc`,
     [msg.thread_id, msg.id, msg.created_at],
   );
+  const recent = rows.rows.slice(-40);
+  const opened = await openAll(
+    env.pool,
+    env.wrapper,
+    scope,
+    recent.map((r) => ({
+      purpose: r.role === "user" ? "chat.message" : "chat.reply",
+      id: r.id,
+      sealed: r.content,
+    })),
+  );
   const out: { role: "user" | "assistant"; text: string }[] = [];
-  for (const r of rows.rows.slice(-40)) {
+  for (const [i, r] of recent.entries()) {
     if (r.role === "user") {
-      const c = await open<{ text: string }>(
-        env.pool,
-        env.wrapper,
-        scope,
-        "chat.message",
-        r.id,
-        r.content,
-      );
+      const c = at(opened, i) as { text: string } | null;
       out.push({ role: "user", text: c?.text ?? "" });
     } else {
-      const reply = await open<StoredReply>(
-        env.pool,
-        env.wrapper,
-        scope,
-        "chat.reply",
-        r.id,
-        r.content,
-      );
+      const reply = at(opened, i) as StoredReply | null;
       out.push({
         role: "assistant",
         text:
@@ -856,47 +874,22 @@ async function loadSteps(env: Env, msg: MessageRow): Promise<OpenedStep[]> {
      from public.chat_query_steps where chat_message_id = $1 order by round`,
     [msg.id],
   );
-  const out: OpenedStep[] = [];
-  for (const r of rows.rows) {
-    out.push({
-      id: r.id,
-      ref: r.step_ref,
-      toolUseId: r.tool_use_id,
-      sql:
-        (
-          await open<{ sql: string }>(
-            env.pool,
-            env.wrapper,
-            scope,
-            "chat.sql",
-            r.id,
-            r.sql_text,
-          )
-        )?.sql ?? "",
-      purpose:
-        (
-          await open<{ purpose: string }>(
-            env.pool,
-            env.wrapper,
-            scope,
-            "chat.purpose",
-            r.id,
-            r.purpose,
-          )
-        )?.purpose ?? "",
-      status: r.status,
-      tables: r.guard_result.tables ?? [],
-      outcome: await open<StepOutcome>(
-        env.pool,
-        env.wrapper,
-        scope,
-        "chat.result",
-        r.id,
-        r.result,
-      ),
-    });
-  }
-  return out;
+  const n = rows.rows.length;
+  const opened = await openAll(env.pool, env.wrapper, scope, [
+    ...rows.rows.map((r) => ({ purpose: "chat.sql", id: r.id, sealed: r.sql_text })),
+    ...rows.rows.map((r) => ({ purpose: "chat.purpose", id: r.id, sealed: r.purpose })),
+    ...rows.rows.map((r) => ({ purpose: "chat.result", id: r.id, sealed: r.result })),
+  ]);
+  return rows.rows.map((r, i) => ({
+    id: r.id,
+    ref: r.step_ref,
+    toolUseId: r.tool_use_id,
+    sql: (at(opened, i) as { sql: string } | null)?.sql ?? "",
+    purpose: (at(opened, n + i) as { purpose: string } | null)?.purpose ?? "",
+    status: r.status,
+    tables: r.guard_result.tables ?? [],
+    outcome: at(opened, 2 * n + i) as StepOutcome | null,
+  }));
 }
 
 async function deepLoop(
@@ -1104,14 +1097,16 @@ export async function submitStepResult(
         "result_invalid",
         "The query result is larger than a round allows.",
       );
-    try {
-      assertNoRawIdentifiers(json);
-    } catch {
-      throw new ChatError(
-        "result_invalid",
-        "The query result still contains identifiers that must be redacted.",
-      );
-    }
+  }
+  // Outside the branch: this is the last thing between the company's data and the model, and an
+  // error outcome is sent to it just as an answer is (ADR 0057). It was checking only the rows.
+  try {
+    assertNoRawIdentifiers(json);
+  } catch {
+    throw new ChatError(
+      "result_invalid",
+      "The query result still contains identifiers that must be redacted.",
+    );
   }
   const scope = { accountId: msg.account_id, companyId: msg.company_id };
   await pool.query(
@@ -1192,47 +1187,44 @@ export async function threadView(
      from public.chat_messages where thread_id = $1 order by created_at, role desc`,
     [input.threadId],
   );
-  const messages: ChatMessageView[] = [];
-  for (const r of rows.rows) {
-    const isUser = r.role === "user";
-    const text = isUser
-      ? ((
-          await open<{ text: string }>(
-            pool,
-            wrapper,
-            scope,
-            "chat.message",
-            r.id,
-            r.content,
-          )
-        )?.text ?? null)
-      : null;
-    const reply = isUser
-      ? null
-      : await open<StoredReply>(pool, wrapper, scope, "chat.reply", r.id, r.content);
-    const resolved = isUser
-      ? null
-      : await open<{ values: MetricValue[]; queries: unknown[] }>(
-          pool,
-          wrapper,
-          scope,
-          "chat.values",
-          r.id,
-          r.resolved_values,
-        );
-    messages.push({
+  // The whole thread under one unwrap of the company key: this is the read the workspace does
+  // on every visit, and it used to cost three of them per message (ADR 0057).
+  const n = rows.rows.length;
+  const opened = await openAll(pool, wrapper, scope, [
+    ...rows.rows.map((r) => ({
+      purpose: "chat.message",
+      id: r.id,
+      sealed: r.role === "user" ? r.content : null,
+    })),
+    ...rows.rows.map((r) => ({
+      purpose: "chat.reply",
+      id: r.id,
+      sealed: r.role === "user" ? null : r.content,
+    })),
+    ...rows.rows.map((r) => ({
+      purpose: "chat.values",
+      id: r.id,
+      sealed: r.role === "user" ? null : r.resolved_values,
+    })),
+  ]);
+  const messages: ChatMessageView[] = rows.rows.map((r, i) => {
+    const resolved = at(opened, 2 * n + i) as {
+      values: MetricValue[];
+      queries: unknown[];
+    } | null;
+    return {
       id: r.id,
       role: r.role,
       type: r.message_type,
       state: r.state,
       createdAt: r.created_at.toISOString(),
       creditsCharged: r.credits_charged,
-      text,
-      reply,
+      text: (at(opened, i) as { text: string } | null)?.text ?? null,
+      reply: at(opened, n + i) as StoredReply | null,
       values: resolved?.values ?? [],
       queries: resolved?.queries ?? [],
-    });
-  }
+    };
+  });
   return {
     threadId: input.threadId,
     companyId: thread.company_id,

@@ -135,9 +135,14 @@ export async function runChatQuery(
       }),
     ]);
   } catch (error) {
+    // The engine quotes the value that broke the query — "Could not convert string 'Rent —
+    // Sharma, PAN ABCDE1234F' to INT64" — and this reason is replayed to the model in the next
+    // round's tool result. It is data, so it is redacted exactly as a cell is (ADR 0057).
     return {
       status: "error",
-      reason: error instanceof Error ? error.message.slice(0, 300) : "the query failed",
+      reason: await options.redactText(
+        error instanceof Error ? error.message.slice(0, 300) : "the query failed",
+      ),
     };
   } finally {
     if (timer !== undefined) clearTimeout(timer);

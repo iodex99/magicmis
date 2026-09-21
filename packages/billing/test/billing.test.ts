@@ -683,6 +683,81 @@ describe("Razorpay reconciliation when webhooks never arrive (R-51)", () => {
   });
 });
 
+describe("the buyer is snapshotted on the sale (ADR 0057)", () => {
+  it("credits a purchase whose owner changed country while the payment was in flight", async () => {
+    // The invoice used to take the place of supply from the purchase and the country from the
+    // account row, live. A customer correcting their address between paying and the webhook
+    // landing made the two disagree, and `invoices_place_of_supply_is_india_only` refused the
+    // insert INSIDE the transaction that grants the credits. The money was taken, the grant
+    // rolled back, and every Razorpay retry failed the same way with nothing to show an
+    // operator. The bank-transfer window for this is days long.
+    const accountId = await account("27");
+    const quotes = await listPackQuotes(pool(), { accountId });
+    const pack = quotes[0];
+    if (pack === undefined) throw new Error("no INR packs");
+    const gateway = new FakeGateway();
+    const order = await createRazorpayPurchase(pool(), gateway, {
+      accountId,
+      packId: pack.packId,
+      idempotencyKey: randomUUID(),
+    });
+
+    // The customer corrects their address to a British one before the webhook arrives.
+    await pool().query(
+      `update accounts set billing_country = 'GB', state_code = null,
+         billing_address = jsonb_build_object('line1','40 Gracechurch Street','city','London','country','GB','postalCode','EC3V 0BT')
+       where id = $1`,
+      [accountId],
+    );
+
+    const outcome = await handleRazorpayWebhook(
+      pool(),
+      webhook("payment.captured", order.orderId, order.amountMinor),
+    );
+    expect(outcome).toEqual({ status: "processed", outcome: "credited" });
+    expect((await walletSummary(pool(), accountId)).balance).toBeGreaterThan(0n);
+
+    // The invoice records the sale as it was: a rupee sale, to an Indian buyer, in Maharashtra.
+    const invoice = (await listInvoices(pool(), accountId))[0];
+    expect(invoice?.totals.currency).toBe("INR");
+    expect(invoice?.buyer.country).toBe("IN");
+    expect(invoice?.placeOfSupplyStateCode).toBe("27");
+    expect(invoice?.placeOfSupplyStateName).toBe("Maharashtra");
+  });
+
+  it("does not credit a purchase that was already refunded", async () => {
+    // Razorpay documents that events may arrive out of order. A capture retry landing after a
+    // refund was recorded credited the wallet anyway and overwrote the refund, leaving the
+    // customer with the money back AND the credits.
+    const accountId = await account("27");
+    const quotes = await listPackQuotes(pool(), { accountId });
+    const pack = quotes[0];
+    if (pack === undefined) throw new Error("no INR packs");
+    const gateway = new FakeGateway();
+    const order = await createRazorpayPurchase(pool(), gateway, {
+      accountId,
+      packId: pack.packId,
+      idempotencyKey: randomUUID(),
+    });
+    await pool().query(
+      `update purchases set status = 'refunded' where razorpay_order_id = $1`,
+      [order.orderId],
+    );
+
+    const outcome = await handleRazorpayWebhook(
+      pool(),
+      webhook("payment.captured", order.orderId, order.amountMinor),
+    );
+    expect(outcome).toEqual({ status: "processed", outcome: "already_refunded" });
+    expect((await walletSummary(pool(), accountId)).balance).toBe(0n);
+    const after = await pool().query<{ status: string }>(
+      `select status from purchases where razorpay_order_id = $1`,
+      [order.orderId],
+    );
+    expect(after.rows[0]?.status, "the refund was overwritten").toBe("refunded");
+  });
+});
+
 describe("selling outside India (ADR 0030)", () => {
   it("prices in dollars, charges no GST, and says why on the invoice", async () => {
     const accountId = await account(null, null, "GB");

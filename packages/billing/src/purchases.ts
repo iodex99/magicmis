@@ -14,7 +14,11 @@
 
 import { createHash } from "node:crypto";
 
-import { isValidGstin, normaliseCountry } from "@magicmis/core/identifiers";
+import {
+  isGstStateCode,
+  isValidGstin,
+  normaliseCountry,
+} from "@magicmis/core/identifiers";
 import { billingCurrency, type Currency, type RoundingMode } from "@magicmis/core/money";
 import { appendAudit } from "@magicmis/db/audit";
 import { readConfig } from "@magicmis/db/config";
@@ -73,6 +77,8 @@ export interface PackQuote {
   readonly tax: SaleTax;
   readonly currency: Currency;
   readonly placeOfSupplyStateCode: string | null;
+  /** Snapshotted onto the purchase, so the invoice is built from the sale (ADR 0057). */
+  readonly buyerGstin: string | null;
   readonly bankTransferEligible: boolean;
 }
 
@@ -129,8 +135,13 @@ async function accountTax(db: Queryable, accountId: string): Promise<BuyerTaxIde
     return { gstin: null, stateCode: null, country, currency };
   }
 
-  // A GSTIN that fails its checksum is not used for place of supply.
-  const gstin = row.gstin !== null && isValidGstin(row.gstin) ? row.gstin : null;
+  // A GSTIN that fails its checksum is not used for place of supply — nor is one whose leading
+  // two digits name no assigned GST state, because `stateName` cannot render it and the throw
+  // would land inside the transaction that grants the credits (ADR 0057).
+  const gstin =
+    row.gstin !== null && isValidGstin(row.gstin) && isGstStateCode(row.gstin.slice(0, 2))
+      ? row.gstin
+      : null;
   const stateCode = gstin?.slice(0, 2) ?? row.state_code;
   if (stateCode === null)
     throw new BillingError(
@@ -189,6 +200,7 @@ async function buildQuote(
     tax,
     currency: tax.currency,
     placeOfSupplyStateCode: tax.placeOfSupplyStateCode,
+    buyerGstin: account.gstin,
     // The threshold is a rupee amount, so it only decides anything for a rupee sale.
     // Bank transfer is an Indian bank transfer against a proforma; an international wire
     // is a different process (FIRC, RBI purpose code) and is not offered (migration 0037).
@@ -265,6 +277,12 @@ export interface Purchase {
   readonly gstRate: string;
   /** Null on an export: there is no Indian place of supply. */
   readonly placeOfSupplyStateCode: string | null;
+  /**
+   * The buyer as they were at the moment of sale (ADR 0057). The invoice is built from these,
+   * never from the account row, which the customer may have corrected in between.
+   */
+  readonly buyerCountry: string;
+  readonly buyerGstin: string | null;
   readonly razorpayOrderId: string | null;
   readonly razorpayPaymentId: string | null;
   readonly bankUtr: string | null;
@@ -276,7 +294,8 @@ const PURCHASE_COLUMNS = `id, account_id, pack_id, method, status, currency,
   amount_minor_ex_tax::text as amount_minor_ex_tax, cgst_minor::text as cgst_minor,
   sgst_minor::text as sgst_minor, igst_minor::text as igst_minor, tax_minor::text as tax_minor,
   total_minor::text as total_minor, credits::text as credits, bonus_credits::text as bonus_credits,
-  gst_rate, place_of_supply_state_code, razorpay_order_id, razorpay_payment_id, bank_utr,
+  gst_rate, place_of_supply_state_code, buyer_country, buyer_gstin,
+  razorpay_order_id, razorpay_payment_id, bank_utr,
   created_at, credited_at`;
 
 interface PurchaseRow {
@@ -296,6 +315,8 @@ interface PurchaseRow {
   bonus_credits: string;
   gst_rate: string | null;
   place_of_supply_state_code: string | null;
+  buyer_country: string;
+  buyer_gstin: string | null;
   razorpay_order_id: string | null;
   razorpay_payment_id: string | null;
   bank_utr: string | null;
@@ -328,6 +349,8 @@ function toPurchase(r: PurchaseRow): Purchase {
     bonusCredits: BigInt(r.bonus_credits),
     gstRate: r.gst_rate,
     placeOfSupplyStateCode: r.place_of_supply_state_code,
+    buyerCountry: r.buyer_country,
+    buyerGstin: r.buyer_gstin,
     razorpayOrderId: r.razorpay_order_id,
     razorpayPaymentId: r.razorpay_payment_id,
     bankUtr: r.bank_utr,
@@ -377,8 +400,9 @@ async function insertPurchase(
     `insert into public.purchases
        (account_id, pack_id, currency, amount_minor_ex_tax, tax_minor, cgst_minor, sgst_minor,
         igst_minor, total_minor, method, status, credits, bonus_credits, gst_rate,
-        place_of_supply_state_code, idempotency_key, bank_transfer_requested_at, created_at)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+        place_of_supply_state_code, buyer_country, buyer_gstin,
+        idempotency_key, bank_transfer_requested_at, created_at)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
      returning ${PURCHASE_COLUMNS}`,
     [
       input.accountId,
@@ -396,6 +420,9 @@ async function insertPurchase(
       input.quote.bonusCredits.toString(),
       t.ratePercent,
       t.placeOfSupplyStateCode,
+      // The buyer as they were, not as the account reads today (ADR 0057).
+      t.buyerCountry,
+      input.quote.buyerGstin,
       input.idempotencyKey,
       input.method === "bank_transfer" ? input.now : null,
       input.now,
@@ -699,6 +726,19 @@ async function processRazorpayEvent(
   if (purchase === null) return "unknown_order";
   if (purchase.method !== "razorpay") return "method_mismatch";
   if (purchase.status === "credited") return "already_credited";
+  // Razorpay documents that events may arrive out of order, so a capture retry can land after a
+  // refund was recorded. Crediting then would leave the customer holding both the money and the
+  // credits, and would erase the refund from the purchase row (ADR 0057).
+  if (purchase.status === "refunded") {
+    await appendAudit(tx, {
+      actorType: "system",
+      action: "billing.capture_after_refund",
+      targetType: "purchase",
+      targetId: purchase.id,
+      metadata: { orderId, paymentId: payment.id },
+    });
+    return "already_refunded";
+  }
   // The webhook is the only place credits are granted, so this comparison is what
   // stands between a manipulated payment and a free wallet. Currency included: the same
   // integer means very different money in paise and in cents.

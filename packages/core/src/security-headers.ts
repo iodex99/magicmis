@@ -69,6 +69,29 @@ export function securityHeaders(o: SecurityHeaderOptions): Record<string, string
  * production" (https://vercel.com/docs/headers/request-headers, verified 2026-09-16), so
  * either source saying https is enough.
  */
+/**
+ * How the Supabase auth cookies are written (ADR 0057).
+ *
+ * `@supabase/ssr` defaults them to `httpOnly: false` with no `Secure`, which is right for an app
+ * whose browser code talks to Supabase directly. Nothing here does: there is no browser client
+ * anywhere in the tree, every auth call is a server route. So the access and refresh tokens have
+ * no reason to be readable from `document.cookie`, where any script that ever runs on the origin
+ * could take them — and `authenticated` can read the tenant's rows straight from PostgREST, so a
+ * stolen refresh token is not merely a session.
+ *
+ * `secure` is off in development only, because the local stack and the E2E run are plain HTTP and
+ * a browser drops a Secure cookie there.
+ */
+export const authCookieOptions = (
+  environment: "development" | "staging" | "production",
+): { httpOnly: true; secure: boolean; sameSite: "lax" } => ({
+  httpOnly: true,
+  secure: environment !== "development",
+  // Lax, not strict: the sign-in confirmation arrives as a top-level GET from the email client,
+  // and strict would withhold the cookie that link just established.
+  sameSite: "lax",
+});
+
 export function isHttps(protocol: string, get: (name: string) => string | null): boolean {
   if (protocol === "https:") return true;
   const forwarded = (get("x-forwarded-proto") ?? "").split(",")[0]?.trim().toLowerCase();

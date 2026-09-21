@@ -41,17 +41,10 @@ export async function PriceBook() {
           <Tr key={r.actionKey}>
             <Td className="text-neutral-900">
               <span className="font-medium">{ACTION_LABELS[r.actionKey]}</span>
-              {r.instant ? (
-                <span className="mt-0.5 block text-[0.75rem] text-neutral-500">
-                  Instant delivery: {formatCredits(r.instant.efficient.toString())} /{" "}
-                  {formatCredits(r.instant.professional.toString())} /{" "}
-                  {formatCredits(r.instant.expert.toString())}
-                </span>
-              ) : null}
             </Td>
-            <Td numeric>{formatCredits(r.standard.efficient.toString())}</Td>
-            <Td numeric>{formatCredits(r.standard.professional.toString())}</Td>
-            <Td numeric>{formatCredits(r.standard.expert.toString())}</Td>
+            <Td numeric>{formatCredits(r.credits.efficient.toString())}</Td>
+            <Td numeric>{formatCredits(r.credits.professional.toString())}</Td>
+            <Td numeric>{formatCredits(r.credits.expert.toString())}</Td>
           </Tr>
         ))}
       </DataTable>

@@ -18,6 +18,7 @@ import {
   neverSignedInAccount,
   provisionAccount,
   refinishAccount,
+  placeOfSupplyState,
   signupProfileSchema,
 } from "../src/signup";
 
@@ -158,6 +159,24 @@ describe("provisioning", () => {
       [result.accountId],
     );
     expect(row.rows[0]).toEqual({ state_code: "29", gstin: "29AAGCB7383J1Z4" });
+  });
+
+  it("refuses a GSTIN whose leading digits name no assigned GST state (ADR 0057)", () => {
+    // `isValidGstin` checks the shape, the embedded PAN and the base-36 check character. It has
+    // never checked that the first two digits are a state that exists — 28 was split away in
+    // 2014 and is assigned to nothing, and exactly one completion of any 14 characters is
+    // checksum-valid, so one is trivially constructed. That code became the account's
+    // `state_code`, then the purchase's place of supply, and finally reached `stateName` inside
+    // the transaction that grants the credits, where the throw rolled the grant back after the
+    // money had been taken.
+    const bad = { ...profile, gstin: "28AAACS1429B1ZT" };
+    expect(signupProfileSchema.safeParse(bad).success).toBe(false);
+    // The same GSTIN with an assigned state is fine.
+    expect(
+      signupProfileSchema.safeParse({ ...profile, gstin: "27AAACS1429B1ZV" }).success,
+    ).toBe(true);
+    // And place of supply falls back to the address, which is validated against the same list.
+    expect(placeOfSupplyState(profile)).toBe(profile.billingAddress?.stateCode);
   });
 });
 

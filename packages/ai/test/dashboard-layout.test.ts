@@ -23,7 +23,7 @@ const input: DashboardLayoutInput = {
     {
       metricId: "payroll_cost",
       dimension: "designation",
-      values: ["Analyst", "Director"],
+      valueCount: 2,
     },
   ],
   months: 14,

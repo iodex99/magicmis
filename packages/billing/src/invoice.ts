@@ -8,7 +8,7 @@
  */
 
 import { GST_STATE_CODES, isGstStateCode } from "@magicmis/core/identifiers";
-import { countryName, normaliseCountry } from "@magicmis/core/identifiers";
+import { countryName } from "@magicmis/core/identifiers";
 import type { Currency } from "@magicmis/core/money";
 import { readConfig } from "@magicmis/db/config";
 import type { Queryable } from "@magicmis/db/tx";
@@ -147,6 +147,9 @@ interface PurchaseForInvoice {
   readonly bonusCredits: bigint;
   readonly gstRate: string;
   readonly placeOfSupplyStateCode: string | null;
+  /** The buyer as they were at the moment of sale (ADR 0057). */
+  readonly buyerCountry: string;
+  readonly buyerGstin: string | null;
 }
 
 /**
@@ -204,11 +207,14 @@ export async function issueInvoice(
   const addr = address.success ? address.data : {};
   const pos = purchase.placeOfSupplyStateCode;
   const isExport = purchase.currency !== "INR";
-  const country = normaliseCountry(acc.billing_country ?? "IN");
-
+  // From the sale, not from the account (ADR 0057). Reading these live let a customer who
+  // corrected their address after paying make the country and the place of supply disagree, and
+  // `invoices_place_of_supply_is_india_only` then refused the insert inside the very transaction
+  // that grants the credits — money taken, credits rolled back, every retry the same.
+  const country = purchase.buyerCountry;
   const buyer: Buyer = {
     name: acc.business_name,
-    gstin: acc.gstin,
+    gstin: purchase.buyerGstin,
     address: [
       addr.line1,
       addr.line2,

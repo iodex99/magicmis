@@ -556,6 +556,47 @@ export async function sealForCompany(
   });
 }
 
+/**
+ * Opens many sealed values of one company under **one** unwrap of its data key (ADR 0057).
+ *
+ * `openForCompany` is a transaction, a `for update` lock on `company_keys` and a KMS unwrap every
+ * time it is called. In a loop that multiplies: a chat thread of forty messages took the company's
+ * key lock a hundred and twenty times to render one page, serialising against any run working on
+ * the same company. This is the rule `latestMetricStores` already follows for snapshots — read the
+ * rows, open the key once, decrypt them all.
+ *
+ * Results come back in the order they were asked for, with `null` where the sealed value was null.
+ * The key is never opened when every item is null, so an empty thread costs no unwrap at all.
+ */
+export async function openManyForCompany(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: {
+    accountId: string;
+    companyId: string;
+    items: readonly { purpose: string; id: string; sealed: Uint8Array | null }[];
+  },
+): Promise<readonly (Buffer | null)[]> {
+  if (!input.items.some((i) => i.sealed !== null)) return input.items.map(() => null);
+  return withTransaction(pool, async (tx) => {
+    const dek = await companyDek(tx, wrapper, input.accountId, input.companyId);
+    try {
+      return input.items.map((i) =>
+        i.sealed === null
+          ? null
+          : decryptWithKey(dek, i.sealed, {
+              purpose: i.purpose,
+              account_id: input.accountId,
+              company_id: input.companyId,
+              id: i.id,
+            }),
+      );
+    } finally {
+      dek.fill(0);
+    }
+  });
+}
+
 export async function openForCompany(
   pool: Pool,
   wrapper: KeyWrapper,

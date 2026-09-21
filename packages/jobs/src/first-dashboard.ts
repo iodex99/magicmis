@@ -77,10 +77,11 @@ export async function firstDashboardSpec(
       metrics: METRIC_CATALOG.map((m) => ({ id: m.id, unit: m.unit, label: m.label })),
       present: [...present].sort(),
       dimensioned: [...splits.entries()]
+        // The count, never the values: see the note on `dimensioned` (ADR 0057).
         .map(([metricId, s]) => ({
           metricId,
           dimension: s.dimension,
-          values: [...s.values].slice(0, 30),
+          valueCount: s.values.size,
         }))
         .slice(0, 20),
       months: periods.rows.length,

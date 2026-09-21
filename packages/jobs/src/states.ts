@@ -104,7 +104,8 @@ export function allowedNext(from: JobState): readonly JobState[] {
 
 export class JobStateError extends Error {
   constructor(
-    readonly code: "not_found" | "invalid_transition" | "terminal",
+    readonly code:
+      "not_found" | "invalid_transition" | "terminal" | "no_hold" | "already_running",
     message: string,
   ) {
     super(message);
@@ -125,6 +126,8 @@ export interface JobRow {
   readonly quote_id: string | null;
   readonly reservation_id: string | null;
   readonly captured_credits: string | null;
+  /** When the customer pressed the button. Settlement prices are read as at this moment. */
+  readonly created_at: Date;
 }
 
 export async function lockJob(
@@ -134,7 +137,8 @@ export async function lockJob(
 ): Promise<JobRow> {
   const r = await db.query<JobRow>(
     `select id, account_id, company_id, type, tier, delivery_mode, state, stage_checkpoints,
-            price_credits::text as price_credits, quote_id, reservation_id, captured_credits::text as captured_credits
+            price_credits::text as price_credits, quote_id, reservation_id,
+            captured_credits::text as captured_credits, created_at
      from public.jobs where id = $1 and account_id = $2 for update`,
     [jobId, accountId],
   );

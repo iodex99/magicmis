@@ -82,7 +82,10 @@ export const signupProfileSchema = z.object({
   gstin: z
     .string()
     .transform(normaliseGstin)
-    .refine((v) => v === "" || isValidGstin(v), "Enter a valid 15-character GSTIN")
+    .refine(
+      (v) => v === "" || (isValidGstin(v) && isGstStateCode(v.slice(0, 2))),
+      "Enter a valid 15-character GSTIN",
+    )
     .optional()
     .transform((v) => (v === "" ? undefined : v)),
   billingAddress: billingAddressSchema.optional(),
@@ -122,7 +125,11 @@ export function placeOfSupplyState(profile: SignupProfile): string | null {
   // address that later became non-Indian would silently produce a domestic tax invoice
   // for an export, which the database also refuses (migration 0037).
   if (billingCountry(profile) !== "IN") return null;
-  return profile.gstin?.slice(0, 2) ?? profile.billingAddress?.stateCode ?? null;
+  // Only a GSTIN naming an assigned state decides place of supply; anything else falls back to
+  // the address, which `billingAddressSchema` already validates against the same list.
+  const fromGstin = profile.gstin?.slice(0, 2);
+  if (fromGstin !== undefined && isGstStateCode(fromGstin)) return fromGstin;
+  return profile.billingAddress?.stateCode ?? null;
 }
 
 /** The ISO country the account is invoiced in, or null until an address is given. */

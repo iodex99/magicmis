@@ -1,9 +1,10 @@
 <!-- SPEC §29: plain, branded, no financial figures. Token-hash link so it works in any
      browser, not only the one that asked for it.
 
-     Opening the link signs the reader in and is recorded as a fresh re-authentication
-     (ADR 0043), so the next screen can set a password without asking for the old one. It is
-     also how an account created through Google or Apple gets a password in the first place. -->
+     Opening the link signs nobody in. The token is spent by the form on the next screen,
+     together with the new password, and it grants nothing else — not a session, not a
+     re-authentication (ADR 0043, ADR 0057). It is also how an account created through Google
+     or Apple gets a password in the first place. -->
 <h2>Set a new password</h2>
 <p>Open this link to set a new password for your account:</p>
 <p>
