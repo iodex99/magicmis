@@ -69,8 +69,8 @@ describe("the owner's business report", () => {
 
     await pool().query(
       `insert into purchases (account_id, amount_minor_ex_tax, tax_minor, igst_minor, total_minor,
-                              method, currency, status, credits, created_at, credited_at)
-       values ($1, 1000000, 180000, 180000, 1180000, 'razorpay', 'INR', 'credited', 10000, $2, $2)`,
+                              method, currency, status, credits, created_at, credited_at, buyer_country)
+       values ($1, 1000000, 180000, 180000, 1180000, 'razorpay', 'INR', 'credited', 10000, $2, $2, 'IN')`,
       [accountId, ago(20)],
     );
 

@@ -133,6 +133,40 @@ export function stateName(code: string): string {
 const hasPlaceholder = (value: unknown): boolean =>
   JSON.stringify(value).includes("PENDING-REVIEW");
 
+/**
+ * Whether an invoice could be issued right now, asked before the money moves (ADR 0057).
+ *
+ * The same check runs inside `issueInvoice`, which is inside the transaction that grants the
+ * credits — so with `billing.allow_placeholder_details` turned off before R-02/R-03/R-59 are
+ * filled, every sale went to the gateway, was captured, and then threw on crediting, for every
+ * customer at once. Refusing the sale up front is the same rule applied where it costs nothing.
+ */
+export async function invoiceDetailsReady(
+  db: Queryable,
+  currency: Currency,
+  now = new Date(),
+): Promise<{ ready: true } | { ready: false; reason: string }> {
+  const allowPlaceholders = await readConfig(
+    db,
+    "billing.allow_placeholder_details",
+    z.boolean(),
+    now,
+  );
+  if (allowPlaceholders) return { ready: true };
+  const seller = await readConfig(db, "billing.seller", sellerSchema, now);
+  const sac = await readConfig(db, "billing.sac_code", z.string(), now);
+  if (hasPlaceholder(seller) || hasPlaceholder(sac) || seller.gstin === "")
+    return { ready: false, reason: "seller details or SAC code" };
+  if (currency !== "INR") {
+    const exportConfig = await readConfig(db, "billing.export", exportSchema, now).catch(
+      () => null,
+    );
+    if (exportConfig !== null && hasPlaceholder(exportConfig))
+      return { ready: false, reason: "the export declaration" };
+  }
+  return { ready: true };
+}
+
 interface PurchaseForInvoice {
   readonly id: string;
   readonly accountId: string;

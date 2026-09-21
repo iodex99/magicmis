@@ -29,7 +29,12 @@ import { z } from "zod";
 
 import { placeOfSupply } from "./gst";
 import { computeSaleTax, type SaleTax } from "./tax";
-import { issueInvoice, sellerSchema, type InvoiceRecord } from "./invoice";
+import {
+  invoiceDetailsReady,
+  issueInvoice,
+  sellerSchema,
+  type InvoiceRecord,
+} from "./invoice";
 import {
   razorpayWebhookSchema,
   verifyWebhookSignature,
@@ -46,7 +51,9 @@ export class BillingError extends Error {
       | "PURCHASE_NOT_PENDING"
       | "INVALID_UTR"
       /** No billing state on the account yet: GST cannot be quoted or invoiced. */
-      | "BILLING_STATE_UNKNOWN",
+      | "BILLING_STATE_UNKNOWN"
+      /** Seller, SAC or export details are still placeholders, so no invoice could be issued. */
+      | "BILLING_NOT_READY",
     message: string,
   ) {
     super(message);
@@ -567,6 +574,15 @@ export async function createRazorpayPurchase(
       packId: input.packId,
       now,
     });
+    // Refuse the sale before the money moves, not on the way to granting the credits
+    // (ADR 0057). The same check lives inside `issueInvoice`, where failing it means the
+    // payment has already been captured and the throw rolls the credit grant back.
+    const ready = await invoiceDetailsReady(tx, quote.currency, now);
+    if (!ready.ready)
+      throw new BillingError(
+        "BILLING_NOT_READY",
+        `credits cannot be sold yet: ${ready.reason} are not set`,
+      );
     return insertPurchase(tx, {
       accountId: input.accountId,
       quote,
@@ -715,7 +731,19 @@ async function processRazorpayEvent(
     return "refund_recorded";
   }
   if (event.event !== "payment.captured" && event.event !== "order.paid") {
-    return event.event === "payment.failed" ? "payment_failed_noted" : "ignored";
+    if (event.event !== "payment.failed") return "ignored";
+    // Actually note it (ADR 0057). The purchase used to stay 'pending' for ever: the reconciler
+    // kept fetching it from Razorpay every fifteen minutes until it aged out, and the customer's
+    // Wallet showed a payment in progress that was never going to arrive.
+    const failedOrder =
+      event.payload.payment?.entity.order_id ?? event.payload.order?.entity.id ?? null;
+    if (failedOrder === null) return "payment_failed_noted";
+    await tx.query(
+      `update public.purchases set status = 'failed'
+        where razorpay_order_id = $1 and status in ('created', 'pending')`,
+      [failedOrder],
+    );
+    return "payment_failed_noted";
   }
   const payment = event.payload.payment?.entity;
   const orderId = payment?.order_id ?? event.payload.order?.entity.id ?? null;
@@ -723,7 +751,21 @@ async function processRazorpayEvent(
   if (payment.status !== "captured") return "payment_not_captured";
 
   const purchase = await purchaseBy(tx, "razorpay_order_id = $1", [orderId], true);
-  if (purchase === null) return "unknown_order";
+  if (purchase === null) {
+    // A captured payment we cannot match to a sale is money received against nothing. It used
+    // to leave only a string in `webhook_events.outcome`; now it is on the audit log, where an
+    // operator looks (ADR 0057).
+    await appendAudit(tx, {
+      actorType: "system",
+      action: "billing.payment_unknown_order",
+      // There is no purchase to point at — that is the whole finding. The gateway ids are not
+      // UUIDs, so they live in the metadata.
+      targetType: "purchase",
+      targetId: null,
+      metadata: { orderId, paymentId: payment.id },
+    });
+    return "unknown_order";
+  }
   if (purchase.method !== "razorpay") return "method_mismatch";
   if (purchase.status === "credited") return "already_credited";
   // Razorpay documents that events may arrive out of order, so a capture retry can land after a
@@ -872,6 +914,15 @@ export async function requestBankTransfer(
       packId: input.packId,
       now,
     });
+    // Refuse the sale before the money moves, not on the way to granting the credits
+    // (ADR 0057). The same check lives inside `issueInvoice`, where failing it means the
+    // payment has already been captured and the throw rolls the credit grant back.
+    const ready = await invoiceDetailsReady(tx, quote.currency, now);
+    if (!ready.ready)
+      throw new BillingError(
+        "BILLING_NOT_READY",
+        `credits cannot be sold yet: ${ready.reason} are not set`,
+      );
     if (!quote.bankTransferEligible) {
       throw new BillingError(
         "BANK_TRANSFER_NOT_ELIGIBLE",

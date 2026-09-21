@@ -223,7 +223,12 @@ export function BuyCreditsInline({
           ))
         )}
         <p className="text-[0.75rem] text-neutral-500">
-          Includes GST. A tax invoice is issued the moment the payment is confirmed.
+          {/* A sale outside India is a zero-rated export, and the document is an export
+              invoice, not a tax invoice (ADR 0030, ADR 0057). The Wallet already said this
+              correctly; the inline top-up did not. */}
+          {(view?.currency ?? "INR") === "INR"
+            ? "Includes GST. A tax invoice is issued the moment the payment is confirmed."
+            : "No tax added. An invoice is issued the moment the payment is confirmed."}
         </p>
       </div>
     </Panel>

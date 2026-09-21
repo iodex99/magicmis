@@ -179,15 +179,26 @@ export async function commentaryPayload(pool: Pool, accountId: string, jobId: st
   if (companyId === undefined) return null;
   const metrics = await companyMetrics(pool, accountId, companyId);
   if (metrics === null) return null;
+  // A hidden month is hidden everywhere — board, quick and Deep answers, and commentary
+  // (ADR 0048). `commentaryInput` already refuses to write one for a month that is off the
+  // dashboard, but re-reading a commentary written while the month was on it rendered every
+  // figure again, including movements against it (ADR 0057). A commentary about a month the
+  // customer has taken off is not worth showing at all, so it is not shown.
+  const hidden = await hiddenPeriods(pool, { accountId, companyId });
+  if (hidden.has(stored.input.factsPack.period)) return null;
   return {
     company: metrics.company,
     output: stored.output,
     pack: stored.input.factsPack,
     allowlist: await readConfig(pool, "commentary.digit_allowlist", z.array(z.string())),
-    values: metrics.values.filter(
-      (v) =>
-        v.period === stored.input.factsPack.period ||
-        stored.input.factsPack.periods.includes(`p:${v.period}`),
+    values: visibleValues(
+      metrics.values.filter(
+        (v) =>
+          v.period === stored.input.factsPack.period ||
+          stored.input.factsPack.periods.includes(`p:${v.period}`),
+      ),
+      hidden,
+      metrics.company.fyStartMonth,
     ),
   };
 }

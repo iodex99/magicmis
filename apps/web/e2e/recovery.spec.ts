@@ -103,6 +103,39 @@ test("a forgotten password is reset from the emailed link: once, and the old one
   await expect(page.getByRole("main").getByRole("alert")).toContainText("expired");
 });
 
+test("a reset link cannot be turned into a session through the callback", async ({
+  page,
+  context,
+}) => {
+  // The callback establishes a session and claims it, so anything it accepts is a link that
+  // signs its holder in. While it accepted `type=recovery`, an attacker's own reset link sent
+  // to a victim signed the victim into the attacker's account, with no password ever set and
+  // nothing to alert them (ADR 0057). The token must survive this untouched and still work on
+  // the form it belongs to.
+  const email = uniqueEmail();
+  await createVerifiedAccount(page, email);
+  await context.clearCookies();
+
+  await page.goto("/forgot-password");
+  await page.getByLabel("Email").fill(email);
+  await page.getByRole("button", { name: "Send the link" }).click();
+  await expect(page.getByTestId("reset-sent")).toBeVisible();
+
+  const link = resetLink(await latestEmailHtml(email, "Set a new password"));
+  const token = new URL(link, "http://localhost").searchParams.get("token_hash") ?? "";
+  expect(token).not.toBe("");
+
+  await page.goto(`/auth/callback?token_hash=${token}&type=recovery&next=/app`);
+  // No session: the callback refused the type outright, so nothing was verified or claimed.
+  expect((await page.request.get("/api/wallet")).status()).toBe(401);
+
+  // And the token was not spent by that attempt — it still sets the password, once.
+  await page.goto(link);
+  await page.getByLabel("New password").fill(NEW_PASSWORD);
+  await page.getByRole("button", { name: "Set password" }).click();
+  await expect(page).toHaveURL(/\/app$/u);
+});
+
 test("asking for a reset says the same thing whether or not the account exists", async ({
   page,
 }) => {

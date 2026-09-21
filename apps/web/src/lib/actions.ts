@@ -91,4 +91,3 @@ export function formatMoney(currency: "INR" | "USD", minor: string): string {
 }
 
 /** Paise (decimal string) as rupees: "236000" → "₹2,360.00". */
-export const formatRupees = (paise: string): string => formatMoney("INR", paise);

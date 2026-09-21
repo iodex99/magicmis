@@ -387,15 +387,15 @@ describe("margin report", () => {
     // A rupee purchase through the gateway: ₹29,500 with tax, at 2.36%.
     await pool().query(
       `insert into purchases (account_id, amount_minor_ex_tax, tax_minor, igst_minor, total_minor,
-                              method, currency, status, credited_at)
-       values ($1, 2500000, 450000, 450000, 2950000, 'razorpay', 'INR', 'credited', now())`,
+                              method, currency, status, credited_at, buyer_country)
+       values ($1, 2500000, 450000, 450000, 2950000, 'razorpay', 'INR', 'credited', now(), 'IN')`,
       [account],
     );
     // A bank transfer pays no gateway fee, so it must not add one.
     await pool().query(
       `insert into purchases (account_id, amount_minor_ex_tax, tax_minor, igst_minor, total_minor,
-                              method, currency, status, credited_at)
-       values ($1, 5000000, 900000, 900000, 5900000, 'bank_transfer', 'INR', 'credited', now())`,
+                              method, currency, status, credited_at, buyer_country)
+       values ($1, 5000000, 900000, 900000, 5900000, 'bank_transfer', 'INR', 'credited', now(), 'IN')`,
       [account],
     );
     const withInr = await marginReport(pool(), from, to, { accountId: account });
@@ -406,8 +406,8 @@ describe("margin report", () => {
     // would be about ₹691. The ranges cannot overlap, so this pins which rate was used.
     await pool().query(
       `insert into purchases (account_id, amount_minor_ex_tax, total_minor,
-                              method, currency, status, credited_at)
-       values ($1, 29900, 29900, 'razorpay', 'USD', 'credited', now())`,
+                              method, currency, status, credited_at, buyer_country)
+       values ($1, 29900, 29900, 'razorpay', 'USD', 'credited', now(), 'US')`,
       [account],
     );
     const withUsd = await marginReport(pool(), from, to, { accountId: account });

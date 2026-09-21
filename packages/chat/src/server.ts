@@ -126,12 +126,22 @@ export type ChatProgress =
       readonly stepRef: string;
       readonly sql: string;
     }
-  | { readonly status: "failed"; readonly reason: string };
+  | { readonly status: "failed"; readonly reason: string }
+  /** Someone else is already answering this message; nothing was charged twice (ADR 0057). */
+  | { readonly status: "running"; readonly reason: string };
 
 interface Scope {
   readonly accountId: string;
   readonly companyId: string;
 }
+
+/**
+ * The longest turn `historyTurn` accepts. An answer may run to eight paragraphs of four thousand
+ * characters, so one verbose Deep answer could be five times this. Passing it on made
+ * `prepareStage` throw a bare ZodError that nothing handled, and every later message in that
+ * thread returned a 500 with its hold stranded until the sweeper (ADR 0057).
+ */
+const HISTORY_TURN_CHARS = 6000;
 
 const seal = async (
   pool: Pool,
@@ -333,11 +343,11 @@ export async function sendMessage(
    * answers for one charge, with two lots of vendor spend against a single price cap. `jobs`
    * has always been keyed this way, which is why the same retry was harmless there.
    */
-  const inserted = await pool.query<{ id: string }>(
+  const inserted = await pool.query<{ id: string; thread_id: string }>(
     `insert into public.chat_messages (thread_id, account_id, role, message_type, content, tier, price_credits, state, created_at, idempotency_key)
      values ($1, $2, 'user', $3, '\\x', $4, $5, 'pending', $6, $7)
      on conflict (account_id, idempotency_key) where idempotency_key is not null do nothing
-     returning id`,
+     returning id, thread_id`,
     [
       threadId,
       input.accountId,
@@ -348,15 +358,23 @@ export async function sendMessage(
       input.idempotencyKey,
     ],
   );
-  const existing =
-    inserted.rows[0]?.id ??
+  // On a retry the insert does nothing and the message keeps the thread it was first put in.
+  // Returning the thread `openThread` just made instead left the customer looking at an empty
+  // conversation for a message they had been charged for, and counted that message against a
+  // second thread's cap (ADR 0057). The row decides, not this call.
+  const settled =
+    inserted.rows[0] ??
     (
-      await pool.query<{ id: string }>(
-        `select id from public.chat_messages where account_id = $1 and idempotency_key = $2`,
+      await pool.query<{ id: string; thread_id: string }>(
+        `select id, thread_id from public.chat_messages where account_id = $1 and idempotency_key = $2`,
         [input.accountId, input.idempotencyKey],
       )
-    ).rows[0]?.id;
-  const messageId = existing ?? "";
+    ).rows[0];
+  if (settled === undefined)
+    throw new ChatError("invalid_state", "This message could not be started.");
+  const messageId = settled.id;
+  const messageThreadId = settled.thread_id;
+  const isNew = inserted.rows[0] !== undefined;
   const reservation = await reserveCredits(pool, {
     accountId: input.accountId,
     amount: price.credits,
@@ -384,11 +402,13 @@ export async function sendMessage(
     `update public.chat_messages set content = $2, reservation_id = $3 where id = $1`,
     [messageId, content, reservation.reservationId],
   );
-  await pool.query(
-    `update public.chat_threads set message_count = message_count + 1 where id = $1`,
-    [threadId],
-  );
-  return { messageId, threadId, priceCredits: price.credits };
+  // Only a message that is actually new counts against the thread's cap.
+  if (isNew)
+    await pool.query(
+      `update public.chat_threads set message_count = message_count + 1 where id = $1`,
+      [messageThreadId],
+    );
+  return { messageId, threadId: messageThreadId, priceCredits: price.credits };
 }
 
 // ---------------------------------------------------------------------------
@@ -485,17 +505,24 @@ async function history(
   for (const [i, r] of recent.entries()) {
     if (r.role === "user") {
       const c = at(opened, i) as { text: string } | null;
-      out.push({ role: "user", text: c?.text ?? "" });
+      out.push({ role: "user", text: (c?.text ?? "").slice(0, HISTORY_TURN_CHARS) });
     } else {
       const reply = at(opened, i) as StoredReply | null;
       out.push({
         role: "assistant",
+        // Capped at the length `historyTurn` allows. An answer may run to eight paragraphs of
+        // four thousand characters; one over six thousand made `prepareStage` throw a bare
+        // ZodError, which nothing handled, so every later message in that thread 500'd with its
+        // hold stranded until the sweeper (ADR 0057).
         text:
           reply === null
             ? ""
             : reply.kind === "answer"
-              ? reply.output.paragraphs.map((p) => p.text).join("\n")
-              : `Proposed change: ${reply.summary}`,
+              ? reply.output.paragraphs
+                  .map((p) => p.text)
+                  .join("\n")
+                  .slice(0, HISTORY_TURN_CHARS)
+              : `Proposed change: ${reply.summary}`.slice(0, HISTORY_TURN_CHARS),
       });
     }
   }
@@ -588,6 +615,24 @@ async function finish(
     reply.kind === "answer"
       ? reply.output.scope === "out_of_scope"
       : reply.scope === "out_of_scope";
+  // Charge first, then write the reply (ADR 0057). The other way round, a Deep message that ran
+  // past its reservation's half-hour had its hold swept before `finish` reached the capture: the
+  // assistant row was already committed and readable, `captureReservation` then threw, and the
+  // customer kept an answer nobody was charged for while their own message stayed pending. The
+  // charge is the thing that may fail, so it goes first and its failure stops the reply existing.
+  //
+  // The price is charged for an answer or a decline alike (SPEC §27).
+  const captured =
+    msg.reservation_id === null
+      ? 0n
+      : (
+          await captureReservation(env.pool, {
+            reservationId: msg.reservation_id,
+            amount: BigInt(msg.price_credits),
+            idempotencyKey: `chat:${msg.id}:capture`,
+            now: env.now,
+          })
+        ).captured;
   const inserted = await env.pool.query<{ id: string }>(
     `insert into public.chat_messages (thread_id, account_id, role, content, reply_to, state, created_at)
      values ($1, $2, 'assistant', '\\x', $3, 'completed', $4) returning id`,
@@ -610,18 +655,6 @@ async function finish(
       await seal(env.pool, env.wrapper, scope, "chat.values", replyId, resolved),
     ],
   );
-  // The price is charged for an answer or a decline alike (SPEC §27).
-  const captured =
-    msg.reservation_id === null
-      ? 0n
-      : (
-          await captureReservation(env.pool, {
-            reservationId: msg.reservation_id,
-            amount: BigInt(msg.price_credits),
-            idempotencyKey: `chat:${msg.id}:capture`,
-            now: env.now,
-          })
-        ).captured;
   const state = outOfScope ? "declined_out_of_scope" : "completed";
   await env.pool.query(
     `update public.chat_messages set state = $2, credits_charged = $3, rounds_used = $4 where id = $1`,
@@ -700,10 +733,24 @@ export async function processMessage(
   );
   if (content === null)
     throw new ChatError("invalid_state", "The message has no content.");
-  if (msg.state === "pending")
-    await pool.query(`update public.chat_messages set state = 'running' where id = $1`, [
-      msg.id,
-    ]);
+  // A compare-and-swap, not a write (ADR 0057). The idempotency claim goes stale after two
+  // minutes and `maxDuration` on the route is two minutes, so a retry of a slow Deep message
+  // arrives while the first attempt is still running. Reading `state` and then setting it let
+  // both attempts through: two sets of vendor calls, and two assistant replies in the thread
+  // for one user message and one charge — the very thing migration 0051 was for.
+  //
+  // `needs_query` is claimable because that is how Deep resumes from its stored steps.
+  if (msg.state === "pending" || msg.state === "needs_query") {
+    const claimed = await pool.query(
+      `update public.chat_messages set state = 'running'
+        where id = $1 and state in ('pending', 'needs_query') returning id`,
+      [msg.id],
+    );
+    if (claimed.rowCount === 0)
+      return { status: "running", reason: "This message is already being answered." };
+  } else if (msg.state === "running") {
+    return { status: "running", reason: "This message is already being answered." };
+  }
 
   try {
     if (msg.message_type === "deep" || msg.message_type === "investigate")

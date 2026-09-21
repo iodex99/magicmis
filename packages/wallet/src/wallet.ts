@@ -91,12 +91,13 @@ async function consumeLotsFifo(
   const lots = await tx.query<{ id: string; credits_remaining: string }>(
     `select id, credits_remaining from public.credit_lots
      where account_id = $1 and credits_remaining > 0
-     -- FIFO by age, with the id breaking a tie. A purchase grants its own lot and its
-     -- bonus lot in one transaction, so both carry the same timestamp and Postgres was
-     -- free to return them in either order (ADR 0053). Nothing financial turns on it while
-     -- every lot is the same non-expiring credit, but the grant site's comment claims the
-     -- purchase lot is spent first, and an order nothing enforces is not an order.
-     order by created_at, id
+     -- FIFO by age. A purchase grants its own lot and its bonus lot in one transaction, so
+     -- both carry the same timestamp; the source column breaks that tie so the purchased credits are
+     -- spent before the bonus ones, which is what the grant site says happens (ADR 0057). The
+     -- id breaks any remaining tie, so the order is total and deterministic. Nothing financial
+     -- turns on it while every lot is the same non-expiring credit — but an order nothing
+     -- enforces is not an order, and it stops being free the day lot source matters.
+     order by created_at, (source = 'bonus'), id
      for update`,
     [accountId],
   );

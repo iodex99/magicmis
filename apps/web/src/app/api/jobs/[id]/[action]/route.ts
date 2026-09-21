@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { apiError, idempotent, ok, withAccount } from "@/lib/http";
+import { aiTransport } from "@/lib/server/ai";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 import { keyWrapper } from "@/lib/server/runtime";
 
@@ -54,7 +55,14 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
             `job-dashboard:${account.accountId}:${id}`,
             { id },
             async () => {
-              const r = await completeDashboardAddon(pool, keyWrapper(), base);
+              // The same transport the run itself passes, so a dashboard delivered from the
+              // board button is chosen for the company exactly as one delivered by a run is.
+              // Without it this path fell back to the standard boxes and two customers paying
+              // the same price got different products (ADR 0056, ADR 0057).
+              const r = await completeDashboardAddon(pool, keyWrapper(), {
+                ...base,
+                transport: aiTransport(),
+              });
               return {
                 status: 200,
                 body: {
