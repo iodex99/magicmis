@@ -27,6 +27,8 @@ export const WIDGET_KINDS = [
   "waterfall",
   "table",
   "ageing_chart",
+  /** One bar per value of the box's dimension, for its first metric. Sorted and capped below. */
+  "breakdown",
   /** Each metric this month against a basis month: both figures, the change and the change %. */
   "comparison",
 ] as const;
@@ -62,6 +64,25 @@ export const widgetSchema = z
       z.object({ kind: z.literal("widget"), widgetId: id }),
     ]),
     compare: z.enum(COMPARE_BASES).default("none"),
+    /*
+     * How a box with many rows orders and trims them (ADR 0056).
+     *
+     * Only a box split by a dimension has rows to order: payroll by designation, ageing by
+     * bucket, anything later split by party or head. Both are optional and default to leaving
+     * the data as the engine produced it, because a saved dashboard made before they existed
+     * must still read (ADR 0045) and because an age bucket already has the one order that
+     * means anything.
+     */
+    sort: z
+      .object({
+        by: z.enum(["value", "label"]),
+        direction: z.enum(["asc", "desc"]),
+      })
+      .strict()
+      .nullable()
+      .default(null),
+    /** Keep only the first rows after sorting: the top ten by value, and so on. */
+    limit: z.number().int().min(1).max(50).nullable().default(null),
   })
   .strict()
   .refine((w) => w.layout.x + w.layout.w <= 12, {
@@ -139,6 +160,8 @@ const w = (
   periods,
   layout,
   drilldown: { kind: "lineage" },
+  sort: null,
+  limit: null,
   compare: "none",
 });
 

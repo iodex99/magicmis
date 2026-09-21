@@ -17,6 +17,7 @@
  * held fails the dashboard job as ours, which releases them at once.
  */
 
+import type { AiTransport } from "@magicmis/ai";
 import type { KeyWrapper } from "@magicmis/crypto";
 import type { Pool } from "pg";
 
@@ -46,7 +47,14 @@ const NO_SIZE = {
 export async function bringDashboardUpToDate(
   pool: Pool,
   wrapper: KeyWrapper,
-  input: { accountId: string; companyId: string; runJobId: string; now?: Date },
+  input: {
+    accountId: string;
+    companyId: string;
+    runJobId: string;
+    now?: Date;
+    /** Lets a first dashboard be chosen for the company (ADR 0056); absent keeps the default. */
+    transport?: AiTransport | null;
+  },
 ): Promise<DashboardUpdate> {
   const scope = { accountId: input.accountId, companyId: input.companyId };
   const idempotencyKey = `auto-dashboard:${input.runJobId}`;
@@ -94,6 +102,7 @@ export async function bringDashboardUpToDate(
     const done = await completeDashboardAddon(pool, wrapper, {
       accountId: input.accountId,
       jobId,
+      transport: input.transport ?? null,
       ...(input.now === undefined ? {} : { now: input.now }),
     });
     return { status: "updated", capturedCredits: done.captured.toString(), first };

@@ -30,6 +30,9 @@ import {
 } from "@magicmis/render-dashboard";
 import type { Pool } from "pg";
 
+import type { AiTransport } from "@magicmis/ai";
+
+import { firstDashboardSpec } from "./first-dashboard";
 import { DashboardError } from "./layout-error";
 import { releasingOnLayoutFault } from "./layout-fault";
 import { readStoredDashboard, type StoredDashboard } from "./stored-layout";
@@ -141,7 +144,13 @@ export async function companyDashboard(
 export async function completeDashboardAddon(
   pool: Pool,
   wrapper: KeyWrapper,
-  input: { accountId: string; jobId: string; now?: Date },
+  input: {
+    accountId: string;
+    jobId: string;
+    now?: Date;
+    /** Present only where a first dashboard may be chosen for the company (ADR 0056). */
+    transport?: AiTransport | null;
+  },
 ): Promise<{ captured: bigint; blueprintVersion: number }> {
   const now = input.now ?? new Date();
   const job = await withTransaction(pool, async (tx) => {
@@ -176,7 +185,17 @@ export async function completeDashboardAddon(
         );
       const next: StoredDashboard | null =
         stored === null
-          ? { spec: DEFAULT_DASHBOARD, parentVersion: null, dataThrough: through }
+          ? {
+              // Chosen for this company from the figures it holds, falling back to the
+              // standard boxes whenever that cannot run (ADR 0056).
+              spec: await firstDashboardSpec(pool, wrapper, {
+                ...scope,
+                jobId: job.id,
+                transport: input.transport ?? null,
+              }),
+              parentVersion: null,
+              dataThrough: through,
+            }
           : stored.dataThrough === through
             ? null
             : { ...stored, dataThrough: through };

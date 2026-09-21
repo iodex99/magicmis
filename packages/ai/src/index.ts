@@ -68,3 +68,10 @@ export {
   type StepOutcome,
 } from "./chat-deep";
 export { chatAiContext } from "./chat-context";
+export {
+  proposeDashboardLayout,
+  specFromLayout,
+  dashboardLayoutInput,
+  type DashboardLayoutInput,
+  type DashboardLayoutOutput,
+} from "./dashboard-layout";

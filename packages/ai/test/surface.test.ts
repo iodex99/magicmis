@@ -26,6 +26,7 @@ const AI_CALLING_EXPORTS = new Set([
   "extractReferenceLayout",
   "chatQuick",
   "chatEditSpec",
+  "proposeDashboardLayout",
   "chatDeepStep",
   "summariseThread",
 ]);
@@ -38,6 +39,7 @@ const OTHER_FUNCTION_EXPORTS = new Set([
   "recordEvalRun",
   "chatAiContext",
   "editOperations",
+  "specFromLayout",
 ]);
 const FORBIDDEN_NAME =
   /prompt(?!Version)|passthrough|complete|send|raw|generic|message/iu;

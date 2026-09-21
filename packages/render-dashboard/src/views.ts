@@ -183,6 +183,37 @@ const plotted = (v: MetricValue | undefined): number | null => {
   return v.unit === "paise" ? n / 100 : n;
 };
 
+/**
+ * The rows of a box split by a dimension, in the order it asks for and trimmed to its limit
+ * (ADR 0056).
+ *
+ * Sorting by value compares the stored decimal strings as integers rather than as numbers, so a
+ * figure larger than a double stays in the right place; every stored value shares a unit within
+ * one metric, so comparing them without their decimal point is exact. Absent sort leaves the
+ * engine's own order, which is the only sensible one for an age bucket.
+ */
+function arrange(
+  rows: readonly MetricValue[],
+  dim: string,
+  widget: Widget,
+): readonly MetricValue[] {
+  const sort = widget.sort;
+  const ordered =
+    sort === null
+      ? rows
+      : [...rows].sort((a, b) => {
+          const sign = sort.direction === "asc" ? 1 : -1;
+          if (sort.by === "label")
+            return sign * (a.dims[dim] ?? "").localeCompare(b.dims[dim] ?? "");
+          const n = (v: MetricValue) =>
+            v.value === null ? 0n : BigInt(v.value.replace(".", ""));
+          const x = n(a);
+          const y = n(b);
+          return x === y ? 0 : sign * (x < y ? -1 : 1);
+        });
+  return widget.limit === null ? ordered : ordered.slice(0, widget.limit);
+}
+
 export function buildWidgetView(
   widget: Widget,
   store: readonly MetricValue[],
@@ -265,13 +296,69 @@ export function buildWidgetView(
         })),
       };
 
+    case "breakdown": {
+      /*
+       * One bar per value of the box's dimension (ADR 0056), ordered and trimmed as the box
+       * asks. This is what makes figures the engine already computes visible: payroll by
+       * designation was worked out every month and had nowhere to appear.
+       */
+      const metric = widget.metrics[0];
+      const dim = widget.dimension;
+      if (metric === undefined || dim === null)
+        return {
+          kind: "empty",
+          title: widget.title,
+          reason: "This box needs a figure and something to split it by.",
+        };
+      const rows = arrange(
+        store.filter(
+          (v) =>
+            v.metricId === metric &&
+            v.period === input.period &&
+            v.dims[dim] !== undefined,
+        ),
+        dim,
+        widget,
+      );
+      if (rows.length === 0)
+        return {
+          kind: "empty",
+          title: widget.title,
+          reason: "Nothing to split this month.",
+        };
+      const points = [rows.map((b) => ref(metric, input.period, b.dims))];
+      return {
+        kind: "chart",
+        title: widget.title,
+        option: {
+          ...frame(input.format, rows[0]?.unit === "paise"),
+          tooltip: tooltipFrom(points),
+          xAxis: categoryAxis(rows.map((b) => b.dims[dim] ?? "")),
+          series: [
+            {
+              type: "bar",
+              name: input.format.label(metric),
+              barMaxWidth: 36,
+              itemStyle: { borderRadius: [3, 3, 0, 0] },
+              data: rows.map(plotted),
+            },
+          ],
+        },
+        points,
+      };
+    }
+
     case "ageing_chart": {
       const metric = widget.metrics[0] ?? "receivables_ageing";
-      const buckets = store.filter(
-        (v) =>
-          v.metricId === metric &&
-          v.period === input.period &&
-          v.dims["bucket"] !== undefined,
+      const buckets = arrange(
+        store.filter(
+          (v) =>
+            v.metricId === metric &&
+            v.period === input.period &&
+            v.dims["bucket"] !== undefined,
+        ),
+        "bucket",
+        widget,
       );
       if (buckets.length === 0)
         return {

@@ -698,6 +698,8 @@ export async function runJobOnServer(
 
     // One press: the new figures go to the dashboard too, as its own priced action.
     const dashboard = await bringDashboardUpToDate(pool, wrapper, {
+      // A company that has no dashboard yet gets one chosen from its own figures (ADR 0056).
+      transport: aiTransport(),
       accountId,
       companyId,
       runJobId: jobId,
