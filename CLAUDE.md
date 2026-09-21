@@ -56,6 +56,8 @@ Run the checks as CI does: `pnpm test` (turbo, not `pnpm -r test` — they sched
 differently), `pnpm lint`, `pnpm typecheck`, and `pnpm format:check`, which covers the
 whole tree including `.sql`, `.html` and `.md` that a hand-written glob will miss.
 
+**Turbo caches `lint` and `typecheck` too, not just `test`.** A green `pnpm lint` reading "24 successful" can be twenty-four cache replays; CI then fails on a rule your new file breaks. Force the one you are relying on as evidence: `TURBO_FORCE=true pnpm exec turbo run lint`.
+
 **Turbo caches test results and replays the old passing log on a hit**, which reads exactly
 like a fresh pass. Before trusting a green suite as evidence, run `TURBO_FORCE=true pnpm test`
 — `pnpm test -- --force` does not work, the flag reaches vitest instead — or read the
