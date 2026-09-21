@@ -147,6 +147,19 @@ export const chatEditInput = z.object({
       }),
     )
     .max(100),
+  /**
+   * The splits this company's books actually make (ADR 0058). A box that breaks a figure down by
+   * a dimension the books do not carry renders "Nothing to split this month" for ever, and the
+   * customer paid for the change that added it. `dashboard_layout` is already held to this
+   * (ADR 0056); the difference there is that nobody asked for its boxes.
+   *
+   * Optional with a default, so a caller that does not know them is not blocked — the check only
+   * bites on what it is told about.
+   */
+  splits: z
+    .array(z.object({ metricId: z.string().max(60), dimension: z.string().max(60) }))
+    .max(40)
+    .optional(),
   summary: z.string().max(6000).nullable(),
   history: z.array(historyTurn).max(40),
   request: z.string().min(1).max(2000),
@@ -242,6 +255,26 @@ export const chatEditStageSpec: StageSpec<ChatEditInput, ChatEditOutput> = {
           problems.push(
             `metric ${m} is not allowed: use an allowed id or define a formula`,
           );
+      // A box cannot be split by something the books do not split. Judged, like the metrics
+      // above, only on what this change brings in: a board that already carries such a box
+      // keeps it rather than blocking every later change (ADR 0058).
+      const splits = input.splits ?? [];
+      if (splits.length > 0) {
+        const made = new Set(splits.map((s) => `${s.metricId}|${s.dimension}`));
+        const already = new Set(
+          (was?.widgets ?? [])
+            .filter((w) => w.dimension !== null)
+            .map((w) => `${w.metrics[0] ?? ""}|${w.dimension ?? ""}`),
+        );
+        for (const w of r.value.widgets) {
+          if (w.dimension === null) continue;
+          const pair = `${w.metrics[0] ?? ""}|${w.dimension}`;
+          if (!made.has(pair) && !already.has(pair))
+            problems.push(
+              `these books are not split by ${w.dimension}, so that box would stay empty`,
+            );
+        }
+      }
       // A formula must be a fact about the company, not a number somebody chose.
       const had = new Map((was?.calculated ?? []).map((c) => [c.id, JSON.stringify(c)]));
       for (const c of r.value.calculated)

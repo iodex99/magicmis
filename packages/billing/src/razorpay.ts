@@ -212,6 +212,19 @@ export const razorpayWebhookSchema = z.object({
   payload: z
     .object({
       payment: z.object({ entity: paymentEntitySchema }).optional(),
+      // The refund's own entity. Without it every `refund.*` event read as a full refund
+      // whatever the amount (ADR 0058).
+      // https://razorpay.com/docs/webhooks/payloads/refunds/ (verified 2026-09-21)
+      refund: z
+        .object({
+          entity: z.object({
+            id: z.string().min(1),
+            amount: z.number().int().nonnegative(),
+            currency: z.string().optional(),
+            payment_id: z.string().optional(),
+          }),
+        })
+        .optional(),
       order: z
         .object({
           entity: z.object({

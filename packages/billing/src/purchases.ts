@@ -31,6 +31,7 @@ import { placeOfSupply } from "./gst";
 import { computeSaleTax, type SaleTax } from "./tax";
 import {
   invoiceDetailsReady,
+  issueCreditNote,
   issueInvoice,
   sellerSchema,
   type InvoiceRecord,
@@ -290,6 +291,11 @@ export interface Purchase {
    */
   readonly buyerCountry: string;
   readonly buyerGstin: string | null;
+  /** Integer minor units returned so far. A sale keeps its status; this is the second fact. */
+  readonly refundedMinor: bigint;
+  readonly refundedAt: Date | null;
+  /** Gateway refund ids already counted, so one refund cannot be counted by three events. */
+  readonly refundIds: readonly string[];
   readonly razorpayOrderId: string | null;
   readonly razorpayPaymentId: string | null;
   readonly bankUtr: string | null;
@@ -297,11 +303,15 @@ export interface Purchase {
   readonly creditedAt: Date | null;
 }
 
+/** Smaller of two integer amounts. */
+const min = (a: bigint, b: bigint): bigint => (a < b ? a : b);
+
 const PURCHASE_COLUMNS = `id, account_id, pack_id, method, status, currency,
   amount_minor_ex_tax::text as amount_minor_ex_tax, cgst_minor::text as cgst_minor,
   sgst_minor::text as sgst_minor, igst_minor::text as igst_minor, tax_minor::text as tax_minor,
   total_minor::text as total_minor, credits::text as credits, bonus_credits::text as bonus_credits,
   gst_rate, place_of_supply_state_code, buyer_country, buyer_gstin,
+  refunded_minor::text as refunded_minor, refunded_at, refund_ids,
   razorpay_order_id, razorpay_payment_id, bank_utr,
   created_at, credited_at`;
 
@@ -324,6 +334,9 @@ interface PurchaseRow {
   place_of_supply_state_code: string | null;
   buyer_country: string;
   buyer_gstin: string | null;
+  refunded_minor: string;
+  refunded_at: Date | null;
+  refund_ids: string[];
   razorpay_order_id: string | null;
   razorpay_payment_id: string | null;
   bank_utr: string | null;
@@ -358,6 +371,9 @@ function toPurchase(r: PurchaseRow): Purchase {
     placeOfSupplyStateCode: r.place_of_supply_state_code,
     buyerCountry: r.buyer_country,
     buyerGstin: r.buyer_gstin,
+    refundedMinor: BigInt(r.refunded_minor),
+    refundedAt: r.refunded_at,
+    refundIds: r.refund_ids,
     razorpayOrderId: r.razorpay_order_id,
     razorpayPaymentId: r.razorpay_payment_id,
     bankUtr: r.bank_utr,
@@ -708,8 +724,13 @@ async function processRazorpayEvent(
    *
    * What must not happen is silence. Before this, a refund issued in the gateway dashboard
    * returned "ignored": our ledger and the gateway's diverged with nothing anywhere to say
-   * so. Now the purchase is marked refunded and the fact is on the audit log, where the
-   * daily digest and any reconciliation will find it.
+   * so. Now the amount is recorded beside the sale, a credit note is issued for it, and the
+   * fact is on the audit log, where the daily digest and any reconciliation will find it.
+   *
+   * The sale **keeps its status** (ADR 0058). Marking it 'refunded' took it out of
+   * `accountingCsv('credits_sold')` and out of the business page's cash, so a purchase
+   * refunded in July vanished from the May it was sold in while its tax invoice stayed in
+   * May's GST summary. A refund is a second fact, not the absence of the first.
    */
   if (event.event.startsWith("refund.")) {
     const refunded = event.payload.payment?.entity;
@@ -717,18 +738,50 @@ async function processRazorpayEvent(
     if (orderId === null) return "refund_missing_order";
     const purchase = await purchaseBy(tx, "razorpay_order_id = $1", [orderId], true);
     if (purchase === null) return "refund_unknown_order";
+
+    // How much came back. Razorpay sends the refund's own entity; without reading it a ₹100
+    // refund on a ₹50,000 purchase read as a full one.
+    const refundEntity = event.payload.refund?.entity;
+    // One refund reaches us as several events — `refund.created`, `refund.processed`,
+    // `refund.speed_changed` — each with its own event id, so the webhook de-duplication does
+    // not catch them. The refund's own id does.
+    const refundId = refundEntity?.id ?? `event:${event.event}`;
+    if (purchase.refundIds.includes(refundId)) return "refund_already_recorded";
+
+    const thisRefund =
+      refundEntity === undefined
+        ? purchase.totalMinor
+        : min(BigInt(refundEntity.amount), purchase.totalMinor);
+    const total = min(purchase.refundedMinor + thisRefund, purchase.totalMinor);
+    if (total <= purchase.refundedMinor) return "refund_already_recorded";
+
     await tx.query(
-      `update public.purchases set status = 'refunded', updated_at = $2 where id = $1`,
-      [purchase.id, now],
+      `update public.purchases
+          set refunded_minor = $2, refunded_at = $3, updated_at = $3,
+              refund_ids = array_append(refund_ids, $4),
+              status = case when status = 'credited' then status else 'refunded' end
+        where id = $1`,
+      [purchase.id, total.toString(), now, refundId],
     );
+    // §34 CGST Act: the reduction in taxable value and tax is a document of its own.
+    const note = await issueCreditNote(tx, {
+      purchaseId: purchase.id,
+      refundedMinor: total,
+      now,
+    });
     await appendAudit(tx, {
       actorType: "system",
       action: "billing.refund_recorded",
       targetType: "purchase",
       targetId: purchase.id,
-      metadata: { orderId, event: event.event },
+      metadata: {
+        orderId,
+        event: event.event,
+        creditNote: note?.number ?? "none",
+        full: total >= purchase.totalMinor ? "yes" : "no",
+      },
     });
-    return "refund_recorded";
+    return total >= purchase.totalMinor ? "refund_recorded" : "partial_refund_recorded";
   }
   if (event.event !== "payment.captured" && event.event !== "order.paid") {
     if (event.event !== "payment.failed") return "ignored";

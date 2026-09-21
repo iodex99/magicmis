@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { checkThrottle, registerFailure, throttleLimitFor } from "@magicmis/accounts";
-import { withTransaction } from "@magicmis/db/tx";
+import { claimAttempt, throttleLimitFor } from "@magicmis/accounts";
 import { after } from "next/server";
 import { z } from "zod";
 
@@ -43,18 +42,16 @@ export async function POST(request: Request): Promise<Response> {
   // set a password — and with it out of export and deletion. So past the limit for an
   // address the email is quietly not sent, the answer stays the same, and nothing is
   // recorded that a caller could keep extending.
-  if ((await checkThrottle(pool, byNetwork)).locked) {
+  // Both counted as they are checked (ADR 0058). The network's key decides the answer; the
+  // address's key only decides whether an email goes out, and running out of it is silent.
+  if ((await claimAttempt(pool, [byNetwork], limit)).locked) {
     return apiError(
       429,
       "too_many_attempts",
       "Too many reset requests. Wait an hour, then try again.",
     );
   }
-  const addressSpent = (await checkThrottle(pool, byAddress)).locked;
-  await withTransaction(pool, async (tx) => {
-    await registerFailure(tx, byNetwork, limit);
-    if (!addressSpent) await registerFailure(tx, byAddress, limit);
-  });
+  const addressSpent = (await claimAttempt(pool, [byAddress], limit)).locked;
 
   // Sent after the response has gone, so how long the answer takes says nothing about
   // whether the address has an account. No cookies are involved: the emailed link is the

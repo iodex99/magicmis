@@ -12,7 +12,8 @@
 import { z } from "zod";
 
 import { readConfig } from "@magicmis/db/config";
-import { one, type Queryable } from "@magicmis/db/tx";
+import { one, withTransaction, type Queryable } from "@magicmis/db/tx";
+import type { Pool } from "pg";
 
 export const throttleLimitSchema = z.object({
   max_attempts: z.number().int().positive(),
@@ -113,6 +114,98 @@ export async function registerFailure(
   return lockedUntil === null
     ? { locked: false, attempts }
     : { locked: true, lockedUntil };
+}
+
+/**
+ * Count this attempt and say whether it may go ahead — one decision, taken under the row lock
+ * (ADR 0058).
+ *
+ * `checkThrottle` read outside any transaction and `registerFailure` locked only afterwards, so
+ * two hundred sign-ins fired at once all read `attempts = 0`, all passed, and the key locked
+ * after two hundred guesses against a limit of ten. With no second factor for customers this
+ * throttle is what stands between a leaked password list and an account, so the widening was the
+ * whole defence.
+ *
+ * Counting before the attempt means a **success** counts too, which is why
+ * `releaseAttempt` exists: an office behind one address would otherwise lock its own network out
+ * by signing in ten times in a window. Keys are taken in sorted order so two requests holding
+ * two keys cannot deadlock against each other.
+ */
+export async function claimAttempt(
+  pool: Pool,
+  keys: readonly string[],
+  limit: ThrottleLimit,
+  now: Date = new Date(),
+): Promise<ThrottleState> {
+  const ordered = [...new Set(keys)].sort();
+  return withTransaction(pool, async (tx) => {
+    for (const key of ordered)
+      await tx.query(
+        `insert into public.auth_throttle (key, window_started_at, attempts, updated_at)
+         values ($1, $2, 0, $2) on conflict (key) do nothing`,
+        [key, now],
+      );
+
+    // Every row locked and checked before any of them is counted, so a locked key refuses the
+    // attempt without the others recording it.
+    const rows = new Map<string, ThrottleRow>();
+    for (const key of ordered) {
+      const row = await one<ThrottleRow>(
+        tx,
+        `select window_started_at, attempts, locked_until
+         from public.auth_throttle where key = $1 for update`,
+        [key],
+      );
+      if (row === null) throw new Error("claimAttempt: throttle row vanished");
+      if (row.locked_until !== null && row.locked_until > now)
+        return { locked: true, lockedUntil: row.locked_until };
+      rows.set(key, row);
+    }
+
+    let counted = 0;
+    for (const [key, row] of rows) {
+      const windowExpired =
+        now.getTime() - row.window_started_at.getTime() >= limit.window_seconds * 1000;
+      const lockExpired = row.locked_until !== null && row.locked_until <= now;
+      const fresh = windowExpired || lockExpired;
+      const attempts = (fresh ? 0 : row.attempts) + 1;
+      // The limit-th attempt still goes ahead — it may be the right password. The next one
+      // does not.
+      const lockedUntil =
+        attempts >= limit.max_attempts
+          ? new Date(now.getTime() + limit.lockout_seconds * 1000)
+          : null;
+      await tx.query(
+        `update public.auth_throttle
+         set window_started_at = $2, attempts = $3, locked_until = $4, updated_at = $5
+         where key = $1`,
+        [key, fresh ? now : row.window_started_at, attempts, lockedUntil, now],
+      );
+      counted = Math.max(counted, attempts);
+    }
+    return { locked: false, attempts: counted };
+  });
+}
+
+/**
+ * Give back an attempt a caller claimed and then did not spend — a sign-in that succeeded.
+ *
+ * Used for the keys that stand for a *network* rather than a person. Clearing those outright
+ * would let anyone holding one valid account zero the bucket for every other account on the
+ * same address, so the attempt is returned rather than the count wiped.
+ */
+export async function releaseAttempt(
+  db: Queryable,
+  keys: readonly string[],
+  now: Date = new Date(),
+): Promise<void> {
+  for (const key of keys)
+    await db.query(
+      `update public.auth_throttle
+       set attempts = greatest(attempts - 1, 0), updated_at = $2
+       where key = $1 and (locked_until is null or locked_until <= $2)`,
+      [key, now],
+    );
 }
 
 /** Clear a key after the protected action succeeds. */

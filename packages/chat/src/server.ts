@@ -785,10 +785,22 @@ export async function processMessage(
           msg,
           target === "dashboard" ? "no_dashboard" : "no_blueprint",
         );
+      // Which figures these books split up, so the change cannot add a box that would stay
+      // empty for ever (ADR 0058).
+      const splits = new Map<string, string>();
+      for (const v of await companyMetricValues(pool, wrapper, scope)) {
+        const [dimension] = Object.keys(v.dims);
+        if (dimension !== undefined)
+          splits.set(`${v.metricId.split(".")[0] ?? v.metricId}|${dimension}`, dimension);
+      }
       const r = await chatEditSpec(ctx, {
         target,
         spec: spec as never,
         metrics: METRIC_CATALOG.map((m) => ({ id: m.id, label: m.label, unit: m.unit })),
+        splits: [...splits.keys()].slice(0, 40).map((k) => ({
+          metricId: k.split("|")[0] ?? "",
+          dimension: k.split("|")[1] ?? "",
+        })),
         summary,
         history: turns,
         request: content.text,

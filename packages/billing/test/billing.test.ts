@@ -146,6 +146,47 @@ function webhook(
   };
 }
 
+function refundWebhook(
+  orderId: string,
+  amountMinor: bigint,
+  refundId = `rfnd_${randomUUID().slice(0, 8)}`,
+  currency = "INR",
+) {
+  const paymentId = `pay_${randomUUID().slice(0, 8)}`;
+  const rawBody = JSON.stringify({
+    entity: "event",
+    event: "refund.processed",
+    contains: ["refund", "payment"],
+    payload: {
+      payment: {
+        entity: {
+          id: paymentId,
+          amount: 0,
+          currency,
+          status: "captured",
+          order_id: orderId,
+        },
+      },
+      refund: {
+        entity: {
+          id: refundId,
+          amount: Number.parseInt(amountMinor.toString(), 10),
+          currency,
+          payment_id: paymentId,
+        },
+      },
+    },
+    created_at: 1_800_000_000,
+  });
+  return {
+    rawBody,
+    signature: createHmac("sha256", SECRET).update(rawBody).digest("hex"),
+    eventId: `evt_${randomUUID()}`,
+    secret: SECRET,
+    now: NOW,
+  };
+}
+
 describe("pack quotes", () => {
   it("shows ex-GST price with the GST line, by place of supply", async () => {
     const intra = await quotePack(pool(), {
@@ -375,16 +416,85 @@ describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", ()
 
     // The credits stand, the purchase says what happened, and it is on the audit log.
     expect((await walletSummary(pool(), accountId)).balance).toBe(afterPayment.balance);
-    const row = await pool().query<{ status: string }>(
-      `select status from purchases where id = $1`,
+    const row = await pool().query<{ status: string; refunded_minor: string }>(
+      `select status, refunded_minor::text as refunded_minor from purchases where id = $1`,
       [order.purchaseId],
     );
-    expect(row.rows[0]?.status).toBe("refunded");
+    // The sale keeps its status (ADR 0058): marking it 'refunded' took it out of the month it
+    // was sold in, while its tax invoice stayed in that month's GST summary.
+    expect(row.rows[0]?.status).toBe("credited");
+    expect(row.rows[0]?.refunded_minor).toBe(order.amountMinor.toString());
     const audit = await pool().query<{ n: number }>(
       `select count(*)::int as n from audit_log where action = 'billing.refund_recorded' and target_id = $1`,
       [order.purchaseId],
     );
     expect(audit.rows[0]?.n).toBe(1);
+
+    // And the reduction is a document — §34 CGST Act — naming the invoice it corrects.
+    const notes = await listInvoices(pool(), accountId);
+    const note = notes.find((i) => i.type === "credit_note");
+    expect(note, "a refund issued no credit note").toBeDefined();
+    expect(note?.totals.total_minor).toBe(order.amountMinor.toString());
+    const corrects = await pool().query<{ number: string }>(
+      `select o.number from invoices n join invoices o on o.id = n.corrects_invoice_id
+        where n.id = $1`,
+      [note?.id ?? ""],
+    );
+    expect(corrects.rows[0]?.number).toBe(
+      notes.find((i) => i.type === "tax_invoice")?.number,
+    );
+  });
+
+  it("records a partial refund as partial, and credits only what came back", async () => {
+    // Every `refund.*` event used to mark the whole purchase refunded whatever the amount,
+    // because the refund's own entity was never parsed (ADR 0058).
+    const accountId = await account("27");
+    const gateway = new FakeGateway();
+    const order = await createRazorpayPurchase(pool(), gateway, {
+      accountId,
+      packId: await packId(200_000n),
+      idempotencyKey: randomUUID(),
+      now: NOW,
+    });
+    await handleRazorpayWebhook(
+      pool(),
+      webhook("payment.captured", order.orderId, order.amountMinor),
+    );
+
+    const part = order.amountMinor / 4n;
+    const refundId = `rfnd_${randomUUID().slice(0, 8)}`;
+    const refund = await handleRazorpayWebhook(
+      pool(),
+      refundWebhook(order.orderId, part, refundId),
+    );
+    expect(refund).toMatchObject({
+      status: "processed",
+      outcome: "partial_refund_recorded",
+    });
+
+    const row = await pool().query<{ status: string; refunded_minor: string }>(
+      `select status, refunded_minor::text as refunded_minor from purchases where id = $1`,
+      [order.purchaseId],
+    );
+    expect(row.rows[0]?.status).toBe("credited");
+    expect(row.rows[0]?.refunded_minor).toBe(part.toString());
+
+    // The credit note credits a proportionate share of the tax, and totals exactly the refund.
+    const note = (await listInvoices(pool(), accountId)).find(
+      (i) => i.type === "credit_note",
+    );
+    expect(note?.totals.total_minor).toBe(part.toString());
+    const taxable = BigInt(note?.totals.taxable_minor ?? "0");
+    const tax = BigInt(note?.totals.tax_minor ?? "0");
+    expect(taxable + tax).toBe(part);
+    expect(tax).toBeGreaterThan(0n);
+    // The same refund reaching us again — `refund.created` then `refund.processed` — credits
+    // nothing further, because the refund's own id is what identifies it (ADR 0058).
+    await handleRazorpayWebhook(pool(), refundWebhook(order.orderId, part, refundId));
+    const again = (await listInvoices(pool(), accountId)).filter(
+      (i) => i.type === "credit_note",
+    );
+    expect(again).toHaveLength(1);
   });
 
   it("rejects forged, malformed and mismatched webhooks without crediting", async () => {
@@ -597,8 +707,10 @@ describe("accounting exports", () => {
     const gst = await accountingCsv(pool(), "gst_summary", "2027-01");
     // Grouped by currency now: a summary that added rupees to dollars would be worse
     // than one that failed, and GSTR-1 wants exports in their own table anyway.
-    expect(gst).toMatch(/^intra_state,INR,27,Maharashtra,/mu);
-    expect(gst).toMatch(/^inter_state,INR,07,Delhi,/mu);
+    // The document type leads each row now, and credit notes are reported apart from invoices
+    // as GSTR-1 wants them (ADR 0058).
+    expect(gst).toMatch(/^tax_invoice,intra_state,INR,27,Maharashtra,/mu);
+    expect(gst).toMatch(/^tax_invoice,inter_state,INR,07,Delhi,/mu);
     const sold = await accountingCsv(pool(), "credits_sold", "2027-01");
     expect(sold.split("\r\n").length).toBeGreaterThan(3);
     const outstanding = await accountingCsv(pool(), "outstanding_credits", month);

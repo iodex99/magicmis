@@ -24,7 +24,7 @@ import {
 import { halfRate } from "./gst";
 import { amountInWords } from "./words";
 
-export type InvoiceType = "tax_invoice" | "proforma";
+export type InvoiceType = "tax_invoice" | "proforma" | "credit_note";
 
 export const sellerSchema = z.object({
   legal_name: z.string().min(1),
@@ -37,6 +37,7 @@ export type Seller = z.infer<typeof sellerSchema>;
 export const invoiceSeriesSchema = z.object({
   tax_invoice: z.string().regex(/^[A-Za-z0-9-]{1,6}$/u),
   proforma: z.string().regex(/^[A-Za-z0-9-]{1,6}$/u),
+  credit_note: z.string().regex(/^[A-Za-z0-9-]{1,6}$/u),
 });
 
 const billingAddressSchema = z
@@ -76,9 +77,22 @@ export const lineItemSchema = z.object({
  * (R-59) and are guarded like the seller details (R-27).
  */
 export const exportSchema = z.object({
+  /**
+   * The ARN in force when no year-specific one is recorded. Form GST RFD-11 is filed **once per
+   * financial year**, so an invoice dated after the year turns is not covered by the previous
+   * year's LUT and IGST becomes payable on that supply (ADR 0058).
+   */
   lut_arn: z.string().min(1),
+  /** Financial year label (`2026-27`) to the ARN filed for it. Preferred over `lut_arn`. */
+  lut_by_fy: z.record(z.string(), z.string().min(1)).optional(),
   endorsement: z.string().min(1),
 });
+
+/** The ARN covering a financial year, or null when none has been recorded for it. */
+export const lutArnFor = (
+  config: z.infer<typeof exportSchema>,
+  financialYear: string,
+): string | null => config.lut_by_fy?.[financialYear] ?? config.lut_arn;
 
 export const totalsSchema = z.object({
   /** ISO 4217. Every amount below is integer minor units of it (ADR 0030). */
@@ -163,6 +177,13 @@ export async function invoiceDetailsReady(
     );
     if (exportConfig !== null && hasPlaceholder(exportConfig))
       return { ready: false, reason: "the export declaration" };
+    // The LUT is filed per financial year; selling into a year it does not cover would make
+    // IGST payable on a supply invoiced as zero-rated (ADR 0058).
+    if (
+      exportConfig !== null &&
+      lutArnFor(exportConfig, fyLabel(gstFinancialYear(now))) === null
+    )
+      return { ready: false, reason: "the LUT for this financial year" };
   }
   return { ready: true };
 }
@@ -295,6 +316,13 @@ export async function issueInvoice(
       "issueInvoice: export LUT details are placeholders (REVIEW_ITEMS R-59)",
     );
   }
+  // The LUT is a per-year filing, so the year on the invoice decides which ARN applies.
+  const lutArn = exportConfig === null ? null : lutArnFor(exportConfig, financialYear);
+  if (!allowPlaceholders && exportConfig !== null && lutArn === null) {
+    throw new Error(
+      `issueInvoice: no LUT ARN recorded for ${financialYear} (REVIEW_ITEMS R-59, R-81)`,
+    );
+  }
   const intra = !isExport && purchase.igstMinor === 0n;
   const lineItems = [
     {
@@ -323,7 +351,7 @@ export async function issueInvoice(
     total_minor: purchase.totalMinor.toString(),
     total_in_words: amountInWords(purchase.currency, purchase.totalMinor),
     export_endorsement: exportConfig?.endorsement ?? null,
-    lut_arn: exportConfig?.lut_arn ?? null,
+    lut_arn: lutArn,
     valid_until: validUntil,
     bank_details: bankDetails,
   };
@@ -343,7 +371,7 @@ export async function issueInvoice(
       financialYear,
       series,
       seller.gstin,
-      acc.gstin,
+      purchase.buyerGstin,
       pos,
       buyer.state_name,
       sac,
@@ -424,6 +452,143 @@ function toRecord(r: InvoiceRow): InvoiceRecord {
     lineItems: z.array(lineItemSchema).parse(r.line_items),
     totals: totalsSchema.parse(r.totals),
     issuedAt: r.issued_at,
+  };
+}
+
+/**
+ * The credit note for a refund (ADR 0058, Rule 53 CGST Rules).
+ *
+ * A refund against a tax invoice reduces the taxable value and the tax on it, and §34 CGST Act
+ * says that reduction is a document — there was none, and `invoices` is append-only by trigger,
+ * so an invoice could not be corrected at all.
+ *
+ * Every particular except the amounts is copied from the invoice it corrects, which is what
+ * Rule 53 asks for and is also safer than rebuilding them from config that may have moved. The
+ * amounts are the reduction, as positive figures: the total is exactly the money returned, and
+ * the taxable value and tax are split in the same proportion the sale had, so a partial refund
+ * credits proportionate tax.
+ *
+ * TODO(review): R-10/R-12 — the wording, and the time limit §34 sets on issuing one, go to the
+ * CA with the rest of the legal review.
+ *
+ * Returns null when the purchase has no tax invoice to correct (a refund before crediting).
+ */
+export async function issueCreditNote(
+  tx: PoolClient,
+  input: { purchaseId: string; refundedMinor: bigint; now: Date },
+): Promise<InvoiceRecord | null> {
+  if (input.refundedMinor <= 0n) return null;
+  const original = await tx.query<InvoiceRow & { currency: Currency }>(
+    `select ${INVOICE_COLUMNS}, currency from public.invoices
+      where purchase_id = $1 and type = 'tax_invoice' order by issued_at limit 1`,
+    [input.purchaseId],
+  );
+  const row = original.rows[0];
+  if (row === undefined) return null;
+  const source = toRecord(row);
+
+  // Already credited: a second refund event for the same money must not issue a second note.
+  const credited = await tx.query<{ total: string | null }>(
+    `select coalesce(sum((totals->>'total_minor')::bigint), 0)::text as total
+       from public.invoices where corrects_invoice_id = $1`,
+    [source.id],
+  );
+  const alreadyCredited = BigInt(credited.rows[0]?.total ?? "0");
+  const reduce = input.refundedMinor - alreadyCredited;
+  if (reduce <= 0n) return null;
+
+  const soldTaxable = BigInt(source.totals.taxable_minor);
+  const soldTotal = BigInt(source.totals.total_minor);
+  if (soldTotal <= 0n) return null;
+  // Half-up on the taxable share; the tax line takes the remainder, so the note's total is the
+  // refund to the last paisa.
+  const taxable = (reduce * soldTaxable * 2n + soldTotal) / (soldTotal * 2n);
+  const tax = reduce - taxable;
+  const intra = BigInt(source.totals.cgst_minor) > 0n;
+  const cgst = intra ? tax / 2n : 0n;
+  const sgst = intra ? tax - cgst : 0n;
+  const igst = intra ? 0n : tax;
+
+  const seriesConfig = await readConfig(
+    tx,
+    "billing.invoice_series",
+    invoiceSeriesSchema,
+    input.now,
+  );
+  const fy = gstFinancialYear(input.now);
+  const financialYear = fyLabel(fy);
+  const format = await readConfig(
+    tx,
+    "billing.invoice_number_format",
+    z.string(),
+    input.now,
+  );
+  const seq = await nextInvoiceSequence(tx, {
+    financialYear,
+    series: seriesConfig.credit_note,
+  });
+  const number = formatInvoiceNumber(format, {
+    series: seriesConfig.credit_note,
+    fy,
+    seq,
+  });
+
+  const lineItems = [
+    {
+      description: `Refund against invoice ${source.number}`,
+      sac: source.sacCode,
+      credits: "0",
+      bonus_credits: "0",
+      taxable_minor: taxable.toString(),
+    },
+  ];
+  const totals: z.infer<typeof totalsSchema> = {
+    ...source.totals,
+    taxable_minor: taxable.toString(),
+    cgst_minor: cgst.toString(),
+    sgst_minor: sgst.toString(),
+    igst_minor: igst.toString(),
+    tax_minor: tax.toString(),
+    total_minor: reduce.toString(),
+    total_in_words: amountInWords(row.currency, reduce),
+  };
+
+  const inserted = await tx.query<{ id: string }>(
+    `insert into public.invoices
+       (account_id, purchase_id, type, number, financial_year, series, seller_gstin, buyer_gstin,
+        place_of_supply_state_code, place_of_supply_state_name, sac_code, seller, buyer,
+        line_items, totals, issued_at, currency, buyer_country, export_endorsement, lut_arn,
+        corrects_invoice_id)
+     select $1, $2, 'credit_note', $3, $4, $5, seller_gstin, buyer_gstin,
+            place_of_supply_state_code, place_of_supply_state_name, sac_code, seller, buyer,
+            $6::jsonb, $7::jsonb, $8, currency, buyer_country, export_endorsement, lut_arn, id
+       from public.invoices where id = $9
+     returning id`,
+    [
+      source.accountId,
+      source.purchaseId,
+      number,
+      financialYear,
+      seriesConfig.credit_note,
+      JSON.stringify(lineItems),
+      JSON.stringify(totals),
+      input.now,
+      source.id,
+    ],
+  );
+  const id = inserted.rows[0]?.id;
+  if (id === undefined) throw new Error("issueCreditNote: insert returned no id");
+
+  return {
+    ...source,
+    id,
+    type: "credit_note",
+    number,
+    financialYear,
+    series: seriesConfig.credit_note,
+    lineItems,
+    totals,
+    issuedAt: input.now,
   };
 }
 

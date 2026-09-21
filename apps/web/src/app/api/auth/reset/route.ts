@@ -1,12 +1,11 @@
 import {
-  checkThrottle,
+  claimAttempt,
   claimSession,
-  registerFailure,
   sessionClaimsSchema,
   signupRequestSchema,
   throttleLimitFor,
 } from "@magicmis/accounts";
-import { one, withTransaction } from "@magicmis/db/tx";
+import { one } from "@magicmis/db/tx";
 import { z } from "zod";
 
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
@@ -46,8 +45,8 @@ export async function POST(request: Request): Promise<Response> {
 
   const limit = await throttleLimitFor(pool, "password_reset");
   const key = `password_reset_verify:ip:${ip ?? "unknown"}`;
-  const state = await checkThrottle(pool, key);
-  if (state.locked) {
+  // Counted before the token is tried, in one locked decision (ADR 0058).
+  if ((await claimAttempt(pool, [key], limit)).locked) {
     return apiError(429, "too_many_attempts", "Too many attempts. Try again in an hour.");
   }
 
@@ -56,10 +55,7 @@ export async function POST(request: Request): Promise<Response> {
     type: "recovery",
     token_hash: parsed.data.tokenHash,
   });
-  if (verified.error !== null) {
-    await withTransaction(pool, (tx) => registerFailure(tx, key, limit));
-    return apiError(410, "link_expired", EXPIRED);
-  }
+  if (verified.error !== null) return apiError(410, "link_expired", EXPIRED);
 
   const raw = (await supabase.auth.getClaims()).data?.claims;
   const claims = sessionClaimsSchema.safeParse(raw);

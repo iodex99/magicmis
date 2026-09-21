@@ -103,13 +103,14 @@ export async function accountingCsv(
         taxable: string;
         gst: string;
         total: string;
+        refunded: string;
       }>(
         `select to_char(p.credited_at at time zone 'Asia/Kolkata', 'YYYY-MM-DD') as credited_at,
                 p.id as purchase_id, p.account_id, p.method, i.number as invoice_number,
                 p.credits::text as credits, p.bonus_credits::text as bonus_credits,
                 p.currency,
                 p.amount_minor_ex_tax::text as taxable, p.tax_minor::text as gst,
-                p.total_minor::text as total
+                p.total_minor::text as total, p.refunded_minor::text as refunded
          from public.purchases p
          left join public.invoices i on i.purchase_id = p.id and i.type = 'tax_invoice'
          where p.status = 'credited' and p.credited_at >= $1 and p.credited_at < $2
@@ -129,6 +130,10 @@ export async function accountingCsv(
           "value_ex_tax",
           "tax",
           "total",
+          // A refunded sale is still a sale of that month (ADR 0058): it stays on this line and
+          // says what came back, rather than disappearing from the month it belongs to while its
+          // tax invoice stays in the GST summary.
+          "refunded",
         ],
         r.rows.map((x) => [
           x.credited_at,
@@ -142,6 +147,7 @@ export async function accountingCsv(
           minorCell(x.taxable),
           minorCell(x.gst),
           minorCell(x.total),
+          minorCell(x.refunded),
         ]),
       );
     }
@@ -182,7 +188,9 @@ export async function accountingCsv(
     }
     case "gst_summary": {
       const r = await db.query<{
+        type: string;
         supply: string;
+        rate: string | null;
         /** Null on an export row: a supply outside India has no GST state. */
         pos: string | null;
         pos_name: string | null;
@@ -194,7 +202,12 @@ export async function accountingCsv(
         igst: string;
         total: string;
       }>(
-        `select totals->>'supply' as supply, currency, place_of_supply_state_code as pos,
+        // Credit notes belong in the return as their own rows — GSTR-1 reports them apart from
+        // invoices (Table 9B), and leaving them out overstated the output tax by whatever was
+        // refunded (ADR 0058). Grouped by rate as well, so two rates in one month cannot collapse
+        // into a line that cannot be tied back.
+        `select type, totals->>'supply' as supply, currency, place_of_supply_state_code as pos,
+                totals->>'gst_rate_percent' as rate,
                 max(place_of_supply_state_name) as pos_name, count(*)::text as invoices,
                 sum((totals->>'taxable_minor')::bigint)::text as taxable,
                 sum((totals->>'cgst_minor')::bigint)::text as cgst,
@@ -202,17 +215,19 @@ export async function accountingCsv(
                 sum((totals->>'igst_minor')::bigint)::text as igst,
                 sum((totals->>'total_minor')::bigint)::text as total
          from public.invoices
-         where type = 'tax_invoice' and issued_at >= $1 and issued_at < $2
-         group by 1, 2, 3 order by 1, 2, 3`,
+         where type in ('tax_invoice', 'credit_note') and issued_at >= $1 and issued_at < $2
+         group by 1, 2, 3, 4, 5 order by 1, 2, 3, 4, 5`,
         [from, to],
       );
       return toCsv(
         [
+          "document",
           "supply",
           "currency",
           "place_of_supply_code",
           "place_of_supply",
-          "invoices",
+          "gst_rate_percent",
+          "documents",
           "taxable",
           "cgst",
           "sgst",
@@ -220,10 +235,12 @@ export async function accountingCsv(
           "total",
         ],
         r.rows.map((x) => [
+          x.type,
           x.supply,
           x.currency,
           x.pos ?? "",
           x.pos_name ?? "",
+          x.rate ?? "",
           x.invoices,
           minorCell(x.taxable),
           minorCell(x.cgst),

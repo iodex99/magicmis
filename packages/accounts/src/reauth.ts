@@ -19,12 +19,7 @@ import { z } from "zod";
 
 import { type AccountContext } from "./claims";
 import { type AuthProvider } from "./provider";
-import {
-  checkThrottle,
-  clearThrottle,
-  registerFailure,
-  throttleLimitFor,
-} from "./throttle";
+import { claimAttempt, clearThrottle, throttleLimitFor } from "./throttle";
 
 export type ReauthAction =
   | "change_email"
@@ -50,7 +45,9 @@ export async function reauthenticate(
   const key = `reauth:account:${account.accountId}`;
   const limit = await throttleLimitFor(pool, "reauth");
 
-  const state = await checkThrottle(pool, key, now);
+  // Counted as it is checked (ADR 0058). A wrong password is already recorded by this call,
+  // so only the login event is left to write below.
+  const state = await claimAttempt(pool, [key], limit, now);
   if (state.locked) return { status: "locked", lockedUntil: state.lockedUntil };
 
   // Nothing to compare against, so nothing to count as a failed attempt either: the way
@@ -65,29 +62,33 @@ export async function reauthenticate(
   const passwordOk = await provider.verifyPassword(account.email, input.password);
 
   if (!passwordOk) {
-    const after = await withTransaction(pool, async (tx) => {
-      const result = await registerFailure(tx, key, limit, now);
+    // The attempt was counted by `claimAttempt`; this is the one that used up the last of the
+    // allowance if it reached the limit, and the key is already locked in that case.
+    const lockedNow = state.attempts >= limit.max_attempts;
+    await withTransaction(pool, async (tx) => {
       await tx.query(
         `insert into public.login_events (account_id, event_type, ip)
          values ($1, $2, $3)`,
-        [account.accountId, result.locked ? "locked_out" : "reauth_failed", input.ip],
+        [account.accountId, lockedNow ? "locked_out" : "reauth_failed", input.ip],
       );
       await appendAudit(tx, {
         actorType: "account",
         actorId: account.accountId,
-        action: result.locked ? "auth.reauth_locked" : "auth.reauth_failed",
+        action: lockedNow ? "auth.reauth_locked" : "auth.reauth_failed",
         targetType: "account",
         targetId: account.accountId,
         metadata: {},
         ip: input.ip,
       });
-      return result;
     });
-    return after.locked
-      ? { status: "locked", lockedUntil: after.lockedUntil }
+    return lockedNow
+      ? {
+          status: "locked",
+          lockedUntil: new Date(now.getTime() + limit.lockout_seconds * 1000),
+        }
       : {
           status: "invalid_credentials",
-          attemptsRemaining: Math.max(0, limit.max_attempts - after.attempts),
+          attemptsRemaining: Math.max(0, limit.max_attempts - state.attempts),
         };
   }
 

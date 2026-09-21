@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 
 import {
-  checkThrottle,
+  claimAttempt,
   claimSession,
   clearThrottle,
-  registerFailure,
+  releaseAttempt,
   throttleLimitFor,
 } from "@magicmis/accounts";
 import { withTransaction } from "@magicmis/db/tx";
@@ -39,19 +39,17 @@ export async function POST(request: Request): Promise<Response> {
   const limit = await throttleLimitFor(pool, "sign_in");
   // The email is hashed in the key: auth_throttle is operator-readable and must not become
   // a list of addresses people tried.
-  const keys = [
-    `sign_in:ip:${ip ?? "unknown"}`,
-    `sign_in:email:${createHash("sha256").update(email).digest("hex")}`,
-  ];
-  for (const key of keys) {
-    const state = await checkThrottle(pool, key);
-    if (state.locked) {
-      return apiError(
-        429,
-        "too_many_attempts",
-        "Too many sign-in attempts. Wait 15 minutes, then try again.",
-      );
-    }
+  const ipKey = `sign_in:ip:${ip ?? "unknown"}`;
+  const emailKey = `sign_in:email:${createHash("sha256").update(email).digest("hex")}`;
+  const keys = [ipKey, emailKey];
+  // Counted and checked in one locked decision, before the attempt is made: reading first and
+  // counting afterwards let a burst of parallel requests all see zero (ADR 0058).
+  if ((await claimAttempt(pool, keys, limit)).locked) {
+    return apiError(
+      429,
+      "too_many_attempts",
+      "Too many sign-in attempts. Wait 15 minutes, then try again.",
+    );
   }
 
   const supabase = await supabaseForRequest();
@@ -65,8 +63,8 @@ export async function POST(request: Request): Promise<Response> {
         "Verify your email address first. Check your inbox for the link.",
       );
     }
+    // The attempt is already counted; only the failed-login record is left to write.
     await withTransaction(pool, async (tx) => {
-      for (const key of keys) await registerFailure(tx, key, limit);
       const account = await tx.query<{ id: string }>(
         `select id from public.accounts where lower(email) = $1 and deleted_at is null`,
         [email],
@@ -83,7 +81,11 @@ export async function POST(request: Request): Promise<Response> {
     return apiError(401, "invalid_credentials", "The email or password is incorrect.");
   }
 
-  for (const key of keys) await clearThrottle(pool, key);
+  // The person's own key is wiped — they got in, so their earlier mistakes are spent. The
+  // network's key only gets the attempt back: clearing it would let anyone holding one valid
+  // account zero the bucket for every other account behind the same address (ADR 0058).
+  await clearThrottle(pool, emailKey);
+  await releaseAttempt(pool, [ipKey]);
 
   const { data: after } = await supabase.auth.getClaims();
   const claim = await claimSession(

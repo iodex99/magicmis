@@ -1,13 +1,11 @@
 import { createHash } from "node:crypto";
 
 import {
-  checkThrottle,
+  claimAttempt,
   provisionAccount,
-  registerFailure,
   signupRequestSchema,
   throttleLimitFor,
 } from "@magicmis/accounts";
-import { withTransaction } from "@magicmis/db/tx";
 
 import { db } from "@/lib/db";
 import { appPublicEnv } from "@/lib/env";
@@ -31,15 +29,14 @@ export async function POST(request: Request): Promise<Response> {
   // Throttle sign-up attempts per IP. Every attempt counts, successful or not.
   const limit = await throttleLimitFor(pool, "signup");
   const key = `signup:ip:${ip ?? "unknown"}`;
-  const state = await checkThrottle(pool, key);
-  if (state.locked) {
+  // One locked decision: check and count together, or a burst passes the limit (ADR 0058).
+  if ((await claimAttempt(pool, [key], limit)).locked) {
     return apiError(
       429,
       "too_many_attempts",
       "Too many sign-up attempts from this network. Try again later.",
     );
   }
-  await withTransaction(pool, (tx) => registerFailure(tx, key, limit));
 
   const supabase = await supabaseForRequest();
   const { data, error } = await supabase.auth.signUp({
