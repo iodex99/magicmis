@@ -200,6 +200,7 @@ export function Assistant({
   periods,
   commentaries,
   prefill,
+  runAction,
   focusNonce,
   onCollapse,
   onLayoutChanged,
@@ -214,6 +215,8 @@ export function Assistant({
   /** Months with figures, newest first. */
   periods: readonly string[];
   commentaries: readonly CommentaryRow[];
+  /** "Where to act" pressed on the board, for that month; `nonce` makes a repeat count. */
+  runAction: { period: string; nonce: number } | null;
   /** A question handed over by the dashboard's Investigate; `nonce` makes a repeat count. */
   prefill: { type: MessageType; text: string; nonce: number } | null;
   /** Bumped each time the chat is opened, so the cursor lands in the question box. */
@@ -451,10 +454,12 @@ export function Assistant({
    * "Where to act" (ADR 0062): what the board should do about the month, as its own priced
    * action. Commentary describes; this prescribes, and the two are never mixed in one document.
    */
-  const suggestActions = async () => {
-    if (month === "" || busy !== null) return;
+  const suggestActions = async (forPeriod?: string) => {
+    const period = forPeriod ?? month;
+    if (period === "" || busy !== null) return;
     reset();
-    setBusy(`Reading ${format.period(month)} for what to act on…`);
+    setMonth(period);
+    setBusy(`Reading ${format.period(period)} for what to act on…`);
     try {
       await afterHold(
         await startPaidJob({
@@ -464,13 +469,22 @@ export function Assistant({
           size: ZERO_SIZE,
           fingerprints: {},
         }),
-        month,
+        period,
         "board_actions",
       );
     } finally {
       setBusy(null);
     }
   };
+  // The board's button drives the same call. The nonce is what makes a second press count and
+  // what stops a re-render from running it again: the effect's other dependencies change while
+  // the job is in flight, and this is the one that says whether it is a new request.
+  const lastAction = useRef(0);
+  useEffect(() => {
+    if (runAction === null || runAction.nonce === lastAction.current) return;
+    lastAction.current = runAction.nonce;
+    void suggestActions(runAction.period);
+  }, [runAction]);
 
   const writeCommentary = async () => {
     if (month === "" || busy !== null) return;

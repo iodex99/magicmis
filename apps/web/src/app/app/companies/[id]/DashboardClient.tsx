@@ -508,6 +508,7 @@ export function DashboardClient({
   reloadKey,
   onVersion,
   onChangeBox,
+  onWhereToAct,
 }: {
   companyId: string;
   onInvestigate: (metric: string, period: PeriodId, name: string) => void;
@@ -515,6 +516,8 @@ export function DashboardClient({
   reloadKey: number;
   /** A box's Change button: hands the box to the chat to be reshaped. */
   onChangeBox: (title: string) => void;
+  /** "Where to act" for the month on screen (ADR 0063). */
+  onWhereToAct: (period: PeriodId) => void;
   /** The version of the layout on screen, so the chat knows which of its changes is current. */
   onVersion?: (version: number | null) => void;
 }) {
@@ -845,6 +848,7 @@ export function DashboardClient({
             {editing ? "Done editing" : "Edit layout"}
           </Button>
           <Button
+            variant="secondary"
             icon="play"
             onClick={present}
             disabled={pending !== null || noMonths}
@@ -856,6 +860,33 @@ export function DashboardClient({
             data-testid="present"
           >
             Present
+          </Button>
+          {/*
+           * A board member's first question is not "what happened" but "what do we do", so the
+           * button that answers it sits on the board rather than behind the assistant's month
+           * picker (ADR 0063). It runs on the month the board is showing.
+           *
+           * It is the last thing in the row, the only filled one and a size up, and Present
+           * stepped down to secondary to make room: a header with two primaries has no hierarchy
+           * at all. The weight is the design system's own — the accent, a size, a font step and
+           * the existing lift — and never a gradient or a glow (ADR 0036).
+           */}
+          <Button
+            size="lg"
+            icon="target"
+            className="lift font-semibold"
+            onClick={() => {
+              onWhereToAct(current);
+            }}
+            disabled={pending !== null || noMonths}
+            title={
+              pending !== null
+                ? "Apply or discard the layout changes first"
+                : "Suggestions the board can act on, for this month"
+            }
+            data-testid="where-to-act"
+          >
+            Where to act
           </Button>
         </div>
       </div>

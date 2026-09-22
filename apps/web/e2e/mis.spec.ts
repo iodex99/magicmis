@@ -715,6 +715,12 @@ test.describe("chat with the MIS", () => {
     // Half-up here and half-even in the engine agree except on an exact tie, which this is not.
     expect(stored.share?.replace(".", "")).toBe(expected.toString());
 
+    // "Where to act" sits on the board, not behind the assistant (ADR 0063): a board member
+    // asks what to do before they ask what happened, so the button that answers it is in view
+    // whenever the board is, without opening anything first.
+    await expect(page.getByTestId("where-to-act")).toBeVisible();
+    await expect(page.getByTestId("where-to-act")).toBeEnabled();
+
     // Present: the dashboard alone, nothing to operate, months on the arrow keys, Esc to leave.
     await expect(page.getByRole("button", { name: /Print/u })).toHaveCount(0);
     await expect(page.getByTestId("latest-workbook")).toHaveCount(0);
@@ -993,6 +999,7 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
     "No file is ticked",
   );
   await expect(page.getByTestId("present")).toBeDisabled();
+  await expect(page.getByTestId("where-to-act")).toBeDisabled();
   await expect(page.locator("section[data-testid^='widget-']")).toHaveCount(0);
   await page
     .getByTestId("dashboard-all-hidden")

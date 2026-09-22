@@ -56,6 +56,12 @@ export function Workspace({
     text: string;
     nonce: number;
   } | null>(null);
+  // A board-level action handed to the assistant, which owns the paid-job flow: the quote over
+  // the cap, the short wallet, the error, and where the answer is read (ADR 0063).
+  const [runAction, setRunAction] = useState<{
+    period: PeriodId;
+    nonce: number;
+  } | null>(null);
   const [chatOpen, setChatOpen] = useState(chatPreference !== "closed");
   const [focusNonce, setFocusNonce] = useState(0);
 
@@ -122,6 +128,13 @@ export function Workspace({
     [money, currencySymbol],
   );
 
+  const whereToAct = useCallback((period: PeriodId) => {
+    // Opened for the reader: the suggestions are read there, and so is anything that stops them.
+    setChatOpen(true);
+    remember(CHAT_COOKIE, "open");
+    setRunAction({ period, nonce: Date.now() });
+  }, []);
+
   // A box's Change button: the chat opens in Build with the box named, and the customer
   // finishes the sentence. Nothing is sent until they do.
   const changeBox = useCallback((title: string) => {
@@ -144,6 +157,7 @@ export function Workspace({
           reloadKey={layoutVersion}
           onVersion={setDashboardVersion}
           onChangeBox={changeBox}
+          onWhereToAct={whereToAct}
         />
       </div>
 
@@ -161,6 +175,7 @@ export function Workspace({
           periods={periods}
           commentaries={commentaries}
           prefill={prefill}
+          runAction={runAction}
           focusNonce={focusNonce}
           onCollapse={closeChat}
           onLayoutChanged={layoutChanged}
