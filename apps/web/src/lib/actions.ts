@@ -12,6 +12,7 @@ export const ACTION_LABELS = {
   dashboard_addon: "Dashboard",
   dashboard_refresh: "Dashboard refresh",
   commentary: "Commentary",
+  board_actions: "Where to act",
   chat_quick: "Chat — quick answer",
   chat_deep: "Chat — deep answer",
   chat_edit: "Chat — edit",

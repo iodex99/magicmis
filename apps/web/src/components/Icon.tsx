@@ -53,6 +53,7 @@ export type IconName =
   | "shield"
   | "sliders"
   | "table"
+  | "target"
   | "trash"
   | "upload"
   | "user"
@@ -116,6 +117,9 @@ const PATHS: Record<IconName, string> = {
   sliders: "M4 7h9m3 0h4M4 17h4m3 0h9M14.5 4.5v5M9.5 14.5v5",
   table:
     "M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm-1 5h18M9 10v9",
+  // A crosshair: where to act. Same 24x24 grid, same 1.7px stroke, drawn not imported.
+  target:
+    "M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm0 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM12 2v2m0 16v2M2 12h2m16 0h2",
   trash:
     "M4 7h16M10 4h4a1 1 0 0 1 1 1v2H9V5a1 1 0 0 1 1-1ZM6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M10.5 11v6m3-6v6",
   upload: "M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2",

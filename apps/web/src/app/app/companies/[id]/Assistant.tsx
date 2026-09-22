@@ -33,6 +33,7 @@ import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 
 import { BuyCreditsInline } from "@/components/BuyCreditsInline";
 
+import { BoardActionsView } from "./BoardActionsView";
 import { CommentaryView } from "./CommentaryView";
 
 type MessageType = "quick" | "deep" | "edit" | "investigate";
@@ -76,6 +77,8 @@ export interface CommentaryRow {
   state: string;
   period: string | null;
   createdAt: string;
+  /** Which of the two write-ups this is (ADR 0062). Absent on rows stored before it existed. */
+  kind?: "commentary" | "board_actions";
 }
 
 type Progress =
@@ -403,7 +406,11 @@ export function Assistant({
     }
   };
 
-  const afterHold = async (result: StartResult, period: string) => {
+  const afterHold = async (
+    result: StartResult,
+    period: string,
+    kind: "commentary" | "board_actions" = "commentary",
+  ) => {
     if (result.kind === "quote") {
       setQuote({ ...result, period });
       return;
@@ -417,7 +424,9 @@ export function Assistant({
       setError(result.message);
       return;
     }
-    const r = await api<{ state: string }>(`/api/jobs/${result.jobId}/commentary`, {
+    const path = kind === "commentary" ? "commentary" : "board-actions";
+    const noun = kind === "commentary" ? "commentary" : "suggestions";
+    const r = await api<{ state: string }>(`/api/jobs/${result.jobId}/${path}`, {
       body: { period },
       idempotencyKey: newIdempotencyKey(),
     });
@@ -430,11 +439,37 @@ export function Assistant({
           state: "completed",
           period,
           createdAt: new Date().toISOString(),
+          kind,
         },
       ]);
     else if (r.data.state === "failed")
-      setError("The commentary could not be written. No credits were charged.");
-    else setError("The commentary is still being written. It will appear in History.");
+      setError(`The ${noun} could not be written. No credits were charged.`);
+    else setError(`The ${noun} are still being written. They will appear in History.`);
+  };
+
+  /**
+   * "Where to act" (ADR 0062): what the board should do about the month, as its own priced
+   * action. Commentary describes; this prescribes, and the two are never mixed in one document.
+   */
+  const suggestActions = async () => {
+    if (month === "" || busy !== null) return;
+    reset();
+    setBusy(`Reading ${format.period(month)} for what to act on…`);
+    try {
+      await afterHold(
+        await startPaidJob({
+          companyId,
+          type: "board_actions",
+          tier,
+          size: ZERO_SIZE,
+          fingerprints: {},
+        }),
+        month,
+        "board_actions",
+      );
+    } finally {
+      setBusy(null);
+    }
   };
 
   const writeCommentary = async () => {
@@ -732,14 +767,22 @@ export function Assistant({
                   className="message-in rounded-xl border border-neutral-200 bg-surface p-4 shadow-sm"
                 >
                   <p className="eyebrow mb-2 flex items-center gap-1.5">
-                    <Icon name="document" size={12} />
-                    Commentary · {c.period === null ? "—" : format.period(c.period)}
+                    <Icon
+                      name={c.kind === "board_actions" ? "target" : "document"}
+                      size={12}
+                    />
+                    {c.kind === "board_actions" ? "Where to act" : "Commentary"} ·{" "}
+                    {c.period === null ? "—" : format.period(c.period)}
                   </p>
-                  <CommentaryView
-                    jobId={c.id}
-                    companyName={companyName}
-                    periodLabel={c.period === null ? "" : format.period(c.period)}
-                  />
+                  {c.kind === "board_actions" ? (
+                    <BoardActionsView jobId={c.id} />
+                  ) : (
+                    <CommentaryView
+                      jobId={c.id}
+                      companyName={companyName}
+                      periodLabel={c.period === null ? "" : format.period(c.period)}
+                    />
+                  )}
                 </div>
               );
             }
@@ -1078,6 +1121,14 @@ export function Assistant({
                   data-testid="commentary-write"
                 >
                   Write the commentary
+                </Button>
+                <Button
+                  onClick={() => void suggestActions()}
+                  disabled={busy !== null}
+                  icon="target"
+                  data-testid="board-actions-write"
+                >
+                  Where to act
                 </Button>
               </>
             )}

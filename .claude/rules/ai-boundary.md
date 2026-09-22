@@ -17,7 +17,7 @@ or response shape. Record the doc URL in the ADR (SPEC §0.4).
   code only. It must never appear in a client bundle.
 - **Never export a generic `sendPrompt`.** Only named, purpose-built functions:
   `classifySheets`, `mapColumns`, `mapLedgers`, `extractReferenceLayout`,
-  `generateCommentary`, `chatQuick`, `chatDeepStep`, `chatEditSpec`, `summariseThread`.
+  `generateCommentary`, `suggestBoardActions`, `chatQuick`, `chatDeepStep`, `chatEditSpec`, `summariseThread`.
 - **No endpoint forwards free text to Claude.** The single free-text input is a chat
   message, and it is wrapped in the chat system prompt with scope restrictions.
 - **The browser never chooses model, effort or `max_tokens`.** Those come server-side

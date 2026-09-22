@@ -46,11 +46,22 @@ export class CommentaryError extends Error {
 }
 
 /** Facts pack, sections and allowlist for a company period, from stored data and config. */
-export async function commentaryInput(
+/**
+ * The month's figures, formatted in the company's own conventions, with the digit allowlist that
+ * says which bare numbers are allowed to survive the placeholder check.
+ *
+ * Shared with "Where to act" (ADR 0062): both stages must cite the same figures, and a second
+ * builder would eventually drift from this one.
+ */
+export async function factsPackFor(
   pool: Pool,
   wrapper: KeyWrapper,
   input: { accountId: string; companyId: string; period: PeriodId },
-): Promise<GenerateCommentaryInput> {
+): Promise<{
+  pack: ReturnType<typeof buildFactsPack>;
+  allowlist: string[];
+  ownSections: readonly string[];
+}> {
   const hidden = await hiddenPeriods(pool, input);
   if (hidden.has(input.period))
     throw new CommentaryError(
@@ -124,6 +135,15 @@ export async function commentaryInput(
       "nothing_to_discuss",
       "The MIS for that month has no figures to discuss.",
     );
+  return { pack, allowlist, ownSections: own };
+}
+
+export async function commentaryInput(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: { accountId: string; companyId: string; period: PeriodId },
+): Promise<GenerateCommentaryInput> {
+  const { pack, allowlist, ownSections } = await factsPackFor(pool, wrapper, input);
   return {
     factsPack: {
       period: pack.period,
@@ -132,7 +152,10 @@ export async function commentaryInput(
       periods: [...pack.periods],
       warnings: [...pack.warnings],
     },
-    sections: own.length > 0 ? own : MONTHLY_FINANCIAL_MIS.defaultCommentarySections,
+    sections:
+      ownSections.length > 0
+        ? [...ownSections]
+        : MONTHLY_FINANCIAL_MIS.defaultCommentarySections,
     allowlist,
   };
 }

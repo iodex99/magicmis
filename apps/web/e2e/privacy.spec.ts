@@ -267,6 +267,17 @@ test("another account's resources are unreachable through every id-scoped endpoi
       url: `/api/jobs/${job}/commentary`,
       body: { period: "2027-01" },
     },
+    {
+      route: "/api/jobs/[id]/board-actions",
+      method: "GET",
+      url: `/api/jobs/${job}/board-actions`,
+    },
+    {
+      route: "/api/jobs/[id]/board-actions",
+      method: "POST",
+      url: `/api/jobs/${job}/board-actions`,
+      body: { period: "2027-01" },
+    },
     { route: "/api/outputs/[id]", method: "GET", url: `/api/outputs/${output}` },
     {
       route: "/api/chat/threads/[id]",

@@ -11,6 +11,7 @@ export * from "./settle";
 export * from "./states";
 export * from "./storage";
 export * from "./commentary";
+export * from "./board-actions";
 export * from "./dashboard";
 export * from "./dashboard-after-run";
 export * from "./layout-error";

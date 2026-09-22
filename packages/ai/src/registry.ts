@@ -16,6 +16,7 @@ export const STAGES = [
   "chat_deep",
   "chat_edit",
   "dashboard_layout",
+  "board_actions",
   "thread_summary",
 ] as const;
 export type Stage = (typeof STAGES)[number];

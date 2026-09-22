@@ -10,6 +10,7 @@ import { evaluateCalculated } from "@magicmis/engine/calculated";
 import { labelsFor } from "@magicmis/render-dashboard";
 import { latestMetricStores } from "@magicmis/engine/server";
 import {
+  boardActionsForJob,
   commentaryForJob,
   companyDashboard,
   dashboardFiles,
@@ -164,6 +165,43 @@ export async function dashboardPayload(
     hiddenPeriods: [...hidden].sort(),
     dashboard,
     latestPeriod: metrics.periods[0] ?? null,
+  };
+}
+
+/**
+ * A completed set of suggestions with what the browser needs to re-check and render it
+ * (ADR 0062). The same shape as the commentary's, for the same reason: the figures are
+ * substituted in the browser, against the values the engine computed, after the placeholder
+ * check has run again.
+ */
+export async function boardActionsPayload(pool: Pool, accountId: string, jobId: string) {
+  const stored = await boardActionsForJob(pool, keyWrapper(), { accountId, jobId });
+  if (stored === null) return null;
+  const job = await pool.query<{ company_id: string }>(
+    `select company_id from public.jobs where id = $1 and account_id = $2`,
+    [jobId, accountId],
+  );
+  const companyId = job.rows[0]?.company_id;
+  if (companyId === undefined) return null;
+  const metrics = await companyMetrics(pool, accountId, companyId);
+  if (metrics === null) return null;
+  // A month taken off the dashboard is off here too (ADR 0048).
+  const hidden = await hiddenPeriods(pool, { accountId, companyId });
+  if (hidden.has(stored.input.factsPack.period)) return null;
+  return {
+    company: metrics.company,
+    output: stored.output,
+    pack: stored.input.factsPack,
+    allowlist: stored.input.allowlist,
+    values: visibleValues(
+      metrics.values.filter(
+        (v) =>
+          v.period === stored.input.factsPack.period ||
+          stored.input.factsPack.periods.includes(`p:${v.period}`),
+      ),
+      hidden,
+      metrics.company.fyStartMonth,
+    ),
   };
 }
 

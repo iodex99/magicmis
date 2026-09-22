@@ -36,7 +36,8 @@ export type JobType =
   | "refresh_with_restructure"
   | "dashboard_addon"
   | "dashboard_refresh"
-  | "commentary";
+  | "commentary"
+  | "board_actions";
 
 export type PricedTier = "efficient" | "professional" | "expert";
 

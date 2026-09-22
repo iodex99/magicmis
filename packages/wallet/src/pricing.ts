@@ -32,6 +32,7 @@ export const ACTION_KEYS = [
   "dashboard_addon",
   "dashboard_refresh",
   "commentary",
+  "board_actions",
   "chat_quick",
   "chat_deep",
   "chat_edit",

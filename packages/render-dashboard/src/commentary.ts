@@ -42,18 +42,29 @@ export type CommentaryRenderResult =
   | { readonly ok: true; readonly commentary: RenderedCommentary }
   | { readonly ok: false; readonly problems: readonly string[] };
 
-export function renderCommentary(
-  output: CommentaryOutput,
-  pack: Pick<FactsPack, "facts" | "dimensions" | "periods">,
+/**
+ * One line of model prose, with every placeholder replaced by the figure the engine computed and
+ * carrying the lineage key that figure came from.
+ *
+ * Exported because commentary is not the only thing that writes prose over a facts pack
+ * (ADR 0062). It does no checking of its own — the caller runs the post-check first, which is
+ * what stops an unchecked figure reaching a reader.
+ */
+export function placeholderSegments(
+  text: string,
   store: readonly MetricValue[],
-  allowlist: readonly string[],
   format: CommentaryFormat,
-): CommentaryRenderResult {
-  const problems = checkCommentary(output, pack, allowlist);
-  if (problems.length > 0) return { ok: false, problems };
+): Segment[] {
   const byKey = new Map(store.map((v) => [metricKey(v.metricId, v.period, v.dims), v]));
+  return substitute(text, byKey, format);
+}
 
-  const segments = (text: string): Segment[] => {
+function substitute(
+  text: string,
+  byKey: ReadonlyMap<string, MetricValue>,
+  format: CommentaryFormat,
+): Segment[] {
+  {
     const out: Segment[] = [];
     let cursor = 0;
     for (const m of text.matchAll(PLACEHOLDER)) {
@@ -98,7 +109,19 @@ export function renderCommentary(
     }
     if (cursor < text.length) out.push({ kind: "text", text: text.slice(cursor) });
     return out;
-  };
+  }
+}
+
+export function renderCommentary(
+  output: CommentaryOutput,
+  pack: Pick<FactsPack, "facts" | "dimensions" | "periods">,
+  store: readonly MetricValue[],
+  allowlist: readonly string[],
+  format: CommentaryFormat,
+): CommentaryRenderResult {
+  const problems = checkCommentary(output, pack, allowlist);
+  if (problems.length > 0) return { ok: false, problems };
+  const segments = (text: string): Segment[] => placeholderSegments(text, store, format);
 
   return {
     ok: true,
