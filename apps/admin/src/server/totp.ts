@@ -88,18 +88,33 @@ export function verifyTotp(
   return null;
 }
 
+/**
+ * The enrolment URI an authenticator app scans (ADR 0060).
+ *
+ * Percent-encoded by hand, **not** with `URLSearchParams`. That class writes
+ * `application/x-www-form-urlencoded`, where a space becomes `+`; an `otpauth://` URI is an
+ * ordinary URI, so the app percent-decodes it and reads the issuer back as `Magic+MIS+Admin`.
+ * The label says `Magic MIS Admin`, the two disagree, and an authenticator that checks them —
+ * Google Authenticator does — refuses the code. The default issuer has a space in it, so every
+ * admin enrolled the documented way hit this.
+ *
+ * Shape per the Key Uri Format:
+ * https://github.com/google/google-authenticator/wiki/Key-Uri-Format (verified 2026-09-22)
+ */
 export function otpauthUri(input: {
   issuer: string;
   account: string;
   secret: string;
 }): string {
   const label = encodeURIComponent(`${input.issuer}:${input.account}`);
-  const params = new URLSearchParams({
-    secret: input.secret,
-    issuer: input.issuer,
-    algorithm: "SHA1",
-    digits: DIGITS.toString(),
-    period: PERIOD_SECONDS.toString(),
-  });
-  return `otpauth://totp/${label}?${params.toString()}`;
+  const query = [
+    ["secret", input.secret],
+    ["issuer", input.issuer],
+    ["algorithm", "SHA1"],
+    ["digits", DIGITS.toString()],
+    ["period", PERIOD_SECONDS.toString()],
+  ]
+    .map(([k, v]) => `${k ?? ""}=${encodeURIComponent(v ?? "")}`)
+    .join("&");
+  return `otpauth://totp/${label}?${query}`;
 }

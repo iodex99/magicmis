@@ -111,6 +111,25 @@ describe("admin identity (SPEC §26)", () => {
       ),
     );
 
+    // The issuer the app reads back must be the issuer the label names (ADR 0060). This was
+    // built with `URLSearchParams`, which writes form encoding — a space becomes `+` — so an
+    // authenticator percent-decoding the query got "Magic+MIS+Admin" while the label said
+    // "Magic MIS Admin", and one that checks the two agree refuses the enrolment. The default
+    // issuer has a space in it, so this was every admin enrolled the documented way. The old
+    // assertion above only ever looked at the label, which is why it went unseen.
+    const uri = new URL(created.otpauthUri);
+    expect(uri.searchParams.get("issuer")).toBe(`${PRODUCT_NAME} Admin`);
+    expect(decodeURIComponent(uri.pathname.slice(1)).split(":")[0]).toBe(
+      uri.searchParams.get("issuer"),
+    );
+    // A literal plus in the query is the form-encoding tell.
+    expect(created.otpauthUri.split("?")[1] ?? "").not.toContain("+");
+    expect(uri.searchParams.get("algorithm")).toBe("SHA1");
+    expect(uri.searchParams.get("digits")).toBe("6");
+    expect(uri.searchParams.get("period")).toBe("30");
+    // And the secret survives the round trip, since it is what the codes are computed from.
+    expect(uri.searchParams.get("secret")).toBe(created.totpSecret);
+
     const stored = await pool().query<{ totp_secret_enc: Buffer }>(
       `select totp_secret_enc from admin_users where id = $1`,
       [created.adminId],
