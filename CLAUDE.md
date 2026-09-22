@@ -85,7 +85,18 @@ Phase 6 and its container fails a health check on first boot here). Apply new mi
 Web E2E: `pnpm --filter @magicmis/web build && pnpm --filter @magicmis/web e2e`.
 Admin E2E (needs `apps/admin/.env.local`, see `.env.example`; `APP_ENVIRONMENT=development`):
 `pnpm --filter @magicmis/admin build && pnpm --filter @magicmis/admin e2e`. Stop any stray
-server on ports 3000/3001 first — Playwright reuses an existing server.
+server on ports 3000/3001 first — Playwright reuses an existing server, **and a reused one
+brings its own environment**. A server started by hand without `KEY_WRAPPER=local` reaches for
+AWS KMS on every `generateDataKey`, so every upload and every run fails; the suite then reads as
+three scattered product failures rather than one misconfigured server. Start a local one the way
+`apps/web/playwright.config.ts` does — `DATABASE_POOL_MAX=12 KEY_WRAPPER=local
+LOCAL_MASTER_KEY=<base64 of 0123456789abcdef0123456789abcdef> OUTPUT_STORE=local
+AI_TRANSPORT=fake pnpm --filter @magicmis/web start` — and read the server's own log before
+believing a browser failure.
+
+To look at a change rather than read it: `apps/web/e2e/support/seed-company.ts` takes a funded
+account all the way to a working board through the UI (thirteen months, a real run, about two
+minutes), and `shot-demo.ts` screenshots the workspace and Present from it.
 Fixtures: `pnpm --filter @magicmis/fixtures generate` (and `generate:large`) write `fixtures/out`;
 web E2E global setup generates them if missing and clears the local sign-up throttle (10/hour per IP).
 Worker locally: `pnpm --filter @magicmis/worker start` (runs with `--conditions=react-server`).
