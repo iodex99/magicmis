@@ -78,7 +78,7 @@ export default async function AppHomePage() {
             </p>
           </div>
           <div data-testid="app-home">
-            <AddCompany defaults={conventions} startOpen />
+            <AddCompany defaults={conventions} first />
           </div>
           {wallet.available > 0n ? null : (
             <p className="mt-4 text-[0.8125rem] text-neutral-500">
@@ -225,7 +225,7 @@ export default async function AppHomePage() {
             })}
           </ul>
 
-          <AddCompany defaults={conventions} startOpen={false} />
+          <AddCompany defaults={conventions} first={false} />
         </>
       )}
     </AppFrame>

@@ -55,9 +55,7 @@ test.afterAll(async () => {
 
 async function newCompany(name: string) {
   await page.goto("/app");
-  // With companies already, the form opens behind one button.
-  const open = page.getByRole("button", { name: /^Add a company/u });
-  if (await open.isVisible()) await open.click();
+  // The form is there whether or not this account already has companies (ADR 0061).
   await page.getByLabel("Company name").fill(name);
   await page.getByRole("button", { name: "Add company" }).click();
   // A new company is set up from its own workspace (ADR 0033).

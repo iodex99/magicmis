@@ -1,10 +1,9 @@
 "use client";
 
 import type { ReportingConventions } from "@magicmis/core/reporting-conventions";
-import { useState } from "react";
 
 import { Icon, type IconName } from "@/components/Icon";
-import { Badge, Button } from "@/components/ui";
+import { Badge } from "@/components/ui";
 
 import { NewCompanyForm } from "./NewCompanyForm";
 
@@ -22,52 +21,26 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "chart",
     title: "Get the MIS",
-    body: "A checked workbook, a live dashboard and an assistant that knows the books.",
+    body: "A live dashboard and an assistant that knows the books.",
   },
 ];
 
 /**
  * Adding a company, given the room it deserves: it is the first thing a new account does and
- * the start of everything else. With no companies yet the form is open; with some, it waits
- * behind one clear button and opens in place.
+ * the start of everything else.
+ *
+ * **Always open**, whether or not this account already has companies. It used to collapse to a
+ * button once the first company existed, which put a click in front of the one action this page
+ * is for — and somebody who already has one company is the likeliest person to add another.
+ * `first` only changes the wording, never whether the form is there.
  */
 export function AddCompany({
   defaults,
-  startOpen,
+  first,
 }: {
   defaults: ReportingConventions;
-  startOpen: boolean;
+  first: boolean;
 }) {
-  const [open, setOpen] = useState(startOpen);
-
-  if (!open)
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          setOpen(true);
-        }}
-        className="group flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-neutral-200 bg-surface px-6 py-5 text-left transition-colors hover:border-accent-300 hover:bg-accent-50/40"
-      >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-600 text-white transition-transform group-hover:scale-105">
-          <Icon name="plus" size={20} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[1rem] font-semibold text-neutral-900">
-            Add a company
-          </span>
-          <span className="block text-[0.8125rem] text-neutral-500">
-            Name it, drop in its trial balances, and its MIS is built.
-          </span>
-        </span>
-        <Icon
-          name="arrow-right"
-          size={18}
-          className="text-neutral-400 group-hover:text-accent-600"
-        />
-      </button>
-    );
-
   return (
     <section
       className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-surface shadow-sm"
@@ -75,7 +48,7 @@ export function AddCompany({
     >
       <div className="grid items-center gap-10 p-8 lg:grid-cols-[minmax(0,1fr)_26rem] lg:p-12">
         <div>
-          <Badge tone="accent">{startOpen ? "Start here" : "New company"}</Badge>
+          <Badge tone="accent">{first ? "Start here" : "New company"}</Badge>
           <h2 className="display mt-4 text-[2rem] leading-[1.1] font-semibold text-neutral-900 sm:text-[2.5rem]">
             Add a company. Its MIS is minutes away.
           </h2>
@@ -113,19 +86,8 @@ export function AddCompany({
             <p className="text-[1.0625rem] font-semibold text-neutral-900">
               Company details
             </p>
-            {startOpen ? null : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setOpen(false);
-                }}
-              >
-                Cancel
-              </Button>
-            )}
           </div>
-          <NewCompanyForm defaults={defaults} autoFocus={!startOpen} />
+          <NewCompanyForm defaults={defaults} autoFocus={!first} />
         </div>
       </div>
     </section>

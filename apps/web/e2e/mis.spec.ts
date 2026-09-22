@@ -372,7 +372,7 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
   await writeFile(referencePath, await referenceMisWorkbook({ rulesOnly: true }));
 
   await page.goto("/app");
-  await page.getByRole("button", { name: /^Add a company/u }).click();
+  // This account already has a company by now, and the form is still open (ADR 0061).
   await page.getByLabel("Company name").fill("Synthetic Recreated Traders");
   await page.getByRole("button", { name: "Add company" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
