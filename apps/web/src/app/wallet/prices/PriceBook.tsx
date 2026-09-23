@@ -13,21 +13,21 @@ import { db } from "@/lib/db";
  * holds credits must have its price on record somewhere the customer can open. It is read from
  * the versioned price book, so an admin price change is what the next render shows.
  *
+ * It carries no heading of its own: the page it is the whole of is already called "What actions
+ * cost", and a panel titled "What each action costs" directly beneath said the same thing a
+ * second time. The quote sentence it used to carry moved up to the page, where it belongs —
+ * it is about pressing any action, not about reading this table.
+ *
  * Credits only — never the AI cost cap, the ratio behind it, tokens or a model name
  * (SPEC §2.5).
  */
 export async function PriceBook() {
   const rows = await priceList(db());
   return (
-    <Panel
-      title="What each action costs"
-      description="The standard price of each action in credits, by intelligence tier. A job that needs more than its standard price stops and shows you a quote first."
-      icon="table"
-      padding="none"
-    >
+    <Panel padding="none">
       <DataTable
         testId="price-list"
-        className="px-2 pb-2"
+        className="p-2"
         head={
           <>
             <Th>Action</Th>

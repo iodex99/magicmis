@@ -17,7 +17,7 @@ export default async function PricesPage() {
       <PageHeader
         eyebrow="Credits"
         title="What actions cost"
-        description="Reading this is free. Credits are held when you press an action, and only what is used is charged."
+        description="The standard price of each action in credits, by intelligence tier. Reading this is free. Credits are held when you press an action and only what is used is charged, and a job that needs more than its standard price stops and shows you a quote first."
       />
       <div className="flex flex-col gap-5">
         <PriceBook />
