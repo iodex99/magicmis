@@ -980,7 +980,7 @@
             </div>
             <p class="sub" id="s7p">
               Ask for a comparison, a chart or a formula and the dashboard builds itself.
-              Then press Present and run the meeting from it.
+              Press Where to act for the steps, or Present to run the meeting from it.
             </p>
           </div>
           <div
@@ -1001,12 +1001,35 @@
                 <div style="font-weight: 600; font-size: 15px">Northwind Traders</div>
                 <div style="font-size: 12px; color: var(--n500)">May · amounts in $</div>
               </div>
-              <div
-                class="btn"
-                id="pbtn"
-                style="height: 34px; padding: 0 14px; font-size: 13px; border-radius: 9px"
-              >
-                ▶ Present
+              <div style="display: flex; align-items: center; gap: 8px">
+                <div
+                  class="btn"
+                  id="pbtn"
+                  style="
+                    height: 34px;
+                    padding: 0 14px;
+                    font-size: 13px;
+                    border-radius: 9px;
+                    background: var(--n0);
+                    color: var(--n700);
+                    border: 1px solid var(--n200);
+                  "
+                >
+                  ▶ Present
+                </div>
+                <div
+                  class="btn"
+                  id="wbtn"
+                  style="
+                    height: 36px;
+                    padding: 0 15px;
+                    font-size: 13px;
+                    border-radius: 9px;
+                    font-weight: 700;
+                  "
+                >
+                  ◎ Where to act
+                </div>
               </div>
             </div>
             <div class="k7" style="left: 16px">
@@ -1512,7 +1535,7 @@
       stagger(".cmprow", 30.65, 0.13, 0.45, { o: 0, y: 10 }, { o: 1, y: 0 });
       // Present: the cursor presses the button and the board takes the screen.
       tw("#cursor", 31.45, 0.3, { o: 0 }, { o: 1 });
-      tw("#cursor", 31.45, 0.75, { x: 980, y: 520 }, { x: 1150, y: 96 }, "inout");
+      tw("#cursor", 31.45, 0.75, { x: 980, y: 520 }, { x: 1034, y: 96 }, "inout");
       tw("#pbtn", 32.2, 0.13, { s: 1 }, { s: 0.92 }, "inout");
       tw("#pbtn", 32.33, 0.22, { s: 0.92 }, { s: 1 }, "out");
       tw("#cursor", 32.5, 0.3, { o: 1 }, { o: 0 });
@@ -1521,6 +1544,7 @@
       tw("#bask", 32.4, 0.35, { o: 1 }, { o: 0 }, "inout");
       tw("#bdone", 32.4, 0.35, { o: 1 }, { o: 0 }, "inout");
       tw("#pbtn", 32.55, 0.3, { o: 1 }, { o: 0 }, "inout");
+      tw("#wbtn", 32.55, 0.3, { o: 1 }, { o: 0 }, "inout");
       tw(
         "#board",
         32.45,
