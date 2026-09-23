@@ -35,6 +35,7 @@ export const WIDGET_KINDS = [
 
 /** What a box compares against. On a trend chart `last_year` adds the same months a year back. */
 export const COMPARE_BASES = ["none", "previous_month", "last_year"] as const;
+export type CompareBasis = (typeof COMPARE_BASES)[number];
 
 export const widgetSchema = z
   .object({

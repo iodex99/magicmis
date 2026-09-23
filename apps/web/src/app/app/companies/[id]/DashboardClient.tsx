@@ -15,6 +15,8 @@ import {
   companyFormat,
   formatValue,
   labelsFor,
+  type BoardLens,
+  type CompareBasis,
   type DashboardSpec,
   type ValueRef,
   type Widget,
@@ -37,6 +39,44 @@ import { RollingNumber } from "@/components/RollingNumber";
 import { Icon, type IconName } from "@/components/Icon";
 import { Alert, Button, ButtonLink, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
+
+const SELECT =
+  "h-9 rounded-md border border-neutral-200 bg-surface px-2.5 text-[0.8125rem] font-medium text-neutral-900 hover:border-neutral-300";
+
+/*
+ * Reading the board differently (ADR 0064). "As saved" is first and is the default, because the
+ * board a company built for itself is the one it should open on; everything below it is a
+ * question the reader is asking of the same figures, answered without a charge.
+ *
+ * The windows are the ones the spec already allows, so nothing here can ask for a shape a saved
+ * dashboard could not have held.
+ */
+type RangeChoice = "saved" | "month" | "fy" | "n3" | "n6" | "n12" | "n24";
+const RANGES: readonly {
+  id: RangeChoice;
+  label: string;
+  window: Widget["periods"] | null;
+}[] = [
+  { id: "saved", label: "As saved", window: null },
+  { id: "month", label: "This month", window: { kind: "current" } },
+  { id: "fy", label: "Financial year to date", window: { kind: "fy_to_date" } },
+  { id: "n3", label: "Last 3 months", window: { kind: "last_n", n: 3 } },
+  { id: "n6", label: "Last 6 months", window: { kind: "last_n", n: 6 } },
+  { id: "n12", label: "Last 12 months", window: { kind: "last_n", n: 12 } },
+  { id: "n24", label: "Last 24 months", window: { kind: "last_n", n: 24 } },
+];
+
+type CompareChoice = "saved" | "none" | "previous_month" | "last_year";
+const COMPARISONS: readonly {
+  id: CompareChoice;
+  label: string;
+  basis: CompareBasis | null;
+}[] = [
+  { id: "saved", label: "As saved", basis: null },
+  { id: "none", label: "Nothing", basis: "none" },
+  { id: "previous_month", label: "The month before", basis: "previous_month" },
+  { id: "last_year", label: "The same month last year", basis: "last_year" },
+];
 
 import { monthsLabel } from "./CompanyFiles";
 
@@ -185,6 +225,7 @@ function WidgetCard({
   onEdit,
   onInvestigate,
   onChangeBox,
+  lens,
 }: {
   widget: Widget;
   index: number;
@@ -201,6 +242,8 @@ function WidgetCard({
   onEdit: (ops: Operation[]) => void;
   onInvestigate: (metric: string, period: PeriodId, name: string) => void;
   onChangeBox: (title: string) => void;
+  /** How the board is being read, if not as it was saved (ADR 0064). */
+  lens: BoardLens;
 }) {
   const format = useMemo(
     () => ({
@@ -216,8 +259,9 @@ function WidgetCard({
         fyStartMonth: payload.company.fyStartMonth,
         format,
         dimensionFilter: null,
+        lens,
       }),
-    [widget, values, period, payload.company.fyStartMonth, format],
+    [widget, values, period, payload.company.fyStartMonth, format, lens],
   );
   // What the box is about, for the question Investigate writes: its figures by name, once each,
   // however many movement chips hang off them. "Revenue, Gross profit and Profit after tax".
@@ -523,6 +567,16 @@ export function DashboardClient({
 }) {
   const [payload, setPayload] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [range, setRange] = useState<RangeChoice>("saved");
+  const [compare, setCompare] = useState<CompareChoice>("saved");
+  // Neither is written anywhere: the board a customer saved is the board they get back.
+  const lens = useMemo<BoardLens>(
+    () => ({
+      range: RANGES.find((r) => r.id === range)?.window ?? null,
+      compare: COMPARISONS.find((c) => c.id === compare)?.basis ?? null,
+    }),
+    [range, compare],
+  );
   const [period, setPeriod] = useState<PeriodId | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -793,16 +847,59 @@ export function DashboardClient({
           <label className="flex items-center gap-2 text-[0.8125rem] font-medium text-neutral-600">
             <span>Month</span>
             <select
-              className="h-9 rounded-md border border-neutral-200 bg-surface px-2.5 text-[0.8125rem] font-medium text-neutral-900 hover:border-neutral-300"
+              className={SELECT}
               value={current}
               onChange={(e) => {
                 setPeriod(e.target.value as PeriodId);
               }}
+              title="The month every box is anchored to."
               data-testid="period-filter"
             >
               {payload.periods.map((p) => (
                 <option key={p} value={p}>
                   {format.period(p)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {/*
+           * Reading the board differently is not changing it (ADR 0064). Range retargets every
+           * box that shows several months; Compare sets what they are measured against. Both
+           * are free — no message, no AI call — because they only re-read figures the engine
+           * has already computed, and neither is written to the saved dashboard.
+           */}
+          <label className="flex items-center gap-2 text-[0.8125rem] font-medium text-neutral-600">
+            <span>Range</span>
+            <select
+              className={SELECT}
+              value={range}
+              onChange={(e) => {
+                setRange(e.target.value as RangeChoice);
+              }}
+              title="The window for boxes that show several months. Cards and the waterfall always state the month above."
+              data-testid="range-filter"
+            >
+              {RANGES.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center gap-2 text-[0.8125rem] font-medium text-neutral-600">
+            <span>Compare</span>
+            <select
+              className={SELECT}
+              value={compare}
+              onChange={(e) => {
+                setCompare(e.target.value as CompareChoice);
+              }}
+              title="What each box is measured against, where it can hold a comparison."
+              data-testid="compare-filter"
+            >
+              {COMPARISONS.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.label}
                 </option>
               ))}
             </select>
@@ -1131,6 +1228,7 @@ export function DashboardClient({
               onEdit={(ops) => void propose(ops)}
               onInvestigate={onInvestigate}
               onChangeBox={onChangeBox}
+              lens={lens}
             />
           ))}
         </div>

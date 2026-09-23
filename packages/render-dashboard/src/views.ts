@@ -10,7 +10,7 @@ import { addMonths, financialYearOf, periodRange } from "@magicmis/core/time";
 import type { MetricValue } from "@magicmis/engine";
 import type { EChartsOption } from "echarts";
 
-import type { Widget } from "./spec";
+import type { CompareBasis, Widget } from "./spec";
 
 export interface ValueRef {
   readonly metricKey: string;
@@ -143,6 +143,12 @@ const categoryAxis = (data: readonly string[]): NonNullable<EChartsOption["xAxis
 
 const legendFor = (names: readonly string[]): NonNullable<EChartsOption["legend"]> => ({
   data: [...names],
+  /*
+   * One row, always, with pages when it does not fit (ADR 0064). The grid reserves a fixed
+   * 26px for the legend; a wrapping one grew upward into the axis labels the moment a reader
+   * put last year beside three metrics and made it six series.
+   */
+  type: "scroll",
   bottom: 0,
   icon: "roundRect",
   itemWidth: 9,
@@ -162,18 +168,53 @@ export const metricKey = (
     .join("")}`;
 
 function periodsFor(
-  widget: Widget,
+  window: Widget["periods"],
   period: PeriodId,
   fyStartMonth: number,
   available: ReadonlySet<string>,
 ): PeriodId[] {
   const list =
-    widget.periods.kind === "current"
+    window.kind === "current"
       ? [period]
-      : widget.periods.kind === "fy_to_date"
+      : window.kind === "fy_to_date"
         ? periodRange(financialYearOf(period, fyStartMonth).start, period)
-        : periodRange(addMonths(period, 1 - widget.periods.n), period);
+        : periodRange(addMonths(period, 1 - window.n), period);
   return list.filter((p) => available.has(p));
+}
+
+/**
+ * A reading of the board that is not a change to it (ADR 0064).
+ *
+ * The month picker anchors every box; this retargets the window and the comparison around that
+ * anchor, for the whole board at once, without touching the saved dashboard. It is a lens over
+ * values the engine has already computed: no AI call, no charge, and nothing written down — the
+ * board a customer saved is still the board they get back on the next load.
+ */
+export interface BoardLens {
+  /** The window for boxes that show several months; null leaves each box its own. */
+  readonly range: Widget["periods"] | null;
+  /** The comparison basis for boxes that can hold one; null leaves each box its own. */
+  readonly compare: CompareBasis | null;
+}
+
+export const NO_LENS: BoardLens = { range: null, compare: null };
+
+/**
+ * What a box actually draws once the lens is applied.
+ *
+ * A box whose own window is `current` keeps it however wide the lens is set: revenue for five
+ * months is not a figure anyone asked for, and a KPI card, a waterfall and a comparison each
+ * state one month by construction. So the range reaches trends and period tables only, which
+ * is exactly where a reader means it.
+ */
+function through(widget: Widget, lens: BoardLens) {
+  return {
+    window:
+      lens.range !== null && widget.periods.kind !== "current"
+        ? lens.range
+        : widget.periods,
+    compare: lens.compare ?? widget.compare,
+  };
 }
 
 // Chart values only: never used for a displayed figure.
@@ -222,6 +263,8 @@ export function buildWidgetView(
     fyStartMonth: number;
     format: ViewFormat;
     dimensionFilter: string | null;
+    /** How the board is being read right now, if not as it was saved (ADR 0064). */
+    lens?: BoardLens;
   },
 ): WidgetView {
   const byKey = new Map(store.map((v) => [metricKey(v.metricId, v.period, v.dims), v]));
@@ -241,7 +284,8 @@ export function buildWidgetView(
           : input.format.decimal(v.value, v.unit);
     return { metricKey: key, display, unit: v?.unit ?? null };
   };
-  const periods = periodsFor(widget, input.period, input.fyStartMonth, available);
+  const lens = through(widget, input.lens ?? NO_LENS);
+  const periods = periodsFor(lens.window, input.period, input.fyStartMonth, available);
   if (periods.length === 0)
     return { kind: "empty", title: widget.title, reason: "No data for these months." };
 
@@ -254,7 +298,7 @@ export function buildWidgetView(
       };
 
     case "comparison": {
-      const lastYear = widget.compare === "last_year";
+      const lastYear = lens.compare === "last_year";
       const other = addMonths(input.period, lastYear ? -12 : -1);
       const suffix = lastYear ? "yoy" : "mom";
       return {
@@ -454,8 +498,7 @@ export function buildWidgetView(
       // This year against last: each metric gets a second, quieter series holding the same
       // months a year back, on the same axis positions. Stacks stay one year: two stacked
       // years side by side read as one total.
-      const withLastYear =
-        widget.compare === "last_year" && widget.kind !== "stacked_bar";
+      const withLastYear = lens.compare === "last_year" && widget.kind !== "stacked_bar";
       const series = widget.metrics.flatMap((m) => [
         { metric: m, shift: 0, name: input.format.label(m) },
         ...(withLastYear

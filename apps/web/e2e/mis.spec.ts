@@ -721,6 +721,33 @@ test.describe("chat with the MIS", () => {
     await expect(page.getByTestId("where-to-act")).toBeVisible();
     await expect(page.getByTestId("where-to-act")).toBeEnabled();
 
+    // Reading the board differently is free and changes nothing (ADR 0064). Range widens every
+    // box that shows several months and leaves the ones stating a single month alone, which is
+    // what makes it safe to apply to the whole board at once.
+    const aiBefore = await aiCallsForAccount();
+    const trend = page.getByTestId("widget-trend_revenue");
+    const capital = page.getByTestId("widget-working_capital");
+    const JULY = periodLabel("2025-07");
+    await expect(trend).not.toContainText(JULY);
+    await page.getByTestId("range-filter").selectOption("n12");
+    await expect(trend).toContainText(JULY);
+    // A single-month box is untouched by the range, however wide it is set.
+    await expect(capital).toContainText(MAY);
+    await expect(capital).not.toContainText(JULY);
+    // Last year beside each series, and away again. The values list names the second
+    // series by its own months rather than by a suffix, so that is what to look for.
+    await page.getByTestId("range-filter").selectOption("saved");
+    await expect(trend).not.toContainText(MAY_LAST_YEAR);
+    await page.getByTestId("compare-filter").selectOption("last_year");
+    await expect(trend).toContainText(MAY_LAST_YEAR);
+    await page.getByTestId("compare-filter").selectOption("saved");
+    await expect(trend).not.toContainText(MAY_LAST_YEAR);
+    // No AI call, and nothing saved: a reload brings the board back as its owner left it.
+    expect(await aiCallsForAccount()).toBe(aiBefore);
+    await page.reload();
+    await expect(page.getByTestId("range-filter")).toHaveValue("saved");
+    await expect(page.getByTestId("widget-trend_revenue")).not.toContainText(JULY);
+
     // Present: the dashboard alone, nothing to operate, months on the arrow keys, Esc to leave.
     await expect(page.getByRole("button", { name: /Print/u })).toHaveCount(0);
     await expect(page.getByTestId("latest-workbook")).toHaveCount(0);
