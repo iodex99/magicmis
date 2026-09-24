@@ -21,7 +21,6 @@ const metricId = z.string().regex(/^[a-z_]{1,60}(\.[a-z_]{1,20})?$/u);
 /** How long a box title may be. Named because the stage that writes one is told it. */
 export const WIDGET_TITLE_MAX = 80;
 
-
 export const WIDGET_KINDS = [
   "kpi_card",
   "line",

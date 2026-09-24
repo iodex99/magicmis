@@ -1,0 +1,1028 @@
+{
+  "c4ae5aac4883d8abd7fd07820bd357662b1541abb2202c4ded98cf70e5066b6f": {
+    "text": "{\"summary\":\"Every line in this month's pack — revenue, profit, receivables, payables, cash — moves by the identical percentage, so the board should first satisfy itself the books are real before reading anything into the growth.\",\"actions\":[{\"heading\":\"Confirm the ledger behind identical movements on every line\",\"because\":\"Revenue, gross profit, EBITDA, profit after tax, receivables, payables and cash and bank each move by {{mv:revenue.mom@2026-05:pct}} on last month — the same figure to the decimal. Real trading rarely moves cost, working capital and cash in exact lockstep with sales at {{m:revenue@2026-05}}. No validation warnings were raised and no dimension splits accompany the pack, so nothing independently corroborates the month.\",\"todo\":\"Ask the accountant to confirm whether {{p:2026-05}} is posted from actual ledgers or carried forward on a uniform uplift, and to produce one supporting item per line — a sales register, a purchase ledger and a bank statement balance — reconciling to {{m:revenue@2026-05}}, {{m:payables@2026-05}} and {{m:cash_and_bank@2026-05}}. Hold decisions on this month's growth until that confirmation is in.\",\"urgency\":\"now\"},{\"heading\":\"Cash held is small against profit reported\",\"because\":\"Profit after tax of {{m:pat@2026-05}} sits against cash and bank of only {{m:cash_and_bank@2026-05}}, while trade receivables of {{m:receivables@2026-05}} are more than double the cash balance and grew {{mv:receivables.mom@2026-05:abs}} in the month. Cash rose only {{mv:cash_and_bank.mom@2026-05:abs}}. Profit is not arriving as cash at anything like the rate it is being earned.\",\"todo\":\"Ask the accountant for an ageing of the {{m:receivables@2026-05}} balance by customer and days outstanding, and a reconciliation of {{m:pat@2026-05}} to the movement of {{mv:cash_and_bank.mom@2026-05:abs}} in cash. If collection is the cause, the board should set a named owner for chasing the oldest balances before next month's pack.\",\"urgency\":\"now\"},{\"heading\":\"Pack has no comparatives or customer splits to act on\",\"because\":\"Only {{p:2026-05}} is available and no dimension values are supplied, so there is no way to tell whether revenue of {{m:revenue@2026-05}} rests on one customer or many, or whether the {{mv:revenue.mom@2026-05:pct}} increase is a trend or a single month. Payables of {{m:payables@2026-05}} also come without a supplier breakdown or ageing.\",\"todo\":\"Instruct the accountant to add to next month's MIS: a rolling comparison of prior months, revenue split by customer, and payables split by supplier with ageing. Agree the format at this board meeting so the next pack arrives in it.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 756,
+      "cache_creation_input_tokens": 1837,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 1837,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1208,
+      "output_tokens_details": {
+        "thinking_tokens": 209
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3bffaaeef50e8f2dc4683d0e19960dbc4cdc378bc1b26e4e64858fc62da8a1b7": {
+    "text": "{\"summary\":\"Every line in this month's pack — revenue, profit, receivables, payables, cash — moves by the identical percentage, so the board should first satisfy itself the numbers are separately derived before acting on any of them.\",\"actions\":[{\"heading\":\"Identical month-on-month movement across every line\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash and bank all move by {{mv:revenue.mom@2026-05:pct}} on the month — the same figure to the decimal in each case. Independently prepared ledgers do not normally move in lockstep like this, so the pack may have been built by scaling a base period rather than from transaction-level data.\",\"todo\":\"Ask the CA to confirm, for {{p:2026-05}}, that each balance was drawn from the ledger rather than derived by applying a factor, and to walk the board through the source for two lines — cash and bank, and trade receivables — against the bank statement and the debtor ageing. Hold decisions that rely on these figures until that confirmation is given.\",\"urgency\":\"now\"},{\"heading\":\"Cash held against receivables and payables\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}} while trade receivables are {{m:receivables@2026-05}} and trade payables {{m:payables@2026-05}}. Receivables rose {{mv:receivables.mom@2026-05:abs}} in the month against a cash increase of only {{mv:cash_and_bank.mom@2026-05:abs}}, so reported profit of {{m:pat@2026-05}} is not arriving as cash at the same rate.\",\"todo\":\"Ask the finance lead for a debtor ageing at {{p:2026-05}} showing the largest balances and anything past due, plus the payables due-date profile, so the board can see whether the cash held covers near-term supplier obligations. Set a collection target for the next pack.\",\"urgency\":\"now\"},{\"heading\":\"Cost base looks understated in the pack\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} and EBITDA of {{m:ebitda@2026-05}} sit very close to revenue of {{m:revenue@2026-05}}, leaving little between the three lines. Either direct costs and operating expenses are small in this business, or costs are sitting outside the lines reported here.\",\"todo\":\"Ask the CA to add a cost breakdown to next month's pack — cost of sales, employee cost and other operating expense shown separately — and to confirm whether any accruals, provisions or related-party charges for {{p:2026-05}} are yet to be booked.\",\"urgency\":\"this_quarter\"},{\"heading\":\"No comparatives in the pack\",\"because\":\"Only {{p:2026-05}} is available, with month-on-month changes but no prior-year or year-to-date position. The board cannot tell whether the movement of {{mv:revenue.mom@2026-05:pct}} is seasonal, one-off or a trend.\",\"todo\":\"Ask the CA to include a rolling twelve-month view and the prior-year same month for revenue, EBITDA, receivables and cash from the next pack onward, so movements can be judged against a trend rather than a single month.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 792,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1286,
+      "output_tokens_details": {
+        "thinking_tokens": 224
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "18862e493514e27127ca49dac309686d0c5d5f4cd74e1c2917051ee4ebb9bbde": {
+    "text": "{\"summary\":\"Every line in this month's pack — revenue, gross profit, EBITDA, PAT, receivables, payables and cash — moves by the identical percentage, so the board should first satisfy itself the MIS is real before acting on any of it.\",\"actions\":[{\"heading\":\"Identical month-on-month movement across every line\",\"because\":\"Revenue {{m:revenue@2026-05}}, gross profit {{m:gross_profit@2026-05}}, EBITDA {{m:ebitda@2026-05}}, PAT {{m:pat@2026-05}}, receivables {{m:receivables@2026-05}}, payables {{m:payables@2026-05}} and cash {{m:cash_and_bank@2026-05}} each move by {{mv:revenue.mom@2026-05:pct}}, {{mv:gross_profit.mom@2026-05:pct}}, {{mv:ebitda.mom@2026-05:pct}}, {{mv:pat.mom@2026-05:pct}}, {{mv:receivables.mom@2026-05:pct}}, {{mv:payables.mom@2026-05:pct}} and {{mv:cash_and_bank.mom@2026-05:pct}} respectively — the same figure on all seven. Independent P&L and balance sheet lines do not normally move in lockstep.\",\"todo\":\"Ask the CA who prepared the pack to confirm whether {{p:2026-05}} is actual ledger output or a uniformly scaled/estimated file, and to reconcile revenue, cash and receivables to the bank statement and sales ledger before the board relies on any number in it.\",\"urgency\":\"now\"},{\"heading\":\"Cash rising far less than profit\",\"because\":\"PAT for {{p:2026-05}} is {{m:pat@2026-05}} but cash and bank rose only {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}, while receivables absorbed {{mv:receivables.mom@2026-05:abs}} and payables funded {{mv:payables.mom@2026-05:abs}}. The pack contains no cash flow statement explaining where the balance of the earnings went.\",\"todo\":\"Request a cash flow reconciliation from profit to the movement in bank for {{p:2026-05}}, identifying capex, borrowings, tax and any distributions, before the next board meeting.\",\"urgency\":\"now\"},{\"heading\":\"No comparatives, no dimension split\",\"because\":\"Only {{p:2026-05}} is available and no customer, product or segment breakdown is present, so the growth of {{mv:revenue.mom@2026-05:abs}} in revenue cannot be attributed, and margin levels implied by gross profit {{m:gross_profit@2026-05}} and EBITDA {{m:ebitda@2026-05}} cannot be trended.\",\"todo\":\"Instruct the finance team to extend the MIS to a rolling twelve-month view with a customer and revenue-stream split, so concentration and margin trend can be assessed at the next sitting.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Receivables growing in step with sales\",\"because\":\"Trade receivables reached {{m:receivables@2026-05}} after an increase of {{mv:receivables.mom@2026-05:abs}}, more than double the cash held of {{m:cash_and_bank@2026-05}}, with no ageing schedule in the pack.\",\"todo\":\"Have the accounts team table a receivables ageing and top-debtor listing for {{p:2026-05}}, flagging balances beyond agreed terms, so the board can judge whether collection or provisioning action is needed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 802,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1428,
+      "output_tokens_details": {
+        "thinking_tokens": 203
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "fb5503f98885261631ec9f865ee39cb34f76ae92f86153f5b7ed3f38c5afe3de": {
+    "text": "{\"summary\":\"Every line in the pack moves by the same percentage month on month, one month was assumed rather than read, and check V10 flagged. The board should treat this month's MIS as provisional and fix the source data before drawing conclusions.\",\"actions\":[{\"heading\":\"Treat this month's figures as provisional until the assumed month is replaced\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash all move by exactly the same rate on last month — {{mv:revenue.mom@2026-05:pct}}, {{mv:gross_profit.mom@2026-05:pct}}, {{mv:ebitda.mom@2026-05:pct}}, {{mv:pat.mom@2026-05:pct}}, {{mv:receivables.mom@2026-05:pct}}, {{mv:payables.mom@2026-05:pct}} and {{mv:cash_and_bank.mom@2026-05:pct}} respectively. The pack also records that one month in the range was assumed rather than read from a file. A uniform movement across unrelated lines is the signature of a scaled estimate, not of trading.\",\"todo\":\"Ask the CA to identify which month was assumed and re-run {{p:2026-05}} off the actual ledger once that file is loaded. Until then, the board should not use this month's growth in any external reporting, lender pack or incentive calculation. Set a date at the next meeting by which the restated month is tabled.\",\"urgency\":\"now\"},{\"heading\":\"Close out validation check V10 before the next board pack\",\"because\":\"Check V10 raised a warning for this month and no explanation accompanies it in the pack. With only {{p:2026-05}} available and no comparative periods or dimension splits loaded, there is nothing in the books against which the board can independently sense-check the flagged item.\",\"todo\":\"Have the CA state in writing what V10 tests, what tripped it, and whether it is resolved or carried forward. If it cannot be cleared, the next pack should show the affected line separately rather than folded into the totals.\",\"urgency\":\"now\"},{\"heading\":\"Reconcile the cost base — gross profit and EBITDA sit close to revenue\",\"because\":\"Against revenue of {{m:revenue@2026-05}}, gross profit is {{m:gross_profit@2026-05}} and EBITDA {{m:ebitda@2026-05}}, with PAT at {{m:pat@2026-05}}. That leaves very little between the top line and the bottom line, which points to direct costs, operating expenses, depreciation or tax being unmapped or not yet posted rather than to the margin actually earned.\",\"todo\":\"Ask the CA to confirm whether all purchase, payroll, overhead, depreciation and tax ledgers are mapped into the MIS for {{p:2026-05}}, and to list any account groups sitting outside the mapping. Report the count of unmapped accounts at the next meeting.\",\"urgency\":\"now\"},{\"heading\":\"Cash cover against receivables and payables\",\"because\":\"Cash and bank stand at {{m:cash_and_bank@2026-05}} while trade receivables are {{m:receivables@2026-05}} and trade payables {{m:payables@2026-05}}. Cash is the smallest of the three, so the company's ability to meet payables depends on collection rather than on balances in hand.\",\"todo\":\"Ask for an ageing of receivables and payables with the next pack so the board can see how much of {{m:receivables@2026-05}} is current and how much of {{m:payables@2026-05}} is already due. Assign collections follow-up on the oldest balances to whoever owns the ledger.\",\"urgency\":\"this_quarter\"},{\"heading\":\"No customer or segment split is available\",\"because\":\"The pack carries no dimension values, so revenue of {{m:revenue@2026-05}} cannot be broken down by customer, product or segment, and the board has no view of concentration behind the reported growth of {{mv:revenue.mom@2026-05:abs}}.\",\"todo\":\"Decide with the CA which one or two dimensions the books should be tagged by — most likely customer — and have tagging applied from the next period so future packs show where revenue is concentrated.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 789,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1719,
+      "output_tokens_details": {
+        "thinking_tokens": 341
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "9af86b6c21e58e49b63539e6a6af6c21c3b35953f9bfbc65875ae9e8add45203": {
+    "text": "{\"summary\":\"Every line in this month's pack — revenue, gross profit, EBITDA, PAT, receivables, payables and cash — moves by exactly {{mv:revenue.mom@2026-05:pct}}, and one month was assumed rather than read from a file. Confirm the numbers before the board relies on them.\",\"actions\":[{\"heading\":\"Confirm this month's figures against source records before adopting them\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash each change by identical percentages on last month — {{mv:revenue.mom@2026-05:pct}} in every case. Real trading rarely moves seven unrelated balances in lockstep. The pack also notes that one month in the range was assumed rather than read from a file, and that check V10 raised a warning for {{p:2026-05}}. On that basis the reported {{m:revenue@2026-05}} and {{m:pat@2026-05}} should be treated as provisional.\",\"todo\":\"Ask the finance team and the preparing accountant to state, in writing before the next board meeting, which of {{p:2026-05}}'s figures come from the ledger and which were estimated, and to re-issue the MIS from source data. Minute this month's numbers as provisional until that is done.\",\"urgency\":\"now\"},{\"heading\":\"Resolve the V10 validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}} and the pack does not say what failed. Until it is explained, the board cannot tell whether it affects the headline result of {{m:pat@2026-05}} or a presentational item only.\",\"todo\":\"Have the preparer set out what V10 tests, what tripped it this month, and whether the correction changes any reported figure. If it does, the corrected MIS should come back before any distribution, capex or covenant decision is taken on these numbers.\",\"urgency\":\"now\"},{\"heading\":\"Explain the gap between reported profit and cash\",\"because\":\"Profit after tax of {{m:pat@2026-05}} sits against a cash and bank increase of only {{mv:cash_and_bank.mom@2026-05:abs}}, leaving closing cash at {{m:cash_and_bank@2026-05}}. Receivables rose {{mv:receivables.mom@2026-05:abs}} to {{m:receivables@2026-05}} and payables rose {{mv:payables.mom@2026-05:abs}} to {{m:payables@2026-05}}, which does not account for the whole difference. No cash flow statement is in the pack.\",\"todo\":\"Request a cash flow reconciliation from PAT to the movement in cash for {{p:2026-05}}, identifying tax paid, capex, drawings or loan movements. Add it as a standing page of the monthly MIS.\",\"urgency\":\"now\"},{\"heading\":\"Widen the pack: no comparatives and no customer split\",\"because\":\"Only {{p:2026-05}} is available and no dimension values are reported, so the board cannot see whether the {{mv:revenue.mom@2026-05:abs}} revenue increase is broad-based or concentrated, nor whether the receivables balance of {{m:receivables@2026-05}} is spread or sits with one or two counterparties.\",\"todo\":\"Agree with the accountant that future packs carry at least a rolling twelve-month trend, revenue by customer, and a receivables ageing. Decide at the next meeting which splits the board wants as standard.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 825,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1417,
+      "output_tokens_details": {
+        "thinking_tokens": 284
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "bde20bd6fd799aaa0700d523a98055e1b76b37e3821ef058fa74c5712387849c": {
+    "text": "{\"summary\":\"Every line in this month's pack moves by the identical percentage, and the pack itself flags an assumed month and a failed check — so the figures should be confirmed before the board relies on them.\",\"actions\":[{\"heading\":\"Confirm the assumed month before treating these figures as actuals\",\"because\":\"The pack records that one month in the range was assumed rather than read from a source file, and that check V10 raised a warning for {{p:2026-05}}. Only {{p:2026-05}} is available, so there is no second period against which the board can sanity-check the numbers presented.\",\"todo\":\"Ask the accountant preparing the MIS to state in writing which month was assumed, what basis was used, and what check V10 tests and why it failed. Hold approval of these figures as actuals until the underlying trial balance for {{p:2026-05}} is loaded and the pack is reissued.\",\"urgency\":\"now\"},{\"heading\":\"Identical growth rate on every line suggests a derived, not measured, month\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash all move by exactly {{mv:revenue.mom@2026-05:pct}} — revenue {{mv:revenue.mom@2026-05:abs}}, PAT {{mv:pat.mom@2026-05:abs}}, cash {{mv:cash_and_bank.mom@2026-05:abs}}. Real trading, collections and supplier payment cycles do not move in lockstep to that precision, which points to a single growth factor applied across the balances.\",\"todo\":\"Direct that the reissued pack be built from ledger balances line by line, and ask for bank statement closing balance for {{p:2026-05}} to be reconciled to cash and bank of {{m:cash_and_bank@2026-05}} as an independent check. Do not circulate these figures to lenders or investors in the meantime.\",\"urgency\":\"now\"},{\"heading\":\"Gross margin and EBITDA margin look implausibly high for the revenue reported\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} and EBITDA of {{m:ebitda@2026-05}} against revenue of {{m:revenue@2026-05}} leave very little recorded cost of sales or operating expense. Either material costs are sitting outside the lines captured here, or the classification in the MIS differs from the statutory books.\",\"todo\":\"Ask the accountant to reconcile cost of sales and operating expenses in the MIS to the same heads in the statutory ledger for {{p:2026-05}}, and to list what is excluded. If accruals for direct costs are not yet posted, the board should know the margin quoted is provisional.\",\"urgency\":\"now\"},{\"heading\":\"No comparatives or dimension splits to test the numbers against\",\"because\":\"Only {{p:2026-05}} is available and the pack carries no customer, segment or product dimension values, so concentration in receivables of {{m:receivables@2026-05}} and in revenue of {{m:revenue@2026-05}} cannot be assessed at all.\",\"todo\":\"Commission a reissued MIS covering at least the trailing months alongside {{p:2026-05}}, with revenue and receivables split by customer. Ask specifically for an ageing of trade receivables so the board can judge collectability rather than the balance alone.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Working capital build is absorbing most of the reported profit\",\"because\":\"Receivables rose {{mv:receivables.mom@2026-05:abs}} and payables rose {{mv:payables.mom@2026-05:abs}}, a net working capital outflow set against PAT of {{m:pat.mom@2026-05:abs}}; cash and bank rose only {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}. Whether this is real or an artefact of the uniform uplift cannot be told from this pack.\",\"todo\":\"Once verified figures are available, have the accountant present collection days and supplier payment days for {{p:2026-05}} so the board can see whether cash conversion is holding as revenue grows.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 835,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1646,
+      "output_tokens_details": {
+        "thinking_tokens": 285
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "ea9a64e8b693eac2f684264dab15463a11fcd5194db55630f3d8da1516540ddf": {
+    "text": "{\"summary\":\"Only revenue, direct costs and gross profit are in this month's pack, and the three do not sit together — the board should fix the MIS before drawing conclusions from it.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"The pack reports revenue of {{m:revenue@2026-05}} and direct costs of {{m:direct_costs@2026-05}} for {{p:2026-05}}, yet gross profit is stated as {{m:gross_profit@2026-05}} — higher than revenue less direct costs can produce. Either a cost line is excluded from direct costs, or gross profit is being computed on a different base. Until this is resolved the margin figure in the MIS cannot be relied on for any decision.\",\"todo\":\"Ask the accountant preparing the MIS to trace the gross profit line back to the ledger for {{p:2026-05}} and confirm which accounts map to direct costs and which to gross profit. Circulate a corrected statement before the next board meeting, with the mapping shown.\",\"urgency\":\"now\"},{\"heading\":\"Costs moving in exact lockstep with revenue suggests a formula, not actuals\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:pct}} ({{mv:revenue.mom@2026-05:abs}}), direct costs rose {{mv:direct_costs.mom@2026-05:pct}} ({{mv:direct_costs.mom@2026-05:abs}}) and gross profit rose {{mv:gross_profit.mom@2026-05:pct}} ({{mv:gross_profit.mom@2026-05:abs}}) — all three by an identical percentage. Actual purchases and costs rarely track sales to that precision, which points to direct costs being derived as a fixed percentage of revenue rather than booked from invoices.\",\"todo\":\"Have the accountant confirm whether direct costs for {{p:2026-05}} were posted from supplier invoices or estimated. If estimated, book actuals and restate the month; if actual, the board can take the margin as read.\",\"urgency\":\"now\"},{\"heading\":\"MIS scope too narrow for the board to act on\",\"because\":\"The pack for {{p:2026-05}} carries only revenue, direct costs and gross profit. There are no operating expenses, no cash or bank position, no receivables or payables ageing, and no customer or segment split — the dimension list is empty. A single period is available, so nothing beyond the month-on-month movement can be assessed.\",\"todo\":\"Agree a standing MIS template with the accountant: operating expenses, closing cash and bank, debtor and creditor ageing, and revenue split by customer, reported monthly with the prior period alongside. Set the first delivery date at the next board meeting.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 350,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1158,
+      "output_tokens_details": {
+        "thinking_tokens": 231
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "4945dffeafe39619a06e7a8c7fbff339c835fea56fd1508ea8a00d6f4ec9f576": {
+    "text": "{\"summary\":\"This month's pack does not hold together: the gross profit line does not reconcile to revenue less direct costs, and all three lines move by an identical percentage. Fix the numbers before the board relies on them.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"Revenue of {{m:revenue@2026-05}} against direct costs of {{m:direct_costs@2026-05}} cannot produce the reported gross profit of {{m:gross_profit@2026-05}}. One of the three lines is wrong, or gross profit is being built from a different cost base than the direct costs shown. Until this is settled, no margin figure in the pack for {{p:2026-05}} can be relied on.\",\"todo\":\"Ask the CA to produce the ledger-level build-up of gross profit for {{p:2026-05}} — which accounts roll into direct costs, and which into the gross profit line — and reissue the statement. The board should defer any decision that turns on margin until the restated pack is circulated.\",\"urgency\":\"now\"},{\"heading\":\"All three lines move by the same percentage month on month\",\"because\":\"Revenue, direct costs and gross profit each move by {{mv:revenue.mom@2026-05:pct}}, {{mv:direct_costs.mom@2026-05:pct}} and {{mv:gross_profit.mom@2026-05:pct}} respectively — identical to the decimal. Real trading rarely moves three independent lines in exact lockstep; this pattern is what a uniform uplift or a rolled-forward estimate looks like rather than posted transactions.\",\"todo\":\"Have the CA confirm whether {{p:2026-05}} figures are from posted entries or carried forward on an estimate, and identify any journal applying a flat uplift. If estimated, label the pack as provisional on its face so the board reads it as such.\",\"urgency\":\"now\"},{\"heading\":\"Pack is too thin to govern from\",\"because\":\"The facts available cover only revenue of {{m:revenue@2026-05}}, direct costs of {{m:direct_costs@2026-05}} and gross profit of {{m:gross_profit@2026-05}} for a single period, {{p:2026-05}}. There is no operating expense, cash, debtor, creditor or borrowing line, and no customer or segment split, so the board cannot see profitability below gross margin, liquidity, or concentration risk.\",\"todo\":\"Agree a minimum MIS schedule with the CA for next month: operating expenses, cash and bank balance, receivables and payables ageing, and revenue split by customer, with at least a prior-period comparative for each.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Cost growth tracking revenue exactly\",\"because\":\"Direct costs rose {{mv:direct_costs.mom@2026-05:abs}} while revenue rose {{mv:revenue.mom@2026-05:abs}}, leaving no operating leverage at all on the month's growth. If the underlying postings prove accurate, it means volume growth is buying no margin improvement.\",\"todo\":\"Once the restated figures are in, ask the CA to split direct costs into variable and fixed components for {{p:2026-05}} so the board can see whether the cost base genuinely scales one-for-one with revenue or whether fixed costs are sitting in the wrong bucket.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 368,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1383,
+      "output_tokens_details": {
+        "thinking_tokens": 276
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "441131073879878f3a1ea0bb99e0ee6571fa14bf68ba8ceaa0268eb7563672cd": {
+    "text": "{\"summary\":\"The pack does not hang together: gross profit as reported cannot be reconciled to revenue less direct costs, and all three lines move by an identical monthly percentage. Fix the figures before the board reads anything into the growth.\",\"actions\":[{\"heading\":\"Reconcile reported gross profit to revenue less direct costs\",\"because\":\"The books show revenue of {{m:revenue@2026-05}} and direct costs of {{m:direct_costs@2026-05}} for {{p:2026-05}}, which do not leave the gross profit of {{m:gross_profit@2026-05}} that is reported. One of the three figures, or the mapping of ledgers into the direct cost grouping, is wrong. Until that is settled no margin conclusion can be drawn from this month.\",\"todo\":\"Ask the accountant preparing the MIS to trace the gross profit line back to the trial balance for {{p:2026-05}} and confirm which ledgers sit in direct costs and whether any income or contra account is being picked up twice. Reissue the month's statement before the board minutes any margin position.\",\"urgency\":\"now\"},{\"heading\":\"Identical month-on-month movement across all three lines\",\"because\":\"Revenue moved {{mv:revenue.mom@2026-05:pct}}, direct costs moved {{mv:direct_costs.mom@2026-05:pct}} and gross profit moved {{mv:gross_profit.mom@2026-05:pct}} — the same percentage on each, with absolute changes of {{mv:revenue.mom@2026-05:abs}}, {{mv:direct_costs.mom@2026-05:abs}} and {{mv:gross_profit.mom@2026-05:abs}}. Three independent lines rarely move in exact proportion; this pattern is more consistent with an estimate or uniform uplift having been posted than with traded activity.\",\"todo\":\"Have the preparer confirm whether the {{p:2026-05}} figures are actual postings or carry a provisional accrual or allocation applied at a flat rate. If any line is estimated, mark it as such in the MIS so the board knows which figures are firm.\",\"urgency\":\"now\"},{\"heading\":\"MIS covers a single period and no operating costs or cash\",\"because\":\"Only {{p:2026-05}} is available, with no comparative periods beyond the month-on-month change, no dimension breakdown by customer or segment, and nothing below gross profit — no overheads, no profit after tax, no cash or receivables. The board cannot see whether the revenue of {{m:revenue@2026-05}} converts to cash or covers fixed costs.\",\"todo\":\"Agree the standing MIS pack with the accountant: add operating expenses, profit before and after tax, closing cash and debtor ageing, plus a year-to-date column and revenue split by customer, from next month's reporting onward.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 370,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1092,
+      "output_tokens_details": {
+        "thinking_tokens": 150
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "de07e26f859500cd6275cdc02c16cf28b348bf7521193bb6cac5e97013a55b61": {
+    "text": "{\"summary\":\"This month's pack is thin and internally inconsistent: one month was assumed rather than read from a file, and gross profit does not follow from revenue less direct costs. Fix the numbers before the board reads anything into them.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"The pack reports revenue of {{m:revenue@2026-05}} and direct costs of {{m:direct_costs@2026-05}} for {{p:2026-05}}, yet gross profit is stated at {{m:gross_profit@2026-05}} — more than the stated margin between the two. One of the three lines is drawn from a different basis or mapping. No dimension split is available to locate the difference.\",\"todo\":\"Ask the accountant to trace all three lines back to the trial balance for {{p:2026-05}} and confirm which accounts are mapped to direct costs and whether gross profit includes income not shown in revenue from operations. Re-issue the MIS with the reconciling item disclosed before the board takes any figure from this page.\",\"urgency\":\"now\"},{\"heading\":\"One month in the range was assumed, not read from a file\",\"because\":\"A validation warning notes that one month in the range was assumed rather than read from a file, and check V10 was raised for {{p:2026-05}}. Revenue, direct costs and gross profit all move by exactly {{mv:revenue.mom@2026-05:pct}} on the prior month — identical percentage change on all three lines is the signature of a derived or grossed-up month rather than posted transactions.\",\"todo\":\"Have the accountant identify which month was assumed, close the underlying books for it, and restate the comparatives. Until that is done, treat {{mv:revenue.mom@2026-05:abs}} and {{mv:gross_profit.mom@2026-05:abs}} as arithmetic, not performance, and do not use them for forecasting or incentive purposes.\",\"urgency\":\"now\"},{\"heading\":\"No customer or segment split and no trend to judge the month against\",\"because\":\"Only {{p:2026-05}} is available and the dimension list is empty, so the reported revenue of {{m:revenue@2026-05}} cannot be attributed to any customer, product or segment, and the change of {{mv:revenue.mom@2026-05:pct}} cannot be read against a longer trend. There is also no overhead, cash or receivables line in the pack, so profitability below gross level is unknown.\",\"todo\":\"Agree with the accountant the minimum monthly MIS the board needs: at least a rolling comparative of prior months, revenue split by customer, and lines below gross profit for overheads, cash and receivables. Set a date for the first pack on that basis.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1089,
+      "output_tokens_details": {
+        "thinking_tokens": 194
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d00d5961f43f771eed18af1a950fd233319cc246b25ccd1875598ae6d11438d2": {
+    "text": "{\"summary\":\"This month's pack is too thin to steer by: gross profit does not reconcile to revenue less direct costs, all three lines move by an identical percentage, and one month was assumed rather than read from a file. Fix the numbers before reading anything into them.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"Revenue for the month is {{m:revenue@2026-05}} and direct costs are {{m:direct_costs@2026-05}}, which cannot produce the reported gross profit of {{m:gross_profit@2026-05}}. Either items are being classified outside direct costs, or the gross profit line is being computed from a different base. Every margin read off this pack is unreliable until that is settled.\",\"todo\":\"Ask the preparer to walk the board from {{m:revenue@2026-05}} through {{m:direct_costs@2026-05}} to {{m:gross_profit@2026-05}}, naming each ledger included in each line. Re-issue the month once the three lines tie, and state which definition of gross profit the pack will use going forward.\",\"urgency\":\"now\"},{\"heading\":\"One month assumed rather than read from source\",\"because\":\"The validation notes say one month in the range was assumed rather than read from a file, and check V10 raised a warning on {{p:2026-05}}. Figures carried in on an assumption cannot support a board decision, and the board has no way to tell from the pack which balances are affected.\",\"todo\":\"Have the preparer identify which month and which ledgers were assumed, and what the assumption was. Source the underlying file or trial balance and restate. Record V10's specific failure and whether it is a one-off or a recurring break in the feed.\",\"urgency\":\"now\"},{\"heading\":\"Identical growth rates across all three lines suggest a modelled, not measured, month\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:pct}}, direct costs rose {{mv:direct_costs.mom@2026-05:pct}} and gross profit rose {{mv:gross_profit.mom@2026-05:pct}} — the same percentage on all three. Real trading rarely moves every line in lockstep. Read alongside the assumed month, this points to the period having been scaled from a prior month rather than posted from transactions.\",\"todo\":\"Confirm with the preparer whether {{p:2026-05}} was posted from actual transactions or extrapolated. If extrapolated, treat the month as provisional in the minutes and defer any decision resting on the {{mv:revenue.mom@2026-05:abs}} increase until actuals are booked.\",\"urgency\":\"now\"},{\"heading\":\"Pack carries no comparatives, no overheads and no dimensional split\",\"because\":\"Only {{p:2026-05}} is available, with three lines and no customer, product or cost-centre breakdown. There is nothing below gross profit — no overheads, no cash, no receivables — so the board cannot see whether the {{mv:revenue.mom@2026-05:abs}} of extra revenue reached the bottom line or was funded from working capital.\",\"todo\":\"Agree a minimum MIS specification with the preparer for next month: prior-period and year-to-date comparatives, overheads through to profit, cash and receivables, and revenue split by customer. Set the date by which the expanded pack reaches the board.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 401,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1278,
+      "output_tokens_details": {
+        "thinking_tokens": 176
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "223f36b2d7e49648bb33e0632620cacd8f194efde235b39ed0613437268d4d51": {
+    "text": "{\"summary\":\"The figures for {{p:2026-05}} do not hang together — gross profit exceeds revenue less direct costs, and every line moved by the same percentage — so the board should fix the books before drawing conclusions from them.\",\"actions\":[{\"heading\":\"Reconcile gross profit to revenue less direct costs\",\"because\":\"Revenue of {{m:revenue@2026-05}} against direct costs of {{m:direct_costs@2026-05}} does not leave the reported gross profit of {{m:gross_profit@2026-05}}. One of the three lines is wrong, or items are being captured in gross profit that sit outside the revenue and direct cost lines shown. Until that is resolved, margin cannot be read from this pack.\",\"todo\":\"Ask the preparing accountant to trace gross profit back to its ledger components for {{p:2026-05}} and confirm which accounts feed each of the three lines. Reissue the MIS with the reconciliation shown before the board takes any decision based on margin.\",\"urgency\":\"now\"},{\"heading\":\"Identical month-on-month growth across all three lines\",\"because\":\"Revenue, direct costs and gross profit each moved by {{mv:revenue.mom@2026-05:pct}}, {{mv:direct_costs.mom@2026-05:pct}} and {{mv:gross_profit.mom@2026-05:pct}} respectively — the same figure to the decimal. Real trading rarely moves three lines in lockstep; this is the signature of a prior month that was scaled or derived rather than taken from the ledger.\",\"todo\":\"Have the accountant confirm whether the comparative month was booked or estimated, and state on the face of the MIS which lines are derived. Treat the month-on-month movements of {{mv:revenue.mom@2026-05:abs}} and {{mv:direct_costs.mom@2026-05:abs}} as unusable until confirmed.\",\"urgency\":\"now\"},{\"heading\":\"Assumed month and an open validation warning\",\"because\":\"The pack records that one month in the range was assumed rather than read from a file, and that check V10 raised a warning for {{p:2026-05}}. Only the single period {{p:2026-05}} is available, so there is no second month of actuals to test the assumed figures against.\",\"todo\":\"Ask the accountant to close out the V10 warning in writing and to load the source file for the assumed month. Set a date by which the board expects at least two consecutive months of read-from-file actuals before the MIS is used for decisions.\",\"urgency\":\"now\"},{\"heading\":\"No dimension splits in the pack\",\"because\":\"The pack carries no dimension values at all, so revenue of {{m:revenue@2026-05}} cannot be broken down by customer, product or any other axis. Concentration and where the month's increase of {{mv:revenue.mom@2026-05:abs}} came from are both invisible.\",\"todo\":\"Decide with the accountant which one or two splits the board wants each month — most likely revenue by customer — and confirm the ledger is tagged to support it. If tagging is absent, agree when it will be in place.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 403,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1242,
+      "output_tokens_details": {
+        "thinking_tokens": 226
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "14255b8158d5764abac9127045e6a395b09fcc3f55ef9bf7fa2f63eda4d5c6d8": {
+    "text": "{\"summary\":\"Only one line of the books is available this month — revenue and its movement on last month. The board can note the increase, but nothing about margin, cash or concentration can be judged until the rest of the MIS is supplied.\",\"actions\":[{\"heading\":\"Incomplete MIS: only revenue reported\",\"because\":\"The pack for {{p:2026-05}} carries a single figure, revenue from operations of {{m:revenue@2026-05}}, with no costs, payroll, receivables, bank balances or prior-period comparatives beyond the month-on-month movement. No validation warnings were raised, so the gap appears to be in what was submitted rather than in the books themselves.\",\"todo\":\"Ask the accountant to confirm, before the next board date, whether a full trial balance for {{p:2026-05}} exists and why only revenue reached the board. Agree a fixed MIS pack — expenses by head, profit, cash and bank, debtors and creditors ageing — and a cut-off date each month for it to be circulated.\",\"urgency\":\"now\"},{\"heading\":\"Revenue rise of unknown origin\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:abs}} on last month, or {{mv:revenue.mom@2026-05:pct}}, but the books carry no customer, product or geography split for {{p:2026-05}}, so the board cannot tell whether this is one large invoice, a timing shift in billing, or broad-based growth.\",\"todo\":\"Request a customer-wise and, where relevant, product-wise revenue breakdown for {{p:2026-05}} alongside the preceding months, so the board can see whether the increase repeats. Ask specifically whether any one-off or advance billing sits inside {{m:revenue@2026-05}}.\",\"urgency\":\"this_quarter\"},{\"heading\":\"No basis to judge whether growth is profitable\",\"because\":\"With revenue of {{m:revenue@2026-05}} standing alone, there is no cost of sales, overhead or cash figure in the pack, so a {{mv:revenue.mom@2026-05:pct}} increase cannot be read as an improvement in results or in liquidity.\",\"todo\":\"Hold any decision that depends on the revenue trend — hiring, capacity, drawings or new commitments — until gross margin and closing cash for {{p:2026-05}} are before the board. Set these two figures as the minimum standing items for every future monthly pack.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 140,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 893,
+      "output_tokens_details": {
+        "thinking_tokens": 92
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "40ccae605dd583f4d8a00576a20556572851798d56915f32002a4027aa6da6b3": {
+    "text": "{\"summary\":\"Only one line of the books is available this month — revenue and its month-on-month move. That is not enough for the board to steer on; the first action is to get the rest of the MIS.\",\"actions\":[{\"heading\":\"Complete the monthly MIS pack before the next board meeting\",\"because\":\"The pack for {{p:2026-05}} carries only revenue from operations at {{m:revenue@2026-05}} and its movement of {{mv:revenue.mom@2026-05:abs}}. There is no cost of sales, overhead, profit, cash, receivables, payables or borrowing line, and no customer, product or segment split. The board cannot tell whether the month was profitable or cash-generative from what is here.\",\"todo\":\"Ask the finance lead and the reporting accountant to agree a fixed MIS schedule — revenue, direct cost, gross margin, overheads, profit, closing cash, debtors and creditors ageing — and deliver it for {{p:2026-05}} plus at least two prior months so movements can be read. Confirm a cut-off date each month for the pack to reach the board.\",\"urgency\":\"now\"},{\"heading\":\"Establish what drove the revenue increase\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:pct}} on last month, or {{mv:revenue.mom@2026-05:abs}}, to reach {{m:revenue@2026-05}}. With no customer or product dimension in the books as presented, the board cannot tell whether this is a one-off order, a price change, a timing shift in billing, or genuine underlying growth — and therefore cannot tell whether to plan for it to repeat.\",\"todo\":\"Have the finance lead break {{m:revenue@2026-05}} down by customer and by revenue type, and flag any single order or catch-up billing inside the month. Bring the split to the next meeting with a view on how much of {{mv:revenue.mom@2026-05:abs}} is expected to recur.\",\"urgency\":\"now\"},{\"heading\":\"Check that costs and cash have kept pace with the higher volume\",\"because\":\"A rise of {{mv:revenue.mom@2026-05:pct}} in a single month usually carries working capital with it, but the pack shows no cost, debtor or cash figures for {{p:2026-05}} against which to test that. Higher billing can absorb cash before it collects.\",\"todo\":\"Request the closing cash balance, debtor ageing and creditor position for {{p:2026-05}} from the accountant, alongside direct costs for the month. If collections have lagged the billing rise, ask the finance lead to set out the funding need for the coming quarter.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 146,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 952,
+      "output_tokens_details": {
+        "thinking_tokens": 85
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "a083b10736946507e0f680f0cb7a16e5d238eac0bc16f93272bcbc0bec3b765e": {
+    "text": "{\"summary\":\"Only one month of revenue is visible in this pack — nothing on costs, cash or receivables — so the board can act on the revenue jump itself and on closing the reporting gap, and little else.\",\"actions\":[{\"heading\":\"Establish what drove the month's revenue jump\",\"because\":\"Revenue from operations stands at {{m:revenue@2026-05}} for {{p:2026-05}}, up {{mv:revenue.mom@2026-05:abs}} on last month, or {{mv:revenue.mom@2026-05:pct}}. The pack carries no customer or product split, no order-book data and no prior-period trend, so the board cannot tell whether this is a durable step up, a timing or cut-off effect, or one large contract. A movement of this size on an unexplained base is the single thing this month turns on.\",\"todo\":\"Ask the finance lead to bring a one-page breakdown of {{p:2026-05}} revenue by customer and by invoice date to the next board meeting, flagging any single invoice or contract that accounts for a material share, and confirming nothing was recognised early at cut-off.\",\"urgency\":\"now\"},{\"heading\":\"Reporting pack covers revenue only\",\"because\":\"The pack for {{p:2026-05}} contains a single reported line — revenue from operations of {{m:revenue@2026-05}} — with its month-on-month movement. There is no cost of sales, no overhead, no profit measure, no cash or bank balance, no debtors or creditors, and no dimension split of any kind. On this basis the board cannot judge whether the revenue increase converted into margin or cash, and cannot discharge normal oversight of solvency or working capital.\",\"todo\":\"Instruct the chartered accountant to extend the monthly MIS to include cost of sales and gross margin, operating overheads, closing cash and bank, and debtor and creditor ageing, with prior-month comparatives, starting with the next pack. Agree the template at the next meeting so the format is fixed.\",\"urgency\":\"now\"},{\"heading\":\"No comparative history to read the trend against\",\"because\":\"Only {{p:2026-05}} is available as a period, so the {{mv:revenue.mom@2026-05:pct}} rise is measured against a single unseen prior month with no run of history behind it. Without at least a rolling twelve months the board cannot distinguish growth from seasonality or from recovery of a weak preceding month.\",\"todo\":\"Ask for a rolling twelve-month revenue series to be loaded into the MIS alongside {{p:2026-05}}, so future packs show the trend rather than a single step, and review whether the current month remains above trend once that history is visible.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Cash and collection impact of higher billing\",\"because\":\"Revenue of {{m:revenue@2026-05}} is {{mv:revenue.mom@2026-05:abs}} higher than last month, but the pack reports no cash balance and no receivables position. Higher billing normally absorbs working capital before it converts, and the board has no visibility of whether collections have kept pace or whether debtors have grown by a similar amount.\",\"todo\":\"Before the next meeting, have the finance lead confirm the closing cash position and the receivables balance at the end of {{p:2026-05}}, together with amounts overdue beyond terms, so the board can see whether the revenue increase has been collected or is still outstanding.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 148,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1166,
+      "output_tokens_details": {
+        "thinking_tokens": 48
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "805e42ea6646b4e07da593b43515496e2c31034d1142a136eb98b3eb9b6028aa": {
+    "text": "{\"summary\":\"This month's pack carries only a revenue line, and one month in it was assumed rather than read from a file, so the board cannot yet judge profit or cash. The first actions are about getting the books complete.\",\"actions\":[{\"heading\":\"Replace the assumed month with the actual ledger file\",\"because\":\"The pack records that one month in the range was assumed rather than read from a file. Every figure presented for {{p:2026-05}}, including revenue of {{m:revenue@2026-05}} and the reported rise of {{mv:revenue.mom@2026-05:abs}}, rests on that assumption, so the month-on-month movement may be an artefact of the gap rather than trading.\",\"todo\":\"Ask the finance team to identify which month was assumed and supply the underlying ledger export to the accountant before the next MIS. Once loaded, ask for the revenue comparison to be restated so the board knows whether {{mv:revenue.mom@2026-05:pct}} is real growth. If the file cannot be produced, have the accountant record why and flag the affected month on the face of the pack.\",\"urgency\":\"now\"},{\"heading\":\"Clear the validation warning raised on this month\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}. The pack does not state what the check tests or which balances failed it, so the board cannot tell whether it is a presentation point or a figure that is wrong.\",\"todo\":\"Ask the accountant to set out, in writing before the next board meeting, what V10 tests, which accounts triggered it, and whether the reported revenue of {{m:revenue@2026-05}} is affected. Agree that unresolved validation warnings are listed with an owner and a target date in each month's pack.\",\"urgency\":\"now\"},{\"heading\":\"Extend the pack beyond a single revenue line\",\"because\":\"The only measures supplied are revenue of {{m:revenue@2026-05}} and its movement of {{mv:revenue.mom@2026-05:pct}}. There are no cost, margin, cash, debtor or creditor figures, and no dimension values such as customer or segment, so the rise cannot be attributed and profitability cannot be assessed.\",\"todo\":\"Agree with the accountant a standing MIS content list for the next pack: cost of sales and gross margin, operating expenses, closing cash, receivables and payables ageing, and revenue split by customer. Confirm which of these the accounting system can produce now and which need setup work, so the board knows what it will be able to see and when.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Build a comparative base for revenue\",\"because\":\"Only {{p:2026-05}} is available in the pack, so the reported change of {{mv:revenue.mom@2026-05:abs}} has no trend behind it and seasonality cannot be separated from growth.\",\"todo\":\"Ask for prior months to be loaded so the board sees a rolling series rather than a single point, and for the same-month prior-year figure where the records exist. Until that is in place, treat the current movement as provisional in any forecasting or bank discussion.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 173,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1142,
+      "output_tokens_details": {
+        "thinking_tokens": 143
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8517570585f057206b457d92c596145cd873a9f3bcb8ea246ad88b89c751a903": {
+    "text": "{\"summary\":\"This month's pack carries only a revenue line for {{p:2026-05}}, and that month was assumed rather than read from a file, with a validation check also unresolved. The board's action is to fix the source data before reading anything into the growth.\",\"actions\":[{\"heading\":\"One month in the pack was assumed, not read from a file\",\"because\":\"The MIS notes that a month in the range was assumed rather than read from a source file, and {{p:2026-05}} is the only period presented. The reported revenue of {{m:revenue@2026-05}} and the month-on-month movement of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) therefore rest partly on an assumption rather than on the ledger.\",\"todo\":\"Ask the CA to identify which month was assumed and to re-run the pack once the underlying file is loaded. Until that is done, the board should not treat the {{p:2026-05}} revenue or its movement as confirmed in minutes or in any external reporting.\",\"urgency\":\"now\"},{\"heading\":\"Validation check raised on this month is unresolved\",\"because\":\"Check V10 raised a warning against {{p:2026-05}}. No explanation of the exception accompanies the figures, so the board cannot tell whether it affects the revenue line of {{m:revenue@2026-05}} or another part of the books that has not been presented.\",\"todo\":\"Request a one-line note from the CA on what V10 tests, what tripped it in {{p:2026-05}}, and whether it is cleared or carried forward. Make clearing it a condition of signing off next month's pack.\",\"urgency\":\"now\"},{\"heading\":\"Pack covers revenue only, with no costs, margin or cash\",\"because\":\"The only measure supplied for {{p:2026-05}} is revenue from operations at {{m:revenue@2026-05}}, with its month-on-month change. There are no cost, profit, receivable, cash or customer-split lines in the pack, and no comparative periods beyond the single movement figure.\",\"todo\":\"Agree with the CA a standing minimum MIS: revenue, direct costs, overheads, profit, cash balance, debtors ageing and a rolling comparative of at least the prior months. Set the scope now so next month's board pack can support decisions rather than only reporting a top line.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Revenue growth of the month needs a cause attached\",\"because\":\"Revenue rose by {{mv:revenue.mom@2026-05:abs}}, or {{mv:revenue.mom@2026-05:pct}}, to reach {{m:revenue@2026-05}} in {{p:2026-05}}. The pack carries no customer or product split, so the board cannot tell whether this is volume, price, a one-off order, or a cut-off effect from the assumed month.\",\"todo\":\"Ask management for the split of {{p:2026-05}} revenue by customer and by whether it is recurring or one-off, so the board can judge whether the increase is a base to plan against. Revisit once the assumed month is replaced with actuals.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 179,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1163,
+      "output_tokens_details": {
+        "thinking_tokens": 146
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "14c89c6e440c10ac7e35000f34fe67d4af51ab7181277da5e147c16f4124fdb1": {
+    "text": "{\"summary\":\"The pack for {{p:2026-05}} carries only revenue, with a validation warning and one month assumed rather than read from a file — too thin to judge performance, so the board's work this month is fixing the reporting base.\",\"actions\":[{\"heading\":\"Clear the validation warning before the figures are relied on\",\"because\":\"Check V10 raised a warning on {{p:2026-05}}, the only period in the pack. The single reported figure, revenue of {{m:revenue@2026-05}}, therefore rests on a month flagged as unverified.\",\"todo\":\"Ask the preparer to set out what V10 tested, which ledger or balance failed it, and whether the revenue figure for {{p:2026-05}} is affected. Board to defer any decision keyed to this month's revenue until the warning is cleared or explained in writing.\",\"urgency\":\"now\"},{\"heading\":\"Month assumed rather than read from source files\",\"because\":\"One month in the range was assumed rather than read from a file, so the comparative behind the reported change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) may not be actual data.\",\"todo\":\"Identify which month was assumed and have the underlying trial balance or sales ledger loaded for it, then restate the month-on-month movement. Until then the board should treat the rise as unconfirmed rather than as evidence of growth.\",\"urgency\":\"now\"},{\"heading\":\"MIS carries revenue only — no cost, margin or cash\",\"because\":\"The pack for {{p:2026-05}} contains revenue from operations and its movement and nothing else: no expenses, no profit, no cash or receivables, and no customer or segment split.\",\"todo\":\"Instruct the preparer to extend next month's MIS to at least direct costs, operating expenses, closing cash and debtor ageing, plus a revenue split by customer. Agree the list at this meeting so the {{p:2026-05}} pack is the last one issued on a single line item.\",\"urgency\":\"now\"},{\"heading\":\"Build a comparative history so movements can be read\",\"because\":\"Only {{p:2026-05}} is available, so the change of {{mv:revenue.mom@2026-05:pct}} cannot be placed against any trend or against the same month last year.\",\"todo\":\"Have the preparer load the prior twelve months from the accounting system into the same format, so the board can see whether this month's level is seasonal, a step change or a one-off order.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 181,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 887,
+      "output_tokens_details": {
+        "thinking_tokens": 78
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "c15e78163b4e8a2949e6df76376bf87995bdbf7dbdfb95798832d3a9667f80eb": {
+    "text": "{\"summary\":\"Every line in the pack — revenue, profit, receivables, payables and cash — falls by exactly the same proportion this month, which looks more like a data artefact than trading. Verify the books before drawing conclusions from them.\",\"actions\":[{\"heading\":\"Confirm whether the uniform month-on-month fall is real or a mapping artefact\",\"because\":\"Revenue is {{m:revenue@2026-05}} at {{mv:revenue.mom@2026-05:pct}}, and gross profit, EBITDA, PAT, receivables, payables and cash all move by the identical {{mv:ebitda.mom@2026-05:pct}}. Real trading rarely moves balance sheet and P&L items in exact lockstep, so the more likely explanation is a scaling, period-cut or ledger-mapping issue in the month's close rather than a genuine downturn.\",\"todo\":\"Ask the CA preparing the MIS to re-run {{p:2026-05}} from source ledgers and confirm the close was not built by scaling a prior month. Board should not act on the decline until this is answered in writing.\",\"urgency\":\"now\"},{\"heading\":\"Cost of sales looks under-captured against revenue\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} on revenue of {{m:revenue@2026-05}} leaves very little recorded cost of sales, and EBITDA of {{m:ebitda@2026-05}} sits close behind it, implying minimal operating expense between the two. Either purchase and payroll accruals for the month are incomplete, or the cost lines are mapped into a head the MIS is not reading.\",\"todo\":\"Have the finance team reconcile cost of sales and operating expense for {{p:2026-05}} to supplier invoices and payroll before the next board pack, and report which heads, if any, were unaccrued.\",\"urgency\":\"now\"},{\"heading\":\"Cash cover against payables is thin\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}} against trade payables of {{m:payables@2026-05}}, with receivables of {{m:receivables@2026-05}} as the offsetting inflow. Cash also fell by {{mv:cash_and_bank.mom@2026-05:abs}} in the month. Subject to the data check above, the buffer over near-term supplier obligations is narrow.\",\"todo\":\"Request a receivables ageing and a payables due-date schedule with the next MIS, so the board can see whether collections land ahead of supplier due dates. A single month with no comparatives is not enough to judge the trend.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 770,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1002,
+      "output_tokens_details": {
+        "thinking_tokens": 140
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "37c650457a5fb2224bdb49ae91c6d091019a2b8b0564ad1987488919c3a8c1bb": {
+    "text": "{\"summary\":\"Every line in the pack — revenue, profit, receivables, payables and cash — moves by exactly the same percentage this month, so the first question for the board is whether these are results or a data artefact.\",\"actions\":[{\"heading\":\"Confirm the books before reading anything into this month\",\"because\":\"Revenue, gross profit, EBITDA, profit after tax, trade receivables, trade payables and cash and bank each move by {{mv:revenue.mom@2026-05:pct}} on last month — an identical percentage across unrelated captions. Revenue falls {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}} and cash falls {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}. Real trading rarely moves working capital and P&L in exact lockstep, so a scaling or mapping fault in the extract is at least as likely as a genuine decline.\",\"todo\":\"Ask the CA to re-run the {{p:2026-05}} extract from the trial balance and confirm each caption independently before the board treats the fall as trading. Hold decisions that rest on these numbers until that confirmation is on record.\",\"urgency\":\"now\"},{\"heading\":\"Check the cost of sales mapping behind the gross margin\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} leaves very little cost of sales, and EBITDA of {{m:ebitda@2026-05}} sits close behind it, implying almost no operating cost base between the two. Either the company genuinely carries minimal direct and overhead cost, or purchases, direct staff and operating expenses are landing below EBITDA or outside the mapped accounts.\",\"todo\":\"Have the CA list which ledger accounts feed cost of sales and which feed operating expenses, and confirm that purchases, direct payroll and overheads are captured. If the mapping is right, record that this margin is the true shape of the business so future months are read against it.\",\"urgency\":\"now\"},{\"heading\":\"Cash cover against the payables balance\",\"because\":\"Cash and bank stand at {{m:cash_and_bank@2026-05}} against trade payables of {{m:payables@2026-05}}, so the balance owed exceeds cash on hand. Receivables of {{m:receivables@2026-05}} cover the gap on paper, but cash fell {{mv:cash_and_bank.mom@2026-05:pct}} this month while payables also fell {{mv:payables.mom@2026-05:pct}}.\",\"todo\":\"Ask finance for a payables ageing and a collection schedule for the receivables book, so the board can see whether supplier due dates fall before the expected receipts rather than relying on the closing balances.\",\"urgency\":\"this_quarter\"},{\"heading\":\"No comparatives or customer split in the pack\",\"because\":\"Only {{p:2026-05}} is available and no dimension values are reported, so there is no prior-year base, no trend and no view of which customers or segments sit behind revenue of {{m:revenue@2026-05}} or receivables of {{m:receivables@2026-05}}. Concentration risk cannot be assessed from what is here.\",\"todo\":\"Ask the CA to add prior months and a customer-level split of revenue and receivables to next month's MIS, so movements can be attributed rather than inferred.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 806,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1239,
+      "output_tokens_details": {
+        "thinking_tokens": 107
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "1ced0e6c73ea28117d9952d4cab6d70efb4b5d31db19aed550056f1e04fddc4c": {
+    "text": "{\"summary\":\"Every line in this month's pack — revenue, profit, receivables, payables and cash — moved by exactly the same percentage, so the board should treat the figures as unverified until the source of that uniformity is explained.\",\"actions\":[{\"heading\":\"Verify the books before relying on this month's numbers\",\"because\":\"Revenue {{mv:revenue.mom@2026-05:pct}}, gross profit {{mv:gross_profit.mom@2026-05:pct}}, EBITDA {{mv:ebitda.mom@2026-05:pct}}, PAT {{mv:pat.mom@2026-05:pct}}, receivables {{mv:receivables.mom@2026-05:pct}}, payables {{mv:payables.mom@2026-05:pct}} and cash {{mv:cash_and_bank.mom@2026-05:pct}} all moved by an identical percentage on last month. Profit and loss lines and balance sheet balances moving in exact lockstep is not a normal trading pattern and points to a scaling, mapping or import issue in how the month was built.\",\"todo\":\"Ask the CA who prepared the MIS to trace each of the seven lines back to the trial balance for {{p:2026-05}} and confirm in writing whether the movements are real or an artefact of the data build. Defer any board decision that rests on these figures until that confirmation is received.\",\"urgency\":\"now\"},{\"heading\":\"Confirm cost of sales mapping behind the reported margin\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} leaves very little charged to cost of sales, and EBITDA of {{m:ebitda@2026-05}} sits only a little below gross profit, implying minimal operating overhead in the month.\",\"todo\":\"Have the preparer list which ledger heads are mapped to cost of sales and which to operating expenses, and confirm whether any direct costs or accruals for {{p:2026-05}} are unposted or sitting in another head.\",\"urgency\":\"now\"},{\"heading\":\"Cash fell in a profitable month\",\"because\":\"PAT for the month was {{m:pat@2026-05}} yet cash and bank fell by {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}, while receivables fell {{mv:receivables.mom@2026-05:abs}} and payables fell {{mv:payables.mom@2026-05:abs}}. Collections and supplier payments alone do not explain profit failing to convert to cash.\",\"todo\":\"Request a reconciliation from profit to the movement in cash for {{p:2026-05}}, showing capital spend, borrowings, tax and any distributions, so the board can see where the cash went.\",\"urgency\":\"now\"},{\"heading\":\"MIS lacks comparatives and any customer or segment split\",\"because\":\"The pack carries a single period, {{p:2026-05}}, with no dimension values attached, so nothing can be said about concentration, which customers drove the revenue fall of {{mv:revenue.mom@2026-05:abs}}, or whether the month is in line with budget.\",\"todo\":\"Agree with the CA a standing MIS format that adds prior-month and year-to-date columns, budget where one exists, and a revenue and receivables split by customer, effective from next month's pack.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 816,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1309,
+      "output_tokens_details": {
+        "thinking_tokens": 191
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3301dd1f257679b6a4c14d8cf568658c4ec6ea0305bbc3bfc8284cc80d0b4181": {
+    "text": "{\"summary\":\"Every line in the pack moved by exactly the same percentage and one month was assumed rather than read from a file, so this month's comparatives cannot yet be relied on. Fix the data before the board acts on the apparent decline.\",\"actions\":[{\"heading\":\"Confirm the assumed month before treating any movement as real\",\"because\":\"The validation notes say one month in the range was assumed rather than read from a file, and check V10 raised a warning. Every headline moves by an identical {{mv:revenue.mom@2026-05:pct}} — revenue, gross profit, EBITDA, PAT, receivables, payables and cash all at the same rate. That pattern is what you would expect from a scaled estimate, not from trading. No dimension splits are present to test it against.\",\"todo\":\"Ask the CA to re-run the month from source ledgers and state which month was assumed and why, and what V10 tests. Hold the month-on-month comparatives out of the board pack until the prior month is read from file. If the file cannot be produced, note in the minutes that the movements are unverified.\",\"urgency\":\"now\"},{\"heading\":\"Cash position relative to payables\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}} against trade payables of {{m:payables@2026-05}}, with receivables of {{m:receivables@2026-05}} to collect. Cash fell {{mv:cash_and_bank.mom@2026-05:abs}} on the month. Even if the comparative is estimated, the closing balances should be confirmable against bank and ledger.\",\"todo\":\"Ask the CA to confirm the closing cash figure against the bank statement and to age the payables and receivables balances, so the board can see what falls due before next month's meeting rather than a single net balance.\",\"urgency\":\"now\"},{\"heading\":\"No customer or segment split in the pack\",\"because\":\"The pack carries no dimension values at all, so revenue of {{m:revenue@2026-05}} and its fall of {{mv:revenue.mom@2026-05:abs}} cannot be attributed to any customer, product or location. There is no way to tell whether the decline is broad or concentrated.\",\"todo\":\"Instruct the CA to add a revenue-by-customer split to next month's MIS, with the top few named. Until then the board cannot judge concentration risk or decide where to act on the decline.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Only one period available for trend\",\"because\":\"The pack covers {{p:2026-05}} alone. With a single period and an assumed comparative, there is no trend line behind gross profit of {{m:gross_profit@2026-05}} or EBITDA of {{m:ebitda@2026-05}}, and the unusually high margin implied cannot be tested against history.\",\"todo\":\"Ask the CA to supply a rolling series of prior months alongside next month's pack, and to confirm what is included in cost of sales, so the board can see whether the current margin is normal for this business.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 803,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1203,
+      "output_tokens_details": {
+        "thinking_tokens": 229
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "e4c6d4f29f3a81c0b1aed6d8f88db9b7bc01760b1d051878cd12ca24d5842607": {
+    "text": "{\"summary\":\"Every line in this pack moved by the same proportion month on month, and one month in the range was assumed rather than read from a file. The board should fix the numbers before it acts on them.\",\"actions\":[{\"heading\":\"Do not act on this month's movements until the assumed month is replaced\",\"because\":\"Revenue, gross profit, EBITDA, profit after tax, receivables, payables and cash all fall by an identical proportion on last month: revenue {{mv:revenue.mom@2026-05:pct}}, EBITDA {{mv:ebitda.mom@2026-05:pct}}, cash and bank {{mv:cash_and_bank.mom@2026-05:pct}}. Real trading does not move every balance sheet and P&L line by the same percentage. The pack also records that one month in the range was assumed rather than read from a file, which is the likely source.\",\"todo\":\"Ask the CA to identify which month was assumed, obtain the underlying ledger or trial balance for it, and reissue the comparatives. Until then the board should minute that no decision rests on the month-on-month column for {{p:2026-05}}.\",\"urgency\":\"now\"},{\"heading\":\"Close out validation check V10 before the pack is signed off\",\"because\":\"Check V10 raised a warning for {{p:2026-05}} and no explanation accompanies it in the pack. It sits alongside the assumed-month flag, so the two may share a cause.\",\"todo\":\"Have the CA state in writing what V10 tests, what tripped it this month, and whether it is resolved or accepted. Add the resolution to the next pack rather than carrying the warning forward unexplained.\",\"urgency\":\"now\"},{\"heading\":\"Reconcile the fall in cash against reported profit\",\"because\":\"Profit after tax for the month is {{m:pat@2026-05}} while cash and bank fell by {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}. Receivables fell {{mv:receivables.mom@2026-05:abs}} and payables fell {{mv:payables.mom@2026-05:abs}}, so working capital released rather than absorbed funds. On those figures cash should have risen.\",\"todo\":\"Request a cash movement reconciliation from reported profit for the month, showing tax paid, capital spend, borrowings and any distributions. If the gap is an artefact of the assumed month, it should disappear once that month is restated.\",\"urgency\":\"now\"},{\"heading\":\"Get prior periods into the board pack\",\"because\":\"Only {{p:2026-05}} is available in this pack, and the books carry no dimension splits, so there is no customer, segment or cost breakdown behind figures such as revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}. A single month with one comparison cannot show a trend.\",\"todo\":\"Agree with the CA a standing pack format carrying at least a rolling run of prior months, and decide which one or two dimensions — customer or segment — the ledger should be tagged by so future movements can be attributed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 839,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1384,
+      "output_tokens_details": {
+        "thinking_tokens": 363
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "76e0dd7491dcf1eea26fb5f7b41f093b6c495d2bb47cbe927f208eaca2486462": {
+    "text": "{\"summary\":\"Every line in the pack moves by exactly the same percentage this month, and one month was assumed rather than read from a file — so treat the movements as unverified before acting on them.\",\"actions\":[{\"heading\":\"Verify the assumed month before relying on any movement in this pack\",\"because\":\"Revenue, gross profit, EBITDA, profit after tax, receivables, payables and cash and bank all move by exactly {{mv:revenue.mom@2026-05:pct}} on last month — identical for every line. The pack also records that one month in the range was assumed rather than read from a file, and only {{p:2026-05}} is available. A uniform move across unrelated balance sheet and P&L lines is the signature of a derived or scaled comparative, not trading.\",\"todo\":\"Ask the preparing accountant to confirm which month was assumed and to substitute the actual trial balance for it, then reissue the month-on-month columns. Until that is done, the board should not treat the decline of {{mv:revenue.mom@2026-05:abs}} in revenue or {{mv:cash_and_bank.mom@2026-05:abs}} in cash as trading facts.\",\"urgency\":\"now\"},{\"heading\":\"Close out the validation check raised on this month\",\"because\":\"Check V10 raised a warning for {{p:2026-05}} and the pack gives no detail on what it tested or which balances failed it. No dimension values are present either, so the reported figures — including revenue of {{m:revenue@2026-05}} and cash and bank of {{m:cash_and_bank@2026-05}} — cannot be broken down by customer or segment to isolate the issue.\",\"todo\":\"Have the accountant set out in writing what V10 tests, which accounts triggered it, and whether it affects the reported {{m:pat@2026-05}}. Ask for the customer or segment split to be enabled in next month's pack so movements can be traced to a source rather than inferred.\",\"urgency\":\"now\"},{\"heading\":\"Cash cover once the comparatives are confirmed\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}}, below trade receivables of {{m:receivables@2026-05}} and only modestly above trade payables of {{m:payables@2026-05}}. The pack holds a single period, {{p:2026-05}}, so there is no trend to judge whether the fall of {{mv:cash_and_bank.mom@2026-05:pct}} is real or an artefact of the assumed month.\",\"todo\":\"Once the comparative month is corrected, ask for a rolling cash position covering several months alongside receivables ageing, so the board can see whether cash is genuinely tracking down with collections or whether the movement disappears with the restated figures.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 849,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1063,
+      "output_tokens_details": {
+        "thinking_tokens": 164
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "7271ebbcc44c9e3145a38d8c7a5a4e1ffc535088ba4e36b0bc986ac9cb47a871": {
+    "text": "{\"summary\":\"A thin pack: one month, no dimension split, and a gross profit line that does not tie to revenue less direct costs. Before the board reads anything into the drop, the numbers need proving.\",\"actions\":[{\"heading\":\"Reconcile the gross profit line to revenue and direct costs\",\"because\":\"Revenue for {{p:2026-05}} is {{m:revenue@2026-05}} and direct costs are {{m:direct_costs@2026-05}}, yet gross profit is reported as {{m:gross_profit@2026-05}} — more than revenue less direct costs. One of the three lines is wrong or is drawn from a different basis, so no margin read from this month is safe.\",\"todo\":\"Ask the accountant preparing the MIS to show the ledger build-up of each of the three lines and confirm which accounts map to direct costs and whether gross profit includes other income or a different revenue base. Hold any margin discussion at the board until the three lines tie.\",\"urgency\":\"now\"},{\"heading\":\"Explain the identical percentage fall across all three lines\",\"because\":\"Revenue, direct costs and gross profit each moved by exactly {{mv:revenue.mom@2026-05:pct}}, {{mv:direct_costs.mom@2026-05:pct}} and {{mv:gross_profit.mom@2026-05:pct}} on the prior month, with absolute falls of {{mv:revenue.mom@2026-05:abs}} and {{mv:direct_costs.mom@2026-05:abs}}. A uniform move across unrelated lines is more often a posting, cut-off or scaling artefact than trading, but it could equally be a single lost month of volume.\",\"todo\":\"Have the accountant confirm whether the prior month was restated or scaled, and whether any invoices for {{p:2026-05}} were raised after the cut-off. If the fall is genuine trading, ask for the revenue split by customer so the board can see whether it sits with one account or across the book.\",\"urgency\":\"now\"},{\"heading\":\"Widen the MIS beyond three lines before next month\",\"because\":\"The pack for {{p:2026-05}} carries only revenue, direct costs and gross profit, with no comparative periods beyond the prior month, no customer or segment split, and nothing on overheads, cash, receivables or payables. The board cannot judge whether a fall of {{mv:revenue.mom@2026-05:abs}} matters to solvency on what is here.\",\"todo\":\"Agree with the accountant a standard monthly pack: operating expenses, profit after overheads, closing cash and bank, debtor and creditor ageing, and revenue by customer, with at least a rolling twelve months of comparatives. Set the format now so next month's board meeting has it.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 356,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1125,
+      "output_tokens_details": {
+        "thinking_tokens": 220
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "cbb6cd2b349d744b9516fd86ebb39b0f57c3aacd93c39fbcd690c81a22fc3426": {
+    "text": "{\"summary\":\"The pack is thin and internally odd: every line moved by exactly the same percentage, and gross profit does not tie to revenue less direct costs. Fix the numbers before the board reads anything into the {{mv:revenue.mom@2026-05:pct}} revenue fall.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"Revenue of {{m:revenue@2026-05}} against direct costs of {{m:direct_costs@2026-05}} cannot produce the reported gross profit of {{m:gross_profit@2026-05}}. One of the three lines is mapped or aggregated wrongly, so the margin the board would read off this MIS is not supportable.\",\"todo\":\"Ask the preparer to re-run the trial balance mapping for revenue, direct costs and gross profit for {{p:2026-05}} and state which ledgers feed each line, before any decision is taken on the month's margin. Reissue the MIS with the corrected figure.\",\"urgency\":\"now\"},{\"heading\":\"Identical percentage move across all three lines\",\"because\":\"Revenue, direct costs and gross profit each moved by {{mv:revenue.mom@2026-05:pct}}, {{mv:direct_costs.mom@2026-05:pct}} and {{mv:gross_profit.mom@2026-05:pct}} respectively — the same figure on all three. A uniform move on every line is more consistent with an estimated or pro-rated close than with trading.\",\"todo\":\"Confirm with the preparer whether {{p:2026-05}} is a fully posted close or carries estimates/accruals rolled forward. If estimated, list which balances were estimated and the date the actuals will replace them.\",\"urgency\":\"now\"},{\"heading\":\"Cause of the revenue fall is not visible in the pack\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} on the month, but the pack carries no customer, product or geography split and no comparative period beyond {{p:2026-05}}, so the board cannot tell whether this is one lost account, seasonality or a billing cut-off.\",\"todo\":\"Have the preparer add a customer-level revenue split and at least a rolling comparative to next month's MIS. Until then, the sales lead should give the board a written note on which accounts drove the drop and whether the volume has returned.\",\"urgency\":\"this_quarter\"},{\"heading\":\"No cash, working capital or overhead reporting\",\"because\":\"The pack shows only revenue, direct costs and gross profit for {{p:2026-05}}. There is nothing on operating expenses, cash balances, receivables or borrowings, so the board cannot judge whether the revenue fall of {{mv:revenue.mom@2026-05:abs}} threatens liquidity.\",\"todo\":\"Agree a standing MIS pack with the preparer covering overheads, closing cash, debtor ageing and creditor position, effective from next month's close. Nominate one director to sign off the format.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 374,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1206,
+      "output_tokens_details": {
+        "thinking_tokens": 212
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "df3fc94cd5d23cd33cb6b920c415c71e0bebb24df866a9b991a1fdb4f762a26d": {
+    "text": "{\"summary\":\"This month's pack does not hold together: gross profit exceeds revenue less direct costs, and the month-on-month percentages do not match the stated amounts. Fix the numbers before the board draws any conclusion from them.\",\"actions\":[{\"heading\":\"Reconcile gross profit to revenue less direct costs\",\"because\":\"The pack shows revenue of {{m:revenue@2026-05}} and direct costs of {{m:direct_costs@2026-05}}, which cannot produce the reported gross profit of {{m:gross_profit@2026-05}}. Either items sitting above the gross margin line are excluded from direct costs, or other income or a credit has been posted into the gross profit line. Until this is resolved, no margin figure in the pack can be relied on and the board has no usable read on trading for {{p:2026-05}}.\",\"todo\":\"Ask the CA to produce a reconciliation from revenue through to gross profit for {{p:2026-05}}, listing every ledger mapped to direct costs and anything else landing in the gross profit line, and to reissue the pack once the bridge ties. Agree the mapping in writing so the next month is prepared on the same basis.\",\"urgency\":\"now\"},{\"heading\":\"Month-on-month percentages do not match the stated changes\",\"because\":\"Revenue is reported as down {{mv:revenue.mom@2026-05:abs}} yet the same line is shown as {{mv:revenue.mom@2026-05:pct}} on last month, and those two cannot both be right against a base of {{m:revenue@2026-05}}. Direct costs and gross profit carry the identical percentage, {{mv:direct_costs.mom@2026-05:pct}} and {{mv:gross_profit.mom@2026-05:pct}}, which suggests the variance columns are being calculated or populated mechanically rather than from the prior month's ledger.\",\"todo\":\"Have the CA restate the comparatives from the closed prior-month trial balance rather than from the reporting template, and show the prior-month value for each line alongside the change so the arithmetic is visible on the page.\",\"urgency\":\"now\"},{\"heading\":\"Pack is too thin for the board to act on\",\"because\":\"For {{p:2026-05}} the pack carries only revenue, direct costs and gross profit, with no overheads, no result after overheads, no cash or bank position, no debtors or creditors ageing, and no customer or segment split. There is also only the single period {{p:2026-05}} available, so no trend can be read. A revenue fall of {{mv:revenue.mom@2026-05:abs}} cannot be explained or acted on without knowing which customers or lines it came from.\",\"todo\":\"Set a minimum monthly reporting pack with the CA for the next board meeting: overheads and profit after overheads, closing cash and bank, debtor and creditor ageing, and revenue split by customer, each with a comparable prior month.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 376,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1183,
+      "output_tokens_details": {
+        "thinking_tokens": 223
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "f0584ecd8bb0bec3d54bddc6ac974cde96af6c909963cb2e45582b1fd3f1ee4c": {
+    "text": "{\"summary\":\"This month's pack cannot be relied on as it stands: gross profit does not tie to revenue less direct costs, a validation check is open and one month was assumed rather than read from a file. Fix the books before acting on the revenue fall.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"Revenue of {{m:revenue@2026-05}} less direct costs of {{m:direct_costs@2026-05}} does not agree with the reported gross profit of {{m:gross_profit@2026-05}} for {{p:2026-05}}. All three lines also move by exactly {{mv:revenue.mom@2026-05:pct}} on the prior month, which suggests a derived or carried-forward figure rather than three independently posted balances. Until this is resolved the margin in the pack cannot be used for any decision.\",\"todo\":\"Ask the accountant to trace the gross profit line back to the ledger for {{p:2026-05}} and confirm whether direct costs are complete or whether an inventory or contra entry sits outside the cost line. Re-issue the MIS with a reconciled margin before the board takes the numbers as read.\",\"urgency\":\"now\"},{\"heading\":\"Open validation check and an assumed month in the range\",\"because\":\"Check V10 was raised on {{p:2026-05}} and one month in the range was assumed rather than read from a source file. The pack therefore contains at least one period that no document supports, and only {{p:2026-05}} is available for comparison.\",\"todo\":\"Have the accountant state in writing what V10 flagged, which month was assumed and on what basis. Obtain the underlying file for that month, or mark the comparative as estimated on the face of the MIS so the board is not reading a modelled figure as an actual.\",\"urgency\":\"now\"},{\"heading\":\"Revenue down a fifth on the month with no dimension detail\",\"because\":\"Revenue fell by {{mv:revenue.mom@2026-05:abs}}, or {{mv:revenue.mom@2026-05:pct}}, and direct costs fell by {{mv:direct_costs.mom@2026-05:abs}}, the same {{mv:direct_costs.mom@2026-05:pct}}. The pack carries no customer or segment split, so the board cannot tell whether this is one account lost, a timing shift in billing, or a broad fall.\",\"todo\":\"Ask for the next MIS to carry revenue split by customer and by service line for {{p:2026-05}} and the prior month, so the fall can be attributed. Until that split exists, treat the decline as unexplained rather than as a trading trend.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Pack is too thin to support board oversight\",\"because\":\"The pack contains only revenue, direct costs and gross profit for {{p:2026-05}}, with no overheads, cash, receivables, payables or headcount, and no dimension values at all. The board cannot see whether the fall of {{mv:revenue.mom@2026-05:abs}} reached the bank or the bottom line.\",\"todo\":\"Agree a minimum MIS content list with the accountant: cash and bank balance, debtor and creditor ageing, overheads and a rolling comparative for at least the trailing months. Set the next pack against that list and note any line that could not be prepared and why.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 389,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1242,
+      "output_tokens_details": {
+        "thinking_tokens": 147
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "22a2c51b1e7bba9374ffffbd0f235a475303f9b00760ed0c5430ca0bb10dbe4e": {
+    "text": "{\"summary\":\"The pack is thin and does not hang together: gross profit does not reconcile to revenue less direct costs, and the comparative month was assumed rather than read. Fix the numbers before the board acts on the uniform decline shown.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"Revenue of {{m:revenue@2026-05}} less direct costs of {{m:direct_costs@2026-05}} does not produce the reported gross profit of {{m:gross_profit@2026-05}} for {{p:2026-05}}. One of the three lines is wrong, or gross profit is being built from a different cost base than the direct costs line shown. Until that is settled, every margin figure in this MIS, and the decline shown against last month, is unsafe to read.\",\"todo\":\"Ask the preparing accountant to trace the gross profit line back to the ledger accounts feeding it and confirm which cost accounts are included, then reissue the statement for {{p:2026-05}} with the three lines agreeing. The board should hold any margin discussion until that reissue lands.\",\"urgency\":\"now\"},{\"heading\":\"Comparative month was assumed, not read from a file\",\"because\":\"The validation notes record that one month in the range was assumed rather than read from a source file, and that check V10 raised a warning for {{p:2026-05}}. Every movement in this pack is measured against that month: revenue {{mv:revenue.mom@2026-05:pct}}, direct costs {{mv:direct_costs.mom@2026-05:pct}}, gross profit {{mv:gross_profit.mom@2026-05:pct}}. All three moving by an identical percentage is what an assumed base produces, not what trading usually produces.\",\"todo\":\"Have the accountant identify which month was assumed and why the underlying file was unavailable, obtain it, and restate the comparatives. Ask for the substance of the V10 warning in writing. Treat the month-on-month movements as unconfirmed at this board meeting.\",\"urgency\":\"now\"},{\"heading\":\"No basis in the pack to explain the revenue fall\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} on the month, but the pack carries no customer, product or segment split, no order book, no cash or receivables lines, and only the single period {{p:2026-05}}. There is nothing here that tells the board whether the fall is one lost account, seasonality, or a billing cut-off.\",\"todo\":\"Commission a revenue breakdown by customer and by month for the trailing periods, alongside cash and receivables, for the next MIS. Name an owner for that pack. Without it the board cannot distinguish a timing effect from a lost account.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 407,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1117,
+      "output_tokens_details": {
+        "thinking_tokens": 215
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "a654ddd4f6daa5c611fb30c31f517cda88b664d60d48f6be969ab6282c05cace": {
+    "text": "{\"summary\":\"The pack does not hold together: gross profit exceeds revenue less direct costs, the stated month-on-month percentages do not match the absolute movements, and one month was assumed rather than read. Fix the numbers before reading anything into the fall.\",\"actions\":[{\"heading\":\"Gross profit does not reconcile to revenue less direct costs\",\"because\":\"Revenue for the month is {{m:revenue@2026-05}} and direct costs {{m:direct_costs@2026-05}}, which cannot produce the reported gross profit of {{m:gross_profit@2026-05}}. Either costs are understated, revenue is misposted, or gross profit is being built from a different set of ledgers than the two lines shown. On these figures the margin the board would read off the pack is not the margin the ledgers support.\",\"todo\":\"Ask the accountant to trace gross profit back to the underlying ledger accounts and confirm which cost lines sit above the gross margin. Reissue this month's pack with the three lines reconciling before the board takes any decision off it.\",\"urgency\":\"now\"},{\"heading\":\"Stated percentage movements do not match the absolute movements\",\"because\":\"Revenue, direct costs and gross profit are each reported as moving {{mv:revenue.mom@2026-05:pct}}, {{mv:direct_costs.mom@2026-05:pct}} and {{mv:gross_profit.mom@2026-05:pct}}, an identical figure across all three lines. The absolute movements of {{mv:revenue.mom@2026-05:abs}}, {{mv:direct_costs.mom@2026-05:abs}} and {{mv:gross_profit.mom@2026-05:abs}} are not consistent with those percentages against the reported balances. Uniform movement across unrelated lines points to a derived or scaled comparative rather than actual prior-month postings.\",\"todo\":\"Have the accountant confirm the prior-month source figures and whether the comparative was computed rather than read. If computed, restate the month-on-month columns from the actual prior-month trial balance.\",\"urgency\":\"now\"},{\"heading\":\"One month assumed and validation check V10 outstanding\",\"because\":\"The pack notes that one month in the range was assumed rather than read from a file, and that check V10 raised a warning for this month. Only {{p:2026-05}} is available as a period, so there is no second reported month to sanity-check the comparatives against. This is the likely source of the reconciliation and percentage problems above.\",\"todo\":\"Ask the accountant to state in writing which month was assumed, on what basis, and what V10 tests. Load the missing month's file and rerun the pack. Until then the board should treat the month-on-month movements as unverified.\",\"urgency\":\"now\"},{\"heading\":\"No dimension split available for the revenue fall\",\"because\":\"The reported revenue movement of {{mv:revenue.mom@2026-05:abs}} is material against revenue of {{m:revenue@2026-05}}, but no customer, product or segment values are carried in the pack, so the board cannot see whether this is one account or a broad decline.\",\"todo\":\"Request next month's pack include revenue by customer and by segment, so a fall of this size can be attributed before the board responds to it.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 409,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1297,
+      "output_tokens_details": {
+        "thinking_tokens": 237
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "c717c054a4c37dc33c58259b2b090f7c4f549f3f473b501beb7d40f149c08f9d": {
+    "text": "{\"summary\":\"Only one month of data and a single revenue line: May revenue fell sharply, but the pack has no cost, cash or customer detail to explain it. The board's task this month is to get the reporting base fixed.\",\"actions\":[{\"heading\":\"Reconcile the two revenue movement figures before relying on them\",\"because\":\"The pack reports revenue of {{m:revenue@2026-05}} for {{p:2026-05}} with a month-on-month change of {{mv:revenue.mom@2026-05:abs}} but a percentage change of {{mv:revenue.mom@2026-05:pct}}. Those two do not sit together against the stated revenue, so at least one of the prior-month base, the absolute change or the percentage is wrong. No validation warnings were raised, so the inconsistency is currently unflagged.\",\"todo\":\"Ask the accountant to restate last month's revenue base and confirm which of the absolute or percentage movement is correct, before the board treats the decline as a given. Have the corrected figure circulated ahead of the next meeting.\",\"urgency\":\"now\"},{\"heading\":\"Establish why revenue dropped, with a customer and product split\",\"because\":\"Revenue for {{p:2026-05}} is {{m:revenue@2026-05}}, down {{mv:revenue.mom@2026-05:abs}} on the prior month. The pack carries no dimension values at all — no customer, product or segment breakdown — so it is impossible to tell from the books whether this is one lost account, a pricing change or a broad fall in volume.\",\"todo\":\"Commission a revenue breakdown by customer and by product for the last several months from the accountant, and have management name the specific accounts behind the fall at the next board meeting.\",\"urgency\":\"now\"},{\"heading\":\"Widen the monthly pack beyond a single revenue line\",\"because\":\"The pack contains only {{p:2026-05}} and a single revenue measure. There are no cost, margin, cash, receivable or headcount figures, and no comparative periods, so the board cannot see whether the fall in revenue has flowed through to margin or cash.\",\"todo\":\"Agree with the accountant a standing monthly MIS format covering cost of sales, gross margin, operating costs, cash balance and receivables, with at least twelve months of comparatives, to be in place for the next reporting cycle.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 994,
+      "output_tokens_details": {
+        "thinking_tokens": 227
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3bb6b8ba242244557c7901b90f69c1057af7b58d490d4ab92e938d0a368b2996": {
+    "text": "{\"summary\":\"Only one line of the books is available this month — revenue and its month-on-month fall of {{mv:revenue.mom@2026-05:pct}}. That drop is the question; the MIS as it stands cannot answer why.\",\"actions\":[{\"heading\":\"Explain the month's revenue fall before the next board meeting\",\"because\":\"Revenue for {{p:2026-05}} is {{m:revenue@2026-05}}, down {{mv:revenue.mom@2026-05:abs}} on last month, or {{mv:revenue.mom@2026-05:pct}}. The pack carries no customer, product or segment split, and no order book or billing detail, so nothing in the books shows whether this is lost customers, slipped billing, or a timing shift in invoicing.\",\"todo\":\"Ask the sales and finance leads for a written note splitting the {{mv:revenue.mom@2026-05:abs}} movement into volume lost, price change, and invoices raised after month end, naming the customers behind the largest part of it. Circulate it with next month's MIS.\",\"urgency\":\"now\"},{\"heading\":\"MIS covers revenue only — no cost, margin or cash line\",\"because\":\"The pack for {{p:2026-05}} contains revenue from operations and its month-on-month change and nothing else. With no cost of sales, overheads, receivables or bank balance, the board cannot tell whether a fall of {{mv:revenue.mom@2026-05:pct}} has hit profit or cash at all, or judge how many months of headroom remain.\",\"todo\":\"Instruct the accountant to extend the monthly pack to a full profit and loss, closing cash and bank, debtors ageing and creditors, from the next reporting month onward, with comparatives. Agree the template at the next meeting so the format is fixed before it is prepared.\",\"urgency\":\"now\"},{\"heading\":\"No customer or segment split in the books\",\"because\":\"No dimension values are reported with the {{p:2026-05}} figures, so revenue of {{m:revenue@2026-05}} cannot be attributed to any customer or line of business. Concentration risk is invisible: the board cannot see whether one account drove the {{mv:revenue.mom@2026-05:pct}} fall.\",\"todo\":\"Have the accountant confirm whether the ledger already tags invoices by customer and segment. If it does, add the split to the pack; if it does not, agree a tagging convention now so the analysis is possible from the next close.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Watch whether the decline continues into next month\",\"because\":\"Only {{p:2026-05}} is available, with no prior-year or trend history in the pack, so a single fall of {{mv:revenue.mom@2026-05:pct}} cannot be distinguished from normal monthly variation.\",\"todo\":\"Set a standing item: review revenue against the prior month and the same month last year each close, and treat a second consecutive fall as a trigger for the board to review pricing and the sales pipeline.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 148,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1007,
+      "output_tokens_details": {
+        "thinking_tokens": 26
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "2ec3f4fff83f61348d176d7de8ac727ba8873405b859baf9e94d87f8d8618f3c": {
+    "text": "{\"summary\":\"The pack shows only one line — revenue — and it fell sharply this month, with the stated change and percentage not reconciling. The board has no cost, margin or cash figures to judge the impact.\",\"actions\":[{\"heading\":\"Reconcile the two revenue movement figures\",\"because\":\"For {{p:2026-05}} the pack reports revenue of {{m:revenue@2026-05}}, a change on last month of {{mv:revenue.mom@2026-05:abs}} and a percentage change of {{mv:revenue.mom@2026-05:pct}}. The stated amount of the fall and the stated percentage do not sit together against the reported revenue base, so at least one of the prior-month figure, the absolute movement or the percentage is wrong. No prior-period revenue figure is given in the pack to settle it.\",\"todo\":\"Ask the CA to restate {{p:2026-05}} with the prior month's revenue shown alongside, and to confirm which of the absolute or percentage movement is correct and why they differ — for example a restatement of the prior month, a credit note, or a different basis. The board should not act on the size of the decline until this is settled.\",\"urgency\":\"now\"},{\"heading\":\"Get the cause of the revenue fall broken down\",\"because\":\"Revenue for {{p:2026-05}} is {{m:revenue@2026-05}}, down {{mv:revenue.mom@2026-05:abs}} on the prior month. The pack carries no customer, product or geography split and no dimension values at all, so there is nothing to show whether the fall is one large customer, a pricing change, a timing shift in billing, or broad-based.\",\"todo\":\"Ask the CA and the sales lead to bring a split of {{p:2026-05}} revenue by customer and by product against the prior month, plus order book or billed-versus-shipped position, to the next board meeting. Decide then whether this is a timing effect or a demand loss.\",\"urgency\":\"now\"},{\"heading\":\"Widen the monthly MIS beyond the revenue line\",\"because\":\"The pack for {{p:2026-05}} contains a single reported measure, revenue of {{m:revenue@2026-05}}, with its movement. There are no cost, gross margin, overhead, profit, receivable, payable or cash figures, and only one period is available, so the board cannot tell what a fall of {{mv:revenue.mom@2026-05:abs}} does to margin or to cash runway.\",\"todo\":\"Agree a standard monthly MIS format with the CA: revenue, direct costs and gross margin, fixed overheads, profit, closing cash and bank, debtors and creditors ageing, each with the prior month and the same month last year. Set the reporting date so the pack reaches the board before the meeting.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 150,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1077,
+      "output_tokens_details": {
+        "thinking_tokens": 174
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "39ecfd232f857a7e5fb95f3fa7c6598f1db13e7edcf977dff6e997ea5ccd743d": {
+    "text": "{\"summary\":\"This month's pack is thin: one revenue line, one period, and a warning that a month was assumed rather than read from a file. Revenue is down sharply, but the books as presented cannot yet tell the board why.\",\"actions\":[{\"heading\":\"Confirm the assumed month before relying on this pack\",\"because\":\"Only {{p:2026-05}} is available, and the validation notes say one month in the range was assumed rather than read from a file, with check V10 also raising a warning. Every figure in this pack, including revenue of {{m:revenue@2026-05}}, rests on that assumption.\",\"todo\":\"Ask the CA to identify which month was assumed and to load the underlying file, then reissue the pack. Until that is done, the board should treat this month's revenue movement as provisional and defer decisions that turn on it.\",\"urgency\":\"now\"},{\"heading\":\"Reconcile the two revenue movement figures\",\"because\":\"The month-on-month change is reported both as {{mv:revenue.mom@2026-05:abs}} and as {{mv:revenue.mom@2026-05:pct}}. Against revenue of {{m:revenue@2026-05}} these two do not describe the same prior-month base, so at least one is wrong or drawn from a different comparative.\",\"todo\":\"Have the CA restate the prior month's revenue figure and show the arithmetic behind both the absolute and percentage movement. This is likely linked to the assumed month above and should be cleared in the same exercise.\",\"urgency\":\"now\"},{\"heading\":\"Revenue fall has no breakdown behind it\",\"because\":\"Revenue for {{p:2026-05}} is {{m:revenue@2026-05}}, down {{mv:revenue.mom@2026-05:pct}} on last month, but the pack carries no customer, product or segment split and no prior periods, so the board cannot see whether this is one account, a timing shift, or a broad decline.\",\"todo\":\"Ask the CA to add a customer-wise revenue split and at least a rolling twelve-month series to next month's pack. Ask management separately whether any single account stopped or delayed billing in the month, so the board knows before the next pack lands.\",\"urgency\":\"now\"},{\"heading\":\"No cost, cash or receivable lines in the pack\",\"because\":\"The pack contains revenue only. With a fall of {{mv:revenue.mom@2026-05:abs}} there is nothing on margin, fixed cost base, cash balance or debtor ageing to show whether the business absorbs it comfortably.\",\"todo\":\"Agree with the CA a standard minimum MIS: revenue, gross and net margin, closing cash, and receivables ageing, each with a prior-period comparative. Set that as the format from next month.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 175,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1115,
+      "output_tokens_details": {
+        "thinking_tokens": 223
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "0eec07a3502d6fec563df3f66370f4e4bae97a3552a605e1eb23f612d91233b1": {
+    "text": "{\"summary\":\"Only revenue is in this month's pack, and it fell sharply — on figures partly assumed rather than read from a file. Confirm the numbers before acting on them, then ask why the fall happened.\",\"actions\":[{\"heading\":\"Confirm the month's figures before relying on them\",\"because\":\"The books for {{p:2026-05}} carry a validation warning (check V10), and one month in the range was assumed rather than read from a source file. The only reported figure, revenue of {{m:revenue@2026-05}}, and its fall of {{mv:revenue.mom@2026-05:abs}} therefore rest on an estimate rather than accounting records.\",\"todo\":\"Ask the accountant to identify which month was assumed and to reload it from the underlying ledger file, and to state what check V10 flagged and whether it changes the reported revenue. Board should defer decisions that turn on the {{p:2026-05}} figures until a re-run confirms them.\",\"urgency\":\"now\"},{\"heading\":\"Explain the fall in monthly revenue\",\"because\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, down {{mv:revenue.mom@2026-05:abs}} on the prior month, a fall of {{mv:revenue.mom@2026-05:pct}}. The pack carries no customer, product or segment split, so nothing in the books shows whether this is one lost account, a timing shift in billing, or a broad decline.\",\"todo\":\"Ask management for a written account of the {{p:2026-05}} shortfall against order book and billing schedule, and whether any invoicing slipped past month end. Request that next month's MIS carry revenue split by customer and by segment so a fall of this size can be traced rather than debated.\",\"urgency\":\"now\"},{\"heading\":\"The MIS pack is too thin for the board to govern on\",\"because\":\"For {{p:2026-05}} the pack contains revenue from operations and its movement only. There are no cost, margin, cash, receivable or payable figures, and no dimension values are carried, so the board cannot tell whether the revenue fall of {{mv:revenue.mom@2026-05:pct}} has reached profit or cash.\",\"todo\":\"Agree with the accountant a standing MIS content list before the next close: expenses and operating margin, cash and bank balance, debtor and creditor ageing, and comparatives for prior month and prior year. Name the director responsible for signing off that the pack is complete before it reaches the board.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 181,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 983,
+      "output_tokens_details": {
+        "thinking_tokens": 163
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3f36d2eee31920eefa8bbfaec988b722633cc4dbbdb01b873bd6f00de3f03dda": {
+    "text": "{\"summary\":\"Only one month of revenue is in the pack, one month was assumed rather than read from a file, and the reported fall does not reconcile between value and percentage. Fix the books before drawing conclusions from the drop.\",\"actions\":[{\"heading\":\"Reconcile the two stated measures of the revenue fall\",\"because\":\"Revenue of {{m:revenue@2026-05}} is shown alongside a month-on-month movement of {{mv:revenue.mom@2026-05:abs}} and {{mv:revenue.mom@2026-05:pct}}. Those two cannot both describe the same prior-month base, so at least one of the revenue figure, the prior month figure or the derived percentage is wrong.\",\"todo\":\"Ask the accountant to restate the prior month's revenue from the ledger and recompute both the value and percentage movement for {{p:2026-05}} from that base. Do not circulate the fall externally or to lenders until the two agree.\",\"urgency\":\"now\"},{\"heading\":\"Replace the assumed month with actual books\",\"because\":\"The pack records that one month in the range was assumed rather than read from a file, and this is the same range that produces the movement of {{mv:revenue.mom@2026-05:pct}} against {{p:2026-05}}.\",\"todo\":\"Identify which month was assumed and have the accountant load the actual trial balance for it before the next MIS. If the source file does not exist yet, agree a date for closing that month and note in the MIS that the comparative is provisional.\",\"urgency\":\"now\"},{\"heading\":\"Clear the V10 validation warning before the next pack\",\"because\":\"Check V10 was raised on {{p:2026-05}} and has not been cleared, so the reported {{m:revenue@2026-05}} carries an unresolved flag.\",\"todo\":\"Have the accountant set out at the next board meeting what V10 tests, what triggered it this month, and whether it is corrected or accepted with reasons. Record the outcome in the MIS.\",\"urgency\":\"now\"},{\"heading\":\"No breakdown behind the revenue drop\",\"because\":\"The pack carries no customer, product or segment split, so a fall of {{mv:revenue.mom@2026-05:abs}} cannot be attributed to lost customers, price, volume or timing of billing.\",\"todo\":\"Commission a revenue split by customer and by month for the year to date, so the board can see whether {{p:2026-05}} reflects a concentrated loss or broad softening. Agree with the accountant that this split becomes a standing part of the monthly pack.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Pack covers revenue only\",\"because\":\"The only measure supplied for {{p:2026-05}} is {{m:revenue@2026-05}}; there are no cost, margin, cash or receivables figures, so the board cannot judge the effect of the fall on profit or liquidity.\",\"todo\":\"Instruct that the next MIS carry, at minimum, gross margin, operating cost, closing cash and debtor ageing alongside revenue, with prior-month comparatives read from the ledger rather than assumed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 183,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1208,
+      "output_tokens_details": {
+        "thinking_tokens": 195
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "56696d9b14fe458cf9de0b0b1ee47b797526e703185d0faef299ae1cc418bd6b": {
+    "text": "{\"summary\":\"The pack has a single month and only four P&L lines — no prior period, no cash or balance sheet, no dimension split. The board's first task is to get the books complete enough to decide anything.\",\"actions\":[{\"heading\":\"Confirm costs are fully captured before relying on the profit figures\",\"because\":\"Between revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}} almost no cost is recorded, and the gap from {{m:ebitda@2026-05}} down to {{m:ebitda@2026-05}}-level operating costs and then to PAT of {{m:pat@2026-05}} is similarly narrow. On these four lines alone the board cannot tell whether direct costs, payroll, overheads and tax provisions have been booked for {{p:2026-05}} or are simply not yet posted.\",\"todo\":\"Ask the accountant to confirm, before the next board meeting, the cut-off position for {{p:2026-05}}: supplier invoices received but unposted, payroll and statutory dues, and any accrual for tax. If costs are outstanding, reissue the month's figures rather than treating the current profit as earned.\",\"urgency\":\"now\"},{\"heading\":\"Extend the MIS to comparatives, cash and balance sheet\",\"because\":\"Only {{p:2026-05}} is available, with no prior month or year-ago column, so none of revenue {{m:revenue@2026-05}}, EBITDA {{m:ebitda@2026-05}} or PAT {{m:pat@2026-05}} can be read as improving or deteriorating. There is no closing cash, no receivables or payables ageing, and no borrowing position in the pack, so the board cannot see whether the reported profit has converted into cash.\",\"todo\":\"Agree a standing MIS format with the accountant: prior-month and cumulative columns, closing bank balance, debtor and creditor ageing, and loan balances, effective from next month's pack. Name one director to sign off the format so it is settled before the next close.\",\"urgency\":\"now\"},{\"heading\":\"No customer or segment split in the books\",\"because\":\"The pack carries no dimension values, so revenue of {{m:revenue@2026-05}} is a single undifferentiated line. The board cannot see how many customers it came from, whether one account dominates, or which activity generated the gross profit of {{m:gross_profit@2026-05}}.\",\"todo\":\"Ask whether the accounting system tags invoices by customer and service line. If it does, request the split from next month; if it does not, decide whether to introduce tagging now, while transaction volumes are still small enough to reclassify the year to date.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 152,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1010,
+      "output_tokens_details": {
+        "thinking_tokens": 134
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "5e4e4f9d37d95ef4e03e69fcab6c1a5cdb529611eeb801d850c5845b8dc44409": {
+    "text": "{\"summary\":\"This month's pack is a single month of P&L headlines with no comparatives, no balance sheet and no cash data — the board can question the numbers but cannot yet steer on them.\",\"actions\":[{\"heading\":\"Close the gaps in the reporting pack before next month's board meeting\",\"because\":\"The pack carries only revenue of {{m:revenue@2026-05}}, gross profit of {{m:gross_profit@2026-05}}, EBITDA of {{m:ebitda@2026-05}} and PAT of {{m:pat@2026-05}} for {{p:2026-05}}. There is no prior period, no budget, no balance sheet, no cash or receivables data, and no customer or segment split. On this basis the board cannot test whether performance is improving, whether profit is converting to cash, or where the revenue comes from.\",\"todo\":\"Ask the finance preparer to extend the MIS to include a prior-month and year-to-date column, cash and bank balances, debtors and creditors ageing, and a revenue split by customer or segment. Agree the format now so {{p:2026-05}} can be restated on the same basis for comparison.\",\"urgency\":\"now\"},{\"heading\":\"Verify that costs are fully captured against this month's revenue\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} sits very close to revenue of {{m:revenue@2026-05}}, and EBITDA of {{m:ebitda@2026-05}} leaves little between the two. A gap that narrow usually means direct costs, accruals or operating expenses have not been booked in {{p:2026-05}}, rather than that the month was exceptional.\",\"todo\":\"Have the preparer walk the board through what is included in cost of sales and operating expenses for {{p:2026-05}}, and confirm whether unbilled supplier costs, payroll and provisions have been accrued. If items are missing, reissue the month rather than carrying the distortion into the year-to-date position.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the tax charge behind reported profit\",\"because\":\"The step from EBITDA of {{m:ebitda@2026-05}} to PAT of {{m:pat@2026-05}} is the only visible deduction in the pack, and the pack does not separate depreciation, finance cost or tax. The board cannot see whether tax has been provided at a rate consistent with the year.\",\"todo\":\"Request a short reconciliation from EBITDA to PAT for {{p:2026-05}} showing depreciation, finance cost and the tax provision as separate lines, and the basis used for the tax charge.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 160,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 985,
+      "output_tokens_details": {
+        "thinking_tokens": 127
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "709b805bcd7c65741c6b56583b62bbb603397ff7177ac5fa675aa3df42e0ebe9": {
+    "text": "{\"summary\":\"This month's pack carries only four headline figures for {{p:2026-05}} with no comparatives, no balance-sheet or cash data and no customer or segment split — the board can note the result but cannot yet act on it.\",\"actions\":[{\"heading\":\"Restore comparatives to the monthly pack\",\"because\":\"The pack for {{p:2026-05}} contains revenue of {{m:revenue@2026-05}}, gross profit of {{m:gross_profit@2026-05}}, EBITDA of {{m:ebitda@2026-05}} and PAT of {{m:pat@2026-05}}, and nothing else. With no prior month, no budget and no year-to-date column, none of these can be read as improving or deteriorating, and no variance can be raised for discussion.\",\"todo\":\"Ask the accountant preparing the MIS to reissue next month's pack with prior-month, year-to-date and budget columns against each of the four headline lines, so the board sees movement rather than a single snapshot. Agree the format at this board meeting so it is in place for the next cycle.\",\"urgency\":\"now\"},{\"heading\":\"No cash, working capital or balance sheet in the pack\",\"because\":\"The books presented show only the profit and loss down to {{m:pat@2026-05}}. There is no cash balance, no receivables or payables ageing, no borrowings and no capital expenditure line, so the board cannot tell whether the reported profit for {{p:2026-05}} has converted into cash or is sitting in debtors.\",\"todo\":\"Request that the finance function add a cash and bank balance, a receivables and payables ageing summary, and borrowings with repayment dates to the standard monthly MIS. Until that is available, treat the profit figure as unvalidated for cash purposes and defer any distribution or commitment decision.\",\"urgency\":\"now\"},{\"heading\":\"Revenue not split by customer or segment\",\"because\":\"No dimension values accompany {{m:revenue@2026-05}}, so the board has no view of concentration — whether the month's revenue rests on one counterparty or many — and cannot judge the durability of the margin implied by {{m:gross_profit@2026-05}} against {{m:revenue@2026-05}}.\",\"todo\":\"Direct that revenue and gross profit be tagged by customer and by business line in the ledger, and that the top counterparties by revenue be shown in the pack from next month. If tagging is not yet feasible, ask for a written note on what would be needed to enable it.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Confirm the basis of the reported margins\",\"because\":\"The gap between {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} is narrow, and the fall from {{m:ebitda@2026-05}} to {{m:pat@2026-05}} is modest. Without a cost breakdown, accounting policy note or accrual schedule in the pack, the board cannot see what sits in cost of sales, what overheads have been charged, or what tax basis produced the after-tax figure.\",\"todo\":\"Ask the preparer for a one-page note setting out what is included in cost of sales, which overheads and accruals were charged in {{p:2026-05}}, and the basis of the tax charge. Review at the next meeting before the figures are relied on externally.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 162,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1217,
+      "output_tokens_details": {
+        "thinking_tokens": 133
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "9940a2d89e9d3d3d049e22820c78d418f36cc940f7cccc610f816876c34cfc7f": {
+    "text": "{\"summary\":\"This month's pack is too thin to steer on: one period, four P&L lines, no comparatives or cash data, and the month was assumed rather than read from a file. The board's work this month is fixing the source data, not reading the result.\",\"actions\":[{\"heading\":\"Source the month from an actual file before relying on these figures\",\"because\":\"The pack records that one month in the range was assumed rather than read from a file, and that check V10 raised a warning for {{p:2026-05}}. Every figure presented — revenue {{m:revenue@2026-05}} through profit after tax {{m:pat@2026-05}} — therefore rests on an assumption rather than a ledger extract, and no prior period is available to sense-check it against.\",\"todo\":\"Ask the accountant preparing the MIS to confirm, before the next board date, which ledger or file {{p:2026-05}} should have come from, re-run the pack from it, and state in writing what check V10 flagged and whether it is now cleared. Treat the current figures as provisional in any decision until that confirmation arrives.\",\"urgency\":\"now\"},{\"heading\":\"Confirm whether operating costs have been captured at all\",\"because\":\"Gross profit {{m:gross_profit@2026-05}} sits very close to revenue {{m:revenue@2026-05}}, and profit after tax {{m:pat@2026-05}} is close to EBITDA {{m:ebitda@2026-05}}. That leaves little room for cost of sales, overheads, depreciation, finance cost or tax. Combined with the assumed month, the more likely reading is that cost ledgers were not picked up rather than that the business ran at this margin.\",\"todo\":\"Have the accountant reconcile the cost side line by line — purchases, payroll, rent, utilities, interest, depreciation and tax provision — and report which of these were posted for {{p:2026-05}} and which were absent from the source. If ledgers are genuinely unposted, agree a cut-off date each month by which they must be in before the MIS is produced.\",\"urgency\":\"now\"},{\"heading\":\"No comparatives, no cash and no customer split in the pack\",\"because\":\"Only {{p:2026-05}} is available, with four P&L measures and no dimension values. There is no prior month or year to compare against, no cash or bank balance, no debtors or creditors, and no split by customer or product. The board cannot tell from this pack whether {{m:revenue@2026-05}} is growth or decline, nor whether the profit shown converted into cash.\",\"todo\":\"Agree with the accountant a standard monthly MIS contents list — prior-month and year-to-date columns, closing cash and bank, debtors and creditors ageing, and revenue split by customer — and set the month from which it applies. Decide at the next meeting whether prior periods can be rebuilt to give comparatives.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 185,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1232,
+      "output_tokens_details": {
+        "thinking_tokens": 304
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "38804228bdab59060768c30396bff34097bc079434eb72f49a6dd73a247e8ed0": {
+    "text": "{\"summary\":\"This month's pack rests on one period with no comparatives, and one month was assumed rather than read from a file, so the board should treat the figures as provisional until the source data and validation warning are cleared.\",\"actions\":[{\"heading\":\"Clear the assumed month and the open validation warning before relying on the figures\",\"because\":\"The pack covers only {{p:2026-05}}, and the notes record that one month in the range was assumed rather than read from a source file, with check V10 raising a warning on this month. Every figure presented — revenue of {{m:revenue@2026-05}} through to profit after tax of {{m:pat@2026-05}} — sits on that basis, so the board cannot yet treat them as reported results.\",\"todo\":\"Ask the accountant preparing the MIS to state, in writing before the next board date, which ledger or file the assumed month was substituted for, what V10 tests and why it failed, and whether the figures change once the actual file is loaded. Hold any decision that depends on the reported profit until that confirmation is received.\",\"urgency\":\"now\"},{\"heading\":\"Confirm cost of sales and operating costs are fully captured\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} leaves a very narrow cost of sales, and EBITDA of {{m:ebitda@2026-05}} leaves little between gross profit and operating profit. On an unverified month this pattern more often points to costs not yet posted — unbilled supplier invoices, payroll or accruals — than to genuine margin.\",\"todo\":\"Have the accountant reconcile cost of sales and operating expenses for {{p:2026-05}} to the purchase and payroll ledgers and list any accruals not yet posted, so the board can see whether the margin is real or a cut-off effect.\",\"urgency\":\"now\"},{\"heading\":\"Ask for comparatives, balance sheet and cash before the next pack\",\"because\":\"The pack carries only four profit-and-loss lines for {{p:2026-05}} with no prior period, no balance sheet, no cash position and no split by customer or segment. There is no basis to judge whether revenue of {{m:revenue@2026-05}} is a trend or a one-off, and profit after tax of {{m:pat@2026-05}} cannot be tied to cash.\",\"todo\":\"Agree with the accountant a standing MIS format: prior-month and prior-year comparatives, closing cash and bank, debtors and creditors ageing, and revenue by customer. Set the next pack to that format and name the director responsible for signing it off.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 193,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1122,
+      "output_tokens_details": {
+        "thinking_tokens": 268
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "f115d67bf514e7f0cd76dd6a3685a611595408044cfbd28be8fefbcb11354ec8": {
+    "text": "{\"summary\":\"Only a single month of headline P&L is available, one month in the range was assumed rather than read, and check V10 flagged a warning — so the first task is to firm up the books, not to act on the numbers.\",\"actions\":[{\"heading\":\"Resolve the assumed month and the V10 warning before relying on these figures\",\"because\":\"The pack for {{p:2026-05}} carries a validation warning on check V10 and notes that one month in the range was assumed rather than read from a source file. Every headline figure presented — revenue of {{m:revenue@2026-05}}, EBITDA of {{m:ebitda@2026-05}} and PAT of {{m:pat@2026-05}} — rests on that basis, and no prior period is available to sense-check them against.\",\"todo\":\"Ask the finance team and the preparing accountant to identify which month was assumed, what source file was missing, and what V10 tests. Have the month re-derived from the underlying ledger and the pack reissued to the board with the warning cleared or explained. Treat the current figures as provisional until then.\",\"urgency\":\"now\"},{\"heading\":\"No comparatives, no cash and no balance sheet in the pack\",\"because\":\"The pack contains only {{p:2026-05}} with four P&L lines — revenue {{m:revenue@2026-05}}, gross profit {{m:gross_profit@2026-05}}, EBITDA {{m:ebitda@2026-05}} and PAT {{m:pat@2026-05}}. There are no prior periods, no movement figures, no cash or working capital lines, and no customer or segment split, so the board cannot tell whether the month is improving, concentrated, or converting to cash.\",\"todo\":\"Agree with the accountant a standard MIS format for next month: at least twelve months of comparatives, closing cash and bank, debtors and creditors ageing, and revenue split by customer or segment. Set a date for the reissued pack and make it a standing board item.\",\"urgency\":\"now\"},{\"heading\":\"Margin profile needs corroboration before it informs any decision\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}, with EBITDA at {{m:ebitda@2026-05}} and PAT at {{m:pat@2026-05}}, implies a very narrow gap between the lines. With no cost detail, no comparative month and an open V10 warning, the board cannot judge whether cost of sales and operating costs are fully captured in this month or have slipped into a later cut-off.\",\"todo\":\"Ask the accountant to provide the cost of sales and operating expense build-up behind these four lines for {{p:2026-05}}, including any accruals or provisions raised at month end, and to confirm cut-off. Defer any decision that depends on the margin until that build-up is seen.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 195,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 933,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "7e3f8eb1169b4acc790a060e3d2414e2a080441ea4e7aa16ca1dc6b13a8ae703": {
+    "text": "{\"summary\":\"The pack for {{p:2026-05}} carries only revenue and gross profit — no costs, cash, receivables or prior period. The board can act on little until the MIS is completed.\",\"actions\":[{\"heading\":\"Complete the monthly MIS before the next board meeting\",\"because\":\"For {{p:2026-05}} the pack contains only revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}. There are no operating expenses, profit after tax, cash or bank balances, debtor or creditor positions, and no prior-month or year-ago comparatives. Nothing in the pack supports a view on profitability below gross margin, on liquidity, or on direction of travel.\",\"todo\":\"Ask the finance preparer to extend next month's pack to include operating expenses, net result, closing cash and bank, receivables and payables ageing, and a comparative column for the preceding month. Fix that as the standing MIS format so each board meeting sees the same schedule.\",\"urgency\":\"now\"},{\"heading\":\"Confirm what sits in cost of sales\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} leaves a very small cost of sales for {{p:2026-05}}. That is plausible for a service business, but with no cost breakdown in the pack the board cannot tell whether direct costs are genuinely light or whether some are being classified below the gross profit line.\",\"todo\":\"Ask the preparer to set out the cost of sales classification policy in writing and list what was charged to it in {{p:2026-05}}, so the board knows whether the gross margin shown is comparable month to month.\",\"urgency\":\"this_quarter\"},{\"heading\":\"No dimension split in the books\",\"because\":\"The pack for {{p:2026-05}} carries no customer, product or segment split against revenue of {{m:revenue@2026-05}}, so the board cannot see concentration — whether the month rests on one customer or many.\",\"todo\":\"Decide with the preparer on one dimension worth tracking, most likely customer, and have revenue tagged to it from next month so concentration can be seen in the pack rather than asked for.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 95,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 760,
+      "output_tokens_details": {
+        "thinking_tokens": 33
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "793a64dfebe0f63ea18164569582f72abcdc9bdb4e1169f4bd46f7469b7c4fb0": {
+    "text": "{\"summary\":\"The pack for {{p:2026-05}} carries only revenue and gross profit, with no comparatives, cash, receivables or dimension splits — too thin to steer on. The first action is fixing the MIS itself.\",\"actions\":[{\"heading\":\"Restore a complete monthly MIS pack\",\"because\":\"For {{p:2026-05}} the books presented to the board contain only revenue from operations of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}. There is no operating expense, profit, cash, bank, debtor, creditor or borrowing figure, no prior month or prior year comparative, and no customer, product or segment split. On this basis the board cannot see whether the month was profitable below gross margin, whether cash moved, or where the revenue came from.\",\"todo\":\"Ask the CA preparing the MIS to reinstate, from next month's pack, the full profit and loss below gross profit, closing cash and bank, debtors and creditors with ageing, and borrowings, each with the prior month and prior year comparative. Agree the pack format and the date it reaches the board before the next cycle closes.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the gross margin basis before relying on it\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} implies a very high margin for {{p:2026-05}}. Nothing in the pack shows what has been charged into cost of sales, so the board cannot tell whether direct costs such as delivery staff, subcontractors or freight sit above or below the gross profit line, or whether some costs were simply not booked in the month.\",\"todo\":\"Have the CA set out in writing which ledger heads are mapped to cost of sales and which to overheads, and confirm that all direct costs for {{p:2026-05}} were accrued rather than deferred. If the mapping has changed, ask for the month restated on the earlier basis so the trend stays readable.\",\"urgency\":\"now\"},{\"heading\":\"Get revenue split by customer and by line\",\"because\":\"Revenue of {{m:revenue@2026-05}} is reported as a single figure with no dimension values attached, so concentration risk is invisible to the board. There is no way to see whether the month rests on one contract or many, or whether any single counterparty dominates collections.\",\"todo\":\"Ask for {{p:2026-05}} revenue broken down by customer and by product or service line in the next pack, with the same split for the preceding months so a trend is visible. Set a standing threshold above which a single customer's share is flagged to the board.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 99,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 895,
+      "output_tokens_details": {
+        "thinking_tokens": 32
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "fb825c0237ccbb3b85b6ea28378e23e8b84af76b140bad863ad74c374bf64718": {
+    "text": "{\"summary\":\"The pack for {{p:2026-05}} carries only revenue and gross profit — no comparatives, no cost, cash or customer splits. The board cannot judge performance from this; fixing the reporting pack is the month's real decision.\",\"actions\":[{\"heading\":\"Reporting pack is too thin for the board to act on\",\"because\":\"For {{p:2026-05}} the books supply only two figures: revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}. There is no prior month or prior year, no operating expenses, no profit after tax, no cash or bank position, no receivables or payables, and no customer or segment split. Nothing in the pack shows whether this month is better or worse than the last, or whether the margin held.\",\"todo\":\"Ask the finance team to extend next month's MIS to include, at minimum: prior-month and prior-year comparatives for each line, operating expenses down to profit after tax, closing cash and bank, and debtor and creditor ageing. Agree the format with the chair before the next board date so the same pack is produced each month.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the basis of the reported gross margin\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} on revenue of {{m:revenue@2026-05}} for {{p:2026-05}} implies very little cost of sales. Without the cost lines behind it, the board cannot tell whether this reflects the business model or whether direct costs have been classified below the gross profit line.\",\"todo\":\"Ask the preparer to set out what is included in cost of sales and what sits in operating expenses, and to confirm the classification policy in writing. Carry that note into the next pack so the margin can be read consistently month to month.\",\"urgency\":\"now\"},{\"heading\":\"No cash or working capital visibility\",\"because\":\"The pack for {{p:2026-05}} reports revenue and gross profit only. Revenue of {{m:revenue@2026-05}} tells the board nothing about how much has been collected, what is owed, or what cash is on hand at month end.\",\"todo\":\"Request a cash and working capital summary for {{p:2026-05}} and the preceding months — closing bank balances, receivables ageing by customer, payables ageing, and any borrowings with their repayment dates — so the board can see whether reported profit is converting to cash.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 101,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 844,
+      "output_tokens_details": {
+        "thinking_tokens": 61
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "5fd841e564665471ddda69ac49b4c89a24d1aaaef3b57476daac34cf8adf9c7e": {
+    "text": "{\"summary\":\"The pack holds only one month's revenue and gross profit, with one month assumed rather than read from a file and a validation check unresolved. This month turns on fixing the books, not reading them.\",\"actions\":[{\"heading\":\"Replace the assumed month with the actual ledger file\",\"because\":\"One month in the range was assumed rather than read from a file, so the only reported figures — revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}} — rest partly on an assumption rather than the books.\",\"todo\":\"Ask the accountant to identify which month was assumed and to load the source ledger or trial balance for it, then reissue the MIS. Until that is done, the board should not treat {{p:2026-05}} figures as final.\",\"urgency\":\"now\"},{\"heading\":\"Clear the outstanding validation check before the next board pack\",\"because\":\"Check V10 raised a warning on {{p:2026-05}}, and the pack gives no resolution or explanation. With only two figures reported, an unexplained validation failure covers a large share of what is presented.\",\"todo\":\"Have the accountant state in writing what V10 tested, what failed, and whether it changes {{m:revenue@2026-05}} or {{m:gross_profit@2026-05}}. Record the answer in the next pack rather than leaving the warning open.\",\"urgency\":\"now\"},{\"heading\":\"Extend the MIS beyond revenue and gross profit\",\"because\":\"The pack contains only revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}. There are no operating expenses, no cash or bank position, no receivables, and no customer or segment split, so profitability below gross margin and liquidity cannot be seen at all.\",\"todo\":\"Agree with the accountant a standing MIS schedule: operating expenses, profit after expenses, closing cash and bank, and debtor ageing, plus a revenue split by customer where the ledger supports it. Set the first extended pack for the next reporting month.\",\"urgency\":\"this_quarter\"},{\"heading\":\"No comparatives available to judge performance\",\"because\":\"Only {{p:2026-05}} is present, with no prior month or prior year alongside it, so neither revenue of {{m:revenue@2026-05}} nor the reported gross margin can be judged as improving or worsening.\",\"todo\":\"Ask for the preceding months to be loaded from source so the next pack carries month-on-month and, where available, year-on-year comparatives. Defer any decision that depends on trend until those are in hand.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 128,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 940,
+      "output_tokens_details": {
+        "thinking_tokens": 92
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "042982d04510905f41477aea4cbc0b5b34d0034146cfe4cd8b603286009b4572": {
+    "text": "{\"summary\":\"This month's pack carries only revenue and gross profit for {{p:2026-05}}, with one month assumed rather than read from a file and a validation check raised. The board's action is to fix the reporting base before reading anything into the numbers.\",\"actions\":[{\"heading\":\"Replace the assumed month with actual source data\",\"because\":\"The pack states that one month in the range was assumed rather than read from a file, and the only figures carried for {{p:2026-05}} are revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}. Nothing in the pack shows which ledgers were available and which were substituted, so the board cannot tell how much of {{p:2026-05}} is reported and how much is estimated.\",\"todo\":\"Ask the finance team to identify which month was assumed, what was used in place of the source file, and when the actual ledger will be loaded. Re-issue the MIS for {{p:2026-05}} once the file is in, and note in the pack whether the revenue and gross profit figures change on restatement.\",\"urgency\":\"now\"},{\"heading\":\"Clear the validation check raised on this month\",\"because\":\"Check V10 was raised as a warning on {{p:2026-05}}. The pack does not carry what the check tests or which balances failed it, so the board has no basis for accepting the reported revenue of {{m:revenue@2026-05}} or gross profit of {{m:gross_profit@2026-05}} as final.\",\"todo\":\"Have the preparer set out what V10 tests, which accounts triggered it, and whether it is resolved, corrected or accepted as-is. Bring that note to the next board meeting alongside the restated {{p:2026-05}} figures.\",\"urgency\":\"now\"},{\"heading\":\"Verify how cost of sales is being captured\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} sits very close to revenue of {{m:revenue@2026-05}} for {{p:2026-05}}, leaving little recorded direct cost. With a month assumed rather than read from a file, this may reflect purchases or direct costs not yet posted rather than the underlying margin.\",\"todo\":\"Ask the preparer to confirm which cost heads are mapped to cost of sales and whether supplier invoices and accruals for {{p:2026-05}} are fully posted. If costs are outstanding, record the expected accrual and restate gross profit before the figure is used for any decision.\",\"urgency\":\"now\"},{\"heading\":\"Widen the MIS beyond two lines\",\"because\":\"The pack for {{p:2026-05}} carries only revenue and gross profit, with no comparative period, no dimension splits by customer or segment, and no cash, debtor or overhead figures. The board cannot see trend, concentration or whether trading converts to cash.\",\"todo\":\"Agree with the preparer a standing MIS layout: prior-month and year-to-date comparatives, overheads and operating result, cash and bank balances, debtors and creditors ageing, and revenue split by customer. Set the next pack as the first one issued on that basis.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 132,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1192,
+      "output_tokens_details": {
+        "thinking_tokens": 177
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "38a12ce72386e5a7eda0bc55ca87e441af197e324feb9c79d6c9241e3f066f00": {
+    "text": "{\"summary\":\"This month's pack carries only revenue and gross profit for a single period, with a validation warning and one month assumed rather than read from source. The board's first task is to get the books to a state it can decide from.\",\"actions\":[{\"heading\":\"Clear the validation warning before the figures are relied on\",\"because\":\"Check V10 was raised on this month, and one month in the range was assumed rather than read from a source file. That means the two figures presented — revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}} for {{p:2026-05}} — rest in part on an assumption, not on ledger data. No other period is available to cross-check them against.\",\"todo\":\"Ask the accountant preparing the MIS to state, in writing before the next board meeting, what V10 tests, why it failed, and which ledger the assumed month should have come from. Have {{p:2026-05}} re-run from source once loaded, and record whether the two reported figures change.\",\"urgency\":\"now\"},{\"heading\":\"Nothing below gross profit is reported\",\"because\":\"The pack contains revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}} and nothing else — no operating costs, no profit before tax, no cash or bank balance, no debtors or creditors. The board cannot tell from this whether the month was profitable or whether the company is funded.\",\"todo\":\"Instruct the accountant to extend next month's MIS to a full profit and loss below gross profit, plus closing cash, receivables and payables. Agree the minimum line list at this meeting so the next pack is comparable, and defer any decision that depends on profitability or liquidity until it arrives.\",\"urgency\":\"now\"},{\"heading\":\"No comparative period to judge the month against\",\"because\":\"Only {{p:2026-05}} is available, so neither revenue of {{m:revenue@2026-05}} nor gross profit of {{m:gross_profit@2026-05}} can be read as up or down. There are also no dimension splits — no customer, product or location breakdown — so the board cannot see what is driving either figure or how concentrated the revenue is.\",\"todo\":\"Ask for prior months to be loaded so the next pack shows a trend, and for revenue and gross profit to be split by customer at minimum. If prior periods cannot be produced from the accounting system, have the accountant explain why — that itself is a matter for the board.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 134,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 948,
+      "output_tokens_details": {
+        "thinking_tokens": 150
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8b2321ff0f5d2ce26cc91fbe236460f903fcabcc2b4528b0c66c8894cb9b6944": {
+    "text": "{\"summary\":\"The pack carries only one figure for {{p:2026-05}} — revenue of {{m:revenue@2026-05}} — with no costs, cash, debtors or prior period. There is not enough here for the board to act on beyond fixing the reporting itself.\",\"actions\":[{\"heading\":\"Close the gaps in the monthly pack\",\"because\":\"The only fact available for {{p:2026-05}} is revenue from operations of {{m:revenue@2026-05}}. There are no cost, margin, cash, receivable or payable figures, no dimension splits by customer or segment, and no comparative period. On this basis the board cannot tell whether the month was profitable, whether cash moved, or whether any balance is at risk.\",\"todo\":\"Ask the accountant to extend next month's MIS to include cost of sales and operating expenses, closing cash and bank, debtors and creditors with ageing, and the prior month plus year-to-date columns, so figures can be compared. Agree the list and the delivery date at this board meeting.\",\"urgency\":\"now\"},{\"heading\":\"Set comparatives before reading the revenue line\",\"because\":\"Revenue of {{m:revenue@2026-05}} is reported for {{p:2026-05}} alone. Without a prior month, a budget or the same month last year in the pack, the board has no way to judge whether this is growth, decline or flat trading.\",\"todo\":\"Have the accountant load at least the preceding months of the current year into the reporting so {{p:2026-05}} can be placed in trend, and confirm whether an approved budget exists to report against. If no budget has been set, the board should decide whether to adopt one for the remainder of the year.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Revenue concentration is unmeasured\",\"because\":\"No customer or segment dimension values accompany the revenue of {{m:revenue@2026-05}}, so the pack cannot show whether the month rests on one or two accounts.\",\"todo\":\"Ask the accountant whether the ledger supports a customer-level split of sales; if it does, add a top-customer breakdown to the pack. If it does not, the board should consider whether sales coding is changed so concentration can be monitored.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 65,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 736,
+      "output_tokens_details": {
+        "thinking_tokens": 18
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "a910d08b589781a9a930a171d54eb39915ac93da33a26d07cd8c679cdfc6f698": {
+    "text": "{\"summary\":\"The pack carries only one figure for {{p:2026-05}} — revenue — with no costs, cash or comparatives, so the board cannot judge performance this month. Fixing the MIS itself is the action.\",\"actions\":[{\"heading\":\"MIS pack is incomplete for board review\",\"because\":\"For {{p:2026-05}} the only figure available is revenue from operations of {{m:revenue@2026-05}}. There is no cost of sales, overhead, profit, cash or debtor information, no prior-period or budget comparative, and no customer or segment split. On this basis the board cannot tell whether the month was profitable, whether the revenue converted to cash, or how it compares with any earlier month.\",\"todo\":\"Ask the finance team and the reporting accountant to reissue the pack for {{p:2026-05}} with, at minimum: profit and loss to net profit, closing cash and bank, debtors and creditors ageing, and the prior month and year-to-date comparatives. Agree a fixed template and a monthly cut-off date so the same schedule arrives each month before the board meeting.\",\"urgency\":\"now\"},{\"heading\":\"No comparatives or dimension splits to interpret revenue\",\"because\":\"Revenue of {{m:revenue@2026-05}} is presented for a single period, {{p:2026-05}}, with no dimension values in the books as supplied — no customer, product or location breakdown — and no earlier period to compare against.\",\"todo\":\"Ask the accountant whether the underlying ledger carries customer and product tagging and, if so, to enable those splits in the next pack; if it does not, have the board decide which one or two dimensions are worth tagging from the next month onward, so concentration and mix can be tracked.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 67,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 591,
+      "output_tokens_details": {
+        "thinking_tokens": 18
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "2eda10dffef6465327b6fec68f5879c73776dd333eb1333d9872cb74bf4b9eea": {
+    "text": "{\"summary\":\"The pack carries only one figure — revenue for {{p:2026-05}} — with no comparatives, costs or cash. There is nothing here to steer by, so the first action is fixing the reporting pack itself.\",\"actions\":[{\"heading\":\"Reporting pack is too thin for the board to act on\",\"because\":\"For {{p:2026-05}} the only figure available is revenue from operations of {{m:revenue@2026-05}}. There are no cost, margin, cash or receivable figures, no prior-period comparatives, and no customer or segment split. Nothing in the pack shows whether this revenue converted to cash, what it cost to earn, or how it compares with earlier months. No validation warnings were raised, but that reflects the absence of data rather than its quality.\",\"todo\":\"Ask the finance preparer to extend next month's MIS to include, at minimum: expenses by head, profit before tax, closing cash and bank, debtors and creditors ageing, and the prior month plus same month last year as comparatives. Agree the dimension splits the board wants revenue reported by — customer, segment or geography. Set a date by which the expanded pack is tabled.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the revenue figure and its basis before relying on it\",\"because\":\"Revenue for {{p:2026-05}} is reported at {{m:revenue@2026-05}} with no supporting breakdown — no invoice count, no customer concentration, no distinction between recognised and billed amounts. A single large figure standing alone cannot be assessed for one-off items, cut-off, or credit notes.\",\"todo\":\"Have the preparer confirm the basis of recognition for {{p:2026-05}} revenue and provide the top customers by value and the month's largest invoices, so the board can see whether {{m:revenue@2026-05}} is run-rate or includes one-off contracts.\",\"urgency\":\"now\"},{\"heading\":\"No cash or working capital visibility\",\"because\":\"The pack shows revenue of {{m:revenue@2026-05}} but no closing cash, no borrowings and no receivables. The board cannot tell whether the month's trading improved or worsened liquidity.\",\"todo\":\"Request a one-page cash summary for {{p:2026-05}} — opening and closing balances, collections against billings, and any drawdowns or repayments — ahead of the next meeting, and make it a standing item in the monthly pack.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 69,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 832,
+      "output_tokens_details": {
+        "thinking_tokens": 38
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "cb45b95afe68128fc9622c7c75098491d760cfc4633ceaa96a42ec8590bec2ef": {
+    "text": "{\"summary\":\"The pack carries only a single revenue figure for one month, with a validation warning outstanding and a month assumed rather than sourced. The board cannot judge performance until the books behind this MIS are complete.\",\"actions\":[{\"heading\":\"Close the gap behind the assumed month\",\"because\":\"The pack records that one month in the range was assumed rather than read from a source file, so the only reported figure — revenue of {{m:revenue@2026-05}} for {{p:2026-05}} — may not be traceable to the underlying ledger.\",\"todo\":\"Ask the preparer to identify which month was assumed and on what basis, and to re-run the MIS once the source file is loaded. Until then the board should treat {{p:2026-05}} revenue as provisional and not use it for any commitment or external reporting.\",\"urgency\":\"now\"},{\"heading\":\"Clear the outstanding validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}} and no resolution is recorded in the pack. An unresolved check means the reported revenue of {{m:revenue@2026-05}} has not passed the preparer's own control.\",\"todo\":\"Have the preparer state what V10 tests, what triggered it this month, and whether it is a data error or an accepted exception. Record the answer in next month's pack so the board can see whether it recurs.\",\"urgency\":\"now\"},{\"heading\":\"No cost, cash or comparative data in the pack\",\"because\":\"The only fact supplied is revenue of {{m:revenue@2026-05}}. There are no expense, margin, cash or balance sheet figures, no dimension splits by customer or segment, and only one period, so no trend or variance can be assessed.\",\"todo\":\"Agree with the preparer a minimum MIS content set — costs, profit, cash and closing balances, with at least the prior month for comparison and a customer split — and set the date by which the next pack meets it.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 98,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 693,
+      "output_tokens_details": {
+        "thinking_tokens": 68
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "ed797deaac973756b717a56c69c3d5aca8ab9605b68bf73d930e4a396a804c66": {
+    "text": "{\"summary\":\"This pack carries a single revenue figure for {{p:2026-05}}, with a validation warning and one month assumed rather than read from a file — not enough to steer decisions on. The action this month is to fix the books, not to act on them.\",\"actions\":[{\"heading\":\"Close the gap in the underlying data before relying on this month's MIS\",\"because\":\"The pack for {{p:2026-05}} contains only revenue of {{m:revenue@2026-05}}. There are no cost, margin, cash, debtor or creditor facts, no comparative period and no dimension splits by customer or segment. One month in the range was assumed rather than read from a source file, so even the figures present are not fully traceable to records.\",\"todo\":\"Ask the finance lead to identify which source files were missing for {{p:2026-05}} and re-run the MIS once they are loaded. Until then the board should treat {{m:revenue@2026-05}} as indicative only and defer decisions that depend on cost, cash or margin.\",\"urgency\":\"now\"},{\"heading\":\"Resolve the validation warning raised on this month\",\"because\":\"Check V10 raised a warning on {{p:2026-05}}. No explanation accompanies it in the pack, so the board cannot tell whether it affects the one figure reported, {{m:revenue@2026-05}}, or something not shown.\",\"todo\":\"Ask the preparing accountant to set out, in writing before the next meeting, what Check V10 tests, what triggered it for {{p:2026-05}}, and whether the reported revenue is affected. Record whether it is a one-off or recurs once the missing month is loaded properly.\",\"urgency\":\"now\"},{\"heading\":\"Agree the minimum reporting set for future months\",\"because\":\"With only {{m:revenue@2026-05}} available and a single period, no trend, no comparison and no breakdown can be formed. The board has nothing against which to judge performance.\",\"todo\":\"Have the board agree with the accountant a fixed monthly schedule — revenue, direct costs, overheads, cash and closing debtors and creditors, with prior-month comparatives and the main customer split — and make delivery of that set the condition for tabling the MIS.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 100,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 750,
+      "output_tokens_details": {
+        "thinking_tokens": 33
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6a1ca0460c066ea33de4913d7dc92ec1851deaf8a8e610c4382fe811f9f795a7": {
+    "text": "{\"summary\":\"Only one figure is available for {{p:2026-05}} — revenue — and the month carries a validation warning plus an assumed period, so the board cannot yet judge performance. Fixing the data pack is this month's job.\",\"actions\":[{\"heading\":\"Get the month's books completed before the next board pack\",\"because\":\"The pack for {{p:2026-05}} contains a single figure, revenue from operations of {{m:revenue@2026-05}}. There is no cost, margin, cash, receivable or comparative data, and no prior period to compare against, so nothing in the books supports a judgement on profitability, liquidity or trend.\",\"todo\":\"Ask the CA preparing the MIS to confirm what is outstanding — ledgers not yet posted, bank statements not received, or schedules pending — and set a date for a complete pack covering costs, cash and balances alongside revenue. Agree with the finance lead a standing minimum content list for future months so the board sees the same statements each time.\",\"urgency\":\"now\"},{\"heading\":\"Resolve the validation warning and the assumed month\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a source file. That means the revenue figure of {{m:revenue@2026-05}} rests partly on an assumption, and the board does not know what the failed check relates to.\",\"todo\":\"Have the preparer set out, in writing to the board, what check V10 tests, why it failed for {{p:2026-05}}, and which month was assumed and on what basis. Where the assumption replaced a missing file, obtain the underlying file and re-run the pack before the figure is used for any decision or external reporting.\",\"urgency\":\"now\"},{\"heading\":\"No dimensional split to work with\",\"because\":\"The books for {{p:2026-05}} carry no customer, segment or other dimension values, so the revenue of {{m:revenue@2026-05}} cannot be tested for concentration in a few counterparties or for where it is actually coming from.\",\"todo\":\"Decide with the CA which one or two splits the board most needs — likely customer and revenue stream — and have the chart of accounts or tagging set up so future months report them. Until then, treat the headline revenue figure as unverified as to source.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 102,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 767,
+      "output_tokens_details": {
+        "thinking_tokens": 27
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  }
+}
