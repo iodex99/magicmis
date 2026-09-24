@@ -82,6 +82,10 @@ with Actions:read — ask for one rather than guessing.
 
 Local stack: `npx supabase start -x storage-api,imgproxy,realtime` (storage is unused until
 Phase 6 and its container fails a health check on first boot here). Apply new migrations with `npx supabase migration up`.
+**Mirror a new migration with `node scripts/sync-supabase-migrations.mjs`, never `cp`** — the
+mirror carries a `-- GENERATED …` header, so a hand-copied file fails `--check` in CI. That
+check is the **first step of the E2E job**, before Supabase starts, so getting it wrong skips
+the entire browser suite and the run reads as an E2E failure that never ran a test.
 Web E2E: `pnpm --filter @magicmis/web build && pnpm --filter @magicmis/web e2e`.
 Admin E2E (needs `apps/admin/.env.local`, see `.env.example`; `APP_ENVIRONMENT=development`):
 `pnpm --filter @magicmis/admin build && pnpm --filter @magicmis/admin e2e`. Stop any stray

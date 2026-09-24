@@ -1,3 +1,4 @@
+-- GENERATED from packages/db/migrations/0063_dashboard_layout_efficient_on_sonnet.sql. Do not edit.
 -- The Efficient tier's first dashboard moves from Haiku 4.5 to Sonnet 5 (R-28, ADR 0066).
 --
 -- With the length bug fixed and prompt v2 in place, Haiku reached 0.9473 on 57 items against a
