@@ -17,7 +17,8 @@
     "lint": "eslint src test evals",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "evals": "tsx --conditions=react-server evals/run.ts"
+    "evals": "tsx --conditions=react-server evals/run.ts",
+    "activate": "tsx --conditions=react-server evals/activate.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.125.0",

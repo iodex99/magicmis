@@ -1,6 +1,10 @@
 import "server-only";
 
-import { dashboardSpecSchema, unknownMetrics } from "@magicmis/render-dashboard";
+import {
+  dashboardSpecSchema,
+  unknownMetrics,
+  WIDGET_TITLE_MAX,
+} from "@magicmis/render-dashboard";
 import { z } from "zod";
 
 import {
@@ -63,13 +67,37 @@ export const dashboardLayoutInput = z.object({
 });
 export type DashboardLayoutInput = z.infer<typeof dashboardLayoutInput>;
 
+/*
+ * The limits the model writes inside (ADR 0066).
+ *
+ * The first live eval refused four boards in five on the summary alone, and every expert one:
+ * the length was in the schema and in no prompt, so the model was marked against a number
+ * nobody gave it. The same fault, and the same fix, as `board_actions` — and the fix is prompt
+ * v2, not `stable()`, whose text sits inside `<data>` tags the model is told to treat as data
+ * and never as instruction. `prompt-limits.test.ts` holds the prompt to these numbers.
+ */
+export const LIMITS = {
+  /*
+   * Nobody ever reads this. `firstDashboardSpec` takes the spec out of the response and drops
+   * the summary, so it is the model's own reasoning about the board it just chose, not a string
+   * the product shows. At 300 it rejected 36 of 57 first attempts — whole boards thrown away,
+   * and the company left on the standard dashboard, over a field with no reader. A field that
+   * is discarded must not be able to fail a response, so the cap is only a payload guard now.
+   * It stays digit-free in `specFromLayout` as defence in depth, in case it is ever rendered.
+   */
+  summary: 1000,
+  widgetsJson: 20_000,
+  calculatedJson: 8000,
+  title: WIDGET_TITLE_MAX,
+} as const;
+
 export const dashboardLayoutOutput = z.object({
   /** Why this layout suits this company, in plain words and with no digits. */
-  summary: z.string().min(1).max(300),
+  summary: z.string().min(1).max(LIMITS.summary),
   /** The array of boxes, as JSON text. Validated against the dashboard schema below. */
-  widgets_json: z.string().min(2).max(20_000),
+  widgets_json: z.string().min(2).max(LIMITS.widgetsJson),
   /** Formulas, as JSON text. Null for a first layout. */
-  calculated_json: z.string().max(8000).nullable(),
+  calculated_json: z.string().max(LIMITS.calculatedJson).nullable(),
 });
 export type DashboardLayoutOutput = z.infer<typeof dashboardLayoutOutput>;
 

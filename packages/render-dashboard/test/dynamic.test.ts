@@ -288,3 +288,58 @@ describe("formulas on a dashboard", () => {
     );
   });
 });
+
+/*
+ * ADR 0056 follow-up. A box whose drilldown is absent or null is a box that drills to its own
+ * lineage, which is what Investigate does on every box anyway (ADR 0047).
+ *
+ * This was found by the first live eval of `dashboard_layout`: the efficient tier wrote
+ * `"drilldown": null` on three hundred and forty-three of its four hundred and thirty-two boxes
+ * and scored 0.298, while the two larger models never once did it. The field was the only one of
+ * its group — `compare`, `sort`, `limit` all sit beside it with defaults — that a producer had to
+ * state. Refusing a whole board over the one value it could have inferred is the schema's fault,
+ * not the producer's.
+ */
+describe("a box that does not say where it drills to", () => {
+  const box = {
+    id: "w1",
+    kind: "kpi_card",
+    title: "Revenue",
+    metrics: ["revenue"],
+    dimension: null,
+    periods: { kind: "current" },
+    layout: { x: 0, y: 0, w: 3, h: 2 },
+  };
+  const specWith = (drilldown: unknown) =>
+    dashboardSpecSchema.safeParse({
+      schemaVersion: 1,
+      grid: { columns: 12 },
+      filters: { period: { default: "latest" }, dimension: null },
+      widgets: [drilldown === undefined ? box : { ...box, drilldown }],
+      calculated: [],
+    });
+
+  it("reads null as lineage", () => {
+    const r = specWith(null);
+    expect(r.success).toBe(true);
+    expect(r.success && r.data.widgets[0]?.drilldown).toEqual({ kind: "lineage" });
+  });
+
+  it("reads a missing drilldown as lineage", () => {
+    const r = specWith(undefined);
+    expect(r.success).toBe(true);
+    expect(r.success && r.data.widgets[0]?.drilldown).toEqual({ kind: "lineage" });
+  });
+
+  it("still keeps a drilldown that was stated", () => {
+    const r = specWith({ kind: "widget", widgetId: "w1" });
+    expect(r.success && r.data.widgets[0]?.drilldown).toEqual({
+      kind: "widget",
+      widgetId: "w1",
+    });
+  });
+
+  it("still refuses a drilldown that is neither", () => {
+    expect(specWith({ kind: "elsewhere" }).success).toBe(false);
+  });
+});

@@ -18,6 +18,9 @@ import { z } from "zod";
 
 const id = z.string().regex(/^[a-z0-9_]{1,40}$/u);
 const metricId = z.string().regex(/^[a-z_]{1,60}(\.[a-z_]{1,20})?$/u);
+/** How long a box title may be. Named because the stage that writes one is told it. */
+export const WIDGET_TITLE_MAX = 80;
+
 
 export const WIDGET_KINDS = [
   "kpi_card",
@@ -41,7 +44,7 @@ export const widgetSchema = z
   .object({
     id,
     kind: z.enum(WIDGET_KINDS),
-    title: z.string().min(1).max(80),
+    title: z.string().min(1).max(WIDGET_TITLE_MAX),
     metrics: z.array(metricId).min(1).max(8),
     /** Dimension to split by (e.g. `party`, `bucket`); null for totals. */
     dimension: z
@@ -60,10 +63,20 @@ export const widgetSchema = z
       w: z.number().int().min(1).max(12),
       h: z.number().int().min(1).max(12),
     }),
-    drilldown: z.discriminatedUnion("kind", [
-      z.object({ kind: z.literal("lineage") }),
-      z.object({ kind: z.literal("widget"), widgetId: id }),
-    ]),
+    /*
+     * Where the box leads when it is opened. Absent or null means lineage, which is what every
+     * box offers anyway: Investigate is on all of them (ADR 0047), and drilling to another box
+     * is the deliberate exception. It defaults like `compare`, `sort` and `limit` beside it, so
+     * a saved dashboard that predates the field still reads and a producer that has nothing
+     * special to say can leave it out rather than guess.
+     */
+    drilldown: z
+      .discriminatedUnion("kind", [
+        z.object({ kind: z.literal("lineage") }),
+        z.object({ kind: z.literal("widget"), widgetId: id }),
+      ])
+      .nullish()
+      .transform((d) => d ?? ({ kind: "lineage" } as const)),
     compare: z.enum(COMPARE_BASES).default("none"),
     /*
      * How a box with many rows orders and trims them (ADR 0056).

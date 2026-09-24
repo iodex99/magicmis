@@ -59,17 +59,32 @@ export type BoardActionsInput = z.infer<typeof boardActionsInput>;
  */
 export const URGENCIES = ["now", "this_quarter", "watch"] as const;
 
+/*
+ * The limits the model has to write inside (ADR 0066).
+ *
+ * They were in the schema alone to begin with, and every expert answer in the first eval run
+ * overran the summary — the model was being marked against a number nobody had given it, and
+ * the repair round that rescued most of them was a second paid call on every single month.
+ *
+ * A limit the output is judged by is part of the brief, and the brief is the **system prompt**:
+ * stating it in `stable()` did nothing, because `stable()` is wrapped in `<data>` tags and every
+ * prompt here tells the model that what is inside them is data and never an instruction. So
+ * prompt v2 carries these numbers in words, and `prompt-limits.test.ts` holds the prompt and
+ * this constant to the same values — a static file cannot read a constant, so a test has to.
+ */
+export const LIMITS = { summary: 300, heading: 120, because: 700, todo: 700 } as const;
+
 export const boardActionsOutput = z.object({
   /** One line the chair reads first. */
-  summary: z.string().max(300),
+  summary: z.string().max(LIMITS.summary),
   actions: z
     .array(
       z.object({
-        heading: z.string().max(120),
+        heading: z.string().max(LIMITS.heading),
         /** What the books show, in placeholders. */
-        because: z.string().max(700),
+        because: z.string().max(LIMITS.because),
         /** What to do about it. */
-        todo: z.string().max(700),
+        todo: z.string().max(LIMITS.todo),
         urgency: z.enum(URGENCIES),
       }),
     )

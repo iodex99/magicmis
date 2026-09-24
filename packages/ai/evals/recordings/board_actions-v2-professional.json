@@ -1,0 +1,1028 @@
+{
+  "826110b76c48af07bbd8cfabe279d19e9b03397643ed0a2fc9bfb3dcd278c714": {
+    "text": "{\"summary\":\"Every metric this month moved by the identical percentage, which suggests scaled or placeholder data rather than genuine performance; only one period is available so no real trend can be confirmed.\",\"actions\":[{\"heading\":\"Verify data integrity behind this month's figures\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash all show the exact same {{mv:revenue.mom@2026-05:pct}} change versus last month, which is unusual for independent line items and points to a possible uniform scaling or template artefact in the MIS.\",\"todo\":\"Ask the preparer to confirm the underlying ledger figures for {{p:2026-05}} independently, rather than relying on a rolled-forward or scaled prior-month base.\",\"urgency\":\"now\"},{\"heading\":\"Build a multi-period base for trend review\",\"because\":\"Only {{p:2026-05}} is available in the pack, so the board cannot yet see a genuine trend in {{m:revenue@2026-05}}, {{m:ebitda@2026-05}} or {{m:pat@2026-05}} beyond a single month-on-month comparison.\",\"todo\":\"Request the CA to include at least three to six prior months in the next MIS pack so movements can be checked against a real pattern, not a single comparison point.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Monitor receivables versus payables gap\",\"because\":\"Trade receivables stand at {{m:receivables@2026-05}} against trade payables of {{m:payables@2026-05}}, with cash and bank at {{m:cash_and_bank@2026-05}}; if the uniform movement pattern reflects real changes, working capital timing is worth tracking.\",\"todo\":\"Have finance prepare an ageing summary of receivables and payables for the next board meeting to confirm collection and payment timing.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 756,
+      "cache_creation_input_tokens": 1837,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 1837,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 678,
+      "output_tokens_details": {
+        "thinking_tokens": 64
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "fb842342b43d4c430abb200d10cc134f3851a77b16ef3939c2fbe240db51dc84": {
+    "text": "{\"summary\":\"All metrics moved by the same 13.6% this month, including revenue, costs, receivables and cash — a pattern consistent with a scaling artefact rather than genuine operating change. Verify before relying on this MIS.\",\"actions\":[{\"heading\":\"Verify uniform movement across all line items\",\"because\":\"Revenue {{mv:revenue.mom@2026-05:pct}}, gross profit {{mv:gross_profit.mom@2026-05:pct}}, EBITDA {{mv:ebitda.mom@2026-05:pct}}, PAT {{mv:pat.mom@2026-05:pct}}, receivables {{mv:receivables.mom@2026-05:pct}}, payables {{mv:payables.mom@2026-05:pct}} and cash {{mv:cash_and_bank.mom@2026-05:pct}} all show the identical percentage change, which is not typical of independent business drivers.\",\"todo\":\"Ask the CA to confirm the underlying month-on-month figures were computed from actual ledger entries for {{p:2026-05}} and not derived by applying a single scaling factor across the report.\",\"urgency\":\"now\"},{\"heading\":\"No prior-period or multi-period trend available\",\"because\":\"Only one period, {{p:2026-05}}, is present in the facts pack, so the board cannot see whether the reported growth is part of a trend or a one-off.\",\"todo\":\"Request the CA include at least the trailing three to six months in the next MIS so movements can be checked against a trend rather than a single comparison.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Receivables growth outpacing cash build-up\",\"because\":\"Trade receivables rose by {{mv:receivables.mom@2026-05:abs}} to {{m:receivables@2026-05}} while cash and bank increased by only {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}.\",\"todo\":\"Ask finance to provide a receivables ageing summary by customer for {{p:2026-05}} so the board can see if collections are keeping pace with billed revenue.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 792,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 769,
+      "output_tokens_details": {
+        "thinking_tokens": 57
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "31d06b9b4a124522efba035a47afcf0061e35e050bb01cf1ca066826f9f3490b": {
+    "text": "{\"summary\":\"Every metric this month moved by exactly the same {{mv:revenue.mom@2026-05:pct}}, which is unusual and worth confirming before drawing conclusions from the MIS.\",\"actions\":[{\"heading\":\"Verify uniform movement across all metrics\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash all show an identical change of {{mv:revenue.mom@2026-05:pct}} versus last month, which is an unlikely coincidence across unrelated line items.\",\"todo\":\"Ask the accountant to confirm whether this month's figures were derived from last month by a uniform scaling (e.g. a template or estimation error) rather than being independently recorded actuals.\",\"urgency\":\"now\"},{\"heading\":\"Confirm receivables growth is not outpacing collections\",\"because\":\"Trade receivables stand at {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} on last month, alongside revenue of {{m:revenue@2026-05}}.\",\"todo\":\"Have finance prepare an ageing summary of receivables for the next board pack to confirm collection pace matches revenue growth.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Monitor cash position relative to payables\",\"because\":\"Cash and bank of {{m:cash_and_bank@2026-05}} is well below trade payables of {{m:payables@2026-05}}.\",\"todo\":\"Ask finance to track short-term liquidity (cash vs payables due) over the next few months to see if the gap widens.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 802,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 587,
+      "output_tokens_details": {
+        "thinking_tokens": 57
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "fc9bc6cf7ff8d5b64759bf3fcba96bb75e111cdb488a95803fdae5a70ca8717d": {
+    "text": "{\"summary\":\"All metrics moved by an identical proportion this month, and a validation check was flagged — the figures need to be confirmed before the board relies on them.\",\"actions\":[{\"heading\":\"Verify data quality behind this month's MIS\",\"because\":\"Validation check V10 raised a warning for {{p:2026-05}}, and every single metric — revenue, gross profit, EBITDA, PAT, receivables, payables and cash — shows the exact same change of {{mv:revenue.mom@2026-05:pct}}, which is not typical of real operations.\",\"todo\":\"Ask the preparing accountant to confirm the source files for {{p:2026-05}} were actually read rather than estimated, and to clear the V10 warning before the board relies on these figures.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month in the range\",\"because\":\"The pack states one month in the range was assumed rather than read from a file, which is separate from the V10 warning and affects confidence in period-on-period comparisons.\",\"todo\":\"Identify which month was assumed and have it replaced with actual filed data, then reissue the comparison.\",\"urgency\":\"now\"},{\"heading\":\"Review receivables growth once data is confirmed\",\"because\":\"Trade receivables rose by {{mv:receivables.mom@2026-05:abs}} to {{m:receivables@2026-05}}, broadly tracking revenue growth of {{mv:revenue.mom@2026-05:abs}}, but this should be re-checked once the underlying data issues are resolved.\",\"todo\":\"Once figures are verified, ask finance to confirm receivable days have not worsened relative to revenue growth.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 789,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 545,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "c50fca84786cbc9ccefb25386193df4d6173e2021a5dd7beac411aae40348412": {
+    "text": "{\"summary\":\"All metrics moved by the same proportion this month and one month's figures were assumed rather than taken from source files — the numbers need verifying before the board relies on them.\",\"actions\":[{\"heading\":\"Verify data source for the month\",\"because\":\"A validation warning states one month in the range was assumed rather than read from a file, and every single metric (revenue, gross profit, EBITDA, PAT, receivables, payables, cash) shows an identical change of {{mv:revenue.mom@2026-05:pct}} — a pattern consistent with modelled or extrapolated figures rather than actuals.\",\"todo\":\"Ask the preparing accountant to confirm which month's figures were assumed, and obtain the underlying source file for {{p:2026-05}} before the board relies on these numbers.\",\"urgency\":\"now\"},{\"heading\":\"Resolve Check V10 warning\",\"because\":\"Check V10 was raised for {{p:2026-05}} but no detail on the nature of the flag is included in this pack.\",\"todo\":\"Ask the preparing accountant what Check V10 tests and what triggered it this month, and have it cleared or explained before sign-off.\",\"urgency\":\"now\"},{\"heading\":\"Confirm receivables and payables movement is genuine\",\"because\":\"Trade receivables rose to {{m:receivables@2026-05}} (up {{mv:receivables.mom@2026-05:abs}}) and payables rose to {{m:payables@2026-05}} (up {{mv:payables.mom@2026-05:abs}}), both showing the same uniform percentage change as every other line item.\",\"todo\":\"Have finance reconcile receivables and payables ledgers for {{p:2026-05}} against actual invoices to confirm the figures are real and not a placeholder calculation.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 825,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 586,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "7c514f057b34f1df4be6c5a9e65a5b43a67804b3be3d7470abccd0349aa963ec": {
+    "text": "{\"summary\":\"All lines moved by the same proportion this month, and a validation check plus an assumed-data flag both need clearing before the board relies on these figures.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, but no detail on which figure it flags is in the pack.\",\"todo\":\"Ask the accountant to specify what V10 checks and confirm whether it affects revenue, receivables, or any other line before the board signs off the month.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a file, so figures such as {{m:revenue@2026-05}} and {{m:pat@2026-05}} may not be sourced from actuals.\",\"todo\":\"Have the accountant identify which month was assumed and replace it with actual books before this MIS is finalised.\",\"urgency\":\"now\"},{\"heading\":\"Check why every metric moved identically\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash all show the same {{mv:revenue.mom@2026-05:pct}} change, which is unusual for unrelated lines.\",\"todo\":\"Ask the accountant to verify these figures were computed independently and not carried forward with a single scaling factor by error.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Monitor receivables growth against revenue\",\"because\":\"Trade receivables rose by {{mv:receivables.mom@2026-05:abs}} to {{m:receivables@2026-05}}, tracking revenue growth of {{mv:revenue.mom@2026-05:abs}}.\",\"todo\":\"Ask finance to confirm collection days are stable and not silently lengthening as revenue scales.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 835,
+      "cache_creation_input_tokens": 26,
+      "cache_read_input_tokens": 1811,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 26,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 593,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "013a5ac59155762119d9b20bd9ecc4e6d7ec1fd42de66db8977aa71a58936e12": {
+    "text": "{\"summary\":\"Revenue, direct costs and gross profit all moved by the same proportion this month, but the gross profit figure does not reconcile with revenue less direct costs shown.\",\"actions\":[{\"heading\":\"Reconcile gross profit figure\",\"because\":\"Revenue {{m:revenue@2026-05}} less direct costs {{m:direct_costs@2026-05}} does not match reported gross profit {{m:gross_profit@2026-05}}, though all three show the identical change of {{mv:revenue.mom@2026-05:pct}}.\",\"todo\":\"Ask the accountant to confirm how gross profit was computed for {{p:2026-05}} and correct the MIS if it is a formula or mapping error.\",\"urgency\":\"now\"},{\"heading\":\"Confirm driver of uniform cost and revenue rise\",\"because\":\"Revenue, direct costs and gross profit all rose by exactly {{mv:revenue.mom@2026-05:pct}} versus last month, suggesting a single scaling factor rather than independent business movements.\",\"todo\":\"Check with the accountant whether this month's figures were derived by applying a flat multiplier rather than actuals, before the board relies on them.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 350,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 472,
+      "output_tokens_details": {
+        "thinking_tokens": 75
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "c2a16e2502c3b759a5f9bb78c60458f36775a3ddc80a7b753ea466daf5492dd4": {
+    "text": "{\"summary\":\"Reported gross profit does not reconcile with revenue less direct costs this month; the underlying MIS calculation needs checking before the board relies on these figures.\",\"actions\":[{\"heading\":\"Reconcile gross profit calculation\",\"because\":\"Revenue {{m:revenue@2026-05}} less direct costs {{m:direct_costs@2026-05}} does not equal the reported gross profit of {{m:gross_profit@2026-05}}; the figures as booked are inconsistent with each other.\",\"todo\":\"Ask the CA to re-check the gross profit line for this period and confirm which of the three figures (revenue, direct costs, gross profit) is correctly stated before the board discusses margins.\",\"urgency\":\"now\"},{\"heading\":\"Confirm revenue and cost growth are genuine, not a reporting error\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:pct}} ({{mv:revenue.mom@2026-05:abs}}) and direct costs rose by an identical {{mv:direct_costs.mom@2026-05:pct}} ({{mv:direct_costs.mom@2026-05:abs}}) month-on-month, an unusually exact match.\",\"todo\":\"Have finance verify whether this identical percentage movement reflects a real operational link (e.g. cost pass-through) or a copy/formula error in the MIS workbook.\",\"urgency\":\"now\"},{\"heading\":\"Request prior-period comparatives and dimension detail\",\"because\":\"Only one period ({{p:2026-05}}) and no customer/segment breakdowns are available in this pack, limiting the board's ability to assess the trend or its drivers.\",\"todo\":\"Ask the CA to include at least the prior two months and a revenue/cost split by segment or customer in next month's pack.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 368,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 666,
+      "output_tokens_details": {
+        "thinking_tokens": 65
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "d6104141dc404d129964894be2bd0003ae95e5f57996a0fa9c1237e8c1ea876c": {
+    "text": "{\"summary\":\"Gross profit shown does not reconcile with revenue less direct costs, and only one period is available, limiting trend analysis. The board should first confirm the figures before acting on them.\",\"actions\":[{\"heading\":\"Reconcile gross profit figure\",\"because\":\"Revenue {{m:revenue@2026-05}} less direct costs {{m:direct_costs@2026-05}} implies a much lower gross profit than the reported {{m:gross_profit@2026-05}}, a mismatch of roughly {{mv:gross_profit.mom@2026-05:abs}} relative to the change shown.\",\"todo\":\"Ask the finance team to reconcile how gross profit was derived this month and confirm whether direct costs or gross profit was mis-stated before the board relies on either.\",\"urgency\":\"now\"},{\"heading\":\"Review cost growth tracking revenue\",\"because\":\"Direct costs rose {{mv:direct_costs.mom@2026-05:pct}} in line with revenue growth of {{mv:revenue.mom@2026-05:pct}}, so margin is flat rather than improving despite higher volume.\",\"todo\":\"Ask management to identify which cost lines moved with revenue and whether any are expected to decouple as volume scales further.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Expand period coverage for trend view\",\"because\":\"Only the current period {{p:2026-05}} is available in this pack, so month-on-month figures cannot be checked against a longer run of data.\",\"todo\":\"Ask the CA to include at least the trailing several months in future packs so the board can judge whether growth and margin patterns are stable.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 370,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 645,
+      "output_tokens_details": {
+        "thinking_tokens": 105
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "06ee55323e714999093c2c23c628900bd11df1434167087e85226728464803c8": {
+    "text": "{\"summary\":\"Revenue, direct costs and gross profit all moved by the same proportion this month, and a validation check plus an assumed month raise questions about data reliability before any trend can be trusted.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, which has not been explained or cleared.\",\"todo\":\"Ask the accountant to identify what V10 flagged and confirm whether the figures for {{p:2026-05}} need correction before the board relies on them.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a source file, affecting the comparison base for {{mv:revenue.mom@2026-05:abs}} and related changes.\",\"todo\":\"Have the accountant replace the assumed figure with actual source data and reissue the MIS if it changes the movement figures.\",\"urgency\":\"now\"},{\"heading\":\"Check identical % movement across revenue, costs and gross profit\",\"because\":\"Revenue rose by {{mv:revenue.mom@2026-05:pct}}, direct costs by {{mv:direct_costs.mom@2026-05:pct}} and gross profit by {{mv:gross_profit.mom@2026-05:pct}} — an exact match across all three lines, which is unusual for genuine operating movement.\",\"todo\":\"Ask the accountant to confirm these figures were independently derived and not produced by a uniform scaling assumption in the assumed month.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 511,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "cd873ffb0b877d28c3cc53093c7e868e4566d6b29d350458f13684d4c676200d": {
+    "text": "{\"summary\":\"Reported gross profit figure appears inconsistent with revenue less direct costs, and a validation warning plus an assumed (not file-sourced) month both need clearing before the board relies on this MIS.\",\"actions\":[{\"heading\":\"Reconcile gross profit calculation\",\"because\":\"Revenue {{m:revenue@2026-05}} less direct costs {{m:direct_costs@2026-05}} does not appear to equal the reported gross profit {{m:gross_profit@2026-05}} for {{p:2026-05}}.\",\"todo\":\"Ask the preparing accountant to re-check the gross profit formula and underlying entries for {{p:2026-05}} before the figure is used for any decision.\",\"urgency\":\"now\"},{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 was raised as a warning against this month's figures.\",\"todo\":\"Have the accountant identify the specific line item(s) triggering V10 and confirm whether the month's numbers need restating.\",\"urgency\":\"now\"},{\"heading\":\"Confirm source of assumed month data\",\"because\":\"One month in the range was assumed rather than read from a file, per the validation notes.\",\"todo\":\"Identify which month was assumed and obtain the actual source file to replace the assumption before finalising this MIS.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Review cost growth alongside revenue growth\",\"because\":\"Direct costs rose by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), matching revenue growth of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}), holding margin flat.\",\"todo\":\"Ask management to confirm this cost-revenue linkage is expected and not masking a separate cost pressure, once the gross profit figure above is corrected.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 401,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 709,
+      "output_tokens_details": {
+        "thinking_tokens": 76
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "f2671dd330dab5468af971d36fef70244644ddd8d2a06165c698344bffd2342a": {
+    "text": "{\"summary\":\"Reported gross profit doesn't reconcile with revenue less direct costs, and a validation warning plus an assumed month flag the month's figures as unreliable.\",\"actions\":[{\"heading\":\"Resolve gross profit inconsistency\",\"because\":\"Revenue {{m:revenue@2026-05}} less direct costs {{m:direct_costs@2026-05}} does not equal the reported gross profit {{m:gross_profit@2026-05}}.\",\"todo\":\"Ask the accountant to reconcile the gross profit figure for {{p:2026-05}} before the board relies on it.\",\"urgency\":\"now\"},{\"heading\":\"Clear Check V10 warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, but no detail on which line it concerns is in the pack.\",\"todo\":\"Have the preparer identify and explain the V10 exception for {{p:2026-05}} before sign-off.\",\"urgency\":\"now\"},{\"heading\":\"Confirm source of assumed month\",\"because\":\"One month in the range was assumed rather than read from a file, per the pack's own note.\",\"todo\":\"Ask the accountant which month was assumed and obtain the underlying file to replace the assumption.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 403,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 472,
+      "output_tokens_details": {
+        "thinking_tokens": 65
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "1663d6662f5b35fdd27a26a83718f08cecc42c0b5752bc1fcd6362cc2b5ff3fb": {
+    "text": "{\"summary\":\"Revenue rose this month, but the facts pack is too thin to support further board action beyond confirming the trend and its drivers.\",\"actions\":[{\"heading\":\"Confirm drivers of revenue growth\",\"because\":\"Revenue from operations rose to {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) versus last month, with no breakdown by customer or product provided.\",\"todo\":\"Ask the finance team to prepare a breakdown of the revenue increase for {{p:2026-05}} by customer or line of business before the next board meeting.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 140,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 233,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "416e7c369588fa7709e6c9d75957283a16e265fc635b814a23cc0046bb444aff": {
+    "text": "{\"summary\":\"Revenue rose this month but the facts pack is too thin to base board action on — no cost, cash or receivables data provided.\",\"actions\":[{\"heading\":\"Confirm drivers of revenue growth\",\"because\":\"Revenue from operations increased to {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on last month, but no supporting breakdown by customer or product is in this pack.\",\"todo\":\"Ask the CA to provide a revenue split by customer/product for {{p:2026-05}} so the board can see whether the increase is broad-based or concentrated.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Request fuller MIS pack\",\"because\":\"Only revenue and its month-on-month movement are available; no cost, margin, cash or receivables facts were supplied for {{p:2026-05}}.\",\"todo\":\"Ask the CA to include profitability and cash position figures in next month's MIS before the board relies on it for decisions.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 146,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 357,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "24ab15cee1c580746582b9074a42a7076c41db93f2416cf8fcd23dc8d88176af": {
+    "text": "{\"summary\":\"Revenue grew {{mv:revenue.mom@2026-05:pct}} in {{p:2026-05}}, but the facts pack is too thin to support further board action beyond confirming the drivers.\",\"actions\":[{\"heading\":\"Confirm drivers of revenue growth\",\"because\":\"Revenue rose to {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) month on month, but no breakdown by customer, product or region is in this pack.\",\"todo\":\"Ask the CA or finance team to provide a split of the revenue increase by customer or segment before the next board meeting, so the growth can be assessed as one-off or recurring.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 148,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 265,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "ddef8ea3630c639e8c0f40294558d877cb75015262f792596a822856c0acfad5": {
+    "text": "{\"summary\":\"Revenue rose this month, but a validation warning and an assumed (unverified) month in the data mean the figures need checking before the board relies on them.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, with no further detail supplied in this pack.\",\"todo\":\"Ask the accountant to identify what triggered V10 and confirm whether it affects the reported {{m:revenue@2026-05}} figure.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a file, so the underlying figures for that period are unverified.\",\"todo\":\"Have the accountant source and re-check the actual file for the assumed month before the board treats it as reliable.\",\"urgency\":\"now\"},{\"heading\":\"Note revenue growth\",\"because\":\"Revenue from operations rose to {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on last month.\",\"todo\":\"Once the above two issues are resolved, ask management to confirm what drove the increase so it can be tracked next month.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 173,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 447,
+      "output_tokens_details": {
+        "thinking_tokens": 32
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "1e6c8c1114ba9a456ed4e08a258dae35bc543ef099d922d7e9e25b3d3ad2a188": {
+    "text": "{\"summary\":\"Revenue rose {{mv:revenue.mom@2026-05:pct}} in {{p:2026-05}}, but a validation warning and an assumed month mean the underlying data needs checking before the board relies on this figure.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 was raised as a warning for {{p:2026-05}}, and the pack gives no further detail on its cause.\",\"todo\":\"Ask the preparing accountant to identify what triggered V10 and confirm whether revenue and other figures for {{p:2026-05}} need restatement.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a file, so the base for the {{mv:revenue.mom@2026-05:abs}} change is uncertain.\",\"todo\":\"Have the accountant source and load the actual file for the assumed month, then reissue the comparison to {{p:2026-05}} if the figures differ.\",\"urgency\":\"now\"},{\"heading\":\"Review revenue growth drivers\",\"because\":\"Revenue rose to {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} on last month.\",\"todo\":\"Once the data issues above are resolved, ask management for a breakdown of what drove the increase, to confirm it is real and sustainable.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 179,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 468,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "1b0845983c0d05fdf7c31cb25296f3d9d8a0339d6e0a9a59a4d20b6e4c8c800f": {
+    "text": "{\"summary\":\"Revenue rose this month, but a validation warning and an assumed period undermine confidence in the underlying figures before the board relies on them.\",\"actions\":[{\"heading\":\"Resolve data validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file.\",\"todo\":\"Ask the accountant to identify which month was assumed and re-run the MIS from source files, then clear the V10 warning before the board relies on the numbers.\",\"urgency\":\"now\"},{\"heading\":\"Confirm revenue growth driver\",\"because\":\"Revenue from operations grew to {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on last month.\",\"todo\":\"Ask management for the breakdown behind this increase (customer or product mix) once the underlying data has been verified.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 181,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 349,
+      "output_tokens_details": {
+        "thinking_tokens": 24
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "0738eb6a9ce54a89bcc0a4d5964eef3b8e3d56c8039c08cbd3bc71eb1bdeb748": {
+    "text": "{\"summary\":\"Every line item fell by the same proportion this month, revenue, profit, receivables, payables and cash all down together — check whether this is a real business slowdown or a data/reporting issue before acting further.\",\"actions\":[{\"heading\":\"Confirm the uniform decline is real, not a reporting artefact\",\"because\":\"Revenue {{mv:revenue.mom@2026-05:pct}}, gross profit {{mv:gross_profit.mom@2026-05:pct}}, EBITDA {{mv:ebitda.mom@2026-05:pct}}, PAT {{mv:pat.mom@2026-05:pct}}, receivables {{mv:receivables.mom@2026-05:pct}}, payables {{mv:payables.mom@2026-05:pct}} and cash {{mv:cash_and_bank.mom@2026-05:pct}} all moved by the identical proportion this month, which is unusual for genuinely independent business drivers.\",\"todo\":\"Ask the CA to confirm whether {{p:2026-05}} figures were derived by applying a flat scaling factor (e.g. an estimate or pro-rata adjustment) rather than being drawn from actual transactions, and to reissue the MIS on verified figures if so.\",\"urgency\":\"now\"},{\"heading\":\"Assess revenue drop's cause\",\"because\":\"Revenue fell from the prior month by {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}, with gross profit and EBITDA falling in step, suggesting no change in margin structure but a genuine volume or billing shortfall.\",\"todo\":\"Have management identify which customers or invoices account for the revenue shortfall in {{p:2026-05}} and report back next month whether this is a timing issue or a demand issue.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Monitor cash runway\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}}, down {{mv:cash_and_bank.mom@2026-05:abs}} on last month, alongside a fall in payables of {{mv:payables.mom@2026-05:abs}} to {{m:payables@2026-05}}.\",\"todo\":\"Track cash and bank balance over the next two months to see if the decline continues at this pace, and flag to the board if it does.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 770,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 778,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "aa47d75cc4bb55dd0322bcbc3cb86bfbf27b267e5c3c51e57ace6e14618e353a": {
+    "text": "{\"summary\":\"Every line item fell by the same proportion this month, which points to a uniform scaling issue rather than genuine business movement; verify the numbers before acting on them.\",\"actions\":[{\"heading\":\"Confirm data integrity behind the MIS\",\"because\":\"Revenue {{mv:revenue.mom@2026-05:pct}}, gross profit {{mv:gross_profit.mom@2026-05:pct}}, EBITDA {{mv:ebitda.mom@2026-05:pct}}, PAT {{mv:pat.mom@2026-05:pct}}, receivables {{mv:receivables.mom@2026-05:pct}}, payables {{mv:payables.mom@2026-05:pct}} and cash {{mv:cash_and_bank.mom@2026-05:pct}} all moved by an identical proportion this month.\",\"todo\":\"Ask the CA to confirm whether {{p:2026-05}} figures were derived by a uniform adjustment (e.g. FX, consolidation scaling, or a template error) rather than actual operations, before the board reviews performance.\",\"urgency\":\"now\"},{\"heading\":\"Establish true revenue and margin trend\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}} and gross profit fell {{mv:gross_profit.mom@2026-05:abs}} to {{m:gross_profit@2026-05}}, but the identical percentage drop across all lines makes it unclear if this reflects real trading.\",\"todo\":\"Once data is confirmed, ask finance to present underlying revenue and cost drivers for {{p:2026-05}} separately from any restatement effect.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Monitor cash position once figures are verified\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}}, down {{mv:cash_and_bank.mom@2026-05:abs}}, alongside a fall in payables of {{mv:payables.mom@2026-05:abs}} to {{m:payables@2026-05}}.\",\"todo\":\"Have the finance team confirm actual cash and payables balances for {{p:2026-05}} and report any genuine liquidity change to the board next month.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 806,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 760,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "ad58b170bba82da2a7e7c33d96ce699f2c8f2d7396e240b536700e56cdf0ee1a": {
+    "text": "{\"summary\":\"Every major line fell by the same margin this month across revenue, profit, working capital and cash, which points to a uniform scaling issue rather than distinct business events — worth confirming before drawing conclusions.\",\"actions\":[{\"heading\":\"Verify uniform decline across all metrics\",\"because\":\"Revenue {{mv:revenue.mom@2026-05:pct}}, gross profit {{mv:gross_profit.mom@2026-05:pct}}, EBITDA {{mv:ebitda.mom@2026-05:pct}}, PAT {{mv:pat.mom@2026-05:pct}}, receivables {{mv:receivables.mom@2026-05:pct}}, payables {{mv:payables.mom@2026-05:pct}} and cash {{mv:cash_and_bank.mom@2026-05:pct}} all moved by the identical percentage this month.\",\"todo\":\"Ask the CA to confirm whether this uniform move reflects an actual business event or a data/consolidation artefact (e.g. a scaling or comparative-period error) before the board relies on {{p:2026-05}} figures.\",\"urgency\":\"now\"},{\"heading\":\"Confirm cash position after decline\",\"because\":\"Cash and bank fell to {{m:cash_and_bank@2026-05}}, a drop of {{mv:cash_and_bank.mom@2026-05:abs}} on last month.\",\"todo\":\"Treasury to confirm current cash runway and any near-term payment obligations given the fall, once the above data query is resolved.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Review receivables and payables movement\",\"because\":\"Receivables stand at {{m:receivables@2026-05}} (down {{mv:receivables.mom@2026-05:abs}}) while payables stand at {{m:payables@2026-05}} (down {{mv:payables.mom@2026-05:abs}}).\",\"todo\":\"Finance to check ageing on receivables and payables to see if the fall reflects collections/settlements or reduced activity, and report to the board next cycle.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 816,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 687,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "77f2a70511cd797d384c4d6578d8bd6970710c288ce0d9553c63a3da78edb320": {
+    "text": "{\"summary\":\"All key metrics fell by the same proportion this month, and the books flag a data-quality warning plus an assumed period — the figures need verifying before the board reads into the decline.\",\"actions\":[{\"heading\":\"Verify data quality behind this month's figures\",\"because\":\"Validation check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file, while revenue, gross profit, EBITDA, PAT, receivables, payables and cash all show an identical {{mv:revenue.mom@2026-05:pct}} change.\",\"todo\":\"Ask the accountant to confirm the source file for {{p:2026-05}} was actually used and resolve the V10 warning before this MIS is relied upon.\",\"urgency\":\"now\"},{\"heading\":\"Investigate uniform decline across all lines\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}, and gross profit, EBITDA, PAT, receivables, payables and cash all moved by the same percentage, which is unusual for genuinely independent business drivers.\",\"todo\":\"Have the CA confirm whether this is a real business movement or a scaling/mapping error in the MIS build, before discussing causes with management.\",\"urgency\":\"now\"},{\"heading\":\"Monitor cash position once figures are confirmed\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}}, down {{mv:cash_and_bank.mom@2026-05:abs}}, alongside a fall in receivables to {{m:receivables@2026-05}}.\",\"todo\":\"Once the data issue is resolved, review actual cash runway with the finance team.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 803,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 574,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "808c808e6f7e3a3d14750036a8278464e3fa9fc81868ec27568b6a7c154125d4": {
+    "text": "{\"summary\":\"Every line item fell by the same proportion this month, and one month's figures were assumed rather than read from source — the board should confirm the numbers before reading into the decline.\",\"actions\":[{\"heading\":\"Verify data source for this month\",\"because\":\"A validation warning notes one month in the range was assumed rather than read from a file, and every metric from revenue to cash moved by an identical {{mv:revenue.mom@2026-05:pct}} — a pattern consistent with an estimated or scaled figure rather than actuals.\",\"todo\":\"Ask the accountant to confirm whether {{p:2026-05}} figures are drawn from actual books or extrapolated, and to re-issue the MIS from source data if assumed.\",\"urgency\":\"now\"},{\"heading\":\"Review Check V10 warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}} but no detail is given on what it flagged.\",\"todo\":\"Have the CA identify what V10 checks and report the specific issue found for this month before the board relies on these figures.\",\"urgency\":\"now\"},{\"heading\":\"Confirm revenue decline is real\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) to {{m:revenue@2026-05}}, with gross profit, EBITDA and PAT all down by the same proportion.\",\"todo\":\"Once data integrity is confirmed, ask management to explain the drop in revenue for {{p:2026-05}} and whether it reflects a genuine trading change.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Monitor cash position\",\"because\":\"Cash and bank fell {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}, alongside falls in receivables and payables.\",\"todo\":\"Track cash and bank balance over the next month once underlying data is verified, to see if the decline persists.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 839,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 653,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "947fcfe2fe4e63bdefa7959965cec59b25172e72aac0712ec99ee643d4b57641": {
+    "text": "{\"summary\":\"Every headline metric fell by the same proportion this month, alongside a validation warning and an assumed month — the figures may not be reliable enough to act on yet.\",\"actions\":[{\"heading\":\"Confirm data integrity before acting on the numbers\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file. Revenue, gross profit, EBITDA, PAT, receivables, payables and cash all show an identical {{mv:revenue.mom@2026-05:pct}} change, which is unusual and suggests a possible data or mapping issue rather than genuine business movement.\",\"todo\":\"Ask the CA to confirm which month was estimated and re-run the MIS from source files before the board relies on these figures.\",\"urgency\":\"now\"},{\"heading\":\"Investigate the uniform decline across all metrics\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}, and gross profit, EBITDA and PAT all fell by the same {{mv:gross_profit.mom@2026-05:pct}}, which is not typical of normal operating variance.\",\"todo\":\"Have the finance team trace whether this reflects an actual revenue drop or a uniform scaling error in the source data.\",\"urgency\":\"now\"},{\"heading\":\"Review cash position once data is confirmed\",\"because\":\"Cash and bank fell {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}, alongside receivables and payables both declining by the same proportion.\",\"todo\":\"Once the data is verified, ask management for an updated cash flow forecast for {{p:2026-05}} onward.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 849,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 591,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "65d77cf0cf3a7bf7f9933153e210b1bada53eb5d3e3325a5421670dd17856215": {
+    "text": "{\"summary\":\"Revenue, direct costs and gross profit all fell by the same proportion this month, which is worth confirming rather than assuming it is coincidental.\",\"actions\":[{\"heading\":\"Confirm cause of uniform revenue decline\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} ({{mv:revenue.mom@2026-05:abs}}) to {{m:revenue@2026-05}} in {{p:2026-05}}.\",\"todo\":\"Ask finance to identify whether the drop reflects fewer transactions, a specific customer or product line, or a timing/cut-off issue in {{p:2026-05}}.\",\"urgency\":\"now\"},{\"heading\":\"Check why direct costs moved in lockstep\",\"because\":\"Direct costs fell by exactly the same {{mv:direct_costs.mom@2026-05:pct}} ({{mv:direct_costs.mom@2026-05:abs}}) to {{m:direct_costs@2026-05}}, mirroring the revenue change.\",\"todo\":\"Have the CA verify whether this reflects a genuine proportional cost structure or a data/allocation artefact in this month's books.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Monitor gross margin stability\",\"because\":\"Gross profit fell {{mv:gross_profit.mom@2026-05:pct}} ({{mv:gross_profit.mom@2026-05:abs}}) to {{m:gross_profit@2026-05}}, keeping margin percentage unchanged despite the revenue fall.\",\"todo\":\"Track next month's figures to see if margin held steady again or if this month was an anomaly.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 356,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 559,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "008450304d0774d3f57e5dfb70eb202333635f6b207e1bf3aaaeaac8b221718d": {
+    "text": "{\"summary\":\"Reported gross profit exceeds revenue this month, which is not arithmetically possible — the figures need checking before the board relies on them.\",\"actions\":[{\"heading\":\"Reconcile gross profit figure\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} is shown as higher than revenue of {{m:revenue@2026-05}} against direct costs of {{m:direct_costs@2026-05}}, which cannot be correct if gross profit is revenue less direct costs.\",\"todo\":\"Ask the preparing accountant to re-check the gross profit line and its formula for {{p:2026-05}} before this MIS is used for any decision.\",\"urgency\":\"now\"},{\"heading\":\"Investigate revenue decline\",\"because\":\"Revenue fell by {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) month on month.\",\"todo\":\"Management to identify the source of the drop (customer, product line or timing) and report back to the board next month.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Check direct cost tracking against revenue\",\"because\":\"Direct costs fell by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), matching the revenue decline in percentage terms, which is worth confirming is not a coincidence of misallocation.\",\"todo\":\"Finance to confirm direct costs are being correctly matched to the month's actual revenue.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 374,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 542,
+      "output_tokens_details": {
+        "thinking_tokens": 33
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "90755129de754671d842f72b09b212cac4514c02e64932032f8c5dedaccd2823": {
+    "text": "{\"summary\":\"Reported gross profit does not reconcile with revenue less direct costs this month, and both revenue and costs fell by the same proportion — worth checking before the board relies on these figures.\",\"actions\":[{\"heading\":\"Reconcile gross profit figure\",\"because\":\"Revenue {{m:revenue@2026-05}} less direct costs {{m:direct_costs@2026-05}} does not arithmetically produce the stated gross profit {{m:gross_profit@2026-05}}.\",\"todo\":\"Ask the preparer to reconcile the gross profit line for {{p:2026-05}} against revenue and direct costs before the board signs off on this MIS.\",\"urgency\":\"now\"},{\"heading\":\"Investigate simultaneous revenue and cost drop\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} and direct costs fell by an identical {{mv:direct_costs.mom@2026-05:pct}} month-on-month, an unusually exact match.\",\"todo\":\"Have finance confirm whether this reflects a real volume drop, a reclassification, or a data-entry issue, and report back to the board with the underlying drivers.\",\"urgency\":\"now\"},{\"heading\":\"Assess revenue decline drivers\",\"because\":\"Revenue dropped {{mv:revenue.mom@2026-05:abs}} in the month to {{m:revenue@2026-05}}.\",\"todo\":\"Request a breakdown by customer or segment to identify whether the fall is concentrated or broad-based, once the underlying figures are confirmed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 376,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 630,
+      "output_tokens_details": {
+        "thinking_tokens": 106
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "ca80239753d22e02d5869da17000b24a9a1eb7ede11c048ec986a15cfda0870e": {
+    "text": "{\"summary\":\"Revenue, direct costs and gross profit all fell by the same proportion this month, and a validation warning plus an assumed month mean the underlying figures need checking before drawing conclusions.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and the pack does not state its cause.\",\"todo\":\"Ask the accountant to identify what triggered V10 and confirm whether the reported figures for {{p:2026-05}} need correction.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"The pack states one month in the range was assumed rather than read from a file, which could affect the reliability of {{m:revenue@2026-05}} and related figures.\",\"todo\":\"Have the accountant re-derive the assumed month from source files and reissue the MIS if figures change.\",\"urgency\":\"now\"},{\"heading\":\"Investigate revenue drop\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) to {{m:revenue@2026-05}}, with direct costs and gross profit falling by the same percentage, suggesting a scale change rather than margin change.\",\"todo\":\"Ask management for the driver of the volume drop in {{p:2026-05}} (e.g. fewer orders, a lost customer) before assuming it is transient.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 389,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 487,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "f716ec42d5a4d12ea2b5b6c921210f1f6f0f86c3bb4ce1a35d08693137afa359": {
+    "text": "{\"summary\":\"Revenue and costs both fell {{mv:revenue.mom@2026-05:pct}} this month, and a validation warning plus an assumed period figure mean the numbers need checking before they're relied on.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 was raised for {{p:2026-05}}, and gross profit for the month (₹{{m:gross_profit@2026-05}}) is derived from figures affected by this check.\",\"todo\":\"Ask the accountant to identify what V10 flagged and confirm whether revenue and cost figures for {{p:2026-05}} need restating before the board relies on them.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's figures\",\"because\":\"One month in the range was assumed rather than read from a file, so the revenue and cost figures underlying this MIS may not reflect actual books.\",\"todo\":\"Have the accountant identify which month was assumed and replace it with the actual filed figures, then reissue the pack if numbers change.\",\"urgency\":\"now\"},{\"heading\":\"Establish cause of revenue and cost decline\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) and direct costs fell {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), a near-identical proportional move in both, keeping gross margin flat.\",\"todo\":\"Ask management to explain whether the parallel drop reflects lower volume, a specific contract ending, or a timing shift, since this determines whether it recurs next month.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 407,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 566,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "928a95a3753ac7f0aa3f2ecd6665a1e4b56aae40d6ef258306efec02e648b9d9": {
+    "text": "{\"summary\":\"Revenue, costs and gross profit all fell by the same proportion this month, but the gross profit figure does not reconcile with revenue less direct costs — and a validation warning and an assumed month both need checking before the board relies on these numbers.\",\"actions\":[{\"heading\":\"Resolve gross profit inconsistency\",\"because\":\"Revenue is {{m:revenue@2026-05}} and direct costs {{m:direct_costs@2026-05}}, which would imply a gross profit well below the {{m:gross_profit@2026-05}} shown; all three lines also show an identical {{mv:revenue.mom@2026-05:pct}} change, suggesting a formula or mapping error rather than a real trend.\",\"todo\":\"Ask the accountant to trace the gross profit calculation for {{p:2026-05}} and confirm whether direct costs are fully captured before this MIS is circulated further.\",\"urgency\":\"now\"},{\"heading\":\"Clear the V10 validation warning\",\"because\":\"Check V10 was raised for {{p:2026-05}} and has not been explained in the pack.\",\"todo\":\"Have the preparer identify the specific check failing under V10 and confirm whether it affects any of the reported figures before sign-off.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a source file, which affects the reliability of the month-on-month comparisons shown, including {{mv:revenue.mom@2026-05:abs}} and {{mv:direct_costs.mom@2026-05:abs}}.\",\"todo\":\"Ask the accountant which month was assumed and obtain the underlying file so the comparison can be re-run on actuals.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Understand the revenue and cost decline\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}} and direct costs fell by the same proportion to {{m:direct_costs@2026-05}}, a synchronised move worth explaining once the figures above are confirmed reliable.\",\"todo\":\"Once the gross profit and validation issues are resolved, ask management for the driver behind the parallel revenue and cost decline this month.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 409,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 825,
+      "output_tokens_details": {
+        "thinking_tokens": 77
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a8af00ac6b886633c063fc13c1a263901e114236922b8fd0d051db3cbf9f565a": {
+    "text": "{\"summary\":\"Revenue fell sharply this month; the pack lacks enough detail to pinpoint the cause, so the priority is to find out why before deciding any response.\",\"actions\":[{\"heading\":\"Investigate revenue decline\",\"because\":\"Revenue from operations dropped to {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) versus last month.\",\"todo\":\"Ask management for a breakdown of revenue by customer or product for {{p:2026-05}} to identify whether the drop is volume, pricing, or a lost account.\",\"urgency\":\"now\"},{\"heading\":\"Request fuller MIS detail\",\"because\":\"The pack for {{p:2026-05}} contains only a single top-line revenue figure with no cost, margin or customer-level data to assess the cause of the change.\",\"todo\":\"Ask the accountant to include supporting schedules (customer-wise revenue, cost lines) in next month's pack so the board can assess drivers, not just totals.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 365,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "b8f3fd86a4ffbdc091beda572541d121de21ccb37af6c582b645dd42e10507d2": {
+    "text": "{\"summary\":\"Revenue fell sharply this month ({{mv:revenue.mom@2026-05:pct}}), but the pack lacks customer, segment or cost detail to establish why — that gap is the first action.\",\"actions\":[{\"heading\":\"Diagnose revenue drop\",\"because\":\"Revenue from operations fell from the prior month to {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}), with no customer or segment breakdown provided to explain the fall.\",\"todo\":\"Ask the CA/finance team to prepare a customer- and segment-level breakdown of revenue for {{p:2026-05}} against the prior month so the board can see whether the decline is broad-based or concentrated.\",\"urgency\":\"now\"},{\"heading\":\"Assess cash flow impact\",\"because\":\"A fall of {{mv:revenue.mom@2026-05:abs}} in monthly revenue has no accompanying cost, receivables or cash data in this pack, so its effect on liquidity is unknown.\",\"todo\":\"Request an updated cash flow and receivables position for {{p:2026-05}} to check whether costs have adjusted alongside the revenue fall.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 148,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 428,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "ac7ad2ab6756fef914ce8d73cc4173cd0996ec88d91c9d84b131bf3cf34e2c9e": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} month-on-month; the pack lacks enough detail to explain why, so the priority is finding the cause before deciding further action.\",\"actions\":[{\"heading\":\"Investigate revenue decline\",\"because\":\"Revenue from operations dropped to {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) versus last month, with no customer or product breakdown available in this pack.\",\"todo\":\"Ask the finance team to provide a customer- and product-level breakdown of revenue for {{p:2026-05}} to identify whether the fall is broad-based or concentrated in a few accounts.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 150,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 269,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "f50e34c4b39c24e197687c597c76ee8a177a349540652b1c0c704ee03b06d27a": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} in {{p:2026-05}} and an unresolved data-quality warning affects confidence in the figures; both need clearing before further conclusions.\",\"actions\":[{\"heading\":\"Investigate revenue decline\",\"because\":\"Revenue from operations dropped to {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) versus last month.\",\"todo\":\"Ask the finance team to identify which customers or lines drove the drop and whether it reflects timing, lost business, or a one-off.\",\"urgency\":\"now\"},{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file.\",\"todo\":\"Have the accountant confirm the source data for the assumed month and clear the V10 warning before the board relies further on these figures.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 175,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 351,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "9fc348bc68140d4586368e4a937b6e3c0e14f036af05416e4a49b86a649f13dd": {
+    "text": "{\"summary\":\"Revenue fell sharply this month and a validation check has flagged an issue alongside an assumed figure, so both need clearing before the board relies on this MIS.\",\"actions\":[{\"heading\":\"Confirm cause of revenue drop\",\"because\":\"Revenue from operations fell to {{m:revenue@2026-05}}, down {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) versus last month.\",\"todo\":\"Ask the finance team to break down the drop by customer or product line and confirm whether it reflects a real trading change or a timing/invoicing issue.\",\"urgency\":\"now\"},{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and its cause is not stated in the pack.\",\"todo\":\"Have the CA identify what triggered V10 and confirm whether it affects the revenue figure before the board signs off this month's MIS.\",\"urgency\":\"now\"},{\"heading\":\"Replace assumed month with actual data\",\"because\":\"One month in the range was assumed rather than read from a file, so the trend shown may not be reliable.\",\"todo\":\"Ask the CA to source the underlying file for the assumed month and reissue the comparison once confirmed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 181,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 435,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "766e28def16555855dba3ba9054abcdca5734eec897c107ed5b55039fdbc5fbe": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} in {{p:2026-05}}, and a validation flag plus an assumed month mean the underlying figures need checking before conclusions are drawn.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 was raised for {{p:2026-05}}, and the figures for this month feed directly into the reported revenue drop of {{mv:revenue.mom@2026-05:abs}}.\",\"todo\":\"Ask the CA to identify what triggered V10 and confirm whether the reported revenue of {{m:revenue@2026-05}} is reliable before the board discusses it.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a file, which may distort the month-on-month comparison showing revenue down {{mv:revenue.mom@2026-05:pct}}.\",\"todo\":\"Have the CA replace the assumption with actual source data and reissue the MIS for that month before the board relies on the trend.\",\"urgency\":\"now\"},{\"heading\":\"Establish cause of revenue decline\",\"because\":\"Revenue from operations fell {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) to {{m:revenue@2026-05}} in {{p:2026-05}}, but no supporting breakdown by customer or product is in the pack.\",\"todo\":\"Ask management to provide a breakdown of the revenue fall by customer or line for {{p:2026-05}} at the next board meeting.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 183,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 552,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "06750a543846adcb9fc1566004ceda5dbc794dfe4ea1c4b7b602b04b07c23c63": {
+    "text": "{\"summary\":\"Only one month of top-line figures is available, with no prior-period comparison or dimension breakdown, so little can be concluded about trend or risk this month.\",\"actions\":[{\"heading\":\"Establish a comparative baseline\",\"because\":\"Only {{p:2026-05}} figures are provided (revenue {{m:revenue@2026-05}}, EBITDA {{m:ebitda@2026-05}}, PAT {{m:pat@2026-05}}) with no prior period or budget to compare against.\",\"todo\":\"Ask the CA to include at least the prior month and prior year same-month figures in next MIS so the board can judge direction and pace of change.\",\"urgency\":\"now\"},{\"heading\":\"Request dimension-level breakdown\",\"because\":\"No customer, product or cost-centre split is included in this pack, so the board cannot see concentration or cost drivers behind the reported margins.\",\"todo\":\"Request that future MIS packs include revenue and margin splits by customer or segment where the underlying ledgers support it.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Clarify gap between EBITDA and PAT\",\"because\":\"EBITDA of {{m:ebitda@2026-05}} falls to PAT of {{m:pat@2026-05}}, but no breakdown of depreciation, interest or tax is given to explain the gap.\",\"todo\":\"Ask the CA to append a short bridge from EBITDA to PAT so the board can see the size of non-operating deductions each month.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 152,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 520,
+      "output_tokens_details": {
+        "thinking_tokens": 27
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "55789a90513990962084723db16fd2b417cf0569a073be839aefa49cbb4021b0": {
+    "text": "{\"summary\":\"Only one month of figures is available with no prior-period comparison, so trend and variance cannot yet be assessed from the books alone.\",\"actions\":[{\"heading\":\"Establish comparative baseline\",\"because\":\"Only {{p:2026-05}} figures are provided (revenue {{m:revenue@2026-05}}, EBITDA {{m:ebitda@2026-05}}, PAT {{m:pat@2026-05}}), with no prior month or budget to compare against.\",\"todo\":\"Ask the CA to include at least one prior period and budget figures in next month's MIS so the board can judge direction, not just level.\",\"urgency\":\"now\"},{\"heading\":\"Review margin composition\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} shows a high gross margin, but the gap to EBITDA of {{m:ebitda@2026-05}} is not broken down by expense head.\",\"todo\":\"Request a line-item breakdown of operating expenses between gross profit and EBITDA to confirm the margin is structural rather than a one-off.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Confirm tax and finance cost treatment\",\"because\":\"PAT of {{m:pat@2026-05}} against EBITDA of {{m:ebitda@2026-05}} implies a large deduction for depreciation, interest and tax, but these are not shown separately.\",\"todo\":\"Have the CA provide the depreciation, finance cost and tax lines separately in the next pack.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 160,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 557,
+      "output_tokens_details": {
+        "thinking_tokens": 41
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "fe7adca0613de3572d425e0c29e0d1411e6edad86257699dba9c2cb91f0f3a08": {
+    "text": "{\"summary\":\"Only a single month's figures are available with no prior-period comparison or dimension breakdown, so trend or variance-based actions cannot be supported.\",\"actions\":[{\"heading\":\"Establish comparative baseline\",\"because\":\"Only {{p:2026-05}} figures are provided (revenue {{m:revenue@2026-05}}, gross profit {{m:gross_profit@2026-05}}, EBITDA {{m:ebitda@2026-05}}, PAT {{m:pat@2026-05}}) with no prior period or budget to compare against.\",\"todo\":\"Ask the CA to include the previous month and prior-year comparatives, plus any budget, in next month's MIS so the board can assess trend and variance.\",\"urgency\":\"now\"},{\"heading\":\"Request dimension-level breakdown\",\"because\":\"No dimension values (customers, products, cost centres) are shown against the headline figures, so the board cannot see concentration or drivers behind revenue and margins.\",\"todo\":\"Request that the MIS include a breakdown of revenue and gross profit by key customer or segment dimensions for the next reporting cycle.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 162,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 421,
+      "output_tokens_details": {
+        "thinking_tokens": 42
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6b180f2ca53dda94ff316d18e40be3db427e8e2576b97f206b8ddefa30c63982": {
+    "text": "{\"summary\":\"Figures this month appear unusually clean and margins very high; one month's data was assumed rather than sourced, and a validation check flagged a warning — both need resolving before the numbers can be relied on.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, but no detail on which figure or account it relates to is in the pack.\",\"todo\":\"Ask the accountant to identify what triggered V10 and confirm whether {{m:revenue@2026-05}}, {{m:gross_profit@2026-05}}, {{m:ebitda@2026-05}} or {{m:pat@2026-05}} are affected before the board relies on them.\",\"urgency\":\"now\"},{\"heading\":\"Confirm source of assumed month\",\"because\":\"One month in the range was assumed rather than read from a file, which could affect any of this month's reported figures.\",\"todo\":\"Have the accountant identify which month was assumed and replace it with actual source data, then reissue the MIS if figures change.\",\"urgency\":\"now\"},{\"heading\":\"Review unusually high margins\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} and EBITDA of {{m:ebitda@2026-05}} against revenue of {{m:revenue@2026-05}} imply very high margins for the month.\",\"todo\":\"Ask the accountant to walk the board through the cost lines behind this margin to confirm it is not an artefact of the assumed data or the flagged warning.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 185,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 506,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "87b932ff11628b7d0a3dd28a155f52166f28eb00cf8dbae65920092d2b850754": {
+    "text": "{\"summary\":\"This month's figures carry an unresolved validation flag and one period was assumed rather than sourced from a file, so the margins shown cannot yet be relied on.\",\"actions\":[{\"heading\":\"Resolve validation warning before sign-off\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and the underlying figures (revenue {{m:revenue@2026-05}}, EBITDA {{m:ebitda@2026-05}}, PAT {{m:pat@2026-05}}) have not been confirmed clean.\",\"todo\":\"Ask the CA to identify what triggered V10 and confirm whether the reported figures for {{p:2026-05}} need restatement before the board relies on them.\",\"urgency\":\"now\"},{\"heading\":\"Confirm source of assumed month\",\"because\":\"One month in the range was assumed rather than read from a file, affecting the reliability of the period data underlying {{p:2026-05}}.\",\"todo\":\"Have the finance team locate and upload the missing source file, then re-run the MIS for {{p:2026-05}} to replace the assumed figures with actuals.\",\"urgency\":\"now\"},{\"heading\":\"Verify unusually high margins\",\"because\":\"Gross profit {{m:gross_profit@2026-05}} and EBITDA {{m:ebitda@2026-05}} against revenue {{m:revenue@2026-05}} imply very high margins with no cost or comparative detail provided.\",\"todo\":\"Ask the CA to walk the board through the cost lines behind gross profit and EBITDA for {{p:2026-05}} to confirm nothing is mis-classified or omitted.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 193,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 611,
+      "output_tokens_details": {
+        "thinking_tokens": 64
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "d4b39bf187e3da9f1f4bb3d44807b1b6fa6d9c68ed165f79b9b1b5859c3c4fc5": {
+    "text": "{\"summary\":\"Figures look strong but a validation warning and an assumed month mean the pack's reliability needs checking before the board relies on it.\",\"actions\":[{\"heading\":\"Resolve validation warning before sign-off\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and no detail is given on what triggered it.\",\"todo\":\"Ask the preparing chartered accountant to identify and clear the V10 warning for {{p:2026-05}} before the board accepts these figures.\",\"urgency\":\"now\"},{\"heading\":\"Confirm source data for the assumed month\",\"because\":\"One month in the range was assumed rather than read from a file, casting doubt on the completeness of the underlying data for {{p:2026-05}}.\",\"todo\":\"Have the finance team confirm the actual source file for the assumed month and reissue the MIS if figures change.\",\"urgency\":\"now\"},{\"heading\":\"Request fuller MIS pack\",\"because\":\"Only revenue, gross profit, EBITDA and PAT are provided for {{p:2026-05}}, with no prior-period comparison or balance sheet items to assess trend or position.\",\"todo\":\"Ask the CA to include prior-month comparatives and balance sheet metrics in next month's pack for proper board review.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 195,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 456,
+      "output_tokens_details": {
+        "thinking_tokens": 36
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "b2dd99132d9fd3a7ce3696f6b94b060849813397701c54e54e476606d6fe1bf5": {
+    "text": "{\"summary\":\"Only revenue and gross profit for a single month are available, with no prior-period comparison or expense detail, so little can be concluded about trend or risk.\",\"actions\":[{\"heading\":\"Expand MIS data before next review\",\"because\":\"Only {{m:revenue@2026-05}} revenue and {{m:gross_profit@2026-05}} gross profit for {{p:2026-05}} are provided, with no prior period, expense breakup or dimension splits to assess trend or concentration.\",\"todo\":\"Ask the accountant to include prior-month comparatives, operating expense lines, and customer/product splits in next month's MIS pack so the board can assess movement and risk.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 95,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 276,
+      "output_tokens_details": {
+        "thinking_tokens": 46
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "9f3ce17f45be550e0af20d2dfa5a193ff0b80a4455617623549c0e9a7084c513": {
+    "text": "{\"summary\":\"Facts pack is very thin for this month; only revenue and gross profit are available, so most areas cannot be assessed.\",\"actions\":[{\"heading\":\"Expand MIS coverage before next board meeting\",\"because\":\"Only two facts are provided for {{p:2026-05}}: revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}. No expense, cash, debtor, or prior-period comparison data is included.\",\"todo\":\"Ask the CA to include operating expenses, cash position, receivables ageing, and month-on-month comparatives in next month's pack so the board can assess trends.\",\"urgency\":\"now\"},{\"heading\":\"Understand gross margin composition\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} implies a high margin, but no cost of sales breakdown or prior-month comparison is available to judge whether this is typical.\",\"todo\":\"Request a breakdown of cost of goods sold and a comparison against the prior month or budget to confirm the margin is expected.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 99,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 380,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "2622adc657fbda2d7566ad1189b7140aa7b827cbd7c039b85f6b1f289dbca5d4": {
+    "text": "{\"summary\":\"Very thin data pack — only revenue and gross profit for one month are available, with no comparatives or breakdowns to assess trend or risk.\",\"actions\":[{\"heading\":\"Expand the MIS data pack\",\"because\":\"Only {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} are provided for {{p:2026-05}}, with no prior period, no expense detail, and no dimension splits to assess drivers or trends.\",\"todo\":\"Ask the chartered accountant to include prior-month and prior-year comparatives, expense line items, and customer or segment splits in next month's pack.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 101,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 216,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "8c5897daab096a5148abef755ed173cc40de3fda875ac4c9962f214f1236bfdb": {
+    "text": "{\"summary\":\"Limited data available this month; a validation warning and an assumption flag mean the underlying figures need confirmation before the board relies on them.\",\"actions\":[{\"heading\":\"Resolve validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, which is not explained in the facts pack.\",\"todo\":\"Ask the accountant to identify what triggered V10 and confirm whether revenue or gross profit figures for {{p:2026-05}} need restatement.\",\"urgency\":\"now\"},{\"heading\":\"Confirm assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a source file, so {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} may not be verified.\",\"todo\":\"Have the accountant source and confirm the actual books for the assumed month before the board treats these figures as final.\",\"urgency\":\"now\"},{\"heading\":\"Request fuller facts pack\",\"because\":\"Only two facts are available for {{p:2026-05}}, with no prior period, dimension breakdowns, or expense detail to assess trends.\",\"todo\":\"Ask for a complete MIS pack including prior-period comparatives and expense lines before the next board meeting.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 128,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 409,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "69ac42832d9ae448d8bd1ea82f0f712aee85223b3775dc02158dfdea71fb1640": {
+    "text": "{\"summary\":\"Data is too thin to support most actions this month; a validation warning and an assumed month need resolving before the board can rely on the figures.\",\"actions\":[{\"heading\":\"Resolve validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, but no detail on what it flags is included in this pack.\",\"todo\":\"Ask the preparer to identify what V10 flags for {{p:2026-05}} and confirm whether revenue and gross profit figures need restatement.\",\"urgency\":\"now\"},{\"heading\":\"Confirm source data for the month\",\"because\":\"One month in the range was assumed rather than read from a file, which affects reliability of {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}}.\",\"todo\":\"Ask the chartered accountant to identify which month was assumed and replace it with actual source data before the board relies on this MIS.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 132,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 301,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "150fae8fcc85208e5bb6a2a371632540e2e965657000ead90ff60c17f118db05": {
+    "text": "{\"summary\":\"Facts pack is too thin to support most board actions this month; a data validation issue also needs resolving before figures can be relied on.\",\"actions\":[{\"heading\":\"Resolve validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}} and one month in the range was assumed rather than read from a file.\",\"todo\":\"Ask the chartered accountant to identify the source of the V10 warning and confirm the assumed month's figures against actual files before the board relies on them.\",\"urgency\":\"now\"},{\"heading\":\"Insufficient facts for further action\",\"because\":\"Only revenue ({{m:revenue@2026-05}}) and gross profit ({{m:gross_profit@2026-05}}) are provided, with no prior period, expense breakdown or dimension splits to assess drivers.\",\"todo\":\"Request a fuller facts pack including comparatives and cost line items before further board actions are set.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 134,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 307,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "f207e6e9f417a2f425813b9701599c57aa8c84fdfd0f09e9ca913df9848b89e3": {
+    "text": "{\"summary\":\"Only revenue is available this month; without cost, cash or receivables data the board cannot assess margin or liquidity.\",\"actions\":[{\"heading\":\"Fill out the facts pack\",\"because\":\"Only {{m:revenue@2026-05}} for {{p:2026-05}} is available in this pack, with no cost, cash or receivables figures to compare against it.\",\"todo\":\"Ask the CA to include expense, cash balance and receivables figures alongside revenue in next month's MIS so the board can review more than top line.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 65,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 181,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "70deae13dd01b8e297362e8585828e198ee5538dbce065b328360e2deb274fd5": {
+    "text": "{\"summary\":\"Only revenue for a single month is available; without prior-period, cost or cash-flow figures the board cannot assess trend, margin or risk this month.\",\"actions\":[{\"heading\":\"Obtain fuller MIS data set\",\"because\":\"The pack contains only {{m:revenue@2026-05}} for {{p:2026-05}}, with no comparative period, cost, cash or balance sheet figures to assess performance or risk.\",\"todo\":\"Ask the CA/finance team to prepare the standard MIS with prior-period comparatives, expense and cash-flow lines before next board meeting.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 67,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 205,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "e69f3bf8507c1c07b9ec7b1154013c3f38c4af73e785d4a4ba4927f05901b14f": {
+    "text": "{\"summary\":\"Facts pack is too thin to support board actions this month — only one revenue figure with no prior period, margin or cash data to compare against.\",\"actions\":[{\"heading\":\"Expand the MIS facts pack\",\"because\":\"Only {{m:revenue@2026-05}} for {{p:2026-05}} is provided, with no prior-period comparison, cost, margin or cash data to assess trend or risk.\",\"todo\":\"Ask the chartered accountant to include prior-period comparatives, cost/margin breakdown and cash position in next month's pack before the board can act.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 69,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 196,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "d15c916db80cee283e93660489f643ccc5249902b0f02d9cbadc475ed4eb4fee": {
+    "text": "{\"summary\":\"Data pack for this month is very thin and carries unresolved warnings, so no substantive board actions can be drawn beyond fixing the data itself.\",\"actions\":[{\"heading\":\"Resolve data validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file, so figures such as {{m:revenue@2026-05}} may not be reliable.\",\"todo\":\"Ask the accountant to identify the source of the V10 warning and confirm which month was assumed, then re-issue the MIS once the underlying file is located.\",\"urgency\":\"now\"},{\"heading\":\"Request fuller facts pack\",\"because\":\"Only one fact, {{m:revenue@2026-05}}, is provided with no prior period, expense, or balance sheet data to assess trend or position.\",\"todo\":\"Ask the finance team to supply comparative revenue, cost and cash figures for the next board pack so trends can be assessed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 98,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 332,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "2ccc2b7e4fe69ac7e0fef811a2a1bc5e22ca05996905a97dee68586ab1f2762a": {
+    "text": "{\"summary\":\"Data is too thin to support most recommendations — only revenue is available, and a validation warning plus an assumed month raise doubt about even that figure.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Validation check V10 raised a warning for {{p:2026-05}}, and no other facts are provided to assess its impact.\",\"todo\":\"Ask the accountant to identify what V10 flagged for {{p:2026-05}} and confirm whether {{m:revenue@2026-05}} needs restatement before the board relies on it.\",\"urgency\":\"now\"},{\"heading\":\"Confirm source of assumed month\",\"because\":\"One month in the range was assumed rather than read from a file, so the figures shown for {{p:2026-05}} may not be based on actual source data.\",\"todo\":\"Have the finance team locate and load the missing source file for {{p:2026-05}} and reissue the MIS once confirmed.\",\"urgency\":\"now\"},{\"heading\":\"Request fuller MIS pack\",\"because\":\"Only revenue ({{m:revenue@2026-05}}) is provided; there are no cost, margin, cash or comparative figures to judge performance or trends for {{p:2026-05}}.\",\"todo\":\"Ask the chartered accountant to provide the full facts pack including costs, cash position and prior-period comparisons before the next board meeting.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 100,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 455,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "b3db28d7551a2aa41450802b50ac88c514fa7c2334cbaef2935c53e296def2b6": {
+    "text": "{\"summary\":\"The facts pack is too thin to support board actions this month — only one revenue figure is given, and a validation warning flags data quality issues that need resolution first.\",\"actions\":[{\"heading\":\"Resolve data validation warning\",\"because\":\"Validation check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file.\",\"todo\":\"Ask the preparing accountant to identify the specific issue behind the V10 warning and confirm the source data for the assumed month before the board relies on this MIS.\",\"urgency\":\"now\"},{\"heading\":\"Request fuller facts pack\",\"because\":\"Only one fact, {{m:revenue@2026-05}}, was provided, with no prior period, no comparatives, no cost or margin data, and no dimension breakdowns.\",\"todo\":\"Ask the CA to supply a complete MIS pack including prior-period comparatives and expense lines so the board can assess performance rather than a single top-line figure.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 102,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1837,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 330,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  }
+}
