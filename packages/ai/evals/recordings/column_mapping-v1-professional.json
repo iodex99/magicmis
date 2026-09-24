@@ -418,7 +418,7 @@
     "model": "claude-sonnet-5"
   },
   "55cb617330003d2584f37d788faca2f428fb593bb162127bb79dc4e33724dc43": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening\",\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"opening\",\"confidence\":\"low\"},{\"ref\":\"c5\",\"role\":\"closing\",\"confidence\":\"medium\"}]}",
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"opening\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"closing\",\"confidence\":\"medium\"}]}",
     "usage": {
       "input_tokens": 366,
       "cache_creation_input_tokens": 0,
@@ -427,7 +427,7 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 152,
+      "output_tokens": 154,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
@@ -703,7 +703,7 @@
     "model": "claude-sonnet-5"
   },
   "d6547c2eca586231e26ac2162b5724577fa2a4ad61d25d57111f24ea4cb8cd0e": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"credit\",\"confidence\":\"medium\"}]}",
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"medium\"}]}",
     "usage": {
       "input_tokens": 170,
       "cache_creation_input_tokens": 0,
@@ -712,7 +712,7 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 82,
+      "output_tokens": 81,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
@@ -760,7 +760,7 @@
     "model": "claude-sonnet-5"
   },
   "c51b92adf1f436e9dd86312c3a441a13ccbaebb18aa3e785c972ad92b1145874": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"low\"}]}",
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"medium\"}]}",
     "usage": {
       "input_tokens": 353,
       "cache_creation_input_tokens": 0,
@@ -769,7 +769,7 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 152,
+      "output_tokens": 154,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
@@ -1083,7 +1083,7 @@
     "model": "claude-sonnet-5"
   },
   "d036f50e1b8aba30d110ce788b130c58dc2f63b39482a2596893cf289cec21ea": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"medium\"}]}",
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
     "usage": {
       "input_tokens": 175,
       "cache_creation_input_tokens": 0,
@@ -1092,7 +1092,7 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 81,
+      "output_tokens": 80,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
