@@ -45,6 +45,18 @@ import {
 import { DEFAULT_DASHBOARD } from "@magicmis/render-dashboard";
 import type { AiTransport, CreateParams } from "../src/transport";
 import {
+  boardActionsStageSpec,
+  type BoardActionsInput,
+  type BoardActionsOutput,
+} from "../src/board-actions";
+import {
+  dashboardLayoutStageSpec,
+  type DashboardLayoutInput,
+  type DashboardLayoutOutput,
+} from "../src/dashboard-layout";
+import {
+  boardActionsDataset,
+  dashboardLayoutDataset,
   chatEditDataset,
   chatQuickDataset,
   columnMappingDataset,
@@ -348,6 +360,92 @@ const threadSummaryEval: StageEval<SummariseThreadInput, SummariseThreadOutput, 
   },
 };
 
+/**
+ * Where to act: scored the way commentary is, because the discipline is the same.
+ *
+ * An output that reaches the score already passed `checkBoardActions` — every field the model
+ * wrote ran through the placeholder check, each action carries a step, and no more were
+ * returned than the board asked for. What is left to score is that it actually suggested
+ * something: an empty list is a refusal dressed as an answer.
+ */
+const boardActionsEval: StageEval<BoardActionsInput, BoardActionsOutput, null> = {
+  spec: boardActionsStageSpec,
+  dataset: boardActionsDataset,
+  score: (o) => ({ units: 1, correct: o.actions.length > 0 ? 1 : 0 }),
+  oracle: (item) => {
+    const fact = item.input.factsPack.facts[0];
+    return {
+      summary:
+        fact === undefined
+          ? "There is not enough in this month to act on."
+          : `${fact.label} is where the month turned.`,
+      actions: [
+        {
+          heading: "Chase the oldest balances",
+          because:
+            fact === undefined
+              ? "The month gives little to go on."
+              : `${fact.label} stood at {{${fact.id}}}.`,
+          todo: "Call the three oldest accounts this week.",
+          urgency: "now" as const,
+        },
+      ],
+    };
+  },
+};
+
+/**
+ * The first board chosen for a company.
+ *
+ * The stage's own check has already refused any metric the company does not hold and any digit
+ * in a title by the time this runs, so the score asks the remaining question: did it actually
+ * choose a board, and is every box built on something this company has? A layout naming
+ * nothing present would pass a schema and be empty on screen.
+ */
+const dashboardLayoutEval: StageEval<DashboardLayoutInput, DashboardLayoutOutput, null> =
+  {
+    spec: dashboardLayoutStageSpec,
+    dataset: dashboardLayoutDataset,
+    /*
+     * By the time an output reaches here it has passed the stage's own check, which is where the
+     * rules that matter live: only metrics the company holds may be named, and no digit may
+     * appear in a title (ADR 0056). What is left to ask is whether a board was actually chosen —
+     * an empty widget list satisfies a schema and leaves the customer looking at nothing.
+     */
+    score: (o) => {
+      const widgets: unknown = JSON.parse(o.widgets_json);
+      return {
+        units: 1,
+        correct: Array.isArray(widgets) && widgets.length > 0 ? 1 : 0,
+      };
+    },
+    oracle: (item) => {
+      const first = item.input.present[0];
+      const widgets =
+        first === undefined
+          ? []
+          : [
+              {
+                id: "kpi_one",
+                kind: "kpi_card",
+                title: "Headline",
+                metrics: [first],
+                dimension: null,
+                periods: { kind: "current" },
+                layout: { x: 0, y: 0, w: 3, h: 2 },
+                drilldown: { kind: "lineage" },
+                sort: null,
+                limit: null,
+                compare: "none",
+              },
+            ];
+      return {
+        summary: "A board built on what this company holds.",
+        widgets_json: JSON.stringify(widgets),
+        calculated_json: null,
+      };
+    },
+  };
 export const STAGE_EVALS = {
   chat_quick: chatQuickEval,
   chat_edit: chatEditEval,
@@ -356,6 +454,8 @@ export const STAGE_EVALS = {
   column_mapping: columnEval,
   reference_layout: referenceEval,
   commentary: commentaryEval,
+  board_actions: boardActionsEval,
+  dashboard_layout: dashboardLayoutEval,
 } as const;
 export type EvaluableStage = keyof typeof STAGE_EVALS;
 

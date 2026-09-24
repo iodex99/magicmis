@@ -42,6 +42,8 @@ import type {
   ChatQuickInput,
   SummariseThreadInput,
 } from "../src/chat-stages";
+import type { BoardActionsInput } from "../src/board-actions";
+import type { DashboardLayoutInput } from "../src/dashboard-layout";
 import type {
   ExtractReferenceLayoutInput,
   GenerateCommentaryInput,
@@ -1203,4 +1205,242 @@ export function threadSummaryDataset(limit = 60): EvalItem<SummariseThreadInput,
     }
   }
   return items.slice(0, limit);
+}
+
+// ---------------------------------------------------------------------------
+// Where to act (ADR 0062) and the first dashboard (ADR 0056)
+// ---------------------------------------------------------------------------
+
+/**
+ * Suggestions to act on, over the same months commentary is written from (R-28).
+ *
+ * The two stages read the same facts pack by design, so they get the same shapes of month —
+ * and the thing being tested is the same discipline: every figure a placeholder the engine
+ * fills. What differs is what the stage must add, so the count asked for varies across the
+ * schema's whole range: a board that wants three items and one that wants eight are different
+ * demands on the same facts, and `checkBoardActions` refuses more than were asked for.
+ */
+export function boardActionsDataset(limit = 60): EvalItem<BoardActionsInput, null>[] {
+  return COMMENTARY_MONTHS.slice(0, limit).map((m, i) => {
+    const pack = buildFactsPack({
+      period: PERIOD,
+      store: m.store,
+      materiality: { pct: "0.05", absMinor: "0" },
+      warnings: m.warnings,
+      conventions: INDIAN_REPORTING,
+    });
+    return {
+      id: `ba-${m.id.replace(/^cm-/u, "")}`,
+      input: {
+        factsPack: {
+          period: pack.period,
+          facts: [...pack.facts],
+          dimensions: [...pack.dimensions],
+          periods: [...pack.periods],
+          warnings: [...pack.warnings],
+        },
+        // Same allowlist the job passes for a warned month: a check's id is not a figure.
+        allowlist: m.warnings.length === 0 ? [] : ["V10"],
+        // Three to eight, walked across the range the schema allows.
+        maxActions: 3 + (i % 6),
+      },
+      label: null,
+    };
+  });
+}
+
+/**
+ * A first board chosen for a company from the metrics it actually holds (R-28).
+ *
+ * The rule that matters is that the model may name only what the company has, and may put no
+ * digit in a title — it is choosing boxes, not writing figures, and nobody typed a number for
+ * it to copy. So the axes are the ones that change what is available to choose from: the kind
+ * of business, how much of the catalog it holds, and whether its books split anything up.
+ *
+ * Six shapes x three breadths x three dimension sets = 54 companies.
+ */
+const BUSINESS_SHAPES: readonly { id: string; metrics: readonly string[] }[] = [
+  {
+    id: "trading",
+    metrics: [
+      "revenue",
+      "direct_costs",
+      "gross_profit",
+      "gross_margin_pct",
+      "employee_cost",
+      "inventory",
+      "receivables",
+      "payables",
+      "cash_and_bank",
+    ],
+  },
+  {
+    id: "services",
+    metrics: [
+      "revenue",
+      "employee_cost",
+      "other_opex",
+      "ebitda",
+      "receivables",
+      "payables",
+      "cash_and_bank",
+      "dso",
+    ],
+  },
+  {
+    id: "manufacturing",
+    metrics: [
+      "revenue",
+      "direct_costs",
+      "employee_cost",
+      "depreciation",
+      "inventory",
+      "receivables",
+      "payables",
+      "dpo",
+      "ebitda",
+      "pat",
+    ],
+  },
+  {
+    id: "lean",
+    metrics: ["revenue", "gross_profit", "pat"],
+  },
+  {
+    id: "leveraged",
+    metrics: [
+      "revenue",
+      "ebitda",
+      "employee_cost",
+      "finance_cost",
+      "tax",
+      "pat",
+      "cash_and_bank",
+      "receivables",
+      "payables",
+    ],
+  },
+  {
+    // Thin on the P&L but rich in working capital: the shape whose board should be about
+    // what it is owed and owes, not about margin.
+    id: "distributor",
+    metrics: [
+      "revenue",
+      "direct_costs",
+      "employee_cost",
+      "inventory",
+      "receivables",
+      "payables",
+      "dso",
+      "dpo",
+      "cash_and_bank",
+    ],
+  },
+  {
+    id: "full",
+    metrics: [
+      "revenue",
+      "direct_costs",
+      "gross_profit",
+      "gross_margin_pct",
+      "employee_cost",
+      "other_opex",
+      "depreciation",
+      "finance_cost",
+      "tax",
+      "ebitda",
+      "pat",
+      "receivables",
+      "payables",
+      "inventory",
+      "cash_and_bank",
+      "dso",
+      "dpo",
+    ],
+  },
+];
+
+/**
+ * How much of each shape the company actually has figures for, and how much history.
+ *
+ * Months travels with breadth because it changes what a box can be: a year-on-year comparison
+ * needs more than twelve months behind it, and a company four months old can only be shown a
+ * short trend. A layout chosen without that is one the engine cannot fill.
+ */
+const BREADTHS_HELD: readonly { id: string; keepPercent: number; months: number }[] = [
+  { id: "all", keepPercent: 100, months: 24 },
+  { id: "most", keepPercent: 70, months: 13 },
+  { id: "half", keepPercent: 50, months: 4 },
+];
+
+/** What the books split up, and how many values each split takes — never the values (ADR 0057). */
+const DIMENSION_SETS: readonly {
+  id: string;
+  dims: readonly { metricId: string; dimension: string; valueCount: number }[];
+}[] = [
+  { id: "none", dims: [] },
+  {
+    id: "payroll",
+    dims: [{ metricId: "employee_cost", dimension: "designation", valueCount: 9 }],
+  },
+  {
+    id: "ageing",
+    dims: [
+      { metricId: "receivables", dimension: "bucket", valueCount: 4 },
+      { metricId: "payables", dimension: "bucket", valueCount: 4 },
+    ],
+  },
+];
+
+export function dashboardLayoutDataset(
+  limit = 60,
+): EvalItem<DashboardLayoutInput, null>[] {
+  const catalog = METRIC_CATALOG.map((m) => ({
+    id: m.id,
+    unit: m.unit,
+    label: m.label,
+  }));
+  const known = new Set(catalog.map((m) => m.id));
+  const items: EvalItem<DashboardLayoutInput, null>[] = [];
+  for (const shape of BUSINESS_SHAPES) {
+    for (const breadth of BREADTHS_HELD) {
+      for (const dimSet of DIMENSION_SETS) {
+        // Only metrics the catalog really has: the stage refuses any other, and so should a
+        // dataset that claims a company holds them.
+        const held = shape.metrics.filter((m) => known.has(m));
+        // Integer arithmetic: the repo forbids float rounding, and a count of metrics is a
+        // whole number anyway.
+        const kept = held.slice(
+          0,
+          Math.max(3, Math.ceil((held.length * breadth.keepPercent) / 100)),
+        );
+        // `present` trims from the front, so a split offered on a trimmed metric would vanish
+        // with it and turn this case back into the one with no splits at all.
+        const needed = dimSet.dims.map((d) => d.metricId).filter((m) => held.includes(m));
+        const present = [...new Set([...kept, ...needed])];
+        const inPresent = new Set(present);
+        items.push({
+          id: `dl-${shape.id}-${breadth.id}-${dimSet.id}`,
+          input: {
+            metrics: catalog,
+            present: [...present],
+            dimensioned: dimSet.dims.filter((d) => inPresent.has(d.metricId)),
+            months: breadth.months,
+          },
+          label: null,
+        });
+      }
+    }
+  }
+  // "lean" holds none of the split metrics by design, so its three dimension variants really
+  // are one case. Keep the first of any repeat: an eval that counts the same input three times
+  // is not the number of cases it claims.
+  const seen = new Set<string>();
+  const distinct = items.filter((i) => {
+    const key = JSON.stringify(i.input);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return distinct.slice(0, limit);
 }

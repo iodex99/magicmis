@@ -100,6 +100,8 @@ describe("harness", () => {
     "chat_quick",
     "chat_edit",
     "thread_summary",
+    "board_actions",
+    "dashboard_layout",
   ] as const)(
     "%s: the dataset runs through the stage check and scores in replay",
     async (stage) => {

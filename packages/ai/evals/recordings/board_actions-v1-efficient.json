@@ -1,0 +1,866 @@
+{
+  "c661a8556b631cf9dc5c6bcec7aacc5cd946c4deeb7b3d7baa469725e72fc763": {
+    "text": "{\"summary\":\"May shows balanced growth across revenue, profitability and receivables, all rising together at the same rate. No validation warnings. The facts provided cover only one month, so there is no prior-period context to assess whether this growth is a trend, a seasonal spike, or a return to normal. Cash growth matches other metrics, suggesting working capital is not under pressure yet.\",\"actions\":[{\"heading\":\"Understand the source of growth\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} on the prior month, with receivables, payables and cash all increasing at exactly the same rate.\",\"todo\":\"Check whether this {{mv:revenue.mom@2026-05:pct}} rise reflects a single large transaction, seasonal demand, a new customer, or broad-based growth across existing accounts. This will inform whether the board should expect the run rate to continue or revert.\",\"urgency\":\"now\"},{\"heading\":\"Receivables growing with revenue\",\"because\":\"Trade receivables rose {{mv:receivables.mom@2026-05:abs}} alongside revenue, maintaining the same collection profile as prior months.\",\"todo\":\"Verify that collection terms and days sales outstanding have not changed. If receivables growth is faster than revenue on a historical basis, initiate a collections review with the credit team to confirm the growth is planned.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1927,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 315,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "e83c686f24841d1bb8a762bd23bb0bf719521665fc31d5db55674576daff68ab": {
+    "text": "{\"summary\":\"Revenue and all downstream metrics grew by {{mv:revenue.mom@2026-05:pct}} this month. The proportional growth across receivables, payables, and cash suggests the increase reflects genuine business scaling rather than working capital distortion. However, a single month's data limits visibility into sustainability. The board has one period to assess whether this pace can hold.\",\"actions\":[{\"heading\":\"Confirm revenue sustainability\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}} with matching growth in gross profit and EBITDA. All metrics moved together, which is healthy, but one month alone does not show whether demand or a one-off order drove it.\",\"todo\":\"Ask management whether this growth reflects new customer wins, repeat orders from existing accounts, or project size that is unlikely to recur. If it is project-based, clarify the pipeline for {{p:2026-05}} onwards.\",\"urgency\":\"now\"},{\"heading\":\"Monitor receivables collection\",\"because\":\"Trade receivables grew {{mv:receivables.mom@2026-05:pct}} alongside revenue. This is proportional and normal for expansion, but the absolute level is now {{m:receivables@2026-05}}.\",\"todo\":\"Obtain an aging schedule for receivables and days sales outstanding (DSO). If DSO is lengthening or any customer balances are past agreed terms, escalate collection.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Assess cash adequacy for growth\",\"because\":\"Cash increased {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}, but this assumes the revenue surge continues and receivables convert on time. Trade payables grew only {{mv:payables.mom@2026-05:pct}}, so working capital headroom is tightening.\",\"todo\":\"Model cash flow for the next quarter on conservative revenue and collection assumptions. Identify any financing facility that may be needed if growth accelerates or if receivables cycle lengthens.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1963,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 471,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8d179ebf83714fad5a9dc7b69a6d0d4c1951bf0d45072885fff835c592994c91": {
+    "text": "{\"summary\":\"All major financial lines moved in the same direction and magnitude this month, which is unusual. The proportional growth across revenue, profit, receivables, payables and cash suggests either a data quality issue or a significant business event affecting the entire P&L and balance sheet. Without comparative data from prior months or detail on what drove the movement, the board cannot yet assess whether this month's performance is sustainable or a reporting anomaly.\",\"actions\":[{\"heading\":\"Verify the month's numbers\",\"because\":\"Revenue, gross profit, EBITDA, PAT, receivables, payables and cash all increased by exactly {{mv:revenue.mom@2026-05:pct}} month-on-month. Identical percentage changes across unrelated balance sheet and P&L lines is not typical.\",\"todo\":\"Ask the finance team to confirm the closing numbers are correct and to identify what single event or change drove growth across all lines. Check whether a large transaction, acquisition, or accounting restatement occurred in {{p:2026-05}}.\",\"urgency\":\"now\"},{\"heading\":\"Understand the working capital movement\",\"because\":\"Trade receivables rose by {{mv:receivables.mom@2026-05:abs}} while payables rose by {{mv:payables.mom@2026-05:abs}}, both at the same rate as sales. Cash increased by {{mv:cash_and_bank.mom@2026-05:abs}}.\",\"todo\":\"Review the major customer and supplier invoices in {{p:2026-05}} to see whether the receivables and payables movements reflect real credit terms or timing, or whether they signal a shift in how the business settles with trading partners.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1973,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 375,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a9794a5228fae5c81bb0b6ed63bd517653ca7977f3cea6d210e5879fc60b419f": {
+    "text": "{\"summary\":\"May shows strong growth across revenue, profitability and cash, with every line item rising by the same proportion. This uniformity, combined with a validation warning and an assumed month in the data, means we need to verify the underlying transactions before relying on these figures for decisions.\",\"actions\":[{\"heading\":\"Verify May's accounting entries\",\"because\":\"Every metric—revenue, profit, receivables, payables and cash—moved by exactly {{mv:revenue.mom@2026-05:pct}}, which does not occur in normal operations. Additionally, validation check V10 raised a warning and one month was assumed rather than read from a file.\",\"todo\":\"Have the accountant confirm that May's transactions were recorded from source documents, not calculated or projected. If the month was estimated, establish the actual position from bank and customer records before the board relies on these numbers.\",\"urgency\":\"now\"},{\"heading\":\"Receivables growing with sales\",\"because\":\"Trade receivables rose by {{mv:receivables.mom@2026-05:abs}} as revenue grew by {{mv:revenue.mom@2026-05:abs}}, keeping collection period unchanged.\",\"todo\":\"Confirm this remains acceptable for the customer base and credit terms. If receivables are expected to grow further, verify that cash collection remains on track for June.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Cash position after growth\",\"because\":\"Cash and bank increased to {{m:cash_and_bank@2026-05}} with the revenue expansion.\",\"todo\":\"Confirm this level is adequate for working capital needs given the payables of {{m:payables@2026-05}} and any known commitments in the coming quarter.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 1954,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 374,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "17e42155766f666a0a12ea1f9aa4d622a546c9222e199110b4b3d0c5580dcd91": {
+    "text": "{\"summary\":\"May shows strong broad-based growth across revenue, profitability and cash, with all metrics rising by the same proportion. A validation warning flags data quality concern. With only one month of data and no prior year or budget comparison, the board cannot yet distinguish between sustainable momentum and timing effects.\",\"actions\":[{\"heading\":\"Resolve data quality warning\",\"because\":\"Validation check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file.\",\"todo\":\"Confirm with the finance team what V10 flags and whether the assumed month's data is complete and correct. If either is uncertain, rerun the books once verified data is available.\",\"urgency\":\"now\"},{\"heading\":\"Understand the growth driver\",\"because\":\"Revenue, gross profit, EBITDA and PAT all grew {{mv:revenue.mom@2026-05:pct}} month-on-month, and receivables, payables and cash grew by the same percentage.\",\"todo\":\"Establish whether the growth is from higher sales volume, higher prices, a large customer order, or a one-off event. A pattern this uniform across all line items suggests a single cause worth identifying for forecasting.\",\"urgency\":\"now\"},{\"heading\":\"Monitor working capital absorption\",\"because\":\"Trade receivables rose {{mv:receivables.mom@2026-05:abs}} while cash grew {{mv:cash_and_bank.mom@2026-05:abs}}, and payables rose {{mv:payables.mom@2026-05:abs}}.\",\"todo\":\"Track days sales outstanding and days payable outstanding in June to see whether the receivables growth is from faster trading or slower collection, and whether payables are being managed to support cash flow.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1990,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 395,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "504e6651bd3b60ba524004018fea454f59685f37982be16a4ae1fdab49d43a50": {
+    "text": "{\"summary\": \"The books show strong growth across revenue, profitability and working capital in {{p:2026-05}}, with every line item moving in the same direction and by the same proportion. This unusual uniformity, combined with a validation warning and a period assumption in the data, means the figures should be verified before the board acts on them. Once confirmed, the growth trajectory is clear enough to plan from.\",\"actions\":[{\"heading\":\"Verify the month's figures before decisions\",\"because\":\"Every metric—revenue, profit, receivables, payables and cash—grew by exactly {{mv:revenue.mom@2026-05:pct}}, plus a validation warning was raised on {{p:2026-05}} and one month's data was assumed rather than read. This perfect alignment is mathematically unlikely.\",\"todo\":\"Ask the finance team to reconcile the source data for {{p:2026-05}}, confirm the warning raised by Check V10, and clarify which period was assumed and why.\",\"urgency\":\"now\"},{\"heading\":\"Plan for the growth momentum if verified\",\"because\":\"If the figures are sound, revenue grew {{mv:revenue.mom@2026-05:abs}} and profit after tax by {{mv:pat.mom@2026-05:abs}}, while cash rose {{mv:cash_and_bank.mom@2026-05:abs}}. Receivables at {{m:receivables@2026-05}} and payables at {{m:payables@2026-05}} have scaled equally.\",\"todo\":\"Once verified, assess whether this growth rate is sustainable and whether working capital—particularly receivables at {{m:receivables@2026-05}}—will need active management as sales continue to climb.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 2000,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 388,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "20f52a9de73a03adee206f3e9d996408dae9b0e40e90f258ec66d5d016101465": {
+    "text": "{\"summary\":\"Revenue and gross profit both grew {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} respectively, with direct costs rising proportionally. The books show only one month of data; without a longer trend or budget comparison, it is not possible to distinguish a sustainable improvement from seasonal or cyclical movement.\",\"actions\":[{\"heading\":\"Verify the revenue growth drivers\",\"because\":\"Revenue increased by {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}} but we have only one month of results to assess whether this is a structural shift or a timing effect.\",\"todo\":\"Confirm whether the growth came from new customer demand, existing customer expansion, pricing, or one-time orders. Check the sales pipeline and customer contracts for the next quarter to establish whether the momentum is likely to continue.\",\"urgency\":\"now\"},{\"heading\":\"Establish budget and historical baseline\",\"because\":\"The facts pack contains only this month's position with no prior-year or budgeted comparison.\",\"todo\":\"Provide the board with a rolling 12-month revenue and cost trend, and current-year budget versus actual, so that growth rates and margin trends can be properly assessed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1574,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 296,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6534440750bb645619d14422d73c14a08dedcfb1f4495f03b9f4592468792413": {
+    "text": "{\"summary\":\"May shows strong revenue growth of {{mv:revenue.mom@2026-05:pct}} on the month, with direct costs tracking proportionally and gross profit expanding at the same rate. The books provide no detail on what drove the growth, cost drivers, or margin composition. Without visibility into the mix of business, customer or product performance, or whether this growth is sustainable, the board cannot assess whether the position is one to scale or to investigate further.\",\"actions\":[{\"heading\":\"Understand the source of revenue growth\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) and direct costs rose by the same percentage, leaving gross margin flat. The facts do not show which customers, products or geographies drove the increase.\",\"todo\":\"Obtain a breakdown of the {{mv:revenue.mom@2026-05:abs}} revenue growth by customer, product line or geography to identify whether it is concentrated or broad-based, and whether the mix has shifted in a way that affects profitability going forward.\",\"urgency\":\"now\"},{\"heading\":\"Confirm cost linearity is intentional\",\"because\":\"Direct costs grew {{mv:direct_costs.mom@2026-05:pct}} in line with revenue, suggesting a strictly variable cost structure. The facts do not show whether there are fixed cost elements that should have absorbed some of the margin benefit.\",\"todo\":\"Review the composition of direct costs to establish whether the current proportion is expected, or whether fixed costs are embedded or have been deferred.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1592,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 352,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ac695d3d52ec234eaee0819fcd3ac5ed34193f1c8653d5fa47990fccd84f7471": {
+    "text": "{\"summary\": \"May shows strong revenue growth of {{mv:revenue.mom@2026-05:pct}} with direct costs rising in line. Gross margin is stable at {{m:gross_profit@2026-05}} against {{m:revenue@2026-05}} revenue. The facts provided do not indicate what is driving the growth, whether margins are at risk, or what pressures lie ahead. More detail is needed to set the board's priorities.\",\"actions\": [{\"heading\": \"Understand the margin pressure ahead\",\"because\": \"Gross profit rose {{mv:gross_profit.mom@2026-05:pct}} but only because costs rose {{mv:direct_costs.mom@2026-05:pct}} in step with revenue. There is no buffer if costs accelerate or revenue slows.\",\"todo\": \"Set out the month-on-month movement in cost base by type—fixed and variable split, or by department—to see whether May's cost growth is temporary or structural. Flag any known price increases or supply changes coming in the next quarter.\",\"urgency\": \"this_quarter\"},{\"heading\": \"Confirm revenue growth is sustainable\",\"because\": \"Revenue jumped {{mv:revenue.mom@2026-05:abs}} in a single month. The facts do not show what drove it or whether it reflects new business, higher volumes, price moves, or a one-off.\",\"todo\": \"Break down the {{mv:revenue.mom@2026-05:abs}} growth by customer, product line or other relevant split to separate recurring from non-recurring drivers. Feed this into next quarter's forecast.\",\"urgency\": \"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1594,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 364,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "134e624fae8f529d4e04acd0c64032e932bc988d3f643d606dd99e0dab0aab00": {
+    "text": "{\"summary\":\"May revenue grew {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}, with direct costs rising at the same rate. Gross profit increased {{mv:gross_profit.mom@2026-05:pct}} to {{m:gross_profit@2026-05}}. A validation warning has been raised and one prior month's data was assumed rather than confirmed. The facts pack is thin: we lack operating expenses, cash position, balance sheet items, and customer or product breakdowns needed to assess whether this growth is sustainable or if underlying margins are tightening.\",\"actions\":[{\"heading\":\"Clarify the validation warning\",\"because\":\"Check V10 raised a warning for this month's data.\",\"todo\":\"Establish what V10flagged and whether the figures for {{p:2026-05}} are reliable as stated, or if they need correction before the board acts on them.\",\"urgency\":\"now\"},{\"heading\":\"Confirm prior month data\",\"because\":\"One month in the range was assumed rather than read from a file, so the month-on-month comparisons may not be precise.\",\"todo\":\"Verify which prior month was assumed and obtain its actual figures to rebase the growth rate if needed.\",\"urgency\":\"now\"},{\"heading\":\"Understand whether margins are holding\",\"because\":\"Revenue and direct costs both rose {{mv:revenue.mom@2026-05:pct}}, keeping the gross margin constant. Operating profit impact is unknown.\",\"todo\":\"Bring operating expenses and EBIT for {{p:2026-05}} to see whether the growth has flowed through to the bottom line or been absorbed upstream.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1601,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 381,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ef1ac419c0654a9c773cb1191f27607d0230feb31d5052feda98e2c2522c957e": {
+    "text": "{\"summary\":\"Revenue grew {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}, with direct costs rising at the same rate and gross profit up {{mv:gross_profit.mom@2026-05:pct}}. A validation check has flagged a concern this month, and one prior month's data was assumed rather than read from file. The facts are too thin to recommend actions on performance or strategy without knowing what drove the growth or what the warning signals.\",\"actions\":[{\"heading\":\"Resolve the validation warning\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}.\",\"todo\":\"Establish what V10 detected. If it is a data error, correct it; if it signals a real issue in the books, determine whether it affects the figures reported this month.\",\"urgency\":\"now\"},{\"heading\":\"Confirm the assumed month's data\",\"because\":\"One month in the range was assumed rather than read from a file, which may affect the baseline for month-on-month changes.\",\"todo\":\"Identify which month was assumed and obtain the actual records from the source, then recalculate comparatives if the assumed figures differ materially.\",\"urgency\":\"now\"},{\"heading\":\"Understand what drove the growth\",\"because\":\"Revenue, direct costs and gross profit all rose {{mv:revenue.mom@2026-05:pct}} together, suggesting a proportional increase across the board.\",\"todo\":\"Establish whether the growth is volume-led, price-led, or both, and whether margins held or moved. This will inform whether the trend is sustainable.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1619,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 369,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "1be2d8a3b7092a4cf556c080c759f1874024c1c6a9657983730894246a965042": {
+    "text": "{\"summary\":\"Revenue and gross profit grew {{mv:revenue.mom@2026-05:pct}} on the month to {{m:revenue@2026-05}}, with direct costs rising in line. A validation warning flags incomplete data for this month, and one prior month was assumed rather than read. Before drawing conclusions, clarify what the warning covers and confirm the assumed month's figures.\",\"actions\":[{\"heading\":\"Clarify validation warning V10\",\"because\":\"Check V10 raised a warning for this month's accounts, and one month in the prior range was assumed rather than read from a file.\",\"todo\":\"Establish what V10 checks for and whether it affects the reliability of this month's revenue, costs, or gross profit. Confirm which prior month was assumed and restate it from source records if material.\",\"urgency\":\"now\"},{\"heading\":\"Understand cost growth\",\"because\":\"Direct costs rose {{mv:direct_costs.mom@2026-05:pct}} alongside revenue growth of {{mv:revenue.mom@2026-05:pct}}, holding gross margin flat.\",\"todo\":\"Find out whether the cost increase reflects volume-driven variable costs, one-off items, or a structural change in cost base. Check whether the relationship between revenue and cost growth is expected or signals an issue with pricing or efficiency.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1621,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 297,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "144b7905ff6071926cd692b5227b55213ca1ac7fe33b724301b90162f6828de2": {
+    "text": "{\"summary\":\"Revenue grew {{mv:revenue.mom@2026-05:pct}} this month to {{m:revenue@2026-05}}. The facts pack is incomplete: no cost structure, margins, cash position, or comparison to plan. Cannot identify what the board should act on without knowing whether this growth is sustainable or how it affects the business.\",\"actions\":[{\"heading\":\"Understand the growth driver\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:abs}}, but the books show only the total, not what changed.\",\"todo\":\"Confirm whether this increase came from higher volumes, higher prices, a new customer, or a one-off sale. That determines whether it is a run-rate change or a blip.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1401,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 172,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "78ee076b0bf2adc8b9b197f4773faa4fd07681387c8458887690e9ee7deeb3cb": {
+    "text": "{\"summary\": \"Revenue rose {{mv:revenue.mom@2026-05:pct}} in {{p:2026-05}} to {{m:revenue@2026-05}}. The facts pack is limited: no detail by customer, product line or segment, no cost or margin data, and no comparison to budget. Cannot assess profitability, growth sustainability or whether the increase reflects genuine demand or a one-time event.\",\"actions\": [{\"heading\": \"Understand what drove the revenue jump\",\"because\": \"Revenue rose {{mv:revenue.mom@2026-05:pct}} ({{mv:revenue.mom@2026-05:abs}}) but the pack shows no breakdown by customer, product or geography.\",\"todo\": \"Ask finance for a split of this month's revenue by major customer and product line, and whether the increase came from a few large orders, new customers, or volume growth across existing relationships.\",\"urgency\": \"now\"},{\"heading\": \"Get cost and margin data\",\"because\": \"We see revenue at {{m:revenue@2026-05}} but have no corresponding figures for cost of sales, gross margin or operating profit.\",\"todo\": \"Request this month's costs, gross margin percentage, and operating profit. Compare to last month to see whether higher revenue is pulling down margin or holding steady.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1407,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 295,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "45e77ce7d6dc5fe600fb8a238c825bb4914e89170f523419e771fbb0b46170a2": {
+    "text": "{\"summary\":\"Revenue grew strongly this month to {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} from the prior month. The books show no issues flagged for board attention at this stage.\",\"actions\":[{\"heading\":\"Maintain momentum on revenue growth\",\"because\":\"Revenue reached {{m:revenue@2026-05}} in {{p:2026-05}}, a {{mv:revenue.mom@2026-05:pct}} increase month-on-month.\",\"todo\":\"Review what drove this month's {{mv:revenue.mom@2026-05:abs}} uplift and whether the conditions that enabled it will persist into next month. Confirm with operations and sales whether this rate of growth is sustainable.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1409,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 201,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "89a626730564c419fd84369793695507662fdd867e4cf0d3ed750a7684d10deb": {
+    "text": "{\"summary\":\"May revenue is up {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}}, a solid monthly gain. However, one month in the data range was assumed rather than read from a file, and a validation warning has been raised. The facts pack is thin — we do not have customer mix, cost structure, or period-on-period context beyond this month's movement.\",\"actions\":[{\"heading\":\"Verify the assumed month in the data range\",\"because\":\"One month in the range was assumed rather than read, which affects the reliability of the {{mv:revenue.mom@2026-05:pct}} comparison.\",\"todo\":\"Check which month was assumed and obtain the actual filed data for it. Confirm the revenue movement is real once the underlying figures are solid.\",\"urgency\":\"now\"},{\"heading\":\"Investigate validation warning V10\",\"because\":\"A validation check raised a warning for this month that has not yet been explained.\",\"todo\":\"Review what V10 checks and whether the warning indicates a data quality issue, a process deviation, or something that needs correction in the books.\",\"urgency\":\"now\"},{\"heading\":\"Understand the revenue growth driver\",\"because\":\"Revenue is up {{mv:revenue.mom@2026-05:abs}}, but we do not have visibility into whether this came from volume, pricing, new customers, or seasonal effect.\",\"todo\":\"Request a breakdown by customer segment or product line for May and April to see what moved the needle.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1428,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 336,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b21d6fbbefd92526c4272f9a913ceeb7d4981c71569c71347da6c4aca4b0d96b": {
+    "text": "{\"summary\":\"Revenue rose sharply this month, but the data is incomplete: one month was assumed rather than read, and a validation warning was raised. Before the board acts on trading performance, confirm the underlying figures are correct.\",\"actions\":[{\"heading\":\"Verify May revenue and the assumed month\",\"because\":\"Revenue from operations rose {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) to {{m:revenue@2026-05}} this month, but validation check V10 raised a warning and one month in the range was assumed rather than sourced from a file.\",\"todo\":\"Ask the finance team which month was assumed and whether it came from a partial submission, forecast or prior accrual. Confirm the May figure itself is final. If either is not yet locked, defer trading commentary and decisions until the actual data is in.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1434,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 203,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "00303fa156563963de06685ca25d1ac3195a823cd8944757b905103e6d5abdc8": {
+    "text": "{\"summary\":\"Revenue grew strongly month-on-month in {{p:2026-05}}, but validation warnings indicate data completeness issues that should be resolved before relying on these figures for board decisions.\",\"actions\":[{\"heading\":\"Validate revenue data for this month\",\"because\":\"A validation warning (V10) was raised for {{p:2026-05}}, and one month in the reporting range was assumed rather than read from source files.\",\"todo\":\"Finance to confirm the data sources for {{p:2026-05}} revenue of {{m:revenue@2026-05}} and identify which month was assumed. Resubmit the MIS once all figures are verified against actual records.\",\"urgency\":\"now\"},{\"heading\":\"Understand drivers of revenue growth\",\"because\":\"Revenue increased by {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) from the prior month.\",\"todo\":\"Operations or sales to explain whether the {{mv:revenue.mom@2026-05:pct}} increase reflects seasonal patterns, one-off deals, new customer wins, or sustained momentum, so the board can assess whether this trend is expected to continue.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1436,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 274,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "e7911bf3d49f5ba06b87540dd1cc54e3014e0402f3d47db05ea2df79e4374524": {
+    "text": "{\"summary\":\"Revenue and all downstream metrics fell {{mv:revenue.mom@2026-05:pct}} in the month to {{m:revenue@2026-05}}. Every line of the profit and loss moved in lockstep, as did cash and working capital, suggesting a broad contraction rather than a specific cost or collection issue. The facts do not show why this happened or whether it is a one-month dip or a trend. No validation warnings were raised.\",\"actions\":[{\"heading\":\"Understand the revenue drop\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}, with profit after tax down {{mv:pat.mom@2026-05:abs}} to {{m:pat@2026-05}}. Every metric moved {{mv:revenue.mom@2026-05:pct}}, pointing to a single cause rather than multiple pressures.\",\"todo\":\"Establish whether this is seasonal, a one-off, or a change in trading. Check the sales ledger by customer to see where the drop occurred and whether the same customers are still active this month.\",\"urgency\":\"now\"},{\"heading\":\"Cash headroom tightened\",\"because\":\"Cash and bank fell {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}. Trade receivables and payables both fell {{mv:receivables.mom@2026-05:pct}}, so working capital has not become a separate strain, but cash is now low in absolute terms.\",\"todo\":\"Confirm the month-end cash forecast for the next two months, including any seasonal working capital swings, known invoices due from customers, and payments due to suppliers. If headroom is tight, consider what credit facilities are in place or available.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1941,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 416,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8b85521f9ff09a2c66cc4351ac9d320051df6629e70d56f25d61d7616ea8d130": {
+    "text": "{\"summary\":\"Revenue declined {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}, with proportional falls across gross profit, EBITDA and PAT. Working capital metrics declined similarly. Cash fell {{mv:cash_and_bank.mom@2026-05:abs}} but remains adequate. No validation warnings were raised. The facts show the decline but do not reveal why it occurred or whether it is expected to reverse.\",\"actions\":[{\"heading\":\"Understand the revenue drop\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} from the prior month to {{m:revenue@2026-05}}, mirrored by equivalent drops in gross profit {{mv:gross_profit.mom@2026-05:pct}}, EBITDA {{mv:ebitda.mom@2026-05:pct}} and PAT {{mv:pat.mom@2026-05:pct}}.\",\"todo\":\"Establish whether the decline is seasonal, customer-specific, or market-driven. Segment the revenue movement by customer and product line to identify whether the fall is broad-based or concentrated. Confirm management's view of recovery timing.\",\"urgency\":\"now\"},{\"heading\":\"Cash position adequacy\",\"because\":\"Cash and bank balance fell {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}, in line with the broader contraction. Working capital—receivables {{m:receivables@2026-05}}, payables {{m:payables@2026-05}}—also contracted {{mv:receivables.mom@2026-05:pct}}.\",\"todo\":\"Confirm with management that cash remains sufficient for operations and debt service over the next quarter, given the revenue volatility. Review the cash conversion cycle to assess whether tighter payables reflect supplier pressure.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1977,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 443,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "dfa3ebca6af83373c5140ff49845b1dfe86d5d0989ef84b9f768d836c416b51b": {
+    "text": "{\"summary\":\"All major metrics declined by exactly {{mv:revenue.mom@2026-05:pct}} month-on-month, indicating a broad-based contraction across revenue, profitability and working capital. The proportional decline across every line suggests either a significant customer loss, market event, or measurement issue rather than operational deterioration. Investigate the cause before planning board actions.\",\"actions\":[{\"heading\":\"Understand the revenue collapse\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}} and every other metric fell by the same percentage, which is unusually uniform.\",\"todo\":\"Establish whether this is a real business event (loss of a major customer, market disruption, or seasonal pattern) or a data anomaly. Finance and sales to report findings to the board within one week.\",\"urgency\":\"now\"},{\"heading\":\"Preserve liquidity position\",\"because\":\"Cash declined {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}} and receivables fell {{mv:receivables.mom@2026-05:abs}}, while payables also reduced {{mv:payables.mom@2026-05:abs}}.\",\"todo\":\"Review cash flow forecast for the next two months. Identify any committed obligations that cannot be deferred if the revenue decline continues, and establish any draw on credit facilities that may be needed.\",\"urgency\":\"now\"},{\"heading\":\"Check working capital sustainability\",\"because\":\"Both receivables and payables moved down proportionally, but the cash reduction was larger than either, suggesting working capital is tightening faster than revenue.\",\"todo\":\"Calculate days sales outstanding and days payable outstanding for this month compared to last. If either has worsened materially, establish whether collections are slower or payments are being accelerated.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1987,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 419,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "96a0aeed43cf0b2be4819815d3f966ad9994fc361a8261fdd3a56be5034f3a79": {
+    "text": "{\"summary\":\"All metrics declined uniformly by {{mv:revenue.mom@2026-05:pct}} month-on-month, affecting revenue, profitability, receivables and cash. A validation warning flags incomplete data for this period. The board needs to understand whether this represents a business slowdown, a data issue, or both.\",\"actions\":[{\"heading\":\"Uniform {{mv:revenue.mom@2026-05:pct}} decline across all metrics\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}, with gross profit, EBITDA, PAT, receivables, payables and cash all declining by exactly the same percentage. Cash and bank balances are now {{m:cash_and_bank@2026-05}}.\",\"todo\":\"Clarify what drove the uniform decline. If it reflects actual business performance, establish whether demand has contracted or a major customer reduced orders. If the data quality issue noted in validation warning V10 affected all line items proportionally, restate the period from source records before deciding next steps.\",\"urgency\":\"now\"},{\"heading\":\"Data completeness for {{p:2026-05}}\",\"because\":\"Validation warning V10 was raised, and one month in the range was assumed rather than read from a file.\",\"todo\":\"Confirm which data points for {{p:2026-05}} were assumed. Obtain the actual readings and revalidate. This will clarify whether the uniform percentage movements are real or an artifact of incomplete data.\",\"urgency\":\"now\"},{\"heading\":\"Cash reserve trend\",\"because\":\"Cash and bank balances fell {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}.\",\"todo\":\"Confirm whether this level is adequate for payroll, committed payments and working capital needs over the next two months. If tightening emerges, plan for credit facilities or defer discretionary spend now.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1968,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 449,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "e19d84a753b9152263e1d366015f4529d015ac0a8513ce2f8e787483ed24ad1c": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} this month to {{m:revenue@2026-05}}. Profit metrics declined proportionally across the board, and cash dropped {{mv:cash_and_bank.mom@2026-05:abs}}. A validation warning flags data quality for this month. The decline is uniform across all line items, which warrants investigation to distinguish between a real business contraction and a data or timing issue.\",\"actions\":[{\"heading\":\"Verify May revenue and the validation warning\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} with every profit line and balance sheet item declining by the same percentage. Validation check V10 raised a flag this month, and one month's data was assumed rather than read from file.\",\"todo\":\"Finance to confirm that May's revenue figure of {{m:revenue@2026-05}} is correct and complete. Establish which month was assumed in the data, and whether the assumed values are material. Clarify what V10 checks and whether its warning points to a data entry, cutoff or timing issue.\",\"urgency\":\"now\"},{\"heading\":\"Understand the cause of the revenue drop\",\"because\":\"Revenue declined {{mv:revenue.mom@2026-05:pct}} month-on-month. The uniform percentage fall across revenue, gross profit, EBITDA, profit after tax, receivables, payables and cash suggests either a genuine business event or a data anomaly.\",\"todo\":\"Once the data is verified, establish whether the drop reflects lower sales volume, lost customers, a major order delay, or external disruption. If real, quantify the impact by customer or product line to identify where action is needed. If data-driven, correct the record.\",\"urgency\":\"now\"},{\"heading\":\"Monitor cash position\",\"because\":\"Cash and bank balances fell {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}} in May. At the current run rate, liquidity warrants attention.\",\"todo\":\"Review cash flow forecast for the next quarter. Confirm that the cash position is adequate for operational needs and debt service. If the May drop is real, establish whether working capital management or sales recovery actions are needed to restore cash.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 2004,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 517,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5403b3b592f8a709ea473aebf7c7e79fc5851799541b760a1508e98e88ee207d": {
+    "text": "{\"summary\":\"Revenue, profit and cash all fell by {{mv:revenue.mom@2026-05:pct}} in May. The decline is uniform across the business, suggesting a single cause rather than sector or customer-specific issues. A validation warning flags incomplete data for the month, so the board should first confirm the figures are final before deciding what to investigate.\",\"actions\":[{\"heading\":\"Confirm May data is complete\",\"because\":\"A validation warning notes that one month was assumed rather than read from a file, and the uniform {{mv:revenue.mom@2026-05:pct}} fall across revenue, profit and cash suggests either a real event or incomplete capture.\",\"todo\":\"Confirm with the finance team that all May transactions have been recorded and the books are closed. If data is still provisional, set a date to re-review once final.\",\"urgency\":\"now\"},{\"heading\":\"Understand the {{mv:revenue.mom@2026-05:pct}} revenue drop\",\"because\":\"Revenue fell by {{mv:revenue.mom@2026-05:abs}} month on month, pulling gross profit down {{mv:gross_profit.mom@2026-05:abs}} and EBITDA down {{mv:ebitda.mom@2026-05:abs}}. The proportional fall across all metrics suggests a volume or pricing issue rather than cost control.\",\"todo\":\"Review May sales by customer and product to identify whether the drop is concentrated or spread. Establish whether this is seasonal, a lost order, or a market-wide shift that requires action on pricing or cost.\",\"urgency\":\"now\"},{\"heading\":\"Cash position after the decline\",\"because\":\"Cash and bank fell {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}, mirroring the revenue and profit falls. Receivables and payables also fell proportionally, so working capital appears stable.\",\"todo\":\"Confirm that the cash position remains adequate for operations and debt service, and that the decline does not indicate a liquidity stress. If May was an anomaly, no action is needed; if it signals a trend, forecast the next two months to set any mitigating steps.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 2014,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 492,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "037262664a569859c50b1db00f448169a27379c400efeab0951780b3d2eefa3e": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} this month to {{m:revenue@2026-05}}. Direct costs moved in line, leaving gross margin intact. The drop is significant enough to warrant investigation into its cause and duration.\",\"actions\":[{\"heading\":\"Revenue decline\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} from the prior month to {{m:revenue@2026-05}}.\",\"todo\":\"Establish whether this is seasonal, customer-specific, or signals a broader problem. Find out what drove the drop and whether it is expected to persist or reverse.\",\"urgency\":\"now\"},{\"heading\":\"Monitor gross margin stability\",\"because\":\"Gross profit declined {{mv:gross_profit.mom@2026-05:pct}} in line with revenue, holding margin at prior levels.\",\"todo\":\"Continue to track whether the cost base remains proportional as revenue moves, or whether fixed costs will pressure margin if the revenue decline persists.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1580,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 246,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a3c4937eb36137fbbc259d71a639098ffe05d53dd7cc20b9698c22b07fdaba60": {
+    "text": "{\"summary\": \"Revenue fell {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}, with direct costs declining proportionally. Gross profit margin has held steady, but the scale of the drop warrants immediate investigation into its cause and expected duration.\",\"actions\": [{\"heading\": \"Revenue decline of {{mv:revenue.mom@2026-05:abs}}\",\"because\": \"Revenue fell {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}} from the prior month. Direct costs fell {{mv:direct_costs.mom@2026-05:pct}}, so gross margin percentage remained stable, but absolute profit fell {{mv:gross_profit.mom@2026-05:abs}}.\",\"todo\": \"Establish whether this is seasonal, a temporary loss of customer volume, or a pricing correction. Find out the expected trajectory for June and beyond so the board can assess cash impact.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1598,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 232,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ea9d2562b4fff02f7a6e3922683d7a124f1465d7f3225a6ad9acf9508d58b478": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} this month to {{m:revenue@2026-05}}, with direct costs tracking the decline proportionally. Gross profit is under pressure. The facts do not show enough detail on cost structure, customer base, or market conditions to recommend specific actions beyond understanding the drivers of this sharp fall.\",\"actions\":[{\"heading\":\"Revenue collapse this month\",\"because\":\"Revenue dropped {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) to {{m:revenue@2026-05}}, and gross profit fell by the same proportion.\",\"todo\":\"Establish whether this is seasonal, a customer loss, a market event, or operational disruption. Review the next month's forward orders and customer communications to assess whether this is temporary or a sign of deeper trouble.\",\"urgency\":\"now\"},{\"heading\":\"Understand cost performance in the downturn\",\"because\":\"Direct costs fell {{mv:direct_costs.mom@2026-05:pct}} alongside revenue, suggesting variable cost management, but gross profit margin remained stable. The books do not show the split between fixed and variable costs.\",\"todo\":\"Confirm how much of the cost reduction was discretionary (delayed spending, reduced headcount) versus automatic (lower material use with lower volume). Identify any fixed costs that cannot fall further if revenue stays weak.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1600,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 319,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "0485f8bf060d21f1b42541d82446de75a3b7d8b34aaa9c9731debb209eab8616": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}} in May, with direct costs declining at the same rate. Gross profit contracted {{mv:gross_profit.mom@2026-05:pct}}. Data validation flags one month as assumed rather than confirmed, so the first step is to verify the May figures themselves.\",\"actions\":[{\"heading\":\"Verify May revenue and cost figures\",\"because\":\"Validation warning V10 was raised and one month in the range was assumed rather than read from source files. The {{mv:revenue.mom@2026-05:pct}} revenue decline and matching {{mv:direct_costs.mom@2026-05:pct}} cost fall are material movements that require confirmation.\",\"todo\":\"Confirm the May actuals with whoever prepared them. Check whether the assumed data point affects this month's figures or an earlier period. If May is confirmed, move to understand the cause of the decline.\",\"urgency\":\"now\"},{\"heading\":\"Understand the cause of the revenue drop\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} from April, while direct costs fell {{mv:direct_costs.mom@2026-05:abs}} at the same percentage rate. This suggests a volume or sales mix change rather than cost inflation.\",\"todo\":\"Establish what drove the {{mv:revenue.mom@2026-05:pct}} decline—customer losses, seasonal variation, or one-off orders that did not repeat. Sales or commercial leadership should review.\",\"urgency\":\"now\"},{\"heading\":\"Monitor the pattern ahead\",\"because\":\"A single month's decline is not conclusive, but the proportional fall in both revenue and costs means gross profit margin held steady rather than deteriorating. The board should track whether May is a dip or the start of a trend.\",\"todo\":\"Plan to review June figures promptly on closure, flagging whether revenue has stabilized or continued to decline.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1607,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 445,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "af90e958e4cae5a3386f9a5296731be954924f28d0ee81947eb3a7cc13fbe794": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}} this month, with direct costs tracking the same decline. Gross profit contracted {{mv:gross_profit.mom@2026-05:pct}}. A validation warning on this month's data means the board should confirm the figures are complete before acting on them.\",\"actions\":[{\"heading\":\"Validate this month's figures\",\"because\":\"Check V10 raised a warning, and one month in the range was assumed rather than read from a file.\",\"todo\":\"Confirm with the finance team that {{m:revenue@2026-05}} and {{m:direct_costs@2026-05}} are complete and accurate, or restate them if they are not.\",\"urgency\":\"now\"},{\"heading\":\"Understand the revenue drop\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} from last month, to {{m:revenue@2026-05}}.\",\"todo\":\"Establish whether the drop is seasonal, reflects a one-off event, or signals a trend. Find out which customer segments or products drove the decline.\",\"urgency\":\"now\"},{\"heading\":\"Monitor gross margin stability\",\"because\":\"Gross profit fell {{mv:gross_profit.mom@2026-05:pct}} in line with revenue, holding margin steady, but the absolute decline of {{mv:gross_profit.mom@2026-05:abs}} limits the cash available for operating costs.\",\"todo\":\"Review whether operating expenses are sized for current revenue levels, or if cuts are needed to protect cash.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 366,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "1d0f05d916bd344183e403fde1f352c07ecf8c3ce45bd077c8471e0098384ae5": {
+    "text": "{\"summary\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} this month to {{m:revenue@2026-05}}, with direct costs tracking the same decline. Gross profit margin held steady at {{m:gross_profit@2026-05}}, but the underlying contraction needs investigation. A data validation flag was raised and one prior month was assumed rather than confirmed; clarity on both is needed before board decisions can be firm.\",\"actions\":[{\"heading\":\"Investigate the revenue drop\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} in this month. Direct costs fell proportionally, so margin remained intact, but the scale of the contraction is material.\",\"todo\":\"Establish whether this is seasonal, customer-driven, or a one-time event. Obtain the detail behind the revenue decline by customer, product line or geography to isolate the cause and assess whether it reverses in the next month.\",\"urgency\":\"now\"},{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for this month's data and cannot be ignored before the board acts on these numbers.\",\"todo\":\"Obtain the validation report, understand what V10 flags, and confirm either that the data is correct or that it has been restated. Report the finding to the board before final approval.\",\"urgency\":\"now\"},{\"heading\":\"Verify prior month data\",\"because\":\"One month in the range was assumed rather than read from a file, which means month-on-month movements may rest on incomplete information.\",\"todo\":\"Confirm which prior month was assumed and obtain the actual data. Recompute this month's movements to verify they remain valid once actual prior figures are in place.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 398,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "9450d30ff95a9fe37fc29df7efc5a454c73ae8ada295307e946c8c3f5abfafea": {
+    "text": "{\"summary\":\"Revenue declined {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}. No other financial data is available to assess the drivers or broader position.\",\"actions\":[{\"heading\":\"Revenue drop of {{mv:revenue.mom@2026-05:abs}}\",\"because\":\"Sales fell {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}} in {{p:2026-05}}.\",\"todo\":\"Establish what caused the decline: customer losses, lower transaction sizes, seasonal factors, or market conditions. Obtain this month's customer breakdown, order values, and sales pipeline to identify whether the drop is temporary or structural.\",\"urgency\":\"now\"},{\"heading\":\"Incomplete financial reporting\",\"because\":\"Only revenue is reported; no cost, profit, cash or balance sheet data is present.\",\"todo\":\"Obtain the full P&L, cash flow and balance sheet for {{p:2026-05}} to understand the company's position and rule out offsetting movements elsewhere.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1403,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 247,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "81897c09d180012776bd7fb27b1e57ee839f6a1dc3b5d84fa244e4ae85902e4b": {
+    "text": "{\"summary\":\"Revenue fell sharply this month with no other financial detail provided to understand why or what follows.\",\"actions\":[{\"heading\":\"Revenue decline investigation\",\"because\":\"Revenue from operations was {{m:revenue@2026-05}} in {{p:2026-05}}, down {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} from the prior month.\",\"todo\":\"Establish what caused the decline — whether it is seasonal, customer-specific, operational, or market-driven. Confirm whether this pattern is expected to continue into the next quarter.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1409,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 145,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "7dcbfc0fc73b60c1e145b480531279a0815f9557d1b0e9d742c27f18a3ac9883": {
+    "text": "{\"summary\":\"Revenue fell sharply this month. The facts provided show only the overall movement; understanding what drove this decline across customer segments, products or geographies would support effective action.\",\"actions\":[{\"heading\":\"Revenue collapse this month\",\"because\":\"Revenue dropped {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}.\",\"todo\":\"Establish what caused the fall: whether specific customer accounts, product lines or regions are affected, or whether it is broad-based. Identify whether this is seasonal, a one-time event, or the start of a trend.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1411,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 145,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "930dff9510489bdba419c9cc216590c60be9e43b5817b22545cff0d63d995e77": {
+    "text": "{\"summary\":\"Revenue declined {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}. A validation warning (Check V10) was raised this month, and one prior month's data was assumed rather than verified from source. The facts pack is thin; the revenue movement alone cannot support a specific action without knowing what drives it or what the board's baseline is.\",\"actions\":[{\"heading\":\"Investigate revenue decline\",\"because\":\"Revenue fell {{mv:revenue.mom@2026-05:pct}} from last month, a drop of {{mv:revenue.mom@2026-05:abs}}.\",\"todo\":\"Find out what caused the decline — loss of a customer, seasonal pattern, pricing change, or operational issue. Check whether this is normal for {{p:2026-05}} or a genuine deterioration.\",\"urgency\":\"now\"},{\"heading\":\"Resolve validation warning and data gaps\",\"because\":\"Check V10 raised a warning this month, and one month of historical data was assumed rather than sourced from a file.\",\"todo\":\"Establish what Check V10 flags and whether it affects the reliability of this month's figures. Obtain the assumed month's actual data from source.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1430,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 279,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "82fe94e6ff2bd47dc6278c7c5eb8b4d79ac565684e6337900f181b28ab54e8bd": {
+    "text": "{\"summary\":\"Revenue fell sharply this month and one month's figures were assumed rather than read from files. The assumed month should be verified before treating this result as final.\",\"actions\":[{\"heading\":\"Revenue decline this month\",\"because\":\"Revenue from operations fell {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} month-on-month to {{m:revenue@2026-05}}. This is a material drop.\",\"todo\":\"Establish what drove the decline — whether it reflects seasonal factors, customer orders, pricing, or operational issues — so the board knows whether this is temporary or signals a change in demand.\",\"urgency\":\"now\"},{\"heading\":\"Incomplete data for this month\",\"because\":\"Validation warning V10 was raised, and one month in the range was assumed rather than read from a file. This affects the reliability of the revenue figure itself.\",\"todo\":\"Confirm which month was assumed and obtain the actual figures from source files. Recalculate this month's position once complete data is in place.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1436,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 242,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "32a5d4c2399d0325bac780bcb06e12aa5c8736cf7f09fc58fecb5e1a5b41dd47": {
+    "text": "{\"summary\": \"Revenue dropped significantly this month, and there is a validation warning on the figures. The facts are sparse; we need to understand what drove the revenue fall and confirm the data quality before deciding on a response.\",\"actions\": [{\"heading\": \"Sharp revenue decline this month\",\"because\": \"Revenue fell {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} on the prior month, to {{m:revenue@2026-05}}.\",\"todo\": \"Establish what caused the fall: seasonality, customer loss, pricing, delayed orders, or one-time items. Check whether this is specific to a customer or division. Confirm this month's revenue figure with the source documentation, as the validation warning on Check V10 flags a possible data quality issue.\",\"urgency\": \"now\"},{\"heading\": \"Incomplete data for this month\",\"because\": \"One month in the data range was assumed rather than read from a file, and a validation warning was raised on Check V10.\",\"todo\": \"Confirm that this month's records are complete and correct. Identify which data point was assumed and replace it with actual figures if available. Verify the revenue number against source documents before relying on it for decisions.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1438,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 284,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5675b48dc25dc06079e3c2b22e18b0f802fc1874127bec7d7c2475c0168621e0": {
+    "text": "{\"summary\":\"This month shows strong profitability across all metrics with no validation warnings. The books do not yet reveal what requires board action this quarter. A full picture is needed: detailed breakdowns by customer or product, year-on-year and budget comparisons, and how cash converted from these profits.\",\"actions\":[{\"heading\":\"Incomplete month-on-month and budget picture\",\"because\":\"Revenue, gross profit, EBITDA and PAT are shown only as this month's totals ({{m:revenue@2026-05}}, {{m:gross_profit@2026-05}}, {{m:ebitda@2026-05}}, {{m:pat@2026-05}}), with no prior periods or targets to assess performance against.\",\"todo\":\"Provide prior-month and year-on-year comparisons, and actual v. budget for this month, so the board can see whether these results are ahead or behind trend.\",\"urgency\":\"now\"},{\"heading\":\"Cash conversion not shown\",\"because\":\"Profit figures are present but there is no information about cash collected, payments made, or working capital changes in the same month.\",\"todo\":\"Bring cash flow statement or bank and receivables detail for the month so the board can see whether profits translated to cash.\",\"urgency\":\"now\"},{\"heading\":\"No breakdown by business segment\",\"because\":\"All revenue and profit are shown as company totals with no split by customer, product, region or other operating dimension.\",\"todo\":\"Provide revenue and margin breakdown by the main business segments or customer cohorts, so the board can see where performance is strongest and where it is not.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1421,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 361,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "65c95c0f04ce173228675d9924ffe8099f4f4794ecde324c15b67eb1a13dd22e": {
+    "text": "{\"summary\":\"The May 2026 results show strong profitability across all metrics with no apparent anomalies in the books. However, the facts pack is minimal: only headline P&L figures, no prior period comparisons, no breakdown by customer or product line, and no detail on cash, balance sheet, or operational drivers. Without more information, the board cannot assess whether performance is stable, improving or at risk, or where to focus attention.\",\"actions\":[{\"heading\":\"Request full management information pack\",\"because\":\"Only revenue, gross profit, EBITDA and PAT are in the facts; no comparison to prior months, no balance sheet, no cash flow, no customer or segment detail, and no commentary on drivers.\",\"todo\":\"Ask the finance team to provide the standard monthly MIS: prior-year and prior-month comparisons, balance sheet summary, cash position, and any breakdown by customer or product line that the business uses to manage itself.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1429,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 211,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b938cc79e5fd18910e9eed0b15f9b0f7e370606ada81cb65bc69235f9722681f": {
+    "text": "{\"summary\":\"The month shows strong profitability across all metrics with no validation warnings raised. However, the facts pack contains only headline profit figures with no detail on revenue composition, cost drivers, working capital, cash position, or comparison to prior periods or budget. Without this context, the board cannot identify where to act.\",\"actions\":[{\"heading\":\"Request detailed monthly management accounts\",\"because\":\"The pack shows {{m:revenue@2026-05}} revenue and {{m:pat@2026-05}} profit after tax for {{p:2026-05}}, but gives no breakdown by customer, product, geography or cost category, no cash flow statement, and no comparison to budget or prior year.\",\"todo\":\"Ask the finance director to provide the full management accounts pack: P&L by segment, balance sheet, cash flow statement, and variance analysis to budget. Use that to identify where to focus board attention next month.\",\"urgency\":\"now\"},{\"heading\":\"Confirm working capital and cash position\",\"because\":\"The facts show profit but give no information on receivables, payables, inventory or cash balance in {{p:2026-05}}.\",\"todo\":\"Request the current cash position, days sales outstanding, and days payable outstanding. Confirm there are no hidden cash or liquidity pressures behind the profit figure.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1431,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 286,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5ee2c2202698d75ae879c06f0f6e07f77e62d08184357043366b67cdf1d2ab05": {
+    "text": "{\"summary\":\"This month's results are available but validation flagged a data quality issue. One period was assumed rather than verified from source files, and check V10 raised a warning. Without commentary context or comparison periods, the underlying business performance cannot be assessed. The board should establish what the warning means and confirm the data integrity before relying on these figures for decisions.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}.\",\"todo\":\"Establish what V10 flags, why it fired this month, and whether the underlying data for {{p:2026-05}} can be relied on. If the warning indicates a real error, correct it; if it is a false positive in the check itself, document that decision.\",\"urgency\":\"now\"},{\"heading\":\"Verify assumed period data\",\"because\":\"One month in the range was assumed rather than read from a file.\",\"todo\":\"Identify which file should have provided the data that was assumed. Retrieve the actual file and reconcile it to the assumed figures used in this month's books. If the actual figures differ materially, restate {{p:2026-05}}.\",\"urgency\":\"now\"},{\"heading\":\"Establish basis for performance assessment\",\"because\":\"Revenue {{m:revenue@2026-05}}, gross profit {{m:gross_profit@2026-05}}, EBITDA {{m:ebitda@2026-05}} and PAT {{m:pat@2026-05}} are shown for {{p:2026-05}} but no prior period or forecast is available.\",\"todo\":\"Obtain the prior month and year comparison figures, and any approved forecast for this month. Once the board can see trend and variance, it will be able to identify whether these results warrant action.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1448,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 404,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6292926bdc4aa771673cc8ce1935f39e9d53887eeac1ac54ea7fc6a5c9ea8a28": {
+    "text": "{\"summary\":\"The facts pack is too thin to support board actions. Only one month of results is provided with no comparators, no dimension breakdown, and a validation warning that data was assumed rather than read. The board needs complete information to decide what to act on.\",\"actions\":[{\"heading\":\"Resolve the validation warning on this month's figures\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file.\",\"todo\":\"Confirm which figures were assumed and obtain the actual source files. If the month's close is incomplete, complete it before relying on these numbers for decisions.\",\"urgency\":\"now\"},{\"heading\":\"Obtain prior periods and comparative data\",\"because\":\"The pack shows {{m:revenue@2026-05}} revenue and {{m:pat@2026-05}} profit after tax for {{p:2026-05}}, but with no prior month or year-on-year comparisons, the board cannot judge whether these are sound, improving or deteriorating.\",\"todo\":\"Provide the same facts for at least the prior month and the corresponding period last year, and clarify which dimensions (customers, products, regions or others) the business splits by, so the board can see where performance is coming from.\",\"urgency\":\"now\"},{\"heading\":\"Clarify what the business does\",\"because\":\"The facts show only aggregate revenue and profit with no breakdown by customer, product line, geography or business segment.\",\"todo\":\"Supply the dimension values the books are split by, so the board can see concentration risk and performance by unit.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1456,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 355,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a781fd267e39187bbbe73236aed8dac7137fc2424fc26274d5b96f6d81692fac": {
+    "text": "{\"summary\": \"May 2026 shows strong operational performance across all metrics. A validation warning on check V10 requires review before finalising this month's position. One period in the data range was assumed rather than sourced from actual records, which should be verified.\",\"actions\": [{\"heading\": \"Resolve validation warning on check V10\",\"because\": \"Check V10 raised a warning for {{p:2026-05}}, indicating a data quality or reconciliation issue that was not cleared before this pack was prepared.\",\"todo\": \"Establish what check V10 tests and whether the warning affects the reliability of this month's figures. If material, rerun the check with corrected source data.\",\"urgency\": \"now\"},{\"heading\": \"Confirm the assumed period in the data range\",\"because\": \"One month in the range was assumed rather than read from a file, creating uncertainty about the completeness and accuracy of the underlying records.\",\"todo\": \"Identify which period was assumed, retrieve the actual source data for that month, and recalculate any metrics that depend on it.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1458,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 243,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "bac2ffecdfa5efd3c8e2714a538587a527e1f6cc1407a08d6c359162e8c0a161": {
+    "text": "{\"summary\":\"Only one month of data is available. Sufficient facts to identify revenue and gross profit this month, but no comparison periods, no customer or segment breakdown, and no detail on cost composition. This limits what the board can act on.\",\"actions\":[{\"heading\":\"Establish financial reporting baseline\",\"because\":\"Revenue was {{m:revenue@2026-05}} in {{p:2026-05}} with gross profit of {{m:gross_profit@2026-05}}, but there are no prior periods to compare against and no breakdown by customer, product or cost type.\",\"todo\":\"Set up monthly MIS to include prior-year and sequential comparison, split by the main customer or product segments the business runs. This will turn a single data point into information the board can act on.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1369,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 177,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "f8113ffe26cb622e024ee60e10a1907d21bf3dc8f6256490d5ae6a7b3ff2e2a4": {
+    "text": "{\"summary\":\"May revenue and gross profit are recorded. The pack contains only revenue and gross profit for the current month with no prior periods, comparables, or breakdowns to assess performance or trends. This limits what can be actioned from the books.\",\"actions\":[{\"heading\":\"Obtain prior period comparison\",\"because\":\"Only {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} for May are shown, with no prior months or year-to-date context.\",\"todo\":\"Confirm what revenue and gross profit were in April 2026 and the year-to-date position to assess whether May is on track.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1373,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 150,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "fb89d722297c61b3789538656a8ba37db31db2074ba91c5937fceea6b769365a": {
+    "text": "{\"summary\": \"The facts pack contains only revenue and gross profit for the current month, with no comparative data, trend analysis, or context about costs, cash position, or business performance drivers. This is insufficient to identify actions for the board.\",\"actions\": [{\"heading\": \"Obtain complete monthly management accounts\",\"because\": \"The pack shows {{m:revenue@2026-05}} in revenue and {{m:gross_profit@2026-05}} in gross profit, but lacks prior-period comparisons, expense detail, cash flow, balance sheet position, or segment breakdown needed to spot issues or opportunities.\",\"todo\": \"Request the full MIS package: monthly P&L with variances to budget and prior year, cash position, receivables and payables aging, and any other KPIs the board normally reviews.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1375,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 183,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "3600684682ca87988937c1c42bdccb849988ad09d6a05821ae2ed752315f0740": {
+    "text": "{\"summary\":\"The MIS for May 2026 has limited content: only revenue and gross profit are provided, with a validation warning on check V10 and one month assumed rather than read. Without comparable periods, segment data, or expense detail, we cannot assess trends or identify specific issues. The first step is to establish what data is actually available and reliable for this month.\",\"actions\":[{\"heading\":\"Clarify the validation warning on check V10\",\"because\":\"A validation check raised a warning this month, but the nature and impact of that warning is not stated in the facts pack.\",\"todo\":\"Obtain the full V10 validation report and establish whether the warning affects the reliability of this month's figures, particularly the {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} shown.\",\"urgency\":\"now\"},{\"heading\":\"Confirm which data was assumed rather than read\",\"because\":\"One month in the reporting range was assumed rather than read from a file, but it is not clear which month or which figures are affected.\",\"todo\":\"Identify which data point was assumed for May 2026 and whether it materially affects the revenue or profit lines. If material, obtain the actual figure.\",\"urgency\":\"now\"},{\"heading\":\"Obtain prior period and segmented data for analysis\",\"because\":\"Only this month's total revenue and gross profit are in the pack; no comparative periods, customer or product segment breakdown, or expense detail are shown.\",\"todo\":\"Provide the MIS with at least the prior month and prior year equivalent, plus any available breakdown by {{d:customer}} or product line, so the board can assess whether May's {{m:gross_profit@2026-05}} represents a change or trend.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1396,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 384,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "44d7301b54d9f2a95cf7a6fcfa9c8c4676967d4cfb17ed797e7db5137784ed4c": {
+    "text": "{\"summary\":\"May 2026 shows solid revenue and gross margin, but the facts pack is incomplete. A validation warning on check V10 needs review, and one month's data was assumed rather than read from source. Without prior periods or dimension breakdowns, we cannot identify trends or specific operational concerns.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for May 2026.\",\"todo\":\"Identify what V10 checks, confirm whether the warning indicates a real issue in the books or a data quality problem, and either correct it or document why it is acceptable.\",\"urgency\":\"now\"},{\"heading\":\"Verify assumed month data\",\"because\":\"One month in the range was assumed rather than read from a file.\",\"todo\":\"Confirm which month was assumed and whether the assumption matches actual results once the source file is available. Update figures if needed.\",\"urgency\":\"now\"},{\"heading\":\"Obtain prior periods and dimension detail\",\"because\":\"The facts pack shows only {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} with no breakdown by customer, product, or prior month.\",\"todo\":\"Request the full facts pack including at least the prior two months and any meaningful dimension splits. Without these, the board cannot assess trends or spot problems.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1400,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 294,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "61422fc36b26d6a6335e094971ebbea9b6d3b2a658bd5b25cdf05c6ea9aa934f": {
+    "text": "{\"summary\": \"May results show strong gross profit at {{m:gross_profit@2026-05}} on revenue of {{m:revenue@2026-05}}, but data completeness requires attention. A validation warning (V10) has been raised for this month, and one month in the dataset was assumed rather than read from source files. The facts pack is thin; cost of goods sold, operating expenses, cash position, and balance sheet detail are not shown, limiting the scope of board actions to data quality.\",\"actions\": [{\"heading\": \"Resolve validation warning V10\",\"because\": \"Check V10 raised a warning for {{p:2026-05}}.\",\"todo\": \"Identify what V10 checks, establish whether the warning reflects a real issue in the books or a data process error, and decide whether May results can be finalised or require correction.\",\"urgency\": \"now\"},{\"heading\": \"Confirm the assumed month's source data\",\"because\": \"One month in the range was assumed rather than read from a file.\",\"todo\": \"Identify which month was assumed. Obtain the actual source file and reconcile it to the assumed figures. If material differences emerge, establish the correct position and restate results if needed.\",\"urgency\": \"now\"},{\"heading\": \"Expand the facts pack for board oversight\",\"because\": \"Revenue and gross profit are shown, but operating expenses, cash flow, working capital, and balance sheet position are not visible.\",\"todo\": \"Provide the finance director with the full monthly management accounts—P&L, cash position, and key balance sheet items—so the board can assess overall financial health alongside profitability.\",\"urgency\": \"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 1402,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 367,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "f1e11d58c60047921cd520ba460e12a472207f66c7566aaee5ba386195e2ed96": {
+    "text": "{\"summary\":\"The facts pack provides only revenue for this month with no comparative data, prior periods, costs, margins, cash position or strategic context. The board cannot assess financial health or identify risks from a single revenue figure.\",\"actions\":[{\"heading\":\"Establish a full monthly reporting pack\",\"because\":\"Only {{m:revenue@2026-05}} is shown; costs, cash, balance sheet and comparative periods are absent.\",\"todo\":\"Ask the chartered accountant to prepare a complete MIS for {{p:2026-05}} including prior-year and prior-month comparisons, gross and operating margins, cash flow, debtor and creditor schedules, and variance analysis against budget if one exists.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1343,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 157,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "c0fa2b53c8a0990aeb99937dae5796e38f2d144faf5a86448ce472268cdcde96": {
+    "text": "{\"summary\": \"Limited information available for board action. Only revenue is provided without comparative context, cost structure, or operational metrics needed to identify what requires board attention.\",\"actions\": [{\"heading\": \"Request complete management accounts\",\"because\": \"The MIS provides only {{m:revenue@2026-05}} in revenue for {{p:2026-05}}, without costs, profitability, cash position, or balance sheet detail.\",\"todo\": \"Finance director to confirm whether full P&L, cash flow and balance sheet are being held back, and if so, table them for board review. If they are not yet prepared, establish the completion date.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1345,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 148,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "012fd998c4453fecb6ce184451bcdaf7b26c6e8e5a8568e6abcebc2491ffde7b": {
+    "text": "{\"summary\": \"Monthly revenue for {{p:2026-05}} stands at {{m:revenue@2026-05}}. No changes, variances or comparisons are available in the facts provided; the board cannot yet assess whether this month was strong, weak or typical. A complete facts pack would include prior periods, targets, and any movements in revenue by customer or product line.\",\"actions\": [{\"heading\": \"Obtain prior month and year-on-year revenue\",\"because\": \"The current figure alone reveals nothing about performance; comparison to {{p:2026-05}} last year and to {{p:2026-04}} is needed to judge whether revenue is growing, flat or declining.\",\"todo\": \"Ask the chartered accountant for revenue in the prior three months and the same month last year, and confirm revenue by each dimension (customer or product) so the board can spot any shifts.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1347,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 200,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "cc2a3febd649ceb3b6f97d0859e687aa1f522c9e43e16a242ce7c0ca06574bb6": {
+    "text": "{\"summary\": \"The MIS for {{p:2026-05}} is incomplete. Only revenue is reported; no cost, expense or profit data are present, and a validation warning has been raised. The board cannot assess performance or make decisions from this pack.\",\"actions\": [{\"heading\": \"Obtain the full management accounts\",\"because\": \"The facts pack contains only revenue at {{m:revenue@2026-05}}, with no cost of goods sold, operating expenses, or profit figures. Validation warning V10 has also been flagged for {{p:2026-05}}.\",\"todo\": \"Ask the chartered accountant to resubmit the complete MIS for {{p:2026-05}}, including cost, expense and profit lines, and to clarify what V10 reports.\",\"urgency\": \"now\"}]}",
+    "usage": {
+      "input_tokens": 1370,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 182,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "9a80a9e5d34360eeb06c4b3e1decdfa0cbc5fc885afb7d79c908aba1215282e1": {
+    "text": "{\"summary\":\"The MIS for {{p:2026-05}} shows revenue from operations of {{m:revenue@2026-05}}, but the pack is incomplete. A validation warning was raised (V10) and one month's data was assumed rather than read. The facts given are insufficient to identify what the board should act on. Before setting actions, clarify what the V10 warning indicates and why a month was assumed.\",\"actions\":[{\"heading\":\"Resolve validation warning V10\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, but the nature of the issue is not stated in the facts.\",\"todo\":\"Obtain the full validation report and establish whether V10 points to a data quality problem, a calculation error, or a control breakdown that requires board attention.\",\"urgency\":\"now\"},{\"heading\":\"Confirm data completeness\",\"because\":\"One month in the range was assumed rather than read from a file for {{p:2026-05}}.\",\"todo\":\"Identify which month was assumed, why it was not available, and whether the assumed figure materially affects the revenue and other key metrics shown. If material, restate the MIS with actual data.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1372,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 266,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "2feabee68628b8506ddd04f6166914e5af65169087828b39879c472549e18a24": {
+    "text": "{\"summary\":\"The facts pack contains only revenue for May 2026 and a validation warning about an assumed month. There is insufficient data to identify what the board should act on. The pack needs the full monthly management information statement: cost of goods sold, operating expenses, cash position, balance sheet changes, working capital, and year-to-date or comparative performance.\",\"actions\":[{\"heading\":\"Obtain complete MIS for May 2026\",\"because\":\"The facts pack shows only revenue at {{m:revenue@2026-05}}, with a validation warning (Check V10) and an unverified month in the range.\",\"todo\":\"Ask the chartered accountant to provide the full management information statement for {{p:2026-05}}: cost of goods sold, operating expenses, cash flow, balance sheet items, and any material variances from budget or prior year.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 1374,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 193,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  }
+}
