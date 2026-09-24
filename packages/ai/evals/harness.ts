@@ -33,6 +33,7 @@ import {
 import {
   chatEditStageSpec,
   chatQuickSpec,
+  placeholderIdsIn,
   summariseThreadSpec,
   type ChatAnswerOutput,
   type ChatEditInput,
@@ -41,6 +42,7 @@ import {
   type SummariseThreadInput,
   type SummariseThreadOutput,
 } from "../src/chat-stages";
+import { DEFAULT_DASHBOARD } from "@magicmis/render-dashboard";
 import type { AiTransport, CreateParams } from "../src/transport";
 import {
   chatEditDataset,
@@ -243,37 +245,105 @@ const chatEditEval: StageEval<ChatEditInput, ChatEditOutput, EditLabel> = {
       ? 1
       : 0,
   }),
-  oracle: (item) => ({
-    scope: "in_scope",
-    summary: "Makes the requested change.",
-    operations: [
-      item.label.path.endsWith("/title")
-        ? {
-            op: "replace",
-            path: item.label.path,
-            from: null,
-            value_json: JSON.stringify("Sales"),
-          }
-        : item.label.path.endsWith("/periods")
-          ? {
-              op: "replace",
-              path: item.label.path,
-              from: null,
-              value_json: JSON.stringify({ kind: "last_n", n: 6 }),
-            }
-          : { op: "remove", path: item.label.path, from: null, value_json: null },
-    ],
-  }),
+  /*
+   * A perfect model's patch for each shape of edit the dataset asks for.
+   *
+   * This exists to prove the dataset is answerable: every item must have at least one patch that
+   * passes the stage's own check, or the eval scores a model against something impossible. The
+   * fallback is still "remove at the path", which is right for a widget being taken off the
+   * board and for clearing an optional field, but a metrics list, a layout box and an addition
+   * each need a real value — and an addition needs a whole widget that satisfies the schema.
+   */
+  oracle: (item) => {
+    const path = item.label.path;
+    // The dataset builds every item on DEFAULT_DASHBOARD; the input carries it as plain JSON
+    // (chatEditInput takes z.json()), so read the shape from the typed value instead.
+    const widgets = DEFAULT_DASHBOARD.widgets;
+    const index = /^\/widgets\/(\d+)$/u.exec(path)?.[1];
+    const value = (v: unknown) => ({
+      op: "replace" as const,
+      path,
+      from: null,
+      value_json: JSON.stringify(v),
+    });
+
+    // An index past the end of the board is an addition. Copy a widget that is already there so
+    // the new one is valid by construction, and give it its own id and a row of its own.
+    if (index !== undefined && Number.parseInt(index, 10) >= widgets.length) {
+      const model = widgets[0];
+      const added =
+        model === undefined
+          ? undefined
+          : {
+              ...model,
+              id: "added_box",
+              title: "Added box",
+              layout: { ...model.layout, x: 0, y: 200, w: 3, h: 2 },
+            };
+      return {
+        scope: "in_scope" as const,
+        summary: "Adds the requested box.",
+        operations:
+          added === undefined
+            ? []
+            : [
+                {
+                  op: "add" as const,
+                  path,
+                  from: null,
+                  value_json: JSON.stringify(added),
+                },
+              ],
+      };
+    }
+
+    const op = path.endsWith("/title")
+      ? value("Sales")
+      : path.endsWith("/periods")
+        ? value({ kind: "last_n", n: 6 })
+        : path.endsWith("/metrics")
+          ? // Every board in the dataset is the default one, whose first widget carries revenue.
+            value(["revenue", "ebitda"])
+          : path.endsWith("/layout")
+            ? value({ x: 0, y: 2, w: 12, h: 4 })
+            : path.endsWith("/compare")
+              ? value("last_year")
+              : path.endsWith("/sort")
+                ? value({ by: "value", direction: "desc" })
+                : path.endsWith("/limit")
+                  ? value(5)
+                  : { op: "remove" as const, path, from: null, value_json: null };
+    return {
+      scope: "in_scope" as const,
+      summary: "Makes the requested change.",
+      operations: [op],
+    };
+  },
 };
 
 const threadSummaryEval: StageEval<SummariseThreadInput, SummariseThreadOutput, null> = {
   spec: summariseThreadSpec,
   dataset: threadSummaryDataset,
   score: (o) => ({ units: 1, correct: o.summary.length > 0 ? 1 : 0 }),
-  oracle: () => ({
-    summary:
-      "The user asked about revenue, which was {{m:revenue@2026-05}}, and about receivables.",
-  }),
+  /*
+   * The check allows only placeholders the thread itself already contains, which is the whole
+   * point of the stage: a summary may carry figures forward but may never introduce one. So the
+   * oracle reads the thread and reuses what is in it, rather than naming a fixed metric that
+   * happens to appear in one of the six subjects.
+   */
+  oracle: (item) => {
+    const ids = placeholderIdsIn([
+      item.input.previousSummary ?? "",
+      ...item.input.history.map((h) => h.text),
+    ]);
+    const first = [...ids][0];
+    return {
+      summary:
+        first === undefined
+          ? "The customer asked about the month and was answered from the facts."
+          : `The customer asked about the month; the figure discussed was {{${first}}}.`,
+    };
+  },
 };
 
 export const STAGE_EVALS = {
