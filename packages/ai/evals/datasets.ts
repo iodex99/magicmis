@@ -761,7 +761,13 @@ export type EditLabel = { readonly path: string };
  * DEFAULT_DASHBOARD by the words someone would actually use for it — never by index.
  *
  * Widget order: 0 revenue, 1 gross margin, 2 EBITDA, 3 cash, 4 trend, 5 waterfall, 6 costs,
- * 7 working capital. An addition lands at /widgets/8.
+ * 7 working capital. An addition appends, so its pointer is /widgets/- (the prompt's own
+ * convention), never an index past the end.
+ *
+ * Each request names the box and the property, because a vaguer one has more than one correct
+ * answer: "put last year beside the revenue trend" can be read as setting that chart's compare
+ * or as adding a comparison box, and both are right. An eval that picks one and marks the other
+ * wrong measures the wording, not the model.
  */
 const EDIT_REQUESTS: readonly { id: string; request: string; path: string }[] = [
   {
@@ -860,47 +866,47 @@ const EDIT_REQUESTS: readonly { id: string; request: string; path: string }[] = 
   },
   {
     id: "ce-compare-trend-ly",
-    request: "Put last year beside the revenue trend.",
+    request: "On the revenue trend chart, set the comparison to last year.",
     path: "/widgets/4/compare",
   },
   {
     id: "ce-compare-trend-none",
-    request: "Take the last-year comparison off the trend chart.",
+    request: "On the revenue trend chart, set the comparison back to none.",
     path: "/widgets/4/compare",
   },
   {
     id: "ce-compare-costs-ly",
-    request: "Compare the costs chart with the same months last year.",
+    request: "On the costs chart, set the comparison to last year.",
     path: "/widgets/6/compare",
   },
   {
     id: "ce-compare-wc-mom",
-    request: "Show working capital against the previous month.",
+    request: "On the working capital table, set the comparison to the previous month.",
     path: "/widgets/7/compare",
   },
   {
     id: "ce-compare-wc-ly",
-    request: "Compare working capital with last year.",
+    request: "On the working capital table, set the comparison to last year.",
     path: "/widgets/7/compare",
   },
   {
     id: "ce-sort-costs",
-    request: "Sort the costs chart by value, largest first.",
+    request: "Set the costs chart's sort to value, descending.",
     path: "/widgets/6/sort",
   },
   {
     id: "ce-sort-wc",
-    request: "Order the working capital rows by value.",
+    request: "Set the working capital table's sort to value, descending.",
     path: "/widgets/7/sort",
   },
   {
     id: "ce-limit-costs",
-    request: "Only show the top five cost lines.",
+    request: "Set the costs chart's limit to five.",
     path: "/widgets/6/limit",
   },
   {
     id: "ce-limit-wc",
-    request: "Trim the working capital table to five rows.",
+    request: "Set the working capital table's limit to five.",
     path: "/widgets/7/limit",
   },
   {
@@ -925,67 +931,67 @@ const EDIT_REQUESTS: readonly { id: string; request: string; path: string }[] = 
   },
   {
     id: "ce-layout-trend",
-    request: "Make the trend chart wider.",
+    request: "Set the revenue trend chart's layout width to 12.",
     path: "/widgets/4/layout",
   },
   {
     id: "ce-layout-bridge",
-    request: "The waterfall should be taller.",
+    request: "Set the waterfall's layout height to 6.",
     path: "/widgets/5/layout",
   },
   {
     id: "ce-layout-costs",
-    request: "Make the costs chart full width.",
+    request: "Set the costs chart's layout width to 12.",
     path: "/widgets/6/layout",
   },
   {
     id: "ce-layout-wc",
-    request: "Shrink the working capital table.",
+    request: "Set the working capital table's layout width to 4.",
     path: "/widgets/7/layout",
   },
   {
     id: "ce-add-comparison",
     request: "Add a box comparing revenue and profit with last year.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
   {
     id: "ce-add-cash-trend",
     request: "Add a chart of cash and bank over the last twelve months.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
-  { id: "ce-add-dso", request: "Add a card for debtor days.", path: "/widgets/8" },
+  { id: "ce-add-dso", request: "Add a card for debtor days.", path: "/widgets/-" },
   {
     id: "ce-add-payables",
     request: "Put a payables card on the board.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
-  { id: "ce-add-inventory", request: "Add an inventory card.", path: "/widgets/8" },
+  { id: "ce-add-inventory", request: "Add an inventory card.", path: "/widgets/-" },
   {
     id: "ce-add-margin-trend",
     request: "Add a chart showing gross margin over the year.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
-  { id: "ce-add-tax", request: "Add a card for the tax charge.", path: "/widgets/8" },
-  { id: "ce-add-finance", request: "Add a finance cost card.", path: "/widgets/8" },
+  { id: "ce-add-tax", request: "Add a card for the tax charge.", path: "/widgets/-" },
+  { id: "ce-add-finance", request: "Add a finance cost card.", path: "/widgets/-" },
   {
     id: "ce-add-opex-table",
     request: "Add a table of operating expenses by month.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
   {
     id: "ce-add-pat-card",
     request: "I want a profit after tax card.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
   {
     id: "ce-add-depreciation",
     request: "Add depreciation as its own card.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
   {
     id: "ce-add-bridge-2",
     request: "Add a second waterfall from revenue to EBITDA.",
-    path: "/widgets/8",
+    path: "/widgets/-",
   },
 ];
 export function chatEditDataset(limit = 60): EvalItem<ChatEditInput, EditLabel>[] {

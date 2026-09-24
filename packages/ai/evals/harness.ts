@@ -261,7 +261,7 @@ const chatEditEval: StageEval<ChatEditInput, ChatEditOutput, EditLabel> = {
     // The dataset builds every item on DEFAULT_DASHBOARD; the input carries it as plain JSON
     // (chatEditInput takes z.json()), so read the shape from the typed value instead.
     const widgets = DEFAULT_DASHBOARD.widgets;
-    const index = /^\/widgets\/(\d+)$/u.exec(path)?.[1];
+    // The prompt's own convention: "-" appends, so that pointer is the addition case.
     const value = (v: unknown) => ({
       op: "replace" as const,
       path,
@@ -269,9 +269,9 @@ const chatEditEval: StageEval<ChatEditInput, ChatEditOutput, EditLabel> = {
       value_json: JSON.stringify(v),
     });
 
-    // An index past the end of the board is an addition. Copy a widget that is already there so
+    // An addition appends rather than naming an index. Copy a widget that is already there so
     // the new one is valid by construction, and give it its own id and a row of its own.
-    if (index !== undefined && Number.parseInt(index, 10) >= widgets.length) {
+    if (path === "/widgets/-") {
       const model = widgets[0];
       const added =
         model === undefined

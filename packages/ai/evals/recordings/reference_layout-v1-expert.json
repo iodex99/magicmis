@@ -36,5 +36,936 @@
       }
     },
     "model": "claude-opus-5"
+  },
+  "0de78d86419657c4ea8349640356f1df65c3925314dd0bd49eb461c37e41de7e": {
+    "text": "{\"rows\":[{\"ref\":\"s1r9\",\"kind\":\"metric\",\"metric\":\"direct_costs\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 618,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 343,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 84
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "6afc127fd5bb160d1a50cdbd29f1d37642d365ad9b0d816904c7b45c2a292875": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 620,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "907e3b1f268a752f083b40fc08bbc55c591aed9135ec4ebbfddf1baec766f818": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r15\",\"kind\":\"metric\",\"metric\":\"finance_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 628,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 313,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 54
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "55f6257e426f13e5aa4a3c0926ff3b181b6723cc835c090584414226377c9ffa": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r17\",\"kind\":\"metric\",\"metric\":\"tax\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 623,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 256,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7abbb1a24d8604e8d0fd33e8f5d074a8aaedb674b27ac206ae91c858d29013b8": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r4\",\"kind\":\"metric\",\"metric\":\"receivables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 624,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 318,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 61
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "efff5d5d0f466ba53a485d5e1fdcc6dfa3fc613a22fdad6449d70c3015ecd9f3": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r5\",\"kind\":\"metric\",\"metric\":\"inventory\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 257,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "5df6cd7797669424dba921435ca4fd845e96552807201c8a6d0f3267abc37831": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 619,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "1d2e7659b0b6829cf73d19adc873a1ca648e08e37220343e1133e9053835fbdc": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 628,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "3bf53c953d05cb26a2a66c868ac36063280827939bc03234646bb5d0d5f569c7": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 269,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 52
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "2426d69711e07047c814e724e2abcef3ffb866a095bb037b95c973aa57cf2e6d": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r11\",\"kind\":\"metric\",\"metric\":\"other_opex\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 258,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "40bb344f203e507a323d861eda445b56c4303b81e663fb79d12b36dde02873a5": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 630,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "415fac4a9929225fe49faebfe4ec15e69a7d5641c97ad76a7f7d67b7bd3bef46": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r6\",\"kind\":\"metric\",\"metric\":\"payables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 629,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 316,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 60
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "8da88291a5352a9ffb4f5ffe3411d47819511ccc77f092c58c864be90a4ccd7b": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r8\",\"kind\":\"metric\",\"metric\":\"dso\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 256,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7e7b264b07908030d6435fb107b82206058008072559b7bb43a0671973df7bbb": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r9\",\"kind\":\"metric\",\"metric\":\"dpo\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 624,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 317,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 60
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "d92fd39a835079a7553873f9aeaf72a0ffef7db49ca4feb7b4ea168c0e6a3be6": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 626,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "0eace6dfe62a9012415c5dfb6a35d934a03bb7e3cd7eb0120ebea9aa7da7e18d": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 269,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 52
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "cbfeddcddf616cf5eafc46de8593a3ad0b7f08345dc8423cae79997b8eaeda37": {
+    "text": "{\"rows\":[{\"ref\":\"s1r9\",\"kind\":\"metric\",\"metric\":\"direct_costs\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 621,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 259,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7b3aa417000c49ad53eb46f1b7ea8759a2614f8e5f213ee00a3ca4bff10c956d": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 624,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7b882c3e1b94f79f6b7e447cf58694264504849c7be5000667364b590840bb9a": {
+    "text": "{\"rows\":[{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 621,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 90,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "926d26caa1f071575ea652d07994f6e10c8864c79b887443d8bb0ab453eb5ee6": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "d01f49d2773fef8a53c35e6cb083801aa774582ecc132460e1844962524ff944": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r17\",\"kind\":\"metric\",\"metric\":\"tax\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 256,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "f2790617301fc739810df825b38343c700cc2055afd11aff151e29a8c045df15": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 623,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "30956c3c5a69903919c601d29960dd0f360ddcf8f3895dd4ec8d75890237af93": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r5\",\"kind\":\"metric\",\"metric\":\"inventory\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 257,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7f8538f582aac0086f3c202ca21fc624eaa7ede96dbe4250f2549616f09c2faa": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r11\",\"kind\":\"metric\",\"metric\":\"other_opex\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 624,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 258,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "0d13e2ea3afad0400687c9256eec7bdf8b2d0b01bb02f46b70fd3954fe7af395": {
+    "text": "{\"rows\":[{\"ref\":\"s1r5\",\"kind\":\"metric\",\"metric\":\"revenue\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r7\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r5\",\"sign\":1},{\"row\":\"s1r6\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 628,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 327,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "10de31469fce0f04d4e17cf7325eee3718138ee4911f7da4d59e28a32e0c9870": {
+    "text": "{\"rows\":[{\"ref\":\"s1r9\",\"kind\":\"metric\",\"metric\":\"direct_costs\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 621,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 259,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "ae4cd2dc5a0a228c8022a7d78d4ab2ac028566c0c3be5efaf381c593bb06eb52": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 622,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "d6d2f7b50d9a60425b7b85e2c2d12f40acff35c1c371b934b1cafbcf2f3cbc8a": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r11\",\"kind\":\"metric\",\"metric\":\"other_opex\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r15\",\"kind\":\"metric\",\"metric\":\"finance_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 628,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 300,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "750fa1cf75dd7877151c0492ffa5cc18091eb49abfe034a3dd2975c5ae6625b3": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r17\",\"kind\":\"metric\",\"metric\":\"tax\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 628,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 316,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 60
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "c4508d92457b69150a21818980b66f1a84216e327043f41aade7f987c1bee586": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r4\",\"kind\":\"metric\",\"metric\":\"receivables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r6\",\"kind\":\"metric\",\"metric\":\"payables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 628,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 296,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "4e5921897115273aed2b00819f97433a999ebff371c3d8d134320f78a36caad1": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r5\",\"kind\":\"metric\",\"metric\":\"inventory\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r8\",\"kind\":\"metric\",\"metric\":\"dso\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 296,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "93b58f340cf9d8fb2a98a3eeb86236dce93d9aac568e16eea085d8b8210cabb7": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r9\",\"kind\":\"metric\",\"metric\":\"dpo\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 618,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 257,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "abcc68b3ca0f13019da0c544a3ae20c56414b9b5f4a132c8ad97c15e987e7d06": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 629,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "619f3fb772ec5a324c723ab975eb716cc3781f6ee2e4a8cb50984a9a7a403cc1": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 629,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 269,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 52
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "42aa2c78415c090de2f7bb6d861062a65499fb4ddb04ee4d75517a0f84113cc2": {
+    "text": "{\"rows\":[{\"ref\":\"s1r9\",\"kind\":\"metric\",\"metric\":\"direct_costs\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r11\",\"kind\":\"metric\",\"metric\":\"other_opex\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 621,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 300,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "1369c8b69fb4aab61ff25693033efb95066480a4a1b8cd322f44120f187ed364": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 629,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "58860b4b71b50a8952ebe10d0da07450e189908c872b83e0e2bb78a41f05483c": {
+    "text": "{\"rows\":[{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r6\",\"kind\":\"metric\",\"metric\":\"payables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 129,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "63c5ec111336d43ea983099d5122d8a646dc0e31b1ce360472daa9651f45754e": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r8\",\"kind\":\"metric\",\"metric\":\"dso\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 256,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "b575842dc7580ed63b93f34a2b8aafc121e93152e94f987e88fb63cab0d49ac0": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r17\",\"kind\":\"metric\",\"metric\":\"tax\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r9\",\"kind\":\"metric\",\"metric\":\"dpo\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 626,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 296,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "d256dbaf5886fa8af3c69e3ddb3cc0a8921310a86ac7f3454c5a3f3a920d14f9": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 624,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "89962732319949f65af274b4e9800c379cbad4eab4694aadf1c853fe83e2f880": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r5\",\"kind\":\"metric\",\"metric\":\"inventory\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 318,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 61
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "be602e6d74eb5fc101fd7cc3974e449d3fa1c1d4f998dc1db6cd9f9289fd36f3": {
+    "text": "{\"rows\":[{\"ref\":\"s1r9\",\"kind\":\"metric\",\"metric\":\"direct_costs\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r11\",\"kind\":\"metric\",\"metric\":\"other_opex\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 620,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 364,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 64
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "48f765065f44a9ed6dea0b052568c3d417578a91e404b0d37e36b4b809c19433": {
+    "text": "{\"rows\":[{\"ref\":\"s1r5\",\"kind\":\"metric\",\"metric\":\"revenue\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r7\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r5\",\"sign\":1},{\"row\":\"s1r6\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 633,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 327,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "9b9e105a574fe70d6c1e715ad565c95604517434b9e512ae5a30a67afe18d9b0": {
+    "text": "{\"rows\":[{\"ref\":\"s1r9\",\"kind\":\"metric\",\"metric\":\"direct_costs\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 616,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "09c521cacd327d513890fac9f5ecd63f1a78f73f03822fd4df73b37396986abd": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 622,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "adb4f23196f762b5d1f53c5063651b9ea0993772870e4a9b9437e97926880c7c": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r15\",\"kind\":\"metric\",\"metric\":\"finance_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r17\",\"kind\":\"metric\",\"metric\":\"tax\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 630,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 298,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "3e7df75683f7017d6dfcb504b9a7c4cd1162b82fa0023b61d6095fb070ff8b88": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r17\",\"kind\":\"metric\",\"metric\":\"tax\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 621,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 316,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 60
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "c924370ba5954abc078516a7ab86ec6522672ac31233c8979954232899531a3a": {
+    "text": "{\"rows\":[{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r4\",\"kind\":\"metric\",\"metric\":\"receivables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r5\",\"kind\":\"metric\",\"metric\":\"inventory\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 624,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 297,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "86c6904a27f2b515e1fd3bb0de3162d703e86a8841f9d9303649242a71486a54": {
+    "text": "{\"rows\":[{\"ref\":\"s1r5\",\"kind\":\"metric\",\"metric\":\"revenue\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r7\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r5\",\"sign\":1},{\"row\":\"s1r6\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r9\",\"kind\":\"metric\",\"metric\":\"direct_costs\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r10\",\"kind\":\"metric\",\"metric\":\"employee_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r11\",\"kind\":\"metric\",\"metric\":\"other_opex\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r12\",\"kind\":\"subtotal\",\"metric\":null,\"terms\":[{\"row\":\"s1r9\",\"sign\":1},{\"row\":\"s1r10\",\"sign\":1},{\"row\":\"s1r11\",\"sign\":1}],\"confidence\":\"high\"},{\"ref\":\"s1r15\",\"kind\":\"metric\",\"metric\":\"finance_cost\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r17\",\"kind\":\"metric\",\"metric\":\"tax\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s1r20\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r4\",\"kind\":\"metric\",\"metric\":\"receivables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r5\",\"kind\":\"metric\",\"metric\":\"inventory\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r6\",\"kind\":\"metric\",\"metric\":\"payables\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r8\",\"kind\":\"metric\",\"metric\":\"dso\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r9\",\"kind\":\"metric\",\"metric\":\"dpo\",\"terms\":null,\"confidence\":\"high\"},{\"ref\":\"s2r10\",\"kind\":\"unavailable\",\"metric\":null,\"terms\":null,\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 629,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1746,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 689,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
   }
 }
