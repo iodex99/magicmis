@@ -343,3 +343,45 @@ describe("a box that does not say where it drills to", () => {
     expect(specWith({ kind: "elsewhere" }).success).toBe(false);
   });
 });
+
+/*
+ * ADR 0066, second instance. `dimension` had the same wart as `drilldown`: nullable but still
+ * required, so a box with nothing to split by had to say so or take the whole board down with
+ * it. Absent and null both mean "show the total".
+ */
+describe("a box that does not say what it splits by", () => {
+  const parse = (dimension: unknown, omit = false) =>
+    dashboardSpecSchema.safeParse({
+      schemaVersion: 1,
+      grid: { columns: 12 },
+      filters: { period: { default: "latest" }, dimension: null },
+      widgets: [
+        {
+          id: "w1",
+          kind: "kpi_card",
+          title: "Revenue",
+          metrics: ["revenue"],
+          ...(omit ? {} : { dimension }),
+          periods: { kind: "current" },
+          layout: { x: 0, y: 0, w: 3, h: 2 },
+          drilldown: { kind: "lineage" },
+        },
+      ],
+      calculated: [],
+    });
+
+  it("reads a missing dimension as no split", () => {
+    const r = parse(undefined, true);
+    expect(r.success).toBe(true);
+    expect(r.success && r.data.widgets[0]?.dimension).toBeNull();
+  });
+
+  it("still keeps a dimension that was stated", () => {
+    const r = parse("party");
+    expect(r.success && r.data.widgets[0]?.dimension).toBe("party");
+  });
+
+  it("still refuses a dimension that is not a valid name", () => {
+    expect(parse("Party Name!").success).toBe(false);
+  });
+});

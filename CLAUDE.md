@@ -306,9 +306,16 @@ box-title limit is `WIDGET_TITLE_MAX`, exported from `render-dashboard` rather t
 **A field nobody reads must not be able to fail a response**: `dashboard_layout.summary` is
 discarded by `firstDashboardSpec`, and at 300 it threw away 36 of 57 boards over a string with
 no reader, so its cap is 1000 and is a payload guard, not a brief. An **absent or null
-`drilldown` is lineage**, so the field defaults like the `compare`, `sort` and `limit` beside
-it — the efficient tier wrote `null` on 343 of 432 boxes and lost whole boards over the one
-value that could not have been anything else. **The eval recordings are the evidence and
+`drilldown` is lineage**, and an **absent `dimension` is null**, so both default like the
+`compare`, `sort` and `limit` beside them — the efficient tier wrote `drilldown: null` on 343
+of 432 boxes and lost whole boards over the one value that could not have been anything else.
+**Do not move a threshold or a dataset to make a score pass**: `dashboard_layout` efficient
+reached 0.947 against 0.95, and both the obvious rescues — trimming the dataset's
+over-representation of absent percentages, or dropping the bar to 0.94, which four items in
+fifty-seven would clear — are choosing the answer first. Migration 0063 moves the **model**
+instead (efficient to Sonnet, as 0061 did for `chat_edit`), which is affordable only because
+`dashboard_layout` runs **once per company, ever** and so never touches the recurring-refresh
+zero. **The eval recordings are the evidence and
 reading them is free**: replay what the model actually returned, matched to its item by
 rebuilding the recording key (`sha256(model + "\n" + first user message)`) — that habit found
 this, the `chat_edit` labels and the `commentary` check ids, all of which looked like model

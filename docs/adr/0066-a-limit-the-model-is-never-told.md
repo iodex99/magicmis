@@ -128,18 +128,51 @@ A third of responses overran, then none. That middle row is the finding worth ke
 instruction placed inside `<data>` is not an instruction, exactly as the prompts promise, and
 the promise held even when it was inconvenient.
 
-Activated on v2 so far, each on 54 items against a 0.98 threshold:
+`board_actions` is now activated on all three tiers, each on 54 items against a 0.98 threshold:
 
 | route | v1 | v2 |
 | --- | --- | --- |
 | `board_actions` efficient | 0.870 | **1.000** |
 | `board_actions` professional | 1.000 | **1.000** |
+| `board_actions` expert | 0.741 | **1.000** |
 
-`dashboard_layout` on the efficient tier went 0.298 → 0.579 on the drilldown fix alone. The
-remaining failures there are not lengths: the model puts metrics on the board that the company
-does not hold. That is a judgement the schema cannot make for it, and the fallback is the one
-already designed for it — the company keeps `DEFAULT_DASHBOARD` and can change any box by
-chatting (ADR 0056).
+The expert route is the one to note: it was the worst in the whole set, and the reason was
+that Opus writes at more length than the others, so it overran a limit it had never been
+given every single time. "Where to act" had no active prompt on any tier and failed as a
+platform fault; it now runs.
+
+`dashboard_layout` cleared its 0.95 threshold on the two larger models, on all 57 items:
+
+| route | v1 | v2 |
+| --- | --- | --- |
+| `dashboard_layout` professional | 0.947 | **1.000** |
+| `dashboard_layout` expert | 0.935 | **1.000** |
+| `dashboard_layout` efficient | 0.298 | 0.947 — below the bar |
+
+The efficient tier is the one that did not, and it is worth being precise about why, because
+the temptation to make it pass was real. Haiku went 0.298 → 0.579 on the drilldown fix and
+0.579 → 0.947 on v2, and then stopped. Its remaining failures are not lengths: it names
+metrics the company does not hold, usually a percentage whose components are present but whose
+own value is null, and a box like that shows a dash every month — exactly what ADR 0056 added
+the check to prevent. It also still needed the repair round on 37 of 57 first attempts, so two
+thirds of efficient-tier boards were two model calls rather than one.
+
+Two things were available and both were refused. The dataset trims metrics arbitrarily, which
+over-represents that case; making it more representative would very likely have carried the
+score over 0.95, and would have been tuning the measurement until it passed. And 0.9473 clears
+a 0.94 threshold by four items in fifty-seven, which is inside this sample's noise; moving a
+bar to fit a score is choosing the answer first.
+
+What moved instead is the model: migration 0063 routes the efficient tier to Sonnet, the same
+shape as 0061 did for `chat_edit`. This is the cheapest stage in the product to do that to —
+it runs **once per company, ever**, so the recurring-refresh zero is untouched — and Haiku's
+repair round had already closed most of the gap in cost: ₹0.36 a call became about ₹0.59
+effective, against ₹1.74 for Sonnet. About a rupee, once, per company, rather than leaving
+every efficient-tier company on the standard eight boxes.
+
+A second instance of the drilldown wart turned up in the same diagnosis and was fixed on its
+own merits: `dimension` was nullable but still required, so a box with nothing to split by had
+to say so or take the board down with it. Absent and null now both mean "show the total".
 
 The wider lesson is the cheap one: **the recordings are the evidence, and reading them costs
 nothing.** Three times in this round an apparent model failure was ours — the `chat_edit`

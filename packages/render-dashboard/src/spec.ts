@@ -45,11 +45,19 @@ export const widgetSchema = z
     kind: z.enum(WIDGET_KINDS),
     title: z.string().min(1).max(WIDGET_TITLE_MAX),
     metrics: z.array(metricId).min(1).max(8),
-    /** Dimension to split by (e.g. `party`, `bucket`); null for totals. */
+    /**
+     * Dimension to split by (e.g. `party`, `bucket`); null for totals, and absent means null.
+     *
+     * The second field found with the same wart as `drilldown` (ADR 0066): nullable but still
+     * required, so a producer with nothing to split by had to say so explicitly or lose the
+     * whole board. Absent and null mean the same thing here — show the total — so they are
+     * read the same way.
+     */
     dimension: z
       .string()
       .regex(/^[a-z_]{1,30}$/u)
-      .nullable(),
+      .nullish()
+      .transform((d) => d ?? null),
     /** Periods shown: the filter period only, or the financial year to date, or the last N months. */
     periods: z.discriminatedUnion("kind", [
       z.object({ kind: z.literal("current") }),
