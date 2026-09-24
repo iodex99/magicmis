@@ -168,7 +168,12 @@ shape as 0061 did for `chat_edit`. This is the cheapest stage in the product to 
 it runs **once per company, ever**, so the recurring-refresh zero is untouched — and Haiku's
 repair round had already closed most of the gap in cost: ₹0.36 a call became about ₹0.59
 effective, against ₹1.74 for Sonnet. About a rupee, once, per company, rather than leaving
-every efficient-tier company on the standard eight boxes.
+every efficient-tier company on the standard eight boxes. On that route it scores **1.000 on
+all 57 items**, and is activated.
+
+That leaves **30 of 33 routes live**, from 24 before this change. The three that remain are
+`ledger_mapping`, which waits on a chartered accountant to label the ledgers the fixtures leave
+genuinely ambiguous — not something a prompt or a schema can settle.
 
 A second instance of the drilldown wart turned up in the same diagnosis and was fixed on its
 own merits: `dimension` was nullable but still required, so a box with nothing to split by had
