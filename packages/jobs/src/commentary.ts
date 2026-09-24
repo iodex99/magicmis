@@ -102,11 +102,28 @@ export async function factsPackFor(
   const template =
     blueprint === null ? null : readStoredTemplate(blueprint.parts.templateSpec);
   const own = template?.defaultCommentarySections ?? [];
-  const allowlist = await readConfig(
+  const configuredAllowlist = await readConfig(
     pool,
     "commentary.digit_allowlist",
     z.array(z.string()),
   );
+  const warningChecks = (warnings.rows[0]?.validation_results ?? [])
+    .filter((r) => r.status === "fail" && r.severity === "warning")
+    .map((r) => r.id);
+  /*
+   * A check's own identifier is not a figure (R-28).
+   *
+   * The warnings handed to the model read "Check V10 raised a warning for this month." The
+   * model does what it was asked and mentions it, and `checkPlaceholderTexts` then rejects the
+   * whole commentary because "V10" carries a digit outside a placeholder — so commentary failed
+   * on exactly the months that had something to warn about, which are the months a customer
+   * most needs it. The live evals reproduced it on every warned month and nowhere else.
+   *
+   * Only the identifiers go in, never the whole sentence: they are ours and contain no figure,
+   * whereas allowlisting free text could let a real number through. New checks are covered
+   * automatically, which a hand-kept list in config would not be.
+   */
+  const allowlist = [...configuredAllowlist, ...warningChecks];
   const pack = buildFactsPack({
     period: input.period,
     // A movement against a hidden month is not discussed either (ADR 0047).
@@ -119,9 +136,7 @@ export async function factsPackFor(
       pct: company.rows[0]?.materiality_pct ?? "0.05",
       absMinor: company.rows[0]?.materiality_abs_minor ?? "0",
     },
-    warnings: (warnings.rows[0]?.validation_results ?? [])
-      .filter((r) => r.status === "fail" && r.severity === "warning")
-      .map((r) => `Check ${r.id} raised a warning for this month.`),
+    warnings: warningChecks.map((id) => `Check ${id} raised a warning for this month.`),
     // The figures handed to the model are written in the company's own currency and
     // grouping (ADR 0030), so the commentary reads in the same units as the workbook
     // beside it rather than in rupees regardless.

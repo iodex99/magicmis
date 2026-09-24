@@ -1,6 +1,6 @@
 {
   "07df62f91faa196ef14f504ea726875153a3e75c419207519fccba5169a16baf": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the previous month, in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA came in at {{m:ebitda@2026-05}}, an increase of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) month-on-month. The percentage changes in gross profit, EBITDA and profit after tax for {{p:2026-05}} are all identical to the percentage change in revenue, indicating margins have remained stable this month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, an increase of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, up {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) on the previous month.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month end, an increase of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the previous month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month, in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, an increase of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the previous month. The rate of increase in gross profit, EBITDA and profit after tax mirrors the increase in revenue, indicating no material change in margin structure for the month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables as at the end of {{p:2026-05}} stood at {{m:receivables@2026-05}}, an increase of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, up {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month. Cash and bank balances were {{m:cash_and_bank@2026-05}}, an increase of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the previous month.\"}]}]}",
     "usage": {
       "input_tokens": 756,
       "cache_creation_input_tokens": 1031,
@@ -9,9 +9,9 @@
         "ephemeral_5m_input_tokens": 1031,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 792,
+      "output_tokens": 771,
       "output_tokens_details": {
-        "thinking_tokens": 26
+        "thinking_tokens": 14
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -19,7 +19,7 @@
     "model": "claude-sonnet-5"
   },
   "c7705287fd4dbed1e297e1565b12117f00c3fc4f5e591e7513eb6fa45b2e6e6a": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month, broadly in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, an increase of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the previous month. The percentage changes in gross profit, EBITDA and profit after tax are all consistent with the percentage change in revenue, indicating that margins as a proportion of revenue have remained broadly stable during the month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables as at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up by {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month-end.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month-end.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month-end, higher by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month. The facts provided do not include ageing details of receivables or payables, or financing and investing cash flow information, so a fuller assessment of working capital movement cannot be made from this pack alone.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}}, or {{mv:revenue.mom@2026-05:pct}}, over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, an increase of {{mv:ebitda.mom@2026-05:abs}}, or {{mv:ebitda.mom@2026-05:pct}}, over the previous month. All profitability metrics for the month moved by a similar percentage, which may reflect a proportionate relationship between revenue and cost lines during the period; this pattern may warrant a review of the underlying data.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}} at the end of {{p:2026-05}}, an increase of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, up {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Cash and bank balances stood at {{m:cash_and_bank@2026-05}} at month end, an increase of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the previous month.\"}]}]}",
     "usage": {
       "input_tokens": 792,
       "cache_creation_input_tokens": 0,
@@ -28,9 +28,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 866,
+      "output_tokens": 804,
       "output_tokens_details": {
-        "thinking_tokens": 25
+        "thinking_tokens": 41
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -38,7 +38,7 @@
     "model": "claude-sonnet-5"
   },
   "3543aa13868d0e0daf009701ccb53a94e7e9237034066d8ef92b3165c546586e": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA came in at {{m:ebitda@2026-05}}, an increase of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the previous month. The month-on-month movements in gross profit, EBITDA, and PAT are all of a similar proportionate magnitude to the revenue movement, consistent with margins being broadly maintained during the month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month, broadly in line with the growth in revenue for the month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month. Cash and bank balances were {{m:cash_and_bank@2026-05}}, up {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the same period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, up {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) month-on-month. Profit after tax was {{m:pat@2026-05}}, an increase of {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"It is noted that revenue, gross profit, EBITDA and profit after tax all show an identical month-on-month percentage change of {{mv:revenue.mom@2026-05:pct}}. This uniformity across metrics is unusual and may warrant a check on the underlying data.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, a change of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month, moving broadly in line with revenue.\"},{\"text\":\"As EBITDA and profit after tax also moved by the same percentage as revenue and gross profit, the underlying margin ratios (gross margin, EBITDA margin and net margin) appear to have remained unchanged month-on-month based on the figures provided.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables as at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month. Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month end, higher by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the prior month.\"},{\"text\":\"As with the performance metrics, receivables, payables and cash balances all changed by the same percentage ({{mv:receivables.mom@2026-05:pct}}) as revenue this month, indicating that working capital movements have tracked revenue growth proportionately rather than reflecting a change in collection or payment cycles.\"}]}]}",
     "usage": {
       "input_tokens": 802,
       "cache_creation_input_tokens": 0,
@@ -47,9 +47,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 814,
+      "output_tokens": 1013,
       "output_tokens_details": {
-        "thinking_tokens": 54
+        "thinking_tokens": 40
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -57,7 +57,7 @@
     "model": "claude-sonnet-5"
   },
   "3dcee431efc95c76f147ed98f8528b199fe6b0788789c1773e645e6f1a282a19": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month, in line with the revenue movement.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, an increase of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the prior month. The proportional increases across gross profit, EBITDA and profit after tax suggest margins have remained broadly stable month on month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month. Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month end, up {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"A validation check (V10) raised a warning on this month's data, and one month in the reporting range was assumed rather than read from source records. The figures above should be read with this in mind, and are subject to confirmation once the underlying data is verified.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, an increase of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) compared to the previous month. Gross profit, EBITDA and PAT moved broadly in line with the increase in revenue, indicating no significant change in cost ratios during the month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up by {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month, while cash and bank balances were {{m:cash_and_bank@2026-05}}, higher by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}).\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the range was assumed rather than read from a source file; the working capital figures above should be read subject to these caveats.\"}]}]}",
     "usage": {
       "input_tokens": 789,
       "cache_creation_input_tokens": 0,
@@ -66,9 +66,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 838,
+      "output_tokens": 803,
       "output_tokens_details": {
-        "thinking_tokens": 24
+        "thinking_tokens": 13
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -76,7 +76,7 @@
     "model": "claude-sonnet-5"
   },
   "dbf140e15eeb86defc367bcd35a9ae9f1b63011b8bdf270782cefd3d0564cb9b": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the preceding month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, up {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) month-on-month, while profit after tax was {{m:pat@2026-05}}, higher by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the reported range was assumed rather than read from source files; figures for {{p:2026-05}} should be read with this in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"The facts pack does not include gross, EBITDA or PAT margin percentages as a proportion of revenue; only absolute values for revenue, gross profit, EBITDA and PAT are available, and no direct margin ratio facts have been provided for commentary.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}}, higher by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the prior month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, up {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) month-on-month, while profit after tax was {{m:pat@2026-05}}, higher by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month.\"},{\"text\":\"A data validation check (V10) was flagged for this month, and one month in the reporting range was assumed rather than sourced directly from a file. These figures should be read with this caveat in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month, broadly tracking the movement in revenue.\"},{\"text\":\"EBITDA and profit after tax also moved in line with revenue this month, with both showing a month-on-month increase of {{mv:ebitda.mom@2026-05:pct}} and {{mv:pat.mom@2026-05:pct}} respectively. The facts pack does not include margin ratios (as a percentage of revenue), so no comment can be made on margin expansion or contraction.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} stood at {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Trade payables were {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) month-on-month.\"},{\"text\":\"Cash and bank balances stood at {{m:cash_and_bank@2026-05}}, higher by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month. The facts pack does not include inventory or other working capital components, so a complete working capital position cannot be presented.\"}]}]}",
     "usage": {
       "input_tokens": 825,
       "cache_creation_input_tokens": 0,
@@ -85,9 +85,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 1088,
+      "output_tokens": 949,
       "output_tokens_details": {
-        "thinking_tokens": 259
+        "thinking_tokens": 24
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -95,7 +95,7 @@
     "model": "claude-sonnet-5"
   },
   "d3d2d3887625c914eb1b8978122f18fa3211e8235e67fc8c217014696d688991": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month, in line with the increase in revenue.\"},{\"text\":\"One month in the reporting range was assumed rather than read from a source file, and a validation check (V10) raised a warning for this month. These items should be reviewed before the figures above are treated as final.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, higher by {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) than the previous month.\"},{\"text\":\"The percentage change in gross profit, EBITDA and PAT are all equal to the percentage change in revenue for the month, indicating that margins as a proportion of revenue have remained unchanged month on month based on the facts available.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}}, up {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month. The facts available do not include ageing or turnover-period data for receivables or payables, so no comment can be made on collection or payment cycles.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, up {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) month-on-month. Profit after tax was {{m:pat@2026-05}}, an increase of {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) over the prior month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) compared with the previous month, broadly in line with the movement in revenue.\"},{\"text\":\"EBITDA and profit after tax both increased at rates comparable to revenue growth for the month, indicating no material change in margin structure during the period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month. Trade payables stood at {{m:payables@2026-05}}, an increase of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month-end, up {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the reporting range was assumed rather than read from source data. These items should be reviewed before the figures above are treated as final.\"}]}]}",
     "usage": {
       "input_tokens": 835,
       "cache_creation_input_tokens": 0,
@@ -104,9 +104,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 1009,
+      "output_tokens": 830,
       "output_tokens_details": {
-        "thinking_tokens": 118
+        "thinking_tokens": 24
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -114,7 +114,7 @@
     "model": "claude-sonnet-5"
   },
   "6212b8a8b0ffab0c46318b24cb8061c87e6ec3fc4a02d1b64f5cf0b05b1667cc": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the previous month, moving in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The facts pack does not include a gross margin percentage on revenue or comparable ratios for prior periods beyond the month-on-month change, so a broader margin trend assessment cannot be made at this time.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital items such as receivables, payables, inventory or cash balances have been provided for {{p:2026-05}}. Accordingly, no commentary on working capital position or movement can be provided for this period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) from the prior month, moving broadly in line with the increase in revenue.\"},{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) compared to the previous month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any working capital data, such as receivables, payables or inventory balances, for {{p:2026-05}}. No commentary can be provided on working capital movements this month.\"}]}]}",
     "usage": {
       "input_tokens": 350,
       "cache_creation_input_tokens": 0,
@@ -123,9 +123,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 611,
+      "output_tokens": 566,
       "output_tokens_details": {
-        "thinking_tokens": 100
+        "thinking_tokens": 140
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -133,7 +133,7 @@
     "model": "claude-sonnet-5"
   },
   "124b89b34c3fcb6ff92a031df041eba9769a0eb428498413dca0e74208b06825": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the preceding month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) on the prior month, broadly in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month is reported at {{m:gross_profit@2026-05}}, higher by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) than the previous month.\"},{\"text\":\"The gross profit figure as reported does not reconcile with revenue less direct costs for the month based on the facts provided; this discrepancy should be verified before the numbers are relied upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any data on receivables, payables, inventory or other working capital items for {{p:2026-05}}. No commentary on working capital movements can be provided on the basis of the information available.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the preceding month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the prior month, moving broadly in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, reflecting a change of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The reported gross profit figure does not reconcile with revenue less direct costs as per the facts provided; the underlying data should be checked before drawing further conclusions on margin movement.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any working capital metrics (such as receivables, payables, or inventory) for {{p:2026-05}}. No commentary on working capital can be provided on the basis of the information available.\"}]}]}",
     "usage": {
       "input_tokens": 368,
       "cache_creation_input_tokens": 0,
@@ -142,9 +142,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 739,
+      "output_tokens": 641,
       "output_tokens_details": {
-        "thinking_tokens": 250
+        "thinking_tokens": 132
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -152,7 +152,7 @@
     "model": "claude-sonnet-5"
   },
   "285dd4400f101bd8f0bf310b3fd1e78c16cc6658cb96431f9ef975e08a7259c2": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, an increase of {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the prior month, moving broadly in line with revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, reflecting a change of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The reported gross profit figure appears inconsistent with the revenue and direct cost figures provided for the same period, as gross profit exceeds revenue for {{p:2026-05}}. This discrepancy should be reviewed against source records before the margin position is relied upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital, such as receivables, payables or inventory, were provided for {{p:2026-05}}. No commentary can be given on this area for the period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, higher by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the previous month, broadly in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was reported at {{m:gross_profit@2026-05}}, up {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The facts pack does not include margin ratios (such as gross margin as a percentage of revenue) for this period, so no further comment can be made on margin trends.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related facts (such as receivables, payables or inventory figures) were provided in the facts pack for this period. Accordingly, no commentary on working capital can be made.\"}]}]}",
     "usage": {
       "input_tokens": 370,
       "cache_creation_input_tokens": 0,
@@ -161,9 +161,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 757,
+      "output_tokens": 634,
       "output_tokens_details": {
-        "thinking_tokens": 238
+        "thinking_tokens": 162
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -171,7 +171,7 @@
     "model": "claude-sonnet-5"
   },
   "c8d39ce4c922e6d14e3215d3707309768612b6b6c4d84aa94988ae3c8082558d": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the prior month, broadly tracking the increase in revenue.\"},{\"text\":\"A validation check (V10) raised a warning in respect of this month's figures, and one month within the reporting range was assumed rather than confirmed from source records. Both points should be noted when reviewing the figures above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The facts pack does not include a computed gross margin percentage or comparative direct cost ratio for this month; only the absolute revenue, direct cost and gross profit figures and their month-on-month movements are available.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital, such as receivables, payables, inventory or cash balances, have been provided for this period. Commentary on working capital cannot be prepared on the basis of the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the preceding month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the prior month, moving broadly in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"A validation check on this month's figures has raised a warning, and one month within the reported range was assumed rather than sourced directly from underlying records. The gross profit figure should accordingly be read with caution until this is reconciled, as the reported direct costs and revenue do not appear to fully account for the stated gross profit.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital, such as receivables, payables or inventory, have been provided for {{p:2026-05}}. Commentary on working capital position cannot be prepared from the available data.\"}]}]}",
     "usage": {
       "input_tokens": 383,
       "cache_creation_input_tokens": 0,
@@ -180,9 +180,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 712,
+      "output_tokens": 651,
       "output_tokens_details": {
-        "thinking_tokens": 141
+        "thinking_tokens": 115
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -190,7 +190,7 @@
     "model": "claude-sonnet-5"
   },
   "db7a49b7d7c4283080870103aa466ef77a8142e596939aa25c54a1cc45428264": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"A validation check (V10) has flagged an item for this month, and one month in the reporting range was assumed rather than sourced directly from a file. These points should be reviewed before the figures are treated as final.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) on the prior month, moving broadly in line with the increase in revenue.\"},{\"text\":\"Gross profit for the month was recorded at {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month. This gross profit figure does not appear to reconcile with revenue less direct costs as reported for the month, which is consistent with the outstanding V10 validation warning; the underlying figures should be checked.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any working capital metrics (such as receivables, payables, inventory or cash balances) for {{p:2026-05}}. No commentary on working capital movements can therefore be provided this month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the prior month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the previous month, broadly in line with the increase in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} is reported at {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"The reported gross profit figure does not reconcile with revenue less direct costs for the month based on the facts provided, and a validation check (V10) has flagged an issue for this month. This discrepancy should be reviewed before the margin trend is relied upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital facts (such as receivables, payables or inventory) have been provided for {{p:2026-05}}, so no commentary can be given on working capital movements this month.\"}]}]}",
     "usage": {
       "input_tokens": 401,
       "cache_creation_input_tokens": 0,
@@ -199,9 +199,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 752,
+      "output_tokens": 710,
       "output_tokens_details": {
-        "thinking_tokens": 184
+        "thinking_tokens": 195
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -209,7 +209,7 @@
     "model": "claude-sonnet-5"
   },
   "3f611bd437bf16a2cdabb6bf5cd01aa0416f4221181d0b5694ba52d1a76fcf99": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the prior month, broadly tracking the increase in revenue.\"},{\"text\":\"A validation check (V10) has flagged a warning for this month, and one month within the reporting range was assumed rather than sourced from a file. These points should be reviewed before the figures are relied upon further.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, a change of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"The reported gross profit figure appears inconsistent with the revenue and direct cost figures provided for the same period. Given the outstanding validation warning noted above, this margin figure should be treated with caution pending review.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any working capital metrics (such as receivables, payables, or inventory) for {{p:2026-05}}. No commentary can be provided on working capital movements for this period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} from the prior month, a change of {{mv:direct_costs.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} over the previous month, or {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"The reported gross profit figure does not reconcile with revenue less direct costs for the month, and a validation check (V10) has flagged this month for review. The margin position should therefore be treated as provisional pending resolution of this discrepancy.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any working capital metrics (such as receivables, payables, or inventory) for {{p:2026-05}}, so no commentary can be given on working capital movements this period.\"},{\"text\":\"It is also noted that one month in the reporting range was assumed rather than read from source files, which may affect the reliability of period-based comparisons presented elsewhere in this report.\"}]}]}",
     "usage": {
       "input_tokens": 403,
       "cache_creation_input_tokens": 0,
@@ -218,9 +218,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 705,
+      "output_tokens": 755,
       "output_tokens_details": {
-        "thinking_tokens": 131
+        "thinking_tokens": 192
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -228,7 +228,7 @@
     "model": "claude-sonnet-5"
   },
   "0d5dfe502b16866fee618e0ca9cdf4e7827828f263b57cff987aa4dd14602057": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include cost, expense or margin figures for this period, so no commentary on margins can be provided.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data on receivables, payables, inventory or other working capital items has been provided for this period, so no commentary on working capital can be provided.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the preceding month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"No facts relating to margins, cost of goods sold, or profitability have been provided for this period. This section cannot be commented upon based on the available data.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to receivables, payables, inventory, or other working capital items have been provided for this period. This section cannot be commented upon based on the available data.\"}]}]}",
     "usage": {
       "input_tokens": 140,
       "cache_creation_input_tokens": 0,
@@ -237,7 +237,7 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 290,
+      "output_tokens": 307,
       "output_tokens_details": {
         "thinking_tokens": 33
       },
@@ -247,7 +247,7 @@
     "model": "claude-sonnet-5"
   },
   "b44bfd971175241cf8b22d04dfe282209c81f9fe023a9d31c6198331f63a18aa": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a growth of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include cost, expense or margin data for {{p:2026-05}}, so no commentary on margins can be provided for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital data, such as receivables, payables or inventory figures, has been provided for {{p:2026-05}}. Accordingly, no assessment of working capital position can be made at this time.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain sufficient data on cost of goods sold, gross profit, operating expenses or net profit for {{p:2026-05}} to comment on margins for the period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data on receivables, payables, inventory or cash balances has been provided for {{p:2026-05}}, so no commentary on working capital position can be made at this time.\"}]}]}",
     "usage": {
       "input_tokens": 146,
       "cache_creation_input_tokens": 0,
@@ -256,9 +256,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 317,
+      "output_tokens": 344,
       "output_tokens_details": {
-        "thinking_tokens": 31
+        "thinking_tokens": 52
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -266,7 +266,7 @@
     "model": "claude-sonnet-5"
   },
   "cd080fac65ae58d5aeaa639326622db29c3112e0ed02bef3a21459bbc0fa3bcc": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any information on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. No commentary on margins can be provided based on the available data.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data on receivables, payables, inventory or cash balances has been provided for {{p:2026-05}}. Consequently, no assessment of working capital position or movement can be made.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the preceding month, representing growth of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include data on cost of goods sold, gross margin, operating margin or any other profitability metrics for {{p:2026-05}}. No commentary on margins can be provided based on the information available.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data relating to receivables, payables, inventory or other working capital items has been provided for {{p:2026-05}}. In the absence of such facts, no assessment of working capital position or movement can be made.\"}]}]}",
     "usage": {
       "input_tokens": 148,
       "cache_creation_input_tokens": 0,
@@ -275,9 +275,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 342,
+      "output_tokens": 350,
       "output_tokens_details": {
-        "thinking_tokens": 42
+        "thinking_tokens": 39
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -285,7 +285,7 @@
     "model": "claude-sonnet-5"
   },
   "e71386cd3af29a45d9383c011cda1619fa7b311242c385bbd464b59b5fc51305": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a growth of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"A validation check on the figures for this month raised a warning, and one month within the range was assumed rather than sourced directly from a file. These points should be noted when relying on the above figures.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on cost of sales, gross margin or operating margin for this period. No commentary on margins can be provided on the basis of the available information.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on receivables, payables, inventory or other working capital items for this period. No commentary on working capital can be provided on the basis of the available information.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the preceding month, representing a change of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"One month in the range used for this comparison was assumed rather than read from a source file, and a validation check (V10) raised a warning for this month. These points should be reviewed before the figures are relied upon further.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. In the absence of such figures, no commentary on margins can be provided for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital items such as receivables, payables, inventory or cash balances were included in the pack for {{p:2026-05}}. Consequently, no assessment of working capital position or movement can be made for this month.\"}]}]}",
     "usage": {
       "input_tokens": 173,
       "cache_creation_input_tokens": 0,
@@ -294,9 +294,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 381,
+      "output_tokens": 487,
       "output_tokens_details": {
-        "thinking_tokens": 31
+        "thinking_tokens": 98
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -304,7 +304,7 @@
     "model": "claude-sonnet-5"
   },
   "be07e7206e6bc3a2a0032b90641e06d1e66034ab3d65795181526fff87863b30": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a growth of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Note: a validation check (V10) raised a warning in relation to this month's figures, and one month in the reporting range was assumed rather than read from a source file. These figures should be treated as provisional pending review.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. No commentary on margins can be provided based on the information available.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on receivables, payables, inventory or other working capital metrics for {{p:2026-05}}. No commentary on working capital can be provided based on the information available.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a growth of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"It is noted that one month in the range was assumed rather than read from a source file, and a validation check (V10) raised a warning for this month. These points should be reviewed for accuracy before the figures are relied upon further.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"No margin-related facts (such as gross profit, operating profit, or net profit figures) were provided in the facts pack for {{p:2026-05}}. Consequently, no commentary on margins can be provided for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital-related facts (such as receivables, payables, or inventory figures) were provided in the facts pack for {{p:2026-05}}. Consequently, no commentary on working capital can be provided for this period.\"}]}]}",
     "usage": {
       "input_tokens": 179,
       "cache_creation_input_tokens": 0,
@@ -313,9 +313,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 426,
+      "output_tokens": 422,
       "output_tokens_details": {
-        "thinking_tokens": 49
+        "thinking_tokens": 34
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -323,7 +323,7 @@
     "model": "claude-sonnet-5"
   },
   "a479614886ed1145aea23bbbfb90455db09b9eaabc12983fa47e957f38064f85": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a rise of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"It is noted that one month in the range used for this analysis was assumed rather than read from a source file, and a validation check (V10) raised a warning for this month. These points should be considered when interpreting the revenue figures above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. Consequently, no commentary on margins can be provided based on the available information.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital items such as receivables, payables, inventory or cash conversion cycle have been supplied for {{p:2026-05}}. Accordingly, this section cannot be commented upon based on the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a change of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"It is noted that one month in the range used for this comparison was assumed rather than read from a source file, and a validation check (V10) raised a warning for this month. These points should be reviewed before the figures are relied upon further.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any figures relating to cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. In the absence of such data, no commentary on margins can be provided for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to receivables, payables, inventory or other working capital items for {{p:2026-05}} have been provided in the facts pack. Consequently, no commentary on working capital movements can be given for this month.\"}]}]}",
     "usage": {
       "input_tokens": 181,
       "cache_creation_input_tokens": 0,
@@ -332,9 +332,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 493,
+      "output_tokens": 482,
       "output_tokens_details": {
-        "thinking_tokens": 101
+        "thinking_tokens": 91
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -342,7 +342,7 @@
     "model": "claude-sonnet-5"
   },
   "1a41c7b56b1b4f9a8344796133d3f42e0e0ee540cef84566ad854ac0196f496e": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) over the previous month, tracking the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, a decrease of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"EBITDA for the month stood at {{m:ebitda@2026-05}}, lower by {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the previous month. The proportional decline in gross profit, EBITDA and profit after tax, each at {{mv:gross_profit.mom@2026-05:pct}}, {{mv:ebitda.mom@2026-05:pct}} and {{mv:pat.mom@2026-05:pct}} respectively, mirrors the fall in revenue, indicating no material change in margin structure for the month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables as at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, a decrease of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, down by {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Cash and bank balances at month end were {{m:cash_and_bank@2026-05}}, a decrease of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month, consistent with the overall decline in revenue and profitability during the month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) on a month-on-month basis, tracking the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, a decline of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, down {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}). The proportionate declines across gross profit, EBITDA and profit after tax, all in line with the fall in revenue, indicate that margin ratios have remained broadly unchanged month-on-month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, a reduction of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month. Trade payables stood at {{m:payables@2026-05}}, down {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month-end, a decrease of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the prior month.\"}]}]}",
     "usage": {
       "input_tokens": 770,
       "cache_creation_input_tokens": 0,
@@ -351,9 +351,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 862,
+      "output_tokens": 789,
       "output_tokens_details": {
-        "thinking_tokens": 0
+        "thinking_tokens": 24
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -361,7 +361,7 @@
     "model": "claude-sonnet-5"
   },
   "f4ab9207facedf46996a8c294b2aa73a6ff02625006d51cc4481d211abfd2634": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) on a month-on-month basis, broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, a decline of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, lower by {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) compared to the previous month. As the percentage declines in gross profit, EBITDA and revenue are all of similar magnitude, margins as a proportion of revenue appear to have remained broadly stable month-on-month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} stood at {{m:receivables@2026-05}}, a decrease of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, down {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Cash and bank balances at month-end were {{m:cash_and_bank@2026-05}}, a decrease of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decline of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the previous month, broadly tracking the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, a decrease of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA for the month stood at {{m:ebitda@2026-05}}, lower by {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) compared to the previous month. The proportionate movement across gross profit, EBITDA and PAT relative to revenue indicates that the decline was driven primarily by the fall in revenue rather than by any change in cost structure.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, a decrease of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, down {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month end, a reduction of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month.\"}]}]}",
     "usage": {
       "input_tokens": 806,
       "cache_creation_input_tokens": 0,
@@ -370,7 +370,7 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 781,
+      "output_tokens": 777,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
@@ -380,7 +380,7 @@
     "model": "claude-sonnet-5"
   },
   "dd1ed812d8412f0a975c046a803a3f6cfcee400bd5911f1fb4a9fbd2ae8521b8": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decline of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the previous month, broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, lower by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) on a month-on-month basis.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, a decrease of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the previous month. The proportionate decline across revenue, gross profit, EBITDA and PAT (all at {{mv:pat.mom@2026-05:pct}}) indicates that margin ratios as a percentage of revenue have remained largely unchanged for the month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables as at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, down {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, a reduction of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Cash and bank balances at month-end were {{m:cash_and_bank@2026-05}}, lower by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the prior month. Receivables, payables and cash balances have each moved by the same proportion ({{mv:cash_and_bank.mom@2026-05:pct}}), consistent with the overall contraction in monthly activity.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decline of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, lower by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the previous month, moving broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, down {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"EBITDA stood at {{m:ebitda@2026-05}}, a decrease of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) on the previous month. As the percentage declines in revenue, gross profit and EBITDA are all equal, margin ratios relative to revenue appear to have remained stable month-on-month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables closed the month at {{m:receivables@2026-05}}, down {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month, while trade payables stood at {{m:payables@2026-05}}, down {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month end, a reduction of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month. All working capital components declined by a similar proportion this month; the facts provided do not indicate the underlying cause of this uniform movement.\"}]}]}",
     "usage": {
       "input_tokens": 816,
       "cache_creation_input_tokens": 0,
@@ -389,9 +389,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 900,
+      "output_tokens": 806,
       "output_tokens_details": {
-        "thinking_tokens": 28
+        "thinking_tokens": 25
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -399,7 +399,7 @@
     "model": "claude-sonnet-5"
   },
   "1aafb7b5fb3a3340392815c9d9dbe3d80b6b3533146d7534b578ea197b240cbe": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decline of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month, broadly in line with the decline in revenue.\"},{\"text\":\"A validation check (V10) raised a warning on this month's data, and one month within the reporting range was assumed rather than sourced from a file. These figures should be read with this caveat in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, lower by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) than the previous month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, a decrease of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The uniform percentage decline across revenue, gross profit, EBITDA and profit after tax suggests margins as a proportion of revenue have remained stable this month, with the overall decline driven by lower revenue rather than a change in cost structure.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, down {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, a decrease of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month end, down {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the previous month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) on a month-on-month basis, tracking the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, lower by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) than the prior month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, a decrease of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}). The proportional decline across gross profit, EBITDA and PAT indicates that the margin structure was broadly maintained despite the fall in revenue.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, down {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month. Trade payables stood at {{m:payables@2026-05}}, a decrease of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month end, lower by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the prior month.\"},{\"text\":\"Note: a validation check (V10) raised a warning for this month, and one month in the range was assumed rather than read from a source file. These figures should be reviewed for accuracy before further reliance.\"}]}]}",
     "usage": {
       "input_tokens": 803,
       "cache_creation_input_tokens": 0,
@@ -408,9 +408,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 870,
+      "output_tokens": 836,
       "output_tokens_details": {
-        "thinking_tokens": 16
+        "thinking_tokens": 21
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -418,7 +418,7 @@
     "model": "claude-sonnet-5"
   },
   "074f9a8559198462a4a5c62882b40bbc43f48685ac1851e040847113b1b50682": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, down {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) compared to the previous month, moving broadly in line with the decline in revenue.\"},{\"text\":\"Profit after tax was {{m:pat@2026-05}}, lower by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) on a month-on-month basis.\"},{\"text\":\"Note: one month in the reported range was assumed rather than taken from a source file, and a system validation check (V10) flagged a warning for this month. These figures should be read with that caveat in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, a decline of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month, tracking the fall in revenue.\"},{\"text\":\"The proportional decline across revenue, gross profit, EBITDA and profit after tax (each showing a {{mv:pat.mom@2026-05:pct}}-type change) suggests margins as a percentage of revenue remained broadly stable month-on-month, though the facts pack does not include margin ratios directly.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, down {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables stood at {{m:payables@2026-05}}, a decrease of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the same period.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}}, lower by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the prior month.\"},{\"text\":\"The facts pack does not provide sufficient detail to assess working capital cycle days or liquidity trends beyond these month-on-month balance movements.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) compared to the prior month, broadly tracking the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, lower by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) on a month-on-month basis.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, a decrease of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the previous month. The proportional decline in gross profit and EBITDA, matching that of revenue, indicates margins as a percentage of revenue have remained stable this month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}}, a decrease of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) over the previous month. Trade payables stood at {{m:payables@2026-05}}, down {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}} at month-end, a decrease of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the range was assumed rather than read from a source file; the figures above should be read with this in mind.\"}]}]}",
     "usage": {
       "input_tokens": 839,
       "cache_creation_input_tokens": 0,
@@ -427,26 +427,7 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 1059,
-      "output_tokens_details": {
-        "thinking_tokens": 115
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "22df9aaca51bd1117f41f785df30663914b6ed15ade637fe8136097e6ee476d6": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, down {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) on a month-on-month basis, broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, lower by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) from the prior month.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}}, a decrease of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}). The proportional decline across gross profit, EBITDA and profit after tax suggests margins have remained broadly stable, with the fall in profitability tracking the fall in revenue.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables closed at {{m:receivables@2026-05}}, down {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month, while trade payables closed at {{m:payables@2026-05}}, down {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances stood at {{m:cash_and_bank@2026-05}}, a decrease of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the month.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the reported range was assumed rather than read from source files; the working capital figures above should be read with this in mind.\"}]}]}",
-    "usage": {
-      "input_tokens": 849,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1031,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 801,
+      "output_tokens": 815,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
@@ -455,8 +436,27 @@
     },
     "model": "claude-sonnet-5"
   },
+  "22df9aaca51bd1117f41f785df30663914b6ed15ade637fe8136097e6ee476d6": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decline of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, down {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) month-on-month, broadly in line with the decline in revenue.\"},{\"text\":\"EBITDA came in at {{m:ebitda@2026-05}}, a decrease of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) over the prior month, while profit after tax was {{m:pat@2026-05}}, lower by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit, EBITDA and profit after tax all declined by the same proportion as revenue ({{mv:revenue.mom@2026-05:pct}}) during {{p:2026-05}}, indicating that margin ratios relative to revenue have remained stable rather than deteriorating on their own.\"},{\"text\":\"The facts pack does not provide margin percentages directly, so no separate margin ratio commentary beyond the proportional movement noted above can be offered.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}} at the end of {{p:2026-05}}, down {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"Trade payables were {{m:payables@2026-05}}, a decrease of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) over the same period.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}}, lower by {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) compared to the prior month.\"},{\"text\":\"Note: a validation check (V10) raised a warning for this month, and one month in the reporting range was assumed rather than read from source files; the figures above should be read with this caveat in mind.\"}]}]}",
+    "usage": {
+      "input_tokens": 849,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1031,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 933,
+      "output_tokens_details": {
+        "thinking_tokens": 24
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
   "6d3f7c431a54db05f30ca9527be0115c80d6b59c5c03074b7e923fa9c85ae249": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, down by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) over the previous month, moving in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, a decrease of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"The facts pack does not provide operating expenses, other income, or net profit figures, so the overall margin position for the month cannot be assessed beyond the gross profit level.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to receivables, payables, inventory, or cash balances were provided for {{p:2026-05}}. The available data is insufficient to comment on the working capital position for the month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, down {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) from the prior month, broadly tracking the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, a decrease of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The facts pack does not include a gross margin percentage or other profitability ratios for the month, so no further comment on margin trends can be made.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital items such as receivables, payables, inventory or cash balances were provided for {{p:2026-05}}. This section cannot be commented on based on the available data.\"}]}]}",
     "usage": {
       "input_tokens": 356,
       "cache_creation_input_tokens": 0,
@@ -465,9 +465,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 593,
+      "output_tokens": 591,
       "output_tokens_details": {
-        "thinking_tokens": 103
+        "thinking_tokens": 114
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -475,7 +475,7 @@
     "model": "claude-sonnet-5"
   },
   "de41c8a876e23b20a52dcac86c8da1479de8b80491060a4e15e798f5dfbebceb": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, down {{mv:direct_costs.mom@2026-05:abs}} from the previous month, a reduction of {{mv:direct_costs.mom@2026-05:pct}}, broadly in line with the fall in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, lower by {{mv:gross_profit.mom@2026-05:abs}} compared to the previous month, a decline of {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"The facts pack does not include gross margin as a percentage of revenue or other margin ratios, so a view on margin trend cannot be given beyond the absolute movement noted above.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any working capital metrics, such as receivables, payables, or inventory figures, for {{p:2026-05}}. No commentary on working capital can be provided on the basis of the available facts.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, lower by {{mv:direct_costs.mom@2026-05:abs}} compared to the previous month, a decrease of {{mv:direct_costs.mom@2026-05:pct}}. Both revenue and direct costs declined at the same rate month-on-month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, down {{mv:gross_profit.mom@2026-05:abs}} from the prior month, a decline of {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"The reported gross profit figure appears inconsistent with the revenue and direct cost figures provided, as gross profit exceeds revenue for the month. The facts pack does not provide sufficient clarification to reconcile this, and the margin commentary should be read with this caveat.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any working capital metrics, such as receivables, payables, or inventory data, for {{p:2026-05}}. No commentary can be provided on working capital movements for the period.\"}]}]}",
     "usage": {
       "input_tokens": 374,
       "cache_creation_input_tokens": 0,
@@ -484,9 +484,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 578,
+      "output_tokens": 699,
       "output_tokens_details": {
-        "thinking_tokens": 66
+        "thinking_tokens": 150
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -494,7 +494,7 @@
     "model": "claude-sonnet-5"
   },
   "d934b3a4a7ed3b688b1c6ef377102c4be593dc07b5e1cb429028a0ec5fefcb60": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, lower by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the previous month, broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, down by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) from the previous month.\"},{\"text\":\"The facts provided do not include a gross margin percentage on revenue, so no comment can be made on margin trend beyond the absolute movement noted above.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital (such as receivables, payables, or inventory) have been provided for {{p:2026-05}}. This section cannot be commented upon with the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, also lower by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) on a month-on-month basis, tracking the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, down {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) from the prior month.\"},{\"text\":\"It is noted that the reported gross profit figure does not reconcile arithmetically with the difference between revenue from operations and direct costs for the same period; this discrepancy should be reviewed against the underlying data.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital, such as receivables, payables, or inventory, were provided in the facts pack for {{p:2026-05}}. Accordingly, no commentary on working capital can be provided this month.\"}]}]}",
     "usage": {
       "input_tokens": 376,
       "cache_creation_input_tokens": 0,
@@ -503,9 +503,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 671,
+      "output_tokens": 785,
       "output_tokens_details": {
-        "thinking_tokens": 193
+        "thinking_tokens": 273
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -513,7 +513,7 @@
     "model": "claude-sonnet-5"
   },
   "4abdebea88fb11fcb5c2f12a4e191471e03af85c543fbafb7a2c26597fbf3719": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, lower by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) on a month-on-month basis, moving broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, down {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) from the prior month.\"},{\"text\":\"The reported gross profit figure appears inconsistent with the revenue and direct cost figures for the same period as presented in the facts pack; this has also been flagged by an internal validation check for the month. This discrepancy should be reviewed and reconciled before the numbers are relied upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any working capital-related figures (such as receivables, payables, inventory, or cash balances) for {{p:2026-05}}, so no commentary can be given on working capital movements for the month.\"},{\"text\":\"It is also noted that one month within the reporting range was assumed rather than sourced directly from underlying records, which may affect the reliability of period-on-period comparisons above.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, lower by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) on a month-on-month basis, moving broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, a decline of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"It is noted that the reported gross profit figure does not reconcile with revenue less direct costs for the month, and a validation check (V10) has flagged an issue for this period. This discrepancy should be investigated before the margin trend is relied upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any working capital metrics (such as receivables, payables, inventory or cash balances) for {{p:2026-05}}, so no commentary can be provided on working capital movements for the month.\"},{\"text\":\"It is also noted that one month in the reporting range was assumed rather than read from a source file, which may affect the reliability of period-based comparisons in this report.\"}]}]}",
     "usage": {
       "input_tokens": 389,
       "cache_creation_input_tokens": 0,
@@ -522,9 +522,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 720,
+      "output_tokens": 711,
       "output_tokens_details": {
-        "thinking_tokens": 121
+        "thinking_tokens": 126
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -532,7 +532,7 @@
     "model": "claude-sonnet-5"
   },
   "eab57081332293bd0a052515f1d2808573434758f2253365f56a932fa21b47e1": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the preceding month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, down {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the previous month, moving broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} is reported at {{m:gross_profit@2026-05}}, a change of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"The gross profit figure as stated exceeds the difference between revenue and direct costs for the month, which points to a possible inconsistency in the underlying data. This is consistent with the validation warning raised for this month (Check V10) and should be reviewed before the margin position is relied upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any working capital metrics, such as receivables, payables or inventory figures, for {{p:2026-05}}. No commentary can be provided on working capital for this period.\"},{\"text\":\"It is also noted that one month in the reporting range was assumed rather than read from a source file, which may affect the reliability of comparisons for this period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, down {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) on a month-on-month basis, moving broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was reported at {{m:gross_profit@2026-05}}, a decline of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the prior month.\"},{\"text\":\"The reported gross profit figure appears inconsistent with the revenue and direct cost figures for the same month, and a validation check (V10) has flagged a warning for this period. Additionally, one month in the range was assumed rather than read from source files. These figures should be treated with caution pending clarification.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain data on receivables, payables, inventory or other working capital items for {{p:2026-05}}. No commentary can be provided on working capital movements for this period.\"}]}]}",
     "usage": {
       "input_tokens": 407,
       "cache_creation_input_tokens": 0,
@@ -541,9 +541,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 693,
+      "output_tokens": 626,
       "output_tokens_details": {
-        "thinking_tokens": 111
+        "thinking_tokens": 90
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -551,7 +551,7 @@
     "model": "claude-sonnet-5"
   },
   "25950c0ba65c57c59ee748948d356757faf3d56cf88203594766e2bcc2a47b34": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, down {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the previous month, moving broadly in line with the decline in revenue.\"},{\"text\":\"A validation warning was raised for this month's figures, and one month in the reporting range was assumed rather than read from a source file. These figures should be treated as provisional pending confirmation.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for the month was {{m:gross_profit@2026-05}}, a decrease of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The facts pack does not include a gross margin percentage or other ratio metrics for this month, so no further comment on margin trends can be made beyond the absolute and month-on-month figures stated above.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any working capital metrics, such as receivables, payables, inventory or cash balances, for this month. No commentary can be provided on working capital for this period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"Direct costs for the month were {{m:direct_costs@2026-05}}, lower by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared to the prior month, moving broadly in line with the decline in revenue.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was recorded at {{m:gross_profit@2026-05}}, a decrease of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) over the previous month.\"},{\"text\":\"The reported gross profit figure exceeds the difference between revenue and direct costs for the month as per the facts provided, and a validation check (V10) has flagged this month for review. The reported gross profit figure should be treated with caution pending clarification.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any working capital related figures (such as receivables, payables, or inventory) for {{p:2026-05}}. No commentary on working capital movements can be made on the basis of the information available.\"},{\"text\":\"It is also noted that one month in the reporting range was assumed rather than read from a source file, which may affect the reliability of period-based comparisons in this report.\"}]}]}",
     "usage": {
       "input_tokens": 409,
       "cache_creation_input_tokens": 0,
@@ -560,9 +560,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 705,
+      "output_tokens": 685,
       "output_tokens_details": {
-        "thinking_tokens": 156
+        "thinking_tokens": 103
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -570,7 +570,7 @@
     "model": "claude-sonnet-5"
   },
   "e6f2a10ca512b5d28d8d727f0fe7e89756887d7f624fd026c4a4d92c3a76a9f7": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"The facts pack does not contain further detail on the drivers of this decline, such as segment or product-level breakups.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any data on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. No commentary on margins can be provided based on the available information.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any data on receivables, payables, inventory or cash balances for {{p:2026-05}}. No commentary on working capital can be provided based on the available information.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"This represents a decline of {{mv:revenue.mom@2026-05:abs}}, or {{mv:revenue.mom@2026-05:pct}}, compared to the previous month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any data on cost of goods sold, gross margin, operating margin or net margin for this period. No commentary on margins can be provided on the basis of the available information.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any data on receivables, payables, inventory or other working capital items for this period. No commentary on working capital can be provided on the basis of the available information.\"}]}]}",
     "usage": {
       "input_tokens": 142,
       "cache_creation_input_tokens": 0,
@@ -579,9 +579,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 378,
+      "output_tokens": 348,
       "output_tokens_details": {
-        "thinking_tokens": 34
+        "thinking_tokens": 48
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -589,7 +589,7 @@
     "model": "claude-sonnet-5"
   },
   "87e4dc695fa2106193c3d6feca08e4b47d197913ba0060945e2cc752a178629e": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any data on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. No commentary on margins can be provided based on the information available.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not include figures relating to receivables, payables, inventory or other working capital items for {{p:2026-05}}. No assessment of working capital position can be made from the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}} on a month-on-month basis.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any data on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. No commentary on margins can be provided on the basis of the available information.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not include any data relating to receivables, payables, inventory or other working capital items for {{p:2026-05}}. No commentary on working capital can be provided on the basis of the available information.\"}]}]}",
     "usage": {
       "input_tokens": 148,
       "cache_creation_input_tokens": 0,
@@ -598,9 +598,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 337,
+      "output_tokens": 355,
       "output_tokens_details": {
-        "thinking_tokens": 32
+        "thinking_tokens": 34
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -608,7 +608,7 @@
     "model": "claude-sonnet-5"
   },
   "aee905b0e3c8c3c3419e9f51f1a2dc260297c1a795c17414394ecf87a7b18a1f": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"},{\"text\":\"The decline indicates a slowdown in operating activity during the month under review. No further facts are available to explain the drivers of this movement.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on cost of sales, gross margin, operating margin or net margin for the period. In the absence of such figures, no commentary can be provided on margins for {{p:2026-05}}.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on receivables, payables, inventory or other working capital items for the period. In the absence of such figures, no commentary can be provided on working capital for {{p:2026-05}}.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain sufficient data on costs, expenses or profit margins for {{p:2026-05}} to comment on margins for the period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain sufficient data on receivables, payables, inventory or other working capital items for {{p:2026-05}} to comment on working capital for the period.\"}]}]}",
     "usage": {
       "input_tokens": 150,
       "cache_creation_input_tokens": 0,
@@ -617,9 +617,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 402,
+      "output_tokens": 316,
       "output_tokens_details": {
-        "thinking_tokens": 40
+        "thinking_tokens": 33
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -627,7 +627,7 @@
     "model": "claude-sonnet-5"
   },
   "11a784ff595919a70426328e8c8d6e4c7c6c8a187d12c34488869c189d218373": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the prior month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the range was assumed rather than read from a source file. These factors should be considered when interpreting the revenue figures above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain cost of sales, gross profit, or other margin-related figures for {{p:2026-05}}. No commentary on margins can be provided based on the available data.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital data, such as receivables, payables, or inventory figures, is included in the facts pack for {{p:2026-05}}. No commentary on working capital can be provided based on the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and figures for one month in the range were assumed rather than read from a source file. These factors should be considered when interpreting the revenue movement noted above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data on cost of goods sold, gross margin, operating margin or net margin for {{p:2026-05}}. No commentary on margins can be provided based on the available information.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data relating to receivables, payables, inventory or other working capital items has been provided for {{p:2026-05}}. Consequently, no assessment of working capital position or movement can be made from the facts available.\"}]}]}",
     "usage": {
       "input_tokens": 175,
       "cache_creation_input_tokens": 0,
@@ -638,7 +638,7 @@
       },
       "output_tokens": 465,
       "output_tokens_details": {
-        "thinking_tokens": 101
+        "thinking_tokens": 86
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -646,7 +646,7 @@
     "model": "claude-sonnet-5"
   },
   "11aa159ace74a0f745774282f3877c8e58313c330442c3f4cd2851eb93c86d2a": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"It is noted that a validation check (V10) raised a warning for this month, and that the period for one month in the range was assumed rather than read from source records. These points should be kept in view when interpreting the revenue figures above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any data on cost of sales, gross margin, operating margin or net margin for {{p:2026-05}}. In the absence of such figures, no commentary on margins can be provided for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not include any data relating to receivables, payables, inventory or other working capital items for {{p:2026-05}}. Consequently, no commentary on working capital can be provided for this period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"A validation check (V10) raised a warning in relation to this month's figures, and one month within the reporting range was assumed rather than sourced directly from a file. These items should be reviewed before the figures are treated as final.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"No facts relating to costs, gross margin or operating margin were provided in the data pack for {{p:2026-05}}. In the absence of such data, no commentary on margins can be offered for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to receivables, payables, inventory or other working capital items were provided in the data pack for {{p:2026-05}}. Accordingly, no assessment of working capital movements can be made for this period.\"}]}]}",
     "usage": {
       "input_tokens": 181,
       "cache_creation_input_tokens": 0,
@@ -655,9 +655,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 481,
+      "output_tokens": 430,
       "output_tokens_details": {
-        "thinking_tokens": 93
+        "thinking_tokens": 47
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -665,7 +665,7 @@
     "model": "claude-sonnet-5"
   },
   "4ba28c2d4515b9179cbe29fbffa0ef278b1f32c929278167187f81d31b93238b": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} over the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"A validation check (V10) raised a warning in relation to this month's data, and one month in the reporting range was assumed rather than sourced directly from a file. These points should be noted while reviewing the revenue figures above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"No facts relating to margins have been provided in the data for this period. This section cannot be completed on the basis of the available information.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital have been provided in the data for this period. This section cannot be completed on the basis of the available information.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}, a decrease of {{mv:revenue.mom@2026-05:abs}} compared to the previous month, representing a decline of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month within the reporting range was assumed rather than confirmed from source records. These points should be reviewed before the revenue figures are relied upon further.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"No cost, expense or profit facts were provided in the data pack for this period. In the absence of such figures, margin performance cannot be assessed or commented upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to receivables, payables, inventory or cash balances were provided for this period. Working capital position and movement cannot be reported based on the available data.\"}]}]}",
     "usage": {
       "input_tokens": 183,
       "cache_creation_input_tokens": 0,
@@ -674,9 +674,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 362,
+      "output_tokens": 420,
       "output_tokens_details": {
-        "thinking_tokens": 32
+        "thinking_tokens": 69
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -684,7 +684,7 @@
     "model": "claude-sonnet-5"
   },
   "8a1ecf0c8b44198c2ee1d60753c432d6d6cf461dda1aa2e466f919ad514fdb2e": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"No prior period or budget figures have been provided, so no comparison or trend can be presented for this month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"The facts pack does not include margin percentages or prior-period figures, so margin ratios and their movement cannot be commented upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital, such as receivables, payables, inventory or cash balances, have been provided for {{p:2026-05}}. Accordingly, no commentary on working capital can be made this month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"For {{p:2026-05}}, revenue from operations stood at {{m:revenue@2026-05}}. Gross profit for the month was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"No prior-period or comparative figures have been provided, so no assessment of growth or decline versus earlier months can be made.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provides absolute values for gross profit, EBITDA and profit after tax for {{p:2026-05}}, being {{m:gross_profit@2026-05}}, {{m:ebitda@2026-05}} and {{m:pat@2026-05}} respectively, against revenue of {{m:revenue@2026-05}}.\"},{\"text\":\"No margin ratios (as percentages of revenue) or comparative period data have been supplied in the facts pack, so a discussion of margin levels or trends is not possible on the basis of the information available.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any working capital related figures, such as receivables, payables, inventory or cash balances, for {{p:2026-05}}.\"},{\"text\":\"In the absence of such data, no commentary on working capital position or movement can be provided for this period.\"}]}]}",
     "usage": {
       "input_tokens": 152,
       "cache_creation_input_tokens": 0,
@@ -693,9 +693,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 584,
+      "output_tokens": 710,
       "output_tokens_details": {
-        "thinking_tokens": 238
+        "thinking_tokens": 217
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -703,7 +703,7 @@
     "model": "claude-sonnet-5"
   },
   "ccbf0f9d4c7273ad050eafc5d5f206465a296ce8e6fc5c36df34c9075c332915": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}} and profit after tax was {{m:pat@2026-05}}. No prior-period or budget figures were provided in the facts pack, so no comparison or trend can be presented.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}. EBITDA of {{m:ebitda@2026-05}} and profit after tax of {{m:pat@2026-05}} are also noted against the same revenue base.\"},{\"text\":\"The facts pack does not include margin percentages, comparative-period figures, or industry benchmarks, so no commentary on margin movement or adequacy can be offered.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital—such as inventory, receivables, payables, or cash balances—were provided for {{p:2026-05}}. In the absence of such data, no commentary on working capital position or movement can be made.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. Profit after tax for the month was {{m:pat@2026-05}}.\"},{\"text\":\"No prior-period or budget figures are included in the facts pack, so no month-on-month or year-on-year comparison can be presented.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}, all on revenue of {{m:revenue@2026-05}}.\"},{\"text\":\"The facts pack does not include margin percentages or comparative figures for prior periods, so no trend or ratio commentary can be provided beyond the absolute values stated above.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital items such as receivables, payables, inventory or cash balances have been provided for {{p:2026-05}}. Commentary on working capital cannot be made on the basis of the available facts pack.\"}]}]}",
     "usage": {
       "input_tokens": 160,
       "cache_creation_input_tokens": 0,
@@ -712,9 +712,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 571,
+      "output_tokens": 541,
       "output_tokens_details": {
-        "thinking_tokens": 133
+        "thinking_tokens": 124
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -722,7 +722,7 @@
     "model": "claude-sonnet-5"
   },
   "2dc3d6823fbf6856074387beaa6e3760f6c27e9846465c47697752d1c6e69f9b": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. EBITDA for the month was {{m:ebitda@2026-05}} and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"No prior period figures or comparative movements have been provided in the facts pack, so a trend assessment against previous months cannot be made at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, against revenue of {{m:revenue@2026-05}}.\"},{\"text\":\"EBITDA of {{m:ebitda@2026-05}} and profit after tax of {{m:pat@2026-05}} are noted for the month. Margin percentages have not been separately provided in the facts pack and are therefore not stated here.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related facts (such as receivables, payables, or inventory figures) have been provided in the facts pack for {{p:2026-05}}. Accordingly, no commentary on working capital position or movement can be given.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, with EBITDA at {{m:ebitda@2026-05}} and gross profit at {{m:gross_profit@2026-05}}.\"},{\"text\":\"The facts pack does not include prior-period or budget figures for {{p:2026-05}}, so no comparison or trend commentary can be provided at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"For {{p:2026-05}}, gross profit was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}, and EBITDA was {{m:ebitda@2026-05}}.\"},{\"text\":\"The facts pack does not contain margin ratio figures (such as gross margin, EBITDA margin or PAT margin percentages) as distinct data points, so these ratios cannot be stated here.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack for {{p:2026-05}} does not include any working capital related figures, such as receivables, payables, inventory or cash conversion metrics. Consequently, no commentary on working capital can be provided for this period.\"}]}]}",
     "usage": {
       "input_tokens": 162,
       "cache_creation_input_tokens": 0,
@@ -731,9 +731,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 660,
+      "output_tokens": 651,
       "output_tokens_details": {
-        "thinking_tokens": 238
+        "thinking_tokens": 187
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -741,7 +741,7 @@
     "model": "claude-sonnet-5"
   },
   "cf03e7a2f903a9a6a22b0485e124ae16b70e00dead928d6eea20f1d085f31a1e": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"For {{p:2026-05}}, revenue from operations stood at {{m:revenue@2026-05}}. Gross profit for the period was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"No prior-period or comparative figures were provided in the facts pack, so period-on-period movement cannot be commented upon. It is also noted that a validation check (V10) raised a warning for this month, and that one month in the range was assumed rather than sourced directly from a file; the figures above should be read with this caveat.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provides absolute values for gross profit ({{m:gross_profit@2026-05}}), EBITDA ({{m:ebitda@2026-05}}) and profit after tax ({{m:pat@2026-05}}) against revenue of {{m:revenue@2026-05}} for {{p:2026-05}}. No margin percentages have been supplied as facts, so gross, EBITDA or net margins cannot be stated here.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital (such as receivables, payables, inventory or related movements) have been provided for {{p:2026-05}}. This section cannot be commented upon based on the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. Gross profit for the month was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"No comparative figures for prior periods have been provided, so no assessment of growth or decline over time can be made. It is also noted that a validation check (V10) raised a warning for this month, and that one month in the range was assumed rather than read from source files; the figures above should be read with this caveat.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Based on the figures available for {{p:2026-05}}, gross profit of {{m:gross_profit@2026-05}}, EBITDA of {{m:ebitda@2026-05}}, and profit after tax of {{m:pat@2026-05}} were reported against revenue of {{m:revenue@2026-05}}. No margin percentage facts have been supplied in the data pack, so margin ratios cannot be stated here.\"},{\"text\":\"In the absence of prior-period or budgeted figures, no trend in margins can be commented upon this month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any working capital related figures (such as receivables, payables, inventory or cash balances) for {{p:2026-05}}. Consequently, no commentary on working capital position or movement can be provided for this month.\"}]}]}",
     "usage": {
       "input_tokens": 185,
       "cache_creation_input_tokens": 0,
@@ -750,9 +750,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 874,
+      "output_tokens": 736,
       "output_tokens_details": {
-        "thinking_tokens": 376
+        "thinking_tokens": 201
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -760,7 +760,7 @@
     "model": "claude-sonnet-5"
   },
   "30349de33a5293bebbf1bbd2d279099f655d126b141ac7f71c35aad21347b41e": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"EBITDA for the month was {{m:ebitda@2026-05}} and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the reporting range was assumed rather than sourced from a file. These points should be reviewed before relying on the figures above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, against revenue of {{m:revenue@2026-05}}.\"},{\"text\":\"No margin percentage facts were provided in the pack, so gross, EBITDA and net margins cannot be stated here; only the absolute figures {{m:gross_profit@2026-05}}, {{m:ebitda@2026-05}} and {{m:pat@2026-05}} are available for the month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not include any working capital metrics (such as receivables, payables, inventory or cash conversion cycle) for {{p:2026-05}}, so no commentary can be provided on working capital for this period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. Gross profit for the month was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and the period itself was assumed rather than confirmed from source records. These figures should be read with this caveat in mind pending clarification.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provides absolute values for gross profit, EBITDA and profit after tax for {{p:2026-05}}, but does not include margin percentages or prior-period comparatives. Margin ratios and their movement cannot be presented on the basis of the data available.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital facts (such as receivables, payables, inventory or cash conversion metrics) have been provided for this period. Commentary on working capital cannot be made on the basis of the available data.\"}]}]}",
     "usage": {
       "input_tokens": 193,
       "cache_creation_input_tokens": 0,
@@ -769,9 +769,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 749,
+      "output_tokens": 718,
       "output_tokens_details": {
-        "thinking_tokens": 289
+        "thinking_tokens": 321
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -779,7 +779,7 @@
     "model": "claude-sonnet-5"
   },
   "6e5fd9136401af413e333322d56ad0a8989b8b31ede8f5a30af55f92a8fed31d": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. Gross profit for the month was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"It should be noted that one month in the reporting range was assumed rather than confirmed from source records, and a validation check (V10) has flagged an item for this month that may warrant review before the figures above are treated as final.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provides absolute values for gross profit, EBITDA and profit after tax for {{p:2026-05}}, but does not include computed margin percentages or prior-period comparatives. Accordingly, no commentary on margin trends or movements can be provided at this time.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related facts (such as receivables, payables, inventory or cash conversion metrics) have been provided for {{p:2026-05}}. In the absence of such data, no commentary on working capital position or movement can be made for this month.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"For {{p:2026-05}}, revenue from operations stood at {{m:revenue@2026-05}}. Gross profit for the month was {{m:gross_profit@2026-05}}, EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"No prior-period or budget figures were provided in the facts pack, so period-on-period movement cannot be commented upon.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the range was assumed rather than read from source files. These points should be reviewed before the figures are relied upon.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provides absolute values for gross profit ({{m:gross_profit@2026-05}}), EBITDA ({{m:ebitda@2026-05}}) and profit after tax ({{m:pat@2026-05}}) against revenue of {{m:revenue@2026-05}} for {{p:2026-05}}, but no computed margin percentages or prior-period comparatives were supplied.\"},{\"text\":\"It is noted that EBITDA exceeds gross profit for the month, which is unusual and, combined with the outstanding V10 warning, suggests the underlying figures should be verified before drawing conclusions on margin trends.\"},{\"text\":\"In the absence of percentage or comparative data, a margin commentary cannot be reliably prepared this month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not include any working capital-related figures (such as debtors, creditors, inventory or cash) for {{p:2026-05}}.\"},{\"text\":\"No commentary on working capital can be provided based on the available facts.\"}]}]}",
     "usage": {
       "input_tokens": 195,
       "cache_creation_input_tokens": 0,
@@ -788,9 +788,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 617,
+      "output_tokens": 859,
       "output_tokens_details": {
-        "thinking_tokens": 196
+        "thinking_tokens": 249
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -798,7 +798,7 @@
     "model": "claude-sonnet-5"
   },
   "41c6707e5420ade2f7dac2bb1ca00d1bbcaf47fda62fc0f9dff5837648c37616": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"Gross profit for the same period was {{m:gross_profit@2026-05}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit of {{m:gross_profit@2026-05}} was recorded against revenue of {{m:revenue@2026-05}} for {{p:2026-05}}, indicating a high proportion of revenue retained after direct costs.\"},{\"text\":\"The facts pack does not include a computed gross margin percentage or comparative period data, so no further margin trend commentary can be provided.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any working capital related figures, such as receivables, payables, or inventory, for {{p:2026-05}}. Consequently, no commentary on working capital can be given for this period.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"Gross profit for the same period was {{m:gross_profit@2026-05}}. No prior-period or budget figures are available in the facts pack, so no comparison or trend commentary can be provided.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit of {{m:gross_profit@2026-05}} was recorded against revenue of {{m:revenue@2026-05}} for {{p:2026-05}}.\"},{\"text\":\"The facts pack does not include a computed gross margin percentage or any comparative period figures, so no assessment of margin movement or trend can be made.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack contains no data relating to working capital items such as receivables, payables, inventory or cash balances for {{p:2026-05}}.\"},{\"text\":\"In the absence of such data, no commentary on working capital position or movement can be provided.\"}]}]}",
     "usage": {
       "input_tokens": 95,
       "cache_creation_input_tokens": 0,
@@ -807,9 +807,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 501,
+      "output_tokens": 621,
       "output_tokens_details": {
-        "thinking_tokens": 158
+        "thinking_tokens": 248
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -817,7 +817,7 @@
     "model": "claude-sonnet-5"
   },
   "20002a827e0f3de70b06c126618ec9aaeec0f7c22c5a0e5f998de4274ce3b9f1": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"No prior period or comparative figures were provided in the facts pack, so no month-on-month or trend commentary can be made at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}.\"},{\"text\":\"The facts pack does not include a computed gross margin percentage or comparative period figures, so no margin ratio or movement can be stated.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any working capital related figures (such as receivables, payables, inventory or cash balances) for {{p:2026-05}}. No commentary on working capital can be provided based on the information available.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"Gross profit for the same period was {{m:gross_profit@2026-05}}.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provides gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} for {{p:2026-05}}, but no gross margin percentage or other margin ratio fact has been supplied. A margin percentage is therefore not stated.\"},{\"text\":\"No data on operating expenses, operating profit, or net profit has been provided, so no further commentary on margins can be made for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not include any data relating to working capital, such as receivables, payables, inventory, or cash balances, for {{p:2026-05}}. No commentary on working capital can therefore be provided.\"}]}]}",
     "usage": {
       "input_tokens": 99,
       "cache_creation_input_tokens": 0,
@@ -826,9 +826,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 467,
+      "output_tokens": 579,
       "output_tokens_details": {
-        "thinking_tokens": 134
+        "thinking_tokens": 217
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -836,7 +836,7 @@
     "model": "claude-sonnet-5"
   },
   "24870a719f69a301e908c9533f3bb7db564d5002404f582da4b4aab5c9c565b8": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior-period or comparative figures were provided, so a trend assessment cannot be made.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}. No further cost or margin percentage facts were supplied in the pack, limiting further commentary on margin movement.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital, such as receivables, payables, or inventory, were provided for {{p:2026-05}}. This section cannot be commented upon based on the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No comparative figures or period-on-period movement have been provided in the facts pack, so no assessment of growth or decline can be made at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}. No gross margin percentage or prior-period comparison has been supplied, so the trend in margins cannot be commented upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not include any working capital metrics, such as receivables, payables, inventory or cash balances, for {{p:2026-05}}. In the absence of such data, no commentary on working capital position or movement can be provided.\"}]}]}",
     "usage": {
       "input_tokens": 101,
       "cache_creation_input_tokens": 0,
@@ -845,9 +845,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 325,
+      "output_tokens": 510,
       "output_tokens_details": {
-        "thinking_tokens": 33
+        "thinking_tokens": 182
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -855,7 +855,7 @@
     "model": "claude-sonnet-5"
   },
   "4a9f454b9d209431abd2ca5efbe4506f8a03a1a5ee3c8f1e38c7d29241407f3b": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and it should be noted that the month in the range was assumed rather than confirmed from source records. Readers should treat the figures for this period with appropriate caution pending resolution of these items.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} on revenue of {{m:revenue@2026-05}}.\"},{\"text\":\"The facts pack does not include a computed margin percentage or comparative figures for other periods, so no trend or ratio commentary can be provided at this time.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack provided does not contain any data points relating to working capital, such as receivables, payables, or inventory, for {{p:2026-05}}.\"},{\"text\":\"No commentary on working capital movements can be made until relevant facts are made available.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior period or comparative figures were provided in the facts pack, so no trend or variance commentary can be offered for this month.\"},{\"text\":\"It is noted that one month in the range was assumed rather than read from a file, and a validation check (V10) raised a warning for this month. These figures should be treated with appropriate caution until confirmed.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}. No margin ratio or comparative period fact was supplied, so a margin percentage or trend cannot be stated here.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any data on receivables, payables, inventory or other working capital items for {{p:2026-05}}. No commentary can be provided on working capital for this period.\"}]}]}",
     "usage": {
       "input_tokens": 128,
       "cache_creation_input_tokens": 0,
@@ -864,9 +864,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 521,
+      "output_tokens": 531,
       "output_tokens_details": {
-        "thinking_tokens": 140
+        "thinking_tokens": 160
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -874,7 +874,7 @@
     "model": "claude-sonnet-5"
   },
   "b026fcd1d5d2fe74c049b5c2eb35b5966fed82c75c5a07ad86bdd1d6ccba7fff": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No comparative figures for prior periods were included in the facts pack, so no month-on-month or trend commentary can be provided.\"},{\"text\":\"A validation warning (V10) was raised for this month, and one month in the range was assumed rather than read from a source file. These points should be reviewed before the figures are relied upon.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}. No gross margin percentage or comparative margin figures were provided in the facts pack, so no assessment of margin trends can be made.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital (such as receivables, payables, inventory or cash conversion) were included in the facts pack for this period. Commentary on working capital cannot be provided based on the available data.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"Gross profit for the same period was {{m:gross_profit@2026-05}}.\"},{\"text\":\"A validation check (V10) was flagged for this month, and one month in the range was assumed rather than sourced from a file; the figures above should be read with this caveat in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack provides revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}} for {{p:2026-05}}, but no margin percentage or prior-period comparison figures have been supplied, so a margin trend or ratio commentary cannot be presented.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related facts (such as receivables, payables, or inventory figures) were included in the facts pack for {{p:2026-05}}, so no commentary on working capital position or movement can be provided this month.\"}]}]}",
     "usage": {
       "input_tokens": 132,
       "cache_creation_input_tokens": 0,
@@ -883,9 +883,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 536,
+      "output_tokens": 591,
       "output_tokens_details": {
-        "thinking_tokens": 163
+        "thinking_tokens": 212
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -893,7 +893,7 @@
     "model": "claude-sonnet-5"
   },
   "02a07657f7f09b946ed97fd518fd3dcfa99663a554bda9b74a5490f3bf554399": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior-period or year-on-year comparative figures are available in the facts pack for this month, so no trend or variance commentary can be provided at this time.\"},{\"text\":\"A validation check (V10) raised a warning in respect of this month's data, and one month in the range was assumed rather than sourced directly from a file. Readers should treat the revenue figure above with this caveat in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}. The facts pack does not include a computed gross margin percentage, nor does it provide operating expenses, EBITDA, or net profit figures, so margin trends and profitability below the gross profit line cannot be commented on for this month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack contains no data on receivables, payables, inventory or other working capital items for {{p:2026-05}}. Consequently, no commentary on working capital position or movement can be provided based on the information available.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior-period or comparative figures were included in the facts pack, so no trend or variance can be reported for this month.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}}. A validation check (V10) raised a warning for this month, and the month itself was assumed rather than confirmed from source data; the gross profit figure above should be read with this caveat.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to working capital (such as receivables, payables, or inventory) were provided for this period. This section cannot be reported on with the available data.\"}]}]}",
     "usage": {
       "input_tokens": 134,
       "cache_creation_input_tokens": 0,
@@ -902,9 +902,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 620,
+      "output_tokens": 470,
       "output_tokens_details": {
-        "thinking_tokens": 191
+        "thinking_tokens": 161
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -912,7 +912,7 @@
     "model": "claude-sonnet-5"
   },
   "4df675726d558a5baf5a4ecb185ddc71305187b29f73d0fca9d94ce93ff2628e": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No comparative figures, prior period data, or trend information have been provided in the facts pack, so a period-on-period or trend-based assessment of performance cannot be made at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include cost, expense, or profit figures for {{p:2026-05}}. In the absence of this data, no assessment of gross margin, operating margin, or net margin can be provided for the period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No information relating to current assets, current liabilities, receivables, payables, inventory, or cash balances has been furnished for {{p:2026-05}}. Consequently, no commentary on the working capital position can be offered based on the available facts.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior-period or comparative figures were provided in the facts pack, so no trend or growth commentary can be offered at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include any cost, expense or profit figures for {{p:2026-05}}, and hence no margin analysis can be presented in this report.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data on receivables, payables, inventory or cash balances has been provided for {{p:2026-05}}. Consequently, working capital position and movement cannot be commented upon based on the available facts.\"}]}]}",
     "usage": {
       "input_tokens": 65,
       "cache_creation_input_tokens": 0,
@@ -921,9 +921,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 356,
+      "output_tokens": 324,
       "output_tokens_details": {
-        "thinking_tokens": 40
+        "thinking_tokens": 54
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -931,7 +931,7 @@
     "model": "claude-sonnet-5"
   },
   "df04d937f17c14819046bfcba2752ca639fd68734b209bb749566d40c2e3182b": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No comparative figures, growth rates or prior-period data have been provided, so no trend or variance commentary can be made.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include any cost, expense or profit data for {{p:2026-05}}, hence margins cannot be computed or commented upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related figures, such as receivables, payables, inventory or cash balances, have been provided for {{p:2026-05}}. Consequently, no commentary on working capital position can be made.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"No comparative figures, growth rates, or prior period data have been provided in the facts pack, so no trend or variance commentary can be made for this period.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include any cost, expense, or profitability figures for {{p:2026-05}}. In the absence of such data, no commentary on margins can be provided for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related figures, such as receivables, payables, or inventory data, have been included in the facts pack for {{p:2026-05}}. Accordingly, no commentary on working capital position can be made.\"}]}]}",
     "usage": {
       "input_tokens": 67,
       "cache_creation_input_tokens": 0,
@@ -940,9 +940,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 296,
+      "output_tokens": 335,
       "output_tokens_details": {
-        "thinking_tokens": 31
+        "thinking_tokens": 42
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -950,7 +950,7 @@
     "model": "claude-sonnet-5"
   },
   "1e7c1986daae73b59b9a42a9673746d89505e7985941ef8b0d17373c14ae7aa8": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No comparative period figures or trend data were provided in the facts pack, so a period-on-period or year-on-year assessment of performance cannot be made at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include cost, expense, or profitability figures for {{p:2026-05}}. In the absence of such data, no comment can be made on gross margin, operating margin, or net margin for the period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No information on receivables, payables, inventory, or cash balances was provided in the facts pack for {{p:2026-05}}. Consequently, no assessment of the working capital position or its movement can be provided at this time.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior period or comparative figures were provided in the facts pack, so no growth or trend commentary can be made at this time.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include cost, expense, or profit figures for {{p:2026-05}}. In the absence of such data, no commentary on gross margin, operating margin, or net margin can be provided for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data relating to receivables, payables, inventory, or other working capital items has been supplied for {{p:2026-05}}. Consequently, no assessment of working capital position or movement can be made in this report.\"}]}]}",
     "usage": {
       "input_tokens": 69,
       "cache_creation_input_tokens": 0,
@@ -959,9 +959,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 344,
+      "output_tokens": 358,
       "output_tokens_details": {
-        "thinking_tokens": 40
+        "thinking_tokens": 69
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -969,7 +969,7 @@
     "model": "claude-sonnet-5"
   },
   "44c87dde85c75badd0f47492250ffd6a0bfca70c407a20ba32e0ebc758aa1f38": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior period or comparative figures were provided in the facts pack, so no month-on-month or year-on-year movement can be commented upon.\"},{\"text\":\"It is noted that one month in the range was assumed rather than read from a source file, and a validation check (V10) raised a warning for this month. These points should be verified before the figures are relied upon.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any cost, expense, or profit figures for {{p:2026-05}}. In the absence of such data, gross margin, operating margin, or net margin cannot be computed or commented upon.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No data on receivables, payables, inventory, or cash balances has been provided for {{p:2026-05}}. Consequently, no commentary on working capital position or movement can be made based on the available facts.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"No comparative or prior-period figures were provided in the facts pack, so no trend or variance can be reported for this month.\"},{\"text\":\"A validation check (V10) raised a warning in connection with this month's data, and the period itself was assumed rather than confirmed from source records. Readers should treat the above figure with this caveat in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not include cost, expense or profit figures for {{p:2026-05}}. In the absence of such data, no gross, operating or net margin can be computed or commented upon for this period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related facts, such as receivables, payables, inventory or cash balances, were provided for {{p:2026-05}}. Consequently, no commentary on working capital position or movement can be provided.\"}]}]}",
     "usage": {
       "input_tokens": 98,
       "cache_creation_input_tokens": 0,
@@ -978,9 +978,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 432,
+      "output_tokens": 415,
       "output_tokens_details": {
-        "thinking_tokens": 76
+        "thinking_tokens": 60
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -988,7 +988,7 @@
     "model": "claude-sonnet-5"
   },
   "c0cd15d71a1bc617f7f464f396dd4efce925d8408ed4c8506bf672521861512f": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior period or budget figures were provided in the facts pack, so no comparison or trend commentary can be made.\"},{\"text\":\"It is noted that one month in the reporting range was assumed rather than read from source files, and a validation check (V10) raised a warning for this month. The underlying figures for this period should be verified before being relied upon.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"No cost, expense, or profit figures were provided in the facts pack for this period. In the absence of such data, no commentary on margins can be provided.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No working capital related figures, such as receivables, payables, or inventory, were provided in the facts pack for this period. In the absence of such data, no commentary on working capital can be provided.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"No comparative figures, prior period values or trend data were included in the facts pack, so no change or growth commentary can be provided for this month.\"},{\"text\":\"It is noted that a validation check (V10) raised a warning for this month, and that one month in the range was assumed rather than read from a source file. These points should be reviewed before the revenue figure above is relied upon.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any cost, expense, gross profit, operating profit or net profit figures for {{p:2026-05}}. In the absence of such data, no margin analysis can be presented for this section.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No information relating to receivables, payables, inventory, cash balances or other working capital items has been provided for {{p:2026-05}}. Accordingly, no commentary on working capital can be given at this time.\"}]}]}",
     "usage": {
       "input_tokens": 100,
       "cache_creation_input_tokens": 0,
@@ -997,9 +997,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 366,
+      "output_tokens": 413,
       "output_tokens_details": {
-        "thinking_tokens": 40
+        "thinking_tokens": 45
       },
       "service_tier": "standard",
       "inference_geo": "global"
@@ -1007,7 +1007,7 @@
     "model": "claude-sonnet-5"
   },
   "2e6a3e1f7335df0d69717fe10c0cf2e22dfe7ce981b1558d1e3ea60d8f4f8b49": {
-    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}.\"},{\"text\":\"A validation check (V10) raised a warning for this month, and one month in the range was assumed rather than read from a source file. These points should be reviewed before relying on the figure above.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any cost, expense or profit figures for {{p:2026-05}}. In the absence of such data, no commentary on margins can be provided.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No facts relating to receivables, payables, inventory or cash balances for {{p:2026-05}} are available in the pack. Working capital commentary cannot be prepared on the basis of the data provided.\"}]}]}",
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} stood at {{m:revenue@2026-05}}. No prior period or comparative figures are available in the facts pack, so no change or trend can be commented upon.\"},{\"text\":\"A validation warning (V10) was raised for this month, and the month itself was assumed rather than confirmed from source records. These points should be verified before the figures are relied upon.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The facts pack does not contain any cost, expense or profit figures for {{p:2026-05}}. In the absence of such data, no comment can be made on gross margin, operating margin or profitability for the period.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"No information on receivables, payables, inventory or cash balances has been provided for {{p:2026-05}}. Consequently, the working capital position cannot be assessed from the available facts.\"}]}]}",
     "usage": {
       "input_tokens": 102,
       "cache_creation_input_tokens": 0,
@@ -1016,9 +1016,9 @@
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 335,
+      "output_tokens": 377,
       "output_tokens_details": {
-        "thinking_tokens": 39
+        "thinking_tokens": 44
       },
       "service_tier": "standard",
       "inference_geo": "global"

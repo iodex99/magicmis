@@ -472,7 +472,10 @@ export function commentaryDataset(limit = 60): EvalItem<GenerateCommentaryInput,
           warnings: [...pack.warnings],
         },
         sections: ["Performance", "Margins", "Working capital"],
-        allowlist: [],
+        // The check identifiers a warned month carries, exactly as the job passes them
+        // (packages/jobs/src/commentary.ts). Without them the model is asked to mention a
+        // warning and then failed for writing its name.
+        allowlist: m.warnings.length === 0 ? [] : ["V10"],
       },
       label: null,
     };
@@ -722,18 +725,56 @@ const QUICK_QUESTIONS: readonly { id: string; question: string; label: ScopeLabe
     label: "out_of_scope",
   },
 ];
+/**
+ * A full month's figures, because in the product the pack is retrieved for the question.
+ *
+ * The first commentary month carries seven metrics, and eleven of the in-scope questions ask
+ * about something else — depreciation, tax, creditor days. Asked against a pack that thin, a
+ * small model reads "there is nothing here about that" as "that is not my subject" and refuses,
+ * which scored the scope call rather than the scope rule. Four questions are still deliberately
+ * unanswerable (a party, a branch, a product line, a headcount): no MIS pack holds those, the
+ * right reply is to say so and offer a Deep question, and that is still in scope.
+ */
+const CHAT_FACTS_METRICS: readonly string[] = [
+  "revenue",
+  "gross_profit",
+  "gross_margin_pct",
+  "ebitda",
+  "pat",
+  "direct_costs",
+  "employee_cost",
+  "other_opex",
+  "depreciation",
+  "finance_cost",
+  "tax",
+  "receivables",
+  "payables",
+  "inventory",
+  "cash_and_bank",
+  "dso",
+  "dpo",
+];
+
 export function chatQuickDataset(limit = 60): EvalItem<ChatQuickInput, ScopeLabel>[] {
-  const month = COMMENTARY_MONTHS[0];
-  const facts =
-    month === undefined
-      ? []
-      : buildFactsPack({
-          period: PERIOD,
-          store: month.store,
-          materiality: { pct: "0.05", absMinor: "0" },
-          warnings: [],
-          conventions: INDIAN_REPORTING,
-        }).facts;
+  const store: MetricValue[] = [];
+  CHAT_FACTS_METRICS.forEach((id, i) => {
+    const unit = id.endsWith("_pct")
+      ? "percent"
+      : id === "dso" || id === "dpo"
+        ? "days"
+        : undefined;
+    const amount = ((100 - i * 4) * 1_000_00).toString();
+    store.push(unit === undefined ? value(id, amount) : value(id, amount, unit));
+    store.push(value(`${id}.mom_abs`, (12 * 1_000_00).toString()));
+    store.push(value(`${id}.mom_pct`, "8.400000", "percent"));
+  });
+  const facts = buildFactsPack({
+    period: PERIOD,
+    store,
+    materiality: { pct: "0.05", absMinor: "0" },
+    warnings: [],
+    conventions: INDIAN_REPORTING,
+  }).facts;
   return QUICK_QUESTIONS.slice(0, limit).map((q) => ({
     id: q.id,
     input: {

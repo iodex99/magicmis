@@ -1,0 +1,946 @@
+{
+  "07d0d875d6990bc5bddfcf79445bd85e22e924ffcb8c20ba4efcd38f14b58ae7": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Six-column structure with opening balance, transactions, and closing balance split into debit and credit columns. Particulars column shows standard account groups and ledgers across the full chart of accounts including capital, loans, current liabilities, and tax accounts, covering unrelated natures typical of a complete trial balance.\"}]}",
+    "usage": {
+      "input_tokens": 1952,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 99,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ed37aa5148047fc673b21ac203a0b6c448e5791856b1cfbae85a968cdf10ed1c": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Two panels side by side with matching totals. Left panel shows purchase accounts and expenses; right panel shows sales accounts. Structure and content match a profit and loss statement laid out in two halves with expenses on the left and income on the right.\"}]}",
+    "usage": {
+      "input_tokens": 1871,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 81,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "95daa112363fa5ad491da02253f129fc98cf87747f0c8851f7049fb46f9e4664": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"balance_sheet\", \"confidence\": \"high\", \"reason\": \"Two-panel statement layout with Particulars column repeated midway. Left panel shows liabilities (Capital, Loans, Current Liabilities) and right panel shows assets (Fixed Assets, Current Assets). This is the standard balance sheet format exported from Tally.\"}]}",
+    "usage": {
+      "input_tokens": 2024,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 91,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "1ad1b0c3b5953614178f595fc9c81e2e412ae0373885a9df82510f6d2331113e": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"group_summary\", \"confidence\": \"high\", \"reason\": \"All rows are specific business names (customers or parties) rather than standard account groups. The debit-only balances indicate these are members of a single receivables or assets group. The structure and naming pattern is consistent with a group summary of individual parties, not a trial balance spanning multiple unrelated account natures.\"}]}",
+    "usage": {
+      "input_tokens": 1737,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 100,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "7b20d84498c8ec7aaace488b6998933e1d4f9a7bbcc714bb558059f49a118c34": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Columns show Date, Particulars, Voucher Type, Voucher Number, Debit Amount and Credit Amount. Rows span multiple voucher types (Purchase, Sales, Payment) across different dates with line-by-line detail of each transaction including tax components. This is characteristic of a day book covering all vouchers posted across the period.\"}]}",
+    "usage": {
+      "input_tokens": 1920,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 103,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ec43a678ca880ef7b2869dff15799aa86082627062d5b235a8ddbaa20ea85a3e": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"ledger_vouchers\", \"confidence\": \"high\", \"reason\": \"Single ledger with opening balance, individual dated vouchers with types and numbers, and closing balance. Structure follows a cash or bank account ledger with debit opening, credit transactions, and debit closing balance.\"}]}",
+    "usage": {
+      "input_tokens": 1820,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 81,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a79c5432ddd211780363575be60e767f2498292a31cd8967897d80b2cda78b45": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"sales_register\", \"confidence\": \"high\", \"reason\": \"Invoice-level register with dates, customer names, sales invoice numbers, GST registration numbers, and taxable value split by CGST, SGST and IGST columns with gross totals. Structure matches a sales register export from TallyPrime.\"}]}",
+    "usage": {
+      "input_tokens": 2369,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 91,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "2c8cd640b50104879eae85fcc9a05757a0b0962c5e66d2f1514da1981d73f207": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level purchase register with supplier names, GST components (CGST, SGST, IGST), taxable value and gross total across multiple suppliers\"}]}",
+    "usage": {
+      "input_tokens": 1955,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 63,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "c78697b4c38693a0b782e1e461988db5c26dfcd0bec44b3b15c21cd6223e3ea3": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Sheet shows outstanding invoices with customer names, invoice references, amounts marked Dr (indicating amounts owed to the business), due dates, and overdue days. This is characteristic of a bills receivable report.\"}]}",
+    "usage": {
+      "input_tokens": 2030,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 72,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "2cc5d227340626a9581730795a7821c83fc711930ffd8dece75eb15ebe899880": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"bills_payable\", \"confidence\": \"high\", \"reason\": \"Outstanding bills with due dates, party names that are suppliers, and amounts marked Cr indicating amounts owed by the business\"}]}",
+    "usage": {
+      "input_tokens": 1826,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 61,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "7dcb8684da7eb52fc2938765e167d626d63eedbc9cedfc468acc1da57e42b046": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"stock_summary\", \"confidence\": \"high\", \"reason\": \"Columns show item names with closing quantity, rate per unit, and total value. Rows list individual stock items with their current quantities and valuations, typical of a stock summary or inventory report.\"}]}",
+    "usage": {
+      "input_tokens": 1732,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 76,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "fd60abc5d1016e378555ac008d8af6d147b8ac9bef8e2d804aa2fed14782e61e": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"pay_sheet\", \"confidence\": \"high\", \"reason\": \"Columns for employee name, designation, and salary components including Basic, HRA, Gross Earnings, PF, TDS and Net Pay arranged per employee row is characteristic of a pay sheet structure.\"}]}",
+    "usage": {
+      "input_tokens": 1851,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 78,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "245d5c53f6792839a35e896796b24b59e17803c85135aa5f520b9d5caea97d1e": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Closing balance columns with debit and credit sides, a Level column indicating account hierarchy, and rows spanning multiple unrelated account groups from capital through liabilities and taxes across the chart of accounts\"}]}",
+    "usage": {
+      "input_tokens": 1846,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 67,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a7046a201a321e21b3e321b0adecf6c2a477c1aabb6e1626a6b1865444c22be2": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Columns show closing balance split into debit and credit. Rows span unrelated account groups: capital, loans, current liabilities, and tax accounts. This breadth across different natures of accounts is characteristic of a trial balance rather than a group summary.\"}]}",
+    "usage": {
+      "input_tokens": 1744,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 82,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "4cd3b41c8daa54713d2a16bbb52ae05aac4d293b026a186ebd41e5347b86c038": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Single Particulars column with Closing Balance amounts marked Dr or Cr. Covers multiple account groups from different natures: capital, loans, current liabilities, and their sub-ledgers. Characteristic structure of a trial balance covering the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 1853,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 91,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "90802de49effe37d1c3c898d55aa77eda81dab69c00f26f81803a063905fdb05": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Headers show opening balance, transactions and closing balance split into debit and credit columns. Rows span unrelated account groups including capital, loans, current liabilities, duties and taxes, provisions, sundry creditors and fixed assets, indicating the complete chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 2013,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 90,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "d02c4c6ee29a6666d54cd8b7bede8749d189210bf311b0ee6cabf0cbeb9488bb": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Closing balance columns split into debit and credit, with account groups and ledgers spanning multiple natures including capital, liabilities, and tax accounts across the entire chart of accounts\"}]}",
+    "usage": {
+      "input_tokens": 1790,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 72,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "92eaf0ed3c5f4af8f2b07c1c1b1f7da1a320140279629ced54173c05d7cec1da": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"The sheet displays closing balances across multiple unrelated account groups—Capital Account, Loans (Liability), and Current Liabilities—with their constituent ledgers indented beneath. This breadth across different natures of accounts (capital, liabilities, taxes) with standard group and ledger names is characteristic of a trial balance rather than a group summary, which would contain only members of a single account group.\"}]}",
+    "usage": {
+      "input_tokens": 1824,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 113,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a78e6994b1c826215ef0e444ff28f612d313d9c2b67d0092a6d90610d644563f": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Two-panel statement layout with Income on the left and hierarchically nested expense categories including Sales Accounts, Purchase Accounts, Direct Expenses, and Indirect Expenses with sub-items, characteristic of a Profit and Loss statement exported from TallyPrime with opening balances or transactions shown alongside closing amounts.\"}]}",
+    "usage": {
+      "input_tokens": 1793,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 96,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "c4ecdb7166df701a9de963feac335eedccd51a4e982b3537c33582e4d170d607": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"day_book\", \"confidence\": \"high\", \"reason\": \"Multiple vouchers across different types (Payment, Sales, Purchase) dated over a period, with debit and credit columns showing transaction details including parties and ledger postings. This is characteristic of a day book that records all vouchers for a date range.\"}]}",
+    "usage": {
+      "input_tokens": 1933,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 88,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "d3aa2cf80dde32a442d21732544d721bedb4d2aec94d7fc0e7cf218df0dd21fd": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Headers show opening balance, transactions, and closing balance split into debit and credit columns. Rows span multiple unrelated account groups: capital, loans, duties and taxes, provisions. This is a whole-of-books trial balance, not a single group summary.\"}]}",
+    "usage": {
+      "input_tokens": 1937,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 90,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6e66be4aae717c7ae906c5cb5671d6140785da57c789f4f8ff5232426c350dc0": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Two side-by-side panels with repeating Particulars columns: left side shows expenses (Direct Expenses, Indirect Expenses, Nett Profit) and right side shows income (Sales Accounts). Structure and content are consistent with a profit and loss account laid out in two halves with matching totals.\"}]}",
+    "usage": {
+      "input_tokens": 1829,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 98,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ff8fcf561fb310bab3af207c3920b521f7a4094d8de3fd375541377f0e562c15": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"balance_sheet\", \"confidence\": \"high\", \"reason\": \"Two panels side by side with Particulars repeated: left side shows Capital, Loans and Current Liabilities (typical balance sheet liabilities); right side shows Fixed Assets and Current Assets. This is the standard two-panel layout Tally uses for balance sheets.\"}]}",
+    "usage": {
+      "input_tokens": 1994,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 91,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "7850eda3a1ea612839c218ec09170bdd50d0111e49fd79a996f83e8888464a93": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"high\",\"reason\":\"All rows are specific business party names rather than standard account groups, with amounts appearing only in the debit column, indicating members of a single group such as Sundry Debtors sharing the same nature\"}]}",
+    "usage": {
+      "input_tokens": 1689,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 71,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "c49c04b2960089674b91d5e25710de42d79dddda88213b9ae74edbc9687e88dd": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"day_book\", \"confidence\": \"high\", \"reason\": \"Vouchers from multiple ledgers (Aurora Retail Ventures, Professional Fees, Office Rent, Subcontracted Services) across different voucher types (Sales, Payment, Purchase) with debit and credit columns, showing a period's transactions in date order.\"}]}",
+    "usage": {
+      "input_tokens": 1911,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 92,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "877841ae6af6d81dfe68be40f82d9f28674f7593da48b92aa8af9ccfc0ed21a2": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"ledger_vouchers\", \"confidence\": \"high\", \"reason\": \"Sheet shows a single ledger with opening balance, dated vouchers with types and numbers, and closing balance. The structure of transaction rows between opening and closing balances with debit and credit columns is characteristic of ledger vouchers.\"}]}",
+    "usage": {
+      "input_tokens": 1823,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 85,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "1b1da25b4c629fd2d49c1fd387b4bf214b754d60ff987970f5e5ebcba899469e": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level register with party names, voucher numbers, GSTIN identifiers, and columns for taxable value split into CGST, SGST and IGST components, along with gross totals. Structure and content match a sales register export.\"}]}",
+    "usage": {
+      "input_tokens": 2037,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 83,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "3909e7fa7825ee1dc13e1a034bf84da2ef23716a687ffa0dc28c853f37687c17": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Date, Particulars, Voucher Type, Voucher Number, GSTIN, Taxable Value and GST component columns. Sample rows show purchase invoices with supplier names and tax-split amounts.\"}]}",
+    "usage": {
+      "input_tokens": 1782,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 74,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "d7fa2225ba4b0c8ba280ea6f3573473722835c330ff1d078cfb5024787d99ea9": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"bills_receivable\", \"confidence\": \"high\", \"reason\": \"Outstanding bills with party names, due dates, and overdue tracking. All amounts marked Dr indicate debts owed to the business by customers.\"}]}",
+    "usage": {
+      "input_tokens": 1868,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 66,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "fc04081a9e58453f6decc58564fb7d1f062b0a07bd1eba3d518703083f0af8f6": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"bills_payable\", \"confidence\": \"high\", \"reason\": \"Columns show outstanding bills with party names, amounts marked Cr (owed by the business), due dates and overdue tracking, which is the structure of a payable register.\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 74,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5d8dab6c33fac8765fb983ba3f8808e1d00a73056eb8e37b519b6c59a316db13": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"pay_sheet\", \"confidence\": \"high\", \"reason\": \"Rows list employees with salary components including basic pay, allowances, gross earnings, and deductions such as PF and TDS, culminating in net pay.\"}]}",
+    "usage": {
+      "input_tokens": 1893,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 70,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "299b5006c60207c18fb0c198bdc6d1c47e84f9a92037944e36fff0b629fc9244": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Closing Balance columns split into Debit and Credit, Level column for indentation depth, and rows spanning multiple unrelated account groups from capital and liabilities through duties and taxes, which is characteristic of a complete trial balance rather than a single group\"}]}",
+    "usage": {
+      "input_tokens": 1845,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "29efebe9d94eec0ca6fe4360963663bb3d467c469f5765429c2da76e98380896": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Three-column layout with Particulars and separate Closing Balance Debit and Credit columns. Rows span unrelated account groups — capital, loans, and current liabilities with sub-accounts — which is characteristic of a trial balance covering the whole chart of accounts rather than one group opened up.\"}]}",
+    "usage": {
+      "input_tokens": 1741,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 97,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "1d963870947884625acbb66c443238e4bccdaae15cfc8adad39f7f9b0ddcc082": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Particulars column shows account groups and ledgers spanning unrelated natures: capital, loans, duties and taxes, provisions. Multiple ledgers under different groups with amounts marked Dr or Cr indicates a trial balance covering the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 1852,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "1e6c62052d1d8c279c018966a252aa72f7cce5810b7934154c07a7318886dc7e": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Headers show opening balance, transactions, and closing balance split into debit and credit columns. Particulars column lists unrelated account groups and their ledgers including Capital Account, Bank accounts, Duties & Taxes, Fixed Assets, Sundry Creditors, and Cash, spanning the full chart of accounts across different natures. This is characteristic of a trial balance covering the whole set of books, not a single group.\"}]}",
+    "usage": {
+      "input_tokens": 2027,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 116,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "3bc81e608d7ce09b901addc866d7104a1b89d6a18293efa3581c3f23ea4f0fa1": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Closing balance columns with debit and credit split covering multiple unrelated account groups including Capital, Loans, and Current Liabilities across the chart of accounts\"}]}",
+    "usage": {
+      "input_tokens": 1788,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 61,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "d62d144f92a5f1c639af7df4bfcc5970b7ebcd7ca923c0ca27ca7b73f7048ca4": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Columns show closing balance split into debit and credit. Row structure spans multiple account groups: capital, loans, current liabilities with hierarchical nesting of standard ledger names under group headings. This breadth across unrelated natures is characteristic of a trial balance rather than a single group opened up.\"}]}",
+    "usage": {
+      "input_tokens": 1823,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 99,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "218fae22a070a4c6b6310b5181272de731e2c95f816ea4dbad10c65035fcb889": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"profit_and_loss\", \"confidence\": \"high\", \"reason\": \"The sheet displays income and expenses organized in a hierarchical structure with Sales Accounts and Professional Fees as income, followed by Direct Expenses and Indirect Expenses with sub-categories. This is the typical format of a profit and loss statement showing revenue and expenditure items.\"}]}",
+    "usage": {
+      "input_tokens": 1785,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 94,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8c661f31990b627ac4e214d341a479818102b7bbf33aca3646e6e1d4bfd28d87": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Columns show Date, Particulars, Voucher Type and Number, with Debit and Credit amounts. Rows span multiple unrelated ledgers across sales, payments, and purchases with supporting detail lines, characteristic of a day book or journal export showing all vouchers across accounts for a period.\"}]}",
+    "usage": {
+      "input_tokens": 1940,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 91,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5a9443b5c179cb30f572bbeb71807966f063ebeb93b415bb4ed3d60be4cdacae": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Headers show opening balance, transactions, and closing balance split into debit and credit columns across the full chart of accounts. Rows span multiple unrelated account groups including capital, loans, and current liabilities, which is characteristic of a trial balance rather than a single group summary.\"}]}",
+    "usage": {
+      "input_tokens": 1956,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 85,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "59440bd0eec9e6c38c16e00101f2060eafb31c46d2d9d971c9cc8fd72d23b9ca": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"profit_and_loss\", \"confidence\": \"high\", \"reason\": \"Two panels side by side with Particulars columns repeated. Left panel shows expenses including purchases, direct and indirect expenses. Right panel shows income and loss. Headers repeat at column four indicating a statement laid out in two halves. Expense categories on left match income statement structure.\"}]}",
+    "usage": {
+      "input_tokens": 1867,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 94,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "bd23a14674868807364926f40e3d43fb2012d45daac2fe62b07e7be1f5de443c": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"balance_sheet\", \"confidence\": \"high\", \"reason\": \"Two panels side by side with repeated Particulars headers. Left panel shows liabilities (Capital, Loans, Current Liabilities) and right panel shows assets (Fixed Assets, Current Assets including Bank, Cash, Stock, Debtors), the standard layout of a balance sheet.\"}]}",
+    "usage": {
+      "input_tokens": 2003,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 95,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b3546d53b1d9fcd3c444c45303f51eeb3d349c59a75871a2a971cd45cd1915de": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"high\",\"reason\":\"The Particulars column lists specific business party names rather than standard account groups. All amounts appear on the debit side only, consistent with members of a single group sharing the same nature. The structure and naming pattern indicates this is one account group opened up, not a full trial balance.\"}]}",
+    "usage": {
+      "input_tokens": 1688,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "133ce48368e56184a745156da8cac3e4dcd19271ba620b416ab39a8bdf0dd14d": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"day_book\", \"confidence\": \"high\", \"reason\": \"Vouchers across multiple ledgers for a period, with dates, voucher types and numbers, debit and credit amounts in detail rows beneath each transaction header.\"}]}",
+    "usage": {
+      "input_tokens": 1924,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 69,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "026ad3a3baa9f28f2ffbe7dbf9c2c4a598e9def692cc01722cefb120be370888": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"ledger_vouchers\", \"confidence\": \"high\", \"reason\": \"Single ledger with opening balance, dated vouchers posted with debit and credit columns, and closing balance. Voucher type and number columns indicate individual transactions. The structure shows all transactions affecting one account over a period.\"}]}",
+    "usage": {
+      "input_tokens": 1818,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 83,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "3630b3eab6ba58b23f69f700b72bbc1e3b4abaf42c087139ea5545e2cb6db102": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level sales register with party names, voucher numbers, taxable values and GST columns (CGST, SGST, IGST) showing gross totals for each transaction.\"}]}",
+    "usage": {
+      "input_tokens": 2030,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 70,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5d5cd26c99d595291c06b2f8cb82da6adda848688f8fa6cfe6493fdd0f7fd0a6": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level purchase register with dates, supplier names, voucher numbers, GSTINs, taxable values and GST components (CGST, SGST, IGST) for individual purchase invoices.\"}]}",
+    "usage": {
+      "input_tokens": 1898,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 75,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "80ea014a6189381d25e31cc09fedda2fdcbf7b0347151afd146241288591b9f8": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Outstanding invoices with amounts marked Dr (owed to business), customer party names, invoice references, due dates and overdue days tracking. Structure matches a receivable bills register.\"}]}",
+    "usage": {
+      "input_tokens": 1859,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 66,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "06a5acce35f4b4b229e45d4cd21d5c71fd40c638e9f215c826ad1c8b7d02bf0b": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills with supplier names, due dates and overdue days. Amounts marked Cr indicate amounts owed by the business to suppliers.\"}]}",
+    "usage": {
+      "input_tokens": 1795,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 58,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "46c363353f83f2a88d7358b9eb13caffeead35f77ceee5e6c980ec783e88f8f2": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"stock_summary\", \"confidence\": \"high\", \"reason\": \"Sheet contains inventory items with quantity in specific units, rate per unit, and total value. The columns and data structure match stock summary format with product names and closing quantities.\"}]}",
+    "usage": {
+      "input_tokens": 1705,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 70,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b2cad2c6a087fbd2ea9b558af5b2a4c8df3e7327067962d087425453ec2b9148": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"pay_sheet\", \"confidence\": \"high\", \"reason\": \"Columns show employee names, designations, and salary components including basic pay, allowances, gross earnings, deductions like PF and TDS, and net pay. This is a standard payroll statement format.\"}]}",
+    "usage": {
+      "input_tokens": 1893,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 80,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6d6acd277dd3a9322e5a6ce76b18c911ee32f49a4acb8f973b8f3a1896a9f374": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Hierarchical structure with Level column indicating indentation depth, multiple unrelated account groups (Capital Account, Loans, Current Liabilities) with their component ledgers. Closing Balance split into Debit and Credit columns. Contains both credit-side items like liabilities and debit-side items, characteristic of a full trial balance covering the chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 1844,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 111,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8d805ed7236e4159179b953b11caf731dc448b57fcd4f4f90525fe6ca207d044": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Headers show Closing Balance Debit and Credit columns across all accounts. Rows span multiple unrelated account groups: Capital Account, Reserves & Surplus, Loans, and Current Liabilities with their constituent ledgers, which is characteristic of a complete trial balance covering the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 1741,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 98,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8422be0957d1ed2538d2c136ce22e95162de99380a294a91a2010e3bdb8bcdf3": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"trial_balance\", \"confidence\": \"high\", \"reason\": \"Single Particulars column with Closing Balance showing Dr/Cr suffixes. Headers span capital, loans, liabilities and tax accounts across the chart of accounts, indicating a complete trial balance rather than a single group.\"}]}",
+    "usage": {
+      "input_tokens": 1851,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 81,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ea13ace9ab8f20ab33224764321f09a8168539d4b76acae56f95ffbd37aad86e": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Columns show opening balance, transactions, and closing balance split into debit and credit. Rows span multiple unrelated account groups—capital, reserves, loans, duties and taxes, provisions, creditors, fixed assets, and bank accounts—which is characteristic of a complete trial balance covering the whole chart of accounts rather than a single group.\"}]}",
+    "usage": {
+      "input_tokens": 2026,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 98,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "e677cebef913f79cb2b95d9a8a5495fcd14f3516e4e1af8d24248fc225903379": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Two-column format with Closing Balance Debit and Credit columns. Sample rows span multiple unrelated account groups including capital, loans, and current liabilities across the whole chart of accounts, which is characteristic of a trial balance rather than a group summary.\"}]}",
+    "usage": {
+      "input_tokens": 1794,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 81,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "25b2eaf60128f9e8e69f3ad0228639e6b73ea22ad37b29af716409834a9bb722": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Sheet shows account groups and ledgers across multiple natures including capital, loans, liabilities and tax accounts with closing balances in debit and credit columns, characteristic of a complete trial balance rather than a single group summary\"}]}",
+    "usage": {
+      "input_tokens": 1822,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 73,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "7f06cc29e3db58415883b19c5388eb39694b97ad6f5b8279e53dffb67461e4b7": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Statement shows income section with sales and expenses section with purchases, direct and indirect expenses structured hierarchically, typical of profit and loss account layout\"}]}",
+    "usage": {
+      "input_tokens": 1785,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 58,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6c9d343bacec5e32d21ebba826e431176857bc01b21dd8a1f386d3c510eebced": {
+    "text": "{\"sheets\": [{\"ref\": \"s1\", \"report_type\": \"day_book\", \"confidence\": \"high\", \"reason\": \"Chronologically ordered vouchers across multiple ledgers with date, voucher type and number columns, showing debit and credit amounts for different accounts and expense types\"}]}",
+    "usage": {
+      "input_tokens": 1923,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 68,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  }
+}
