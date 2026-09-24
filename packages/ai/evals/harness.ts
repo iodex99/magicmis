@@ -76,6 +76,8 @@ export interface EvalReport {
   readonly p50LatencyMs: number | null;
   readonly failures: readonly { id: string; reason: string }[];
   readonly evalRunId: string;
+  /** True when `maxSpendMicroUsd` stopped the run before the dataset was finished. */
+  readonly stoppedOnBudget: boolean;
 }
 
 interface StageEval<I, O, L> {
@@ -453,6 +455,13 @@ export async function runEval(input: {
   /** Required for live mode. */
   liveTransport?: AiTransport;
   recordingPath?: string;
+  /**
+   * Hard ceiling for the whole run, in micro-USD. The per-item budget inside `runStage` bounds
+   * one call; this bounds the run, which is what a person with a fixed balance actually cares
+   * about. When it is reached the run stops and says so rather than carrying on — a short run
+   * cannot be activated anyway (`ai.eval_min_items`), so stopping loses nothing but spend.
+   */
+  maxSpendMicroUsd?: bigint;
 }): Promise<EvalReport> {
   const def = STAGE_EVALS[input.stage] as unknown as StageEval<unknown, unknown, unknown>;
   const items = def.dataset(input.limit ?? 60);
@@ -508,10 +517,15 @@ export async function runEval(input: {
   let cost = 0n;
   const latencies: number[] = [];
   const failures: { id: string; reason: string }[] = [];
+  let stoppedOnBudget = false;
 
   for (const item of items) {
     current = item;
     const started = Date.now();
+    if (input.maxSpendMicroUsd !== undefined && cost >= input.maxSpendMicroUsd) {
+      stoppedOnBudget = true;
+      break;
+    }
     try {
       const result = await runStage(
         {
@@ -544,7 +558,13 @@ export async function runEval(input: {
 
   if (input.mode === "live" && input.recordingPath !== undefined) {
     await mkdir(path.dirname(input.recordingPath), { recursive: true });
-    await writeFile(input.recordingPath, JSON.stringify(recording, null, 2));
+    // Trailing newline: recordings are committed as the evidence behind an activation
+    // (R-28), so they go through the same format gate as everything else in the tree.
+    await writeFile(
+      input.recordingPath,
+      `${JSON.stringify(recording, null, 2)}
+`,
+    );
   }
 
   latencies.sort((a, b) => a - b);
@@ -573,6 +593,7 @@ export async function runEval(input: {
     mode: input.mode,
     oracle,
     items: safeUnits,
+    stoppedOnBudget,
     correct,
     accuracy: `${s.slice(0, -4)}.${s.slice(-4)}`,
     costMicroUsd: cost,

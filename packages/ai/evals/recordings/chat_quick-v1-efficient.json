@@ -1,0 +1,898 @@
+{
+  "0bfa19872a78be748e168f916b05448d7f1fa3b20468f69e9f2b99061dc9452d": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Revenue from operations in {{p:2026-05}} was {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} compared to the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ea17664a8651b638ee2b8f19b22583d8d30f33f90ec90aa44b6307e0206d1834": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Profit after tax in {{p:2026-05}} is up {{mv:pat.mom@2026-05:abs}} or {{mv:pat.mom@2026-05:pct}} on the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 70,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "36cd4ddc3dfcf8dd1a55f629eef25e58925f5d4468a6744299b871f7ca44bc15": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Trade receivables increased by {{mv:receivables.mom@2026-05:abs}} or {{mv:receivables.mom@2026-05:pct}} in {{p:2026-05}}, reaching {{m:receivables@2026-05}}. This movement aligns proportionally with the revenue increase of {{mv:revenue.mom@2026-05:pct}}, indicating that the receivables growth reflects higher sales activity during the period.\"}]}",
+    "usage": {
+      "input_tokens": 1377,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 121,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6f9c21a70cb1f55c24199963cc65b55dcc7bed1f8aae667426c9eb7d0d2a7c89": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios that the available facts support.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 47,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "c51934b7be2cfefbcf99e651f1f547c01a9a2020236b980df7299d0bacfcf819": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Gross margin did not improve. While gross profit increased by {{mv:gross_profit.mom@2026-05:pct}}, revenue increased by the same percentage ({{mv:revenue.mom@2026-05:pct}}), indicating that gross margin remained flat month-on-month in {{p:2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1376,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 97,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "cfbe10c507cfe93ac1485f78b680ad97231821782d4cfc2433ad2ffee8c86046": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"EBITDA did not fall in {{p:2026-05}}. Instead, EBITDA increased by {{mv:ebitda.mom@2026-05:abs}} or {{mv:ebitda.mom@2026-05:pct}}, reaching {{m:ebitda@2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 97,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5842e8b31b10cbbb01d1c14757f22bc262745c6c284087e72be4096e51be60aa": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Cash and bank balance in {{p:2026-05}} was {{m:cash_and_bank@2026-05}}, an increase of {{mv:cash_and_bank.mom@2026-05:abs}} from the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 78,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ba82dabfd2feb2942062ea784a08fa44262e29003772b9471cd4707bf1333466": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Yes. Trade payables increased by {{mv:payables.mom@2026-05:abs}} in {{p:2026-05}}, representing a {{mv:payables.mom@2026-05:pct}} rise from the previous month, reaching {{m:payables@2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 92,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "29a950e01c9fae7c9e515414605509d3504ba0a650e22bff1f6b5136197147ac": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Gross profit increased by {{mv:gross_profit.mom@2026-05:abs}} in {{p:2026-05}}, a {{mv:gross_profit.mom@2026-05:pct}} rise from the previous month. This movement is driven by revenue from operations, which grew by {{mv:revenue.mom@2026-05:abs}} over the same period. The consistent percentage increase across revenue, gross profit, EBITDA, and profit after tax suggests proportional growth in sales without significant changes in the cost structure or operating expenses.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 142,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "eb6c96d41267ef282907d499e1911de1d5e16ae9cc9f742dd36e7ff64e072ba1": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this MIS's figures, movements and ratios based on the available data.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 44,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "9425741888887d06499bb5a8a229c5a4f34a379fe566f4e8c168a968d4609394": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Debtor days cannot be calculated from the current month's figures alone. This metric requires both trade receivables and daily revenue (typically computed as monthly revenue divided by days in the period). While {{m:receivables@2026-05}} is available, the calculation needs the number of days in {{p:2026-05}} which is not provided in the MIS. Suggest a Deep question to review the detailed receivables ageing and revenue composition for this period.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 121,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "997addab05c2378f517f9531341f0b6c95a6d044c04a59c60988c7c372abece1": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Trade payables in {{p:2026-05}} are {{m:payables@2026-05}}. To calculate days payable outstanding (DPO), we would need the cost of goods sold or purchases figure for the period, which is not available in the current facts. Please raise a Deep question to examine the purchase ledger and calculate the average payment cycle to suppliers.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 103,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b43e4b2f68ea39495cce4e8e47068ef8ca6609e965a340180ed86b4a5e59e097": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Working capital in {{p:2026-05}} comprises {{m:receivables@2026-05}} in trade receivables and {{m:cash_and_bank@2026-05}} in cash and bank, offset by {{m:payables@2026-05}} in trade payables. Both receivables and payables grew by {{mv:receivables.mom@2026-05:pct}} month-on-month, maintaining a consistent ratio. Cash increased by {{mv:cash_and_bank.mom@2026-05:pct}} in the same period, indicating that working capital elements expanded proportionally alongside revenue growth of {{mv:revenue.mom@2026-05:pct}}.\"}]}",
+    "usage": {
+      "input_tokens": 1377,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 178,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "0e88e2f326d197c98f8c2880b5adb3dc0c509541a8b14169baf1fa0892c936b9": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"Profit after tax in {{p:2026-05}} was {{m:pat@2026-05}}, representing an increase of {{mv:pat.mom@2026-05:abs}} or {{mv:pat.mom@2026-05:pct}} from the preceding month.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "906ccc53fe86fe23387f8ce0cabd38634344ae80bfd8c77a37ce7e905b136665": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"In {{p:2026-05}}, Synthetic Hardware Traders showed consistent growth across all metrics. Revenue from operations increased by {{mv:revenue.mom@2026-05:abs}}, representing {{mv:revenue.mom@2026-05:pct}} growth month-on-month, reaching {{m:revenue@2026-05}}.\"},{\"text\":\"Profitability metrics grew proportionately. Gross profit rose by {{mv:gross_profit.mom@2026-05:abs}} to {{m:gross_profit@2026-05}}, while EBITDA increased by {{mv:ebitda.mom@2026-05:abs}} to {{m:ebitda@2026-05}}. Profit after tax grew by {{mv:pat.mom@2026-05:abs}} to {{m:pat@2026-05}}.\"},{\"text\":\"Balance sheet items expanded uniformly. Trade receivables increased by {{mv:receivables.mom@2026-05:abs}} to {{m:receivables@2026-05}}, trade payables rose by {{mv:payables.mom@2026-05:abs}} to {{m:payables@2026-05}}, and cash and bank balances grew by {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}.\"},{\"text\":\"All line items grew at the identical rate of {{mv:revenue.mom@2026-05:pct}}, suggesting proportional expansion across operations, profitability and working capital.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 377,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8b7126216b3312517ed600193181a6bbd8c44456af6da6122acfabf7a93eb101": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show for specific periods or comparisons within the available data.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 58,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a59c8a8ad3fe2a0ba6957973a4fb8601a2cd4e2d3805430fae798ed6eab0728b": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5ec4df14918e92f34bc4c117d73473904c2c042b3ae89bc25f8f68e36846be48": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS based on the facts provided; direct cost details are not included in the available data.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 51,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6b9e679aecd8f9d431b49a1a140c4aef214bbdc454c9709811865913c951d791": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "77ddeb03b56161df3866536589d63e49a990f7512c78282188a33444001d69da": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 42,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "7f401228f13e54684066f83f81a3be9fd6380d65dbab8344a73f68757a6a45a5": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 42,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "2f01a0ef786457280f18eb4f8b2af9ca9555c065ee40254255b81b49a99af8ed": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "35bf60890585ee2c8eb87a5a89050ae2f9ae89a2ab5bb696224c5623aee3487e": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts provided show.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 49,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "17a0199cc736446a993d81512e84c4785796c7f5deae9119371250bdb83fc18a": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"The facts provided do not include inventory figures for {{p:2026-05}} or the prior month, so I cannot determine whether inventory is higher or lower. To answer this question, a Deep dive into the loaded ledgers would be needed to extract inventory balances and movements.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 80,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8b5650e2c63ba6e6ff2302720fc6ecc58462834a0c543231c7c004e1bdb3ae67": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"In {{p:2026-05}}, Synthetic Hardware Traders achieved {{m:revenue@2026-05}} in revenue from operations, representing {{mv:revenue.mom@2026-05:pct}} growth from the prior month. Profitability metrics expanded proportionally, with {{m:pat@2026-05}} in profit after tax, while working capital and cash positions similarly increased {{mv:cash_and_bank.mom@2026-05:pct}} and {{mv:receivables.mom@2026-05:pct}} respectively.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 147,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b8226578ff8ca960b14859860ca1bf40aeb6570a76be32bf07aa8ec2bc88e1b0": {
+    "text": "{\"scope\": \"in_scope\", \"paragraphs\": [{\"text\": \"In {{p:2026-05}}, all measured movements show the same proportional increase of {{mv:revenue.mom@2026-05:pct}}. Revenue from operations rose by {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}, with corresponding increases across profitability and balance sheet lines: gross profit increased by {{mv:gross_profit.mom@2026-05:abs}}, EBITDA by {{mv:ebitda.mom@2026-05:abs}}, and profit after tax by {{mv:pat.mom@2026-05:abs}}. On the balance sheet, trade receivables grew by {{mv:receivables.mom@2026-05:abs}}, trade payables by {{mv:payables.mom@2026-05:abs}}, and cash and bank by {{mv:cash_and_bank.mom@2026-05:abs}}. The uniform percentage movement across all metrics suggests a proportional scaling of business activity rather than discrete material changes in specific operational areas.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 260,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "19b87a65556b8929cc3d84c79928f38cf237ad4b15a892cddc65408b50d9bc76": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 42,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "acb50ede684c04763d9771c6c3f2faab9e63cb1b639386d4f2c529ee4bedcb81": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"This board is showing {{p:2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 33,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "bd991bcf64da3ba472d47ace29d62dbebae62d9ef12fbf762ea167c566e03342": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 42,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "cf59bfebc62185a860df1871c67891e6554023aef5ee96a3ca02ef52134d4330": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's consolidated MIS figures, not branch-level performance.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "81ff5d0c674d6ee81d8fb763517232fe006d5a26997b31c2af448e06e0a0020f": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1377,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "dca9f6cc74c083aa63ad997d4d5706d2c9ae95fb1c3e3ab9a24453c7d68cac56": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "c3eed7d134e6d27d61376877e93cd74cad5af0bf500ba96a4dc8148fed4a366d": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "cd97b79f44cf1867775d29d2d580284f2bff12c4f94c25bc9e65aff0f2c229e9": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "054c6b5c610dc27f3a6702956ece6b1ce56446feae738c0c5614922b3c8fa449": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and performance.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b14f3e819ae0e5016d97e8145ffa79f135f5da0a3f6657837ca06ff80425a587": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "058a48a0730960de7f922d171cd104f9b6a28327d38f92123b606ba06bff2987": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8b8c722fb55abbd075639f377e357ba92b5b8b55f94fe0af41506435d12439de": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "36beb7027c9f00138fd30164378cbce2826281bdd442651f6ae32dfdf7a59495": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about Synthetic Hardware Traders' MIS figures.\"}]}",
+    "usage": {
+      "input_tokens": 1382,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 41,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a9be4cd98c7b68de3190e13479114e42a02ada5b22c9b1c844a60000b7dcd3be": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1386,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 43,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "0887939d4099228470f5ce6f4162a5a06a8cff4e490738730cd742b6ec93617d": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 43,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "2e6974583e282b90e6b28af522a5d6542937dd62c2cde18521eca78388aea1b8": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 43,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ae3cf07bd668da1053842beb2144e940f1ff56bad38e4aa33a435eaa166df152": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 42,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "f591c9fc9a6e454ad806a2e6f15feb6275f8ba98fa72a7fa2130e77cdbcc4de6": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 44,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "f98217e0bf021a727c14b9ce7a6c4fc585323006e26a612b0ca2d742cac8bb22": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 42,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "dacc9cd1eff33c30642fda0e32c1f3ee4746a4d7895514e38d68ef5adbe12331": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and performance.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "dd8522e8f665ed1c263fb5a473a43c9e684f1d409bcd6b168782855442042bcb": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1378,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "e539ca0c09f26fdda04f39fce69ae821947825f5e3521f4a529b2f37c4b48cdc": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about your company's MIS figures, movements, and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 44,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "f24ff522da3302ff7e4e1167bc085fcbece472da8a2228c92a8c7ab3d2c7d595": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 44,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "e5caa837e53d299b081c843db5ad93d6549c668ef1a59a8ba7790dfc0e3336ee": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 43,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "9553949ad664baaf7370485933f64aa2cf5a7936b28826aa37d6ca5d2411e68a": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1380,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 44,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "905f70692313a66046c224d031f0440e432f9ccbb86153d9924b3aaa18d302ee": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1381,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5d8abf3802bee7079d29935a2b209f44f972b42fd18e6d925e3235a430969752": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "0623e21378807cca0f44b0536dd27a015247784b4bab798f777addcc782d0df5": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this MIS's figures, movements and ratios.\"}]}",
+    "usage": {
+      "input_tokens": 1377,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 42,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "27037baacc765213fea0f5167f02ffa6e6d5cc7093a7451ca18b329bb5166a31": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and performance.\"}]}",
+    "usage": {
+      "input_tokens": 1379,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "26c3ffce64e74feb6a9bed965404fb66b58145e85104136277dd09c4e2498250": {
+    "text": "{\"scope\": \"out_of_scope\", \"paragraphs\": [{\"text\": \"I can only answer questions about this company's MIS figures, movements, ratios and what the facts show.\"}]}",
+    "usage": {
+      "input_tokens": 1385,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 48,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  }
+}

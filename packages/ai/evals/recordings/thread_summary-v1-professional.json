@@ -1,0 +1,866 @@
+{
+  "76a4b6301df0b83a87394726132baa27a330b2b87e20ea8bee59f40611c43cf1": {
+    "text": "{\"summary\": \"User asked about monthly revenue movement. Revenue for {{m:revenue@2026-05}} showed a {{mv:revenue.mom@2026-05:pct}} change compared to the previous month.\"}",
+    "usage": {
+      "input_tokens": 468,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 51,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "f8bad4f1d5d46c147f8c75e317912614222b17f89233fda134752ef37f6fcbf9": {
+    "text": "{\"summary\": \"The customer inquired about revenue performance for the current period. Revenue was reported as {{m:revenue@2026-05}}, representing a {{mv:revenue.mom@2026-05:pct}} change compared to the previous month. The customer also asked about margin figures, though specific margin details were not discussed in detail in this exchange.\"}",
+    "usage": {
+      "input_tokens": 491,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 80,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "85d79102501fa525c175c0f68dd0f38c100e102480cef9e54e3c1b06dd56bd85": {
+    "text": "{\"summary\": \"The customer asked about revenue movement for {{m:revenue@2026-05}} and was provided month-on-month change of {{mv:revenue.mom@2026-05:pct}}. The customer has indicated a preference for year-on-year comparisons rather than month-on-month. Previous discussion covered revenue, margin, cost base, and working capital position. Open question: whether to provide year-on-year movements in subsequent queries.\"}",
+    "usage": {
+      "input_tokens": 509,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 104,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "761d3cbdcf5b0601c896ec88c2fa8692428c448ab9832c93228944199d87b377": {
+    "text": "{\"summary\": \"Customer asked about revenue movement for {{m:revenue@2026-05}}, which changed {{mv:revenue.mom@2026-05:pct}} month-on-month. They then inquired whether this was the best month of the year. It was not; the highest revenue occurred in {{p:2026-01}} at {{m:revenue@2026-01}}.\"}",
+    "usage": {
+      "input_tokens": 512,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 91,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "9e3eb1dc8bf45e13e1f94503bc93e79335faca4db00fe711217f5e93ae3edf7c": {
+    "text": "{\"summary\": \"Customer asked about monthly revenue performance for {{m:revenue@2026-05}}, which showed a month-on-month change of {{mv:revenue.mom@2026-05:pct}}. Customer inquired whether this was the best month in the year. It was not; the highest revenue month was {{p:2026-01}} at {{m:revenue@2026-01}}.\"}",
+    "usage": {
+      "input_tokens": 535,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 94,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "898af654954fd1ddd6a6411b64f7eee8308548784112ca3a800f5023a9ef83d1": {
+    "text": "{\"summary\": \"The customer reviewed monthly MIS covering revenue, margin, cost base, and working capital. They inquired about revenue movement and learned that {{m:revenue@2026-05}} represented a {{mv:revenue.mom@2026-05:pct}} change from the prior month, and that {{p:2026-01}} was the strongest month year-to-date at {{m:revenue@2026-01}}. The customer has requested year-on-year comparisons rather than month-on-month analysis.\"}",
+    "usage": {
+      "input_tokens": 553,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 119,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "44c029c18e6bb05027fcd18b7d25525e3365eb6105f5a50cf1343069f971f068": {
+    "text": "{\"summary\": \"Customer asked about revenue trends for {{p:2026-05}}. Found that revenue was {{m:revenue@2026-05}}, representing {{mv:revenue.mom@2026-05:pct}} change from the prior month. This was not the strongest month in the year; the peak was {{p:2026-01}} at {{m:revenue@2026-01}}. Year-on-year comparison shows {{mv:revenue.yoy@2026-05:pct}} growth against {{p:2025-05}}.\"}",
+    "usage": {
+      "input_tokens": 552,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 127,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "bd7607e65f1e215c46f1ad412d63911f2812e918fde144decef9acbd3f8871f3": {
+    "text": "{\"summary\": \"The customer enquired about revenue performance for {{p:2026-05}}. Revenue was {{m:revenue@2026-05}}, representing a {{mv:revenue.mom@2026-05:pct}} change from the previous month. This was not the strongest month of the year; {{p:2026-01}} had the highest revenue at {{m:revenue@2026-01}}. Year-on-year comparison shows revenue is {{mv:revenue.yoy@2026-05:pct}} higher than {{p:2025-05}}.\"}",
+    "usage": {
+      "input_tokens": 575,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 131,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b2150f8b5c5b01697305dc05d97867abecf1bafa0c81cedd469b9e193d8ed63c": {
+    "text": "{\"summary\": \"Customer asked about revenue performance for {{p:2026-05}}, requesting month-on-month and year-on-year comparisons. Revenue was {{m:revenue@2026-05}}, down {{mv:revenue.mom@2026-05:pct}} from the previous month. The best performing month in the current year was {{p:2026-01}} at {{m:revenue@2026-01}}. Year-on-year comparison shows revenue increased {{mv:revenue.yoy@2026-05:pct}} versus {{p:2025-05}}. Customer has indicated preference for year-on-year movements in subsequent analysis.\"}",
+    "usage": {
+      "input_tokens": 593,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 151,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "cea783a411fb876c6dddce21d5b8bd6d63a7ac8469b184754bf616883c98cb3b": {
+    "text": "{\"summary\": \"User asked whether gross margin improved. Gross margin for {{m:gross_margin_pct@2026-05}} was {{mv:gross_margin_pct.mom@2026-05:abs}} compared to the previous month.\"}",
+    "usage": {
+      "input_tokens": 475,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 60,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "84a1082b58c5b2e5e76dd4c747af103091c7880db5d1bf71778bec724950a9dd": {
+    "text": "{\"summary\": \"The customer inquired about revenue and margin trends for the month. Specifically, they asked whether gross margin improved. The gross margin for {{m:gross_margin_pct@2026-05}} was {{mv:gross_margin_pct.mom@2026-05:abs}} compared to the previous month. No further open questions have been identified.\"}",
+    "usage": {
+      "input_tokens": 498,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 84,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "4c749350ad804f02901e9694afe3a27afca891e926e67a3b46bfe6ca60ce3377": {
+    "text": "{\"summary\": \"The customer inquired about gross margin performance for {{m:gross_margin_pct@2026-05}}, which showed a movement of {{mv:gross_margin_pct.mom@2026-05:abs}} month-on-month. Earlier in the conversation, the customer requested year-on-year movements rather than month-on-month comparisons. The discussion has covered revenue, margin, cost base, and working capital position.\"}",
+    "usage": {
+      "input_tokens": 516,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 103,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "fcc8e9b797290ac3da2e55d022b5ca1f4fe69cf2a5ea6d04fa295f30cd2e2505": {
+    "text": "{\"summary\": \"Customer asked whether gross margin improved in {{m:gross_margin_pct@2026-05}}. It was found that gross margin was {{mv:gross_margin_pct.mom@2026-05:abs}} compared to the previous month. The movement was driven by direct costs rising {{mv:direct_costs.mom@2026-05:pct}} while revenue rose {{mv:revenue.mom@2026-05:pct}}.\"}",
+    "usage": {
+      "input_tokens": 524,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 107,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8e00048d9e0480f19d211cadaec291681ef8e43662e30a74153ba32f71e2d964": {
+    "text": "{\"summary\": \"Customer inquired about revenue and margin performance for the month. Gross margin was {{m:gross_margin_pct@2026-05}}, {{mv:gross_margin_pct.mom@2026-05:abs}} compared to the prior month. The margin change was driven by direct costs increasing {{mv:direct_costs.mom@2026-05:pct}} while revenue increased {{mv:revenue.mom@2026-05:pct}}.\"}",
+    "usage": {
+      "input_tokens": 547,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 110,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6dccd613d47878e6a44727408b1ba8e94eff124327a3383109e286ebbd4a2499": {
+    "text": "{\"summary\": \"The customer reviewed May {{m:2026}} MIS covering revenue, margin, cost base and working capital. They requested year-on-year movements rather than month-on-month comparisons. Gross margin was {{m:gross_margin_pct@2026-05}}, {{mv:gross_margin_pct.mom@2026-05:abs}} month-on-month, driven by direct costs rising {{mv:direct_costs.mom@2026-05:pct}} while revenue rose {{mv:revenue.mom@2026-05:pct}}. No open questions remain.\"}",
+    "usage": {
+      "input_tokens": 565,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 140,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "3112313b3cf221d58ba6a2a3980f346b669da72f42ecb25780400a428c7406df": {
+    "text": "{\"summary\":\"Customer inquired about gross margin improvement for {{m:gross_margin_pct@2026-05}}, which moved {{mv:gross_margin_pct.mom@2026-05:abs}} month-on-month. The movement was driven by direct costs rising {{mv:direct_costs.mom@2026-05:pct}} while revenue rose {{mv:revenue.mom@2026-05:pct}}. Customer asked if this represents a trend; prior two months showed margin movements of {{mv:gross_margin_pct.mom@2026-04:abs}} and {{mv:gross_margin_pct.mom@2026-03:abs}} respectively.\"}",
+    "usage": {
+      "input_tokens": 584,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 158,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "d8409d06cacdeb847677eb2dc5eca8ab8e55e56ad0926602909d0ea8336e0ebd": {
+    "text": "{\"summary\": \"Customer inquired about gross margin performance for the month. Gross margin was {{m:gross_margin_pct@2026-05}}, {{mv:gross_margin_pct.mom@2026-05:abs}} compared to the prior month. The decline was driven by direct costs rising {{mv:direct_costs.mom@2026-05:pct}} while revenue increased {{mv:revenue.mom@2026-05:pct}}. When asked about trend persistence, it was noted that margin moved {{mv:gross_margin_pct.mom@2026-04:abs}} and {{mv:gross_margin_pct.mom@2026-03:abs}} in the two preceding months respectively.\"}",
+    "usage": {
+      "input_tokens": 607,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 166,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6779c7f6e7255c5f631e76a2caf2f533ba41a7e1a8a8dd8bd87aa17fe92f8b9d": {
+    "text": "{\"summary\": \"The customer inquired about gross margin improvement in the latest month. Gross margin was {{m:gross_margin_pct@2026-05}}, {{mv:gross_margin_pct.mom@2026-05:abs}} on the prior month. The movement was driven by direct costs rising {{mv:direct_costs.mom@2026-05:pct}} while revenue rose {{mv:revenue.mom@2026-05:pct}}. When asked about trend persistence, the assistant provided margin movements from the two preceding months ({{mv:gross_margin_pct.mom@2026-04:abs}} and {{mv:gross_margin_pct.mom@2026-03:abs}}). The customer previously requested year-over-year comparisons rather than month-on-month analysis, which has not yet been fully addressed.\"}",
+    "usage": {
+      "input_tokens": 625,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 194,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "5d948820820e6ebbdc8d721ffa6e502102412e90a671bcab3b152c8f94f72345": {
+    "text": "{\"summary\": \"The user asked about the movement in receivables. Trade receivables at the end of {{m:receivables@2026-05}} were {{mv:receivables.mom@2026-05:pct}} compared to the previous month.\"}",
+    "usage": {
+      "input_tokens": 471,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 59,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "7372f4036f4968a3ee9bc3363ad63c5a5a7abb98bf4dde99556c16f278315e78": {
+    "text": "{\"summary\": \"Customer inquired about revenue and margin for the month, then asked about receivables. Trade receivables were reported at {{m:receivables@2026-05}}, {{mv:receivables.mom@2026-05:pct}} compared to the prior month.\"}",
+    "usage": {
+      "input_tokens": 494,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 65,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "e1f92bd292c8cd83892b7b6fc700ad22e98ad2b3d614c045fe090ce5f6f365d1": {
+    "text": "{\"summary\":\"The customer reviewed monthly MIS covering revenue, margin, cost base and working capital position. They requested comparative analysis against the prior year rather than month-on-month. Most recently, they inquired about receivables movements, which closed at {{m:receivables@2026-05}}, {{mv:receivables.mom@2026-05:pct}} compared to the prior month.\"}",
+    "usage": {
+      "input_tokens": 512,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 89,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "806bb138234c219e70a76dc154a3fce0647452aab44c82e1c94b9abe6fcd77ce": {
+    "text": "{\"summary\": \"Customer asked about receivables movement in {{m:receivables@2026-05}}, which changed {{mv:receivables.mom@2026-05:pct}} month-on-month. Customer also inquired about the largest debtor. No open questions remain from this discussion.\"}",
+    "usage": {
+      "input_tokens": 510,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 69,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "1e2e1ca2510153d838b284bbbd9895db38d67aabf46f2ef7472cae8ffd994c45": {
+    "text": "{\"summary\": \"The customer inquired about revenue and margin for the month, then asked about receivables status. Trade receivables closed at {{m:receivables@2026-05}}, {{mv:receivables.mom@2026-05:pct}} on the month before. The largest outstanding balance is with {{q:q1:0:ledger}}.\"}",
+    "usage": {
+      "input_tokens": 533,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 83,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "01a25d92ec863122887d077ac9c02337a885e046cbb5ea9938c28479d085746b": {
+    "text": "{\"summary\": \"The customer reviewed monthly MIS covering revenue, margin, cost base and working capital. They requested movements against prior year rather than prior month. They then inquired about receivables, which closed at {{m:receivables@2026-05}}, {{mv:receivables.mom@2026-05:pct}} on the month before, and asked which customer owes the most.\"}",
+    "usage": {
+      "input_tokens": 551,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 89,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6f54866cb825607c3e9399337ae08d78f4ced2a71af6e2507bfab6fa15913b66": {
+    "text": "{\"summary\": \"Customer inquired about trade receivables performance in {{m:receivables@2026-05}}, which showed {{mv:receivables.mom@2026-05:pct}} month-on-month change. The largest debtor owes a significant balance, and debtor days are at {{m:dso@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 542,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 82,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "65ed178e065f1e2736536f7ddb296c1ae30426e2ac4925854d172b404bfe6ed4": {
+    "text": "{\"summary\": \"Customer enquired about revenue and margin for the month, then shifted focus to receivables. Trade receivables stood at {{m:receivables@2026-05}}, {{mv:receivables.mom@2026-05:pct}} month-on-month. The largest debtor is {{q:q1:0:ledger}} with an outstanding balance, and debtor days are at {{m:dso@2026-05}}. Customer has reviewed receivables position but no specific follow-up actions were agreed.\"}",
+    "usage": {
+      "input_tokens": 565,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 120,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6678b60d5f0d53fdd5a27adf0788bcc445f05fe8ec578190f1bc48977c6dec00": {
+    "text": "{\"summary\": \"The customer asked about the receivables position, including the total balance at {{m:receivables@2026-05}}, which moved {{mv:receivables.mom@2026-05:pct}} on the month before. They enquired about the largest debtor and the debtor days, which stand at {{m:dso@2026-05}}. The customer has previously requested year-on-year comparisons rather than month-on-month analysis.\"}",
+    "usage": {
+      "input_tokens": 583,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 107,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "3d25167a27ce16881c791a443e4572838f687f6e6776b1f2fe5aa6b192264435": {
+    "text": "{\"summary\": \"User asked about the company's cash position. The assistant provided the cash and bank balance as of {{m:cash_and_bank@2026-05}} at the end of {{p:2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 466,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 54,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "bd98807f7fc6b7b127791b550e8d4bd9d6c9627ddb1e2bfa7e71c7055ff0b163": {
+    "text": "{\"summary\": \"The customer inquired about the company's cash position. Cash and bank were reported to be {{m:cash_and_bank@2026-05}} as of the end of {{p:2026-05}}. Earlier in the conversation, the customer had also asked about revenue and margin figures for the month.\"}",
+    "usage": {
+      "input_tokens": 489,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 73,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "9844be4903bee1ce6b86f16f6b13e6f01952cbdba9105d81108c60cb6c90b404": {
+    "text": "{\"summary\": \"Customer reviewed monthly MIS covering revenue, margin, cost base and working capital position. Customer requested year-on-year comparisons rather than month-on-month. Most recent query: cash and bank balance as of {{p:2026-05}}, which stood at {{m:cash_and_bank@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 507,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "38bd3019425ea28c76cd2a7f87ae9243bf07cce672951fbe06bc29a332bb1881": {
+    "text": "{\"summary\": \"Customer asked about cash position at the end of {{p:2026-05}}, which was {{m:cash_and_bank@2026-05}}. They then inquired whether this represented an increase from the previous month. Cash and bank changed by {{mv:cash_and_bank.mom@2026-05:abs}}, representing a {{mv:cash_and_bank.mom@2026-05:pct}} movement month-on-month.\"}",
+    "usage": {
+      "input_tokens": 521,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 109,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "94a01359f98263c238b330347165ef2468af2560ebe3a4e3192f80279728caf2": {
+    "text": "{\"summary\": \"Customer reviewed monthly MIS data, specifically asking about revenue and margin, and then inquired about cash position. Cash and bank balance at end of {{p:2026-05}} was {{m:cash_and_bank@2026-05}}, which changed by {{mv:cash_and_bank.mom@2026-05:abs}} compared to the previous month.\"}",
+    "usage": {
+      "input_tokens": 544,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 88,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "4eee72fdef07e77eca954828d054c57d652481684d96d7e2dbf4fe6cd29b4290": {
+    "text": "{\"summary\": \"The customer reviewed revenue, margin, cost base and working capital position from the monthly MIS, asking twice for year-on-year movements rather than month-on-month. They then enquired about cash position at the end of {{p:2026-05}}, which stood at {{m:cash_and_bank@2026-05}}, and confirmed it moved {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) from the prior month.\"}",
+    "usage": {
+      "input_tokens": 562,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 131,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "084075e483cc53e704312f041bf0730fb8157f6691f09f4e72e014f30705d46c": {
+    "text": "{\"summary\": \"Customer enquired about cash position, which stood at {{m:cash_and_bank@2026-05}} at end of {{p:2026-05}}, representing a change of {{mv:cash_and_bank.mom@2026-05:abs}} or {{mv:cash_and_bank.mom@2026-05:pct}} month-on-month. Customer also asked about payables, which were {{m:payables@2026-05}} with creditor days of {{m:dpo@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 567,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 129,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "dbcccf9a9b1387505d0f78e761cb9fbe25392b9c61f6df005d1a287f9a183369": {
+    "text": "{\"summary\": \"Customer enquired about revenue and margin for the month, then shifted focus to cash position. Cash and bank stood at {{m:cash_and_bank@2026-05}} at end of {{p:2026-05}}, moving {{mv:cash_and_bank.mom@2026-05:abs}} or {{mv:cash_and_bank.mom@2026-05:pct}} from the prior month. Trade payables were {{m:payables@2026-05}} with creditor days at {{m:dpo@2026-05}}. No open questions identified.\"}",
+    "usage": {
+      "input_tokens": 590,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 138,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "43fa75f871b196b91ebcaa1293d8fbea24b829869da9469dbe1a4c81b048eb10": {
+    "text": "{\"summary\": \"The customer reviewed the company's cash position at {{m:cash_and_bank@2026-05}} as of {{p:2026-05}}, noting a movement of {{mv:cash_and_bank.mom@2026-05:abs}} or {{mv:cash_and_bank.mom@2026-05:pct}} from the prior month. Trade payables were examined at {{m:payables@2026-05}} with creditor days at {{m:dpo@2026-05}}. The customer has previously requested year-over-year comparisons rather than month-over-month analysis for other metrics including revenue, margin, cost base and working capital.\"}",
+    "usage": {
+      "input_tokens": 608,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 158,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "2f9333d179fa3b07a8c5be977058c5547b70a89fe488b5c2a35ada1c53f4caa1": {
+    "text": "{\"summary\": \"User asked which cost grew the most. Employee cost showed the largest growth at {{mv:employee_cost.mom@2026-05:pct}} month-over-month.\"}",
+    "usage": {
+      "input_tokens": 461,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 46,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "b7ac16d49d657f5cf39eb1bd7bed6dca9bab73337735a56c2e7b3c2abbc6026a": {
+    "text": "{\"summary\": \"Customer inquired about revenue and margin for the month, then asked which cost grew the most. Employee cost was identified as having the largest growth at {{mv:employee_cost.mom@2026-05:pct}} month-over-month.\"}",
+    "usage": {
+      "input_tokens": 484,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 60,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ab2b8a499d1364270f9db1dcbf4b3f2031739202402d60cf1b8fa822816c943c": {
+    "text": "{\"summary\": \"Customer reviewed monthly MIS covering revenue, margin, cost base and working capital position. Customer requested movements against prior year rather than prior month. When asked which cost grew most, employee cost showed the largest increase at {{mv:employee_cost.mom@2026-05:pct}}. No open questions identified.\"}",
+    "usage": {
+      "input_tokens": 502,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 73,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "ca43400e2012c9426d0907f232f60b305599ee58d73e8eb373b573bcf36ccc4d": {
+    "text": "{\"summary\": \"User inquired which cost grew the most and was informed that employee cost saw the largest increase at {{mv:employee_cost.mom@2026-05:pct}}. User then asked for the absolute amount, which was {{mv:employee_cost.mom@2026-05:abs}}, bringing the total employee cost to {{m:employee_cost@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 509,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 91,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "2f30dd728603f3f582ec07e896765194abdeedabe3d592d6520df5a3c8815a7c": {
+    "text": "{\"summary\": \"Customer asked about revenue and margins, then inquired which cost grew the most. Employee cost showed the largest increase at {{mv:employee_cost.mom@2026-05:pct}}, amounting to {{mv:employee_cost.mom@2026-05:abs}} and reaching a total of {{m:employee_cost@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 532,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "584f31ad4e733fb37a0a1e8c81c2f3460241cd18fd09cf6f9bd83051bbc248e2": {
+    "text": "{\"summary\": \"The conversation covered the company's monthly MIS including revenue, margin, cost base, and working capital position. The customer requested movements against last year rather than last month. Discussion focused on cost movements, specifically identifying employee cost as the largest cost increase for the period, with the customer asking for both percentage and absolute value figures for this movement.\"}",
+    "usage": {
+      "input_tokens": 550,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 76,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "553d82687ea6ffc8258f07a91fa08a9f57e8c073125d63a47c864a0c208c78ce": {
+    "text": "{\"summary\": \"User inquired about which cost grew the most. Employee cost showed the largest increase at {{mv:employee_cost.mom@2026-05:pct}}, rising by {{mv:employee_cost.mom@2026-05:abs}} to reach {{m:employee_cost@2026-05}}. Other operating expenses were {{m:other_opex@2026-05}}, changing {{mv:other_opex.mom@2026-05:pct}} month-over-month.\"}",
+    "usage": {
+      "input_tokens": 560,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 119,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "97d84942f537644a2e9ce6745fd74f9d64987220c86b03b9e17bd7c9e0705809": {
+    "text": "{\"summary\": \"Customer reviewed monthly MIS, asking about revenue and margin. Discussion focused on cost movements, specifically employee cost which grew {{mv:employee_cost.mom@2026-05:pct}} ({{mv:employee_cost.mom@2026-05:abs}} in absolute terms) to {{m:employee_cost@2026-05}}, and other operating expenses at {{m:other_opex@2026-05}}, which changed {{mv:other_opex.mom@2026-05:pct}} month-over-month. No open questions identified.\"}",
+    "usage": {
+      "input_tokens": 583,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 133,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "a9f39a0881133aba0d0846640656b680b0acee66216d1aa103aac2b1b236d58e": {
+    "text": "{\"summary\": \"The conversation covered the monthly MIS for May 2026, including revenue, margin, cost base, and working capital position. The customer requested movement analysis against last year rather than last month. Discussion focused on cost movements, specifically that employee cost showed the largest growth at {{mv:employee_cost.mom@2026-05:pct}}, reaching {{m:employee_cost@2026-05}} with an absolute increase of {{mv:employee_cost.mom@2026-05:abs}}. Other operating expenses were reviewed at {{m:other_opex@2026-05}}, down {{mv:other_opex.mom@2026-05:pct}} month-on-month. The customer's preference for year-on-year comparisons rather than monthly movements remains a standing request.\"}",
+    "usage": {
+      "input_tokens": 601,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 181,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "cb4796605ee022e53f70ed44e703c3d319347c09b1bf9bcaaf21ab8085311e32": {
+    "text": "{\"summary\": \"User requested a summary of the month. The assistant provided the monthly revenue of {{m:revenue@2026-05}} and profit after tax of {{m:pat@2026-05}} for May two thousand twenty-six.\"}",
+    "usage": {
+      "input_tokens": 460,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 56,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8f2e3e9cb13b1ddd1cf6715a105c27f50dbc7d9a7a5237cdcb5cc0da5cca6320": {
+    "text": "{\"summary\": \"Customer asked for a summary of the month, specifically requesting revenue and margin figures. Revenue for {{m:revenue@2026-05}} and profit after tax {{m:pat@2026-05}} were provided. No open questions remain.\"}",
+    "usage": {
+      "input_tokens": 483,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 58,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "aa51e82f7f3bc5da58197b4bc320156ed4b390c7b4907ac93b1bc5f023a53c57": {
+    "text": "{\"summary\": \"The customer requested a monthly summary focusing on {{m:revenue@2026-05}} and {{m:pat@2026-05}}. The earlier conversation had covered revenue, margin, the cost base, and working capital position. The customer expressed a preference for year-on-year comparisons rather than month-on-month movements. No open questions were identified from the summary provided.\"}",
+    "usage": {
+      "input_tokens": 501,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 88,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "6fac8a4b5fadcd0f442eabf11e0ebccbab5866176511e8d1c3e2a56f3014bdc6": {
+    "text": "{\"summary\": \"User requested a summary of the month and was shown revenue at {{m:revenue@2026-05}} and profit after tax at {{m:pat@2026-05}}. User then asked for working capital information and received receivables at {{m:receivables@2026-05}}, inventory at {{m:inventory@2026-05}}, and payables at {{m:payables@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 513,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 99,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "8aa3858caec01df13170db80b1ef89f932c77430ba3b4ac601f0ec09b1b0a238": {
+    "text": "{\"summary\": \"The customer inquired about the company's monthly financial performance for {{m:2026-05}}. Revenue was reviewed at {{m:revenue@2026-05}} with profit after tax at {{m:pat@2026-05}}. Subsequently, working capital components were examined including receivables at {{m:receivables@2026-05}}, inventory at {{m:inventory@2026-05}}, and payables at {{m:payables@2026-05}}. No open questions remain from this discussion.\"}",
+    "usage": {
+      "input_tokens": 536,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 119,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "754d87435bea9ef00ee22d48004599edff5772fc4a29995fafbaaa85dbef0f1c": {
+    "text": "{\"summary\": \"The customer reviewed the monthly MIS for {{m:2026-05}}, examining revenue of {{m:revenue@2026-05}} and profit after tax of {{m:pat@2026-05}}. They also requested an overview of working capital, which showed receivables of {{m:receivables@2026-05}}, inventory of {{m:inventory@2026-05}}, and payables of {{m:payables@2026-05}}. The customer expressed a preference for year-on-year comparisons rather than month-on-month movements. No open questions remain.\"}",
+    "usage": {
+      "input_tokens": 554,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 136,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "91ca9a02bc46c8926ea44e59e6eedc1ca2966424f90d61e8117de0ab5ada4217": {
+    "text": "{\"summary\": \"User reviewed May {{m:2026}} MIS results. Revenue was {{m:revenue@2026-05}} and profit after tax {{m:pat@2026-05}}. Working capital components reviewed: receivables {{m:receivables@2026-05}}, inventory {{m:inventory@2026-05}}, and payables {{m:payables@2026-05}}. Tax charge for the month was {{m:tax@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 545,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 111,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "38768b33db7f2a93e602ea0f642b8d60a227ed42486679390140fc00350faf57": {
+    "text": "{\"summary\": \"Customer reviewed May {{m:revenue@2026-05}} revenue and {{m:pat@2026-05}} profit after tax. Working capital components were examined: {{m:receivables@2026-05}} in receivables, {{m:inventory@2026-05}} in inventory, and {{m:payables@2026-05}} in payables. Tax charge for the month was {{m:tax@2026-05}}.\"}",
+    "usage": {
+      "input_tokens": 568,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 104,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  },
+  "d4ae60ee3fe5702654ae29109bef07088c6a61f0ba139af27a942d846ed5dda3": {
+    "text": "{\"summary\": \"The customer reviewed the monthly MIS for {{m:revenue@2026-05}}, examining revenue, profit after tax {{m:pat@2026-05}}, working capital components (receivables {{m:receivables@2026-05}}, inventory {{m:inventory@2026-05}}, payables {{m:payables@2026-05}}), and tax charge {{m:tax@2026-05}}. The customer previously requested year-on-year comparisons rather than month-on-month analysis. No open questions remain.\"}",
+    "usage": {
+      "input_tokens": 586,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 127,
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    },
+    "model": "claude-haiku-4-5-20251001"
+  }
+}

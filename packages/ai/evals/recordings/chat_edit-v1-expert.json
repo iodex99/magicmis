@@ -1,0 +1,971 @@
+{
+  "76ac0b2c083e820f49487e37d2ed3a641c767e71f628238db694202663638c4e": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Renames the revenue KPI card title to Sales.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/0/title\",\"from\":null,\"value_json\":\"\\\"Sales\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 1555,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 1555,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "543f26105c88b1d283eaf5c2ec4eadb9a470d21096e231374e23a68023014bec": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Renames the gross margin KPI card to Margin percent.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/1/title\",\"from\":null,\"value_json\":\"\\\"Margin %\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 82,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a342097589090d5f7c0594ad0542524528a668c22f4a6c03bc1ceac7f3cc56a1": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Renames the EBITDA card's title to Operating profit.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/2/title\",\"from\":null,\"value_json\":\"\\\"Operating profit\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 83,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "bf6102014aeb25347c260eec35da74cd3cc1555ca461320371384f26fcef95c3": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Renamed the Cash and bank widget's title to Bank balance.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/3/title\",\"from\":null,\"value_json\":\"\\\"Bank balance\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "8a2ab9a557716878ba20df27c8490d0759736a31a0d678831c1835ecc67d6680": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Renames the revenue trend chart title to remove the year-to-date wording.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/4/title\",\"from\":null,\"value_json\":\"\\\"Revenue and profit\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1173,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 90,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "42c02e5c2f666671183594673bfac4950f445ab33275d3c0a7852b261196047d": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Rename the profit waterfall widget title to Profit bridge.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/5/title\",\"from\":null,\"value_json\":\"\\\"Profit bridge\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1170,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "9e01b139bbdbf3d2912e731de25052d032adc835c6a3401b2fd136f78b5bc8e0": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Renames the costs by month widget title to cost base.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/title\",\"from\":null,\"value_json\":\"\\\"Cost base\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1170,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "0ed1b984c801ac204f07dc3da3b2fd7a34a9d27a92751dc97cab56502625114f": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Renames the working capital table widget to Working capital summary.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/7/title\",\"from\":null,\"value_json\":\"\\\"Working capital summary\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 83,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "37477ebe6d1ac6941407c31aecd2c9f26bd7a10150da3bd3bddeb8e0ffe19665": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Removes the working capital table from the dashboard.\",\"operations\":[{\"op\":\"remove\",\"path\":\"/widgets/7\",\"from\":null,\"value_json\":null}]}",
+    "usage": {
+      "input_tokens": 1165,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 68,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "c768fd65d180557c7a801a2e9d209d259a771ec849cda2487541a961c472046d": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Removes the costs by month chart from the dashboard.\",\"operations\":[{\"op\":\"remove\",\"path\":\"/widgets/6\",\"from\":null,\"value_json\":null}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 70,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "4afbcdc2f63f60ef25cde8ab771d70d0d982fdd97b673fa7fc29cee9e08c3379": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Removes the profit waterfall widget from the dashboard.\",\"operations\":[{\"op\":\"remove\",\"path\":\"/widgets/5\",\"from\":null,\"value_json\":null}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 90,
+      "output_tokens_details": {
+        "thinking_tokens": 18
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "4f87200ee1b608341638d33d0bc34f2b857ec97be3bb6b71baf6d842704715d4": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Remove the EBITDA KPI card from the dashboard.\",\"operations\":[{\"op\":\"remove\",\"path\":\"/widgets/2\",\"from\":null,\"value_json\":null}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 73,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "55b03dcac59f6f3639896be7b8a5bbc92c04d9275323bdce26d99e339da0c88b": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Removes the cash and bank KPI card from the dashboard.\",\"operations\":[{\"op\":\"remove\",\"path\":\"/widgets/3\",\"from\":null,\"value_json\":null}]}",
+    "usage": {
+      "input_tokens": 1164,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 73,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "ae6b0fa5dd8314d9de8337c926d124bbd0a705860fdea18fdc053752288ddf95": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Removes the gross margin KPI card from the dashboard.\",\"operations\":[{\"op\":\"remove\",\"path\":\"/widgets/1\",\"from\":null,\"value_json\":null}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 72,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "3bfdc0ea7bc160937f3dcdb83052588da16d15ee2dc8da870579cf99f7cf7b6a": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Update the revenue and profit trend chart to display the last six months instead of the fiscal year to date.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/4/periods\",\"from\":null,\"value_json\":\"{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":6}\"}]}",
+    "usage": {
+      "input_tokens": 1176,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 135,
+      "output_tokens_details": {
+        "thinking_tokens": 26
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "2f45fac75b5af5305f1155bd63eb6469118c69d9e17afb126da13d7b31e3987b": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Update the revenue and profit trend chart to show the trailing twelve months instead of the fiscal year to date.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/4/periods\",\"from\":null,\"value_json\":\"{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":12}\"},{\"op\":\"replace\",\"path\":\"/widgets/4/title\",\"from\":null,\"value_json\":\"\\\"Revenue and profit, last twelve months\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1172,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 161,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "243577abaaeb3eb1d2df339ddbe5a4fc8c5b6135e6287014d16b501b297d0965": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"The revenue trend widget already shows data from the start of the financial year, so no change is needed.\",\"operations\":[]}",
+    "usage": {
+      "input_tokens": 1170,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "output_tokens_details": {
+        "thinking_tokens": 163
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "67fc900253a7a8159cdb704a1e58ce9ca588e386764d577cffd740a4a78321c1": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Change the costs by month chart to show only the most recent three months instead of six.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/periods\",\"from\":null,\"value_json\":\"{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":3}\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 101,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6733aa556be1a041fedf3b497bd1323e85eb2c61efe62e6b8e3f7913b90c83db": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Updates the costs by month chart to display a full year of data instead of a shorter period.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/periods\",\"from\":null,\"value_json\":\"{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":12}\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 104,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "7acd0c24e593b0046ac25b170434c29ae375bd40530792f700067c63925019c7": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Updates the costs by month chart to show data for the financial year to date instead of the last few months.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/periods\",\"from\":null,\"value_json\":\"{\\\"kind\\\":\\\"fy_to_date\\\"}\"},{\"op\":\"replace\",\"path\":\"/widgets/6/title\",\"from\":null,\"value_json\":\"\\\"Costs, year to date\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 145,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "81cb221645420f0b7601912b77c47e51ea99b23b941e2123d26cdfb3479f22e2": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"The working capital table will now show data for the last three months instead of just the current period.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/7/periods\",\"from\":null,\"value_json\":\"{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":3}\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 122,
+      "output_tokens_details": {
+        "thinking_tokens": 22
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6b3aeb565b6da03bf63eeba374b5892c30b4e9049411bead8e14bf4d1b7d0473": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Changes the working capital table to show a six month period instead of the current period.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/7/periods\",\"from\":null,\"value_json\":\"{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":6}\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 99,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6c240f4e806a805ae2dffdbeceedff101c2e13206ba283d6a26e36bd991b4845": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Add a prior year comparison to the revenue and profit trend chart.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/4/compare\",\"from\":null,\"value_json\":\"\\\"prior_year\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1169,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 133,
+      "output_tokens_details": {
+        "thinking_tokens": 46
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "dd47767c0e12fdbb2d3e2a0b438b6e6672391cda4b6b11514cbf3975c8f258b2": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"The trend chart already has no year-over-year comparison enabled, so no change is needed.\",\"operations\":[]}",
+    "usage": {
+      "input_tokens": 1172,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 210,
+      "output_tokens_details": {
+        "thinking_tokens": 158
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "c6343695b8bdf8f28d9d592f60cf0bae3ec751546f1b6d8189e986b4d05f752b": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Sets the costs by month chart to compare each month with the same period last year.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/compare\",\"from\":null,\"value_json\":\"\\\"yoy\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 85,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "1a4ffe22bb4e1dd0819c52ed8d6a15bf8067c5b12f009a9ebd171ed6f6798e60": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Sets the working capital table to compare against the prior month.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/7/compare\",\"from\":null,\"value_json\":\"\\\"mom\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6a2ce50991fb39a16f4ff6c00be1c05f0366805f2a2b31ffbb250a85ea510f0a": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Sets the working capital table to compare against the same period last year.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/7/compare\",\"from\":null,\"value_json\":\"\\\"yoy\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 81,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "525734e03089e3727541d839ed56b9a85350c9a5b1d2a970d9977336fa14bc53": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Sets the costs by month chart to sort its values from largest to smallest.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/sort\",\"from\":null,\"value_json\":\"{\\\"by\\\":\\\"value\\\",\\\"direction\\\":\\\"desc\\\"}\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 146,
+      "output_tokens_details": {
+        "thinking_tokens": 42
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "58cad1c4ea2d5f172e75a5a5226090545df810e6c57fc9e20a88c0a57d8ccbdc": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Sorts the rows in the working capital table by their value\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/sort\",\"from\":null,\"value_json\":\"{\\\"metric\\\":\\\"receivables\\\",\\\"direction\\\":\\\"desc\\\"}\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 131,
+      "output_tokens_details": {
+        "thinking_tokens": 30
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "9035d1258b235613daca41426eec5a445023bf4ea0c35765607f6ae267ff0cee": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"I could not apply this change because the dashboard only has three cost line metrics available, not enough to show a top five.\",\"operations\":[]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 211,
+      "output_tokens_details": {
+        "thinking_tokens": 153
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "223339f1c046a636731571467caf77d4c83302ee185b50195f66f3eed92b52d9": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Sets the working capital table to show only five rows.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/7/limit\",\"from\":null,\"value_json\":\"5\"}]}",
+    "usage": {
+      "input_tokens": 1169,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 188,
+      "output_tokens_details": {
+        "thinking_tokens": 114
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "22c4f92ded9c52b5db45c148a97c535209267e0a1e6ce04ec057d147374ef6ba": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds EBITDA as a series to the revenue and profit trend chart.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/4/metrics/-\",\"from\":null,\"value_json\":\"\\\"ebitda\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1173,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 90,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a4650f5fd93e8a95c7a793dc77baa68c062bd7650af7df54b4851cb81c6067a9": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds depreciation as a metric to the monthly costs by month chart.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/6/metrics/-\",\"from\":null,\"value_json\":\"\\\"depreciation\\\"\"}]}",
+    "usage": {
+      "input_tokens": 1169,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 89,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "5eac7e7f96513be805d4c27e8b6b664040bf67ee3b73e667f100e104946f194c": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"No change is needed because debtor days is already included in the working capital table.\",\"operations\":[]}",
+    "usage": {
+      "input_tokens": 1169,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 195,
+      "output_tokens_details": {
+        "thinking_tokens": 150
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a39e774923e91d670f27a485fb1b3b7e7336e880b6350604d93fdccd68ead695": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Add profit after tax to the first KPI card alongside revenue.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/0/metrics\",\"from\":null,\"value_json\":\"[\\\"revenue\\\",\\\"revenue.mom_pct\\\",\\\"pat\\\"]\"}]}",
+    "usage": {
+      "input_tokens": 1169,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 158,
+      "output_tokens_details": {
+        "thinking_tokens": 49
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "2c32d7489224efde7e9ab304c72dc3aa639494a7caedead071dc0b9ba77c64f9": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"This change widens the revenue and profit trend chart and shifts the adjacent profit bridge chart to keep the layout within the grid.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/4/layout\",\"from\":null,\"value_json\":\"{\\\"x\\\":0,\\\"y\\\":2,\\\"w\\\":9,\\\"h\\\":4}\"},{\"op\":\"replace\",\"path\":\"/widgets/5/layout\",\"from\":null,\"value_json\":\"{\\\"x\\\":9,\\\"y\\\":2,\\\"w\\\":3,\\\"h\\\":4}\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 277,
+      "output_tokens_details": {
+        "thinking_tokens": 87
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "b10ed7f04784e4a71cf10e41ef27256b03ff5cf051b379edecefffa5c16d5152": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Increases the height of the profit waterfall chart widget to give it more vertical space.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/5/layout/h\",\"from\":null,\"value_json\":\"6\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 148,
+      "output_tokens_details": {
+        "thinking_tokens": 61
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "29f6d69951dbffeb2d33419fdbbe91e01cf779a7ea6e624a16878ad9e56bbb98": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"This change makes the costs by month chart span the full width of the dashboard and moves the working capital table below it.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/6/layout\",\"from\":null,\"value_json\":\"{\\\"x\\\":0,\\\"y\\\":6,\\\"w\\\":12,\\\"h\\\":4}\"},{\"op\":\"replace\",\"path\":\"/widgets/7/layout\",\"from\":null,\"value_json\":\"{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":6,\\\"h\\\":4}\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 265,
+      "output_tokens_details": {
+        "thinking_tokens": 85
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "0deffe04132241465effa71bd815d2ef75bdd7ac3b92831e943aa7d6f66eb578": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Reduces the size of the working capital table widget on the dashboard.\",\"operations\":[{\"op\":\"replace\",\"path\":\"/widgets/7/layout\",\"from\":null,\"value_json\":\"{\\\"x\\\":6,\\\"y\\\":6,\\\"w\\\":4,\\\"h\\\":3}\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 194,
+      "output_tokens_details": {
+        "thinking_tokens": 88
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "b116fb1bd7a7de2094495e9cd1d4a9a81def91095dd4e52458919f612c6bb3c4": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new widget comparing revenue and profit against the same period last year.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"compare_revenue_profit_yoy\\\",\\\"kind\\\":\\\"bar\\\",\\\"title\\\":\\\"Revenue and profit versus last year\\\",\\\"metrics\\\":[\\\"revenue\\\",\\\"pat\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":6,\\\"h\\\":4},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"yoy\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1173,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 331,
+      "output_tokens_details": {
+        "thinking_tokens": 62
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "3c2a6111e76a2708e898555021b858bacee93d97e876ad4c83ff6e9deca1fb88": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new chart showing cash and bank balances over the trailing twelve months to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"trend_cash\\\",\\\"kind\\\":\\\"line\\\",\\\"title\\\":\\\"Cash and bank, last twelve months\\\",\\\"metrics\\\":[\\\"cash_and_bank\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":12},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":6,\\\"h\\\":4},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1175,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 317,
+      "output_tokens_details": {
+        "thinking_tokens": 43
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "2412e8d90886384036550cb90577410ff365cde5c497981ea9067a6f1bc250ad": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new card showing debtor days to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"kpi_dso\\\",\\\"kind\\\":\\\"kpi_card\\\",\\\"title\\\":\\\"Debtor days\\\",\\\"metrics\\\":[\\\"dso\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":3,\\\"h\\\":2},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 324,
+      "output_tokens_details": {
+        "thinking_tokens": 78
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "54aff2dd9a454a78463503fc7981767bd5c11a33e41fe963575303925995fba7": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new card showing trade payables to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"kpi_payables\\\",\\\"kind\\\":\\\"kpi_card\\\",\\\"title\\\":\\\"Payables\\\",\\\"metrics\\\":[\\\"payables\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":3,\\\"h\\\":2},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 279,
+      "output_tokens_details": {
+        "thinking_tokens": 35
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "794890e6d4f5d48d1297b8e3b5d77703b822787a046188392b2f2ffbc09b5211": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new card showing inventory to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"kpi_inventory\\\",\\\"kind\\\":\\\"kpi_card\\\",\\\"title\\\":\\\"Inventory\\\",\\\"metrics\\\":[\\\"inventory\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":3,\\\"h\\\":2},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1164,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 303,
+      "output_tokens_details": {
+        "thinking_tokens": 57
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "db87e27819451359c79495b80e6228adc6331f341797da41dae939cba32acc5f": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new chart tracking gross margin percentage over the year to date to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"trend_gross_margin\\\",\\\"kind\\\":\\\"line\\\",\\\"title\\\":\\\"Gross margin, year to date\\\",\\\"metrics\\\":[\\\"gross_margin_pct\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"fy_to_date\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":6,\\\"h\\\":4},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1171,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 308,
+      "output_tokens_details": {
+        "thinking_tokens": 39
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "0b1d73662180727b9257040a48eb4f64a466bb01af77cf5ac226f2fd5ffa7a52": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Add a KPI card showing the tax expense to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"kpi_tax\\\",\\\"kind\\\":\\\"kpi_card\\\",\\\"title\\\":\\\"Tax expense\\\",\\\"metrics\\\":[\\\"tax\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":3,\\\"h\\\":2},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 247,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "e659f22699c3313348a176957155ea314646d8c74ce9e0fe2d248a26de5da619": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new card displaying finance costs to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"kpi_finance_cost\\\",\\\"kind\\\":\\\"kpi_card\\\",\\\"title\\\":\\\"Finance costs\\\",\\\"metrics\\\":[\\\"finance_cost\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":3,\\\"h\\\":2},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1165,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 295,
+      "output_tokens_details": {
+        "thinking_tokens": 42
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "e28e20fa0c918b66bf32960cdcaefecafa291c6e90623a54a505ede370c23253": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new table widget showing monthly operating expenses to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"opex_by_month\\\",\\\"kind\\\":\\\"table\\\",\\\"title\\\":\\\"Operating expenses by month\\\",\\\"metrics\\\":[\\\"direct_costs\\\",\\\"employee_cost\\\",\\\"other_opex\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"last_n\\\",\\\"n\\\":6},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":12,\\\"h\\\":4},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1169,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 328,
+      "output_tokens_details": {
+        "thinking_tokens": 49
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "9cabb600a7197e5027ff1be18ea652431f4f14214d9beda103e418e0062886c0": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new KPI card showing profit after tax to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"kpi_pat\\\",\\\"kind\\\":\\\"kpi_card\\\",\\\"title\\\":\\\"Profit after tax\\\",\\\"metrics\\\":[\\\"pat\\\",\\\"pat_pct\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":3,\\\"h\\\":2},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1166,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 307,
+      "output_tokens_details": {
+        "thinking_tokens": 47
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6f136b42503efef1f9f34d6de29b0bf15a4ca9e2d837511ed43f2c0b2b916fab": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new card showing depreciation to the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"kpi_depreciation\\\",\\\"kind\\\":\\\"kpi_card\\\",\\\"title\\\":\\\"Depreciation\\\",\\\"metrics\\\":[\\\"depreciation\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":3,\\\"h\\\":2},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1167,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 294,
+      "output_tokens_details": {
+        "thinking_tokens": 44
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "fddacd091cfbead400d313f2b46fa342f352dccd76ead6c397e8b8740aef0aad": {
+    "text": "{\"scope\":\"in_scope\",\"summary\":\"Adds a new waterfall chart widget showing the path from revenue to EBITDA on the dashboard.\",\"operations\":[{\"op\":\"add\",\"path\":\"/widgets/-\",\"from\":null,\"value_json\":\"{\\\"id\\\":\\\"bridge_ebitda\\\",\\\"kind\\\":\\\"waterfall\\\",\\\"title\\\":\\\"From revenue to EBITDA\\\",\\\"metrics\\\":[\\\"revenue\\\",\\\"direct_costs\\\",\\\"employee_cost\\\",\\\"other_opex\\\",\\\"ebitda\\\"],\\\"dimension\\\":null,\\\"periods\\\":{\\\"kind\\\":\\\"current\\\"},\\\"layout\\\":{\\\"x\\\":0,\\\"y\\\":10,\\\"w\\\":6,\\\"h\\\":4},\\\"drilldown\\\":{\\\"kind\\\":\\\"lineage\\\"},\\\"compare\\\":\\\"none\\\",\\\"sort\\\":null,\\\"limit\\\":null}\"}]}",
+    "usage": {
+      "input_tokens": 1175,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1555,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 404,
+      "output_tokens_details": {
+        "thinking_tokens": 102
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  }
+}

@@ -32,6 +32,8 @@ async function main(): Promise<void> {
       tier: { type: "string", default: "efficient" },
       version: { type: "string", default: "1" },
       limit: { type: "string", default: "60" },
+      // A hard ceiling for the run, in US cents. Live evals spend real money (R-28).
+      maxCents: { type: "string" },
     },
   });
   const stage = values.stage as EvaluableStage;
@@ -39,6 +41,11 @@ async function main(): Promise<void> {
   const tier = values.tier as Tier;
   const promptVersion = Number.parseInt(values.version, 10);
   const limit = Number.parseInt(values.limit, 10);
+  // Whole US cents, kept in integers: a cap on money never goes through a float (SPEC §4).
+  const maxMicroUsd =
+    values.maxCents === undefined
+      ? undefined
+      : BigInt(Number.parseInt(values.maxCents, 10)) * 10_000n;
 
   const url = process.env["DATABASE_URL"];
   if (url === undefined) throw new Error("DATABASE_URL is required");
@@ -55,6 +62,7 @@ async function main(): Promise<void> {
       tier,
       promptVersion,
       limit,
+      ...(maxMicroUsd === undefined ? {} : { maxSpendMicroUsd: maxMicroUsd }),
       mode: live ? "live" : "replay",
       ...(live && key !== undefined ? { liveTransport: anthropicTransport(key) } : {}),
       recordingPath: path.join(HERE, "recordings", `${name}.json`),
@@ -69,6 +77,8 @@ async function main(): Promise<void> {
         2,
       ),
     );
+    if (report.stoppedOnBudget)
+      console.warn(`STOPPED ON BUDGET after ${report.items.toString()} items`);
     console.warn(
       `${name} ${report.mode}${report.oracle ? " (oracle)" : ""}: ${report.correct.toString()}/${report.items.toString()} = ${report.accuracy} → ${file}`,
     );

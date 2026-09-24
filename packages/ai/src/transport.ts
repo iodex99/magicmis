@@ -45,10 +45,31 @@ export interface AiTransport {
   batchResults(id: string): Promise<BatchResult[]>;
 }
 
+/**
+ * Above this ceiling the SDK demands streaming (verified 2026-09-24: 24,000 throws on Opus 5,
+ * 16,000 does not). Sits below the observed boundary so a slower model does not creep past it.
+ */
+const STREAM_ABOVE_MAX_TOKENS = 16_000;
+
 export function anthropicTransport(apiKey: string): AiTransport {
   const client = new Anthropic({ apiKey, maxRetries: 2 });
   return {
     async create(params) {
+      /*
+       * The SDK refuses a non-streaming request whose `max_tokens` could keep it open past ten
+       * minutes, and throws before anything is sent — which is how the Expert routes for
+       * commentary and reference_layout (Opus 5 at 24,000) failed every call while the same
+       * stages passed at 16,000. Streaming is the documented remedy, so take it whenever the
+       * ceiling is high enough to be at risk, and keep the plain call for everything else.
+       *
+       * `finalMessage()` returns the same assembled Message the non-streaming call does, so the
+       * usage accounting and the structured output above are unchanged. A streamed request
+       * exposes no response headers, so there is no request id to record.
+       */
+      if (params.max_tokens > STREAM_ABOVE_MAX_TOKENS) {
+        const stream = client.messages.stream(params);
+        return { message: await stream.finalMessage(), requestId: null };
+      }
       const { data, request_id } = await client.messages.create(params).withResponse();
       return { message: data, requestId: request_id ?? null };
     },
