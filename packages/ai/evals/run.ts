@@ -1,7 +1,11 @@
 /**
  * Eval CLI.
  *
- *   pnpm --filter @magicmis/ai evals -- --stage sheet_classification --tier efficient --version 1
+ *   pnpm --filter @magicmis/ai evals --stage sheet_classification --tier efficient --version 1
+ *
+ * No `--` before the flags: pnpm forwards it as a positional and parseArgs refuses it. The
+ * script runs tsx with --conditions=react-server because src/transport.ts imports "server-only",
+ * which throws under a plain tsx resolution.
  *
  * Replay (default) needs only DATABASE_URL. Live mode additionally needs AI_LIVE=1 and
  * ANTHROPIC_API_KEY, spends real money on synthetic fixtures, and saves a recording under
