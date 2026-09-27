@@ -39,10 +39,6 @@ export default defineConfig({
       OUTPUT_STORE: "local",
       // Chat E2E drives a deterministic fake model; refused outside development (lib/server/ai.ts).
       AI_TRANSPORT: "fake",
-      // Razorpay stood in for, so one test can walk a whole purchase — order, signed callback,
-      // signed webhook, credits, invoice — instead of every test mocking the route away. Refused
-      // outside development (lib/billing.ts).
-      PAYMENT_GATEWAY: "fake",
       // ADR 0043: Google on and Apple off, so both branches of the provider gate are driven.
       // No credentials exist locally; the tests stop at the redirect to the identity service.
       AUTH_OAUTH_PROVIDERS: "google",

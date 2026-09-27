@@ -1,9 +1,8 @@
 /**
  * Phase 2 customer surfaces (SPEC §12, §13): public pricing, wallet with GST shown before
  * payment, bank-transfer proforma with PDF download, price preview, webhook refusal.
- * The card flow is now walked the whole way by the last test here, against a gateway stood in
- * for in development: order, signed callback, signed webhook, credits, tax invoice. What still
- * needs live `rzp_test_…` credentials is Razorpay's own half of the contract (R-26).
+ * The Razorpay card flow itself needs live test credentials and is covered by the
+ * packages/billing integration tests with a fake gateway.
  */
 
 import { expect, test } from "@playwright/test";
@@ -211,84 +210,4 @@ test("billing APIs refuse the unauthenticated, and forged webhooks are rejected"
     data: { event: "payment.captured", payload: {} },
   });
   expect(forged.status()).toBe(401);
-});
-
-/*
- * The whole way through a purchase, for the first time.
- *
- * Every other test here either mocks `/api/wallet/purchases` away or funds the wallet with an
- * admin grant, so nothing had ever driven the sequence the money actually takes: order, signed
- * checkout callback, signed webhook, credits, tax invoice. The gateway is stood in for
- * (`PAYMENT_GATEWAY=fake`, refused outside development), and that is the only thing stood in for
- * — the signatures are real HMACs under the configured secrets, the webhook goes through
- * `handleRazorpayWebhook` with its de-duplication, and the credits, the GST split and the invoice
- * number all come from the production path. Razorpay's own half still needs a live run (R-26).
- */
-test("a purchase pays, credits the wallet and issues a tax invoice (fake gateway)", async ({
-  page,
-}) => {
-  await createVerifiedAccount(page, uniqueEmail());
-  await page.getByRole("link", { name: "Wallet" }).click();
-  await expect(page.getByTestId("wallet-balance")).toContainText("0");
-
-  const starter = page.getByTestId("wallet-pack").filter({ hasText: "Starter" });
-  await starter.getByRole("button", { name: "Buy" }).click();
-
-  // Billing details are asked once, at the first purchase (migration 0034), and India is chosen
-  // here so the GST split is exercised rather than the zero-rated export path. The postal field
-  // is labelled "PIN code" once the country is India, so it is matched either way.
-  await expect(page.getByText(/One thing before paying/u)).toBeVisible();
-  await page.getByLabel("Country").selectOption("IN");
-  const business = page.getByLabel("Business name");
-  if ((await business.inputValue()) === "") await business.fill("Probe Traders");
-  await page.getByLabel("Address line 1").fill("1 Test Street");
-  await page.getByLabel("City").fill("Mumbai");
-  await page.getByLabel(/PIN code|Postal code/u).fill("400001");
-  const state = page.getByLabel(/^State/u);
-  if ((await state.count()) > 0) await state.selectOption({ index: 1 });
-  await page.getByRole("button", { name: /Save and continue to payment/u }).click();
-
-  // The credits arrive from the webhook, so the balance is polled rather than asserted at once.
-  await expect
-    .poll(
-      async () => {
-        const r = await page.request.get("/api/wallet");
-        return ((await r.json()) as { purchases: { status: string }[] }).purchases[0]
-          ?.status;
-      },
-      { timeout: 30_000 },
-    )
-    .toBe("credited");
-
-  const wallet = await page.evaluate(async () => {
-    const r = await fetch("/api/wallet");
-    return (await r.json()) as {
-      balance: string;
-      purchases: {
-        status: string;
-        credits: string;
-        bonusCredits: string;
-        totalMinor: string;
-      }[];
-      invoices: { type: string; number: string; totalMinor: string }[];
-    };
-  });
-
-  // Credited, not merely paid: a purchase that captures money and grants nothing is the failure
-  // this test exists to catch.
-  const purchase = wallet.purchases[0];
-  expect(purchase?.status).toBe("credited");
-  // Every credit granted came from this purchase, so the two must agree exactly: a grant that
-  // does not match what was sold is the bug worth catching here.
-  expect(BigInt(wallet.balance)).toBeGreaterThan(0n);
-  expect(BigInt(wallet.balance)).toBe(
-    BigInt(purchase?.credits ?? "0") + BigInt(purchase?.bonusCredits ?? "0"),
-  );
-
-  // And the document exists, numbered for the financial year, for the amount that was charged.
-  const invoice = wallet.invoices[0];
-  expect(invoice?.type).toBe("tax_invoice");
-  expect(invoice?.number).toMatch(/^INV\/\d{2}-\d{2}\/\d{6}$/u);
-  expect(invoice?.totalMinor).toBe(purchase?.totalMinor);
-  await expect(page.getByText(invoice?.number ?? "no invoice")).toBeVisible();
 });
