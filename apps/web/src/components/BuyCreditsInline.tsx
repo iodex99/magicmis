@@ -81,6 +81,7 @@ export function BuyCreditsInline({
       amountMinor: string;
       currency: string;
       keyId: string;
+      fake?: boolean;
     }>("/api/wallet/purchases", {
       body: { packId },
       idempotencyKey: newIdempotencyKey(),
@@ -88,6 +89,39 @@ export function BuyCreditsInline({
     if (!created.ok) {
       setBusy(false);
       setNotice({ tone: "error", text: created.message });
+      return;
+    }
+    /*
+     * Development stand-in for the gateway (see the Wallet's own `buy`): no Razorpay order exists
+     * to open Checkout with, so the server plays both callbacks against its real handlers. The
+     * credits still arrive by webhook, so the same polling below applies.
+     */
+    if (created.data.fake === true) {
+      const paid = await api<{ webhook: string }>("/api/wallet/purchases/fake-pay", {
+        body: { orderId: created.data.orderId },
+      });
+      if (!isLive()) return;
+      if (!paid.ok) {
+        setBusy(false);
+        setNotice({ tone: "error", text: paid.message });
+        return;
+      }
+      const next = await api<WalletView>("/api/wallet");
+      if (!isLive()) return;
+      setBusy(false);
+      if (
+        next.ok &&
+        next.data.purchases.find((p) => p.id === created.data.purchaseId)?.status ===
+          "credited"
+      ) {
+        setNotice({ tone: "success", text: "Credits added. You can run it now." });
+        onCredited();
+        return;
+      }
+      setNotice({
+        tone: "error",
+        text: "The stand-in gateway did not credit the purchase.",
+      });
       return;
     }
     let Razorpay: RazorpayConstructor;

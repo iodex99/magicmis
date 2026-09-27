@@ -1,7 +1,7 @@
 import { BillingError, createRazorpayPurchase, GatewayError } from "@magicmis/billing";
 import { z } from "zod";
 
-import { paymentGateway } from "@/lib/billing";
+import { paymentGateway, paymentGatewayIsFake } from "@/lib/billing";
 import { db } from "@/lib/db";
 import { serverEnv } from "@/lib/env";
 import { apiError, idempotent, parseJson, withAccount } from "@/lib/http";
@@ -40,6 +40,13 @@ export async function POST(request: Request): Promise<Response> {
               amountMinor: order.amountMinor.toString(),
               currency: order.currency,
               keyId: serverEnv().RAZORPAY_KEY_ID,
+              /*
+               * Development only, and the page needs to know: there is no Razorpay order behind
+               * this one, so opening Checkout with it would fail. The browser is told *that* the
+               * gateway is a stand-in, never allowed to ask for one — `paymentGatewayIsFake()`
+               * reads the server's own environment and throws outside development.
+               */
+              fake: paymentGatewayIsFake(),
             },
           };
         },

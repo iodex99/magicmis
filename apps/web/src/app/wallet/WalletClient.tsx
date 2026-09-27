@@ -126,6 +126,7 @@ export function WalletClient({
       amountMinor: string;
       currency: string;
       keyId: string;
+      fake?: boolean;
     }>("/api/wallet/purchases", {
       body: { packId },
       idempotencyKey: newIdempotencyKey(),
@@ -133,6 +134,24 @@ export function WalletClient({
     if (!created.ok) {
       setBusy(null);
       setNotice({ tone: "error", text: created.message });
+      return;
+    }
+    /*
+     * Development stand-in for the gateway: there is no Razorpay order to open Checkout with, so
+     * the server plays both callbacks against its own real handlers instead. Everything after
+     * this — the credit grant, the GST split, the invoice — is the same code a live payment runs.
+     */
+    if (created.data.fake === true) {
+      const paid = await api<{ webhook: string }>("/api/wallet/purchases/fake-pay", {
+        body: { orderId: created.data.orderId },
+      });
+      if (!paid.ok) {
+        setBusy(null);
+        setNotice({ tone: "error", text: paid.message });
+        return;
+      }
+      await awaitCredit(created.data.purchaseId);
+      setBusy(null);
       return;
     }
     let Razorpay: RazorpayConstructor;

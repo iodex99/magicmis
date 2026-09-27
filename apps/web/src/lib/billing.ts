@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   BillingError,
+  FakeGateway,
   listInvoices,
   listPackQuotes,
   listPurchases,
@@ -10,14 +11,38 @@ import {
 } from "@magicmis/billing";
 import type { Currency } from "@magicmis/core/money";
 import { walletSummary } from "@magicmis/wallet";
+import { z } from "zod";
 
 import { db } from "./db";
-import { serverEnv } from "./env";
+import { appPublicEnv, serverEnv } from "./env";
 import { listedPacks, packWorth } from "./server/packs";
 
 let gateway: PaymentGateway | undefined;
 
+/**
+ * Whether this server is standing in for Razorpay instead of calling it.
+ *
+ * `PAYMENT_GATEWAY=fake` is for development and the browser suite, where there are no live
+ * Razorpay keys and the Wallet's buttons would otherwise fail on the first API call. It is
+ * refused anywhere else, and the refusal is deliberately at the boundary rather than a silent
+ * fall-through: a fake gateway in production hands out credits for nothing.
+ */
+export function paymentGatewayIsFake(): boolean {
+  const mode = z
+    .enum(["razorpay", "fake"])
+    .default("razorpay")
+    .parse(process.env["PAYMENT_GATEWAY"]);
+  if (mode === "razorpay") return false;
+  if (appPublicEnv().NEXT_PUBLIC_ENVIRONMENT !== "development")
+    throw new Error("the fake payment gateway is allowed only in development");
+  return true;
+}
+
 export function paymentGateway(): PaymentGateway {
+  if (paymentGatewayIsFake()) {
+    gateway ??= new FakeGateway();
+    return gateway;
+  }
   const env = serverEnv();
   gateway ??= new RazorpayGateway(env.RAZORPAY_KEY_ID, env.RAZORPAY_KEY_SECRET);
   return gateway;
