@@ -496,6 +496,9 @@ importers:
       '@magicmis/ingest':
         specifier: workspace:*
         version: link:../ingest
+      '@magicmis/semantic':
+        specifier: workspace:*
+        version: link:../semantic
       '@magicmis/tally':
         specifier: workspace:*
         version: link:../tally

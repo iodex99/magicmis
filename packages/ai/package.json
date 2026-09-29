@@ -39,6 +39,7 @@
     "fast-check": "^4.5.0",
     "tsx": "4.23.13",
     "@magicmis/ingest": "workspace:*",
+    "@magicmis/semantic": "workspace:*",
     "@magicmis/tally": "workspace:*"
   }
 }

@@ -25,6 +25,9 @@ import {
   extractReferenceLayoutSpec,
   generateCommentarySpec,
   mapColumnsSpec,
+  mapLedgersSpec,
+  type MapLedgersInput,
+  type MapLedgersOutput,
   type ExtractReferenceLayoutInput,
   type ExtractReferenceLayoutOutput,
   type GenerateCommentaryInput,
@@ -69,6 +72,7 @@ import {
   type EvalItem,
   type ReferenceLabel,
 } from "./datasets";
+import { ledgerMappingDataset, type LedgerLabel } from "./ledger-mapping";
 
 export type Recording = Record<
   string,
@@ -151,6 +155,31 @@ const columnEval: StageEval<
     columns: Object.entries(item.label).map(([ref, role]) => ({
       ref,
       role,
+      confidence: "high" as const,
+    })),
+  }),
+};
+
+/**
+ * A ledger is right when its head is one the label accepts, and null is right only where the
+ * label says leaving it unmapped is. Confidence is not scored: every AI mapping is marked for the
+ * customer to confirm whatever confidence it carries.
+ */
+const ledgerEval: StageEval<MapLedgersInput, MapLedgersOutput, LedgerLabel> = {
+  spec: mapLedgersSpec,
+  dataset: ledgerMappingDataset,
+  score: (o, label) => {
+    const got = new Map(o.mappings.map((m) => [m.ref, m.head]));
+    const refs = Object.keys(label);
+    return {
+      units: refs.length,
+      correct: refs.filter((r) => label[r]?.includes(got.get(r) ?? null) === true).length,
+    };
+  },
+  oracle: (item) => ({
+    mappings: Object.entries(item.label).map(([ref, accept]) => ({
+      ref,
+      head: accept[0] ?? null,
       confidence: "high" as const,
     })),
   }),
@@ -452,6 +481,7 @@ export const STAGE_EVALS = {
   thread_summary: threadSummaryEval,
   sheet_classification: sheetEval,
   column_mapping: columnEval,
+  ledger_mapping: ledgerEval,
   reference_layout: referenceEval,
   commentary: commentaryEval,
   board_actions: boardActionsEval,

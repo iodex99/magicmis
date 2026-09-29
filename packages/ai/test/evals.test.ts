@@ -95,6 +95,7 @@ describe("harness", () => {
   });
 
   it.each([
+    "ledger_mapping",
     "reference_layout",
     "commentary",
     "chat_quick",
