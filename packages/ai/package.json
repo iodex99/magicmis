@@ -18,7 +18,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "evals": "tsx --conditions=react-server evals/run.ts",
-    "activate": "tsx --conditions=react-server evals/activate.ts"
+    "activate": "tsx --conditions=react-server evals/activate.ts",
+    "go-live": "tsx --conditions=react-server evals/go-live.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.125.0",
