@@ -73,6 +73,12 @@ export interface CascadeContext {
   readonly library: LibraryIndex;
   /** `semantic.fuzzy_threshold`, e.g. "0.85". */
   readonly fuzzyThreshold: string;
+  /**
+   * Ledger keys the company's blueprint holds as Unmapped (`acceptedUnmapped`). They are settled:
+   * mapped Unmapped from the company's own record and never left for the model again, so a
+   * monthly refresh on unchanged structure makes no AI call even for a ledger nothing could place.
+   */
+  readonly acceptedUnmapped?: readonly string[];
 }
 
 const keyPart = (s: string): string =>
@@ -170,6 +176,13 @@ export function mapLedger(ledger: SourceLedger, ctx: CascadeContext): CascadeRes
   const companyRule = ctx.companyRules.find((r) => r.ledgerKey === key);
   if (companyRule !== undefined && isHeadCode(companyRule.head))
     return mapped(companyRule.head, "company_rule", "high");
+  if (ctx.acceptedUnmapped?.includes(key) === true)
+    return mapped(
+      "UNMAPPED",
+      "company_rule",
+      "high",
+      "Left Unmapped in an earlier month",
+    );
 
   // Tally's own top-level lines ("Profit & Loss A/c", "Difference in opening balances").
   if (ledger.groupPath.length === 0) {

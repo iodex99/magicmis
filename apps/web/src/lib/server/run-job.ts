@@ -429,6 +429,9 @@ export async function runJobOnServer(
     const rules = session.memory.mappingRules;
     const mapped = mapStep(p, {
       companyRules: rules?.rules ?? [],
+      // Ledgers left Unmapped before stay so without asking the model again: this is what keeps
+      // a refresh on unchanged structure free of AI calls once ledger mapping is live (ADR 0069).
+      acceptedUnmapped: rules?.acceptedUnmapped ?? [],
       accountRules: session.memory.accountRules,
       library: session.library,
       fuzzyThreshold: session.fuzzyThreshold,
@@ -470,6 +473,15 @@ export async function runJobOnServer(
       if (unmapped > 0)
         notice(
           `${unmapped.toString()} ${unmapped === 1 ? "ledger" : "ledgers"} could not be matched to a line and ${unmapped === 1 ? "is" : "are"} shown as Unmapped in the workbook.`,
+        );
+    } else {
+      // Still said on a refresh, where they were settled rather than asked about again.
+      const held = mappings.filter(
+        (m) => m.head === "UNMAPPED" && m.source === "company_rule",
+      ).length;
+      if (held > 0)
+        notice(
+          `${held.toString()} ${held === 1 ? "ledger" : "ledgers"} could not be matched to a line and ${held === 1 ? "is" : "are"} shown as Unmapped in the workbook.`,
         );
     }
 

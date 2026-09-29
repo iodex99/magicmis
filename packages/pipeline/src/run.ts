@@ -118,6 +118,8 @@ export function mapStep(
   prepared: Prepared,
   input: {
     companyRules: readonly CompanyRule[];
+    /** Ledger keys the blueprint holds as Unmapped: settled, never sent to the model again. */
+    acceptedUnmapped?: readonly string[];
     accountRules: readonly AccountRule[];
     library: readonly LibraryEntry[];
     fuzzyThreshold: string;
@@ -135,6 +137,7 @@ export function mapStep(
     [...latest.values()].map((f) => ({ groupPath: f.groupPath, name: f.name })),
     {
       companyRules: input.companyRules,
+      acceptedUnmapped: input.acceptedUnmapped ?? [],
       accountRules: input.accountRules,
       library: indexLibrary(input.library),
       fuzzyThreshold: input.fuzzyThreshold,
