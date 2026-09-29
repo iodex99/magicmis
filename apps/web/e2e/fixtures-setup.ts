@@ -38,7 +38,9 @@ export default async function globalSetup(): Promise<void> {
   // tests; here they would only refuse the suite for being a suite.
   const pool = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
   try {
-    await pool.query(`delete from auth_throttle where key like 'signup:ip:%'`);
+    await pool.query(
+      `delete from auth_throttle where key like 'signup:ip:%' or key like 'welcome:%'`,
+    );
     await pool.query(`delete from rate_limit_counters`);
   } finally {
     await pool.end();

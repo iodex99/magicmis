@@ -11,7 +11,12 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 import { FIXTURES_OUT } from "./fixtures-setup";
-import { createVerifiedAccount, uniqueEmail, watchCspViolations } from "./helpers";
+import {
+  createVerifiedAccount,
+  emptyTheWallet,
+  uniqueEmail,
+  watchCspViolations,
+} from "./helpers";
 
 const fixture = (...parts: string[]) => path.join(FIXTURES_OUT, ...parts);
 
@@ -20,11 +25,13 @@ test.describe.configure({ mode: "serial" });
 let page: Page;
 let csp: string[] = [];
 let runUrl = "";
+let email = "";
 
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
   csp = watchCspViolations(page);
-  await createVerifiedAccount(page, uniqueEmail());
+  email = uniqueEmail();
+  await createVerifiedAccount(page, email);
   await page.goto("/app");
   await page.getByLabel("Company name").fill("Intake Test Traders");
   await page.getByRole("button", { name: "Add company" }).click();
@@ -188,7 +195,9 @@ test("a company's kept files are listed and can be deleted", async () => {
 });
 
 test("an empty wallet is said gently and early, and topped up in place without losing the files (ADR 0049)", async () => {
-  // This account has never bought credits.
+  // This account has never bought credits, and whatever welcome credits it started with are
+  // taken away (ADR 0068), so its wallet holds nothing at all.
+  await emptyTheWallet(email);
   await page.goto(runUrl);
   await expect(page.getByTestId("job-empty-wallet")).toContainText(
     "Your wallet is empty",

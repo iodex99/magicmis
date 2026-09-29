@@ -86,3 +86,57 @@ export function watchCspViolations(page: Page): string[] {
   });
   return violations;
 }
+
+export const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+
+/**
+ * The welcome credits an account was granted at its first sign-in, or 0 when they were withheld
+ * (ADR 0068). Every request in the suite comes from one address, so which accounts get them
+ * depends on the network limit and on test order: a test that counts credits reads this rather
+ * than assuming either way.
+ */
+export async function welcomeGranted(email: string): Promise<bigint> {
+  const { default: pg } = await import("pg");
+  const db = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
+  try {
+    const r = await db.query<{ credits: string }>(
+      `select w.credits::text from welcome_credits w join accounts a on a.id = w.account_id
+        where a.email = $1`,
+      [email],
+    );
+    return BigInt(r.rows[0]?.credits ?? "0");
+  } finally {
+    await db.end();
+  }
+}
+
+/**
+ * Take an account's credits away, as support would with an adjustment, for a test of what an
+ * account with nothing in its wallet sees. Since ADR 0068 a new account may start with welcome
+ * credits, so "never bought anything" no longer means "has nothing".
+ */
+export async function emptyTheWallet(email: string): Promise<void> {
+  const { default: pg } = await import("pg");
+  const { adminAdjust } = await import("@magicmis/wallet");
+  const db = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
+  try {
+    const r = await db.query<{ id: string; available: string }>(
+      `select a.id, (w.balance_credits - w.held_credits)::text as available
+         from accounts a join wallets w on w.account_id = a.id where a.email = $1`,
+      [email],
+    );
+    const row = r.rows[0];
+    if (row === undefined) throw new Error(`no wallet for ${email}`);
+    const available = BigInt(row.available);
+    if (available > 0n)
+      await adminAdjust(db, {
+        accountId: row.id,
+        delta: -available,
+        reason: "E2E: start from an empty wallet",
+        adminId: randomUUID(),
+        idempotencyKey: randomUUID(),
+      });
+  } finally {
+    await db.end();
+  }
+}

@@ -7,7 +7,7 @@
 
 import { expect, test } from "@playwright/test";
 
-import { createVerifiedAccount, uniqueEmail } from "./helpers";
+import { createVerifiedAccount, emptyTheWallet, uniqueEmail } from "./helpers";
 
 test("credit packs are public, in dollars, and say nothing of AI cost or where we are", async ({
   page,
@@ -142,7 +142,10 @@ test("Buy asks where to invoice once, then goes straight to payment for the pack
 test("wallet shows GST before payment, issues a proforma and serves its PDF", async ({
   page,
 }) => {
-  await createVerifiedAccount(page, uniqueEmail());
+  const email = uniqueEmail();
+  await createVerifiedAccount(page, email);
+  // A price the balance does not cover is the case under test, so any welcome credits go.
+  await emptyTheWallet(email);
   await page.getByRole("link", { name: "Wallet" }).click();
   await expect(page).toHaveURL(/\/wallet$/u);
   await expect(page.getByTestId("wallet-balance")).toContainText("0");

@@ -20,6 +20,7 @@ import {
   PASSWORD,
   uniqueEmail,
   watchCspViolations,
+  welcomeGranted,
 } from "./helpers";
 
 // The local Supabase stack's database (supabase/config.toml defaults; not a secret).
@@ -82,10 +83,18 @@ test.afterAll(async () => {
   await db.end();
 });
 
-async function aiCallsForAccount(): Promise<number> {
+/**
+ * Every AI call this account has made. A test that promises a step makes none compares this before
+ * and after the step, never against zero: where a stage is activated, setting a company up may
+ * legitimately call the AI once (its first dashboard, ADR 0056), and the promise under test is
+ * about the refresh, the edit or the recreate. CI's clean stack activates nothing, so there both
+ * readings are zero.
+ */
+async function aiCallsForAccount(exceptStages: readonly string[] = []): Promise<number> {
   const r = await db.query<{ n: number }>(
-    `select count(*)::int as n from ai_calls c join accounts a on a.id = c.account_id where a.email = $1`,
-    [email],
+    `select count(*)::int as n from ai_calls c join accounts a on a.id = c.account_id
+      where a.email = $1 and not (c.stage = any($2::text[]))`,
+    [email, [...exceptStages]],
   );
   return r.rows[0]?.n ?? -1;
 }
@@ -117,6 +126,9 @@ test("sets up a company from thirteen months of trial balances", async () => {
   await runJob(SETUP_MONTHS.map(tb));
   await expect(page.getByTestId("job-checks")).toContainText("V11");
   await expect(page.getByTestId("job-done")).toContainText("999 credits charged");
+  // Every ledger in this fixture is placed by the rules and its files hold balances, so setting
+  // it up asks the model nothing but the company's first dashboard (ADR 0056, ADR 0069).
+  expect(await aiCallsForAccount(["dashboard_layout"])).toBe(0);
 
   const download = page.waitForEvent("download");
   await page.getByTestId("job-download").click();
@@ -142,6 +154,7 @@ test("sets up a company from thirteen months of trial balances", async () => {
 });
 
 test("refreshes the next month with no review and zero AI calls", async () => {
+  const aiBefore = await aiCallsForAccount();
   await page.goto("/app");
   await page.getByRole("link", { name: "Add a file" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
@@ -191,7 +204,9 @@ test("refreshes the next month with no review and zero AI calls", async () => {
   await page.unroute(/\/api\/jobs\/[^/]+\/accept-quote$/u);
   await expect(page.getByTestId("job-done")).toContainText("299 credits charged");
 
-  expect(await aiCallsForAccount()).toBe(0);
+  // The recurring margin: a refresh on unchanged structure, and the dashboard refresh it brings,
+  // make no AI call at all.
+  expect(await aiCallsForAccount()).toBe(aiBefore);
   const r = await db.query<{ type: string; state: string; captured_credits: string }>(
     `select j.type, j.state, j.captured_credits::text from jobs j join accounts a on a.id = j.account_id
       where a.email = $1 and j.state not in ('draft', 'estimated', 'cancelled')
@@ -212,13 +227,17 @@ test("refreshes the next month with no review and zero AI calls", async () => {
     `select w.balance_credits::text, w.held_credits::text from wallets w join accounts a on a.id = w.account_id where a.email = $1`,
     [email],
   );
+  // Whatever welcome credits this account started with are spent first and add to the balance
+  // like any other lot (ADR 0068); the network limit decides whether it got them at all.
+  const welcome = await welcomeGranted(email);
   expect(wallet.rows[0]).toEqual({
-    balance_credits: (20_000 - 999 - 299 - 299 - 99).toString(),
+    balance_credits: (20_000n + welcome - 999n - 299n - 299n - 99n).toString(),
     held_credits: "0",
   });
 });
 
 test("adds the dashboard, opens lineage from a number, edits with preview, and undoes", async () => {
+  const aiBefore = await aiCallsForAccount();
   const company = await db.query<{ id: string }>(
     `select c.id from companies c join accounts a on a.id = c.account_id where a.email = $1`,
     [email],
@@ -262,7 +281,7 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   );
   // v1 setup, v2 dashboard (with the setup), v3 dashboard refresh (with May), v4 rename, v5 undo.
   expect(versions.rows[0]?.n).toBe(5);
-  expect(await aiCallsForAccount()).toBe(0);
+  expect(await aiCallsForAccount()).toBe(aiBefore);
 });
 
 test("the rail and the chat fold away, the chat stays one press from anywhere, and edit tools stay inside their cards", async () => {
@@ -364,6 +383,9 @@ test("the rail and the chat fold away, the chat stays one press from anywhere, a
 });
 
 test("sets up a company that recreates the user's reference MIS with no AI call", async () => {
+  // A new company's first dashboard is chosen by its own priced action, which calls the AI once
+  // where that stage is activated (ADR 0056). The promise here is about recreating the MIS.
+  const aiBefore = await aiCallsForAccount(["dashboard_layout"]);
   const { referenceMisWorkbook } = await import("@magicmis/fixtures");
   const { mkdtemp, writeFile } = await import("node:fs/promises");
   const { tmpdir } = await import("node:os");
@@ -435,7 +457,7 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
     [email],
   );
   expect(abandoned.rows.every((r) => r.captured === "0")).toBe(true);
-  expect(await aiCallsForAccount()).toBe(0);
+  expect(await aiCallsForAccount(["dashboard_layout"])).toBe(aiBefore);
 });
 
 test.describe("chat with the MIS", () => {
