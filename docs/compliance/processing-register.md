@@ -44,6 +44,7 @@ Their raw details stay in the browser (SPEC §2.8). Where they reach the server,
 | P10 | Consent records | Document, version, time, IP | Show consent was given | Legal obligation | Postgres, audit-logged | Life of account | `consents` |
 | P11 | Audit log | Actor IDs, action, IP; no financial data content | Security and accountability | Legal obligation / legitimate use | Postgres, hash-chained, append-only | Retained (append-only) | `packages/db/src/audit.ts` |
 | P12 | Support break-glass access | Decrypted company memory, viewed by an admin under a time-limited grant | Support the user asked for | Contract; the account holder is notified | Admin console | Grant expires within `admin.break_glass_max_minutes`; every view audited | `apps/admin` |
+| P14 | Welcome credits (ADR 0068, ADR 0072) | HMAC-SHA-256 fingerprint of the normalised mailbox an email address reaches (not the address), under a KMS-wrapped platform key | Give welcome credits once per person or business | Notice at sign-up (privacy notice, section on collection); specified purpose | Postgres, `welcome_credits.mailbox_digest` | Life of the account and `wallet.welcome_fingerprint_retention_days` (365) after deletion, then erased nightly; sooner on request | `packages/accounts/src/welcome.ts`, `forgetWelcomeFingerprints` |
 | P13 | Data export | Everything in P1–P4, P7, P10 | Right to access | Legal obligation | Worker → Storage, sealed under the account key | Link valid `privacy.export_link_hours`, then file removed | `packages/jobs/src/exports.ts` |
 
 ## 3. Subprocessors
