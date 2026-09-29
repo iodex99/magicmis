@@ -11,6 +11,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { requestMeta } from "@/lib/http";
+import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { OAUTH_NEXT_COOKIE } from "@/lib/server/oauth";
 import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
 
@@ -109,6 +110,7 @@ export async function GET(request: NextRequest): Promise<Response> {
         ip,
         userAgent,
       });
+      await welcomeAfterClaim(db(), claim, ip);
       signedIn = claim.status !== "refused";
       // A session with no account behind it is someone who arrived through Google or Apple
       // for the first time: they have proved who they are and have not yet said what to

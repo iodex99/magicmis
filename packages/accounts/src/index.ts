@@ -10,3 +10,4 @@ export * from "./session";
 export * from "./signup";
 export * from "./state-codes";
 export * from "./throttle";
+export * from "./welcome";

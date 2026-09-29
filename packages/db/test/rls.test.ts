@@ -70,6 +70,7 @@ const INTERNAL_TABLES = [
   "audit_log",
   "reauth_grants",
   "auth_throttle",
+  "welcome_credits",
 ] as const;
 
 describe("every customer table has RLS enabled and forced", () => {

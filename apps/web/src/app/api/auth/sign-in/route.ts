@@ -13,6 +13,7 @@ import { z } from "zod";
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
+import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
 const bodySchema = z.object({
@@ -94,6 +95,7 @@ export async function POST(request: Request): Promise<Response> {
     after?.claims,
     { ip, userAgent },
   );
+  await welcomeAfterClaim(pool, claim, ip);
   // ADR 0043: signed in, but the account row was never created (someone who came through
   // Google or Apple and closed the tab before finishing). The finish step completes it.
   if (claim.status === "refused" && claim.reason === "no_account") {

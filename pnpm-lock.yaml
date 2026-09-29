@@ -440,6 +440,9 @@ importers:
       '@magicmis/db':
         specifier: workspace:*
         version: link:../db
+      '@magicmis/wallet':
+        specifier: workspace:*
+        version: link:../wallet
       pg:
         specifier: ^8.16.3
         version: 8.23.0

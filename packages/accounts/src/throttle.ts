@@ -13,7 +13,7 @@ import { z } from "zod";
 
 import { readConfig } from "@magicmis/db/config";
 import { one, withTransaction, type Queryable } from "@magicmis/db/tx";
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
 
 export const throttleLimitSchema = z.object({
   max_attempts: z.number().int().positive(),
@@ -26,7 +26,13 @@ export type ThrottleLimit = z.infer<typeof throttleLimitSchema>;
 export const throttleConfigSchema = z.record(z.string(), throttleLimitSchema);
 
 export type ThrottleScope =
-  "reauth" | "backup_code" | "signup" | "sign_in" | "password_reset";
+  | "reauth"
+  | "backup_code"
+  | "signup"
+  | "sign_in"
+  | "password_reset"
+  | "welcome"
+  | "welcome_global";
 
 export async function throttleLimitFor(
   db: Queryable,
@@ -137,54 +143,67 @@ export async function claimAttempt(
   limit: ThrottleLimit,
   now: Date = new Date(),
 ): Promise<ThrottleState> {
+  return withTransaction(pool, (tx) => claimAttemptInTx(tx, keys, limit, now));
+}
+
+/**
+ * `claimAttempt` inside a caller's transaction, so the count commits or rolls back with the
+ * action it guards. Welcome credits use it (ADR 0068): the network is counted only when a grant
+ * is actually written, and a grant that fails takes its count with it.
+ */
+export async function claimAttemptInTx(
+  // A client inside a transaction, never the pool: `for update` on a pool locks nothing.
+  tx: PoolClient,
+  keys: readonly string[],
+  limit: ThrottleLimit,
+  now: Date = new Date(),
+): Promise<ThrottleState> {
   const ordered = [...new Set(keys)].sort();
-  return withTransaction(pool, async (tx) => {
-    for (const key of ordered)
-      await tx.query(
-        `insert into public.auth_throttle (key, window_started_at, attempts, updated_at)
+  for (const key of ordered)
+    await tx.query(
+      `insert into public.auth_throttle (key, window_started_at, attempts, updated_at)
          values ($1, $2, 0, $2) on conflict (key) do nothing`,
-        [key, now],
-      );
+      [key, now],
+    );
 
-    // Every row locked and checked before any of them is counted, so a locked key refuses the
-    // attempt without the others recording it.
-    const rows = new Map<string, ThrottleRow>();
-    for (const key of ordered) {
-      const row = await one<ThrottleRow>(
-        tx,
-        `select window_started_at, attempts, locked_until
+  // Every row locked and checked before any of them is counted, so a locked key refuses the
+  // attempt without the others recording it.
+  const rows = new Map<string, ThrottleRow>();
+  for (const key of ordered) {
+    const row = await one<ThrottleRow>(
+      tx,
+      `select window_started_at, attempts, locked_until
          from public.auth_throttle where key = $1 for update`,
-        [key],
-      );
-      if (row === null) throw new Error("claimAttempt: throttle row vanished");
-      if (row.locked_until !== null && row.locked_until > now)
-        return { locked: true, lockedUntil: row.locked_until };
-      rows.set(key, row);
-    }
+      [key],
+    );
+    if (row === null) throw new Error("claimAttempt: throttle row vanished");
+    if (row.locked_until !== null && row.locked_until > now)
+      return { locked: true, lockedUntil: row.locked_until };
+    rows.set(key, row);
+  }
 
-    let counted = 0;
-    for (const [key, row] of rows) {
-      const windowExpired =
-        now.getTime() - row.window_started_at.getTime() >= limit.window_seconds * 1000;
-      const lockExpired = row.locked_until !== null && row.locked_until <= now;
-      const fresh = windowExpired || lockExpired;
-      const attempts = (fresh ? 0 : row.attempts) + 1;
-      // The limit-th attempt still goes ahead — it may be the right password. The next one
-      // does not.
-      const lockedUntil =
-        attempts >= limit.max_attempts
-          ? new Date(now.getTime() + limit.lockout_seconds * 1000)
-          : null;
-      await tx.query(
-        `update public.auth_throttle
+  let counted = 0;
+  for (const [key, row] of rows) {
+    const windowExpired =
+      now.getTime() - row.window_started_at.getTime() >= limit.window_seconds * 1000;
+    const lockExpired = row.locked_until !== null && row.locked_until <= now;
+    const fresh = windowExpired || lockExpired;
+    const attempts = (fresh ? 0 : row.attempts) + 1;
+    // The limit-th attempt still goes ahead — it may be the right password. The next one
+    // does not.
+    const lockedUntil =
+      attempts >= limit.max_attempts
+        ? new Date(now.getTime() + limit.lockout_seconds * 1000)
+        : null;
+    await tx.query(
+      `update public.auth_throttle
          set window_started_at = $2, attempts = $3, locked_until = $4, updated_at = $5
          where key = $1`,
-        [key, fresh ? now : row.window_started_at, attempts, lockedUntil, now],
-      );
-      counted = Math.max(counted, attempts);
-    }
-    return { locked: false, attempts: counted };
-  });
+      [key, fresh ? now : row.window_started_at, attempts, lockedUntil, now],
+    );
+    counted = Math.max(counted, attempts);
+  }
+  return { locked: false, attempts: counted };
 }
 
 /**

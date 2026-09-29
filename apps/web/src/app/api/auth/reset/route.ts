@@ -11,6 +11,7 @@ import { z } from "zod";
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
+import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { setAccountPassword } from "@/lib/server/password";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
@@ -93,6 +94,8 @@ export async function POST(request: Request): Promise<Response> {
     ip,
     userAgent,
   });
+  // A reset can be an account's first sign-in too (ADR 0068).
+  await welcomeAfterClaim(pool, claim, ip);
   if (claim.status === "refused") {
     return apiError(
       403,

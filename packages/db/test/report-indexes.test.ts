@@ -48,10 +48,14 @@ const reads: readonly {
   readonly sql: string;
 }[] = [
   {
-    what: "the consumption run rate on the business page",
+    // Revenue leaves welcome credits out (ADR 0068), which joins each capture to its lot: the
+    // join is by primary key, so the ledger must still be reached through its time index.
+    what: "recognised revenue and the consumption run rate on the business page",
     index: "credit_ledger_entry_time_idx",
-    sql: `select coalesce(sum(amount), 0) from public.credit_ledger
-            where entry_type = 'capture' and created_at >= now() - interval '30 days'`,
+    sql: `select coalesce(sum(l.amount), 0) from public.credit_ledger l
+            left join public.credit_lots lot on lot.id = l.lot_id
+            where l.entry_type = 'capture' and lot.source is distinct from 'welcome'
+              and l.created_at >= now() - interval '30 days'`,
   },
   {
     what: "cash collected, and the margin report's gateway fees",

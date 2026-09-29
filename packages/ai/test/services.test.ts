@@ -416,6 +416,51 @@ describe("margin report", () => {
     expect(usdFee).toBeLessThan(110_000n);
   });
 
+  it("keeps welcome credits out of captured value while their AI cost still counts (ADR 0068)", async () => {
+    const account = await newAccount(pool());
+    const from = new Date(Date.now() - 3_600_000);
+    const to = new Date(Date.now() + 60_000);
+    // A first run: 1,298 credits captured, all of them from the welcome lot, ₹30 of AI.
+    const job = await pool().query<{ id: string }>(
+      `insert into jobs (account_id, type, state, idempotency_key, captured_credits, actual_ai_cost_paise)
+       values ($1, 'company_setup', 'completed', $2, 1298, 3000) returning id`,
+      [account, randomUUID()],
+    );
+    const lot = await pool().query<{ id: string }>(
+      `insert into credit_lots (account_id, source, credits_granted, credits_remaining)
+       values ($1, 'welcome', 1500, 202) returning id`,
+      [account],
+    );
+    await pool().query(
+      `insert into credit_ledger (account_id, entry_type, amount, lot_id, job_id, balance_after, held_after, idempotency_key, prev_hash, hash)
+       values ($1, 'capture', 1298, $2, $3, 202, 0, $4, '', '')`,
+      [account, lot.rows[0]?.id, job.rows[0]?.id, randomUUID()],
+    );
+
+    const report = await marginReport(pool(), from, to, { accountId: account });
+    // The action still shows what it was charged: the price is the price.
+    expect(report.actions.find((a) => a.actionKey === "company_setup")).toMatchObject({
+      capturedCredits: 1298n,
+      welcomeCredits: 1298n,
+    });
+    expect(report.welcomeCreditsSpent).toBe(1298n);
+    // But none of it is revenue, and the AI it cost is still a cost.
+    expect(report.grossMargin.capturedValuePaise).toBe(0n);
+    expect(report.grossMargin.aiCostPaise).toBe(3000n);
+    expect(report.grossMargin.marginPaise).toBe(
+      -3000n - report.grossMargin.infraCostPaise,
+    );
+
+    // A filter narrows the welcome spend exactly as it narrows the actions: looking at chat
+    // alone must not subtract the setup's welcome credits from nothing.
+    const chatOnly = await marginReport(pool(), from, to, {
+      accountId: account,
+      actionKey: "chat_quick",
+    });
+    expect(chatOnly.welcomeCreditsSpent).toBe(0n);
+    expect(chatOnly.grossMargin.capturedValuePaise).toBe(0n);
+  });
+
   it("flags stale registry entries", async () => {
     const view = await modelRegistryView(pool(), 30, new Date("2026-12-31T00:00:00Z"));
     expect(view.find((m) => m.modelId === "claude-opus-5")?.stale).toBe(true);

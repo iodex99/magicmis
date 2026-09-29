@@ -172,6 +172,10 @@ export default async function MarginPage({
           <dd className="font-mono">{report.memoryFeeCredits.toString()} credits</dd>
           <dt className="text-neutral-600">Expired credits (breakage)</dt>
           <dd className="font-mono">{report.breakageCredits.toString()} credits</dd>
+          <dt className="text-neutral-600">Welcome credits spent (not revenue)</dt>
+          <dd className="font-mono" data-testid="welcome-spent">
+            {report.welcomeCreditsSpent.toString()} credits
+          </dd>
         </dl>
       </Panel>
 
@@ -184,6 +188,7 @@ export default async function MarginPage({
                   "Action",
                   "Items",
                   "Captured credits",
+                  "Of which welcome",
                   "Captured value",
                   "AI cost",
                   "Ratio",
@@ -208,7 +213,11 @@ export default async function MarginPage({
                   <td className={td}>{a.actionKey}</td>
                   <td className={num}>{a.jobs}</td>
                   <td className={num}>{a.capturedCredits.toString()}</td>
-                  <td className={num}>{inr(a.capturedCredits * 100n)}</td>
+                  <td className={num}>{a.welcomeCredits.toString()}</td>
+                  {/* Welcome credits are charged at the price but carry no money (ADR 0068). */}
+                  <td className={num}>
+                    {inr((a.capturedCredits - a.welcomeCredits) * 100n)}
+                  </td>
                   <td className={num}>{inr(a.aiCostPaise)}</td>
                   <td className={num}>{a.ratio ?? "—"}</td>
                   <td className={num}>{a.p50 ?? "—"}</td>

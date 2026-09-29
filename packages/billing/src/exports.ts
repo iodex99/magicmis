@@ -154,35 +154,84 @@ export async function accountingCsv(
     case "credits_consumed":
     case "credits_expired": {
       const type = report === "credits_consumed" ? "capture" : "expire";
-      const r = await db.query<{ account_id: string; entries: string; credits: string }>(
-        `select account_id, count(*)::text as entries, sum(amount)::text as credits
-         from public.credit_ledger
-         where entry_type = $1 and created_at >= $2 and created_at < $3
-         group by account_id order by account_id`,
+      // Welcome credits (ADR 0068) are spent like any other but carry no money, so they are a
+      // column of their own and never part of `credits`, which the books take as revenue.
+      const r = await db.query<{
+        account_id: string;
+        entries: string;
+        credits: string;
+        welcome: string;
+      }>(
+        `select l.account_id, count(*)::text as entries,
+                coalesce(sum(l.amount) filter (where lot.source is distinct from 'welcome'), 0)::text as credits,
+                coalesce(sum(l.amount) filter (where lot.source = 'welcome'), 0)::text as welcome
+         from public.credit_ledger l
+         left join public.credit_lots lot on lot.id = l.lot_id
+         where l.entry_type = $1 and l.created_at >= $2 and l.created_at < $3
+         group by l.account_id order by l.account_id`,
         [type, from, to],
       );
       return toCsv(
-        ["account_id", "entries", "credits"],
-        r.rows.map((x) => [x.account_id, x.entries, x.credits]),
+        ["account_id", "entries", "credits", "welcome_credits"],
+        r.rows.map((x) => [x.account_id, x.entries, x.credits, x.welcome]),
       );
     }
     case "outstanding_credits": {
       // The liability at month end: each account's last ledger balance before the cut-off.
       // Lots are expired at the next wallet operation or the nightly sweep, so a lot due in
       // the last hours of the month may still be counted; the expiry lands next month.
-      const r = await db.query<{ account_id: string; balance: string; held: string }>(
-        `select distinct on (account_id) account_id, balance_after::text as balance, held_after::text as held
-         from public.credit_ledger where created_at < $1
-         order by account_id, seq desc`,
+      //
+      // Welcome credits (ADR 0068) were never paid for, so nothing is owed for them: what is left
+      // of each account's welcome grant at the cut-off (granted less captured from that lot) is
+      // taken out of the liability and shown in a column of its own.
+      const r = await db.query<{
+        account_id: string;
+        balance: string;
+        held: string;
+        welcome: string;
+      }>(
+        `select b.account_id, b.balance, b.held,
+                coalesce((
+                  select sum(case when l.entry_type = 'grant' then l.amount else -l.amount end)
+                  from public.credit_ledger l
+                  join public.credit_lots lot on lot.id = l.lot_id and lot.source = 'welcome'
+                  where l.account_id = b.account_id and l.created_at < $1
+                    and l.entry_type in ('grant', 'capture', 'expire')
+                ), 0)::text as welcome
+         from (
+           select distinct on (account_id) account_id, balance_after::text as balance,
+                  held_after::text as held
+           from public.credit_ledger where created_at < $1
+           order by account_id, seq desc
+         ) b
+         order by b.account_id`,
         [to],
       );
-      const rows = r.rows.filter((x) => x.balance !== "0");
-      const total = rows.reduce((s, x) => s + BigInt(x.balance), 0n);
+      const rows = r.rows
+        .filter((x) => x.balance !== "0")
+        .map((x) => {
+          const welcome = BigInt(x.welcome);
+          return {
+            ...x,
+            owed: BigInt(x.balance) - (welcome > 0n ? welcome : 0n),
+            welcome,
+          };
+        });
+      const total = rows.reduce((s, x) => s + x.owed, 0n);
+      const welcomeTotal = rows.reduce(
+        (s, x) => s + (x.welcome > 0n ? x.welcome : 0n),
+        0n,
+      );
       return toCsv(
-        ["account_id", "outstanding_credits", "held_credits"],
+        ["account_id", "outstanding_credits", "welcome_credits", "held_credits"],
         [
-          ...rows.map((x) => [x.account_id, x.balance, x.held]),
-          ["TOTAL", total.toString(), ""],
+          ...rows.map((x) => [
+            x.account_id,
+            x.owed.toString(),
+            (x.welcome > 0n ? x.welcome : 0n).toString(),
+            x.held,
+          ]),
+          ["TOTAL", total.toString(), welcomeTotal.toString(), ""],
         ],
       );
     }

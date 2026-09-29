@@ -330,6 +330,27 @@ export default async function BusinessPage() {
                   ? "No completed setup yet, so there is no time-to-value figure."
                   : `Median ${g.medianDaysToFirstSetup} days from signing up to a first completed setup.`}
               </p>
+              {/* ADR 0068: whether a free start turns into a paying customer. */}
+              <p className="mt-5 mb-2 text-xs text-neutral-600">Welcome credits</p>
+              <div data-testid="business-welcome">
+                <Table
+                  head={["", "Accounts"]}
+                  rows={[
+                    ["Started with welcome credits", count(r.welcome.granted)],
+                    [
+                      "Went on to buy credits",
+                      `${count(r.welcome.boughtAfter)} · ${r.welcome.convertedPercent}%`,
+                    ],
+                    [
+                      "Withheld (offer off, throwaway address, mailbox already granted)",
+                      count(r.welcome.withheld),
+                    ],
+                  ]}
+                />
+              </div>
+              <p className="mt-3 text-xs text-neutral-500">
+                {`${count(Number.parseInt(r.welcome.spentLast30, 10))} welcome credits spent in the last 30 days. They paid for real work and are not counted as revenue.`}
+              </p>
             </div>
           </div>
         </Panel>

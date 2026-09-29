@@ -714,10 +714,54 @@ describe("accounting exports", () => {
     const sold = await accountingCsv(pool(), "credits_sold", "2027-01");
     expect(sold.split("\r\n").length).toBeGreaterThan(3);
     const outstanding = await accountingCsv(pool(), "outstanding_credits", month);
-    expect(outstanding).toMatch(/^TOTAL,\d+,$/mu);
+    expect(outstanding).toMatch(/^TOTAL,\d+,\d+,$/mu);
     await expect(accountingCsv(pool(), "credits_consumed", "2027-13")).rejects.toThrow(
       RangeError,
     );
+  });
+});
+
+describe("welcome credits in the accounting exports (ADR 0068)", () => {
+  it("keeps them out of consumed revenue and out of the liability, in columns of their own", async () => {
+    // Nobody paid for a welcome credit, so the books must neither earn it when it is spent nor
+    // owe it while it is not. The same account holds paid credits, which must still count.
+    const accountId = await account();
+    const lot = async (source: string, granted: number, remaining: number) =>
+      (
+        await pool().query<{ id: string }>(
+          `insert into credit_lots (account_id, source, credits_granted, credits_remaining)
+           values ($1, $2, $3, $4) returning id`,
+          [accountId, source, granted, remaining],
+        )
+      ).rows[0]?.id;
+    const welcome = await lot("welcome", 1500, 202);
+    const bought = await lot("purchase", 2000, 2000);
+    const entry = (
+      type: string,
+      amount: number,
+      lotId: string | undefined,
+      balance: number,
+    ) =>
+      pool().query(
+        `insert into credit_ledger (account_id, entry_type, amount, lot_id, balance_after, held_after, idempotency_key, prev_hash, hash)
+         values ($1, $2, $3, $4, $5, 0, $6, '', '')`,
+        [accountId, type, amount, lotId, balance, randomUUID()],
+      );
+    await entry("grant", 1500, welcome, 1500);
+    await entry("grant", 2000, bought, 3500);
+    await entry("capture", 1298, welcome, 2202);
+
+    const month = new Date().toISOString().slice(0, 7);
+    const row = (csv: string) => csv.split("\r\n").find((l) => l.startsWith(accountId));
+    const consumed = await accountingCsv(pool(), "credits_consumed", month);
+    expect(consumed.split("\r\n")[0]).toBe("account_id,entries,credits,welcome_credits");
+    expect(row(consumed)).toBe(`${accountId},1,0,1298`);
+    const outstanding = await accountingCsv(pool(), "outstanding_credits", month);
+    expect(outstanding.split("\r\n")[0]).toBe(
+      "account_id,outstanding_credits,welcome_credits,held_credits",
+    );
+    // 2,202 left in the wallet: 2,000 bought and owed, 202 welcome and owed nothing.
+    expect(row(outstanding)).toBe(`${accountId},2000,202,0`);
   });
 });
 

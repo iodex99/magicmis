@@ -11,6 +11,8 @@ import { randomUUID } from "node:crypto";
 import { startTestDb, type TestDb } from "@magicmis/db/test-harness";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { grantCredits } from "@magicmis/wallet";
+
 import { businessReport } from "../src/server/business";
 
 let db: TestDb | undefined;
@@ -125,6 +127,60 @@ describe("the owner's business report", () => {
       BigInt(after.recurring.committedMonthlyCredits) -
         BigInt(before.recurring.committedMonthlyCredits),
     ).toBe(BigInt(after.recurring.feePerCompanyCredits));
+  });
+
+  it("keeps welcome credits out of revenue and out of what is owed, and counts who went on to buy", async () => {
+    // ADR 0068: a welcome credit pays for real work at the price-book price, but nobody paid for
+    // it. Counting it as revenue would report every new account's free start as income.
+    const before = await businessReport(pool(), NOW);
+    const accountId = await account(ago(12));
+    const grant = await grantCredits(pool(), {
+      accountId,
+      credits: 1500n,
+      source: "welcome",
+      idempotencyKey: `welcome:${accountId}`,
+      now: ago(12),
+    });
+    if (grant.status !== "granted") throw new Error("welcome grant did not land");
+    await pool().query(
+      `insert into welcome_credits (account_id, outcome, credits, lot_id, decided_at)
+       values ($1, 'granted', 1500, $2, $3)`,
+      [accountId, grant.lotId, ago(12)],
+    );
+
+    // A first run paid entirely from the welcome lot: 1,298 credits of real work.
+    await pool().query(
+      `insert into credit_ledger (account_id, entry_type, amount, lot_id, balance_after, held_after, idempotency_key, prev_hash, hash, created_at)
+       values ($1, 'capture', 1298, $2, 202, 0, $3, '', '', $4)`,
+      [accountId, grant.lotId, randomUUID(), ago(11)],
+    );
+    await pool().query(`update credit_lots set credits_remaining = 202 where id = $1`, [
+      grant.lotId,
+    ]);
+    await pool().query(`update wallets set balance_credits = 202 where account_id = $1`, [
+      accountId,
+    ]);
+
+    const spent = await businessReport(pool(), NOW);
+    expect(spent.recognised.creditsLast30).toBe(before.recognised.creditsLast30);
+    expect(spent.recognised.creditsAllTime).toBe(before.recognised.creditsAllTime);
+    expect(spent.recognised.deferredCredits).toBe(before.recognised.deferredCredits);
+    expect(BigInt(spent.welcome.spentLast30) - BigInt(before.welcome.spentLast30)).toBe(
+      1298n,
+    );
+    expect(spent.welcome.granted).toBe(before.welcome.granted + 1);
+    expect(spent.welcome.boughtAfter).toBe(before.welcome.boughtAfter);
+
+    // Then they buy a pack: they have converted, and the purchase is cash, not yet revenue.
+    await pool().query(
+      `insert into purchases (account_id, amount_minor_ex_tax, tax_minor, igst_minor, total_minor,
+                              method, currency, status, credits, created_at, credited_at, buyer_country)
+       values ($1, 200000, 36000, 36000, 236000, 'razorpay', 'INR', 'credited', 2000, $2, $2, 'IN')`,
+      [accountId, ago(3)],
+    );
+    const bought = await businessReport(pool(), NOW);
+    expect(bought.welcome.boughtAfter).toBe(before.welcome.boughtAfter + 1);
+    expect(bought.recognised.creditsLast30).toBe(before.recognised.creditsLast30);
   });
 
   it("reports AI cost against revenue earned rather than cash collected", async () => {

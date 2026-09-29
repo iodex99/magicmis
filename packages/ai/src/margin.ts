@@ -39,6 +39,8 @@ export interface ActionMargin {
   /** Jobs or chat messages. */
   readonly jobs: number;
   readonly capturedCredits: bigint;
+  /** Of those, credits drawn from welcome grants (ADR 0068): charged at the price, no money. */
+  readonly welcomeCredits: bigint;
   readonly aiCostPaise: bigint;
   /** ai cost ÷ captured revenue, "0.0000" format; null when nothing was captured. */
   readonly ratio: string | null;
@@ -93,6 +95,12 @@ export interface MarginReport {
   }[];
   readonly breakageCredits: bigint;
   readonly memoryFeeCredits: bigint;
+  /**
+   * Credits spent from welcome grants (ADR 0068), on the same items and memory fees the report
+   * covers, so a filter narrows it exactly as it narrows the actions. They paid for real work at
+   * the price-book price, but no money stands behind them, so they are not in captured value.
+   */
+  readonly welcomeCreditsSpent: bigint;
   readonly grossMargin: {
     readonly capturedValuePaise: bigint;
     readonly aiCostPaise: bigint;
@@ -150,30 +158,70 @@ export async function marginReport(
     action_key: string;
     captured: string;
     ai_paise: string;
+    item_id: string;
   }>(
-    `select j.type as action_key, coalesce(j.captured_credits, 0)::text as captured, j.actual_ai_cost_paise::text as ai_paise
+    `select j.type as action_key, coalesce(j.captured_credits, 0)::text as captured, j.actual_ai_cost_paise::text as ai_paise,
+            j.id::text as item_id
      from public.jobs j
      where j.created_at >= $1 and j.created_at < $2 and ($3::uuid is null or j.account_id = $3) and ($4::text is null or j.tier = $4)
      union all
      select m.message_type as action_key, m.credits_charged::text as captured,
-            (select coalesce(sum(c.inr_cost_paise), 0) from public.ai_calls c where c.chat_message_id = m.id)::text as ai_paise
+            (select coalesce(sum(c.inr_cost_paise), 0) from public.ai_calls c where c.chat_message_id = m.id)::text as ai_paise,
+            m.id::text as item_id
      from public.chat_messages m
      where m.role = 'user' and m.created_at >= $1 and m.created_at < $2
        and ($3::uuid is null or m.account_id = $3) and ($4::text is null or m.tier = $4)`,
     [from, to, account, tier],
   );
+  // Welcome-funded captures by the job or chat message they paid for. Read by time through the
+  // ledger's own index, a week either side because an item is dated when it was created and
+  // captured when it was delivered; each is then matched to an item above, so it counts only
+  // where that item counts.
+  const welcomeRows = await db.query<{
+    item_id: string | null;
+    fee: boolean;
+    credits: string;
+  }>(
+    `select coalesce(l.job_id, r.chat_message_id)::text as item_id,
+            (f.id is not null) as fee,
+            sum(l.amount)::text as credits
+     from public.credit_ledger l
+     join public.credit_lots lot on lot.id = l.lot_id and lot.source = 'welcome'
+     left join public.reservations r on r.id = l.reservation_id
+     left join public.company_fee_charges f
+       on f.reservation_id = l.reservation_id and f.kind = 'memory_fee' and f.status = 'captured'
+          and f.created_at >= $1 and f.created_at < $2
+     where l.entry_type = 'capture'
+       and l.created_at >= $1::timestamptz - interval '7 days'
+       and l.created_at < $2::timestamptz + interval '7 days'
+       and ($3::uuid is null or l.account_id = $3)
+     group by 1, 2`,
+    [from, to, account],
+  );
+  const welcomeByItem = new Map<string, bigint>();
+  let welcomeFees = 0n;
+  for (const w of welcomeRows.rows) {
+    if (w.fee) welcomeFees += BigInt(w.credits);
+    else if (w.item_id !== null)
+      welcomeByItem.set(
+        w.item_id,
+        (welcomeByItem.get(w.item_id) ?? 0n) + BigInt(w.credits),
+      );
+  }
+
   const grouped = new Map<
     string,
-    { n: number; captured: bigint; ai: bigint; ratios: bigint[] }
+    { n: number; captured: bigint; welcome: bigint; ai: bigint; ratios: bigint[] }
   >();
   for (const row of items.rows) {
     const key = CHAT_ACTION[row.action_key] ?? row.action_key;
     if (filters.actionKey !== undefined && filters.actionKey !== key) continue;
-    const g = grouped.get(key) ?? { n: 0, captured: 0n, ai: 0n, ratios: [] };
+    const g = grouped.get(key) ?? { n: 0, captured: 0n, welcome: 0n, ai: 0n, ratios: [] };
     const captured = BigInt(row.captured);
     const ai = BigInt(row.ai_paise);
     g.n += 1;
     g.captured += captured;
+    g.welcome += welcomeByItem.get(row.item_id) ?? 0n;
     g.ai += ai;
     if (captured > 0n)
       g.ratios.push(divideRounded(ai * 10_000n, captured * 100n, "ceil"));
@@ -196,6 +244,7 @@ export async function marginReport(
       actionKey,
       jobs: g.n,
       capturedCredits: g.captured,
+      welcomeCredits: g.welcome,
       aiCostPaise: g.ai,
       ratio,
       p50: percentile(sorted, 50),
@@ -280,6 +329,8 @@ export async function marginReport(
     [from, to, account],
   );
   const memoryFeeCredits = BigInt(money.rows[0]?.fees ?? "0");
+  const welcomeCreditsSpent =
+    actions.reduce((s, a) => s + a.welcomeCredits, 0n) + welcomeFees;
 
   /*
    * The gateway takes its cut once, when money arrives, on the amount the customer paid —
@@ -313,8 +364,13 @@ export async function marginReport(
     [from, to, account],
   );
   const days = Math.max(1, Math.ceil((to.getTime() - from.getTime()) / 86_400_000));
+  // A credit is worth ₹1 of revenue only if someone paid for it: welcome credits are spent at
+  // the price-book price like any other, and carry no money (ADR 0068).
   const capturedValuePaise =
-    (actions.reduce((s, a) => s + a.capturedCredits, 0n) + memoryFeeCredits) * 100n;
+    (actions.reduce((s, a) => s + a.capturedCredits, 0n) +
+      memoryFeeCredits -
+      welcomeCreditsSpent) *
+    100n;
   const aiCostPaise = actions.reduce((s, a) => s + a.aiCostPaise, 0n);
   // A dollar purchase is in cents; the margin report is in paise throughout, so it is
   // converted at the same buffered rate that values vendor cost. Reporting only: no
@@ -382,6 +438,7 @@ export async function marginReport(
     })),
     breakageCredits: BigInt(money.rows[0]?.breakage ?? "0"),
     memoryFeeCredits,
+    welcomeCreditsSpent,
     grossMargin: {
       capturedValuePaise,
       aiCostPaise,

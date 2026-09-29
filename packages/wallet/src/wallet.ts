@@ -22,7 +22,7 @@ import { z } from "zod";
 
 import { appendLedger, type WalletState } from "./ledger";
 
-export type LotSource = "purchase" | "bonus" | "admin_grant" | "goodwill";
+export type LotSource = "purchase" | "bonus" | "admin_grant" | "goodwill" | "welcome";
 export type ReservationKind = "realtime" | "review" | "batch" | "chat";
 export type ReservationSubject =
   | { readonly jobId: string }

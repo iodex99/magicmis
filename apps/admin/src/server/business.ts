@@ -63,12 +63,28 @@ export interface BusinessReport {
     readonly byMonth: readonly Point[];
   };
   readonly recognised: {
-    /** Credits captured, which is revenue earned. One credit is ₹1 ex-GST. */
+    /**
+     * Credits captured, which is revenue earned. One credit is ₹1 ex-GST. Welcome credits are
+     * left out: they pay for real work but no money stands behind them (ADR 0068).
+     */
     readonly creditsAllTime: string;
     readonly creditsLast30: string;
     readonly byMonth: readonly Point[];
-    /** Unspent credits: cash already taken for work not yet done. */
+    /** Unspent credits: cash already taken for work not yet done. Welcome credits excluded. */
     readonly deferredCredits: string;
+  };
+  /** Welcome credits (ADR 0068): whether a free start turns into a paying customer. */
+  readonly welcome: {
+    /** Accounts granted welcome credits. */
+    readonly granted: number;
+    /** New accounts it was withheld from: offer off, throwaway address or a mailbox granted before. */
+    readonly withheld: number;
+    /** Of those granted, how many have since bought credits. */
+    readonly boughtAfter: number;
+    /** boughtAfter over granted, as a percentage string. */
+    readonly convertedPercent: string;
+    /** Welcome credits spent in the last 30 days. Real work, no revenue. */
+    readonly spentLast30: string;
   };
   readonly recurring: {
     /** Active companies times the current memory fee. The only contracted recurring revenue. */
@@ -130,6 +146,7 @@ export async function businessReport(
     stages,
     models,
     fee,
+    welcome,
   ] = await Promise.all([
     pool.query<{
       accounts: string;
@@ -213,18 +230,25 @@ export async function businessReport(
     ),
     pool.query<{ all_time: string; last30: string; deferred: string }>(
       `select
-           (select coalesce(sum(amount), 0) from public.credit_ledger where entry_type = 'capture')::text as all_time,
-           (select coalesce(sum(amount), 0) from public.credit_ledger where entry_type = 'capture' and created_at >= $1)::text as last30,
-           (select coalesce(sum(balance_credits), 0) from public.wallets)::text as deferred`,
+           (select coalesce(sum(l.amount), 0) from public.credit_ledger l
+              left join public.credit_lots lot on lot.id = l.lot_id
+             where l.entry_type = 'capture' and lot.source is distinct from 'welcome')::text as all_time,
+           (select coalesce(sum(l.amount), 0) from public.credit_ledger l
+              left join public.credit_lots lot on lot.id = l.lot_id
+             where l.entry_type = 'capture' and lot.source is distinct from 'welcome' and l.created_at >= $1)::text as last30,
+           ((select coalesce(sum(balance_credits), 0) from public.wallets)
+            - (select coalesce(sum(lot.credits_remaining), 0) from public.welcome_credits w
+                 join public.credit_lots lot on lot.id = w.lot_id))::text as deferred`,
       [d30],
     ),
     pool.query<{ label: string; value: string }>(
-      `select to_char(date_trunc('month', created_at), 'Mon YY') as label,
-                coalesce(sum(amount), 0)::text as value
-           from public.credit_ledger
-          where entry_type = 'capture' and created_at >= $1
-          group by 1, date_trunc('month', created_at)
-          order by date_trunc('month', created_at)`,
+      `select to_char(date_trunc('month', l.created_at), 'Mon YY') as label,
+                coalesce(sum(l.amount), 0)::text as value
+           from public.credit_ledger l
+           left join public.credit_lots lot on lot.id = l.lot_id
+          where l.entry_type = 'capture' and lot.source is distinct from 'welcome' and l.created_at >= $1
+          group by 1, date_trunc('month', l.created_at)
+          order by date_trunc('month', l.created_at)`,
       [new Date(now.getTime() - 365 * 86_400_000)],
     ),
     pool.query<{
@@ -260,6 +284,20 @@ export async function businessReport(
       delivery: "instant",
       at: now,
     }).catch(() => ({ credits: 0n })),
+    pool.query<{ granted: string; withheld: string; bought: string; spent30: string }>(
+      `select
+           (select count(*) from public.welcome_credits where outcome = 'granted')::text as granted,
+           (select count(*) from public.welcome_credits
+             where outcome = 'withheld' and reason <> 'existing_account')::text as withheld,
+           (select count(*) from public.welcome_credits w
+             where w.outcome = 'granted'
+               and exists (select 1 from public.purchases p
+                            where p.account_id = w.account_id and p.status = 'credited'))::text as bought,
+           (select coalesce(sum(l.amount), 0) from public.credit_ledger l
+              join public.credit_lots lot on lot.id = l.lot_id
+             where l.entry_type = 'capture' and lot.source = 'welcome' and l.created_at >= $1)::text as spent30`,
+      [d30],
+    ),
   ]);
 
   const byState = companies.rows.map((r) => ({ label: r.state, value: num(r.n) }));
@@ -277,6 +315,8 @@ export async function businessReport(
       where status = 'captured' and kind = 'memory_fee' and created_at >= $1`,
     [d30],
   );
+  // A memory fee paid from welcome credits is subtracted here though its capture is not in
+  // capturedLast30, so consumption reads slightly low for new accounts: the safe direction.
   const consumption = capturedLast30 - BigInt(feesLast30.rows[0]?.credits ?? "0");
 
   const aiRow = ai.rows[0];
@@ -321,6 +361,16 @@ export async function businessReport(
       creditsLast30: capturedLast30.toString(),
       byMonth: recMonths.rows.map((r) => ({ label: r.label, value: num(r.value) })),
       deferredCredits: recognised.rows[0]?.deferred ?? "0",
+    },
+    welcome: {
+      granted: num(welcome.rows[0]?.granted),
+      withheld: num(welcome.rows[0]?.withheld),
+      boughtAfter: num(welcome.rows[0]?.bought),
+      convertedPercent: percent(
+        BigInt(welcome.rows[0]?.bought ?? "0"),
+        BigInt(welcome.rows[0]?.granted ?? "0"),
+      ),
+      spentLast30: welcome.rows[0]?.spent30 ?? "0",
     },
     recurring: {
       committedMonthlyCredits: committed.toString(),
