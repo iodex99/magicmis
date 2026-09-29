@@ -74,6 +74,36 @@ describe("harness", () => {
     ).rejects.toMatchObject({ code: "no_eval" });
   });
 
+  it.each([
+    ["efficient", "0.9895"],
+    ["professional", "0.9791"],
+    ["expert", "1.0000"],
+  ] as const)(
+    "ledger_mapping %s: the committed live recording still scores what it was activated on (ADR 0069)",
+    async (tier, accuracy) => {
+      // The recordings are the evidence the activation rests on. Replaying them costs nothing, so
+      // a change to the dataset, the scorer or the prompt input that would alter the score shows
+      // here rather than at the next live run.
+      const report = await runEval({
+        pool: pool(),
+        stage: "ledger_mapping",
+        tier,
+        promptVersion: 1,
+        mode: "replay",
+        recordingPath: path.join(
+          import.meta.dirname,
+          "..",
+          "evals",
+          "recordings",
+          `ledger_mapping-v1-${tier}.json`,
+        ),
+      });
+      expect(report.oracle).toBe(false);
+      expect(report.items).toBe(96);
+      expect(report.accuracy).toBe(accuracy);
+    },
+  );
+
   it("scores column mapping per column and reports mismatches from a recording", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "ai-evals-"));
     const recordingPath = path.join(dir, "rec.json");
