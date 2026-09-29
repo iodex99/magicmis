@@ -7,7 +7,7 @@
 import type { KeyWrapper } from "@magicmis/crypto";
 import type { Queryable } from "@magicmis/db/tx";
 
-export type PlatformKeyPurpose = "library" | "audit_anchor";
+export type PlatformKeyPurpose = "library" | "audit_anchor" | "welcome";
 
 /** Created on first use. The caller must zero the returned buffer. */
 export async function platformKey(

@@ -22,7 +22,14 @@ const STATUS_LABEL: Record<ExportRow["status"], string> = {
   expired: "Link expired",
 };
 
-export function PrivacySettings({ email }: { email: string }) {
+export function PrivacySettings({
+  email,
+  fingerprintDays,
+}: {
+  email: string;
+  /** How long a one-way fingerprint of the email is kept after deletion (ADR 0072). */
+  fingerprintDays: number;
+}) {
   const [exports, setExports] = useState<ExportRow[] | null>(null);
   const [notice, setNotice] = useState<{
     tone: "success" | "error";
@@ -170,7 +177,10 @@ export function PrivacySettings({ email }: { email: string }) {
             Your account closes immediately and you are signed out. All companies and
             their stored data are permanently destroyed after the purge period, and cannot
             be recovered. Unused credits are forfeited. Invoices and credit records are
-            kept for the statutory retention period with personal details removed.
+            kept for the statutory retention period with personal details removed. A
+            one-way coded fingerprint of your email address — not the address — is kept
+            for {fingerprintDays} days, only so welcome credits are not given to the same
+            mailbox twice, and then erased.
           </p>
           <p>Export your data first if you want a copy.</p>
           {deleteStep === "idle" ? (

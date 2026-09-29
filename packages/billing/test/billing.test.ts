@@ -741,15 +741,22 @@ describe("welcome credits in the accounting exports (ADR 0068)", () => {
       amount: number,
       lotId: string | undefined,
       balance: number,
+      jobId: string | null = null,
     ) =>
       pool().query(
-        `insert into credit_ledger (account_id, entry_type, amount, lot_id, balance_after, held_after, idempotency_key, prev_hash, hash)
-         values ($1, $2, $3, $4, $5, 0, $6, '', '')`,
-        [accountId, type, amount, lotId, balance, randomUUID()],
+        `insert into credit_ledger (account_id, entry_type, amount, lot_id, job_id, balance_after, held_after, idempotency_key, prev_hash, hash)
+         values ($1, $2, $3, $4, $5, $6, 0, $7, '', '')`,
+        [accountId, type, amount, lotId, jobId, balance, randomUUID()],
       );
+    // A first run, paid entirely from the welcome lot, whose AI cost ₹30.00.
+    const job = await pool().query<{ id: string }>(
+      `insert into jobs (account_id, type, state, idempotency_key, captured_credits, actual_ai_cost_paise)
+       values ($1, 'company_setup', 'completed', $2, 1298, 3000) returning id`,
+      [accountId, randomUUID()],
+    );
     await entry("grant", 1500, welcome, 1500);
     await entry("grant", 2000, bought, 3500);
-    await entry("capture", 1298, welcome, 2202);
+    await entry("capture", 1298, welcome, 2202, job.rows[0]?.id ?? null);
 
     const month = new Date().toISOString().slice(0, 7);
     const row = (csv: string) => csv.split("\r\n").find((l) => l.startsWith(accountId));
@@ -762,6 +769,15 @@ describe("welcome credits in the accounting exports (ADR 0068)", () => {
     );
     // 2,202 left in the wallet: 2,000 bought and owed, 202 welcome and owed nothing.
     expect(row(outstanding)).toBe(`${accountId},2000,202,0`);
+
+    // ADR 0072: not a supply, so no revenue and no invoice; the AI the welcome lot paid for is
+    // the figure the cautious input-tax-credit reversal is worked from.
+    const welcomeReport = await accountingCsv(pool(), "welcome_credits", month);
+    expect(welcomeReport.split("\r\n")[0]).toBe(
+      "account_id,welcome_granted,welcome_spent,ai_cost_inr",
+    );
+    expect(row(welcomeReport)).toBe(`${accountId},1500,1298,30.00`);
+    expect(welcomeReport).toMatch(/^TOTAL,\d+,\d+,\d+\.\d{2}$/mu);
   });
 });
 

@@ -119,14 +119,23 @@ export function mailboxOf(email: string): string {
 }
 
 /**
- * A fingerprint of the mailbox, kept with the decision so a grant is made once per mailbox even
- * after the account is deleted and its address overwritten. One-way, like the email keys the
- * sign-in throttle already keeps; the address itself is never stored here.
+ * Turns a normalised mailbox into the fingerprint kept with the decision, so a grant is made once
+ * per mailbox even after the account is deleted and its address overwritten. The address itself
+ * is never stored here.
+ *
+ * The server passes a keyed one (HMAC under a platform key the KMS wraps, ADR 0072): a fingerprint
+ * of an address is personal data under the DPDP Act, and an unkeyed hash can be reversed by
+ * hashing candidate addresses. The unkeyed default exists for tests and for code that has no key.
  */
+export type MailboxFingerprint = (mailbox: string) => Promise<string> | string;
+
+/** The unkeyed fingerprint: SHA-256 with a fixed label. Tests and keyless callers only. */
+export const unkeyedFingerprint: MailboxFingerprint = (mailbox) =>
+  createHash("sha256").update(`welcome-mailbox:v1:${mailbox}`).digest("hex");
+
+/** The unkeyed fingerprint of the mailbox an address reaches. */
 export function mailboxDigest(email: string): string {
-  return createHash("sha256")
-    .update(`welcome-mailbox:v1:${mailboxOf(email)}`)
-    .digest("hex");
+  return unkeyedFingerprint(mailboxOf(email)) as string;
 }
 
 /** Whether the address is at a blocked domain or at any subdomain of one. */
@@ -202,7 +211,13 @@ class Deferral extends Error {
  */
 export async function decideWelcomeCredits(
   pool: Pool,
-  input: { readonly accountId: string; readonly ip: string | null; readonly now?: Date },
+  input: {
+    readonly accountId: string;
+    readonly ip: string | null;
+    readonly now?: Date;
+    /** How the mailbox is fingerprinted; keyed on the server (ADR 0072). */
+    readonly fingerprint?: MailboxFingerprint;
+  },
 ): Promise<WelcomeDecision> {
   const { accountId, ip } = input;
   const now = input.now ?? new Date();
@@ -221,7 +236,9 @@ export async function decideWelcomeCredits(
     throttleLimitFor(pool, "welcome_global"),
   ]);
   if (account === null) throw new Error(`decideWelcomeCredits: no account ${accountId}`);
-  const digest = mailboxDigest(account.email);
+  const digest = await (input.fingerprint ?? unkeyedFingerprint)(
+    mailboxOf(account.email),
+  );
 
   try {
     return await withTransaction(pool, async (tx) => {

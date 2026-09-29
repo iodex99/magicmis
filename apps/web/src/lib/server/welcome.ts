@@ -1,12 +1,34 @@
 import "server-only";
 
+import { createHmac } from "node:crypto";
+
 import {
   decideWelcomeCredits,
   welcomeCreditsOffered,
   type ClaimResult,
+  type MailboxFingerprint,
 } from "@magicmis/accounts";
+import { platformKey } from "@magicmis/jobs";
 import { priceFor } from "@magicmis/wallet";
 import type { Pool } from "pg";
+
+import { keyWrapper } from "./runtime";
+
+/**
+ * The mailbox fingerprint, keyed (ADR 0072): an HMAC under the `welcome` platform key, which the
+ * KMS wraps and the key re-wrap job rotates like every other. Without the key a fingerprint cannot
+ * be matched to an address by hashing guesses.
+ */
+function keyedFingerprint(pool: Pool): MailboxFingerprint {
+  return async (mailbox) => {
+    const key = await platformKey(pool, keyWrapper(), "welcome");
+    try {
+      return createHmac("sha256", key).update(`welcome-mailbox:${mailbox}`).digest("hex");
+    } finally {
+      key.fill(0);
+    }
+  };
+}
 
 /**
  * Welcome credits at sign-in (ADR 0068). Called after every successful claim: the first one
@@ -20,7 +42,11 @@ export async function welcomeAfterClaim(
 ): Promise<void> {
   if (claim.status !== "claimed") return;
   try {
-    await decideWelcomeCredits(pool, { accountId: claim.accountId, ip });
+    await decideWelcomeCredits(pool, {
+      accountId: claim.accountId,
+      ip,
+      fingerprint: keyedFingerprint(pool),
+    });
   } catch (error) {
     // The account id only: the decision reads an email address, which does not belong in a log.
     console.error(
@@ -87,4 +113,41 @@ export async function welcomeOffer(pool: Pool): Promise<WelcomeOffer> {
   }
   cached = { at: now, offer };
   return offer;
+}
+
+/**
+ * What a new account is told when its welcome credits are not in its wallet (ADR 0072): an offer
+ * a customer expected and does not see, with no word why, reads as a bait and switch. Withheld
+ * says why; waiting says when. Nothing is said to an account the offer never applied to.
+ */
+export type WelcomeStatus =
+  | { readonly kind: "none" }
+  | { readonly kind: "waiting" }
+  | {
+      readonly kind: "withheld";
+      readonly reason: "disposable_email" | "mailbox_already_granted";
+    };
+
+export async function welcomeStatus(
+  pool: Pool,
+  accountId: string,
+): Promise<WelcomeStatus> {
+  const row = await pool.query<{ outcome: string; reason: string | null }>(
+    `select outcome, reason from public.welcome_credits where account_id = $1`,
+    [accountId],
+  );
+  const decided = row.rows[0];
+  if (decided === undefined) {
+    // Signed in and still undecided: deferred for its network's pace or the day's cap, or a
+    // failure the next sign-in retries. Either way it comes at a later sign-in, if the offer runs.
+    const offer = await welcomeOffer(pool);
+    return offer.credits > 0n ? { kind: "waiting" } : { kind: "none" };
+  }
+  if (
+    decided.outcome === "withheld" &&
+    (decided.reason === "disposable_email" ||
+      decided.reason === "mailbox_already_granted")
+  )
+    return { kind: "withheld", reason: decided.reason };
+  return { kind: "none" };
 }

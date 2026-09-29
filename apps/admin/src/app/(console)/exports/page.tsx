@@ -14,6 +14,8 @@ const LABELS: Record<string, string> = {
   outstanding_credits: "Outstanding unexpired credits (liability)",
   gst_summary: "GST summary",
   invoice_register: "Invoice register",
+  welcome_credits:
+    "Welcome credits (not revenue; AI cost for the input-tax-credit reversal)",
 };
 
 /** SPEC §13 monthly CSVs, months in IST. */

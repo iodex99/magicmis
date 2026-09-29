@@ -12,14 +12,15 @@ import {
   type Faq,
 } from "@/components/StructuredData";
 import { Badge, ButtonLink } from "@/components/ui";
-import { formatCredits } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { db } from "@/lib/db";
 import { PUBLIC_PAGES, pageMetadata, publicPage } from "@/lib/seo";
 import { welcomeOffer } from "@/lib/server/welcome";
 import {
   trialAnswer,
-  welcomeCreditsLabel,
+  WELCOME_TERMS_HREF,
+  welcomeClosing,
+  welcomeConditions,
   welcomeLine,
   type WelcomeOfferCopy,
 } from "@/lib/welcome-copy";
@@ -150,7 +151,8 @@ export default async function HomePage() {
   const offer = await welcomeOffer(db());
   const FAQS = faqs(offer);
   const line = welcomeLine(offer);
-  const free = welcomeCreditsLabel(offer);
+  const conditions = welcomeConditions(offer);
+  const closing = welcomeClosing(offer);
   return (
     <PublicShell>
       <OrganizationSchema />
@@ -217,6 +219,19 @@ export default async function HomePage() {
               >
                 <Icon name="wallet" size={15} className="text-accent-600" />
                 {line}
+              </p>
+            )}
+            {conditions === null ? null : (
+              // The conditions of a free offer sit beside it, in the same type (ADR 0072).
+              <p
+                data-testid="welcome-conditions"
+                className="rise mt-1 pl-[23px] text-[0.8125rem] text-neutral-600"
+                style={{ "--i": "3" } as React.CSSProperties}
+              >
+                {conditions}{" "}
+                <Link href={WELCOME_TERMS_HREF} className="text-accent-700 underline">
+                  Offer terms
+                </Link>
               </p>
             )}
           </div>
@@ -464,9 +479,8 @@ export default async function HomePage() {
               Start with one company
             </h2>
             <p className="mt-1.5 max-w-lg text-[0.875rem] text-neutral-300">
-              {free === null
-                ? "Creating an account and adding a company cost nothing. You buy credits when you are ready to run something, and are charged only for what you run."
-                : `Your first ${formatCredits(offer.credits.toString())} credits are on us${offer.coversFirstCompany ? ", enough to set up one company on your own books" : ""}. After that you buy credits when you need them, and are charged only for what you run.`}
+              {closing ??
+                "Creating an account and adding a company cost nothing. You buy credits when you are ready to run something, and are charged only for what you run."}
             </p>
           </div>
           <Link

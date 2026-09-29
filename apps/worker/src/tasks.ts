@@ -13,6 +13,7 @@ import type { KeyWrapper } from "@magicmis/crypto";
 import {
   commentaryBatchTick,
   debitMemoryFees,
+  forgetWelcomeFingerprints,
   processAccountExports,
   purgeAccounts,
   purgeCompanies,
@@ -120,6 +121,8 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
         wrapper == null
           ? { skipped: "key wrapper not configured" }
           : await purgeAccounts(pool, outputs ?? null, now, wrapper),
+      // ADR 0072: a deleted account's welcome fingerprint is kept a year, then erased.
+      welcomeFingerprints: await forgetWelcomeFingerprints(pool, now),
     }),
   },
   {

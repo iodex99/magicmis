@@ -150,7 +150,7 @@ export default async function ForAccountantsPage() {
           you take the raw reports and load the files. There is no scheduled refresh
           without someone uploading the month.{" "}
           {offer.credits > 0n
-            ? `Evaluating it costs nothing up front: a new account starts with ${formatCredits(offer.credits.toString())} free credits${offer.coversFirstCompany ? ", enough to set up one client’s company on a real month of its books" : ""}.`
+            ? `Evaluating it costs nothing up front: a new account starts with ${formatCredits(offer.credits.toString())} free credits${offer.coversFirstCompany ? ", enough to set up one client’s company on a real month of its books at its standard price" : ""} — one grant per person or business, and after that each company you keep has a monthly memory fee.`
             : "And there is no free tier or trial, so evaluating it means buying credits for a real month."}
         </p>
         <p>

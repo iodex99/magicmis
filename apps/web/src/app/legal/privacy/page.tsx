@@ -119,6 +119,11 @@ export default async function PrivacyPage() {
             <strong>Consents:</strong> which version of each document you accepted, when,
             and from which IP address.
           </li>
+          <li>
+            <strong>Welcome credits:</strong> a one-way coded fingerprint of your email
+            address — not the address itself — made with a secret key, used only so that
+            the same mailbox cannot receive welcome credits twice.
+          </li>
         </ul>
       ),
     },
@@ -180,8 +185,9 @@ export default async function PrivacyPage() {
           </li>
           <li>
             <strong>To keep the service and your account secure</strong> — detecting
-            new-device sign-ins, preventing fraud and abuse, and fixing errors. This is in
-            our legitimate interest and yours.
+            new-device sign-ins, preventing fraud and abuse (including giving welcome
+            credits once per person), and fixing errors. This is in our legitimate
+            interest and yours.
           </li>
           <li>
             <strong>With your consent</strong> — before your first upload you are shown
@@ -319,6 +325,11 @@ export default async function PrivacyPage() {
           <li>
             <strong>Data export files:</strong> the download link works for{" "}
             {f.exportLinkHours} hours, after which the file is removed.
+          </li>
+          <li>
+            <strong>Welcome-credit fingerprint:</strong> for as long as your account
+            exists and {f.welcomeFingerprintDays} days after you delete it, then erased.
+            You can ask our grievance officer to erase it sooner.
           </li>
           <li>
             <strong>Invoices and credit records:</strong> for as long as tax and company

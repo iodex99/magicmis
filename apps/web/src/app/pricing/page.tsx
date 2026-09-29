@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { priceFor } from "@magicmis/wallet";
 
@@ -14,7 +15,9 @@ import { visitorCurrency } from "@/lib/server/visitor-currency";
 import { welcomeOffer } from "@/lib/server/welcome";
 import {
   trialAnswer,
+  WELCOME_TERMS_HREF,
   welcomeBand,
+  welcomeConditions,
   welcomeCreditsLabel,
   type WelcomeOfferCopy,
 } from "@/lib/welcome-copy";
@@ -119,6 +122,7 @@ export default async function PricingPage() {
   ]);
   const FAQS = faqs(offer);
   const line = welcomeBand(offer);
+  const conditions = welcomeConditions(offer);
   const free = welcomeCreditsLabel(offer);
   const perMonth = refresh.credits + memory.credits;
   /** One company set up and reported on for twelve months. */
@@ -167,6 +171,18 @@ export default async function PricingPage() {
               >
                 <Icon name="wallet" size={15} />
                 {line}
+              </p>
+            )}
+            {conditions === null ? null : (
+              // The conditions of a free offer sit beside it, in the same type (ADR 0072).
+              <p
+                data-testid="welcome-conditions"
+                className="mx-auto mt-2 max-w-xl text-[0.875rem] text-neutral-600"
+              >
+                {conditions}{" "}
+                <Link href={WELCOME_TERMS_HREF} className="text-accent-700 underline">
+                  Offer terms
+                </Link>
               </p>
             )}
           </header>
@@ -275,8 +291,8 @@ export default async function PricingPage() {
           heading={`Start with ${free}. Buy a pack when you want more.`}
           body={
             offer.coversFirstCompany
-              ? "Your first company is set up on your own books before you spend anything, and every action shows its price before you press it."
-              : "Try it on your own books before you spend anything; every action shows its price before you press it."
+              ? "Your first company is set up on your own books at its standard price before you spend anything, and every action shows its price before you press it. One grant per person or business; each company you keep has a monthly memory fee."
+              : "Try it on your own books before you spend anything; every action shows its price before you press it. One grant per person or business; each company you keep has a monthly memory fee."
           }
         />
       )}

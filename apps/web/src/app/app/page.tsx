@@ -12,7 +12,7 @@ import { formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { listCompanies } from "@/lib/server/companies";
 import { accountOverview } from "@/lib/server/overview";
-import { firstRunCredits } from "@/lib/server/welcome";
+import { firstRunCredits, welcomeStatus } from "@/lib/server/welcome";
 
 import { defaultConventions } from "@magicmis/core/reporting-conventions";
 
@@ -67,6 +67,11 @@ export default async function AppHomePage() {
   // Welcome credits still unspent (ADR 0068). Said plainly on the first screen, because an
   // account that does not know it can run something for nothing will not try.
   const welcome = wallet.lots.find((l) => l.source === "welcome")?.remaining ?? 0n;
+  // Only asked of a new account whose wallet has no welcome credits in it (ADR 0072).
+  const status =
+    companies.length === 0 && welcome === 0n
+      ? await welcomeStatus(pool, account.accountId)
+      : ({ kind: "none" } as const);
   const jobsThisMonth = overview.jobsByMonth.at(-1) ?? 0;
   const jobsLastMonth = overview.jobsByMonth.at(-2) ?? 0;
 
@@ -98,7 +103,21 @@ export default async function AppHomePage() {
                   : "Spend them on anything; nothing to pay until you want more."}
               </span>
             </p>
-          ) : null}
+          ) : status.kind === "none" ? null : (
+            <p
+              data-testid="welcome-status"
+              className="rise mb-5 flex items-start gap-2.5 rounded-xl border border-neutral-200 bg-surface px-4 py-3 text-[0.8125rem] leading-relaxed text-neutral-700"
+            >
+              <Icon name="info" size={16} className="mt-0.5 shrink-0 text-neutral-500" />
+              <span>
+                {status.kind === "waiting"
+                  ? "Your welcome credits are not in your wallet yet. We pace them when many new accounts are opened at once, so they are added at a later sign-in."
+                  : status.reason === "disposable_email"
+                    ? "Welcome credits are not given to accounts on a throwaway email service. Everything else works as normal, paid from prepaid credits."
+                    : "This email address has already had its welcome credits, which come once per person or business. Everything else works as normal, paid from prepaid credits."}
+              </span>
+            </p>
+          )}
           <div data-testid="app-home">
             <AddCompany defaults={conventions} first />
           </div>

@@ -720,3 +720,31 @@ export async function purgeAccounts(
     );
   return purged;
 }
+
+/**
+ * Erase the welcome-credit fingerprint of every account deleted longer ago than
+ * `wallet.welcome_fingerprint_retention_days` (ADR 0072). The fingerprint is kept after deletion
+ * only so the same mailbox cannot collect welcome credits twice; the privacy notice says how long,
+ * and this is what makes it true. The decision row stays, with nothing in it that identifies anyone.
+ */
+export async function forgetWelcomeFingerprints(
+  pool: Pool,
+  now: Date,
+): Promise<{ erased: number }> {
+  const days = await readConfig(
+    pool,
+    "wallet.welcome_fingerprint_retention_days",
+    z.number().int().positive(),
+  );
+  const r = await pool.query(
+    `update public.welcome_credits w
+        set mailbox_digest = null
+       from public.accounts a
+      where a.id = w.account_id
+        and w.mailbox_digest is not null
+        and a.deleted_at is not null
+        and a.deleted_at < $1::timestamptz - make_interval(days => $2)`,
+    [now, days],
+  );
+  return { erased: r.rowCount ?? 0 };
+}

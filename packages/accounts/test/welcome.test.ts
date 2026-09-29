@@ -439,3 +439,27 @@ describe("decideWelcomeCredits", () => {
     ).rejects.toThrow(/welcome_credits_one_grant_per_mailbox/u);
   });
 });
+
+describe("the fingerprint the server supplies", () => {
+  it("is the one kept with the decision, so a keyed fingerprint is never replaced by the unkeyed one", async () => {
+    const accountId = await newAccount();
+    const seen: string[] = [];
+    await decideWelcomeCredits(pool(), {
+      accountId,
+      ip: freshIp(),
+      fingerprint: (mailbox) => {
+        seen.push(mailbox);
+        return `keyed-${mailbox.length.toString()}-${accountId}`;
+      },
+    });
+    const row = await pool().query<{ d: string }>(
+      `select mailbox_digest as d from welcome_credits where account_id = $1`,
+      [accountId],
+    );
+    expect(row.rows[0]?.d).toBe(
+      `keyed-${(seen[0] ?? "").length.toString()}-${accountId}`,
+    );
+    // It is handed the normalised mailbox, never the raw address.
+    expect(seen[0]).toMatch(/^[^+]+@example\.test$/u);
+  });
+});

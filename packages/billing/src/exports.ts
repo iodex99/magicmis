@@ -18,7 +18,8 @@ export type AccountingReport =
   | "credits_expired"
   | "outstanding_credits"
   | "gst_summary"
-  | "invoice_register";
+  | "invoice_register"
+  | "welcome_credits";
 
 export const ACCOUNTING_REPORTS: readonly AccountingReport[] = [
   "credits_sold",
@@ -27,6 +28,7 @@ export const ACCOUNTING_REPORTS: readonly AccountingReport[] = [
   "outstanding_credits",
   "gst_summary",
   "invoice_register",
+  "welcome_credits",
 ];
 
 /** RFC 4180 quoting, plus a leading apostrophe on cells a spreadsheet would run as a formula. */
@@ -174,6 +176,71 @@ export async function accountingCsv(
       return toCsv(
         ["account_id", "entries", "credits", "welcome_credits"],
         r.rows.map((x) => [x.account_id, x.entries, x.credits, x.welcome]),
+      );
+    }
+    case "welcome_credits": {
+      /*
+       * ADR 0072. Welcome credits are not a supply under GST (CGST Act s.7 and Schedule I;
+       * CBIC Circular 92/11/2019-GST, para 2A(i)): no tax, no invoice, and never revenue (AS 9).
+       * The same circular (para 2A(ii)) treats input tax credit on input services used for free
+       * offers as not available, so the cautious course is to reverse the credit on what the
+       * work they paid for directly consumed — its AI cost. This is that figure: each capture
+       * from a welcome lot takes its share of its job's or chat message's AI cost, pro rata to
+       * the credits the welcome lot paid.
+       */
+      const r = await db.query<{
+        account_id: string;
+        granted: string;
+        spent: string;
+        ai_paise: string;
+      }>(
+        `with caps as (
+           select l.account_id, l.job_id, r.chat_message_id,
+                  coalesce(sum(l.amount) filter (where lot.source = 'welcome'), 0) as welcome,
+                  sum(l.amount) as total
+             from public.credit_ledger l
+             left join public.credit_lots lot on lot.id = l.lot_id
+             left join public.reservations r on r.id = l.reservation_id
+            where l.entry_type = 'capture' and l.created_at >= $1 and l.created_at < $2
+            group by 1, 2, 3
+         ), costed as (
+           select c.account_id, c.welcome,
+                  case when c.total = 0 then 0 else round(
+                    coalesce(
+                      (select j.actual_ai_cost_paise from public.jobs j where j.id = c.job_id),
+                      (select sum(a.inr_cost_paise) from public.ai_calls a
+                        where a.chat_message_id = c.chat_message_id),
+                      0)::numeric * c.welcome / c.total) end as ai
+             from caps c where c.welcome > 0
+         ), grants as (
+           select l.account_id, sum(l.amount) as granted
+             from public.credit_ledger l
+             join public.credit_lots lot on lot.id = l.lot_id and lot.source = 'welcome'
+            where l.entry_type = 'grant' and l.created_at >= $1 and l.created_at < $2
+            group by 1
+         )
+         select coalesce(g.account_id, c.account_id) as account_id,
+                coalesce(max(g.granted), 0)::text as granted,
+                coalesce(sum(c.welcome), 0)::text as spent,
+                coalesce(sum(c.ai), 0)::bigint::text as ai_paise
+           from grants g
+           full join costed c on c.account_id = g.account_id
+          group by 1 order by 1`,
+        [from, to],
+      );
+      const sum = (pick: (x: (typeof r.rows)[number]) => string) =>
+        r.rows.reduce((t, x) => t + BigInt(pick(x)), 0n);
+      return toCsv(
+        ["account_id", "welcome_granted", "welcome_spent", "ai_cost_inr"],
+        [
+          ...r.rows.map((x) => [x.account_id, x.granted, x.spent, minorCell(x.ai_paise)]),
+          [
+            "TOTAL",
+            sum((x) => x.granted).toString(),
+            sum((x) => x.spent).toString(),
+            minorCell(sum((x) => x.ai_paise)),
+          ],
+        ],
       );
     }
     case "outstanding_credits": {

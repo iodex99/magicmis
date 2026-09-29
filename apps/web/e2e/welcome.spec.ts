@@ -226,6 +226,10 @@ test("a throwaway address gets no welcome credits, and the account works as norm
     credits: "0",
   });
   await expect(page.getByTestId("welcome-credits")).toHaveCount(0);
+  // Told why, beside the offer it did not get (ADR 0072).
+  await expect(page.getByTestId("welcome-status")).toContainText(
+    "throwaway email service",
+  );
   await expect(page.getByText("Actions are paid from prepaid credits.")).toBeVisible();
   expect(await wallet(email)).toEqual({ balance: "0", held: "0" });
   await page.context().close();
@@ -247,6 +251,10 @@ test("a fourth new account from one network waits, and is granted at a sign-in f
       fourth = email;
       await expect(page).toHaveURL(/\/app$/u);
       await expect(page.getByTestId("welcome-credits")).toHaveCount(0);
+      // Told, not left to wonder (ADR 0072).
+      await expect(page.getByTestId("welcome-status")).toContainText(
+        "not in your wallet yet",
+      );
     }
     await page.context().close();
   }

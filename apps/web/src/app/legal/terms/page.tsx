@@ -21,9 +21,9 @@ export const metadata: Metadata = pageMetadata("/legal/terms");
  * the processor terms in section 7 (whether a separate data processing agreement is needed
  * for EU/UK customers), the liability cap in section 13, governing law and venue in
  * section 17, and whether any consumer-protection law overrides the no-refund rule in the
- * countries sold into; and the welcome-credit clause in section 5 (ADR 0068) — one grant per
- * person or business, withheld for throwaway addresses and repeat sign-ups from one network,
- * no cash value, and the right to end the offer or withdraw credits obtained around its limits.
+ * countries sold into. The welcome-credit clause in section 5 was researched against the
+ * Consumer Protection Act 2019 (s.2(46)), the CCPA advertising guidelines 2022 and the dark
+ * patterns guidelines 2023, and settled on the owner's decision (ADR 0072).
  */
 export default async function TermsPage() {
   const f = await legalFacts();
@@ -135,11 +135,16 @@ export default async function TermsPage() {
             A new account may receive a one-time grant of welcome credits when it is first
             signed in to, of the amount our website shows at the time. Welcome credits are
             spent like any other credits and have no cash value. There is one grant per
-            person or business: we may withhold it from an address at a throwaway email
-            service or from a network where many new accounts are being opened, and may
-            withdraw welcome credits obtained by getting around these limits. We may
-            change or end the offer at any time; that does not affect welcome credits
-            already granted.
+            person or business: we do not give it to an address at a throwaway email
+            service or to an email address that has had it before, and where many new
+            accounts are being opened from one network or at one time we may add it at a
+            later sign-in instead. If welcome credits were obtained by getting around
+            these limits we may withdraw those that are unspent — never credits you
+            bought, and never work already delivered — and we will tell you why and how to
+            raise it with our grievance officer. After the welcome credits you buy credits
+            in packs, and each company you keep has a monthly memory fee. We may change or
+            end the offer at any time; that does not affect welcome credits already
+            granted.
           </p>
           <ul>
             <li>

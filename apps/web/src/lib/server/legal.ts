@@ -58,24 +58,37 @@ export interface LegalFacts {
   readonly outputRetentionDays: number;
   readonly uploadRetentionDays: number;
   readonly exportLinkHours: number;
+  /** How long a deleted account's welcome fingerprint is kept (ADR 0072). */
+  readonly welcomeFingerprintDays: number;
 }
 
 export async function legalFacts(): Promise<LegalFacts> {
   const pool = db();
   const n = z.number().int().nonnegative();
-  const [seller, contacts, versions, grace, archive, purgeDelay, outputs, link, uploads] =
-    await Promise.all([
-      readConfig(pool, "billing.seller", sellerSchema),
-      readConfig(pool, "legal.contacts", contactsSchema),
-      readConfig(pool, "legal.document_versions", versionsSchema),
-      readConfig(pool, "lifecycle.grace_months", n),
-      readConfig(pool, "lifecycle.archive_months", n),
-      readConfig(pool, "lifecycle.deletion_purge_delay_days", n),
-      readConfig(pool, "outputs.retention_days", n),
-      readConfig(pool, "privacy.export_link_hours", n),
-      // Zero: uploaded files are kept until their owner deletes them (ADR 0047).
-      readConfig(pool, "sources.retention_days", z.number().int().nonnegative()),
-    ]);
+  const [
+    seller,
+    contacts,
+    versions,
+    grace,
+    archive,
+    purgeDelay,
+    outputs,
+    link,
+    uploads,
+    fingerprint,
+  ] = await Promise.all([
+    readConfig(pool, "billing.seller", sellerSchema),
+    readConfig(pool, "legal.contacts", contactsSchema),
+    readConfig(pool, "legal.document_versions", versionsSchema),
+    readConfig(pool, "lifecycle.grace_months", n),
+    readConfig(pool, "lifecycle.archive_months", n),
+    readConfig(pool, "lifecycle.deletion_purge_delay_days", n),
+    readConfig(pool, "outputs.retention_days", n),
+    readConfig(pool, "privacy.export_link_hours", n),
+    // Zero: uploaded files are kept until their owner deletes them (ADR 0047).
+    readConfig(pool, "sources.retention_days", z.number().int().nonnegative()),
+    readConfig(pool, "wallet.welcome_fingerprint_retention_days", n),
+  ]);
 
   const address = seller.address.filter((line) => real(line) !== null);
   return {
@@ -94,5 +107,6 @@ export async function legalFacts(): Promise<LegalFacts> {
     outputRetentionDays: outputs,
     uploadRetentionDays: uploads,
     exportLinkHours: link,
+    welcomeFingerprintDays: fingerprint,
   };
 }
