@@ -18,6 +18,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { Icon } from "@/components/Icon";
+import { PRODUCT_NAME } from "@/lib/brand";
 import { Alert } from "@/components/ui";
 import { api } from "@/lib/client-api";
 
@@ -127,7 +128,8 @@ export function BoardActionsView({ jobId }: { jobId: string }) {
       </ol>
       <p className="text-[0.75rem] text-neutral-500">
         Suggestions drawn from this company&rsquo;s own books, for the board to consider.
-        Not tax, legal or audit advice.
+        Not tax, legal or audit advice. {PRODUCT_NAME} can make mistakes, so weigh each
+        against what you know of the business.
       </p>
     </section>
   );

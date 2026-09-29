@@ -23,7 +23,8 @@ import { createPortal } from "react-dom";
 
 import { Drawer } from "@/components/Drawer";
 import { LineagePanel } from "@/components/LineagePanel";
-import { Alert, Button } from "@/components/ui";
+import { PRODUCT_NAME } from "@/lib/brand";
+import { Alert, Button, MistakesNote } from "@/components/ui";
 import { api } from "@/lib/client-api";
 
 interface Payload {
@@ -156,6 +157,10 @@ export function CommentaryView({
         >
           Open as a report
         </button>
+        <MistakesNote>
+          The figures are computed from your books; the wording is drafted from them.
+          Check it before you share it.
+        </MistakesNote>
       </article>
 
       {!report
@@ -224,7 +229,7 @@ export function CommentaryView({
                   Every figure here is computed by the engine from the files you supplied
                   and checked before it was written; the wording is drafted from those
                   figures. Prepared from data provided by the user; requires professional
-                  review.
+                  review. {PRODUCT_NAME} can make mistakes.
                 </footer>
               </div>
             </div>,

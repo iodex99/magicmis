@@ -37,7 +37,7 @@ import { LineagePanel } from "@/components/LineagePanel";
 import { PaidJobButton } from "@/components/PaidJobButton";
 import { RollingNumber } from "@/components/RollingNumber";
 import { Icon, type IconName } from "@/components/Icon";
-import { Alert, Button, ButtonLink, Panel } from "@/components/ui";
+import { Alert, Button, ButtonLink, MistakesNote, Panel } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
 const SELECT =
@@ -1232,6 +1232,12 @@ export function DashboardClient({
             />
           ))}
         </div>
+        {/* Not while presenting: there the accountant is the reviewer, speaking to their client. */}
+        {presenting ? null : (
+          <MistakesNote className="mt-3">
+            Open any figure to see the ledgers behind it.
+          </MistakesNote>
+        )}
         <Drawer
           open={selected !== null}
           label="Lineage"

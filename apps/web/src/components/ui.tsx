@@ -799,7 +799,7 @@ const AUTH_MOMENTS: Record<
     eyebrow: "Start here",
     heading: "Raw data in. A checked MIS out.",
     points: [
-      "Free to create. You pay only when you run something",
+      "Free to create. Credits are spent only when you run something",
       "Works from any accounting system's trial balance",
       "Every figure traceable to the ledger it came from",
     ],
@@ -993,4 +993,27 @@ export function BrandMark({
 }) {
   // One drawing for the whole brand (ADR 0037); this keeps the name every caller already uses.
   return <LogoMark size={size} className={className} />;
+}
+
+/**
+ * The line that says the product can be wrong (ADR 0070), wherever it speaks for itself: the
+ * chat, commentary, where to act and the board. Small and muted, never alarming, and always
+ * followed by what to do about it — which here is usually to look, because every figure can be
+ * opened down to the ledger rows it came from. One definition, so the wording cannot drift.
+ */
+export function MistakesNote({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <p
+      data-testid="mistakes-note"
+      className={`text-[0.6875rem] leading-snug text-neutral-400 ${className}`}
+    >
+      {PRODUCT_NAME} can make mistakes. {children}
+    </p>
+  );
 }

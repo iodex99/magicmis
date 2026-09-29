@@ -26,7 +26,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Drawer } from "@/components/Drawer";
 import { Icon, type IconName } from "@/components/Icon";
 import { LineagePanel } from "@/components/LineagePanel";
-import { Alert, Button } from "@/components/ui";
+import { Alert, Button, MistakesNote } from "@/components/ui";
 import { formatCredits, TIER_LABELS, TIER_NOTES, TIER_TAGS } from "@/lib/actions";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
@@ -1275,6 +1275,9 @@ export function Assistant({
           <p className="mt-1.5 text-[0.6875rem] text-neutral-400">
             Every message uses credits, including questions outside this MIS.
           </p>
+          <MistakesNote className="mt-0.5">
+            Check anything important against your books.
+          </MistakesNote>
         </div>
       </div>
 
