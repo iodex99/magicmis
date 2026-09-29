@@ -59,6 +59,12 @@ export async function POST(request: Request): Promise<Response> {
       });
     }
     // Other failures (rate limit, provider error) must not reveal account existence either.
+    // Logged, because a confirmation email that cannot be sent — no custom SMTP in production,
+    // the project's hourly email limit — stops every sign-up (ADR 0073). The code only.
+    console.error("auth_email: sign-up failed", {
+      code: error.code ?? null,
+      status: error.status ?? null,
+    });
     return apiError(
       503,
       "signup_unavailable",

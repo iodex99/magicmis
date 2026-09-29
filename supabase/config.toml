@@ -234,6 +234,10 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
+# Locally, every auth email goes to Mailpit (http://127.0.0.1:54324). Production must send through
+# Resend, or customers receive no confirmation or reset email at all: Supabase's own mailer sends
+# only to the project team, two an hour. That is set on the hosted project, not here, by
+# `pnpm --filter @magicmis/accounts auth-email --apply` (ADR 0073, docs/runbooks/auth-email.md).
 # Use a production-ready SMTP server
 # [auth.email.smtp]
 # enabled = true

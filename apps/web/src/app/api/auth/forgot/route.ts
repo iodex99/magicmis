@@ -58,7 +58,16 @@ export async function POST(request: Request): Promise<Response> {
   // token-hash style (supabase/templates/recovery.html), not bound to this browser.
   if (!addressSpent) {
     after(async () => {
-      await ephemeralSupabase().auth.resetPasswordForEmail(email);
+      const { error } = await ephemeralSupabase().auth.resetPasswordForEmail(email);
+      // The customer is told "check your email" either way, so a failure to send would
+      // otherwise be invisible to everyone (ADR 0073): no custom SMTP in production, the
+      // project's hourly email limit, a rejected sender. The code only, never the address —
+      // whether it has an account is exactly what this route does not say.
+      if (error !== null)
+        console.error("auth_email: a password reset email was not sent", {
+          code: error.code ?? null,
+          status: error.status ?? null,
+        });
     });
   }
 
