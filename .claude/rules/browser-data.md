@@ -110,3 +110,6 @@ belong to the account and company before any job uses them.
 Before a paid action the UI may show **only** file name, size, sheet count, row count.
 Sheet recognition, mapping results, data-quality findings and every output appear only
 inside a paid action.
+Welcome credits (ADR 0068) do not change this: they are a lot like any other, and the
+actions they pay for are held and captured at their price. A path that skips the charge
+because the credits were free is still a free path.
