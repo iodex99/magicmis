@@ -11,6 +11,13 @@ import { formatCredits, formatMoney } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { pageMetadata } from "@/lib/seo";
 import { visitorCurrency } from "@/lib/server/visitor-currency";
+import { welcomeOffer } from "@/lib/server/welcome";
+import {
+  trialAnswer,
+  welcomeBand,
+  welcomeCreditsLabel,
+  type WelcomeOfferCopy,
+} from "@/lib/welcome-copy";
 
 export const metadata: Metadata = pageMetadata("/pricing");
 // Read from the versioned pack prices on each request; never prerendered at build time.
@@ -43,7 +50,7 @@ const INCLUDED: readonly string[] = [
   "Credits never expire",
 ];
 
-const FAQS: readonly Faq[] = [
+const faqs = (offer: WelcomeOfferCopy): readonly Faq[] => [
   {
     question: "Do credits expire?",
     answer:
@@ -71,8 +78,7 @@ const FAQS: readonly Faq[] = [
   },
   {
     question: "Is there a free trial?",
-    answer:
-      "No. Creating an account and adding a company are free, and the sample dashboards on this site show what the output looks like. Anything that analyses your own data is a paid action.",
+    answer: trialAnswer(offer),
   },
 ];
 
@@ -82,7 +88,7 @@ const RECOMMENDED_INDEX = 2;
 export default async function PricingPage() {
   const pool = db();
   const currency = await visitorCurrency();
-  const [packs, setup, refresh, memory] = await Promise.all([
+  const [packs, setup, refresh, memory, offer] = await Promise.all([
     pool.query<PackRow>(
       `select p.name, pp.price_minor_ex_tax::text as price_minor,
               p.credits_granted::text, p.bonus_credits::text
@@ -109,7 +115,11 @@ export default async function PricingPage() {
       tier: "professional",
       delivery: "standard",
     }),
+    welcomeOffer(pool),
   ]);
+  const FAQS = faqs(offer);
+  const line = welcomeBand(offer);
+  const free = welcomeCreditsLabel(offer);
   const perMonth = refresh.credits + memory.credits;
   /** One company set up and reported on for twelve months. */
   const companyYear = setup.credits + 12n * perMonth;
@@ -149,6 +159,16 @@ export default async function PricingPage() {
               No subscription, no seats, no minimum. Pick a pack, and the credits are
               yours until you use them.
             </p>
+            {line === null ? null : (
+              <p
+                data-testid="welcome-band"
+                className="rise mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-accent-200 bg-accent-50 px-4 py-2 text-[0.875rem] font-medium text-accent-800"
+                style={{ "--i": "2" } as React.CSSProperties}
+              >
+                <Icon name="wallet" size={15} />
+                {line}
+              </p>
+            )}
           </header>
 
           <ul
@@ -245,10 +265,21 @@ export default async function PricingPage() {
           </section>
         </div>
       </div>
-      <ClosingCta
-        heading="Create the account first. Buy credits when you are ready."
-        body="Signing up and adding a company are free, so you can see exactly what a run will ask of you before you spend anything."
-      />
+      {free === null ? (
+        <ClosingCta
+          heading="Create the account first. Buy credits when you are ready."
+          body="Signing up and adding a company are free, so you can see exactly what a run will ask of you before you spend anything."
+        />
+      ) : (
+        <ClosingCta
+          heading={`Start with ${free}. Buy a pack when you want more.`}
+          body={
+            offer.coversFirstCompany
+              ? "Your first company is set up on your own books before you spend anything, and every action shows its price before you press it."
+              : "Try it on your own books before you spend anything; every action shows its price before you press it."
+          }
+        />
+      )}
     </PublicShell>
   );
 }

@@ -17,7 +17,14 @@ import type { OAuthProvider } from "@/lib/server/oauth";
  * a tax invoice nobody had asked for yet. They are now collected at the first purchase,
  * which is where GST place of supply is actually needed (migration 0034).
  */
-export function SignUpScreen({ providers }: { providers: readonly OAuthProvider[] }) {
+export function SignUpScreen({
+  providers,
+  welcome,
+}: {
+  providers: readonly OAuthProvider[];
+  /** The welcome offer in one line, or null when it is off (ADR 0068). */
+  welcome: string | null;
+}) {
   const router = useRouter();
   const [fields, setFields] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
@@ -61,7 +68,9 @@ export function SignUpScreen({ providers }: { providers: readonly OAuthProvider[
     <AuthShell
       moment="join"
       title="Create your account"
-      description="Free to create. You buy credits when you are ready to run something."
+      description={
+        welcome ?? "Free to create. You buy credits when you are ready to run something."
+      }
       footer={
         <>
           Already have an account?{" "}

@@ -16,11 +16,16 @@ import {
   FaqSchema,
   type Faq,
 } from "@/components/StructuredData";
+import { formatCredits } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
+import { db } from "@/lib/db";
 import { pageMetadata } from "@/lib/seo";
+import { welcomeOffer } from "@/lib/server/welcome";
 
 const PATH = "/for-accountants";
 export const metadata: Metadata = pageMetadata(PATH);
+// Says what evaluating it costs from the live welcome offer (ADR 0068), so rendered per request.
+export const dynamic = "force-dynamic";
 
 /**
  * The practice case: many clients, same month, same deadline.
@@ -96,7 +101,8 @@ const FAQS: readonly Faq[] = [
   },
 ];
 
-export default function ForAccountantsPage() {
+export default async function ForAccountantsPage() {
+  const offer = await welcomeOffer(db());
   return (
     <PublicShell>
       <ArticleSchema path={PATH} />
@@ -142,8 +148,10 @@ export default function ForAccountantsPage() {
           There are no team logins, client portals or share links, and none are planned —
           one account is one login. There is no live connector to any accounting system:
           you take the raw reports and load the files. There is no scheduled refresh
-          without someone uploading the month. And there is no free tier or trial, so
-          evaluating it means buying credits for a real month.
+          without someone uploading the month.{" "}
+          {offer.credits > 0n
+            ? `Evaluating it costs nothing up front: a new account starts with ${formatCredits(offer.credits.toString())} free credits${offer.coversFirstCompany ? ", enough to set up one client’s company on a real month of its books" : ""}.`
+            : "And there is no free tier or trial, so evaluating it means buying credits for a real month."}
         </p>
         <p>
           The professional judgement stays yours. The workbook is a prepared report to be

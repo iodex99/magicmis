@@ -12,6 +12,7 @@ import { formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { listCompanies } from "@/lib/server/companies";
 import { accountOverview } from "@/lib/server/overview";
+import { firstRunCredits } from "@/lib/server/welcome";
 
 import { defaultConventions } from "@magicmis/core/reporting-conventions";
 
@@ -49,10 +50,12 @@ export default async function AppHomePage() {
   // The new-company form is pre-filled from where this account is billed, so adding a
   // company stays two fields for almost everyone (ADR 0030). It is a default the reader
   // can see and change, never applied silently.
-  const [companies, overview, wallet, billingCountry] = await Promise.all([
+  const [companies, overview, wallet, firstRun, billingCountry] = await Promise.all([
     listCompanies(pool, account.accountId),
     accountOverview(pool, account.accountId),
     walletSummary(pool, account.accountId),
+    // Only ever used to word a note, so a price row that has gone is no reason to fail the page.
+    firstRunCredits(pool).catch(() => null),
     pool
       .query<{ billing_country: string | null }>(
         `select billing_country from public.accounts where id = $1`,
@@ -61,6 +64,9 @@ export default async function AppHomePage() {
       .then((r) => r.rows[0]?.billing_country ?? null),
   ]);
   const conventions = defaultConventions(billingCountry);
+  // Welcome credits still unspent (ADR 0068). Said plainly on the first screen, because an
+  // account that does not know it can run something for nothing will not try.
+  const welcome = wallet.lots.find((l) => l.source === "welcome")?.remaining ?? 0n;
   const jobsThisMonth = overview.jobsByMonth.at(-1) ?? 0;
   const jobsLastMonth = overview.jobsByMonth.at(-2) ?? 0;
 
@@ -77,6 +83,22 @@ export default async function AppHomePage() {
               Add your first company and drop in last month. That is the whole setup.
             </p>
           </div>
+          {welcome > 0n ? (
+            <p
+              data-testid="welcome-credits"
+              className="rise mb-5 flex items-start gap-2.5 rounded-xl border border-accent-100 bg-accent-50/60 px-4 py-3 text-[0.8125rem] leading-relaxed text-neutral-700"
+            >
+              <Icon name="wallet" size={16} className="mt-0.5 shrink-0 text-accent-600" />
+              <span>
+                <strong className="font-semibold text-neutral-900">
+                  {formatCredits(welcome.toString())} welcome credits are in your wallet.
+                </strong>{" "}
+                {firstRun !== null && welcome >= firstRun
+                  ? "Enough to set this company up on your own books, with nothing to pay."
+                  : "Spend them on anything; nothing to pay until you want more."}
+              </span>
+            </p>
+          ) : null}
           <div data-testid="app-home">
             <AddCompany defaults={conventions} first />
           </div>
@@ -105,6 +127,7 @@ export default async function AppHomePage() {
             state={{
               hasCompany: true,
               hasCredits: wallet.available > 0n,
+              welcomeCredits: welcome > 0n ? formatCredits(welcome.toString()) : null,
               hasRun: overview.workbooks > 0,
             }}
             firstCompanyId={companies[0]?.id ?? null}

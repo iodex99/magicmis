@@ -31,6 +31,7 @@ const SOURCE_LABELS: Record<string, string> = {
   bonus: "Bonus",
   admin_grant: "Adjustment",
   goodwill: "Goodwill",
+  welcome: "Welcome credits",
 };
 const ENTRY_LABELS: Record<string, string> = {
   grant: "Credits added",
@@ -522,7 +523,8 @@ export function WalletClient({
                 <>
                   <Th>Source</Th>
                   <Th numeric>Remaining</Th>
-                  <Th numeric>Bought</Th>
+                  {/* Not every lot was bought: welcome credits and adjustments were added. */}
+                  <Th numeric>Added</Th>
                 </>
               }
             >

@@ -12,10 +12,22 @@ import {
   type Faq,
 } from "@/components/StructuredData";
 import { Badge, ButtonLink } from "@/components/ui";
+import { formatCredits } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
+import { db } from "@/lib/db";
 import { PUBLIC_PAGES, pageMetadata, publicPage } from "@/lib/seo";
+import { welcomeOffer } from "@/lib/server/welcome";
+import {
+  trialAnswer,
+  welcomeCreditsLabel,
+  welcomeLine,
+  type WelcomeOfferCopy,
+} from "@/lib/welcome-copy";
 
 export const metadata: Metadata = pageMetadata("/");
+// The welcome offer is stated from its live configuration (ADR 0068), so this page is rendered
+// per request rather than frozen at build time with whatever the offer was then.
+export const dynamic = "force-dynamic";
 
 /**
  * Public home.
@@ -97,7 +109,7 @@ const GUIDES = [
   "/ai-mis-report",
 ] as const;
 
-const FAQS: readonly Faq[] = [
+const faqs = (offer: WelcomeOfferCopy): readonly Faq[] => [
   {
     question: `What does ${PRODUCT_NAME} do?`,
     answer:
@@ -115,8 +127,7 @@ const FAQS: readonly Faq[] = [
   },
   {
     question: "Is there a free trial?",
-    answer:
-      "No. There is no free tier, trial or free sample on your own data. Creating an account, adding a company and reading the price book cost nothing; anything that produces analysis or output is a paid action.",
+    answer: trialAnswer(offer),
   },
   {
     question: "How much does a monthly report cost?",
@@ -135,7 +146,11 @@ const FAQS: readonly Faq[] = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const offer = await welcomeOffer(db());
+  const FAQS = faqs(offer);
+  const line = welcomeLine(offer);
+  const free = welcomeCreditsLabel(offer);
   return (
     <PublicShell>
       <OrganizationSchema />
@@ -194,6 +209,16 @@ export default function HomePage() {
                 Watch the 40-second tour
               </Link>
             </div>
+            {line === null ? null : (
+              <p
+                data-testid="welcome-line"
+                className="rise mt-4 flex items-center gap-2 text-[0.8125rem] text-neutral-600"
+                style={{ "--i": "3" } as React.CSSProperties}
+              >
+                <Icon name="wallet" size={15} className="text-accent-600" />
+                {line}
+              </p>
+            )}
           </div>
 
           {/* Illustration only. Fictional figures, stated as such (SPEC §2.3). */}
@@ -439,8 +464,9 @@ export default function HomePage() {
               Start with one company
             </h2>
             <p className="mt-1.5 max-w-lg text-[0.875rem] text-neutral-300">
-              Creating an account and adding a company cost nothing. You buy credits when
-              you are ready to run something, and are charged only for what you run.
+              {free === null
+                ? "Creating an account and adding a company cost nothing. You buy credits when you are ready to run something, and are charged only for what you run."
+                : `Your first ${formatCredits(offer.credits.toString())} credits are on us${offer.coversFirstCompany ? ", enough to set up one company on your own books" : ""}. After that you buy credits when you need them, and are charged only for what you run.`}
             </p>
           </div>
           <Link

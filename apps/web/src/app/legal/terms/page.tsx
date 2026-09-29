@@ -21,7 +21,9 @@ export const metadata: Metadata = pageMetadata("/legal/terms");
  * the processor terms in section 7 (whether a separate data processing agreement is needed
  * for EU/UK customers), the liability cap in section 13, governing law and venue in
  * section 17, and whether any consumer-protection law overrides the no-refund rule in the
- * countries sold into.
+ * countries sold into; and the welcome-credit clause in section 5 (ADR 0068) — one grant per
+ * person or business, withheld for throwaway addresses and repeat sign-ups from one network,
+ * no cash value, and the right to end the offer or withdraw credits obtained around its limits.
  */
 export default async function TermsPage() {
   const f = await legalFacts();
@@ -127,8 +129,17 @@ export default async function TermsPage() {
             message) is your instruction to run it and to charge its price. Some larger
             actions need a quote, which you accept before anything runs. You are never
             charged for an action you did not start, credits are charged only when the
-            action is delivered, and your balance cannot go below zero. There is no free
-            tier or trial.
+            action is delivered, and your balance cannot go below zero.
+          </p>
+          <p>
+            A new account may receive a one-time grant of welcome credits when it is first
+            signed in to, of the amount our website shows at the time. Welcome credits are
+            spent like any other credits and have no cash value. There is one grant per
+            person or business: we may withhold it from an address at a throwaway email
+            service or from a network where many new accounts are being opened, and may
+            withdraw welcome credits obtained by getting around these limits. We may
+            change or end the offer at any time; that does not affect welcome credits
+            already granted.
           </p>
           <ul>
             <li>
@@ -149,7 +160,8 @@ export default async function TermsPage() {
           </p>
           <p>
             Credits do not expire. They remain available on your account until you spend
-            them or the account is closed, and are used in the order they were bought.
+            them or the account is closed, and are used oldest first, in the order they
+            were added to your account.
           </p>
           <p>
             Credits are non-refundable, cannot be transferred to another account and
@@ -287,7 +299,8 @@ export default async function TermsPage() {
             </li>
             <li>
               try to get around charges, quotes or limits, or to obtain analysis or
-              outputs without paying for them;
+              outputs without paying for them, including by opening more than one account
+              to collect welcome credits;
             </li>
             <li>
               try to extract the instructions, prompts or configuration behind the

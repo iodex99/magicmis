@@ -113,9 +113,9 @@ export default function ManagementReportingSoftwarePage() {
           No live sync with your ledger, because a live sync is a standing permission and
           a standing risk. No forecasting or budgeting module, because a forecast is a
           judgement and this product computes. No team seats, client portals or share
-          links, because one login per account is the simplest security model there is. No
-          free tier, because a free tier is paid for by someone, and here it would be paid
-          for with your data.
+          links, because one login per account is the simplest security model there is.
+          Nothing paid for with your data, because a product that is free for ever is paid
+          for by someone: you pay for what you run, from prepaid credits.
         </p>
         <p>
           What is here is the report:{" "}

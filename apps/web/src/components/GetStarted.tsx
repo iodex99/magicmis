@@ -13,6 +13,8 @@ export interface FirstRunState {
   readonly hasCompany: boolean;
   readonly hasCredits: boolean;
   readonly hasRun: boolean;
+  /** Unspent welcome credits, formatted, or null when there are none (ADR 0068). */
+  readonly welcomeCredits?: string | null;
 }
 
 export function GetStarted({
@@ -31,12 +33,19 @@ export function GetStarted({
       body: "One company holds one MIS: its mappings, its months and everything it produces. Adding it is free.",
       action: null,
     },
-    {
-      done: state.hasCredits,
-      title: "Put credits in your wallet",
-      body: "Credits pay for each action as you use it. The wallet shows what a pack costs in your own currency before you buy.",
-      action: { href: "/wallet", label: "Add credits" },
-    },
+    state.welcomeCredits !== undefined && state.welcomeCredits !== null
+      ? {
+          done: true,
+          title: "Welcome credits in your wallet",
+          body: `${state.welcomeCredits} credits are on us. Each action is paid from them first, at the price it shows before you press it.`,
+          action: null,
+        }
+      : {
+          done: state.hasCredits,
+          title: "Put credits in your wallet",
+          body: "Credits pay for each action as you use it. The wallet shows what a pack costs in your own currency before you buy.",
+          action: { href: "/wallet", label: "Add credits" },
+        },
     {
       done: false,
       title: "Run your first MIS",
