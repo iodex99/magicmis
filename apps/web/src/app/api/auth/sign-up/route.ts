@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 import {
   claimAttempt,
+  newSignupNonce,
   provisionAccount,
   signupRequestSchema,
   throttleLimitFor,
@@ -10,6 +11,7 @@ import {
 import { db } from "@/lib/db";
 import { appPublicEnv } from "@/lib/env";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
+import { signupBrowserCookie } from "@/lib/server/signup-browser";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
 /**
@@ -66,6 +68,10 @@ export async function POST(request: Request): Promise<Response> {
 
   // With email confirmation on, an existing address returns a user with no identities
   // rather than an error (anti-enumeration). Only provision genuinely new users.
+  // ADR 0071: the confirmation link signs in only the browser that holds this secret. It is
+  // given on every well-formed answer, new address or not, so its presence says nothing about
+  // which addresses have accounts; only a new account keeps its hash.
+  const browser = newSignupNonce();
   const user = data.user;
   if (user !== null && (user.identities?.length ?? 0) > 0) {
     const { businessName, gstin, billingAddress, acceptTerms, acceptPrivacy } = input;
@@ -74,12 +80,15 @@ export async function POST(request: Request): Promise<Response> {
       email: input.email,
       profile: { businessName, gstin, billingAddress, acceptTerms, acceptPrivacy },
       ip,
+      signupNonceHash: browser.hash,
     });
   }
 
-  return ok({
+  const response = ok({
     status: "check_email",
     // A hash, not the address, so logs of this response never contain the email.
     ref: createHash("sha256").update(input.email).digest("hex").slice(0, 12),
   });
+  response.cookies.set(signupBrowserCookie(browser.nonce));
+  return response;
 }

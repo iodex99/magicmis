@@ -12,7 +12,7 @@ import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
 import { welcomeAfterClaim } from "@/lib/server/welcome";
-import { supabaseForRequest } from "@/lib/supabase/server";
+import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
 
 /**
  * POST /api/auth/finish — turn a proven identity into an account (ADR 0043).
@@ -27,6 +27,11 @@ import { supabaseForRequest } from "@/lib/supabase/server";
  */
 const bodySchema = z.object({
   businessName: signupRequestSchema.shape.businessName,
+  /**
+   * The owner's own password, for a password sign-up whose confirmation link was opened in
+   * another browser (ADR 0071): the one chosen at sign-up was destroyed at the callback.
+   */
+  password: signupRequestSchema.shape.password.optional(),
   acceptTerms: z.literal(true),
   acceptPrivacy: z.literal(true),
 });
@@ -60,18 +65,36 @@ export async function POST(request: Request): Promise<Response> {
   const unclaimed = hasPassword
     ? null
     : await neverSignedInAccount(pool, claims.data.sub);
+  // A password is set only on an account the address was just proven for by the link, never
+  // on a Google or Apple one (ADR 0043) and never on an account anyone has signed in to.
+  const viaProvider = (claims.data.amr ?? []).some((m) => m.method === "oauth");
+  const newPassword =
+    unclaimed !== null && !viaProvider ? (parsed.data.password ?? null) : null;
+  if (newPassword !== null) {
+    const { error } = await supabaseAdmin().auth.admin.updateUserById(claims.data.sub, {
+      password: newPassword,
+    });
+    if (error !== null) {
+      return apiError(422, "weak_password", "Choose a stronger password.", {
+        password:
+          "Use at least 12 characters with upper- and lower-case letters and a digit.",
+      });
+    }
+  }
   if (unclaimed !== null) {
     await refinishAccount(pool, {
       accountId: unclaimed,
       businessName: parsed.data.businessName,
       ip,
+      hasPassword: newPassword !== null,
     });
   }
+  const { password: _password, ...profile } = parsed.data;
   const provisioned = await provisionAccount(pool, {
     authUserId: claims.data.sub,
     email: claims.data.email.trim().toLowerCase(),
     // Billing details are asked for at the first purchase, as for every account.
-    profile: { ...parsed.data, gstin: undefined },
+    profile: { ...profile, gstin: undefined },
     ip,
     hasPassword,
   });

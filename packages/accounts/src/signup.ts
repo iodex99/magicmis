@@ -6,6 +6,8 @@
  * keyed on the auth user id, so a retried request provisions exactly once.
  */
 
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+
 import { isValidGstin, normaliseGstin } from "@magicmis/core/identifiers";
 import { appendAudit } from "@magicmis/db/audit";
 import { readConfig } from "@magicmis/db/config";
@@ -158,6 +160,8 @@ export async function provisionAccount(
     ip: string | null;
     /** False for an account created through Google or Apple (ADR 0043). */
     hasPassword?: boolean;
+    /** The hash of the secret given to the browser that signed up (ADR 0071). */
+    signupNonceHash?: string | null;
   },
 ): Promise<ProvisionResult> {
   return withTransaction(pool, async (tx) => {
@@ -182,8 +186,8 @@ export async function provisionAccount(
       const inserted = await tx.query<{ id: string }>(
         `insert into public.accounts
            (auth_user_id, email, business_name, gstin, billing_address, state_code,
-            has_password)
-         values ($1, $2, $3, $4, $5, $6, $7)
+            has_password, signup_nonce_hash)
+         values ($1, $2, $3, $4, $5, $6, $7, $8)
          returning id`,
         [
           input.authUserId,
@@ -193,6 +197,7 @@ export async function provisionAccount(
           JSON.stringify(input.profile.billingAddress ?? {}),
           placeOfSupplyState(input.profile),
           input.hasPassword ?? true,
+          input.signupNonceHash ?? null,
         ],
       );
       const id = inserted.rows[0]?.id;
@@ -278,7 +283,16 @@ export async function neverSignedInAccount(
  */
 export async function refinishAccount(
   pool: Pool,
-  input: { accountId: string; businessName: string; ip: string | null },
+  input: {
+    accountId: string;
+    businessName: string;
+    ip: string | null;
+    /**
+     * True when the owner has just set their own password in the same step (a password sign-up
+     * confirmed from another browser, ADR 0071); an identity-provider account has none.
+     */
+    hasPassword?: boolean;
+  },
 ): Promise<boolean> {
   return withTransaction(pool, async (tx) => {
     const locked = await tx.query<{ id: string }>(
@@ -292,8 +306,10 @@ export async function refinishAccount(
     if (locked.rows[0] === undefined) return false;
 
     await tx.query(
-      `update public.accounts set business_name = $2, has_password = false where id = $1`,
-      [input.accountId, input.businessName],
+      `update public.accounts
+          set business_name = $2, has_password = $3, signup_nonce_hash = null
+        where id = $1`,
+      [input.accountId, input.businessName, input.hasPassword ?? false],
     );
     const versions = await readConfig(
       tx,
@@ -320,9 +336,77 @@ export async function refinishAccount(
       action: "account.claimed_by_verified_identity",
       targetType: "account",
       targetId: input.accountId,
-      metadata: {},
+      metadata: { hasPassword: input.hasPassword ?? false },
       ip: input.ip,
     });
     return true;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// The browser that signed up (ADR 0071, R-85)
+// ---------------------------------------------------------------------------
+
+const nonceHash = (nonce: string): string =>
+  createHash("sha256").update(nonce).digest("hex");
+
+/**
+ * A secret for the browser that submits the sign-up form, and the hash kept on the account. The
+ * confirmation link signs in only a browser that holds it; the link alone proves the mailbox, not
+ * that whoever clicked it chose the password.
+ */
+export function newSignupNonce(): { readonly nonce: string; readonly hash: string } {
+  const nonce = randomBytes(32).toString("base64url");
+  return { nonce, hash: nonceHash(nonce) };
+}
+
+/** Whether this browser's secret is the one given when the account was signed up for. */
+export async function signupNonceMatches(
+  db: Queryable,
+  accountId: string,
+  nonce: string | null | undefined,
+): Promise<boolean> {
+  if (nonce === null || nonce === undefined || nonce === "") return false;
+  const row = await one<{ signup_nonce_hash: string | null }>(
+    db,
+    `select signup_nonce_hash from public.accounts where id = $1`,
+    [accountId],
+  );
+  const stored = row?.signup_nonce_hash ?? null;
+  if (stored === null) return false;
+  const a = Buffer.from(stored, "hex");
+  const b = Buffer.from(nonceHash(nonce), "hex");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/** Spend the secret once it has signed its browser in, so a copy of the cookie is worth nothing. */
+export async function spendSignupNonce(db: Queryable, accountId: string): Promise<void> {
+  await db.query(`update public.accounts set signup_nonce_hash = null where id = $1`, [
+    accountId,
+  ]);
+}
+
+/**
+ * Record that the password chosen at sign-up was destroyed because the confirmation link was
+ * opened in another browser (ADR 0071). Until the mailbox owner finishes the account or resets
+ * the password, it has none that anyone knows.
+ */
+export async function forgetSignupPassword(
+  pool: Pool,
+  input: { accountId: string; ip: string | null },
+): Promise<void> {
+  await withTransaction(pool, async (tx) => {
+    await tx.query(
+      `update public.accounts set has_password = false, signup_nonce_hash = null where id = $1`,
+      [input.accountId],
+    );
+    await appendAudit(tx, {
+      actorType: "system",
+      action: "account.signup_password_destroyed",
+      targetType: "account",
+      targetId: input.accountId,
+      metadata: { reason: "confirmed_in_another_browser" },
+      ip: input.ip,
+    });
   });
 }

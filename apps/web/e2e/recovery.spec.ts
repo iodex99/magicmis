@@ -270,3 +270,83 @@ test("an account with no password is pointed at the link instead of asked for on
     "/forgot-password",
   );
 });
+
+test("a confirmation opened in another browser signs nobody in: the mailbox owner finishes the account (ADR 0071)", async ({
+  browser,
+}) => {
+  // R-85: a stranger registers someone else's address with a password they chose, and waits.
+  const email = uniqueEmail();
+  const strangerContext = await browser.newContext();
+  const stranger = await strangerContext.newPage();
+  await signUp(stranger, email);
+
+  // The owner opens the genuine confirmation email, in their own browser.
+  const ownerContext = await browser.newContext();
+  const owner = await ownerContext.newPage();
+  await owner.goto(confirmationLink(await latestEmailHtml(email, "Confirm your email")));
+  await expect(owner).toHaveURL(/\/sign-up\/finish$/u);
+
+  // Nothing was claimed for the stranger, and the password they chose is gone.
+  await stranger.goto("/sign-in");
+  await stranger.getByLabel("Email").fill(email);
+  await stranger.getByLabel("Password").fill(PASSWORD);
+  await stranger.getByRole("button", { name: "Continue" }).click();
+  await expect(stranger.getByRole("main").getByRole("alert")).toContainText("incorrect");
+
+  // The owner sets their own password, name and consent, and is in.
+  await owner.getByLabel("Choose your password").fill(NEW_PASSWORD);
+  await owner.getByLabel("Business name").fill("The Actual Owner & Co");
+  await owner.getByLabel(/I accept the/u).check();
+  await owner.getByRole("button", { name: "Create account" }).click();
+  await expect(owner).toHaveURL(/\/app$/u);
+
+  const pool = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
+  try {
+    const row = await pool.query<{ business_name: string; has_password: boolean }>(
+      `select business_name, has_password from accounts where email = $1`,
+      [email],
+    );
+    expect(row.rows[0]).toEqual({
+      business_name: "The Actual Owner & Co",
+      has_password: true,
+    });
+    const destroyed = await pool.query(
+      `select 1 from audit_log l join accounts a on a.id = l.target_id
+        where a.email = $1 and l.action = 'account.signup_password_destroyed'`,
+      [email],
+    );
+    expect(destroyed.rowCount).toBe(1);
+  } finally {
+    await pool.end();
+  }
+
+  // Their own password works from anywhere; the stranger's still does not.
+  const laterContext = await browser.newContext();
+  const later = await laterContext.newPage();
+  await later.goto("/sign-in");
+  await later.getByLabel("Email").fill(email);
+  await later.getByLabel("Password").fill(NEW_PASSWORD);
+  await later.getByRole("button", { name: "Continue" }).click();
+  await expect(later).toHaveURL(/\/app$/u);
+  for (const c of [strangerContext, ownerContext, laterContext]) await c.close();
+});
+
+test("a confirmation opened in the browser that signed up signs in, as it always has (ADR 0071)", async ({
+  page,
+}) => {
+  // Nearly everyone: sign up, open the email in the same browser, land in the app.
+  const email = uniqueEmail();
+  await createVerifiedAccount(page, email);
+  await expect(page.getByTestId("app-home")).toBeVisible();
+  const pool = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
+  try {
+    // The browser's secret is spent once it has signed that browser in.
+    const row = await pool.query<{ spent: boolean; has_password: boolean }>(
+      `select signup_nonce_hash is null as spent, has_password from accounts where email = $1`,
+      [email],
+    );
+    expect(row.rows[0]).toEqual({ spent: true, has_password: true });
+  } finally {
+    await pool.end();
+  }
+});

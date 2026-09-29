@@ -1,8 +1,11 @@
 import {
   claimSession,
+  forgetSignupPassword,
   neverSignedInAccount,
   safeNextPath,
   sessionClaimsSchema,
+  signupNonceMatches,
+  spendSignupNonce,
 } from "@magicmis/accounts";
 import { randomBytes } from "node:crypto";
 import { type EmailOtpType } from "@supabase/supabase-js";
@@ -13,6 +16,7 @@ import { db } from "@/lib/db";
 import { requestMeta } from "@/lib/http";
 import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { OAUTH_NEXT_COOKIE } from "@/lib/server/oauth";
+import { SIGNUP_BROWSER_COOKIE } from "@/lib/server/signup-browser";
 import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
 
 /**
@@ -56,6 +60,8 @@ export async function GET(request: NextRequest): Promise<Response> {
   const rawType = url.searchParams.get("type");
   const type = EMAIL_OTP_TYPES.find((t) => t === rawType) ?? null;
 
+  // An email confirmation, as opposed to a return from Google or Apple.
+  const emailConfirmation = tokenHash !== null && type === "signup";
   let failed = true;
   if (code !== null) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -106,16 +112,50 @@ export async function GET(request: NextRequest): Promise<Response> {
       });
       newcomer = true;
     } else {
-      const claim = await claimSession(db(), new SupabaseAuthProvider(supabase), claims, {
-        ip,
-        userAgent,
-      });
-      await welcomeAfterClaim(db(), claim, ip);
-      signedIn = claim.status !== "refused";
-      // A session with no account behind it is someone who arrived through Google or Apple
-      // for the first time: they have proved who they are and have not yet said what to
-      // call their business or accepted the terms. The finish step asks for exactly that.
-      newcomer = claim.status === "refused" && claim.reason === "no_account";
+      /**
+       * ADR 0071 (R-85): the link proves the mailbox, not that whoever clicked it chose the
+       * password. The password form writes the account before the address is proven, so a
+       * stranger can register someone else's address and wait for them to click. Opened in the
+       * browser that signed up, the link signs in as it always has. Opened anywhere else, on an
+       * account nobody has signed in to, the password chosen at sign-up is destroyed, nothing is
+       * claimed, and whoever proved the mailbox finishes the account with their own password.
+       */
+      const pending =
+        emailConfirmation && parsed.success
+          ? await neverSignedInAccount(db(), parsed.data.sub)
+          : null;
+      const sameBrowser =
+        pending !== null &&
+        (await signupNonceMatches(
+          db(),
+          pending,
+          request.cookies.get(SIGNUP_BROWSER_COOKIE)?.value,
+        ));
+      if (pending !== null && !sameBrowser && parsed.success) {
+        await supabaseAdmin().auth.admin.updateUserById(parsed.data.sub, {
+          password: randomBytes(48).toString("base64url"),
+        });
+        await forgetSignupPassword(db(), { accountId: pending, ip });
+        newcomer = true;
+      } else {
+        const claim = await claimSession(
+          db(),
+          new SupabaseAuthProvider(supabase),
+          claims,
+          {
+            ip,
+            userAgent,
+          },
+        );
+        await welcomeAfterClaim(db(), claim, ip);
+        if (sameBrowser && claim.status === "claimed")
+          await spendSignupNonce(db(), pending);
+        signedIn = claim.status !== "refused";
+        // A session with no account behind it is someone who arrived through Google or Apple
+        // for the first time: they have proved who they are and have not yet said what to
+        // call their business or accepted the terms. The finish step asks for exactly that.
+        newcomer = claim.status === "refused" && claim.reason === "no_account";
+      }
     }
   }
   const path = failed
@@ -137,5 +177,13 @@ export async function GET(request: NextRequest): Promise<Response> {
   const host = request.headers.get("host") ?? url.host;
   const response = NextResponse.redirect(new URL(path, `${url.protocol}//${host}`));
   if (carried !== null) response.cookies.delete(OAUTH_NEXT_COOKIE);
+  // Spent or useless from here on either way.
+  if (emailConfirmation)
+    response.cookies.set({
+      name: SIGNUP_BROWSER_COOKIE,
+      value: "",
+      path: "/auth/callback",
+      maxAge: 0,
+    });
   return response;
 }
