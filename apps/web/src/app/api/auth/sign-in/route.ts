@@ -13,6 +13,7 @@ import { z } from "zod";
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
+import { openingSoon, prelaunch } from "@/lib/server/prelaunch";
 import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
@@ -31,6 +32,7 @@ const bodySchema = z.object({
  * and an account: it counts every attempt per IP and per email, and locks on the limit.
  */
 export async function POST(request: Request): Promise<Response> {
+  if (prelaunch()) return openingSoon();
   const parsed = await parseJson(request, bodySchema);
   if (!parsed.ok) return parsed.response;
   const { email, password } = parsed.data;

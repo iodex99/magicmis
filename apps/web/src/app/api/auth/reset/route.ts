@@ -11,6 +11,7 @@ import { z } from "zod";
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
+import { openingSoon, prelaunch } from "@/lib/server/prelaunch";
 import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { setAccountPassword } from "@/lib/server/password";
 import { supabaseForRequest } from "@/lib/supabase/server";
@@ -39,6 +40,7 @@ const bodySchema = z.object({
 const EXPIRED = "That link has expired or has already been used. Ask for a new one.";
 
 export async function POST(request: Request): Promise<Response> {
+  if (prelaunch()) return openingSoon();
   const parsed = await parseJson(request, bodySchema);
   if (!parsed.ok) return parsed.response;
   const { ip, userAgent } = await requestMeta();

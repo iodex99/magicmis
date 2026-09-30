@@ -14,6 +14,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { requestMeta } from "@/lib/http";
+import { prelaunch } from "@/lib/server/prelaunch";
 import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { OAUTH_NEXT_COOKIE } from "@/lib/server/oauth";
 import { SIGNUP_BROWSER_COOKIE } from "@/lib/server/signup-browser";
@@ -45,6 +46,8 @@ const EMAIL_OTP_TYPES: readonly EmailOtpType[] = ["signup"];
 
 export async function GET(request: NextRequest): Promise<Response> {
   const url = request.nextUrl;
+  // Before launch no link signs anyone in (ADR 0078).
+  if (prelaunch()) return NextResponse.redirect(new URL("/sign-up", url));
   // A provider return carries no `next`: the identity service only returns to a URL on its
   // allow-list, which is matched exactly, so the start route leaves the destination in a
   // cookie instead (ADR 0043). Validated the same way wherever it came from.

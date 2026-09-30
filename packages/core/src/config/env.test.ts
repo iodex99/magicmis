@@ -179,4 +179,14 @@ describe("environment validation (SPEC §4 — refuse to start on invalid config
       loadServerEnv({ ...VALID_SERVER, AUTH_OAUTH_PROVIDERS: "google,facebook" }),
     ).toThrow(EnvValidationError);
   });
+
+  it("is open unless pre-launch is switched on by name, and refuses a vague value (ADR 0078)", () => {
+    expect(loadServerEnv(VALID_SERVER).PRELAUNCH).toBe(false);
+    expect(loadServerEnv({ ...VALID_SERVER, PRELAUNCH: "1" }).PRELAUNCH).toBe(true);
+    expect(loadServerEnv({ ...VALID_SERVER, PRELAUNCH: "0" }).PRELAUNCH).toBe(false);
+    // "true" or "yes" is refused rather than guessed: closing the product is not a default.
+    expect(() => loadServerEnv({ ...VALID_SERVER, PRELAUNCH: "true" })).toThrow(
+      EnvValidationError,
+    );
+  });
 });

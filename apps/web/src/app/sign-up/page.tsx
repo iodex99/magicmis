@@ -1,5 +1,7 @@
+import { OpeningSoon } from "@/components/OpeningSoon";
 import { db } from "@/lib/db";
 import { enabledProviders } from "@/lib/server/oauth";
+import { prelaunch } from "@/lib/server/prelaunch";
 import { welcomeOffer } from "@/lib/server/welcome";
 import { welcomeConditions, welcomeLine } from "@/lib/welcome-copy";
 
@@ -11,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 /** The server half decides which sign-up options exist; the form is a client component. */
 export default async function SignUpPage() {
+  if (prelaunch()) return <OpeningSoon />;
   // The welcome offer as it stands now (ADR 0068), said where the decision is made.
   const offer = await welcomeOffer(db());
   const line = welcomeLine(offer);

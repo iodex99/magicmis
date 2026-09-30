@@ -11,6 +11,7 @@ import {
 import { db } from "@/lib/db";
 import { appPublicEnv } from "@/lib/env";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
+import { openingSoon, prelaunch } from "@/lib/server/prelaunch";
 import { signupBrowserCookie } from "@/lib/server/signup-browser";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
@@ -22,6 +23,7 @@ import { supabaseForRequest } from "@/lib/supabase/server";
  * a CA firm's client list by trying addresses.
  */
 export async function POST(request: Request): Promise<Response> {
+  if (prelaunch()) return openingSoon();
   const parsed = await parseJson(request, signupRequestSchema);
   if (!parsed.ok) return parsed.response;
   const input = parsed.data;

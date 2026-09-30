@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { appPublicEnv } from "@/lib/env";
 import { isEnabledProvider, OAUTH_NEXT_COOKIE } from "@/lib/server/oauth";
+import { prelaunch } from "@/lib/server/prelaunch";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
 /**
@@ -23,6 +24,7 @@ export async function GET(
   context: { params: Promise<{ provider: string }> },
 ): Promise<Response> {
   const { provider } = await context.params;
+  if (prelaunch()) return NextResponse.redirect(new URL("/sign-up", request.nextUrl));
   if (!isEnabledProvider(provider)) return new NextResponse("Not found", { status: 404 });
 
   const next = safeNextPath(request.nextUrl.searchParams.get("next"), "/app");

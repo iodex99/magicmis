@@ -1,6 +1,8 @@
 import { neverSignedInAccount, sessionClaimsSchema } from "@magicmis/accounts";
 
+import { OpeningSoon } from "@/components/OpeningSoon";
 import { db } from "@/lib/db";
+import { prelaunch } from "@/lib/server/prelaunch";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
 import { FinishForm } from "./FinishForm";
@@ -15,6 +17,7 @@ export const dynamic = "force-dynamic";
  * browser, whose password was destroyed at the callback (ADR 0071).
  */
 export default async function FinishSignUpPage() {
+  if (prelaunch()) return <OpeningSoon />;
   const supabase = await supabaseForRequest();
   const claims = sessionClaimsSchema.safeParse(
     (await supabase.auth.getClaims()).data?.claims,

@@ -110,6 +110,16 @@ export const serverEnvSchema = z.object({
     )
     .pipe(z.array(z.enum(["google", "apple"]))),
 
+  /**
+   * "1" while the public site is live and the product is not (ADR 0078): sign-up and sign-in say
+   * "opening soon" and every route that would create or claim a session refuses. Unset
+   * everywhere else, so development, CI and a launched production are never touched by it.
+   */
+  PRELAUNCH: z
+    .enum(["0", "1"])
+    .default("0")
+    .transform((v) => v === "1"),
+
   SENTRY_DSN: z.url().optional(),
   LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]).default("info"),
 });
