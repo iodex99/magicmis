@@ -17,3 +17,12 @@ allowBuilds:
   # @sentry/nextjs depends on the Sentry CLI for source-map upload, which this build does not use
   # (no withSentryConfig, no auth token; ADR 0024). Its postinstall downloads a binary: declined.
   "@sentry/cli": false
+# Transitive dependencies held at a patched version until their parents catch up. Each entry names
+# the advisory it answers; delete it once `pnpm audit` is clean without it.
+overrides:
+  # GHSA-6j4f-fj2g-mc7p and GHSA-qhr7-859c-m2p7 (2026-09): unbounded recursion in brace
+  # expansion. Reached only through build and test tooling (minimatch under exceljs, testcontainers,
+  # typescript-eslint and Sentry's bundler plugin), never from a request, but high is high.
+  "brace-expansion@<1.1.20": "1.1.21"
+  "brace-expansion@>=2.0.0 <2.1.6": "2.1.7"
+  "brace-expansion@>=4.0.0 <5.0.11": "5.0.12"
