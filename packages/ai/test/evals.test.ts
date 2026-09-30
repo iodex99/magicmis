@@ -16,7 +16,14 @@ import {
   referenceLayoutDataset,
   sheetClassificationDataset,
 } from "../evals/datasets";
-import { deepBooks, deepDataset, runDeepEval, scoreDeep } from "../evals/deep";
+import {
+  DEEP_FUZZY_THRESHOLD,
+  DEEP_FY_START_MONTH,
+  deepBooks,
+  deepDataset,
+  runDeepEval,
+  scoreDeep,
+} from "../evals/deep";
 import { runEval, type Recording } from "../evals/harness";
 
 let db: TestDb | undefined;
@@ -191,17 +198,71 @@ describe("chat_deep dataset", () => {
       expect: [{ kind: "count" as const, n: "3" }],
     };
     expect(scoreDeep(say("{{q:q1:0:customers}} customers."), steps, count)).toBe(true);
+    // The same three under `total`, which the page would show as money: cited, and refused.
     expect(
       scoreDeep(
-        say("{{q:q1:0:customers}}."),
+        say("{{q:q1:0:total}} customers."),
         [{ ref: "q1", columns: ["total"], rows: [["3"]] }],
         count,
       ),
     ).toBe(false);
+    // The amount with the wrong sign is a different figure to the reader: sales in brackets.
+    const negative = [{ ref: "q1", columns: ["rent_paise"], rows: [["-4500000"]] }];
+    expect(scoreDeep(say("Rent was {{q:q1:0:rent_paise}}."), negative, money)).toBe(
+      false,
+    );
     // The right figure in the wrong scope is still wrong.
     expect(
       scoreDeep({ scope: "out_of_scope", paragraphs: [{ text: "No." }] }, steps, money),
     ).toBe(false);
+    // A question the books cannot answer: saying so passes, citing an amount does not.
+    const unanswerable = { scope: "in_scope" as const, expect: [] };
+    expect(scoreDeep(say("The books do not show this."), steps, unanswerable)).toBe(true);
+    expect(scoreDeep(say("It was {{q:q1:0:rent_paise}}."), steps, unanswerable)).toBe(
+      false,
+    );
+  });
+
+  it("asks for a month where no year-to-date balance could pass for it", () => {
+    // The first rent item asked for May: April's year to date equalled May's rent, and an answer
+    // citing that balance scored as the month (ADR 0077).
+    const books = new Map(deepBooks().map((b) => [b.company, b]));
+    for (const item of deepDataset().filter((i) => /_month$/u.test(i.id))) {
+      const book = books.get(item.company);
+      const e = item.label.expect[0];
+      if (book === undefined || e?.kind !== "money") throw new Error(item.id);
+      const closings = book.ledgers.flatMap((l) =>
+        Object.values(l.closing).map((c) => (c < 0n ? -c : c)),
+      );
+      expect(closings, item.id).not.toContain(BigInt(e.paise));
+    }
+  });
+
+  it("holds the books to the configuration and calendar the expected values assume", async () => {
+    const threshold = await pool().query<{ value: string }>(
+      `select value #>> '{}' as value from app_config where key = 'semantic.fuzzy_threshold' order by version desc limit 1`,
+    );
+    expect(threshold.rows[0]?.value).toBe(DEEP_FUZZY_THRESHOLD);
+    for (const b of deepBooks())
+      expect(Number.parseInt(b.months[0]?.slice(5, 7) ?? "", 10), b.company).toBe(
+        DEEP_FY_START_MONTH,
+      );
+  });
+
+  it("puts figures of six to ten crore in front of the redactor (ADR 0077)", () => {
+    const large = deepBooks().find((b) => b.company === "trading_large");
+    const items = deepDataset().filter((i) => i.id.startsWith("trading_large:"));
+    expect(items.map((i) => i.id.split(":")[1]).sort()).toEqual([
+      "bank_close",
+      "receivables_total",
+      "sales_ytd",
+    ]);
+    for (const i of items) {
+      const e = i.label.expect[0];
+      // Ten digits starting 6 to 9: the shape of an Indian mobile number.
+      expect(e?.kind === "money" ? e.paise : "", i.id).toMatch(/^[6-9]\d{9}$/u);
+    }
+    expect(large).toBeDefined();
   });
 
   it("gives pending bills that add up to the party balances they come from", () => {

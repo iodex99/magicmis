@@ -27,6 +27,12 @@ const decimal = z.string().regex(/^\d+(\.\d+)?$/u);
 
 export const estimatorConfigSchema = z.object({
   chars_per_token: decimal,
+  /**
+   * Characters per token for a stage that has been measured (migration 0073): sheet recognition
+   * tokenises at 2.7, ledger mapping at 1.9, so one figure over-counted one and under-counted the
+   * other. `chars_per_token` covers the rest.
+   */
+  chars_per_token_by_stage: z.record(z.string(), decimal).default({}),
   tokenizer_inflation: decimal,
   output_tokens_ratio: decimal,
   /**
@@ -109,14 +115,22 @@ export interface JobEstimate {
   readonly calibrated: boolean;
 }
 
-const tokensFor = (chars: number, cfg: z.infer<typeof estimatorConfigSchema>): number => {
+const tokensFor = (
+  chars: number,
+  cfg: z.infer<typeof estimatorConfigSchema>,
+  stage: Stage,
+): number => {
   // ceil(chars × inflation / chars_per_token), exactly.
   const inflated = multiplyByDecimalString(
     BigInt(chars),
     cfg.tokenizer_inflation,
     "ceil",
   );
-  const scaled = multiplyByDecimalString(1_000_000n, cfg.chars_per_token, "floor");
+  const scaled = multiplyByDecimalString(
+    1_000_000n,
+    cfg.chars_per_token_by_stage[stage] ?? cfg.chars_per_token,
+    "floor",
+  );
   return tokenCount(divideRounded(inflated * 1_000_000n, scaled, "ceil"));
 };
 
@@ -157,7 +171,7 @@ export async function estimateJob(
       route = r.rows[0] as { model_id: string; max_tokens: number };
     }
     const model = await loadModel(db, route.model_id);
-    const inputTokens = tokensFor(chars, cfg);
+    const inputTokens = tokensFor(chars, cfg, stage);
     const out = tokenCount(
       multiplyByDecimalString(
         BigInt(inputTokens),

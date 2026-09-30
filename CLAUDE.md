@@ -407,9 +407,14 @@ whole conversation played through `chatDeepRound`, the real SQL guard and `runCh
 DuckDB, scored on what the customer would see. **A Deep figure is one query cell**: the answer
 cannot hold digits, so a change or a month is computed in SQL, a money alias ends in `_paise`
 (`isPaiseColumn` decides what is shown as money, and a count must not look like one), and a party
-is cited through its cell, never typed — a `PARTY_` token has digits. The session tables hold
-only closing balances, and an income or expense closing is the year to date; their descriptions
-say so, because they are what the model reads.
+is cited through its cell, never typed — a `PARTY_` token has digits. **A Deep query must read a
+session table and hold no number above `DEEP_FREE_NUMBER` (1,000) the customer did not type**
+(`guardSql` `figures`, `typedNumbers`): otherwise the model copies two balances into `SELECT a - b`
+and cites a figure it wrote. The session tables hold only closing balances, and **`month_paise` is
+the month**, computed by `chatTables` with the company's year start and null across a missing
+month — never let the model subtract year-to-date balances. **A numeric result cell skips the
+identifier detectors unless its digits occur in the session's own text** (`textDigitRuns`): six to
+ten crore is ten digits in paise and was shown to customers as `MOBILE_…`.
 
 **`PRELAUNCH=1` puts the public site live with the product closed** (ADR 0078): sign-up and
 sign-in say "Opening soon" and every auth route refuses; open by default, validated as `0`/`1`.

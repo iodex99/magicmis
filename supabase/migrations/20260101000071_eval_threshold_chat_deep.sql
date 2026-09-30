@@ -8,10 +8,9 @@
 -- it — the right scope, and every expected amount, count or name among the cells it cites.
 --
 --   chat_deep   0.90   set before any run, and not to be moved to fit one. Lower than Quick
---                      (0.92) because an item needs a correct query as well as a correct answer,
---                      and a wrong Deep answer is never a wrong figure: every figure is a cell of
---                      a query the customer can open, so the failure a customer can see is a
---                      question answered from the wrong rows, which the lineage shows.
+--                      (0.92) because an item needs a correct query as well as a correct answer.
+--                      Every figure is a cell of a query the customer can open, so a wrong one can
+--                      be traced to the rows it came from; it is still a wrong figure.
 insert into public.app_config (key, value, version)
 select 'ai.eval_thresholds',
        (select value from public.app_config where key = 'ai.eval_thresholds'

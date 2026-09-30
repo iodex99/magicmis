@@ -128,6 +128,21 @@ describe("import guard", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("only the eval harness reaches a Deep round with a candidate prompt (ADR 0077)", async () => {
+    // `chatDeepRound` takes an eval-only prompt version; product code goes through
+    // `chatDeepStep`, which cannot pass one.
+    const offenders: string[] = [];
+    const evals = `${path.sep}packages${path.sep}ai${path.sep}evals${path.sep}`;
+    const own = path.join(ROOT, "packages", "ai", "src", "chat-deep.ts");
+    for (const top of ["apps", "packages"])
+      for (const f of await walk(path.join(ROOT, top))) {
+        if (f.includes(evals) || f === own || f === fileURLToPath(import.meta.url))
+          continue;
+        if ((await readFile(f, "utf8")).includes("chatDeepRound")) offenders.push(f);
+      }
+    expect(offenders).toEqual([]);
+  });
+
   it("only packages/ai constructs an Anthropic client", async () => {
     const offenders: string[] = [];
     for (const top of ["apps", "packages"]) {

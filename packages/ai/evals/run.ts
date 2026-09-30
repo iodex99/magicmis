@@ -32,7 +32,8 @@ async function main(): Promise<void> {
       stage: { type: "string", default: "sheet_classification" },
       tier: { type: "string", default: "efficient" },
       version: { type: "string", default: "1" },
-      limit: { type: "string", default: "60" },
+      // Unset runs the whole dataset: sixty items for a single-call stage, every Deep conversation.
+      limit: { type: "string" },
       // A hard ceiling for the run, in US cents. Live evals spend real money (R-28).
       maxCents: { type: "string" },
     },
@@ -42,7 +43,8 @@ async function main(): Promise<void> {
     throw new Error(`no eval for stage ${stage}`);
   const tier = values.tier as Tier;
   const promptVersion = Number.parseInt(values.version, 10);
-  const limit = Number.parseInt(values.limit, 10);
+  const limit =
+    values.limit === undefined ? undefined : Number.parseInt(values.limit, 10);
   // Whole US cents, kept in integers: a cap on money never goes through a float (SPEC §4).
   const maxMicroUsd =
     values.maxCents === undefined
@@ -62,7 +64,7 @@ async function main(): Promise<void> {
       pool,
       tier,
       promptVersion,
-      limit,
+      ...(limit === undefined ? {} : { limit }),
       ...(maxMicroUsd === undefined ? {} : { maxSpendMicroUsd: maxMicroUsd }),
       mode: live ? ("live" as const) : ("replay" as const),
       ...(live && key !== undefined ? { liveTransport: anthropicTransport(key) } : {}),

@@ -18,113 +18,151 @@ database, every Deep and Investigate message failed and released its hold.
 
 ### An eval that plays the whole conversation
 
-`packages/ai/evals/deep.ts` drives each item the way the server does:
+`packages/ai/evals/deep.ts` drives each item as the server does:
 
 - `chatDeepRound` for the model's turn;
-- the real SQL guard for a refused query;
-- the production `loadChatTables` and `runChatQuery` over DuckDB for the rows.
+- `guardSql` with the Deep figure rule (below);
+- the production `chatTables`, `loadChatTables` and `runChatQuery` over DuckDB, with a real
+  `Redactor`, for the rows.
 
 It repeats until the model answers.
 
-The books are the three synthetic fixture companies, shaped as production shapes a Deep session:
-- one row per ledger per month, holding only the closing balance;
+The books are the three synthetic fixture companies plus a fourth: the trading company scaled 35
+times, so that its figures run to crores. Each is shaped as production shapes a Deep session:
+
+- only closing balances;
 - heads from the mapping cascade;
 - party ledgers as tokens;
-- pending bills that add up to the party balances.
+- pending bills that add up to the party balances;
+- only the months a question names.
 
-There are 60 items:
-- 45 answerable questions, covering balances, a month's income or expense, sales, what
-  customers and suppliers owe, the top debtor, the largest pending supplier bill, counts, and
-  receivables older than 90 days;
+There are 63 items:
+
+- 48 answerable questions: balances, a month's expense, sales, what customers and suppliers owe,
+  the top debtor, the largest pending supplier bill, counts, and ageing;
 - 10 off-topic questions, including injections;
 - 5 about these books that the books cannot answer.
 
 Every expected value is computed from the ledgers in code, never with SQL. An oracle run pushes
-each item's own query through the real guard and DuckDB and must score 1.0000 in CI, which
-proves every answer is reachable.
+each item's own query through the real guard and DuckDB and must score 1.0000 in CI.
 
 An answer is scored by what the customer would see:
-- **Scope** must be right.
-- **Money:** a money figure counts only as an integer cell under a column that production shows
-  as money (`isPaiseColumn`, now exported for this).
-- **Counts:** a count counts only under a column it does not.
-- **Names:** a party name counts in the text or in a cell.
 
-Each Deep message has the same AI cost cap as in production: its price times
-`max_ai_cost_ratio`. Recordings keep every call of a conversation, keyed on the whole
-conversation, because every round of an item shares the same first message.
+- the scope must be right;
+- money must match exactly, sign included, in a cell production shows as money
+  (`isPaiseColumn`);
+- a count must sit in a cell production does not show as money;
+- a party is found in the text or a cell;
+- an unanswerable question must cite no amount at all.
 
-Migration 0071 sets the threshold at **0.90**. It was set before any run and was not moved.
+Each Deep message gets the production AI cost cap: its price times `max_ai_cost_ratio`. Migration
+0071 sets the threshold at **0.90**, before any run, and it was not moved.
 
-### What the runs found
+### What the runs found, in the product
 
-| Prompt | Professional | What failed |
-|---|---|---|
-| v1 | 0.650 (39/60), $0.47 | party answers never passed; arithmetic left to the reader; a unit after money; money columns production does not show as money; "not in the data" answered as off-topic |
-| v2 | 0.883 (53/60), $0.47 | a month's figure cited from a year-to-date cell; "June 2025" written as text; an answer citing a query never run |
-| v3 | **1.000 (60/60)**, $0.39 | — |
+1. **Every party answer failed.** v1 told the model to write `PARTY_…` tokens "as they appear".
+   They contain hex digits, so the answer check refused every one, 12 of 12. The fix is to cite the
+   cell that holds the party.
+2. **The arithmetic was left to the customer.** Asked for a month, the model fetched two closing
+   balances and wrote "the difference between these two figures". It cannot write digits.
+3. **Money was shown wrongly.** "`{{…}}` paise" was written after a cell the page already formats.
+   Money columns were named so production showed raw paise.
+4. **Scope.** "Sales in March" was called off-topic when those months simply are not loaded. It is
+   in scope, and the answer should say the data does not show it.
+5. **The session tables misdescribed themselves.** They offered opening, debit and credit columns
+   a Deep session never fills.
 
-v3 on the other tiers: **Efficient 1.000 (60/60), $0.37** on the same model; **Expert 1.000 (60/60), $1.08** on Opus. Each tier is switched on by the gate from its own live run.
+### What review found, after v3 scored 1.000
 
-In more detail:
+The code review of the first version found things the scores had hidden:
 
-1. **Every party answer failed in production.** v1 told the model it could write `PARTY_…`
-   tokens "as they appear". They contain hex digits, so the answer check refused every one, 12
-   out of 12, even after the repair round. v2 has the model cite the cell that holds the party
-   instead.
-2. **The arithmetic was left to the customer.** Asked what changed in June, the model fetched
-   two closing balances and wrote "the difference between these two figures", because it may not
-   write digits. From v2 the figure is computed in SQL and cited as one cell. v3 adds: run
-   another query when a result holds only the pieces, and check that the cited cell holds what
-   was asked.
-3. **Money shown wrongly.** The model wrote "`{{…}}` paise" after a cell that the page already
-   formats as money. It also named money columns such as `total_overdue` and `ytd_june`, which
-   production shows as raw paise. From v2, money aliases end in `_paise`, counts' aliases never
-   do, and no unit is written after a money cell.
-4. **Scope.** v1 called "sales in March", headcount and stock units off-topic. They are about
-   these books, so they are in scope and answered with "the data does not show this". This is
-   the same fix `chat_quick` v2 made.
-5. **The tables misdescribed themselves.** A Deep session holds only closing balances, and an
-   income or expense closing is the year to date, but the tables told the model it had opening,
-   debit and credit columns. `SESSION_TABLES` now says those three are always null and what a
-   closing means.
+6. **A number the model typed could reach an answer (critical).** The guard accepted a query
+   that reads no table. v1 ran `SELECT (-369578700) - (-208719400)`, copying two balances out of an
+   earlier result, and cited the cell. That is locked decision 7 broken, with lineage that looks
+   sound.
+   - Fix: `guardSql` takes a `figures` rule on the Deep path. A query must read a session table,
+     and any number above `DEEP_FREE_NUMBER` (1,000) must be one the customer typed
+     (`typedNumbers` reads 5 lakh, 2.5 crore and 1,50,000 in rupees and in paise).
+   - Enforced in the chat server and in the eval.
+7. **Six to ten crore reached customers as `MOBILE_…` tokens.** The query runner redacted every
+   cell. An amount in that range is ten digits in paise starting 6–9, which is the shape of an
+   Indian mobile number.
+   - Fix: a numeric cell now skips the identifier detectors unless its digits occur in the
+     session's own text (`textDigitRuns`), so a number cast out of a ledger name is still redacted.
+   - The crore book tests it.
+8. **Answers naming another month were refused.** Production passes only the months a question
+   names, and the answer check accepted only those.
+   - Fix: a `{{p:YYYY-MM}}` placeholder is now accepted by its form, as the renderer already
+     accepted it.
+9. **The model did month arithmetic, and it breaks.** It was wrong across a financial-year
+   boundary, where April less March subtracts a whole year. It was also wrong around a month the
+   customer hid.
+   - Fix: the session tables now carry `month_paise`, computed by `chatTables` with the company's
+     own year start by the engine's rule. It is null when the month before is missing, so a year
+     to date is never passed off as a month.
+10. **The eval was generous.** A flat rent's first year to date equalled any month's figure. The
+    scorer ignored sign. An unanswerable question could cite an invented amount.
+    - Fix: all three are closed and tested.
 
-Two corrections were to the eval, not the model, and each is noted where it was made:
+### The runs
 
-- The generated bills did not add up to the party balances. A test now holds them together.
-- "Which indirect expense is the largest" was read, reasonably, as other expenses without
-  salaries or depreciation. It now names the Indirect Expenses group. No threshold moved and no
-  item was dropped.
+| Prompt | Dataset | Professional | Efficient | Expert |
+|---|---|---|---|---|
+| v1 | first | 0.650 (39/60) | — | — |
+| v2 | first | 0.883 (53/60) | — | — |
+| v3 | first, lenient | 1.000 | 1.000 | 1.000 |
+| **v4** | **corrected, 63 items** | **0.984 (62/63), $0.35** | **1.000 (63/63), $0.32** | 41 of 41 correct, then the API account ran out of credit |
+
+- **v4** tells the model to use `month_paise`, to show income and what is owed as positive
+  figures, and never to type a figure from an earlier result.
+- **Its one miss** was a sign slip: Professional negated a receivables total for one company,
+  following "negate a credit balance" onto a debit. The next prompt should say which balances are
+  already positive. It was not written into the repository, because it could not be measured.
+- **Expert.** Its v4 run stopped at item 42 when the Anthropic account's credit ran out, so it is
+  recorded at 0.651 and the gate refuses it. `go-live` evaluates it again with a funded key.
 
 ### The price (R-42)
 
-v3 costs **$0.0065 per question** at Professional: about ₹0.64 at the operating rate, against
-99 credits. That is **0.65% of the price**. At Expert it costs $0.018, about ₹1.79, against
-248 credits: 0.72%. Both are far under the 20% cap, so the price stands.
+Deep costs **$0.0056 a question** at Professional on v4: about ₹0.55 against 99 credits, or
+**0.6% of the price**. v3 at Expert cost $0.018 a question against 248 credits, or 0.7%. Both are
+far under the 20% cap, so the prices stand.
 
 ### The estimator (R-30)
 
-The same recordings measured the estimator's constants without a single call; migration 0072
-applies them:
+The recordings measured the constants without a call. Migrations 0072 and 0073 apply them:
 
-- **Characters per token:** 2.00 to 2.76 across stages. The seed's 2.46 under-counted column and
-  ledger mapping by 15–19%, so the setting is now 2.0.
-- **Output per input:** 0.05 for sheet recognition up to 0.45 for commentary, against one seeded
-  0.35. It is now per stage.
+- **Characters per token** are now per stage: sheet recognition 2.7, commentary 2.2, column
+  mapping and reference layout 2.0, ledger mapping 1.9, and 1.9 for anything not yet measured.
+  The seed's 2.46 under-counted the mapping stages. A single figure of 2.0 would have
+  over-counted sheet recognition by a third and quoted big setups early.
+- **Output per input** is per stage, from 0.05 to 0.46, in place of one 0.35.
+- 0073 merges into the current value, so an operator's own change is kept.
 
 ## Consequences
 
-- `pnpm --filter @magicmis/ai go-live` now evaluates and switches on `chat_deep` like every
-  other stage. Its runs use `runDeepEval`.
-- A new Deep prompt is judged by the same 60 conversations and the same bar.
-- Known limit: the model is never told the company's financial-year start (ADR 0035). A month's
-  income or expense computed across a year boundary, such as April less March for an April year,
-  would subtract the wrong month. None of the books cross one, and no question asks for it.
+- `go-live` evaluates and switches on `chat_deep` like every other stage. Expert waits on a live
+  run with credit behind it.
+- The eval borrows `pipeline`'s chat code and `ingest`'s test DuckDB by path, because
+  `pipeline` depends on `ai`. `packages/ai/turbo.json` declares those files as inputs, so a change
+  to them reruns the AI tests instead of replaying a cached pass.
+- **Known limits:**
+  - The eval sends no facts pack, while production sends up to 40.
+  - Every book's year starts in April.
 
 ## Tests
 
-- `packages/ai/test/evals.test.ts`:
-  - the oracle scores 1.0000 through the real guard and DuckDB;
-  - the scorer fails a money cell divided into rupees, and a count under a money-looking name;
-  - the bills add up to the balances;
-  - the dataset clears the 50-item floor.
+- **`packages/sql-guard`:** a table-less query and a copied figure are refused; typed thresholds
+  in lakhs and crores are allowed.
+- **`packages/pipeline`, `chat-figures.test.ts`:**
+  - `month_paise` at the year's first month and across a missing month;
+  - seventy-three crore is shown as a figure;
+  - a number inside a ledger name is still redacted.
+- **`packages/ai`:**
+  - the oracle scores 1.0000 through the real guard, tables and redactor;
+  - the scorer checks sign, and the rule that an unanswerable question cites no amount;
+  - month items cannot be passed by any closing balance;
+  - the crore book's figures have the mobile-number shape;
+  - bills add up to balances;
+  - the fixtures' fuzzy threshold matches the database;
+  - per-stage estimator figures are read;
+  - only the eval reaches `chatDeepRound`.

@@ -507,6 +507,9 @@ importers:
       '@magicmis/ingest':
         specifier: workspace:*
         version: link:../ingest
+      '@magicmis/redact':
+        specifier: workspace:*
+        version: link:../redact
       '@magicmis/semantic':
         specifier: workspace:*
         version: link:../semantic

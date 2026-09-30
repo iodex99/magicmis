@@ -108,6 +108,41 @@ describe("estimator", () => {
     expect(refresh.p90MicroUsd).toBe(0n);
   });
 
+  it("reads each measured stage at its own tokens and output, and the rest at the default (R-30)", async () => {
+    // Two versions of the same config, differing only in one stage's measured figures: that stage's
+    // estimate moves and the others do not, which is what shows the per-stage lookup is read.
+    const est = () =>
+      estimateJob(pool(), { actionKey: "company_setup", tier: "efficient", size });
+    const before = await est();
+    await pool().query(
+      `insert into app_config (key, value, version)
+       select key, value
+                || jsonb_build_object('chars_per_token_by_stage',
+                     coalesce(value->'chars_per_token_by_stage', '{}'::jsonb) || '{"column_mapping": "4.0"}'::jsonb)
+                || jsonb_build_object('output_tokens_ratio_by_stage',
+                     coalesce(value->'output_tokens_ratio_by_stage', '{}'::jsonb) || '{"column_mapping": "0.01"}'::jsonb),
+              version + 1
+         from app_config where key = 'ai.estimator' order by version desc limit 1`,
+    );
+    const after = await est();
+    const stage = (e: typeof before, name: string) =>
+      e.stages.find((s) => s.stage === name);
+    expect(stage(after, "column_mapping")?.inputTokens).toBeLessThan(
+      stage(before, "column_mapping")?.inputTokens ?? 0,
+    );
+    expect(stage(after, "column_mapping")?.outputTokens).toBeLessThan(
+      stage(before, "column_mapping")?.outputTokens ?? 0,
+    );
+    expect(stage(after, "sheet_classification")).toEqual(
+      stage(before, "sheet_classification"),
+    );
+    // Undone, so the tests after this read the seeded figures.
+    await pool().query(
+      `delete from app_config where key = 'ai.estimator'
+          and version = (select max(version) from app_config where key = 'ai.estimator')`,
+    );
+  });
+
   it("calibration raises p90 from actual ai_calls", async () => {
     const account = await newAccount(pool());
     for (let i = 0; i < 10; i += 1) {

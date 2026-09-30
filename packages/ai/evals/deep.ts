@@ -20,7 +20,7 @@
  * fail the customer's message.
  */
 
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -28,6 +28,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { readConfig } from "@magicmis/db/config";
 import { ANSWER_PLACEHOLDER } from "@magicmis/engine";
 import { buildFixtureSet } from "@magicmis/fixtures";
+import { Redactor } from "@magicmis/redact";
 import { isPaiseColumn } from "@magicmis/render-dashboard";
 import {
   GLOBAL_LIBRARY_SEED,
@@ -35,14 +36,28 @@ import {
   indexLibrary,
   isHeadCode,
   mapLedger,
+  type Mapping,
 } from "@magicmis/semantic";
-import { guardSql, loadGuard, SESSION_TABLES } from "@magicmis/sql-guard";
+import {
+  DEEP_FREE_NUMBER,
+  guardSql,
+  loadGuard,
+  SESSION_TABLES,
+  typedNumbers,
+} from "@magicmis/sql-guard";
 import { aiCostCapPaise, computePrice, priceBookEntry } from "@magicmis/wallet";
 import type { Pool } from "pg";
 import { z } from "zod";
 
 import { openTestDuck } from "../../ingest/test/duck";
-import { loadChatTables, runChatQuery, type ChatTables } from "../../pipeline/src/chat";
+import {
+  chatTables,
+  loadChatTables,
+  runChatQuery,
+  textDigitRuns,
+  type ChatTables,
+} from "../../pipeline/src/chat";
+import type { Prepared } from "../../pipeline/src/prepare";
 import { recordEvalRun } from "../src/activation";
 import { chatDeepRound, type ChatDeepInput } from "../src/chat-deep";
 import type { ChatAnswerOutput } from "../src/chat-stages";
@@ -61,6 +76,7 @@ interface BookLedger {
   readonly name: string;
   readonly groupPath: string;
   readonly nature: string;
+  readonly head: string;
   readonly closing: Readonly<Record<string, bigint>>;
 }
 
@@ -134,20 +150,42 @@ function billsFor(
   return bills.filter((b) => b.amount > 0n);
 }
 
+/** The seeded `semantic.fuzzy_threshold` (migration 0020); a test holds it to the database. */
+export const DEEP_FUZZY_THRESHOLD = "0.85";
+
+/** The fixtures' financial year starts in April, and their months are its first three. */
+export const DEEP_FY_START_MONTH = 4;
+
+/** The scaled book, and the only questions asked of it: the ones whose figures run to crores. */
+const LARGE_BOOK = "trading_large";
+const LARGE_ITEMS = new Set(["bank_close", "sales_ytd", "receivables_total"]);
+
+/**
+ * The books a Deep eval queries. The fixture companies as they are, and the trading company
+ * scaled thirty-five times, so that its bank balance, sales and receivables run to six to ten
+ * crore: ten digits in paise starting 6 to 9, which the redactor read as a mobile number and put
+ * in the answer in place of the figure (ADR 0077).
+ */
 export function deepBooks(): DeepBook[] {
   const set = buildFixtureSet({ months: 3 });
   const ctx = {
     companyRules: [],
     accountRules: [],
     library: indexLibrary(GLOBAL_LIBRARY_SEED),
-    // The seeded `semantic.fuzzy_threshold` (migration 0020).
-    fuzzyThreshold: "0.85",
+    fuzzyThreshold: DEEP_FUZZY_THRESHOLD,
   };
-  return set.truths.map((truth) => {
+  const variants = [
+    ...set.truths.map((truth) => ({ truth, key: truth.company, scale: 1n })),
+    ...set.truths
+      .filter((t) => t.company === "trading")
+      .map((truth) => ({ truth, key: LARGE_BOOK, scale: 35n })),
+  ];
+  return variants.map(({ truth, key, scale }) => {
     const months = [...truth.months];
     const last = months.at(-1) ?? "";
     const ledgers: BookLedger[] = [];
-    const balances: (string | bigint | null)[][] = [];
+    const facts: Record<string, unknown>[] = [];
+    const mappings: { ledgerKey: string; head: string }[] = [];
     const bills: BookBill[] = [];
     for (const l of truth.ledgers) {
       const byMonth = truth.balances[l.id];
@@ -155,43 +193,73 @@ export function deepBooks(): DeepBook[] {
       const groups = l.path.slice(0, -1);
       const party =
         groups.includes("Sundry Debtors") || groups.includes("Sundry Creditors");
-      const name = party ? token(truth.company, l.name) : l.name;
+      const name = party ? token(key, l.name) : l.name;
       const r = mapLedger({ groupPath: groups, name: l.name }, ctx);
       const code = r.kind === "mapped" ? r.mapping.head : "UNMAPPED";
+      const ledgerKey = [...groups, name].join(" > ");
+      mappings.push({ ledgerKey, head: code });
       const closing: Record<string, bigint> = {};
       for (const m of months) {
-        const c = BigInt(byMonth[m]?.closing ?? "0");
+        const c = BigInt(byMonth[m]?.closing ?? "0") * scale;
         closing[m] = c;
         // Only the closing balance is kept after a run, as in production (`priorFacts`).
-        balances.push([
-          m,
-          code,
-          isHeadCode(code) ? head(code).name : code,
+        facts.push({
+          ledgerKey,
           name,
-          groups.join(" > "),
-          null,
-          null,
-          null,
-          c,
-        ]);
+          groupPath: groups,
+          period: m,
+          opening: null,
+          debit: null,
+          credit: null,
+          closing: c,
+        });
       }
-      ledgers.push({ name, groupPath: groups.join(" > "), nature: l.nature, closing });
+      ledgers.push({
+        name,
+        groupPath: groups.join(" > "),
+        nature: l.nature,
+        head: code,
+        closing,
+      });
       const end = closing[last] ?? 0n;
       if (groups.includes("Sundry Debtors") && end > 0n)
-        bills.push(...billsFor(truth.company, "receivable", name, end, last));
+        bills.push(...billsFor(key, "receivable", name, end, last));
       if (groups.includes("Sundry Creditors") && end < 0n)
-        bills.push(...billsFor(truth.company, "payable", name, -end, last));
+        bills.push(...billsFor(key, "payable", name, -end, last));
     }
+    // Built by production's own `chatTables`, month column and all, from the shape it is given.
+    const prepared = {
+      facts,
+      bills: (["receivable", "payable"] as const).map((side) => ({
+        side,
+        period: last,
+        lines: bills
+          .filter((b) => b.side === side)
+          .map((b) => ({
+            party: b.party,
+            billDate: b.billDate,
+            pending: b.amount,
+            overdueDays: b.days,
+          })),
+      })),
+    } as unknown as Prepared;
+    const tables = chatTables(
+      prepared,
+      mappings as unknown as Mapping[],
+      (code) => (isHeadCode(code) ? head(code).name : code),
+      {
+        fyStartMonth: DEEP_FY_START_MONTH,
+        isPnl: (code) => isHeadCode(code) && head(code).statement === "pnl",
+      },
+    );
     return {
-      company: truth.company,
-      companyName: truth.name,
+      company: key,
+      companyName:
+        scale === 1n ? truth.name : `${truth.name.replace(/ Pvt Ltd$/u, "")} Group`,
       months,
       ledgers,
       bills,
-      tables: {
-        balances,
-        bills: bills.map((b) => [b.side, last, b.party, b.billDate, b.amount, b.days]),
-      },
+      tables,
     };
   });
 }
@@ -237,8 +305,11 @@ const MONTH_NAMES = [
 const monthName = (m: string): string =>
   `${MONTH_NAMES[Number.parseInt(m.slice(5, 7), 10) - 1] ?? m} ${m.slice(0, 4)}`;
 const sqlText = (s: string): string => `'${s.replaceAll("'", "''")}'`;
-const abs = (v: bigint): bigint => (v < 0n ? -v : v);
-const money = (v: bigint): DeepExpect => ({ kind: "money", paise: abs(v).toString() });
+/**
+ * The amount exactly as a correct answer shows it, sign and all: income and what is owed are
+ * positive, a change keeps its direction. "Sales were (₹…)" is a wrong answer, however close.
+ */
+const money = (v: bigint): DeepExpect => ({ kind: "money", paise: v.toString() });
 const answer = (...texts: string[]): ChatAnswerOutput => ({
   scope: "in_scope",
   paragraphs: texts.map((text) => ({ text })),
@@ -247,6 +318,16 @@ const DECLINE: ChatAnswerOutput = {
   scope: "out_of_scope",
   paragraphs: [{ text: "I can only answer questions about this company's MIS." }],
 };
+
+/**
+ * The months a question names, as production picks them (`periodsIn` in packages/chat): a month
+ * written with its year, when the books hold it, and otherwise the latest.
+ */
+function periodsNamed(question: string, months: readonly string[]): string[] {
+  const named = months.filter((m) => question.includes(monthName(m)));
+  const latest = months.at(-1);
+  return named.length > 0 ? named : latest === undefined ? [] : [latest];
+}
 
 const DEBTORS = "Current Assets > Sundry Debtors";
 const CREDITORS = "Current Liabilities > Sundry Creditors";
@@ -260,7 +341,7 @@ function largest<T>(items: readonly T[], by: (t: T) => bigint): T | undefined {
 }
 
 function itemsFor(book: DeepBook): DeepItem[] {
-  const [m1 = "", m2 = "", m3 = ""] = book.months;
+  const [, m2 = "", m3 = ""] = book.months;
   const c = (l: BookLedger, m: string): bigint => l.closing[m] ?? 0n;
   const find = (test: (l: BookLedger) => boolean) => book.ledgers.find(test);
   const items: DeepItem[] = [];
@@ -292,22 +373,26 @@ function itemsFor(book: DeepBook): DeepItem[] {
       "bank_change",
       `By how much did the balance in ${bank.name} change during ${monthName(m3)}?`,
       [money(c(bank, m3) - c(bank, m2))],
-      `SELECT sum(CASE WHEN period = '${m3}' THEN closing_paise ELSE 0 END) - sum(CASE WHEN period = '${m2}' THEN closing_paise ELSE 0 END) AS movement_paise FROM balances WHERE ledger = ${sqlText(bank.name)}`,
-      `${bank.name} moved by {{q:q1:0:movement_paise}} during {{p:${m3}}}.`,
+      `SELECT month_paise FROM balances WHERE ledger = ${sqlText(bank.name)} AND period = '${m3}'`,
+      `${bank.name} moved by {{q:q1:0:month_paise}} during {{p:${m3}}}.`,
     );
   }
 
-  // Income and expense ledgers carry the year to date, so a month is this closing less the last.
-  const monthOf = (l: BookLedger, m: string, before: string) =>
-    `SELECT sum(CASE WHEN period = '${m}' THEN closing_paise ELSE 0 END) - sum(CASE WHEN period = '${before}' THEN closing_paise ELSE 0 END) AS movement_paise FROM balances WHERE ledger = ${sqlText(l.name)}`;
-  const rent = find((l) => l.nature === "expense" && /rent/iu.test(l.name));
-  if (rent !== undefined)
+  // A month's income or expense is the server's `month_paise`, never a year to date. Asked about
+  // the year's second month, a flat rent's first year to date equalled it, and an answer citing
+  // that balance passed for the month (ADR 0077); a test now holds every month item apart.
+  const monthOf = (l: BookLedger, m: string) =>
+    `SELECT month_paise FROM balances WHERE ledger = ${sqlText(l.name)} AND period = '${m}'`;
+  // A ledger that varies from month to month: a flat one, such as rent, has the same figure every
+  // month, so the first month's year to date would pass for any month's.
+  const stationery = find((l) => l.nature === "expense" && /stationery/iu.test(l.name));
+  if (stationery !== undefined)
     add(
-      "rent_month",
-      `How much was ${rent.name} for ${monthName(m2)}?`,
-      [money(c(rent, m2) - c(rent, m1))],
-      monthOf(rent, m2, m1),
-      `${rent.name} for {{p:${m2}}} was {{q:q1:0:movement_paise}}.`,
+      "stationery_month",
+      `How much was ${stationery.name} for ${monthName(m3)}?`,
+      [money(c(stationery, m3) - c(stationery, m2))],
+      monthOf(stationery, m3),
+      `${stationery.name} for {{p:${m3}}} was {{q:q1:0:month_paise}}.`,
     );
   const phone = find((l) => l.nature === "expense" && /telephone/iu.test(l.name));
   if (phone !== undefined)
@@ -315,8 +400,8 @@ function itemsFor(book: DeepBook): DeepItem[] {
       "phone_month",
       `What did we spend on ${phone.name} in ${monthName(m3)}?`,
       [money(c(phone, m3) - c(phone, m2))],
-      monthOf(phone, m3, m2),
-      `${phone.name} cost {{q:q1:0:movement_paise}} in {{p:${m3}}}.`,
+      monthOf(phone, m3),
+      `${phone.name} cost {{q:q1:0:month_paise}} in {{p:${m3}}}.`,
     );
   const pay = find((l) => l.groupPath.endsWith("Employee Costs"));
   if (pay !== undefined)
@@ -334,14 +419,15 @@ function itemsFor(book: DeepBook): DeepItem[] {
     add(
       "sales_month",
       `What were our sales in ${monthName(m3)}?`,
-      [money(sum(m3) - sum(m2))],
-      `SELECT -(sum(CASE WHEN period = '${m3}' THEN closing_paise ELSE 0 END) - sum(CASE WHEN period = '${m2}' THEN closing_paise ELSE 0 END)) AS sales_paise FROM balances WHERE group_path = 'Sales Accounts'`,
+      // Income is a credit, so its debit-positive balance is negative; a sale is shown positive.
+      [money(-(sum(m3) - sum(m2)))],
+      `SELECT -sum(month_paise) AS sales_paise FROM balances WHERE group_path = 'Sales Accounts' AND period = '${m3}'`,
       `Sales in {{p:${m3}}} were {{q:q1:0:sales_paise}}.`,
     );
     add(
       "sales_ytd",
       `What are our total sales for the year to date at the end of ${monthName(m2)}?`,
-      [money(sum(m2))],
+      [money(-sum(m2))],
       `SELECT -sum(closing_paise) AS sales_paise FROM balances WHERE group_path = 'Sales Accounts' AND period = '${m2}'`,
       `Sales for the year to the end of {{p:${m2}}} were {{q:q1:0:sales_paise}}.`,
     );
@@ -378,24 +464,27 @@ function itemsFor(book: DeepBook): DeepItem[] {
     add(
       "payables_total",
       `How much did we owe our suppliers at the end of ${monthName(m2)}?`,
-      [money(creditors.reduce((s, l) => s + c(l, m2), 0n))],
+      // A liability is a credit balance: what we owe is shown positive.
+      [money(-creditors.reduce((s, l) => s + c(l, m2), 0n))],
       `SELECT -sum(closing_paise) AS payables_paise FROM balances WHERE group_path = '${CREDITORS}' AND period = '${m2}'`,
       `We owed suppliers {{q:q1:0:payables_paise}} at the end of {{p:${m2}}}.`,
     );
 
-  const indirect = book.ledgers.filter(
-    (l) => l.nature === "expense" && l.groupPath.startsWith("Indirect Expenses"),
+  // Named by its group: "indirect expense" alone was read, reasonably, as other expenses without
+  // salaries or depreciation (ADR 0077). Administrative expenses rather than the whole indirect
+  // group, whose largest ledger is the salaries line `salaries_ytd` already asks about.
+  const ADMIN = "Indirect Expenses > Administrative Expenses";
+  const admin = book.ledgers.filter(
+    (l) => l.nature === "expense" && l.groupPath === ADMIN,
   );
-  const topCost = largest(indirect, (l) => c(l, m3));
+  const topCost = largest(admin, (l) => c(l, m3));
   if (topCost !== undefined)
     add(
-      "top_indirect",
-      // Named by its group: "indirect expense" alone was read, reasonably, as other expenses
-      // without salaries or depreciation (ADR 0077), and an item needs one right answer.
-      `Which ledger in the Indirect Expenses group has the largest balance for the year to date at the end of ${monthName(m3)}?`,
+      "top_admin",
+      `Which ledger in the Administrative Expenses group has the largest balance for the year to date at the end of ${monthName(m3)}?`,
       [{ kind: "name", text: topCost.name }, money(c(topCost, m3))],
-      `SELECT ledger, closing_paise FROM balances WHERE group_path LIKE 'Indirect Expenses%' AND period = '${m3}' ORDER BY closing_paise DESC LIMIT 1`,
-      `{{q:q1:0:ledger}} is the largest indirect expense for the year to the end of {{p:${m3}}}, at {{q:q1:0:closing_paise}}.`,
+      `SELECT ledger, closing_paise FROM balances WHERE group_path = '${ADMIN}' AND period = '${m3}' ORDER BY closing_paise DESC LIMIT 1`,
+      `{{q:q1:0:ledger}} is the largest administrative expense for the year to the end of {{p:${m3}}}, at {{q:q1:0:closing_paise}}.`,
     );
 
   const receivable = book.bills.filter((b) => b.side === "receivable");
@@ -451,9 +540,13 @@ const UNANSWERABLE = [
   "How many units of our best-selling item are in stock?",
 ];
 
-export function deepDataset(limit = 60): DeepItem[] {
+export function deepDataset(limit = Number.POSITIVE_INFINITY): DeepItem[] {
   const books = deepBooks();
-  const items = books.flatMap(itemsFor);
+  const items = books.flatMap((b) =>
+    itemsFor(b).filter(
+      (i) => b.company !== LARGE_BOOK || LARGE_ITEMS.has(i.id.split(":")[1] ?? ""),
+    ),
+  );
   const company = (i: number) => books[i % books.length]?.company ?? "";
   OUT_OF_SCOPE.forEach((question, i) =>
     items.push({
@@ -519,14 +612,15 @@ export function scoreDeep(
 ): boolean {
   if (output.scope !== label.scope) return false;
   const { cells, text } = cited(output, steps);
+  const money = (c: { column: string; value: string }) =>
+    INTEGER.test(c.value) && isPaiseColumn(c.column);
+  // A question the books cannot answer has no figure in its answer: any cited amount is either
+  // made up or an answer to a different question.
+  if (label.scope === "in_scope" && label.expect.length === 0) return !cells.some(money);
   return label.expect.every((e) => {
+    // Exactly, sign and all: a sale shown in brackets reads as a loss.
     if (e.kind === "money")
-      return cells.some(
-        (c) =>
-          INTEGER.test(c.value) &&
-          isPaiseColumn(c.column) &&
-          abs(BigInt(c.value)) === BigInt(e.paise),
-      );
+      return cells.some((c) => money(c) && BigInt(c.value) === BigInt(e.paise));
     if (e.kind === "count")
       return cells.some(
         (c) => INTEGER.test(c.value) && !isPaiseColumn(c.column) && c.value === e.n,
@@ -686,7 +780,7 @@ export async function runDeepEval(input: {
   recordingPath?: string;
   maxSpendMicroUsd?: bigint;
 }): Promise<EvalReport> {
-  const items = deepDataset(input.limit ?? 60);
+  const items = deepDataset(input.limit);
   const books = new Map(deepBooks().map((b) => [b.company, b]));
   const accountId = await evalAccount(input.pool);
   const route = await input.pool.query<{ model_id: string }>(
@@ -727,7 +821,13 @@ export async function runDeepEval(input: {
   }
 
   await loadGuard();
+  // Cells are redacted as production redacts them, key and all, so a figure the redactor would
+  // take for an identifier shows up here as it would to a customer.
+  const redactor = await Redactor.create(randomBytes(32));
   const ducks = new Map<string, Awaited<ReturnType<typeof openTestDuck>>>();
+  const digitRuns = new Map(
+    [...books.values()].map((b) => [b.company, textDigitRuns(b.tables)]),
+  );
   let units = 0;
   let correct = 0;
   let cost = 0n;
@@ -772,7 +872,8 @@ export async function runDeepEval(input: {
               companyName: book.companyName,
               tables: SESSION_TABLES,
               facts: [],
-              periods: book.months.map((m) => `p:${m}`),
+              // As production sends them: the months the question names, else the latest.
+              periods: periodsNamed(item.question, book.months).map((m) => `p:${m}`),
               summary: null,
               history: [],
               question: item.question,
@@ -787,14 +888,17 @@ export async function runDeepEval(input: {
             break;
           }
           const ref = `q${(steps.length + 1).toString()}`;
-          const guard = guardSql(step.sql, { maxRows: caps.chat_rows_per_round });
+          const guard = guardSql(step.sql, {
+            maxRows: caps.chat_rows_per_round,
+            figures: { max: DEEP_FREE_NUMBER, typed: typedNumbers(item.question) },
+          });
           const outcome = guard.ok
             ? await runChatQuery(duck, step.sql, {
                 maxRows: caps.chat_rows_per_round,
                 maxBytes: caps.chat_bytes_per_round,
                 timeoutMs,
-                // The books are already tokenised; nothing is left to redact.
-                redactText: (t) => Promise.resolve(t),
+                redactText: (t) => redactor.redactText(t),
+                textDigits: digitRuns.get(book.company) ?? new Set(),
               })
             : { status: "rejected" as const, reason: guard.reason };
           steps.push({
@@ -816,7 +920,14 @@ export async function runDeepEval(input: {
         } else {
           failures.push({
             id: item.id,
-            reason: `mismatch: ${JSON.stringify(answered).slice(0, 400)}`,
+            // What the model saw beside what it said: a wrong answer from right rows and a right
+            // answer from wrong rows are different failures.
+            reason: `mismatch: ${JSON.stringify(answered).slice(0, 400)} | ${results
+              .map(
+                (r) => `${r.ref} ${JSON.stringify([r.columns, ...r.rows.slice(0, 2)])}`,
+              )
+              .join("; ")
+              .slice(0, 400)}`,
           });
         }
       } catch (error) {

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/pipeline/src/chat.ts",
+        "$TURBO_ROOT$/packages/pipeline/src/prepare.ts",
+        "$TURBO_ROOT$/packages/ingest/test/duck.ts"
+      ]
+    },
+    "typecheck": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/pipeline/src/chat.ts",
+        "$TURBO_ROOT$/packages/pipeline/src/prepare.ts",
+        "$TURBO_ROOT$/packages/ingest/test/duck.ts"
+      ]
+    },
+    "lint": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/pipeline/src/chat.ts",
+        "$TURBO_ROOT$/packages/pipeline/src/prepare.ts",
+        "$TURBO_ROOT$/packages/ingest/test/duck.ts"
+      ]
+    }
+  }
+}
