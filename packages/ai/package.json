@@ -35,12 +35,13 @@
   },
   "devDependencies": {
     "@magicmis/fixtures": "workspace:*",
+    "@magicmis/ingest": "workspace:*",
+    "@magicmis/semantic": "workspace:*",
+    "@magicmis/sql-guard": "workspace:*",
+    "@magicmis/tally": "workspace:*",
     "@testcontainers/postgresql": "^11.7.1",
     "@types/pg": "^8.15.6",
     "fast-check": "^4.5.0",
-    "tsx": "4.23.13",
-    "@magicmis/ingest": "workspace:*",
-    "@magicmis/semantic": "workspace:*",
-    "@magicmis/tally": "workspace:*"
+    "tsx": "4.23.13"
   }
 }
