@@ -69,7 +69,13 @@ import {
 import type { Pool } from "pg";
 import { z } from "zod";
 
-import { guardSql, loadGuard, SESSION_TABLES } from "@magicmis/sql-guard";
+import {
+  DEEP_FREE_NUMBER,
+  guardSql,
+  loadGuard,
+  SESSION_TABLES,
+  typedNumbers,
+} from "@magicmis/sql-guard";
 import { retrieveFacts } from "./retriever";
 
 export type MessageType = "quick" | "deep" | "edit" | "investigate";
@@ -1045,7 +1051,12 @@ async function deepLoop(
     }
 
     const round = steps.length + 1;
-    const guard = guardSql(step.sql, { maxRows: caps.chat_rows_per_round });
+    // An answer cites this query's cells, so it must read the tables and hold no figure the
+    // customer did not type (locked decision 7, ADR 0077).
+    const guard = guardSql(step.sql, {
+      maxRows: caps.chat_rows_per_round,
+      figures: { max: DEEP_FREE_NUMBER, typed: typedNumbers(question) },
+    });
     const inserted = await env.pool.query<{ id: string }>(
       `insert into public.chat_query_steps (chat_message_id, account_id, round, sql_text, guard_result, step_ref, tool_use_id, status)
        values ($1, $2, $3, '\\x', $4, $5, $6, $7) returning id`,

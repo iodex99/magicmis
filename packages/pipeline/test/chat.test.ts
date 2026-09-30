@@ -22,6 +22,8 @@ beforeAll(async () => {
     100n * BigInt(i),
     0n,
     100n * BigInt(i),
+    // month_paise (ADR 0077)
+    100n * BigInt(i),
   ]);
   await loadChatTables(duck, {
     balances,

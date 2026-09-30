@@ -8,6 +8,7 @@ import {
   prepare,
   priorFacts,
   runChatQuery,
+  textDigitRuns,
   type Prepared,
 } from "@magicmis/pipeline";
 import { Redactor } from "@magicmis/redact";
@@ -87,7 +88,12 @@ export async function answerDeepOnServer(
     { facts: snapshot.facts, bills } as unknown as Prepared,
     snapshot.mappings,
     (code) => (isHeadCode(code) ? head(code).name : code),
+    {
+      fyStartMonth: session.company.fyStartMonth,
+      isPnl: (code) => isHeadCode(code) && head(code).statement === "pnl",
+    },
   );
+  const textDigits = textDigitRuns(tables);
   const duck = await openServerDuck();
   try {
     await loadChatTables(duck, tables);
@@ -101,6 +107,7 @@ export async function answerDeepOnServer(
         maxBytes: caps.chat_bytes_per_round,
         timeoutMs,
         redactText: (t) => redactor.redactText(t),
+        textDigits,
       });
       progress = await submitStepResult(pool, keyWrapper(), aiTransport(), {
         accountId: input.accountId,

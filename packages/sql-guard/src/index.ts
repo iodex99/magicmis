@@ -72,7 +72,13 @@ export const SESSION_TABLES: readonly SessionTable[] = [
         name: "closing_paise",
         type: "BIGINT",
         description:
-          "Closing balance at the month end, debit positive, in paise. For income and expense ledgers it is the financial year to date, so one month is its closing less the previous month's",
+          "Closing balance at the month end, debit positive, in paise. For income and expense ledgers it is the financial year to date; use month_paise for one month",
+      },
+      {
+        name: "month_paise",
+        type: "BIGINT",
+        description:
+          "The month's own figure, debit positive, in paise: the month alone for income and expense ledgers, the change in the month for others. Null when the month before is not loaded",
       },
     ],
   },
@@ -282,7 +288,7 @@ function collectCtes(node: unknown, out: Set<string>): void {
 
 function walk(
   node: unknown,
-  ctx: { tables: Set<string>; ctes: Set<string>; used: Set<string> },
+  ctx: { tables: Set<string>; ctes: Set<string>; used: Set<string>; numbers?: string[] },
 ): void {
   if (Array.isArray(node)) {
     for (const n of node) walk(n, ctx);
@@ -334,6 +340,10 @@ function walk(
           checkType(isObject(n["typeName"]) ? n["typeName"] : {});
           break;
         case "A_Const": {
+          const i = isObject(n["ival"]) ? (n["ival"]["ival"] ?? 0) : undefined;
+          const fl = isObject(n["fval"]) ? n["fval"]["fval"] : undefined;
+          if (typeof i === "number") ctx.numbers?.push(i.toString());
+          if (typeof fl === "string") ctx.numbers?.push(fl);
           const s = isObject(n["sval"]) ? n["sval"]["sval"] : undefined;
           if (
             typeof s === "string" &&
@@ -368,12 +378,77 @@ function parseOne(sql: string): Node {
 }
 
 /**
+ * The largest number a Deep query may hold without the customer having typed it: enough for a
+ * threshold in days, a limit, a percentage or a month number, and far below any figure worth
+ * copying out of a result (a thousand paise is ten rupees).
+ */
+export const DEEP_FREE_NUMBER = 1000;
+
+/** A number as a canonical decimal: no sign, no leading zeros, no trailing fractional zeros. */
+function canonical(n: string): string | null {
+  const m = /^-?(\d+)(?:\.(\d+))?$/u.exec(n.trim());
+  if (m === null) return null;
+  const whole = (m[1] ?? "").replace(/^0+(?=\d)/u, "");
+  const frac = (m[2] ?? "").replace(/0+$/u, "");
+  return frac === "" ? whole : `${whole}.${frac}`;
+}
+
+/** `n` × `factor`, exactly, as a canonical decimal. */
+function times(n: string, factor: bigint): string {
+  const [whole = "0", frac = ""] = n.split(".");
+  const scaled = BigInt(whole + frac) * factor;
+  const digits = scaled.toString().padStart(frac.length + 1, "0");
+  const cut = digits.length - frac.length;
+  return (
+    canonical(frac === "" ? digits : `${digits.slice(0, cut)}.${digits.slice(cut)}`) ?? ""
+  );
+}
+
+const SCALES: readonly [RegExp, bigint][] = [
+  [/^(?:thousand|k)\b/iu, 1_000n],
+  [/^(?:lakhs?|lacs?|l)\b/iu, 100_000n],
+  [/^(?:millions?|mn|m)\b/iu, 1_000_000n],
+  [/^(?:crores?|cr)\b/iu, 10_000_000n],
+];
+
+/**
+ * The numbers a question gave, in every form a query could fairly need them: as written, in
+ * paise, and scaled by a word that follows (lakh, crore, thousand, million). "More than 5 lakh"
+ * allows 500000 and 50000000.
+ */
+export function typedNumbers(question: string): string[] {
+  const out = new Set<string>();
+  for (const m of question.matchAll(/\d[\d,]*(?:\.\d+)?/gu)) {
+    const n = canonical(m[0].replaceAll(",", ""));
+    if (n === null) continue;
+    const rest = question.slice(m.index + m[0].length).trimStart();
+    const factors = [1n, ...SCALES.filter(([word]) => word.test(rest)).map(([, f]) => f)];
+    for (const f of factors) {
+      out.add(times(n, f));
+      out.add(times(n, f * 100n));
+    }
+  }
+  return [...out];
+}
+
+/**
  * Validates a query and returns it wrapped with an enforced row limit. Must be called after
  * `loadGuard()` has resolved.
  */
 export function guardSql(
   rawSql: string,
-  options: { tables?: readonly string[]; maxRows: number; maxLength?: number },
+  options: {
+    tables?: readonly string[];
+    maxRows: number;
+    maxLength?: number;
+    /**
+     * For a query whose cells an answer will cite (Deep chat, locked decision 7, ADR 0077): it
+     * must read a session table, and a number in it larger than `max` must be one the customer
+     * typed (`typedNumbers`). Otherwise a model can copy two balances out of an earlier result
+     * into `SELECT a - b` and cite the cell: a figure it wrote, with lineage that looks sound.
+     */
+    figures?: { readonly max: number; readonly typed: readonly string[] };
+  },
 ): GuardResult {
   const tables = new Set(
     (options.tables ?? SESSION_TABLES.map((t) => t.name)).map((t) => t.toLowerCase()),
@@ -395,7 +470,25 @@ export function guardSql(
     collectCtes(stmt, ctes);
     for (const t of tables) ctes.delete(t);
     const used = new Set<string>();
-    walk(stmt, { tables, ctes, used });
+    const numbers: string[] = [];
+    walk(stmt, { tables, ctes, used, numbers });
+    if (options.figures !== undefined) {
+      if (used.size === 0)
+        reject(
+          "a query must read the session tables; figures come from them, not from the query",
+        );
+      const typed = new Set(options.figures.typed);
+      for (const raw of numbers) {
+        const n = canonical(raw);
+        // Compared exactly, as integers: a threshold is small whether or not it has decimals.
+        const whole = n === null ? null : BigInt(n.split(".")[0] ?? "0");
+        const small = whole !== null && whole < BigInt(options.figures.max);
+        if (!small && (n === null || !typed.has(n)))
+          reject(
+            `the number ${raw} is not in the question: take every figure from the tables, never copy one out of an earlier result`,
+          );
+      }
+    }
 
     const limit = options.maxRows + 1;
     const wrapped = `SELECT * FROM (${sql}) AS guarded_query LIMIT ${limit.toString()}`;

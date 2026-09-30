@@ -8,6 +8,7 @@
  * result is redacted, stringified and capped to the configured rows and bytes before it is posted.
  */
 
+import { addMonths, financialYearOf } from "@magicmis/core/time";
 import { guardSql, loadGuard, SESSION_TABLES } from "@magicmis/sql-guard";
 import type { DuckConn } from "@magicmis/ingest";
 import type { Mapping } from "@magicmis/semantic";
@@ -21,15 +22,48 @@ export interface ChatTables {
   readonly bills: readonly (readonly Cell[])[];
 }
 
+/**
+ * A ledger's own figure for one month (ADR 0077), by the engine's rule (`compute.ts`): an income
+ * or expense closing is the financial year to date, so the month is its closing less the month
+ * before in the same year, and the year's first month is its closing; any other ledger's month is
+ * its change. Null when the month before is not in the session — not loaded, or hidden by the
+ * customer — rather than a year to date passed off as a month. Given to the model as a column so
+ * it never does this arithmetic itself, which it did wrongly across a year boundary.
+ */
+function monthFigure(
+  closing: bigint,
+  previous: bigint | undefined,
+  opening: bigint | null,
+  pnl: boolean,
+  firstOfYear: boolean,
+): bigint | null {
+  if (pnl) {
+    if (firstOfYear) return closing;
+    return previous === undefined ? null : closing - previous;
+  }
+  if (previous !== undefined) return closing - previous;
+  return opening === null ? null : closing - opening;
+}
+
 /** Rows for the session tables, in `SESSION_TABLES` column order. Names are already tokens. */
 export function chatTables(
   prepared: Prepared,
   mappings: readonly Mapping[],
   headName: (code: string) => string,
+  year: {
+    /** The company's financial-year start month, 1-12 (ADR 0035). */
+    readonly fyStartMonth: number;
+    /** Whether a head is on the profit and loss statement; false for UNMAPPED. */
+    readonly isPnl: (head: string) => boolean;
+  },
 ): ChatTables {
   const heads = new Map(mappings.map((m) => [m.ledgerKey, m.head]));
+  const closings = new Map(
+    prepared.facts.map((f) => [`${f.ledgerKey}\n${f.period}`, f.closing]),
+  );
   const balances = prepared.facts.map((f): Cell[] => {
     const head = heads.get(f.ledgerKey) ?? "UNMAPPED";
+    const period = f.period;
     return [
       f.period,
       head,
@@ -40,6 +74,13 @@ export function chatTables(
       f.debit,
       f.credit,
       f.closing,
+      monthFigure(
+        f.closing,
+        closings.get(`${f.ledgerKey}\n${addMonths(period, -1)}`),
+        f.opening,
+        year.isPnl(head),
+        financialYearOf(period, year.fyStartMonth).start === period,
+      ),
     ];
   });
   const bills = prepared.bills.flatMap((b) =>
@@ -104,6 +145,22 @@ const cellText = (v: unknown): string => {
   return JSON.stringify(v);
 };
 
+/**
+ * Digit runs in the session's text cells. A numeric result equal to one could have been cast out
+ * of a ledger name, so it is still redacted; any other number is a figure (ADR 0077).
+ */
+export function textDigitRuns(tables: ChatTables): Set<string> {
+  const runs = new Set<string>();
+  for (const rows of [tables.balances, tables.bills])
+    for (const row of rows)
+      for (const cell of row)
+        if (typeof cell === "string")
+          for (const m of cell.matchAll(/\d{6,}/gu)) runs.add(m[0]);
+  return runs;
+}
+
+const NUMBER = /^-?\d+(\.\d+)?$/u;
+
 /** Guards, runs, redacts and caps one Deep query. */
 export async function runChatQuery(
   conn: DuckConn & { cancel?: () => Promise<void> },
@@ -113,6 +170,12 @@ export async function runChatQuery(
     maxBytes: number;
     timeoutMs: number;
     redactText: (text: string) => Promise<string>;
+    /**
+     * From `textDigitRuns`. When given, a numeric cell skips the identifier detectors unless its
+     * digits are one of these: an amount of Rs 6-10 crore is ten digits in paise and read as a
+     * mobile number, so a Deep answer showed a token where the figure belonged.
+     */
+    textDigits?: ReadonlySet<string>;
   },
 ): Promise<ChatQueryOutcome> {
   await loadGuard();
@@ -152,8 +215,16 @@ export async function runChatQuery(
   const out: string[][] = [];
   for (const r of rows.slice(0, options.maxRows)) {
     const cells: string[] = [];
-    for (const c of columns)
-      cells.push((await options.redactText(cellText(r[c]))).slice(0, 400));
+    for (const c of columns) {
+      const raw = r[c];
+      const text = cellText(raw);
+      const figure =
+        options.textDigits !== undefined &&
+        typeof raw !== "string" &&
+        NUMBER.test(text) &&
+        !options.textDigits.has(text.replace(/^-/u, "").split(".")[0] ?? "");
+      cells.push((figure ? text : await options.redactText(text)).slice(0, 400));
+    }
     out.push(cells);
   }
   // Rows are dropped from the end until the result fits the byte cap.

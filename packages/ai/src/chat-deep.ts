@@ -234,6 +234,12 @@ export function checkDeepAnswer(
     ...input.periods,
     ...placeholderIdsIn(input.history.map((h) => h.text)),
   ]);
+  // A month is a label, not a figure, so any month is allowed by its form, as the answer's
+  // renderer already allows it. The server passes only the months the question names, and an
+  // answer that also named the month before was refused (ADR 0077).
+  for (const p of output.paragraphs)
+    for (const m of p.text.matchAll(/\{\{\s*p:(\d{4}-\d{2})\s*\}\}/gu))
+      known.add(`p:${m[1] ?? ""}`);
   const queries = input.steps.flatMap((s) =>
     s.outcome.status === "ok"
       ? [{ stepId: s.ref, rowCount: s.outcome.rows.length, columns: s.outcome.columns }]

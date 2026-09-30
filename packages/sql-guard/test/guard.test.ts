@@ -7,7 +7,7 @@
 import fc from "fast-check";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { guardSql, loadGuard } from "../src/index";
+import { guardSql, loadGuard, typedNumbers } from "../src/index";
 
 beforeAll(async () => {
   await loadGuard();
@@ -178,5 +178,67 @@ describe("SQL guard", () => {
       }),
       { numRuns: 3000 },
     );
+  });
+});
+
+describe("figures in a Deep query (locked decision 7, ADR 0077)", () => {
+  const deep = (sql: string, question = "") =>
+    guardSql(sql, { maxRows: 50, figures: { max: 1000, typed: typedNumbers(question) } });
+
+  it("refuses a query that reads no table: its cells would be figures the model wrote", () => {
+    // What a live run did: two balances copied out of an earlier result and subtracted.
+    const r = deep("SELECT (-369578700) - (-208719400) AS june_sales_paise");
+    expect(r.ok).toBe(false);
+    // Without the Deep rule the guard still takes it, as before.
+    expect(guardSql("SELECT (-369578700) - (-208719400) AS x", { maxRows: 50 }).ok).toBe(
+      true,
+    );
+  });
+
+  it("refuses a large number the question did not give, even in a query over a table", () => {
+    expect(deep("SELECT closing_paise - 208719400 AS x_paise FROM balances").ok).toBe(
+      false,
+    );
+    expect(
+      deep("SELECT closing_paise FROM balances WHERE closing_paise > 2087194.5").ok,
+    ).toBe(false);
+  });
+
+  it("allows small structural numbers and the figures the customer typed", () => {
+    expect(
+      deep(
+        "SELECT count(*) AS pending_bills FROM bills WHERE days_outstanding > 90 ORDER BY 1 LIMIT 5",
+      ).ok,
+    ).toBe(true);
+    expect(
+      deep(
+        "SELECT sum(CASE WHEN period = '2025-06' THEN closing_paise ELSE 0 END) * 100 AS x_paise FROM balances",
+      ).ok,
+    ).toBe(true);
+    expect(
+      deep(
+        "SELECT ledger FROM balances WHERE closing_paise > 50000000",
+        "Which customers owe more than 5 lakh?",
+      ).ok,
+    ).toBe(true);
+    expect(
+      deep(
+        "SELECT ledger FROM balances WHERE closing_paise > 15000000",
+        "Who owes more than 1,50,000?",
+      ).ok,
+    ).toBe(true);
+  });
+
+  it("reads a number with its scale word, in rupees and in paise", () => {
+    expect(typedNumbers("more than 5 lakh")).toEqual(
+      expect.arrayContaining(["5", "500", "500000", "50000000"]),
+    );
+    expect(typedNumbers("above 2.5 crore")).toEqual(
+      expect.arrayContaining(["25000000", "2500000000"]),
+    );
+    expect(typedNumbers("over 1,50,000")).toEqual(
+      expect.arrayContaining(["150000", "15000000"]),
+    );
+    expect(typedNumbers("no numbers here")).toEqual([]);
   });
 });
