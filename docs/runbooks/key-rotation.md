@@ -33,7 +33,7 @@ Once a year, confirm:
 
 Replace the key after a suspected compromise of the key or its IAM role, or when moving accounts or regions.
 
-1. **Create the new key.** Make it a symmetric customer-managed key in `ap-south-1` with automatic rotation on. Grant the web, admin and worker roles `kms:GenerateDataKey`, `kms:Decrypt` and `kms:Encrypt` on it. Keep `kms:Decrypt` on the old key.
+1. **Create the new key.** Make it a symmetric customer-managed key in `eu-west-2` (London, ADR 0074) with automatic rotation on. Grant the web, admin and worker roles `kms:GenerateDataKey`, `kms:Decrypt` and `kms:Encrypt` on it. Keep `kms:Decrypt` on the old key.
 2. **Deploy all three apps in rotating mode.**
    - Set `KMS_MASTER_KEY_ID` to the new key.
    - Set `KMS_PREVIOUS_MASTER_KEY_ID` to the old key.
@@ -43,7 +43,7 @@ Replace the key after a suspected compromise of the key or its IAM role, or when
 3. **Re-wrap.** From a trusted machine, or a one-off worker task with both keys:
 
    ```sh
-   KMS_PREVIOUS_MASTER_KEY_ID=<old> KMS_MASTER_KEY_ID=<new> AWS_REGION=ap-south-1 \
+   KMS_PREVIOUS_MASTER_KEY_ID=<old> KMS_MASTER_KEY_ID=<new> AWS_REGION=eu-west-2 \
      DATABASE_URL=<prod> RESEND_API_KEY=... EMAIL_FROM=... APP_URL=... \
      pnpm --filter @magicmis/worker rewrap-keys
    ```

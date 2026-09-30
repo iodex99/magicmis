@@ -222,7 +222,7 @@ test("the public site says nothing about what it is built on (ADR 0042)", async 
   for (const path of PUBLIC_PATHS.filter((p) => !p.startsWith("/legal"))) {
     await page.goto(path);
     await expect(page.locator("main"), path).not.toContainText(
-      /anthropic|\bclaude\b|openai|supabase|vercel|postgres|\bKMS\b|mumbai region/iu,
+      /anthropic|\bclaude\b|openai|supabase|vercel|fly\.io|postgres|\bKMS\b|mumbai region/iu,
     );
   }
 });

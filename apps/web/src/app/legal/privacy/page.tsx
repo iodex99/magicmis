@@ -19,9 +19,10 @@ export const metadata: Metadata = pageMetadata("/legal/privacy");
  * It addresses readers under India's Digital Personal Data Protection Act and, because the
  * service is sold outside India, readers in the UK and the European Economic Area.
  *
- * TODO(review): R-11, R-50 — legal and data-protection review before launch; the grievance
- * officer, contact addresses and the background-job hosting provider are placeholders in
- * `legal.contacts` and below.
+ * Final at version 1.3 by the owner's decision (ADR 0074): the wording is not reworked for
+ * launch. The provider regions below are the ones the production accounts are created in
+ * (ADR 0074); change them together with those accounts. The grievance officer and contact
+ * addresses are owner facts in `legal.contacts`, filled in by an admin edit, not a deploy.
  */
 export default async function PrivacyPage() {
   const f = await legalFacts();
@@ -39,32 +40,41 @@ export default async function PrivacyPage() {
     "the privacy address published on this site",
   );
 
-  // A null region depends on how our account with that provider is set up and has not been
-  // confirmed (R-50); it is shown as such rather than guessed.
-  const subprocessors: readonly [string, string, string | null][] = [
+  // Each region is the one the production account with that provider is created in
+  // (ADR 0074, docs/compliance/processing-register.md).
+  const subprocessors: readonly [string, string, string][] = [
     [
       "Supabase",
-      "Database and sign-in: your account, company memory and records",
-      "India (Mumbai)",
+      "Database, file storage and sign-in: your account, files, company memory and records",
+      "United Kingdom (London)",
     ],
     [
       "Amazon Web Services (KMS)",
       "Protects the encryption keys; holds no personal data",
-      "India (Mumbai)",
+      "United Kingdom (London)",
+    ],
+    [
+      "Vercel",
+      "Hosts the website and application servers",
+      "United Kingdom (London), delivered through a global network",
+    ],
+    [
+      "Fly.io",
+      "Runs scheduled work such as data exports, emails and monthly fees",
+      "United Kingdom (London)",
     ],
     [
       "Anthropic",
       "AI processing of redacted profiles, samples, totals and chat messages",
       "United States",
     ],
-    [
-      "Vercel",
-      "Hosts the website and application servers",
-      "Global network, servers nearest India",
-    ],
     ["Razorpay", "Payments: card and bank details you enter at checkout", "India"],
-    ["Resend", "Sends account, security and billing emails", null],
-    ["Sentry", "Error monitoring, with personal data removed before sending", null],
+    ["Resend", "Sends account, security and billing emails", "Ireland"],
+    [
+      "Sentry",
+      "Error monitoring, with personal data removed before sending",
+      "Germany (Frankfurt)",
+    ],
   ];
 
   const sections: LegalSection[] = [
@@ -253,25 +263,9 @@ export default async function PrivacyPage() {
                       {name}
                     </th>
                     <td className="px-4 py-2.5 align-top">{what}</td>
-                    <td className="px-4 py-2.5 align-top">
-                      {where ?? <Pending>To be confirmed</Pending>}
-                    </td>
+                    <td className="px-4 py-2.5 align-top">{where}</td>
                   </tr>
                 ))}
-                <tr>
-                  <th
-                    scope="row"
-                    className="px-4 py-2.5 text-left align-top font-medium text-neutral-900"
-                  >
-                    <Pending>Background job hosting</Pending>
-                  </th>
-                  <td className="px-4 py-2.5 align-top">
-                    Runs scheduled work such as data exports and monthly fees
-                  </td>
-                  <td className="px-4 py-2.5 align-top">
-                    <Pending>To be confirmed</Pending>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
@@ -286,13 +280,24 @@ export default async function PrivacyPage() {
       id: "transfers",
       title: "International transfers",
       body: (
-        <p>
-          Your account and company data are stored in India. Some of the providers above
-          process data in other countries, including the United States. Where the law of
-          your country requires it — for example in the UK or the European Economic Area —
-          we rely on appropriate safeguards for those transfers, such as standard
-          contractual clauses.
-        </p>
+        <>
+          <p>
+            Your account, your uploaded files and each company&rsquo;s memory are stored
+            and processed in the United Kingdom. The European Commission recognises the UK
+            as giving personal data adequate protection, so data from the European
+            Economic Area reaches it without further safeguards.
+          </p>
+          <p>
+            Some of the providers above process data in other countries: our AI provider
+            in the United States, our payment provider in India, and our email and
+            error-monitoring providers in the European Union. Where the law of your
+            country requires it — for example in the UK or the European Economic Area — we
+            rely on appropriate safeguards for those transfers, such as standard
+            contractual clauses. For readers in India, the Digital Personal Data
+            Protection Act allows these transfers, and none is to a country the Government
+            of India has restricted.
+          </p>
+        </>
       ),
     },
     {
@@ -353,10 +358,10 @@ export default async function PrivacyPage() {
             and to sensitive settings are written to a tamper-evident log.
           </p>
           <p>
-            Sign-in is by password alone, with one active session per account, limits on
-            failed attempts, and a fresh password check before sensitive actions such as
-            exporting data or deleting an account. Please use a password you do not use
-            anywhere else.
+            Sign-in is by password — or with Google or Apple where we offer it — with one
+            active session per account, limits on failed attempts, and a fresh password
+            check before sensitive actions such as exporting data or deleting an account.
+            Please use a password you do not use anywhere else.
           </p>
         </>
       ),
@@ -448,9 +453,9 @@ export default async function PrivacyPage() {
       intro={
         <p>
           The short version: the files you upload are encrypted under a key for that
-          company alone and deleted on a schedule, identifiers are replaced before
-          anything reaches our AI provider, and every figure is calculated by our own
-          engine. The detail follows.
+          company alone and kept in the United Kingdom until you delete them, no member of
+          our staff can open one, identifiers are replaced before anything reaches our AI
+          provider, and every figure is calculated by our own engine. The detail follows.
         </p>
       }
       sections={sections}

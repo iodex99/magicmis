@@ -1,6 +1,6 @@
 # ADR 0006 — Everything in Mumbai: Supabase `ap-south-1`, Vercel `bom1`
 
-**Status:** accepted · **Date:** 2026-09-13 · **Phase:** 0
+**Status:** superseded by [0074](0074-london-and-the-legal-documents-final.md) (London) · **Date:** 2026-09-13 · **Phase:** 0
 
 ## Context
 

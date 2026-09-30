@@ -32,7 +32,7 @@ Their raw details stay in the browser (SPEC §2.8). Where they reach the server,
 
 | # | Activity | Personal data | Purpose | Basis (draft) | Where | Retention | Code |
 |---|---|---|---|---|---|---|---|
-| P1 | Account and sign-in | Email, password (held by Supabase Auth) | Provide the account; one-session rule; security | Contract | Supabase Postgres + Auth, Mumbai | Life of account; scrubbed at purge | `packages/accounts` |
+| P1 | Account and sign-in | Email, password (held by Supabase Auth) | Provide the account; one-session rule; security | Contract | Supabase Postgres + Auth, London | Life of account; scrubbed at purge | `packages/accounts` |
 | P2 | Login history | IP address, approximate location, user agent, device fingerprint hash | Security alerts, account protection | Legitimate use (security) | Postgres | Life of account; deleted at purge | `login_events` |
 | P3 | Business profile and billing | Business name, GSTIN, billing address, state code | Tax invoices under GST | Legal obligation | Postgres | Statutory period (config, default 8 years) | `accounts`, `invoices` |
 | P4 | Payments | Razorpay order/payment IDs (no card data) | Buying credits | Contract | Postgres; Razorpay | Statutory period | `packages/billing` |
@@ -51,13 +51,14 @@ Their raw details stay in the browser (SPEC §2.8). Where they reach the server,
 
 | Subprocessor | Data | Region | Notes |
 |---|---|---|---|
-| Supabase | P1–P4, P7–P11, P13 | ap-south-1 (Mumbai) | ADR 0003 |
+| Supabase | P1–P5, P7–P11, P13 | eu-west-2 (London) | ADR 0003, ADR 0074 |
 | Anthropic | P6 payloads only | United States | Server-side key; action-specific endpoints only (SPEC §2.9) |
-| AWS KMS | Wraps data keys; sees no personal data | ap-south-1 | ADR 0008 |
-| Resend | Email address, notice text | TODO(review): R-50 | ADR 0010 |
+| AWS KMS | Wraps data keys; sees no personal data | eu-west-2 (London) | ADR 0008, ADR 0074 |
+| Resend | Email address, notice text | eu-west-1 (Ireland) | ADR 0010, ADR 0074 |
 | Razorpay | Payment details entered on Razorpay Checkout | India | ADR 0012 |
-| Vercel | Request metadata in transit | Functions pinned nearest India | SPEC §5 |
-| Sentry | Error events, PII scrubbed before sending | TODO(review): R-50 | SPEC §5 |
+| Vercel | Request metadata in transit | Functions in `lhr1` (London), `vercel.json` | ADR 0074 |
+| Fly.io | The worker: scheduled tasks, notices, exports (P9, P13) in memory | `lhr` (London) | ADR 0074 |
+| Sentry | Error events, PII scrubbed before sending | EU (Frankfurt) | ADR 0074 |
 | Background job host | Job payloads for the worker (pg-boss) | TODO(review): R-50 — provider not chosen | SPEC §5 |
 
 ## 4. Data principal rights

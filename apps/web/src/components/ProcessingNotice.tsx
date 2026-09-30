@@ -18,9 +18,7 @@ interface ConsentState {
  * Children — the file pickers — render only once the current version is accepted.
  *
  * Every line here is a shorter statement of something the privacy notice and the terms say
- * in full; change them together.
- *
- * TODO(review): R-11, R-12 — notice wording pending legal review.
+ * in full; change them together. Final at version 1.3 by the owner's decision (ADR 0074).
  */
 export function ProcessingNotice({ children }: { children: ReactNode }) {
   const [state, setState] = useState<"loading" | "needed" | "accepted" | "error">(
@@ -69,11 +67,11 @@ export function ProcessingNotice({ children }: { children: ReactNode }) {
           arrive, under a key that belongs to this company alone.
         </li>
         <li>
-          They are read on our servers only to prepare the reports you pay for and answer
-          your questions, and kept, encrypted, until you delete them (or for the period
-          the privacy notice states, if it states one). No member of our staff has a way
-          to open one, and every time a file is opened it is recorded beside it on the
-          company&rsquo;s Files and settings page.
+          They are read on our servers in the United Kingdom only to prepare the reports
+          you pay for and answer your questions, and kept, encrypted, until you delete
+          them (or for the period the privacy notice states, if it states one). No member
+          of our staff has a way to open one, and every time a file is opened it is
+          recorded beside it on the company&rsquo;s Files and settings page.
         </li>
         <li>
           Before anything goes to the AI, names and identifiers — party and employee

@@ -11,19 +11,17 @@ export const metadata: Metadata = pageMetadata("/legal/terms");
 /**
  * Terms of service (R-10).
  *
- * A complete draft written against how the product actually behaves: prepaid credits,
+ * Written against how the product actually behaves: prepaid credits,
  * the per-action price book, the company lifecycle, browser-side processing, AI assistance
  * with deterministic figures, one login per account, and sales in India and abroad. Every
  * period is read from configuration (`legalFacts`), so a changed setting changes the
  * document with it.
  *
- * TODO(review): R-10 — legal sign-off before launch. Points a lawyer should look at first:
- * the processor terms in section 7 (whether a separate data processing agreement is needed
- * for EU/UK customers), the liability cap in section 13, governing law and venue in
- * section 17, and whether any consumer-protection law overrides the no-refund rule in the
- * countries sold into. The welcome-credit clause in section 5 was researched against the
- * Consumer Protection Act 2019 (s.2(46)), the CCPA advertising guidelines 2022 and the dark
- * patterns guidelines 2023, and settled on the owner's decision (ADR 0072).
+ * Final at version 1.3 by the owner's decision (ADR 0074): the wording is not reworked for
+ * launch. The welcome-credit clause in section 4 was researched against the Consumer
+ * Protection Act 2019 (s.2(46)), the CCPA advertising guidelines 2022 and the dark patterns
+ * guidelines 2023 (ADR 0072). Should a lawyer ever be engaged, ADR 0074 lists where they
+ * would look first; a material change moves the version and is notified as section 16 says.
  */
 export default async function TermsPage() {
   const f = await legalFacts();
@@ -104,10 +102,11 @@ export default async function TermsPage() {
             one.
           </p>
           <p>
-            Sign-in is by email and password, without a second factor. You are responsible
-            for keeping your password secret and for everything done with your account.
-            Use a password you do not use anywhere else, and tell us straight away at{" "}
-            {contact} if you believe your account has been used without your permission.
+            Sign-in is by email and password, or with Google or Apple where we offer it,
+            without a second factor from us. You are responsible for keeping your password
+            and those accounts secret and for everything done with your account. Use a
+            password you do not use anywhere else, and tell us straight away at {contact}{" "}
+            if you believe your account has been used without your permission.
           </p>
           <p>
             You must give accurate account and billing details and keep them up to date,

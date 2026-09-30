@@ -1,8 +1,9 @@
 # Legal review brief: uploaded files (ADR 0047 and 0048)
 
 **For:** the lawyer and the data-protection reviewer (R-10, R-11, R-12, R-50, R-63).
-**Status of the documents:** terms, privacy notice and processing notice are all `1.2-draft`.
-They stay draft until this review is done; nothing here is a legal opinion.
+**Status of the documents:** final at `1.3` by the owner's decision, without this review
+(ADR 0074, 2026-09-30). The brief is kept for a lawyer, should one be engaged; nothing here is
+a legal opinion.
 
 This brief exists so the review is an hour, not a discovery exercise. It gives the exact
 sentences that changed, the fact behind each, where that fact is enforced, and the questions

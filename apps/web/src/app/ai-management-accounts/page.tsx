@@ -60,7 +60,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is my client's data sent to an AI model?",
     answer:
-      "Not as a file. The model receives the structure of a sheet, a small redacted sample, and redacted nominal names for the specific step it performs. Party names, account numbers and identifiers are replaced with tokens before anything leaves the server, and the raw files are encrypted under a key unique to that company and deleted on a schedule.",
+      "Not as a file. The model receives the structure of a sheet, a small redacted sample, and redacted nominal names for the specific step it performs. Party names, account numbers and identifiers are replaced with tokens before anything leaves the server, and the raw files are encrypted under a key unique to that company, kept until you delete them, and opened by no member of staff.",
   },
   {
     question: "Does it work with Xero, Sage and QuickBooks?",

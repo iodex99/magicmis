@@ -73,7 +73,7 @@ export default async function SecurityPage() {
       body: "Every file is encrypted under its company's own key before it is stored. Each company has a separate key.",
     },
     {
-      title: "Deleted on a schedule",
+      title: "Kept for you, opened by nobody",
       body: `Uploaded files are ${kept}. Each company's Files and settings page lists them, lets you download or delete any of them, and shows every time one was opened and why. No member of our staff has a screen, tool or role that opens a file.`,
     },
     {
@@ -113,6 +113,11 @@ export default async function SecurityPage() {
       question: "What happens if I delete my account?",
       answer:
         "Deletion asks for your password and your email address. The encryption keys are destroyed, which makes the stored data and files unreadable. Unused credits are forfeited, and an account cannot be deleted while work is still running.",
+    },
+    {
+      question: "Where is my data stored?",
+      answer:
+        "In the United Kingdom. Your account, your uploaded files and each company's memory are stored and processed in London, which the European Commission recognises as giving personal data adequate protection. The redacted fragments the AI reads are processed in the United States.",
     },
     {
       question: "Who else processes my data?",
@@ -173,9 +178,9 @@ export default async function SecurityPage() {
       <Section title="What we do not claim">
         <p>
           No external security audit has been carried out and no compliance certification
-          is held. Your files are on our servers while they are kept — encrypted and
-          deleted on a schedule, but there. And customer sign-in has one factor. If any of
-          those is a requirement for your firm, it is better to know now.
+          is held. Your files are on our servers while they are kept — encrypted, and
+          opened by no member of staff, but there. And customer sign-in has one factor. If
+          any of those is a requirement for your firm, it is better to know now.
         </p>
       </Section>
 

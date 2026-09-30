@@ -7,8 +7,8 @@ import { PublicShell } from "@/components/PublicShell";
  *
  * The draft note is driven by the document version, not by a hardcoded flag: while the
  * version in `legal.document_versions` ends in `-draft` the page says so, and the moment
- * the owner records a reviewed version the note disappears with no deploy. A legal document
- * that claims to be final before a lawyer has read it is the one thing worse than a draft.
+ * the owner records a final version the note disappears with no deploy. The owner made the
+ * documents final at 1.3 (ADR 0074); a later draft would bring the note back by itself.
  */
 export interface LegalSection {
   readonly id: string;
