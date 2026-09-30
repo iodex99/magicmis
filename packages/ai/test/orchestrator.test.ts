@@ -198,8 +198,9 @@ describe("orchestrator", () => {
     expect(row?.usd_cost_micro).toBe(expected.toString());
     expect(result.costMicroUsd).toBe(expected);
     expect(c.budget.spentMicroUsd).toBe(expected);
+    // The seeded operating rate (migration 0070).
     const { paise, rateUsed } = costPaise(expected, {
-      inr_per_usd: "95.00",
+      inr_per_usd: "96.00",
       buffer_percent: "3",
     });
     expect(row?.inr_cost_paise).toBe(paise.toString());
@@ -395,7 +396,7 @@ describe("orchestrator", () => {
     const account = await newAccount(pool());
     const t = new ScriptedTransport([{ kind: "message", message: message(sheetOk) }]);
     t.countResult = 100_000;
-    // Haiku: 100k input × $1 + 4000 output × $5 = $0.12 → ₹11.74 at 97.85; cap ₹5.
+    // Haiku: 100k input × $1 + 4000 output × $5 = $0.12 → ₹11.87 at 98.88; cap ₹5.
     const err = await classifySheets(
       ctx(account, t, "efficient", 500n),
       sheetInput,
