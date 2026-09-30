@@ -235,6 +235,56 @@ export async function buildAccountExport(
   const profile = profiles[0];
   if (profile === undefined) throw new Error("buildAccountExport: account not found");
 
+  // The files kept for each company and every time one was opened, and why (R-66, ADR 0047):
+  // the read log is shown in the product and is the account's own data, so it leaves with the
+  // rest. Names and sizes only — each file's bytes are downloaded on their own, from the company.
+  // Reads are found through their uploads, which is the index the table has.
+  const [uploads, reads] = await Promise.all([
+    q<{
+      id: string;
+      company_id: string;
+      file_name: string;
+      byte_size: string;
+      status: string;
+      periods: string[];
+      on_dashboard: boolean;
+      created_at: Date;
+      deleted_at: Date | null;
+    }>(
+      `select id, company_id, file_name, byte_size::text as byte_size, status, periods,
+         on_dashboard, created_at, deleted_at
+         from public.source_uploads where account_id = $1 order by created_at`,
+    ),
+    q<{ upload_id: string; purpose: string; job_id: string | null; read_at: Date }>(
+      `select r.upload_id, r.purpose, r.job_id, r.read_at
+         from public.source_uploads u
+         join public.source_upload_reads r on r.upload_id = u.id
+        where u.account_id = $1
+        order by r.read_at`,
+    ),
+  ]);
+  const readsByUpload = new Map<string, typeof reads>();
+  for (const r of reads)
+    readsByUpload.set(r.upload_id, [...(readsByUpload.get(r.upload_id) ?? []), r]);
+  const filesOf = (companyId: string) =>
+    uploads
+      .filter((u) => u.company_id === companyId)
+      .map((u) => ({
+        id: u.id,
+        name: u.file_name,
+        byteSize: u.byte_size,
+        status: u.status,
+        periods: u.periods,
+        onDashboard: u.on_dashboard,
+        uploadedAt: u.created_at.toISOString(),
+        deletedAt: u.deleted_at?.toISOString() ?? null,
+        reads: (readsByUpload.get(u.id) ?? []).map((r) => ({
+          purpose: r.purpose,
+          jobId: r.job_id,
+          at: r.read_at.toISOString(),
+        })),
+      }));
+
   const companyData = [];
   for (const c of companies) {
     const blueprint = await latestBlueprint(pool, wrapper, {
@@ -271,6 +321,7 @@ export async function buildAccountExport(
       blueprint:
         blueprint === null ? null : { version: blueprint.version, ...blueprint.parts },
       snapshots,
+      files: filesOf(c.id),
     });
   }
 

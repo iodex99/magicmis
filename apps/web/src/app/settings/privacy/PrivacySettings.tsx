@@ -89,9 +89,10 @@ export function PrivacySettings({
       <Panel title="Export your data" icon="download">
         <p className="mb-4 max-w-2xl text-sm text-neutral-600">
           A JSON file with your profile, companies, their stored memory and monthly
-          snapshots, jobs, credit ledger, invoices and consent records. Your source files
-          are never stored on our servers, so they are not included. The download link
-          works only while you are signed in, and for a limited time.
+          snapshots, jobs, credit ledger, invoices and consent records, and every file
+          kept for each company with each time it was opened and why. The files themselves
+          are downloaded from each company&rsquo;s Files and settings page. The download
+          link works only while you are signed in, and for a limited time.
         </p>
         {exportAction === null ? (
           <Button

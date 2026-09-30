@@ -37,6 +37,24 @@ describe("data export (SPEC §10, §31)", () => {
       jobId: null,
       payload: emptySnapshot("2027-01"),
     });
+    // A kept file opened twice, and one deleted since: both leave with the export (R-66).
+    const upload = await pool().query<{ id: string }>(
+      `insert into source_uploads (account_id, company_id, file_name, byte_size, chunk_count, status, periods)
+       values ($1, $2, 'TB April.xlsx', 2048, 1, 'ready', '{2027-01}') returning id`,
+      [accountId, companyId],
+    );
+    const uploadId = upload.rows[0]?.id ?? "";
+    await pool().query(
+      `insert into source_upload_reads (upload_id, account_id, company_id, purpose, read_at)
+       values ($1, $2, $3, 'intake', now() - interval '2 minutes'),
+              ($1, $2, $3, 'run', now() - interval '1 minute')`,
+      [uploadId, accountId, companyId],
+    );
+    await pool().query(
+      `insert into source_uploads (account_id, company_id, file_name, byte_size, chunk_count, status, deleted_at)
+       values ($1, $2, 'Old ledger.csv', 512, 1, 'ready', now())`,
+      [accountId, companyId],
+    );
     const now = new Date(Date.now() + HOUR);
 
     const first = await requestAccountExport(pool(), { accountId, now });
@@ -86,13 +104,29 @@ describe("data export (SPEC §10, §31)", () => {
       ).toString("utf8"),
     ) as {
       profile: { email: string };
-      companies: { id: string; snapshots: { period: string }[] }[];
+      companies: {
+        id: string;
+        snapshots: { period: string }[];
+        files: {
+          id: string;
+          name: string;
+          byteSize: string;
+          deletedAt: string | null;
+          reads: { purpose: string }[];
+        }[];
+      }[];
       wallet: { ledger: unknown[] };
       consents: unknown[];
     };
     expect(opened.profile.email).toBe(email);
     expect(opened.companies[0]?.id).toBe(companyId);
     expect(opened.companies[0]?.snapshots.map((s) => s.period)).toEqual(["2027-01"]);
+    const files = opened.companies[0]?.files ?? [];
+    expect(files.map((f) => f.name)).toEqual(["TB April.xlsx", "Old ledger.csv"]);
+    expect(files[0]).toMatchObject({ id: uploadId, byteSize: "2048", deletedAt: null });
+    expect(files[0]?.reads.map((r) => r.purpose)).toEqual(["intake", "run"]);
+    expect(files[1]?.deletedAt).not.toBeNull();
+    expect(files[1]?.reads).toEqual([]);
     expect(opened.wallet.ledger.length).toBeGreaterThan(0);
 
     // Another account cannot open it.
