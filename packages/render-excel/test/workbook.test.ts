@@ -23,6 +23,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { openTestDuck } from "../../ingest/test/duck";
 import { Evaluator } from "../src/evaluate";
 import { moneyFormat } from "../src/formats";
+import { formatProofCases } from "../src/format-proof";
 import { FORMULA_DEFS } from "../src/formulas";
 import { matches, verifyWorkbook, workbookCells } from "../src/verify";
 import { renderWorkbook } from "../src/workbook";
@@ -111,6 +112,37 @@ describe("formula definitions", () => {
     expect(moneyFormat(100n, "millions", 2, true)).toBe(
       "#,##0.00,,;\\(#,##0.00,,\\);0.00",
     );
+  });
+
+  it("sizes the pattern from the displayed value, so rounding up into a new group reads 1,00,00,000 (R-35)", () => {
+    // ₹99,99,999.99 at no decimals displays eight digits, not seven. Sized from the stored value
+    // Excel drew `100,00,000`.
+    expect(moneyFormat(999_999_999n, "lakhs_crores", 0, true)).toBe(
+      "##\\,##\\,##\\,##0;\\(##\\,##\\,##\\,##0\\);0",
+    );
+    expect(moneyFormat(999_999_999n, "lakhs_crores", 2, true)).toBe(
+      "##\\,##\\,##0.00;\\(##\\,##\\,##0.00\\);0.00",
+    );
+  });
+
+  it("shows a loss too small to display as zero, never (0) or -0, scaled in millions (R-35)", () => {
+    expect(moneyFormat(-40n, "absolute", 0, true)).toBe("#,##0;0;0");
+    expect(moneyFormat(-1n, "lakhs_crores", 1, false)).toBe("#,##0.0;0.0;0.0");
+    // In millions every loss under half a million displays as zero, and the section must scale
+    // too, or it prints the rupees under a millions heading.
+    expect(moneyFormat(-12_345n, "millions", 2, true)).toBe("#,##0.00,,;0.00,,;0.00");
+    // A loss that does show keeps its brackets.
+    expect(moneyFormat(-50n, "absolute", 0, true)).toBe("#,##0;\\(#,##0\\);0");
+  });
+
+  it("gives every proof case the screen's own text to be held to", () => {
+    // The cases `format-proof` opens in Excel and LibreOffice; the applications cannot run here.
+    const cases = formatProofCases();
+    expect(cases.length).toBeGreaterThan(400);
+    for (const c of cases) {
+      expect(c.code.split(";")).toHaveLength(3);
+      expect(c.expected).toMatch(/^(\(|-)?[\d,]+(\.\d+)?\)?$/u);
+    }
   });
 });
 

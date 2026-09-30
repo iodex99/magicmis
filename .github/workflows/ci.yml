@@ -140,6 +140,29 @@ jobs:
             apps/admin/test-results
           retention-days: 7
 
+  formats:
+    name: workbook formats in LibreOffice
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install LibreOffice Calc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libreoffice-calc-nogui
+      - name: Every money format displays what the screen shows
+        # R-35: the workbook's number formats are opened in a real spreadsheet application and
+        # read back as shown. Excel is checked the same way on Windows (format-proof --excel).
+        run: pnpm --filter @magicmis/render-excel format-proof --libreoffice "$(command -v soffice)"
+
   audit:
     name: dependency audit
     runs-on: ubuntu-latest
