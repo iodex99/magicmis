@@ -27,7 +27,8 @@ import pg from "pg";
 import { ActivationError, activatePromptVersion } from "../src/activation";
 import { STAGES, type Tier } from "../src/registry";
 import { anthropicTransport } from "../src/transport";
-import { runEval, STAGE_EVALS, type EvaluableStage } from "./harness";
+import { DEEP_STAGE, runDeepEval } from "./deep";
+import { runEval, STAGE_EVALS } from "./harness";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TIERS: readonly Tier[] = ["efficient", "professional", "expert"];
@@ -68,10 +69,8 @@ async function main(): Promise<void> {
   try {
     for (const stage of STAGES) {
       if (values.stage !== undefined && values.stage !== stage) continue;
-      if (!(stage in STAGE_EVALS)) {
-        outcome.push(
-          `${stage.padEnd(20)} all tiers   no eval yet (R-44): not switched on`,
-        );
+      if (!(stage in STAGE_EVALS) && stage !== DEEP_STAGE) {
+        outcome.push(`${stage.padEnd(20)} all tiers   no eval yet: not switched on`);
         missing += TIERS.length;
         continue;
       }
@@ -105,12 +104,11 @@ async function main(): Promise<void> {
           missing++;
           continue;
         }
-        const report = await runEval({
+        const run = {
           pool,
-          stage: stage as EvaluableStage,
           tier,
           promptVersion: version,
-          mode: "live",
+          mode: "live" as const,
           maxSpendMicroUsd: maxMicroUsd,
           liveTransport: anthropicTransport(key ?? ""),
           recordingPath: path.join(
@@ -119,7 +117,11 @@ async function main(): Promise<void> {
             "go-live",
             `${stage}-v${version.toString()}-${tier}.json`,
           ),
-        });
+        };
+        const report =
+          stage === DEEP_STAGE
+            ? await runDeepEval(run)
+            : await runEval({ ...run, stage });
         try {
           await activatePromptVersion(pool, {
             stage,

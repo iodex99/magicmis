@@ -39,8 +39,11 @@ export type AnswerRenderResult =
   | { readonly ok: true; readonly paragraphs: readonly (readonly AnswerSegment[])[] }
   | { readonly ok: false; readonly problems: readonly string[] };
 
-/** Money-looking query cells (integer paise columns) are shown as money; others as text. */
-const isPaiseColumn = (column: string) =>
+/**
+ * Money-looking query cells (integer paise columns) are shown as money; others as text. Exported
+ * for the chat_deep eval, which scores an answer by what this shows the customer.
+ */
+export const isPaiseColumn = (column: string): boolean =>
   /paise$|^total$|amount|balance|closing|opening|movement/iu.test(column);
 
 export function renderAnswer(

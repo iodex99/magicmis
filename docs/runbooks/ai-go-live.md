@@ -39,11 +39,12 @@ AI_LIVE=1 ANTHROPIC_API_KEY=<key> DATABASE_URL=<target> pnpm --filter @magicmis/
 Set the two secrets in the environment without printing them (for example, source them from a
 file that is never committed), and never pass them on a shared terminal's history.
 
-## What stays off
+## Deep answers
 
-- **`chat_deep`** (Dig deeper, and Investigate) has no eval: the harness cannot yet drive its tool
-  loop (R-44). Until it does, Deep answers refuse in a new database. Quick answers and dashboard
-  edits are unaffected.
+`chat_deep` (Dig deeper, and Investigate) is a tool loop, so it has its own driver
+(`packages/ai/evals/deep.ts`, ADR 0077): each of its 60 items is a whole query-and-answer
+conversation run against DuckDB. The command runs it like any other stage. It costs more than the
+single-call stages, about $0.40 a tier on Sonnet and more on Opus, and `--maxCents` bounds it the same way.
 
 ## After it runs
 

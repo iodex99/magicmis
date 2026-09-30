@@ -254,7 +254,20 @@ export function checkDeepAnswer(
 }
 
 /** One Deep round: a query to run, or the checked final answer. */
-export async function chatDeepStep(ctx: AiContext, rawInput: unknown): Promise<DeepStep> {
+export function chatDeepStep(ctx: AiContext, rawInput: unknown): Promise<DeepStep> {
+  return chatDeepRound(ctx, rawInput);
+}
+
+/**
+ * The round itself. `evalPromptVersion` lets the eval harness run a candidate prompt on a route
+ * before it is activated, exactly as `runStage` does; it is not reachable from `chatDeepStep`,
+ * the only export the rest of the product sees (packages/ai/evals/deep.ts).
+ */
+export async function chatDeepRound(
+  ctx: AiContext,
+  rawInput: unknown,
+  evalPromptVersion?: number,
+): Promise<DeepStep> {
   const input = chatDeepInput.parse(rawInput);
   const bytes = new TextEncoder().encode(JSON.stringify(input)).length;
   if (bytes > MAX_INPUT_BYTES)
@@ -262,7 +275,7 @@ export async function chatDeepStep(ctx: AiContext, rawInput: unknown): Promise<D
       "input_too_large",
       `chat_deep input is ${bytes.toString()} bytes`,
     );
-  const route = await loadRoute(ctx.db, ctx.tier, "chat_deep");
+  const route = await loadRoute(ctx.db, ctx.tier, "chat_deep", evalPromptVersion);
   const promptVersion = route.prompt_version ?? 0;
   const fx = await readConfig(ctx.db, "ai.fx", fxSchema);
   const system: Anthropic.TextBlockParam[] = [

@@ -50,25 +50,29 @@ export const SESSION_TABLES: readonly SessionTable[] = [
         type: "VARCHAR",
         description: "Account group path, ' > ' separated",
       },
+      // What a Deep session holds is each month's closing balance, read back from the stored
+      // snapshots (`priorFacts`): the three movement columns are null. Said here because this
+      // is what the model reads, and a query summing `debit_paise` got nulls and a wrong answer.
       {
         name: "opening_paise",
         type: "BIGINT",
-        description: "Opening balance, debit positive, in paise",
+        description: "Opening balance in paise. Not kept: always null; use closing_paise",
       },
       {
         name: "debit_paise",
         type: "BIGINT",
-        description: "Debits in the month, in paise",
+        description: "Debits in the month in paise. Not kept: always null",
       },
       {
         name: "credit_paise",
         type: "BIGINT",
-        description: "Credits in the month, in paise",
+        description: "Credits in the month in paise. Not kept: always null",
       },
       {
         name: "closing_paise",
         type: "BIGINT",
-        description: "Closing balance, debit positive, in paise",
+        description:
+          "Closing balance at the month end, debit positive, in paise. For income and expense ledgers it is the financial year to date, so one month is its closing less the previous month's",
       },
     ],
   },

@@ -558,7 +558,7 @@ const ZERO_USAGE = {
   service_tier: "standard",
 } as unknown as Anthropic.Usage;
 
-async function evalAccount(pool: Pool): Promise<string> {
+export async function evalAccount(pool: Pool): Promise<string> {
   const email = "eval-harness@example.test";
   const found = await pool.query<{ id: string }>(
     `select id from accounts where email = $1`,

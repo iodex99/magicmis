@@ -16,6 +16,7 @@ import {
   referenceLayoutDataset,
   sheetClassificationDataset,
 } from "../evals/datasets";
+import { deepBooks, deepDataset, runDeepEval, scoreDeep } from "../evals/deep";
 import { runEval, type Recording } from "../evals/harness";
 
 let db: TestDb | undefined;
@@ -148,6 +149,90 @@ describe("harness", () => {
       expect(report.accuracy).toBe("1.0000");
     },
   );
+
+  it("chat_deep: every item is answered through the real guard and DuckDB, and scores (R-44)", async () => {
+    // The oracle asks each item's own query, which runs through `guardSql` and `runChatQuery`
+    // over the synthetic books, and answers citing its cells. Every expected value was computed
+    // from the ledgers without SQL, so a perfect oracle score means each one is reachable, the
+    // books are shaped as production shapes them, and the scorer agrees with the check.
+    const report = await runDeepEval({
+      pool: pool(),
+      tier: "professional",
+      promptVersion: 1,
+      mode: "replay",
+    });
+    expect(report.oracle).toBe(true);
+    expect(report.failures).toEqual([]);
+    expect(report.items).toBeGreaterThanOrEqual(50);
+    expect(report.accuracy).toBe("1.0000");
+  }, 120_000);
+});
+
+describe("chat_deep dataset", () => {
+  it("scores an answer by what the customer would see", () => {
+    const steps = [
+      { ref: "q1", columns: ["rent_paise", "customers"], rows: [["4500000", "3"]] },
+      { ref: "q2", columns: ["rent_rupees"], rows: [["45000.00"]] },
+    ];
+    const money = {
+      scope: "in_scope" as const,
+      expect: [{ kind: "money" as const, paise: "4500000" }],
+    };
+    const say = (text: string) => ({
+      scope: "in_scope" as const,
+      paragraphs: [{ text }],
+    });
+    expect(scoreDeep(say("Rent was {{q:q1:0:rent_paise}}."), steps, money)).toBe(true);
+    // Divided into rupees the cell is shown raw, not as money: the customer reads "45000.00".
+    expect(scoreDeep(say("Rent was {{q:q2:0:rent_rupees}}."), steps, money)).toBe(false);
+    // A count under a money-looking name would be shown as money, so it does not count.
+    const count = {
+      scope: "in_scope" as const,
+      expect: [{ kind: "count" as const, n: "3" }],
+    };
+    expect(scoreDeep(say("{{q:q1:0:customers}} customers."), steps, count)).toBe(true);
+    expect(
+      scoreDeep(
+        say("{{q:q1:0:customers}}."),
+        [{ ref: "q1", columns: ["total"], rows: [["3"]] }],
+        count,
+      ),
+    ).toBe(false);
+    // The right figure in the wrong scope is still wrong.
+    expect(
+      scoreDeep({ scope: "out_of_scope", paragraphs: [{ text: "No." }] }, steps, money),
+    ).toBe(false);
+  });
+
+  it("gives pending bills that add up to the party balances they come from", () => {
+    // The first live run found them apart: a question answered from bills and the same question
+    // answered from balances disagreed, and the model was marked down for the eval's own fault.
+    const sum = (vs: readonly bigint[]) => vs.reduce((s, v) => s + v, 0n);
+    for (const b of deepBooks()) {
+      const last = b.months.at(-1) ?? "";
+      const end = (group: string) =>
+        b.ledgers.filter((l) => l.groupPath === group).map((l) => l.closing[last] ?? 0n);
+      const billed = (side: string) =>
+        sum(b.bills.filter((x) => x.side === side).map((x) => x.amount));
+      expect(billed("receivable"), b.company).toBe(
+        sum(end("Current Assets > Sundry Debtors").filter((v) => v > 0n)),
+      );
+      expect(billed("payable"), b.company).toBe(
+        -sum(end("Current Liabilities > Sundry Creditors").filter((v) => v < 0n)),
+      );
+    }
+  });
+
+  it("clears the activation floor with every question answerable or plainly not", () => {
+    const items = deepDataset();
+    expect(items.length).toBeGreaterThanOrEqual(50);
+    expect(new Set(items.map((i) => i.id)).size).toBe(items.length);
+    expect(
+      items.filter((i) => i.label.scope === "out_of_scope").length,
+    ).toBeGreaterThanOrEqual(8);
+    for (const i of items.filter((x) => x.label.expect.length > 0))
+      expect(i.oracle.sql, i.id).not.toBeNull();
+  });
 });
 
 describe("reference layout dataset", () => {

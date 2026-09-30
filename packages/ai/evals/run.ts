@@ -21,6 +21,7 @@ import pg from "pg";
 
 import type { Tier } from "../src/registry";
 import { anthropicTransport } from "../src/transport";
+import { DEEP_STAGE, runDeepEval } from "./deep";
 import { runEval, STAGE_EVALS, type EvaluableStage } from "./harness";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -37,7 +38,8 @@ async function main(): Promise<void> {
     },
   });
   const stage = values.stage as EvaluableStage;
-  if (!(stage in STAGE_EVALS)) throw new Error(`no eval for stage ${stage}`);
+  if (!(stage in STAGE_EVALS) && values.stage !== DEEP_STAGE)
+    throw new Error(`no eval for stage ${stage}`);
   const tier = values.tier as Tier;
   const promptVersion = Number.parseInt(values.version, 10);
   const limit = Number.parseInt(values.limit, 10);
@@ -56,17 +58,21 @@ async function main(): Promise<void> {
   const pool = new pg.Pool({ connectionString: url });
   try {
     const name = `${stage}-v${promptVersion.toString()}-${tier}`;
-    const report = await runEval({
+    const run = {
       pool,
-      stage,
       tier,
       promptVersion,
       limit,
       ...(maxMicroUsd === undefined ? {} : { maxSpendMicroUsd: maxMicroUsd }),
-      mode: live ? "live" : "replay",
+      mode: live ? ("live" as const) : ("replay" as const),
       ...(live && key !== undefined ? { liveTransport: anthropicTransport(key) } : {}),
       recordingPath: path.join(HERE, "recordings", `${name}.json`),
-    });
+    };
+    // Deep is a tool loop with its own driver (evals/deep.ts); every other stage is one call.
+    const report =
+      values.stage === DEEP_STAGE
+        ? await runDeepEval(run)
+        : await runEval({ ...run, stage });
     await mkdir(path.join(HERE, "reports"), { recursive: true });
     const file = path.join(HERE, "reports", `${name}-${report.mode}.json`);
     await writeFile(
