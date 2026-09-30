@@ -17,7 +17,7 @@ test("credit packs are public, in dollars, and say nothing of AI cost or where w
   await expect(packs).toBeVisible();
   await expect(packs.getByTestId("pack")).toHaveCount(6);
   await expect(packs).toContainText("Starter");
-  await expect(packs).toContainText("$1,099");
+  await expect(packs).toContainText("$1,549");
   // ADR 0041: dollar positioning. A visitor abroad is never shown a rupee or a GST rate.
   await expect(page.locator("main")).not.toContainText(/₹|GST|India/u);
   // ADR 0040: per-action credit prices are not public; they live in the wallet.
@@ -49,7 +49,7 @@ test("the Wallet opens on credit packs with prices and a Buy button, and has no 
   // A brand-new account, which has never said where to invoice it, still sees what is for sale.
   const packs = page.getByTestId("wallet-pack");
   await expect(packs).toHaveCount(6);
-  await expect(packs.first()).toContainText("$29");
+  await expect(packs.first()).toContainText("$49");
   await expect(packs.first()).toContainText("2,000");
   await expect(packs.first()).toContainText("before tax");
   for (const pack of await packs.all())
@@ -91,7 +91,7 @@ test("Buy asks where to invoice once, then goes straight to payment for the pack
       body: JSON.stringify({
         purchaseId: "00000000-0000-4000-8000-000000000001",
         orderId: "order_e2e",
-        amountMinor: "6900",
+        amountMinor: "10900",
         currency: "USD",
         keyId: "rzp_test_e2e",
       }),
@@ -124,7 +124,7 @@ test("Buy asks where to invoice once, then goes straight to payment for the pack
     .toEqual({
       key: "rzp_test_e2e",
       order_id: "order_e2e",
-      amount: "6900",
+      amount: "10900",
       currency: "USD",
     });
   const chosen = await page.evaluate(async () => {
@@ -135,7 +135,7 @@ test("Buy asks where to invoice once, then goes straight to payment for the pack
   expect(ordered.packId).toBe(chosen);
 
   // From now on the cards carry the total and pay in one press.
-  await expect(plus.getByRole("button", { name: /^Pay \$69/u })).toBeVisible();
+  await expect(plus.getByRole("button", { name: /^Pay \$109/u })).toBeVisible();
   await expect(plus).toContainText("No tax added");
 });
 

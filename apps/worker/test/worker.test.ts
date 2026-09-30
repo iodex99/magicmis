@@ -115,7 +115,7 @@ describe("notification delivery (SPEC §29, ADR 0010)", () => {
     const pack = await pool.query<{ id: string }>(
       `select p.id from credit_packs p
          join credit_pack_prices pp on pp.pack_id = p.id and pp.currency = 'INR'
-        where pp.price_minor_ex_tax = 2500000`,
+        where pp.price_minor_ex_tax = 2500000 and p.active`,
     );
     await requestBankTransfer(pool, {
       accountId: a.id,

@@ -253,6 +253,45 @@ describe("pack quotes", () => {
   });
 });
 
+describe("the final prices (ADR 0075)", () => {
+  it("sells a rupee pack at its credits in rupees, and dollar packs cheaper per credit as they grow", async () => {
+    const india = await listPackQuotes(pool(), {
+      accountId: await account("27"),
+      now: NOW,
+    });
+    const abroad = await listPackQuotes(pool(), {
+      accountId: await account(null, null, "US"),
+      now: NOW,
+    });
+    expect(india).toHaveLength(6);
+    expect(abroad).toHaveLength(6);
+
+    // Locked decision 4: one credit is one rupee ex-GST, so the bonus is the only discount.
+    for (const q of india) expect(q.tax.taxableMinor).toBe(q.credits * 100n);
+
+    // Compared as cross-multiplied integers, never as a float price per credit.
+    const perCredit = abroad.map((q) => ({
+      cents: q.tax.taxableMinor,
+      credits: q.credits + q.bonusCredits,
+    }));
+    for (let i = 1; i < perCredit.length; i++) {
+      const smaller = perCredit[i - 1];
+      const larger = perCredit[i];
+      if (smaller === undefined || larger === undefined) throw new Error("unreachable");
+      expect(larger.credits).toBeGreaterThan(smaller.credits);
+      expect(larger.cents * smaller.credits).toBeLessThan(smaller.cents * larger.credits);
+    }
+    expect(abroad.map((q) => q.tax.taxableMinor)).toEqual([
+      4_900n,
+      10_900n,
+      19_900n,
+      44_900n,
+      84_900n,
+      154_900n,
+    ]);
+  });
+});
+
 describe("Razorpay purchase → webhook → credits and invoice (SPEC §13)", () => {
   it("credits exactly once, issues a Rule 46 invoice, and renders a PDF", async () => {
     const accountId = await account("27");
