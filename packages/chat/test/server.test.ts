@@ -537,10 +537,59 @@ describe("Deep", () => {
     await expect(
       submit({ status: "ok", columns: ["a", "b"], rows: [["x"]], truncated: false }),
     ).rejects.toBeInstanceOf(ChatError);
+    // A mobile number inside a name is still refused (ADR 0077).
+    await expect(
+      submit({
+        status: "ok",
+        columns: ["ledger"],
+        rows: [["Mobile 9876543210 Plan"]],
+        truncated: false,
+      }),
+    ).rejects.toMatchObject({ code: "result_invalid" });
     const step = await pool().query(`select status from chat_query_steps where id = $1`, [
       p.stepId,
     ]);
     expect(step.rows[0]).toEqual({ status: "pending" });
+  });
+
+  it("accepts a figure of seventy-three crore, which has the shape of a mobile number (ADR 0077)", async () => {
+    // The query runner decided it is a figure; every such total failed here and the Deep answer
+    // never arrived (the end-to-end run found it).
+    const c = await company();
+    const sent = await send(c, "deep", "Which head is largest?");
+    const t = new ScriptedTransport([
+      {
+        kind: "message",
+        message: toolMessage("run_query", {
+          sql: "SELECT head, sum(closing_paise) AS total FROM balances GROUP BY head",
+          purpose: "heads",
+        }),
+      },
+      {
+        kind: "message",
+        message: toolMessage("answer", {
+          scope: "in_scope",
+          paragraphs: [{ text: "The largest is {{q:q1:0:head}} at {{q:q1:0:total}}." }],
+        }),
+      },
+    ]);
+    const p = await processMessage(pool(), wrapper, t, {
+      accountId: c.accountId,
+      messageId: sent.messageId,
+    });
+    if (p.status !== "needs_query") throw new Error(p.status);
+    const done = await submitStepResult(pool(), wrapper, t, {
+      accountId: c.accountId,
+      messageId: sent.messageId,
+      stepId: p.stepId,
+      result: {
+        status: "ok",
+        columns: ["head", "total"],
+        rows: [["REV", "7374941000"]],
+        truncated: false,
+      },
+    });
+    expect(done.status).toBe("completed");
   });
 });
 

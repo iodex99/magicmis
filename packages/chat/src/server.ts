@@ -149,6 +149,9 @@ interface Scope {
  */
 const HISTORY_TURN_CHARS = 6000;
 
+/** A result cell that is only a number (ADR 0077). */
+const FIGURE_CELL = /^-?\d+(\.\d+)?$/u;
+
 const seal = async (
   pool: Pool,
   wrapper: KeyWrapper,
@@ -1170,8 +1173,18 @@ export async function submitStepResult(
   }
   // Outside the branch: this is the last thing between the company's data and the model, and an
   // error outcome is sent to it just as an answer is (ADR 0057). It was checking only the rows.
+  // A cell that is only a number is left out of this check: whether it is a figure or an identifier
+  // was decided where the session's text is known (`runChatQuery`, `textDigitRuns`, ADR 0077), and
+  // six to ten crore in paise has the shape of a mobile number, so every such figure failed here.
+  const checked =
+    parsed.data.status === "ok"
+      ? {
+          ...parsed.data,
+          rows: parsed.data.rows.map((r) => r.map((c) => (FIGURE_CELL.test(c) ? "" : c))),
+        }
+      : parsed.data;
   try {
-    assertNoRawIdentifiers(json);
+    assertNoRawIdentifiers(JSON.stringify(checked));
   } catch {
     throw new ChatError(
       "result_invalid",
