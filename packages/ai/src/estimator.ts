@@ -29,6 +29,12 @@ export const estimatorConfigSchema = z.object({
   chars_per_token: decimal,
   tokenizer_inflation: decimal,
   output_tokens_ratio: decimal,
+  /**
+   * Output tokens per input token for a stage that has been measured (R-30, ADR 0077): the stages
+   * differ tenfold, from sheet recognition naming a kind to a dashboard written out box by box,
+   * so one ratio over-priced some and under-priced others. `output_tokens_ratio` covers the rest.
+   */
+  output_tokens_ratio_by_stage: z.record(z.string(), decimal).default({}),
   p90_multiplier: decimal,
   calibration_window_days: z.number().int().positive(),
 });
@@ -153,7 +159,11 @@ export async function estimateJob(
     const model = await loadModel(db, route.model_id);
     const inputTokens = tokensFor(chars, cfg);
     const out = tokenCount(
-      multiplyByDecimalString(BigInt(inputTokens), cfg.output_tokens_ratio, "ceil"),
+      multiplyByDecimalString(
+        BigInt(inputTokens),
+        cfg.output_tokens_ratio_by_stage[stage] ?? cfg.output_tokens_ratio,
+        "ceil",
+      ),
     );
     const outputTokens = Math.min(route.max_tokens, out);
     stages.push({
