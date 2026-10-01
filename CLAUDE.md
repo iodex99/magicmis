@@ -19,7 +19,10 @@ The mark has one definition, `MARK_PATH` in `apps/web/src/components/Logo.tsx`; 
 image, rail, headers and admin console all draw from it, and `apps/web/public/brand/` holds the
 exports. The motion explainer in `docs/brand/explainer/` is a pure function of time, rendered frame by
 frame to `public/brand/tour.webm` by `apps/web/e2e/support/record-tour.ts` — never filmed in
-real time (ADR 0041). **Dollar positioning:** the public pricing page shows dollars to everyone but
+real time (ADR 0041). The thirty-second showreel in `docs/brand/showreel/` is built the same way on a
+128 BPM grid, with its soundtrack synthesised in the page against the same clock;
+`apps/web/e2e/support/record-showreel.ts` renders it to `out/` (MP4 and WebM, ignored by git) and
+needs a full ffmpeg through `FFMPEG`, because Playwright's encodes neither H.264 nor audio. **Dollar positioning:** the public pricing page shows dollars to everyone but
 a visitor geolocated in India, who sees the rupees they will be billed (ADR 0041).
 Primitives in `apps/web/src/components/ui.tsx`; icons are hand-drawn in `Icon.tsx` (no icon
 dependency, and never a sparkle). One indigo accent; the dark `ink` surface is navigation
