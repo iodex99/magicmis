@@ -94,7 +94,7 @@ export default function AutomatedManagementAccountsPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What is in the pack">
+      <Section title="The pack, delivered as a workbook with live formulas">
         <div className="grid gap-4 sm:grid-cols-2">
           {PACK.map((item) => (
             <div
@@ -116,7 +116,7 @@ export default function AutomatedManagementAccountsPage() {
         </p>
       </Section>
 
-      <Section title="Why automate it this way">
+      <Section title="Automate it from the trial balance, so every figure can still be checked">
         <p>
           <strong className="font-medium text-neutral-900">
             Your files are encrypted and deleted on schedule.
@@ -143,7 +143,7 @@ export default function AutomatedManagementAccountsPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What accountants ask before automating management accounts">
         <Faqs faqs={FAQS} />
       </Section>
 

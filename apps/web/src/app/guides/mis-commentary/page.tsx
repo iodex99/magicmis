@@ -85,7 +85,7 @@ export default function CommentaryGuide() {
         intro="The tables in a monthly report say what happened. The commentary is the only part that says why — and it is the part most often skipped, written last, or reduced to reading the table aloud. Here is how to write it well."
       />
 
-      <Section title="What commentary is for">
+      <Section title="Commentary answers one question: is there anything to act on?">
         <p>
           A reader of a management report has a few minutes and one question: is anything
           here I need to act on? Commentary answers that by picking out the movements that
@@ -152,7 +152,7 @@ export default function CommentaryGuide() {
         </FictionalNote>
       </Section>
 
-      <Section title="Words to avoid">
+      <Section title="'Significantly' without a figure says nothing">
         <p>
           &ldquo;Significantly&rdquo;, &ldquo;substantially&rdquo; and
           &ldquo;concerning&rdquo; without a figure. &ldquo;Due to various factors&rdquo;.
@@ -165,7 +165,7 @@ export default function CommentaryGuide() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about writing MIS commentary">
         <Faqs faqs={FAQS} />
       </Section>
 

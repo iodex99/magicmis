@@ -164,9 +164,9 @@ export default async function HomePage() {
           <div>
             <Badge tone="accent">For accountants and finance teams</Badge>
             <h1 className="display rise mt-5 text-[2.625rem] leading-[1.05] font-semibold text-neutral-900 sm:text-[3.5rem]">
-              Turn raw data into insight you can{" "}
+              Monthly MIS and management accounts from your{" "}
               <span className="relative inline-block">
-                act on.
+                trial balance.
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 200 12"
@@ -188,10 +188,11 @@ export default async function HomePage() {
               className="rise mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-neutral-600"
               style={{ "--i": "1" } as React.CSSProperties}
             >
-              {PRODUCT_NAME} turns raw data into business insights you can act on: what
-              moved, why it moved, and what deserves attention this month. You get a
-              checked Excel workbook, a dashboard you build by chatting, and written
-              commentary — and next month it runs again without being re-taught.
+              Turn raw data into insight you can act on: what moved, why it moved, and
+              what deserves attention this month. You get a checked Excel workbook, a
+              dashboard you build by chatting, and written commentary in which the AI
+              never writes a figure — and next month it runs again without being
+              re-taught.
             </p>
             <div
               className="rise mt-8 flex flex-wrap items-center gap-3"
@@ -424,7 +425,7 @@ export default async function HomePage() {
       <section className="border-t border-neutral-200/70 bg-surface">
         <div className="mx-auto w-full max-w-[1120px] px-6 py-14">
           <h2 className="text-[1.375rem] font-semibold tracking-tight text-neutral-900">
-            Guides
+            Guides to the monthly report, useful with or without the product
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-neutral-600">
             Written to be useful whether or not you ever use the product.
@@ -465,7 +466,7 @@ export default async function HomePage() {
 
       <section className="mx-auto w-full max-w-[760px] px-6 py-14">
         <h2 className="text-[1.375rem] font-semibold tracking-tight text-neutral-900">
-          Common questions
+          What people ask before they upload a trial balance
         </h2>
         <div className="mt-6">
           <Faqs faqs={FAQS} />

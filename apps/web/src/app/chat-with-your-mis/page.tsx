@@ -110,7 +110,7 @@ export default function ChatWithYourMisPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What you can ask">
+      <Section title="Ask about any number on the board, starting from the number itself">
         <ul className="grid gap-2.5 sm:grid-cols-2">
           {QUESTIONS.map((q) => (
             <li
@@ -128,7 +128,7 @@ export default function ChatWithYourMisPage() {
         </p>
       </Section>
 
-      <Section title="How an answer is built">
+      <Section title="Every number in an answer is computed by the engine, not written by the AI">
         <Steps steps={STEPS} />
       </Section>
 
@@ -155,7 +155,7 @@ export default function ChatWithYourMisPage() {
         </p>
       </Section>
 
-      <Section title="What it will not do">
+      <Section title="It will not forecast, advise on tax or guess at data you have not loaded">
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>
             Forecast, advise on tax, or answer about data you have not loaded. It says so
@@ -179,7 +179,7 @@ export default function ChatWithYourMisPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What people ask before chatting with their accounts">
         <Faqs faqs={FAQS} />
       </Section>
 

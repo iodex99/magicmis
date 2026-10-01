@@ -89,7 +89,7 @@ export default function AiManagementAccountsPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What the AI does">
+      <Section title="The AI recognises the files, places the ledgers and drafts the commentary">
         <dl className="flex flex-col gap-3">
           {DOES.map((d) => (
             <div
@@ -103,7 +103,7 @@ export default function AiManagementAccountsPage() {
         </dl>
       </Section>
 
-      <Section title="What it never does">
+      <Section title="It never writes a figure, and the code makes sure of it">
         <ul className="flex list-disc flex-col gap-2 pl-5">
           {NEVER.map((n) => (
             <li key={n}>{n}</li>
@@ -120,7 +120,7 @@ export default function AiManagementAccountsPage() {
         </p>
       </Section>
 
-      <Section title="What you get each month">
+      <Section title="Each month you get the whole management accounts pack">
         <p>
           The management accounts pack: profit and loss for the month and year to date
           against last month and last year, a balance sheet summary, KPIs, aged debtors
@@ -136,7 +136,7 @@ export default function AiManagementAccountsPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What accountants ask about AI and client figures">
         <Faqs faqs={FAQS} />
       </Section>
 

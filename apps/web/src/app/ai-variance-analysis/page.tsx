@@ -97,7 +97,7 @@ export default function AiVarianceAnalysisPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What comes back">
+      <Section title="Every variance comes back with its figures computed and its reason in words">
         <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
           <table className="w-full text-left text-[0.9375rem]">
             <thead>
@@ -155,7 +155,7 @@ export default function AiVarianceAnalysisPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What finance teams ask about AI variance commentary">
         <Faqs faqs={FAQS} />
       </Section>
 

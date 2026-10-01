@@ -84,7 +84,7 @@ export default function DebtorsAgeingGuide() {
         intro="The ageing report — aged debtors in the UK, accounts receivable aging in the US — is the part of a monthly report that most often turns into an action the same day. Here is how to build one that can be trusted, and what to look for in it."
       />
 
-      <Section title="What it is">
+      <Section title="An ageing report splits what customers owe by how long it has been owed">
         <p>
           A debtors ageing report splits what customers owe by how long it has been
           outstanding. The total is the same trade receivables figure as on the balance
@@ -95,7 +95,7 @@ export default function DebtorsAgeingGuide() {
       </Section>
 
       <WideSection
-        title="The format"
+        title="The format, with four buckets"
         intro="Customer by bucket, with totals and the share of the whole in each bucket. Figures in thousands of dollars, for a fictional wholesaler."
       >
         <div className="mx-auto max-w-[900px]">
@@ -214,7 +214,7 @@ export default function DebtorsAgeingGuide() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about debtors ageing">
         <Faqs faqs={FAQS} />
       </Section>
 

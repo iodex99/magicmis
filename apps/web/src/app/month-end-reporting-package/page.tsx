@@ -113,7 +113,7 @@ export default function MonthEndReportingPackagePage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What the package contains">
+      <Section title="A month-end reporting package has six parts">
         <dl className="grid gap-4 sm:grid-cols-2">
           {CONTENTS.map((c) => (
             <div
@@ -177,7 +177,7 @@ export default function MonthEndReportingPackagePage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What controllers ask about the month-end package">
         <Faqs faqs={FAQS} />
       </Section>
 

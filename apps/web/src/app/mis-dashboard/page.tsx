@@ -127,7 +127,7 @@ export default function MisDashboardPage() {
         <FictionalNote />
       </WideSection>
 
-      <Section title="What is on it">
+      <Section title="KPI cards, trends, the bridge to profit, costs, working capital and ageing">
         <dl className="grid gap-4 sm:grid-cols-2">
           {WIDGETS.map((w) => (
             <div
@@ -166,7 +166,7 @@ export default function MisDashboardPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What people ask about an MIS dashboard">
         <Faqs faqs={FAQS} />
       </Section>
 

@@ -117,11 +117,11 @@ export default function BoardroomReadyMisPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="How it goes">
+      <Section title="Raw data in, a board you built by chatting out">
         <Steps steps={STEPS} />
       </Section>
 
-      <Section title="Things you can say">
+      <Section title="Say what the board should show, and it changes as you read the reply">
         <ul className="grid gap-2.5 sm:grid-cols-2">
           {ASKS.map((q) => (
             <li
@@ -143,7 +143,7 @@ export default function BoardroomReadyMisPage() {
         </p>
       </Section>
 
-      <Section title="Why build the board by chatting">
+      <Section title="Chatting beats a blank canvas and a night of copying numbers into slides">
         <p>
           A dashboard tool gives you a canvas and a learning curve. A slide deck gives you
           a night of copying numbers out of Excel, and a version that is wrong by the time
@@ -175,7 +175,7 @@ export default function BoardroomReadyMisPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What people ask before building a board by chatting">
         <Faqs faqs={FAQS} />
       </Section>
 

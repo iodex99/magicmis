@@ -110,7 +110,7 @@ export default function TrialBalanceGuide() {
         intro="Every monthly MIS or set of management accounts starts as a trial balance. Turning one into the other is mostly a mapping exercise — deciding which report line each ledger belongs to — and then proving that nothing was lost on the way."
       />
 
-      <Section title="Six steps">
+      <Section title="Six steps from a trial balance to a management report">
         <Steps steps={STEPS} />
       </Section>
 
@@ -195,7 +195,7 @@ export default function TrialBalanceGuide() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about mapping a trial balance">
         <Faqs faqs={FAQS} />
       </Section>
 

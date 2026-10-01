@@ -91,7 +91,7 @@ export default function AiFinancialReportingPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="How it works">
+      <Section title="Upload the trial balance you already have, and the month's report comes back">
         <Steps steps={STEPS} />
       </Section>
 
@@ -115,7 +115,7 @@ export default function AiFinancialReportingPage() {
         </p>
       </Section>
 
-      <Section title="What AI does, and what it is not allowed to do">
+      <Section title="The AI maps accounts and drafts the words; every number is computed">
         <p>
           AI recognizes sheets, maps the accounts rules cannot place, and drafts
           commentary. It does not compute figures: every number in the statements, the
@@ -128,7 +128,7 @@ export default function AiFinancialReportingPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What small businesses ask before they try it">
         <Faqs faqs={FAQS} />
       </Section>
 

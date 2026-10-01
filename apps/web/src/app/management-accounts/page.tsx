@@ -131,7 +131,7 @@ export default function ManagementAccountsPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What a set contains">
+      <Section title="A set of management accounts has six parts, every month">
         <ol className="flex flex-col gap-5">
           {CONTENTS.map((c) => (
             <li key={c.title}>
@@ -225,7 +225,7 @@ export default function ManagementAccountsPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about preparing management accounts">
         <Faqs faqs={FAQS} />
       </Section>
 

@@ -118,7 +118,7 @@ export default function BoardPackPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What a board pack contains">
+      <Section title="What a board pack contains, and which half is finance's">
         <dl className="grid gap-4 sm:grid-cols-2">
           {CONTENTS.map((c) => (
             <div
@@ -137,7 +137,7 @@ export default function BoardPackPage() {
         </p>
       </Section>
 
-      <Section title="Where the month goes">
+      <Section title="Three to five working days go on rebuilding the pack">
         <p>
           Ask a finance manager how long the pack takes and the answer is usually three to
           five working days after the close: a day pulling raw data and re-keying it into
@@ -153,7 +153,7 @@ export default function BoardPackPage() {
         </p>
       </Section>
 
-      <Section title="Producing the financial half">
+      <Section title="The second month's pack takes minutes and makes no AI calls">
         <Steps steps={STEPS} />
         <p>
           The mapping from ledgers to report lines is learned from the first month and
@@ -170,7 +170,7 @@ export default function BoardPackPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What finance managers ask about producing the board pack">
         <Faqs faqs={FAQS} />
       </Section>
 

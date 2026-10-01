@@ -226,7 +226,7 @@ export default function TallyMisReportPage() {
         </ul>
       </Section>
 
-      <Section title="Doing it by hand">
+      <Section title="By hand, it is a workbook per client">
         <p>
           The usual method is a workbook per client: paste the trial balance into a sheet,
           map each ledger to a report head with lookups, and let the statements calculate.
@@ -256,7 +256,7 @@ export default function TallyMisReportPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about an MIS from Tally">
         <Faqs faqs={FAQS} />
       </Section>
 

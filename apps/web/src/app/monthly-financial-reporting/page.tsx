@@ -90,7 +90,7 @@ export default function MonthlyFinancialReportingPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="How it works">
+      <Section title="Pull the trial balance, run it, send the package">
         <Steps steps={STEPS} />
       </Section>
 
@@ -122,7 +122,7 @@ export default function MonthlyFinancialReportingPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What small businesses ask about monthly financial reporting">
         <Faqs faqs={FAQS} />
       </Section>
 

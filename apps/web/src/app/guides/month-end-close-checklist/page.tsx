@@ -134,7 +134,7 @@ export default function MonthEndCloseChecklist() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about the month-end close">
         <Faqs faqs={FAQS} />
       </Section>
 

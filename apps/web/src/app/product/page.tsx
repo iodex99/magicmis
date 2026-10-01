@@ -97,7 +97,7 @@ export default function ProductPage() {
       <MarketingHeader
         path={PATH}
         eyebrow="The output"
-        heading="What you get each month"
+        heading="A checked MIS, a dashboard and commentary, every month from your trial balance"
         intro="One workbook, one dashboard, one commentary — and a mapping that means next month takes minutes rather than a morning. Here is the shape of it, on invented figures."
       />
 
@@ -150,7 +150,7 @@ export default function ProductPage() {
         </div>
       </WideSection>
 
-      <Section title="What is in the file">
+      <Section title="A workbook, a dashboard, commentary, and lineage on every number">
         <ul className="flex flex-col gap-4">
           {DELIVERABLES.map((d) => (
             <li
@@ -173,7 +173,7 @@ export default function ProductPage() {
         </ul>
       </Section>
 
-      <Section title="Chat with the MIS">
+      <Section title="Ask the month a question in plain language">
         <p>
           The workbook is not the end of it. You can ask about the month in plain language
           — why a margin moved, which accounts drive the ageing, what changed against last

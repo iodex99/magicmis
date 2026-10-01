@@ -94,7 +94,7 @@ export default function ManagementReportingSoftwarePage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What is different">
+      <Section title="No connector, no seats, and no figure the AI wrote">
         <dl className="grid gap-4 sm:grid-cols-2">
           {DIFFERENCES.map((d) => (
             <div
@@ -132,7 +132,7 @@ export default function ManagementReportingSoftwarePage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What buyers ask before choosing management reporting software">
         <Faqs faqs={FAQS} />
       </Section>
 

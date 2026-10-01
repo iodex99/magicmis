@@ -105,11 +105,11 @@ export default function MisInMinutesPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="The first month">
+      <Section title="The first month is where the mapping is learned">
         <Steps steps={FIRST_MONTH} />
       </Section>
 
-      <Section title="Every month after">
+      <Section title="Every month after makes no AI calls on unchanged books">
         <Steps steps={EVERY_MONTH} />
         <p>
           On a month where the ledger structure has not changed, the refresh makes no AI
@@ -137,7 +137,7 @@ export default function MisInMinutesPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about an MIS in minutes">
         <Faqs faqs={FAQS} />
       </Section>
 

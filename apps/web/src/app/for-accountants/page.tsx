@@ -68,7 +68,7 @@ const ANSWERS: readonly { title: string; body: string }[] = [
     body: "Click a number in the dashboard and it shows the ledgers and vouchers behind it. Commentary never contains a written number: figures are computed and inserted through placeholders.",
   },
   {
-    title: "Client files are encrypted and deleted on schedule",
+    title: "Client files are encrypted, kept for you and opened by nobody",
     body: "Each client's files are encrypted under that company's own key, and nobody on our side has a way to open one. The AI receives redacted samples and ledger names, never a whole file.",
   },
 ];
@@ -117,7 +117,7 @@ export default async function ForAccountantsPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What actually costs the time">
+      <Section title="The time goes on repeating work that has not changed">
         <ul className="flex flex-col gap-5">
           {PRESSURES.map((p) => (
             <li key={p.title}>
@@ -128,7 +128,7 @@ export default async function ForAccountantsPage() {
         </ul>
       </Section>
 
-      <Section title="What changes">
+      <Section title="The mapping becomes a record, and a refresh makes no AI calls">
         <ul className="flex flex-col gap-5">
           {ANSWERS.map((a) => (
             <li key={a.title}>
@@ -162,7 +162,7 @@ export default async function ForAccountantsPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What practices ask before moving client months onto it">
         <Faqs faqs={FAQS} />
       </Section>
 

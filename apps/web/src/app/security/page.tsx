@@ -140,7 +140,7 @@ export default async function SecurityPage() {
       />
 
       <WideSection
-        title="The three places"
+        title="Only our servers hold your files; the AI sees redacted fragments"
         intro="Everything about how your data is handled follows from this."
       >
         <div className="mx-auto grid max-w-[1000px] gap-4 md:grid-cols-3">
@@ -164,7 +164,7 @@ export default async function SecurityPage() {
         </div>
       </WideSection>
 
-      <Section title="What protects it">
+      <Section title="No member of staff can open your file, and every opening is logged">
         <ul className="flex flex-col gap-5">
           {controls.map((c) => (
             <li key={c.title}>
@@ -186,7 +186,7 @@ export default async function SecurityPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What firms ask before uploading a client's books">
         <Faqs faqs={faqs} />
       </Section>
 

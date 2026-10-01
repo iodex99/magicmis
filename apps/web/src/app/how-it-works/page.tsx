@@ -115,7 +115,7 @@ export default function HowItWorksPage() {
       <MarketingHeader
         path={PATH}
         eyebrow="How it works"
-        heading="Six stages, and what happens in each"
+        heading="How a trial balance becomes your monthly MIS, in six stages"
         intro="The interesting part of this product is not that it produces a workbook. It is where the numbers come from, what the model is allowed to touch, and why the second month costs so much less than the first."
       />
 
@@ -150,7 +150,7 @@ export default function HowItWorksPage() {
         </ol>
       </Section>
 
-      <Section title="The rule the rest follows from">
+      <Section title="The AI never outputs a number, and everything else follows from that">
         <p>
           The AI never outputs a number. Every figure in every workbook, dashboard,
           commentary line and chat answer is computed by the deterministic engine and
@@ -167,7 +167,7 @@ export default function HowItWorksPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about how a trial balance becomes the report">
         <Faqs faqs={FAQS} />
       </Section>
 

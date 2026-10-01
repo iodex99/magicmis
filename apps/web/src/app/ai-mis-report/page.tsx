@@ -94,7 +94,7 @@ export default function AiMisReportPage() {
       />
       <AlsoCalled path={PATH} />
 
-      <Section title="What AI does">
+      <Section title="AI does the reading and the wording">
         <div className="grid gap-4 sm:grid-cols-2">
           {DOES.map((item) => (
             <div
@@ -112,7 +112,7 @@ export default function AiMisReportPage() {
         </div>
       </Section>
 
-      <Section title="What AI does not do">
+      <Section title="AI does not write a single number in the MIS">
         <ul className="flex list-disc flex-col gap-2.5 pl-5">
           {DOES_NOT.map((line) => (
             <li key={line} className="leading-relaxed">
@@ -122,7 +122,7 @@ export default function AiMisReportPage() {
         </ul>
       </Section>
 
-      <Section title="Why it is built this way">
+      <Section title="A report right nineteen months out of twenty cannot be signed off">
         <p>
           A report that is right nineteen months out of twenty is not a report anyone can
           sign off. Keeping AI to recognition, mapping proposals and wording — and keeping
@@ -137,11 +137,18 @@ export default function AiMisReportPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about an MIS made with AI">
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/mis-in-minutes", "/how-it-works", "/security"]} />
+      <ReadNext
+        paths={[
+          "/can-chatgpt-make-an-mis-report",
+          "/mis-in-minutes",
+          "/how-it-works",
+          "/security",
+        ]}
+      />
       <ClosingCta
         heading="See it on your own month"
         body="Create an account, load a trial balance, and get the report — paid per action from prepaid credits."
