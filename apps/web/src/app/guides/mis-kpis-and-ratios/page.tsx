@@ -187,7 +187,7 @@ export default function KpisAndRatiosGuide() {
         </div>
       </WideSection>
 
-      <Section title="The eight ratios">
+      <Section title="Eight ratios belong in a monthly MIS">
         <ol className="flex flex-col gap-6">
           {RATIOS.map((ratio, i) => (
             <li key={ratio.name}>
@@ -232,14 +232,16 @@ export default function KpisAndRatiosGuide() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about MIS ratios">
         <Faqs faqs={FAQS} />
       </Section>
 
       <ReadNext
         paths={[
+          "/how-to-calculate-debtor-days",
+          "/how-to-calculate-gross-margin-from-a-trial-balance",
+          "/how-to-calculate-ebitda-in-an-mis-report",
           "/guides/mis-commentary",
-          "/mis-report-format",
           "/guides/debtors-ageing-report",
         ]}
       />

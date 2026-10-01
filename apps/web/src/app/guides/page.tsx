@@ -5,7 +5,13 @@ import { Icon } from "@/components/Icon";
 import { ClosingCta, MarketingHeader } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
 import { BreadcrumbSchema } from "@/components/StructuredData";
-import { GUIDE_PATHS, SOLUTION_PATHS, pageMetadata, publicPage } from "@/lib/seo";
+import {
+  ANSWER_PATHS,
+  GUIDE_PATHS,
+  SOLUTION_PATHS,
+  pageMetadata,
+  publicPage,
+} from "@/lib/seo";
 
 const PATH = "/guides";
 export const metadata: Metadata = pageMetadata(PATH);
@@ -54,6 +60,17 @@ export default function GuidesPage() {
         </h2>
         <ul className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {GUIDE_PATHS.map((path) => (
+            <Card key={path} path={path} />
+          ))}
+        </ul>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1120px] px-6 py-6">
+        <h2 className="text-[1.125rem] font-semibold tracking-tight text-neutral-900">
+          One question, answered first
+        </h2>
+        <ul className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {ANSWER_PATHS.map((path) => (
             <Card key={path} path={path} />
           ))}
         </ul>

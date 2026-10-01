@@ -214,7 +214,7 @@ export default function MisReportFormatPage() {
         </p>
       </Section>
 
-      <Section title="The seven sections">
+      <Section title="A monthly MIS has seven sections">
         <ol className="flex flex-col gap-5">
           {SECTIONS.map((section) => (
             <li key={section.title}>
@@ -232,7 +232,7 @@ export default function MisReportFormatPage() {
       </Section>
 
       <WideSection
-        title="A worked example"
+        title="A worked example, on an invented company"
         intro="One month of a fictional trading company, in the shape the P&L summary and ratio sections take. Figures in ₹ lakh."
       >
         <div className="mx-auto grid max-w-[1000px] gap-6 lg:grid-cols-2">
@@ -291,11 +291,18 @@ export default function MisReportFormatPage() {
 
       <MidCta />
 
-      <Section title="Questions">
+      <Section title="What people ask about MIS report formats">
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/tally-mis-report", "/for-accountants", "/how-it-works"]} />
+      <ReadNext
+        paths={[
+          "/how-to-make-an-mis-report-in-excel",
+          "/tally-mis-report",
+          "/for-accountants",
+          "/how-it-works",
+        ]}
+      />
       <ClosingCta
         heading="Or stop rebuilding it every month"
         body={`${PRODUCT_NAME} produces this format from your raw accounting data, with live formulas and every figure traceable. The ledger mapping is built once and reused every month.`}

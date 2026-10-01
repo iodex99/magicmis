@@ -160,7 +160,7 @@ export default function WhatIsAnMisReportPage() {
       </Section>
 
       <WideSection
-        title="The same report, by market"
+        title="An MIS report and management accounts are the same document"
         intro="Where each name is used, how people say it, and the page here written in those words."
       >
         <div className="overflow-x-auto rounded-xl border border-neutral-200/80 bg-surface">
@@ -262,12 +262,14 @@ export default function WhatIsAnMisReportPage() {
 
       <MidCta />
 
-      <Section title="Questions people ask">
+      <Section title="What people ask about MIS reports">
         <Faqs faqs={FAQS} />
       </Section>
 
       <ReadNext
         paths={[
+          "/how-often-should-an-mis-report-be-prepared",
+          "/how-to-make-an-mis-report-in-excel",
           "/mis-report-format",
           "/management-accounts",
           "/monthly-financial-reporting",

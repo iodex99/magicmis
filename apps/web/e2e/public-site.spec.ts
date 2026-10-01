@@ -41,6 +41,12 @@ const PUBLIC_PATHS = [
   "/guides/debtors-ageing-report",
   "/guides/mis-commentary",
   "/guides/month-end-close-checklist",
+  "/how-to-make-an-mis-report-in-excel",
+  "/how-often-should-an-mis-report-be-prepared",
+  "/can-chatgpt-make-an-mis-report",
+  "/how-to-calculate-debtor-days",
+  "/how-to-calculate-gross-margin-from-a-trial-balance",
+  "/how-to-calculate-ebitda-in-an-mis-report",
   "/security",
   "/pricing",
   "/legal/terms",
@@ -115,6 +121,51 @@ test("structured data survives the Content Security Policy and parses", async ({
   }
 
   expect(csp, csp.join("\n")).toEqual([]);
+});
+
+test("every page says the same thing to a crawler that runs no JavaScript (ADR 0079)", async ({
+  browser,
+}) => {
+  // The crawlers behind AI answers fetch the page and read it; they run no script, so an answer
+  // that only appears after a click or a fetch is not in what they read. Read every page the
+  // way they do: the heading, every FAQ answer the page promises, and on a one-question page,
+  // the short answer straight after the question.
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  try {
+    for (const path of PUBLIC_PATHS) {
+      await page.goto(path);
+      const h1 = (await page.locator("h1").textContent())?.trim() ?? "";
+      expect(h1.length, `${path} has no heading without JavaScript`).toBeGreaterThan(5);
+
+      const faq = (
+        await page.locator('script[type="application/ld+json"]').allTextContents()
+      )
+        .map(
+          (b) =>
+            JSON.parse(b) as {
+              "@type": string;
+              mainEntity?: { acceptedAnswer: { text: string } }[];
+            },
+        )
+        .find((b) => b["@type"] === "FAQPage");
+      const body = (await page.locator("main").textContent()) ?? "";
+      for (const q of faq?.mainEntity ?? [])
+        expect(body, `${path}: an FAQ answer is not in the page`).toContain(
+          q.acceptedAnswer.text.slice(0, 60),
+        );
+
+      // The one-question pages (ANSWER_PATHS): every URL is the question itself.
+      if (/^\/(how-to-|how-often-|can-)/u.test(path)) {
+        const first = await page.locator("h1 + div").textContent();
+        expect(first ?? "", `${path}: the answer is not the first thing`).toContain(
+          "The short answer",
+        );
+      }
+    }
+  } finally {
+    await context.close();
+  }
 });
 
 test("the FAQ answers a crawler is promised are the ones the reader can see", async ({

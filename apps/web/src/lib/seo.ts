@@ -88,7 +88,7 @@ export const REPORT_NAMES: readonly {
 export const PUBLIC_PAGES: readonly PublicPage[] = [
   {
     path: "/",
-    title: `${PRODUCT_NAME} — turn raw data into boardroom-ready insight`,
+    title: `${PRODUCT_NAME} — monthly MIS and management accounts from your trial balance`,
     description:
       "Turn raw data into business insights. Dump a trial balance from any accounting system and get a checked MIS, a dashboard you build by chatting, and commentary on what to act on.",
     changeFrequency: "weekly",
@@ -112,7 +112,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/product",
-    title: "What you get each month",
+    title: "What you get each month: a checked MIS, a dashboard and commentary",
     description:
       "What lands each month: the movements that matter, explained, inside a checked Excel workbook with live formulas, a dashboard and commentary. Every figure traces to its ledger.",
     changeFrequency: "monthly",
@@ -122,7 +122,7 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/how-it-works",
-    title: "How it works",
+    title: "How a trial balance becomes a monthly MIS, stage by stage",
     description:
       "Upload your raw accounting data and take the workbook. Ledgers are mapped for you, and later months reuse the mapping with no AI calls at all. Here is each step in detail.",
     changeFrequency: "monthly",
@@ -412,6 +412,83 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     updated: "2026-09-18",
   },
   {
+    path: "/how-to-make-an-mis-report-in-excel",
+    title: "How do you make an MIS report in Excel?",
+    description:
+      "Export the trial balance, map every ledger to a report head once, build the statements with formulas, add comparatives, check it balances and write the commentary. Seven steps.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-10-01",
+    keywords: [
+      "how to make mis report in excel",
+      "how to prepare mis report in excel",
+      "mis report in excel step by step",
+    ],
+  },
+  {
+    path: "/how-often-should-an-mis-report-be-prepared",
+    title: "How often should an MIS report be prepared?",
+    description:
+      "Monthly, as soon as the books are closed, with a weekly cash flash beside it if cash is tight. Why monthly is the rhythm the comparisons need, and what keeps it affordable.",
+    changeFrequency: "monthly",
+    priority: 0.6,
+    locale: "en_IN",
+    updated: "2026-10-01",
+    keywords: ["how often should mis report be prepared", "mis report frequency"],
+  },
+  {
+    path: "/can-chatgpt-make-an-mis-report",
+    title: "Can ChatGPT make an MIS report?",
+    description:
+      "It can draft a format and write a paragraph, but it should not produce the figures. Where a chat assistant helps with an MIS, where it goes wrong, and the safe split.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-10-01",
+    keywords: [
+      "can chatgpt make mis report",
+      "chatgpt mis report",
+      "ai mis report from trial balance",
+    ],
+  },
+  {
+    path: "/how-to-calculate-debtor-days",
+    title: "How do you calculate debtor days?",
+    description:
+      "Debtor days = trade receivables ÷ the month's revenue × the days in that month. A worked example, why the month beats the year, and the GST effect nobody mentions.",
+    changeFrequency: "monthly",
+    priority: 0.6,
+    locale: "en_IN",
+    updated: "2026-10-01",
+    keywords: ["how to calculate debtor days", "debtor days formula", "dso formula"],
+  },
+  {
+    path: "/how-to-calculate-gross-margin-from-a-trial-balance",
+    title: "How do you calculate gross margin from a trial balance?",
+    description:
+      "(Revenue − direct costs) ÷ revenue × 100, with closing stock taken off direct costs. A worked example showing what the stock adjustment changes, and which ledgers count.",
+    changeFrequency: "monthly",
+    priority: 0.6,
+    locale: "en_US",
+    updated: "2026-10-01",
+    keywords: [
+      "how to calculate gross margin from trial balance",
+      "gross profit from trial balance",
+    ],
+  },
+  {
+    path: "/how-to-calculate-ebitda-in-an-mis-report",
+    title: "How is EBITDA calculated in an MIS report?",
+    description:
+      "Revenue less direct costs, employee costs and other operating expenses, with other income kept below it. A worked example from EBITDA down to profit before tax.",
+    changeFrequency: "monthly",
+    priority: 0.6,
+    locale: "en_IN",
+    updated: "2026-10-01",
+    keywords: ["how to calculate ebitda", "ebitda in mis report", "ebitda formula"],
+  },
+  {
     path: "/legal/terms",
     title: "Terms of service",
     description: `The terms on which ${PRODUCT_NAME} is provided: prepaid credits, what they buy, how long they last, and the limits of what a generated report is.`,
@@ -429,6 +506,21 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     locale: "en_IN",
     updated: "2026-09-18",
   },
+];
+
+/**
+ * One question each (ADR 0079): the question is the title, the H1 and the URL, and the answer is
+ * the first thing on the page. Each was triaged against the guides before it was built — a
+ * question a guide already answers became a heading there instead — so none competes with a
+ * page above it for the same search.
+ */
+export const ANSWER_PATHS: readonly string[] = [
+  "/how-to-make-an-mis-report-in-excel",
+  "/how-often-should-an-mis-report-be-prepared",
+  "/can-chatgpt-make-an-mis-report",
+  "/how-to-calculate-debtor-days",
+  "/how-to-calculate-gross-margin-from-a-trial-balance",
+  "/how-to-calculate-ebitda-in-an-mis-report",
 ];
 
 /**

@@ -1,6 +1,7 @@
 import { PRODUCT_NAME } from "./brand";
 import { trialAnswer, type WelcomeOfferCopy } from "./welcome-copy";
 import {
+  ANSWER_PATHS,
   GUIDE_PATHS,
   PUBLIC_PAGES,
   REPORT_NAMES,
@@ -56,7 +57,8 @@ function sections(full: boolean): string {
       path !== "/" &&
       !PRODUCT_PATHS.includes(path) &&
       !SOLUTION_PATHS.includes(path) &&
-      !GUIDE_PATHS.includes(path),
+      !GUIDE_PATHS.includes(path) &&
+      !ANSWER_PATHS.includes(path),
   );
   const legal = others.filter((p) => p.startsWith(LEGAL_PREFIX));
   const rest = others.filter((p) => !p.startsWith(LEGAL_PREFIX));
@@ -70,6 +72,9 @@ function sections(full: boolean): string {
     "",
     "## Guides",
     ...[...GUIDE_PATHS, ...rest].map(link),
+    "",
+    "## Short answers",
+    ...ANSWER_PATHS.map(link),
     "",
     "## Optional",
     ...(full ? [] : SOLUTION_PATHS.slice(8).map(link)),
