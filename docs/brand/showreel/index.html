@@ -11,7 +11,9 @@
     />
     <style>
       /*
-       * The thirty-second showreel. 1920×1080, 128 BPM, sixteen bars: every cut is on a beat.
+       * The showreel. 38 seconds, 120 BPM, nineteen bars: every cut is on a beat. Two
+       * formats from one source — landscape 1920×1080 by default, portrait 1080×1920 with
+       * `?format=portrait` — laid out for each, never cropped from the other.
        *
        * Like the tour (docs/brand/explainer), nothing here is a CSS animation. The picture is
        * one canvas drawn by `render(t)`, a pure function of the clock, and the soundtrack is
@@ -40,6 +42,10 @@
         width: min(100vw, calc(100vh * 16 / 9));
         aspect-ratio: 16 / 9;
       }
+      .portrait canvas {
+        width: min(100vw, calc(100vh * 9 / 16));
+        aspect-ratio: 9 / 16;
+      }
       #play {
         position: fixed;
         left: 50%;
@@ -67,18 +73,26 @@
     </style>
   </head>
   <body>
-    <canvas id="c" width="1920" height="1080"></canvas>
+    <canvas id="c"></canvas>
     <button id="play" type="button">Play with sound</button>
     <script>
       "use strict";
 
-      /* ---------------------------------------------------------------- the grid */
+      /* ---------------------------------------------------------------- the frame and the grid */
 
-      const W = 1920;
-      const H = 1080;
-      const BPM = 128;
-      const BEAT = 60 / BPM; // 0.46875 s
-      const TOTAL = 64 * BEAT; // sixteen bars, exactly 30 s
+      const params = new URLSearchParams(location.search);
+      const PORTRAIT = params.get("format") === "portrait";
+      const W = PORTRAIT ? 1080 : 1920;
+      const H = PORTRAIT ? 1920 : 1080;
+      const CX = W / 2;
+      const CY = H / 2;
+      /** The margin type hangs from. */
+      const M = PORTRAIT ? 80 : 150;
+
+      const BPM = 120;
+      const BEAT = 60 / BPM; // 0.5 s
+      const BARS = 19;
+      const TOTAL = BARS * 4 * BEAT; // 38 s
       const b = (n) => n * BEAT;
 
       const C = {
@@ -111,6 +125,9 @@
       const BODY = "Inter, system-ui, sans-serif";
 
       const canvas = document.getElementById("c");
+      canvas.width = W;
+      canvas.height = H;
+      if (PORTRAIT) document.documentElement.classList.add("portrait");
       const ctx = canvas.getContext("2d");
 
       /* ---------------------------------------------------------------- maths */
@@ -135,8 +152,6 @@
           return n * (p -= 2.625 / d) * p + 0.984375;
         },
       };
-      /** Eased progress of `t` through the window that opens at `a` and lasts `d` seconds. */
-      const P = (t, a, d, e = E.out) => e(clamp((t - a) / d));
       /** A bump that rises and falls once over `d` seconds from `a`. */
       const bump = (t, a, d) =>
         t < a || t > a + d ? 0 : Math.sin((Math.PI * (t - a)) / d);
@@ -197,9 +212,9 @@
         ctx.restore();
       }
       /** Camera: world point (x, y) at the centre of the frame, `z` times larger, turned by `r`. */
-      function cam(x, y, z = 1, r = 0, ox = 0, oy = 0) {
+      function cam(x, y, z = 1, r = 0) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.translate(W / 2 + ox, H / 2 + oy);
+        ctx.translate(CX, CY);
         ctx.rotate(r);
         ctx.scale(z, z);
         ctx.translate(-x, -y);
@@ -210,6 +225,12 @@
         ctx.letterSpacing = `${(k * size).toFixed(2)}px`;
       }
       const tw = (s) => ctx.measureText(s).width;
+      /** The largest size up to `size` at which `s` fits in `maxW`. */
+      function fit(s, size, maxW, weight = 700, track) {
+        setFont(size, weight, DISPLAY, track);
+        const w = tw(s);
+        return w <= maxW ? size : Math.floor((size * maxW) / w);
+      }
       function rr(x, y, w, h, r) {
         ctx.beginPath();
         ctx.roundRect(x, y, w, h, r);
@@ -268,7 +289,10 @@
           const o = typeof w === "string" ? { s: w } : w;
           return { ...o, at: b(beat + i * step) };
         });
-      /** A line of words, each arriving through its mask at its own time. Returns the width. */
+      /**
+       * Words, each arriving through its mask at its own time, wrapped at `maxW` (or before a
+       * word marked `nl`). Returns the number of lines.
+       */
       function words(list, x, y, size, t, o = {}) {
         const {
           weight = 600,
@@ -278,22 +302,45 @@
           dur = 0.34,
           ease = E.expo,
           alpha = 1,
+          maxW = Infinity,
+          lead = 1.12,
         } = o;
         setFont(size, weight, fam);
         ctx.textAlign = "left";
         const sp = tw(" ");
-        const widths = list.map((w) => tw(w.s));
-        const total = widths.reduce((a, v) => a + v, 0) + sp * (list.length - 1);
-        let cx = align === "center" ? x - total / 2 : align === "right" ? x - total : x;
+        let line = [];
+        let lw = 0;
+        const lines = [line];
+        for (const w of list) {
+          const ww = tw(w.s);
+          if (line.length > 0 && (w.nl || lw + sp + ww > maxW)) {
+            line = [];
+            lines.push(line);
+            lw = 0;
+          }
+          lw += (line.length > 0 ? sp : 0) + ww;
+          line.push({ ...w, w: ww });
+        }
         ctx.globalAlpha = alpha;
-        list.forEach((w, i) => {
-          maskUp(w.s, cx, y, size, ease(clamp((t - w.at) / dur)), w.color ?? color);
-          cx += widths[i] + sp;
+        lines.forEach((ln, li) => {
+          const total = ln.reduce((a, w) => a + w.w, 0) + sp * (ln.length - 1);
+          let cx = align === "center" ? x - total / 2 : align === "right" ? x - total : x;
+          for (const w of ln) {
+            maskUp(
+              w.s,
+              cx,
+              y + li * size * lead,
+              size,
+              ease(clamp((t - w.at) / dur)),
+              w.color ?? color,
+            );
+            cx += w.w + sp;
+          }
         });
         ctx.globalAlpha = 1;
-        return total;
+        return lines.length;
       }
-      /** A word that lands hard: scaled down onto its place, centred on (x, y). */
+      /** A word that lands hard: scaled down onto its baseline at (x, y), centred on x. */
       function slam(s, x, y, size, t, t0, o = {}) {
         if (t < t0) return;
         const { weight = 700, color = C.ink, from = 1.45, dur = 0.24, track } = o;
@@ -394,8 +441,9 @@
        * wipes through it; then "numbers." slams in as a window cut into an indigo plate,
        * and its full stop opens into the next scene. */
 
-      const FIELD_COLS = 12;
-      const FIELD_ROWS = 24;
+      const FIELD_COLS = PORTRAIT ? 7 : 12;
+      const FIELD_ROWS = PORTRAIT ? 36 : 24;
+      const FIELD_FONT = PORTRAIT ? 26 : 30;
       const ROW_H = 60;
       function figure(r) {
         const k = r();
@@ -425,13 +473,13 @@
         const colW = W / FIELD_COLS;
         const loop = FIELD_ROWS * ROW_H;
         FIELD.forEach((c, i) => {
-          const xr = colW * (i + 1) - 20;
+          const xr = colW * (i + 1) - 18;
           const shift = c.off + c.dir * c.speed * dist;
           for (let j = 0; j < FIELD_ROWS; j++) {
             const y = ((((j * ROW_H + shift) % loop) + loop) % loop) - ROW_H + 40;
             if (y > H + ROW_H) continue;
             const hot = j === c.hot;
-            setFont(30, hot ? 700 : 500, BODY);
+            setFont(FIELD_FONT, hot ? 700 : 500, BODY);
             ctx.fillStyle = hot ? C.indigo : C.n900;
             ctx.globalAlpha = hot ? 1 : 0.8;
             tab(c.rows[j], xr, y);
@@ -444,57 +492,78 @@
       plate.width = W;
       plate.height = H;
       const pg = plate.getContext("2d");
-      const HOOK = { size: 380, y: 760 };
 
       function s1(t) {
         bg(C.paper);
         numberField(t);
         if (t < b(2)) {
-          const bw = W * E.expo(clamp((t + 0.06) / 0.3));
+          const band = PORTRAIT
+            ? { y: CY - 230, h: 420, base: CY - 50 }
+            : { y: 440, h: 196, base: 584 };
           ctx.fillStyle = C.indigo;
-          ctx.fillRect(0, 440, bw, 196);
-          words(at(["You", "already", "have", "the"], 0.04, 0.5), W / 2, 584, 124, t, {
-            color: C.white,
-            align: "center",
-            weight: 700,
-          });
+          ctx.fillRect(0, band.y, W * E.expo(clamp((t + 0.06) / 0.3)), band.h);
+          words(
+            at(["You", "already", { s: "have", nl: PORTRAIT }, "the"], 0.04, 0.5),
+            CX,
+            band.base,
+            124,
+            t,
+            { color: C.white, align: "center", weight: 700, lead: 1.15 },
+          );
           return;
         }
-        // "numbers." is a window cut into an indigo plate: the figures run on inside it.
+        // "numbers." is a window cut into an indigo plate: the figures run on inside it. In
+        // portrait it breaks in two, so the word can still fill the frame.
+        const lines = PORTRAIT ? ["num", "bers."] : ["numbers."];
+        const last = lines[lines.length - 1];
+        const size = fit(
+          last,
+          PORTRAIT ? 420 : 380,
+          W - (PORTRAIT ? 110 : 220),
+          700,
+          -0.045,
+        );
+        const lead = size * 0.86;
+        const baseY = PORTRAIT ? CY + 380 : 760;
+        const midY = baseY - size * 0.35 - ((lines.length - 1) * lead) / 2;
         const sh = shake(t, [b(2)], 26, 8);
-        const p = E.expo(clamp((t - b(2)) / 0.26));
-        const s = lerp(1.6, 1, p);
+        const k = lerp(1.6, 1, E.expo(clamp((t - b(2)) / 0.26)));
         pg.setTransform(1, 0, 0, 1, 0, 0);
         pg.globalCompositeOperation = "source-over";
         pg.fillStyle = C.indigo;
         pg.fillRect(0, 0, W, H);
         pg.globalCompositeOperation = "destination-out";
-        pg.font = `700 ${HOOK.size}px ${DISPLAY}`;
-        pg.letterSpacing = `${(-0.045 * HOOK.size).toFixed(1)}px`;
+        pg.font = `700 ${size}px ${DISPLAY}`;
+        pg.letterSpacing = `${(-0.045 * size).toFixed(1)}px`;
         pg.textAlign = "center";
-        pg.translate(W / 2 + sh.x, HOOK.y - HOOK.size * 0.35 + sh.y);
-        pg.scale(s, s);
-        pg.fillText("numbers.", 0, HOOK.size * 0.35);
+        pg.translate(CX + sh.x, midY + sh.y);
+        pg.scale(k, k);
+        lines.forEach((l, i) =>
+          pg.fillText(l, 0, baseY - (lines.length - 1 - i) * lead - midY),
+        );
         ctx.drawImage(plate, 0, 0);
 
         setFont(84, 600);
         ctx.textAlign = "center";
         ctx.fillStyle = C.white;
-        ctx.fillText("You already have the", W / 2 + sh.x * 0.4, 330 + sh.y * 0.4);
+        const topY = PORTRAIT
+          ? baseY - (lines.length - 1) * lead - size * 0.78 - 80
+          : 330;
+        ctx.fillText("You already have the", CX + sh.x * 0.4, topY + sh.y * 0.4);
 
         // The full stop opens into the spreadsheet.
         const q = clamp((t - b(3.5)) / b(0.5));
         if (q > 0) {
           pg.setTransform(1, 0, 0, 1, 0, 0);
-          pg.font = `700 ${HOOK.size}px ${DISPLAY}`;
-          pg.letterSpacing = `${(-0.045 * HOOK.size).toFixed(1)}px`;
-          const full = pg.measureText("numbers.").width;
-          const word = pg.measureText("numbers").width;
+          const full = pg.measureText(last).width;
+          const word = pg.measureText(last.slice(0, -1)).width;
           const dot = pg.measureText(".").width;
-          const cx = W / 2 - full / 2 + word + dot * 0.35;
-          const cy = HOOK.y - HOOK.size * 0.07;
           ctx.fillStyle = C.paper;
-          circle(cx, cy, lerp(HOOK.size * 0.06, 2400, E.inexpo(q)));
+          circle(
+            CX - full / 2 + word + dot * 0.35,
+            baseY - size * 0.07,
+            lerp(size * 0.06, Math.max(W, H) * 1.3, E.inexpo(q)),
+          );
         }
       }
 
@@ -509,8 +578,8 @@
       const SHEET_H = SH.hy + SH.ch * SH.rows;
       const BAR_H = 150;
       const GAP = 220;
-      const WALL_C = 7;
-      const WALL_R = 5;
+      const WALL_C = PORTRAIT ? 5 : 7;
+      const WALL_R = PORTRAIT ? 11 : 5;
       const FILES = [
         "Sales register.xlsx",
         "Ledger export.xlsx",
@@ -581,36 +650,34 @@
       const cellX = (col) => SH.hx + col * SH.cw;
       const cellY = (row) => SH.hy + row * SH.ch;
 
-      function tileBody(x, y, z, name, detail) {
+      function tileBody(z, name, detail) {
         ctx.fillStyle = C.white;
-        rr(x, y - BAR_H, SHEET_W, SHEET_H + BAR_H, 40);
+        rr(0, -BAR_H, SHEET_W, SHEET_H + BAR_H, 40);
         ctx.fill();
         // the title bar: a file badge and its name
-        ctx.fillStyle = C.n100;
-        ctx.fillRect(x, y - 2, SHEET_W, 2 / z);
         ctx.fillStyle = C.indigo;
-        rr(x + 44, y - 118, 86, 86, 18);
+        rr(44, -118, 86, 86, 18);
         ctx.fill();
         ctx.fillStyle = C.white;
-        for (let i = 0; i < 3; i++) ctx.fillRect(x + 62, y - 98 + i * 18, 50, 7);
+        for (let i = 0; i < 3; i++) ctx.fillRect(62, -98 + i * 18, 50, 7);
         setFont(64, 600, BODY);
         ctx.fillStyle = C.n900;
         ctx.textAlign = "left";
-        ctx.fillText(name, x + 160, y - 52);
+        ctx.fillText(name, 160, -52);
         // the grid
         ctx.fillStyle = C.n100;
-        ctx.fillRect(x, y, SHEET_W, SH.hy);
-        ctx.fillRect(x, y, SH.hx, SHEET_H);
+        ctx.fillRect(0, 0, SHEET_W, SH.hy);
+        ctx.fillRect(0, 0, SH.hx, SHEET_H);
         ctx.strokeStyle = C.n200;
         ctx.lineWidth = Math.max(1.1 / z, 1);
         ctx.beginPath();
         for (let c = 0; c <= SH.cols; c++) {
-          ctx.moveTo(x + cellX(c), y);
-          ctx.lineTo(x + cellX(c), y + SHEET_H);
+          ctx.moveTo(cellX(c), 0);
+          ctx.lineTo(cellX(c), SHEET_H);
         }
         for (let r = 0; r <= SH.rows; r++) {
-          ctx.moveTo(x, y + cellY(r));
-          ctx.lineTo(x + SHEET_W, y + cellY(r));
+          ctx.moveTo(0, cellY(r));
+          ctx.lineTo(SHEET_W, cellY(r));
         }
         ctx.stroke();
         if (detail < 1) {
@@ -618,7 +685,7 @@
           ctx.fillStyle = C.n200;
           for (const bar of TILE_BARS) {
             const w = SH.cw * bar.w;
-            ctx.fillRect(x + cellX(bar.col + 1) - w - 12, y + cellY(bar.row) + 16, w, 14);
+            ctx.fillRect(cellX(bar.col + 1) - w - 12, cellY(bar.row) + 16, w, 14);
           }
           ctx.globalAlpha = 1;
         }
@@ -685,24 +752,24 @@
       function s2(t) {
         const cur = clamp(Math.floor((t - b(4)) / b(0.5)), 0, TYPED.length - 1);
         const t0 = b(4 + cur * 0.5);
-        const prevX = cellX(Math.max(cur, 1));
         const selX = lerp(
-          prevX,
+          cellX(Math.max(cur, 1)),
           cellX(cur + 1),
           cur === 0 ? 1 : E.expo(clamp((t - t0) / 0.14)),
         );
         const rowY = cellY(TYPED_ROW) + SH.ch / 2;
 
         // camera: ride the selection, then pull back through the sheet to the wall of files
-        const ride = { x: Math.max(selX + 40, 430), y: rowY + 20 };
         const enter = E.expo(clamp((t - b(4)) / 0.5));
-        let z = lerp(3.4, 2.4, enter) + 0.25 * clamp((t - b(4)) / b(4));
+        const zRide = PORTRAIT ? lerp(2.7, 1.9, enter) : lerp(3.4, 2.4, enter);
+        let z = zRide + 0.25 * clamp((t - b(4)) / b(4));
+        const ride = { x: Math.max(selX + 40, W / (2 * z) + 10), y: rowY + 20 };
         let x = ride.x;
         let y = ride.y;
         let r = lerp(-0.05, -0.012, enter);
         const out = E.inout(clamp((t - b(8)) / b(2.6)));
         if (out > 0) {
-          z = Math.exp(lerp(Math.log(z), Math.log(0.17), out));
+          z = Math.exp(lerp(Math.log(z), Math.log(PORTRAIT ? 0.15 : 0.17), out));
           x = lerp(ride.x, SHEET_W / 2, out);
           y = lerp(ride.y, (SHEET_H - BAR_H) / 2, out);
           r = lerp(r, 0.02, out);
@@ -716,56 +783,81 @@
           1 +
           0.07 * bump(t, b(10.5) + d * 0.06, 0.32) +
           0.05 * bump(t, b(11) + d * 0.06, 0.28);
+        const ci = (WALL_C - 1) / 2;
+        const cj = (WALL_R - 1) / 2;
         let n = 0;
         for (let j = 0; j < WALL_R; j++)
           for (let i = 0; i < WALL_C; i++) {
-            const di = i - 3;
-            const dj = j - 2;
-            const tx = di * (SHEET_W + GAP);
-            const ty = dj * (SHEET_H + BAR_H + GAP);
+            const di = i - ci;
+            const dj = j - cj;
             const s = ripple(Math.hypot(di, dj));
             ctx.save();
-            ctx.translate(tx + SHEET_W / 2, ty + SHEET_H / 2);
+            ctx.translate(
+              di * (SHEET_W + GAP) + SHEET_W / 2,
+              dj * (SHEET_H + BAR_H + GAP) + SHEET_H / 2,
+            );
             ctx.scale(s, s);
             ctx.translate(-SHEET_W / 2, -SHEET_H / 2);
             if (di === 0 && dj === 0) {
-              tileBody(0, 0, z, "Trial balance — Mar.xlsx", detail);
+              tileBody(z, "Trial balance — Mar.xlsx", detail);
               sheetDetail(z, detail, t, cur, { x: selX, col: cur + 1 });
             } else {
-              tileBody(0, 0, z, FILES[n++ % FILES.length], 0);
+              tileBody(z, FILES[n++ % FILES.length], 0);
             }
             ctx.restore();
           }
         reset();
 
         // the caption, then "Excel files." over a dimmed wall
+        const cap = PORTRAIT
+          ? { y: H - 330, h: 120, size: 52, x: 70 }
+          : { y: 868, h: 128, size: 62, x: 96 };
         if (t >= b(7.9)) {
-          const words2 = at(["is", "already", "sitting", "inside", "your"], 8, 0.25);
-          setFont(62, 600);
+          setFont(cap.size, 600);
           const wv = tw("is already sitting inside your");
           ctx.fillStyle = C.indigo;
-          ctx.fillRect(0, 868, (wv + 200) * E.expo(clamp((t - b(7.9)) / 0.3)), 128);
-          words(words2, 96, 952, 62, t, { color: C.white });
+          ctx.fillRect(
+            0,
+            cap.y,
+            (wv + cap.x * 2) * E.expo(clamp((t - b(7.9)) / 0.3)),
+            cap.h,
+          );
+          words(
+            at(["is", "already", "sitting", "inside", "your"], 8, 0.25),
+            cap.x,
+            cap.y + cap.h * 0.66,
+            cap.size,
+            t,
+            {
+              color: C.white,
+            },
+          );
         }
         const dim = clamp((t - b(10.4)) / 0.2);
         if (dim > 0) {
           ctx.fillStyle = C.ink;
           ctx.globalAlpha = 0.62 * dim;
-          ctx.fillRect(0, 0, W, 860);
+          ctx.fillRect(0, 0, W, cap.y - 8);
           ctx.globalAlpha = 1;
           const sh = shake(t, [b(10.5), b(11)], 12);
-          setFont(250, 700, DISPLAY, -0.04);
-          const wE = tw("Excel ");
-          const wF = tw("files.");
-          const x0 = W / 2 - (wE + wF) / 2;
-          slam("Excel", x0 + tw("Excel") / 2 + sh.x, 560 + sh.y, 250, t, b(10.5), {
-            color: C.white,
-            track: -0.04,
-          });
-          slam("files.", x0 + wE + wF / 2 + sh.x, 560 + sh.y, 250, t, b(11), {
-            color: C.lav,
-            track: -0.04,
-          });
+          const o = { color: C.white, track: -0.04 };
+          if (PORTRAIT) {
+            slam("Excel", CX + sh.x, CY - 160 + sh.y, 270, t, b(10.5), o);
+            slam("files.", CX + sh.x, CY + 110 + sh.y, 270, t, b(11), {
+              ...o,
+              color: C.lav,
+            });
+          } else {
+            setFont(250, 700, DISPLAY, -0.04);
+            const wE = tw("Excel ");
+            const wF = tw("files.");
+            const x0 = CX - (wE + wF) / 2;
+            slam("Excel", x0 + tw("Excel") / 2 + sh.x, 560 + sh.y, 250, t, b(10.5), o);
+            slam("files.", x0 + wE + wF / 2 + sh.x, 560 + sh.y, 250, t, b(11), {
+              ...o,
+              color: C.lav,
+            });
+          }
         }
         // three bars wipe the frame on sixteenths: lavender, indigo, ink
         [C.lav, C.indigo, C.ink].forEach((c, i) => {
@@ -778,19 +870,19 @@
       }
 
       /* ================================================================ 3 · the hours
-       * 12 → 16 beats. "But somehow… turning those numbers into an MIS still takes hours."
-       * Ink. A clock whose hands accelerate while the hours fill its ring. */
+       * 12 → 20 beats. "But somehow… turning those numbers into an MIS still takes hours."
+       * Ink. A clock whose hands accelerate while the hours fill its ring; "hours." lands on
+       * beat 18 and holds for two. */
 
       function s3(t) {
         bg(C.ink);
-        const u = clamp((t - b(12)) / b(4));
+        const u = clamp((t - b(12)) / b(8));
         const turns = 9 * E.in3(u) + 0.6 * u;
         const beatPulse = 1 + 0.03 * Math.exp(-((t / BEAT) % 1) * BEAT * 10);
-        const cx = 1490;
-        const cy = 540;
-        const R = 300;
+        const clock = PORTRAIT ? { x: CX, y: 520, R: 320 } : { x: 1490, y: 540, R: 300 };
+        const R = clock.R;
         ctx.save();
-        ctx.translate(cx, cy);
+        ctx.translate(clock.x, clock.y);
         ctx.scale(beatPulse, beatPulse);
         ctx.rotate(lerp(0.08, -0.04, E.out(u)));
         for (let i = 0; i < 60; i++) {
@@ -840,26 +932,28 @@
         circle(0, 0, 6);
         ctx.restore();
 
-        const x = 140;
-        words(at(["But", "somehow…"], 12, 0.25), x, 290, 60, t, {
+        const x = PORTRAIT ? M : 140;
+        const y = PORTRAIT ? [1040, 1170, 1270, 1400, 1700] : [290, 420, 528, 650, 920];
+        const big = PORTRAIT ? 80 : 88;
+        words(at(["But", "somehow…"], 12, 0.5), x, y[0], 60, t, {
           color: C.muted,
           weight: 500,
         });
-        words(at(["turning", "those", "numbers"], 12.75, 0.25), x, 420, 88, t, {
+        words(at(["turning", "those", "numbers"], 13.5, 0.5), x, y[1], big, t, {
           color: C.white,
         });
-        words(at(["into", "an", { s: "MIS", color: C.lav }], 13.5, 0.25), x, 528, 88, t, {
+        words(at(["into", "an", { s: "MIS", color: C.lav }], 15, 0.5), x, y[2], big, t, {
           color: C.white,
         });
-        words(at(["still", "takes"], 14.5, 0.25), x, 650, 60, t, {
+        words(at(["still", "takes"], 17, 0.5), x, y[3], 60, t, {
           color: C.muted,
           weight: 500,
         });
-        const sh = shake(t, [b(15)], 18);
-        if (t >= b(15)) {
-          setFont(270, 700, DISPLAY, -0.045);
+        if (t >= b(18)) {
+          const sh = shake(t, [b(18)], 18);
+          setFont(280, 700, DISPLAY, -0.045);
           const w = tw("hours.");
-          slam("hours.", x + w / 2 + sh.x, 920 + sh.y, 270, t, b(15), {
+          slam("hours.", x + w / 2 + sh.x, y[4] + sh.y, 280, t, b(18), {
             color: C.lav,
             track: -0.045,
           });
@@ -867,7 +961,7 @@
       }
 
       /* ================================================================ 4 · the grind
-       * 16 → 24 beats. "Cleaning. Formatting. Copying. Pasting. Building formulas. Making
+       * 20 → 28 beats. "Cleaning. Formatting. Copying. Pasting. Building formulas. Making
        * charts. Fixing them again." One word on every beat, every beat a new colour field and a
        * new typographic trick, punched in by the camera. */
 
@@ -888,12 +982,14 @@
       ];
       const JUNK_CELLS = (() => {
         const r = rng(7);
+        const cols = PORTRAIT ? 4 : 7;
+        const rows = PORTRAIT ? 20 : 11;
         const cells = [];
-        for (let row = 0; row < 11; row++)
-          for (let col = 0; col < 7; col++)
+        for (let row = 0; row < rows; row++)
+          for (let col = 0; col < cols; col++)
             cells.push({
-              x: 150 + col * 260 + (r() - 0.5) * 70,
-              y: 120 + row * 92 + (r() - 0.5) * 24,
+              x: (PORTRAIT ? 70 : 150) + col * (PORTRAIT ? 250 : 260) + (r() - 0.5) * 70,
+              y: (PORTRAIT ? 110 : 120) + row * 92 + (r() - 0.5) * 24,
               junk: JUNK[Math.floor(r() * JUNK.length)],
               clean: Math.floor(r() * 900000 + 1000).toLocaleString("en-US"),
               rot: (r() - 0.5) * 0.12,
@@ -913,25 +1009,34 @@
       const ERROR_AT = (() => {
         const r = rng(31);
         return ERRORS.map(() => ({
-          x: 160 + r() * 1600,
-          y: 140 + r() * 800,
+          x: 160 + r() * (W - 320),
+          y: 140 + r() * (H - 280),
           rot: (r() - 0.5) * 0.3,
         }));
       })();
       const FORMULA =
         '=IFERROR(SUMIFS(Ledger!$D:$D,Ledger!$B:$B,$A7,Ledger!$C:$C,">="&EOMONTH(C$2,-1)+1),0)';
 
+      /** A headline centred on `y`; in portrait a "\n" breaks it, and it shrinks to fit. */
+      function headline(s, y, size, color, weight = 700) {
+        const lines = PORTRAIT ? s.split("\n") : [s.replace("\n", " ")];
+        const sz = Math.min(
+          ...lines.map((l) => fit(l, size, W - (PORTRAIT ? 90 : 160), weight, -0.04)),
+        );
+        setFont(sz, weight, DISPLAY, -0.04);
+        ctx.textAlign = "center";
+        ctx.fillStyle = color;
+        lines.forEach((l, i) =>
+          ctx.fillText(l, CX, y + (i - (lines.length - 1) / 2) * sz * 0.95),
+        );
+        return sz;
+      }
+
       function s4(t) {
-        const k = clamp(Math.floor((t - b(16)) / BEAT), 0, 7);
-        const u = t - b(16 + k);
-        const z = 1 + 0.14 * (1 - E.expo(clamp(u / 0.32)));
-        const big = (s, y, size, color, weight = 700, track = -0.04) => {
-          setFont(size, weight, DISPLAY, track);
-          ctx.textAlign = "center";
-          ctx.fillStyle = color;
-          ctx.fillText(s, W / 2, y);
-        };
-        const punch = () => cam(W / 2, H / 2, z);
+        const k = clamp(Math.floor((t - b(20)) / BEAT), 0, 7);
+        const u = t - b(20 + k);
+        const punch = () => cam(CX, CY, 1 + 0.14 * (1 - E.expo(clamp(u / 0.32))));
+        const Y = (landscape, portrait) => (PORTRAIT ? portrait : landscape);
 
         if (k === 0) {
           bg(C.paper);
@@ -939,32 +1044,31 @@
           const wipe = lerp(-80, W + 80, E.inout(clamp(u / 0.42)));
           setFont(34, 500, BODY);
           for (const c of JUNK_CELLS) {
-            if (c.x < wipe) {
-              ctx.fillStyle = C.n400;
-              tab(c.clean, c.x + 200, c.y);
-            } else {
+            ctx.fillStyle = C.n400;
+            if (c.x < wipe) tab(c.clean, c.x + 200, c.y);
+            else {
               ctx.save();
               ctx.translate(c.x, c.y);
               ctx.rotate(c.rot);
-              ctx.fillStyle = C.n400;
               ctx.fillText(c.junk, 0, 0);
               ctx.restore();
             }
           }
           ctx.fillStyle = C.indigo;
           ctx.fillRect(wipe - 14, 0, 28, H);
-          big("Cleaning.", 640, 240, C.ink);
+          headline("Cleaning.", Y(640, CY + 80), 240, C.ink);
         } else if (k === 1) {
           bg(C.indigo);
           punch();
           const icons = ["B", "I", "U", "$", "%", ",", ".00", "⇥"];
           const lit = Math.floor(u / (BEAT / 8));
+          const ty = Y(150, CY - 420);
           icons.forEach((ic, i) => {
-            const x = W / 2 - (icons.length * 96) / 2 + i * 96 + 6;
+            const x = CX - (icons.length * 96) / 2 + i * 96 + 6;
             ctx.strokeStyle = C.white;
             ctx.globalAlpha = i <= lit ? 1 : 0.35;
             ctx.lineWidth = 3;
-            rr(x, 150, 84, 84, 14);
+            rr(x, ty, 84, 84, 14);
             if (i === lit % icons.length) {
               ctx.fillStyle = C.white;
               ctx.fill();
@@ -973,107 +1077,126 @@
             setFont(ic.length > 1 ? 30 : 40, 700, BODY);
             ctx.fillStyle = i === lit % icons.length ? C.indigo : C.white;
             ctx.textAlign = "center";
-            ctx.fillText(ic, x + 42, 206);
+            ctx.fillText(ic, x + 42, ty + 56);
           });
           ctx.globalAlpha = 1;
           const st = Math.floor(u / (BEAT / 4)) % 4;
           const weight = [300, 700, 700, 500][st];
-          setFont(220, weight, DISPLAY, -0.04);
+          const sz = fit("Formatting.", 220, W - 120, 700, -0.04);
+          setFont(sz, weight, DISPLAY, -0.04);
           ctx.textAlign = "center";
           const w = tw("Formatting.");
+          const by = Y(660, CY + 100);
           if (st === 3) {
             ctx.fillStyle = C.white;
-            ctx.fillRect(W / 2 - w / 2 - 30, 470, w + 60, 250);
+            ctx.fillRect(CX - w / 2 - 30, by - sz * 0.86, w + 60, sz * 1.14);
           }
           ctx.save();
-          ctx.translate(W / 2, 660);
+          ctx.translate(CX, by);
           if (st === 1) ctx.transform(1, 0, -0.22, 1, 0, 0);
           ctx.fillStyle = st === 3 ? C.indigo : C.white;
           ctx.fillText("Formatting.", 0, 0);
-          if (st === 2) ctx.fillRect(-w / 2, 34, w, 16);
+          if (st === 2) ctx.fillRect(-w / 2, sz * 0.15, w, sz * 0.07);
           ctx.restore();
         } else if (k === 2) {
           bg(C.lav100);
           punch();
-          setFont(230, 700, DISPLAY, -0.04);
+          const sz = fit("Copying.", 230, W - 220, 700, -0.04);
+          const by = Y(660, CY + 80);
+          setFont(sz, 700, DISPLAY, -0.04);
           ctx.textAlign = "center";
           const w = tw("Copying.");
+          const drag = E.out(clamp(u / 0.4));
           ctx.globalAlpha = 0.22;
           ctx.fillStyle = C.indigo;
           ctx.fillText(
             "Copying.",
-            W / 2 + 70 + E.out(clamp(u / 0.4)) * 380,
-            660 + 60 + E.out(clamp(u / 0.4)) * 150,
+            CX + 70 + drag * (PORTRAIT ? 120 : 380),
+            by + 60 + drag * 150,
           );
           ctx.globalAlpha = 1;
           ctx.fillStyle = C.ink;
-          ctx.fillText("Copying.", W / 2, 660);
+          ctx.fillText("Copying.", CX, by);
           // marching ants: the copy selection everyone recognises
+          const box = [CX - w / 2 - 50, by - sz * 0.96, w + 100, sz * 1.26];
           ctx.lineWidth = 6;
           ctx.setLineDash([22, 16]);
           ctx.strokeStyle = C.white;
           ctx.lineDashOffset = 0;
-          ctx.strokeRect(W / 2 - w / 2 - 50, 440, w + 100, 290);
+          ctx.strokeRect(...box);
           ctx.strokeStyle = C.indigo;
           ctx.lineDashOffset = -u * 260;
-          ctx.strokeRect(W / 2 - w / 2 - 50, 440, w + 100, 290);
+          ctx.strokeRect(...box);
           ctx.setLineDash([]);
         } else if (k === 3) {
           bg(C.paper);
           punch();
           const cols = [C.lav100, C.a200, C.lav, C.ink];
+          const sz = fit("Pasting.", 230, W - 300, 700, -0.04);
           for (let i = 0; i < 4; i++) {
             const t0 = i * (BEAT / 4);
             if (u < t0) continue;
             const s = lerp(1.3, 1, E.expo(clamp((u - t0) / 0.09)));
             ctx.save();
-            ctx.translate(W / 2 + (i - 3) * 70, 560 + (i - 3) * 60);
+            ctx.translate(CX + (i - 3) * (PORTRAIT ? 40 : 70), Y(560, CY) + (i - 3) * 60);
             ctx.scale(s, s);
-            setFont(230, 700, DISPLAY, -0.04);
+            setFont(sz, 700, DISPLAY, -0.04);
             ctx.textAlign = "center";
             ctx.fillStyle = cols[i];
-            ctx.fillText("Pasting.", 0, 80);
+            ctx.fillText("Pasting.", 0, sz * 0.35);
             ctx.restore();
           }
         } else if (k === 4) {
           bg(C.ink);
           punch();
+          const bar = {
+            x: PORTRAIT ? 40 : 140,
+            y: Y(220, CY - 520),
+            w: W - (PORTRAIT ? 80 : 280),
+          };
           ctx.fillStyle = C.ink2;
           ctx.strokeStyle = C.ink5;
           ctx.lineWidth = 2;
-          rr(140, 220, 1640, 104, 16);
+          rr(bar.x, bar.y, bar.w, 104, 16);
           ctx.fill();
           ctx.stroke();
           setFont(40, 600, BODY);
           ctx.fillStyle = C.lav;
           ctx.textAlign = "left";
-          ctx.fillText("fx", 180, 286);
+          ctx.fillText("fx", bar.x + 40, bar.y + 66);
           ctx.fillStyle = C.ink5;
-          ctx.fillRect(250, 240, 2, 64);
+          ctx.fillRect(bar.x + 110, bar.y + 20, 2, 64);
           setFont(36, 500, BODY);
           const n = Math.floor(FORMULA.length * clamp(u / 0.38));
           const s = FORMULA.slice(0, n);
           ctx.save();
           ctx.beginPath();
-          ctx.rect(270, 220, 1490, 104);
+          ctx.rect(bar.x + 130, bar.y, bar.w - 150, 104);
           ctx.clip();
-          const over = Math.max(0, tw(s) - 1450);
+          const over = Math.max(0, tw(s) - (bar.w - 190));
           ctx.fillStyle = C.white;
-          ctx.fillText(s, 280 - over, 286);
-          ctx.fillRect(282 - over + tw(s), 252, 3, 44);
+          ctx.fillText(s, bar.x + 140 - over, bar.y + 66);
+          ctx.fillRect(bar.x + 142 - over + tw(s), bar.y + 32, 3, 44);
           ctx.restore();
-          big("Building formulas.", 720, 176, C.white);
+          headline(
+            "Building\nformulas.",
+            Y(720, CY + 160),
+            PORTRAIT ? 210 : 176,
+            C.white,
+          );
         } else if (k === 5) {
           bg(C.paper);
           punch();
-          big("Making charts.", 300, 180, C.ink);
+          headline("Making\ncharts.", Y(300, CY - 440), PORTRAIT ? 220 : 180, C.ink);
           const r = rng(500 + Math.floor(u / (BEAT / 4)));
           const topple = clamp((u - (BEAT * 3) / 4) / (BEAT / 4));
+          const base = Y(960, CY + 560);
+          const x0 = CX - 440;
           for (let i = 0; i < 7; i++) {
-            const h = 120 + r() * 420;
-            const x = 520 + i * 130;
+            const h = 120 + r() * (PORTRAIT ? 560 : 420);
+            const x = x0 + i * 130;
             ctx.save();
-            ctx.translate(x + (i % 2 ? 96 : 0), 960);
+            ctx.translate(x + (i % 2 ? 96 : 0), base);
             ctx.rotate((i % 2 ? 1 : -1) * E.in3(topple) * (0.7 + i * 0.06));
             ctx.fillStyle = i === 4 ? C.indigo : C.a200;
             rr(i % 2 ? -96 : 0, -h, 96, h, 10);
@@ -1081,7 +1204,7 @@
             ctx.restore();
           }
           ctx.fillStyle = C.n400;
-          ctx.fillRect(480, 960, 960, 4);
+          ctx.fillRect(x0 - 40, base, 960, 4);
         } else if (k === 6) {
           bg(C.neg);
           punch();
@@ -1104,39 +1227,48 @@
             ctx.fillText(e, 0, 14);
             ctx.restore();
           });
-          big("Fixing them", 620, 210, C.white);
+          headline("Fixing\nthem", Y(620, CY + 80), PORTRAIT ? 250 : 210, C.white);
         } else {
           const j = clamp(Math.floor(u / (BEAT / 4)), 0, 3);
           const bgs = [C.ink, C.neg, C.paper, C.indigo];
           const fgs = [C.white, C.white, C.ink, C.white];
-          const sizes = [230, 330, 190, 400];
-          const offs = [
-            [-240, -120],
-            [160, 60],
-            [-60, 220],
-            [0, 0],
-          ];
+          const sizes = PORTRAIT ? [210, 290, 170, 320] : [230, 330, 190, 400];
+          const offs = PORTRAIT
+            ? [
+                [-100, -360],
+                [60, 160],
+                [-40, 520],
+                [0, 0],
+              ]
+            : [
+                [-240, -120],
+                [160, 60],
+                [-60, 220],
+                [0, 0],
+              ];
           bg(bgs[j]);
-          const sh = shake(t, [b(23.75)], 22, 7);
+          const sh = shake(t, [b(27.75)], 22, 7);
           cam(
-            W / 2 - sh.x,
-            H / 2 - sh.y,
+            CX - sh.x,
+            CY - sh.y,
             1 + 0.1 * (1 - E.expo(clamp((u - j * (BEAT / 4)) / 0.1))),
           );
           setFont(sizes[j], 700, DISPLAY, -0.045);
           ctx.textAlign = "center";
           ctx.fillStyle = fgs[j];
-          ctx.fillText("again.", W / 2 + offs[j][0], 620 + offs[j][1]);
+          ctx.fillText("again.", CX + offs[j][0], CY + 80 + offs[j][1]);
         }
         reset();
       }
 
       /* ================================================================ 5 · the turn
-       * 24 → 32 beats. "What if you could just upload your data… …and get your MIS back?"
+       * 28 → 36 beats. "What if you could just upload your data… …and get your MIS back?"
        * The music drops away; paper, and calm. Files fall into "Add a file", the bar fills,
        * the card turns indigo and the camera dives into it. */
 
-      const DROP = { x: 1300, y: 250, w: 480, h: 540 };
+      const DROP = PORTRAIT
+        ? { x: CX - 260, y: 1010, w: 520, h: 600 }
+        : { x: 1300, y: 250, w: 480, h: 540 };
       const DROP_FILES = [
         { name: "Trial balance — Mar.xlsx", rot: -0.06 },
         { name: "Sales register.xlsx", rot: 0.045 },
@@ -1145,37 +1277,40 @@
 
       function s5(t) {
         bg(C.paper);
-        const dive = E.inexpo(clamp((t - b(31.25)) / b(0.75)));
+        const dive = E.inexpo(clamp((t - b(35.25)) / b(0.75)));
         const cx = DROP.x + DROP.w / 2;
         const cy = DROP.y + DROP.h / 2;
-        const push = 1 + 0.07 * E.inout(clamp((t - b(24)) / b(7)));
+        const push = 1 + 0.07 * E.inout(clamp((t - b(28)) / b(7)));
         const z = push * Math.exp(Math.log(60) * dive);
-        cam(
-          lerp(W / 2, cx, Math.min(1, dive * 3)),
-          lerp(H / 2, cy, Math.min(1, dive * 3)),
-          z,
-        );
+        cam(lerp(CX, cx, Math.min(1, dive * 3)), lerp(CY, cy, Math.min(1, dive * 3)), z);
         dotGrid(C.n400, 0.3, 32, 400);
 
-        const x = 150;
-        words(at(["What", "if", "you", "could", "just"], 24, 0.25), x, 300, 72, t, {
-          weight: 500,
-        });
+        const x = M;
+        const y = PORTRAIT ? [320, 470, 610, 750] : [300, 450, 630, 790];
+        const big = PORTRAIT ? 100 : 116;
         words(
-          at([{ s: "upload", color: C.indigo }, "your", "data…"], 25.5, 0.5),
+          at(["What", "if", "you", "could", "just"], 28, 0.25),
           x,
-          450,
-          116,
+          y[0],
+          PORTRAIT ? 68 : 72,
+          t,
+          { weight: 500 },
+        );
+        words(
+          at([{ s: "upload", color: C.indigo }, "your", "data…"], 29.5, 0.5),
+          x,
+          y[1],
+          big,
           t,
         );
-        words(at(["…and", "get", "your"], 28, 0.25), x, 630, 116, t);
-        words(at([{ s: "MIS", color: C.indigo }, "back?"], 29, 0.5), x, 790, 116, t, {
+        words(at(["…and", "get", "your"], 32, 0.25), x, y[2], big, t);
+        words(at([{ s: "MIS", color: C.indigo }, "back?"], 33, 0.5), x, y[3], big, t, {
           weight: 700,
         });
 
         // the card
-        const filled = clamp((t - b(31)) / b(0.25));
-        const appear = E.back(clamp((t - b(25.5)) / 0.4));
+        const filled = clamp((t - b(35)) / b(0.25));
+        const appear = E.back(clamp((t - b(29.5)) / 0.4));
         ctx.save();
         ctx.translate(cx, cy);
         ctx.scale(appear, appear);
@@ -1183,7 +1318,7 @@
         ctx.fillStyle = mix(C.white, C.indigo, filled);
         rr(DROP.x, DROP.y, DROP.w, DROP.h, 36);
         ctx.fill();
-        const landed = t >= b(26) + 0.3;
+        const landed = t >= b(30) + 0.3;
         ctx.lineWidth = 4;
         ctx.strokeStyle = landed ? C.indigo : C.n400;
         if (!landed) ctx.setLineDash([16, 12]);
@@ -1212,7 +1347,7 @@
           ctx.fillStyle = C.n500;
           ctx.fillText("Trial balance, ledgers, registers", cx, DROP.y + 278);
           // the progress bar
-          const prog = E.inout(clamp((t - b(27.5)) / b(3.5)));
+          const prog = E.inout(clamp((t - b(31.5)) / b(3.5)));
           ctx.fillStyle = C.n100;
           rr(DROP.x + 50, DROP.y + DROP.h - 60, DROP.w - 100, 12, 6);
           ctx.fill();
@@ -1225,14 +1360,13 @@
         }
         // files falling in, one an eighth note after another
         DROP_FILES.forEach((f, i) => {
-          const t0 = b(26 + i * 0.5);
+          const t0 = b(30 + i * 0.5);
           if (t < t0 || filled >= 1) return;
           const p = E.bounce(clamp((t - t0) / 0.42));
-          const ty = DROP.y + 404 - i * 20;
-          const y = lerp(-140, ty, p);
+          const yy = lerp(-140, DROP.y + DROP.h - 136 - i * 20, p);
           ctx.save();
           ctx.globalAlpha = 1 - filled;
-          ctx.translate(cx, y);
+          ctx.translate(cx, yy);
           ctx.rotate(f.rot * p);
           ctx.fillStyle = C.white;
           ctx.strokeStyle = C.n200;
@@ -1256,16 +1390,39 @@
       }
 
       /* ================================================================ 6 · the payoff
-       * 32 → 48 beats. "A clean dashboard. Key business insights. Charts that actually make
+       * 36 → 52 beats. "A clean dashboard. Key business insights. Charts that actually make
        * sense. And a report ready to share."
        * The drop. A dashboard flies in from an isometric plane and settles flat; the camera
        * visits the figures, the commentary and the charts on the beat; then the board turns
-       * over into the workbook's pages. */
+       * over into the workbook's pages. In portrait the board stacks: figures two by two,
+       * the chart, then the margin line beside what moved. */
 
-      const PX = 210;
-      const PY = 120;
-      const PW = 1500;
-      const PH = 840;
+      const DL = PORTRAIT
+        ? {
+            px: 60,
+            py: 250,
+            pw: 960,
+            ph: 1316,
+            kpi: (i) => ({
+              x: 30 + (i % 2) * 460,
+              y: 86 + Math.floor(i / 2) * 180,
+              w: 440,
+              h: 160,
+            }),
+            bar: { x: 30, y: 446, w: 900, h: 520 },
+            line: { x: 30, y: 986, w: 440, h: 300 },
+            ins: { x: 490, y: 986, w: 440, h: 300 },
+          }
+        : {
+            px: 210,
+            py: 120,
+            pw: 1500,
+            ph: 840,
+            kpi: (i) => ({ x: 30 + i * 365, y: 86, w: 345, h: 160 }),
+            bar: { x: 30, y: 266, w: 900, h: 544 },
+            line: { x: 950, y: 266, w: 520, h: 262 },
+            ins: { x: 950, y: 548, w: 520, h: 262 },
+          };
       const KPI = [
         { label: "Revenue", value: "$452.2K", delta: "▲ 14.6%", up: true },
         { label: "Gross margin", value: "41.6%", delta: "▲ 2.1 pts", up: true },
@@ -1283,20 +1440,30 @@
         ["Debtor days rose ", "36 → 41", ""],
       ];
       const CAPTIONS = [
-        { at: 33, s: "A clean dashboard." },
-        { at: 36, s: "Key business insights." },
-        { at: 40, s: "Charts that actually make sense." },
-        { at: 44, s: "And a report ready to share." },
+        { at: 37, s: "A clean dashboard." },
+        { at: 40, s: "Key business insights." },
+        { at: 44, s: "Charts that actually make sense." },
+        { at: 48, s: "And a report ready to share." },
       ];
-      const CAM6 = [
-        { at: 36, dur: 0.8, x: 870, y: 300, z: 1.55 },
-        { at: 38, dur: 0.6, x: 1420, y: 800, z: 1.85 },
-        { at: 40, dur: 0.36, x: 700, y: 660, z: 1.55, ease: E.expo },
-        { at: 42, dur: 0.6, x: 1420, y: 520, z: 1.95 },
-        { at: 44, dur: 0.7, x: 960, y: 600, z: 0.9 },
-      ];
+      /** The world point at the centre of one of the board's cards. */
+      const centre = (r) => ({ x: DL.px + r.x + r.w / 2, y: DL.py + r.y + r.h / 2 });
+      const CAM6 = PORTRAIT
+        ? [
+            { at: 40, dur: 0.8, x: CX, y: DL.py + 256, z: 1.12 },
+            { at: 42, dur: 0.6, ...centre(DL.ins), z: 2.0 },
+            { at: 44, dur: 0.36, ...centre(DL.bar), z: 1.15, ease: E.expo },
+            { at: 46, dur: 0.6, ...centre(DL.line), z: 2.0 },
+            { at: 48, dur: 0.7, x: CX, y: CY - 20, z: 1 },
+          ]
+        : [
+            { at: 40, dur: 0.8, x: 870, y: 300, z: 1.55 },
+            { at: 42, dur: 0.6, x: 1420, y: 800, z: 1.85 },
+            { at: 44, dur: 0.36, x: 700, y: 660, z: 1.55, ease: E.expo },
+            { at: 46, dur: 0.6, x: 1420, y: 520, z: 1.95 },
+            { at: 48, dur: 0.7, x: 960, y: 600, z: 0.9 },
+          ];
       function cam6(t) {
-        let s = { x: 960, y: 540, z: 1 };
+        let s = { x: CX, y: CY, z: 1 };
         for (const m of CAM6) {
           if (t < b(m.at)) break;
           const p = (m.ease ?? E.inout)(clamp((t - b(m.at)) / b(m.dur)));
@@ -1345,23 +1512,162 @@
         ctx.restore();
       }
 
-      function card(x, y, w, h, t, t0) {
+      function card(r, t, t0) {
         const p = E.out(clamp((t - t0) / 0.3));
         ctx.globalAlpha = p;
         ctx.translate(0, (1 - p) * 40);
         ctx.fillStyle = C.white;
         ctx.strokeStyle = C.n200;
         ctx.lineWidth = 2;
-        rr(x, y, w, h, 20);
+        rr(r.x, r.y, r.w, r.h, 20);
         ctx.fill();
         ctx.stroke();
         return p;
       }
+      function cardTitle(r, s) {
+        setFont(24, 600, BODY);
+        ctx.fillStyle = C.ink;
+        ctx.textAlign = "left";
+        ctx.fillText(s, r.x + 28, r.y + 46);
+      }
+
+      function barChart(r, t, T0) {
+        cardTitle(r, "Revenue by month");
+        setFont(17, 500, BODY);
+        ctx.fillStyle = C.n400;
+        ctx.fillText("$K", r.x + 28, r.y + 74);
+        const base = r.y + r.h - 60;
+        const top = r.y + 114;
+        const step = (r.w - 130) / 12;
+        ctx.strokeStyle = C.n100;
+        ctx.lineWidth = 2;
+        for (let g = 0; g <= 3; g++) {
+          const gy = base - ((base - top) * g) / 3;
+          ctx.beginPath();
+          ctx.moveTo(r.x + 80, gy);
+          ctx.lineTo(r.x + r.w - 30, gy);
+          ctx.stroke();
+          tab(String(g * 150), r.x + 66, gy + 6);
+        }
+        REVENUE.forEach((v, i) => {
+          const grow = E.back(clamp((t - T0 - b(0.5) - b(0.0625) * i) / 0.4));
+          const wave = 1 - 0.55 * bump(t, b(44.25) + b(0.125) * i, b(0.5));
+          const h = ((base - top) * v * grow * wave) / 470;
+          const bx = r.x + 100 + i * step;
+          ctx.fillStyle = i === REVENUE.length - 1 && t >= b(45) ? C.indigo : C.a200;
+          rr(bx, base - h, step * 0.69, h, [8, 8, 0, 0]);
+          ctx.fill();
+          ctx.fillStyle = C.n400;
+          ctx.textAlign = "center";
+          ctx.fillText(MONTHS[i], bx + step * 0.345, base + 30);
+          ctx.textAlign = "left";
+        });
+        const chip = E.back(clamp((t - b(45)) / 0.3));
+        if (chip > 0) {
+          ctx.save();
+          ctx.translate(
+            r.x + 100 + 11 * step + step * 0.345,
+            base - (base - top) * (452 / 470) - 34,
+          );
+          ctx.scale(chip, chip);
+          ctx.translate(-58, 0);
+          pill("$452K", 0, 0, 18, C.white, C.indigo);
+          ctx.restore();
+        }
+      }
+
+      function lineChart(r, t, T0) {
+        cardTitle(r, "Gross margin");
+        const base = r.y + r.h - 40;
+        const top = r.y + 100;
+        const px = (i) => r.x + 40 + (i * (r.w - 80)) / 11;
+        const py = (v) => base - ((v - 35) / 7.5) * (base - top);
+        const draw =
+          t < b(46.25)
+            ? clamp((t - T0 - b(0.75)) / 0.8)
+            : E.inout(clamp((t - b(46.25)) / b(1)));
+        ctx.strokeStyle = C.n100;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(r.x + 30, base);
+        ctx.lineTo(r.x + r.w - 30, base);
+        ctx.stroke();
+        const n = (MARGIN.length - 1) * draw;
+        ctx.strokeStyle = C.indigo;
+        ctx.lineWidth = 5;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        for (let i = 0; i <= Math.floor(n); i++)
+          i === 0 ? ctx.moveTo(px(i), py(MARGIN[i])) : ctx.lineTo(px(i), py(MARGIN[i]));
+        const f = n - Math.floor(n);
+        const i0 = Math.floor(n);
+        if (i0 < MARGIN.length - 1 && f > 0)
+          ctx.lineTo(
+            lerp(px(i0), px(i0 + 1), f),
+            lerp(py(MARGIN[i0]), py(MARGIN[i0 + 1]), f),
+          );
+        ctx.stroke();
+        const ring = E.back(clamp((t - b(47.25)) / 0.3));
+        if (ring > 0) {
+          const ex = px(11);
+          const ey = py(41.6);
+          ctx.fillStyle = C.indigo;
+          circle(ex, ey, 12 * ring);
+          ctx.fillStyle = C.white;
+          circle(ex, ey, 5 * ring);
+          ctx.save();
+          ctx.translate(ex - 50, ey - 40);
+          ctx.scale(ring, ring);
+          pill("41.6%", 0, 0, 17, C.white, C.indigo);
+          ctx.restore();
+        }
+      }
+
+      function insights(r, t) {
+        cardTitle(r, "What moved");
+        INSIGHTS.forEach((parts, i) => {
+          const y = r.y + 104 + i * 52;
+          const t0 = b(42.5 + i * 0.5);
+          ctx.fillStyle = C.indigo;
+          circle(r.x + 36, y - 7, 6);
+          if (t < t0) {
+            ctx.fillStyle = C.n100;
+            rr(r.x + 54, y - 18, Math.min(300 - i * 50, r.w - 100), 18, 9);
+            ctx.fill();
+            return;
+          }
+          const fs = PORTRAIT ? 21 : 23;
+          setFont(fs, 700, BODY);
+          const w1 = tw(parts[1]);
+          setFont(fs, 500, BODY);
+          const w0 = tw(parts[0]);
+          const full = w0 + w1 + 2 + tw(parts[2]);
+          const reveal = clamp((t - t0) / 0.3);
+          const hl = E.inout(clamp((t - t0 - 0.2) / 0.25));
+          ctx.fillStyle = C.lav100;
+          rr(r.x + 52 + w0, y - 24, (w1 + 8) * hl, 32, 6);
+          ctx.fill();
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(r.x + 50, y - 30, full * reveal + 10, 44);
+          ctx.clip();
+          ctx.fillStyle = C.n900;
+          ctx.fillText(parts[0], r.x + 56, y);
+          ctx.fillStyle = C.indigo;
+          setFont(fs, 700, BODY);
+          ctx.fillText(parts[1], r.x + 56 + w0, y);
+          setFont(fs, 500, BODY);
+          ctx.fillStyle = C.n900;
+          ctx.fillText(parts[2], r.x + 58 + w0 + w1, y);
+          ctx.restore();
+        });
+      }
 
       function dashboard(t) {
-        const T0 = b(33.25);
+        const T0 = b(37.25);
         ctx.fillStyle = C.paper;
-        rr(0, 0, PW, PH, 30);
+        rr(0, 0, DL.pw, DL.ph, 30);
         ctx.fill();
         // header
         mark(48, 40, 40, { tileColor: C.indigo });
@@ -1372,24 +1678,24 @@
         setFont(18, 500, BODY);
         ctx.fillStyle = C.n400;
         ctx.textAlign = "right";
-        ctx.fillText("Illustrative figures", PW - 250, 47);
+        ctx.fillText("Illustrative figures", DL.pw - 250, 47);
         ctx.textAlign = "left";
-        pill("March 2026", PW - 200, 41, 20, C.indigo, C.lav50);
+        pill("March 2026", DL.pw - 200, 41, 20, C.indigo, C.lav50);
 
         KPI.forEach((k, i) => {
-          const x = 30 + i * 365;
+          const r = DL.kpi(i);
           ctx.save();
-          if (card(x, 86, 345, 160, t, T0 + b(0.125) * i) > 0) {
+          if (card(r, t, T0 + b(0.125) * i) > 0) {
             setFont(21, 500, BODY);
             ctx.fillStyle = C.n500;
             ctx.textAlign = "left";
-            ctx.fillText(k.label, x + 24, 128);
+            ctx.fillText(k.label, r.x + 24, r.y + 42);
             ctx.fillStyle = C.n900;
-            rolling(k.value, x + 24, 192, 52, t, T0 + b(0.125) * i);
-            const pp = E.back(clamp((t - b(36.75) - b(0.25) * i) / 0.25));
+            rolling(k.value, r.x + 24, r.y + 106, 52, t, T0 + b(0.125) * i);
+            const pp = E.back(clamp((t - b(40.75) - b(0.25) * i) / 0.25));
             if (pp > 0) {
               ctx.save();
-              ctx.translate(x + 24, 224);
+              ctx.translate(r.x + 24, r.y + 138);
               ctx.scale(pp, pp);
               pill(k.delta, 0, 0, 17, k.up ? C.pos : C.neg, k.up ? C.posBg : C.negBg);
               ctx.restore();
@@ -1397,148 +1703,14 @@
           }
           ctx.restore();
         });
-
-        // revenue by month
         ctx.save();
-        if (card(30, 266, 900, 544, t, T0 + b(0.5)) > 0) {
-          setFont(24, 600, BODY);
-          ctx.fillStyle = C.ink;
-          ctx.textAlign = "left";
-          ctx.fillText("Revenue by month", 58, 312);
-          setFont(17, 500, BODY);
-          ctx.fillStyle = C.n400;
-          ctx.fillText("$K", 58, 340);
-          const base = 750;
-          const top = 380;
-          ctx.strokeStyle = C.n100;
-          ctx.lineWidth = 2;
-          for (let g = 0; g <= 3; g++) {
-            const gy = base - ((base - top) * g) / 3;
-            ctx.beginPath();
-            ctx.moveTo(110, gy);
-            ctx.lineTo(900, gy);
-            ctx.stroke();
-            tab(String(g * 150), 96, gy + 6);
-          }
-          REVENUE.forEach((v, i) => {
-            const grow = E.back(clamp((t - T0 - b(0.5) - b(0.0625) * i) / 0.4));
-            const wave = 1 - 0.55 * bump(t, b(40.25) + b(0.125) * i, b(0.5));
-            const h = ((base - top) * v * grow * wave) / 470;
-            const bx = 130 + i * 64;
-            const last = i === REVENUE.length - 1;
-            ctx.fillStyle = last && t >= b(41) ? C.indigo : C.a200;
-            rr(bx, base - h, 44, h, [8, 8, 0, 0]);
-            ctx.fill();
-            ctx.fillStyle = C.n400;
-            ctx.textAlign = "center";
-            ctx.fillText(MONTHS[i], bx + 22, base + 30);
-            ctx.textAlign = "left";
-          });
-          const chip = E.back(clamp((t - b(41)) / 0.3));
-          if (chip > 0) {
-            ctx.save();
-            ctx.translate(130 + 11 * 64 + 22, base - (base - top) * (452 / 470) - 34);
-            ctx.scale(chip, chip);
-            ctx.translate(-58, 0);
-            pill("$452K", 0, 0, 18, C.white, C.indigo);
-            ctx.restore();
-          }
-        }
+        if (card(DL.bar, t, T0 + b(0.5)) > 0) barChart(DL.bar, t, T0);
         ctx.restore();
-
-        // gross margin
         ctx.save();
-        if (card(950, 266, 520, 262, t, T0 + b(0.625)) > 0) {
-          setFont(24, 600, BODY);
-          ctx.fillStyle = C.ink;
-          ctx.textAlign = "left";
-          ctx.fillText("Gross margin", 978, 312);
-          const px = (i) => 990 + i * 40;
-          const py = (v) => 490 - ((v - 35) / 7.5) * 150;
-          const draw =
-            clamp((t - T0 - b(0.75)) / 0.8) * (t < b(42.25) ? 1 : 0) +
-            (t >= b(42.25) ? E.inout(clamp((t - b(42.25)) / b(1))) : 0);
-          ctx.strokeStyle = C.n100;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(980, 490);
-          ctx.lineTo(1450, 490);
-          ctx.stroke();
-          const n = (MARGIN.length - 1) * draw;
-          ctx.strokeStyle = C.indigo;
-          ctx.lineWidth = 5;
-          ctx.lineJoin = "round";
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          for (let i = 0; i <= Math.floor(n); i++)
-            i === 0 ? ctx.moveTo(px(i), py(MARGIN[i])) : ctx.lineTo(px(i), py(MARGIN[i]));
-          const f = n - Math.floor(n);
-          const i0 = Math.floor(n);
-          if (i0 < MARGIN.length - 1 && f > 0)
-            ctx.lineTo(
-              lerp(px(i0), px(i0 + 1), f),
-              lerp(py(MARGIN[i0]), py(MARGIN[i0 + 1]), f),
-            );
-          ctx.stroke();
-          const ring = E.back(clamp((t - b(43.25)) / 0.3));
-          if (ring > 0) {
-            const ex = px(11);
-            const ey = py(41.6);
-            ctx.fillStyle = C.indigo;
-            circle(ex, ey, 12 * ring);
-            ctx.fillStyle = C.white;
-            circle(ex, ey, 5 * ring);
-            ctx.save();
-            ctx.translate(ex - 50, ey - 40);
-            ctx.scale(ring, ring);
-            pill("41.6%", 0, 0, 17, C.white, C.indigo);
-            ctx.restore();
-          }
-        }
+        if (card(DL.line, t, T0 + b(0.625)) > 0) lineChart(DL.line, t, T0);
         ctx.restore();
-
-        // what moved
         ctx.save();
-        if (card(950, 548, 520, 262, t, T0 + b(0.75)) > 0) {
-          setFont(24, 600, BODY);
-          ctx.fillStyle = C.ink;
-          ctx.textAlign = "left";
-          ctx.fillText("What moved", 978, 594);
-          INSIGHTS.forEach((parts, i) => {
-            const y = 650 + i * 52;
-            const t0 = b(38.5 + i * 0.5);
-            ctx.fillStyle = C.indigo;
-            circle(986, y - 7, 6);
-            if (t < t0) {
-              ctx.fillStyle = C.n100;
-              rr(1004, y - 18, 300 - i * 50, 18, 9);
-              ctx.fill();
-              return;
-            }
-            setFont(23, 500, BODY);
-            const full = parts.join("");
-            const reveal = clamp((t - t0) / 0.3);
-            const w0 = tw(parts[0]);
-            const w1 = tw(parts[1]);
-            const hl = E.inout(clamp((t - t0 - 0.2) / 0.25));
-            ctx.fillStyle = C.lav100;
-            rr(1002 + w0, y - 24, (w1 + 8) * hl, 32, 6);
-            ctx.fill();
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(1000, y - 30, tw(full) * reveal + 4, 44);
-            ctx.clip();
-            ctx.fillStyle = C.n900;
-            ctx.fillText(parts[0], 1006, y);
-            ctx.fillStyle = C.indigo;
-            setFont(23, 700, BODY);
-            ctx.fillText(parts[1], 1006 + w0, y);
-            setFont(23, 500, BODY);
-            ctx.fillStyle = C.n900;
-            ctx.fillText(parts[2], 1006 + w0 + tw(parts[1]) + 2, y);
-            ctx.restore();
-          });
-        }
+        if (card(DL.ins, t, T0 + b(0.75)) > 0) insights(DL.ins, t);
         ctx.restore();
       }
 
@@ -1588,12 +1760,12 @@
           ],
         },
       ];
-      function page(pg, t) {
+      function page(pg) {
         ctx.fillStyle = C.white;
         rr(-240, -320, 480, 640, 18);
         ctx.fill();
         ctx.fillStyle = C.indigo;
-        ctx.fillRect(-240, -320 + 18, 8, 64);
+        ctx.fillRect(-240, -302, 8, 64);
         setFont(34, 600);
         ctx.fillStyle = C.ink;
         ctx.textAlign = "left";
@@ -1618,46 +1790,48 @@
       function s6(t) {
         bg(C.indigo);
         const c = cam6(t);
-        const sh = shake(t, [b(32), b(40)], 16);
+        const sh = shake(t, [b(36), b(44)], 16);
         cam(c.x - sh.x, c.y - sh.y, c.z);
 
         // the board arrives from an isometric plane, then turns over into the workbook
-        const arrive = clamp((t - b(32.75)) / b(1.5));
-        const ea = E.back(arrive);
-        const flip = clamp((t - b(44.5)) / b(0.75));
+        const ea = E.back(clamp((t - b(36.75)) / b(1.5)));
+        const flip = clamp((t - b(48.5)) / b(0.75));
         const sx = Math.abs(Math.cos(Math.PI * E.inout(flip)));
         const pages = flip >= 0.5;
-        if (arrive > 0 && !pages) {
+        if (t >= b(36.75) && !pages) {
           ctx.save();
-          ctx.translate(PX + PW / 2, PY + PH / 2);
+          ctx.translate(DL.px + DL.pw / 2, DL.py + DL.ph / 2);
           ctx.scale(sx, 1);
           ctx.scale(1, lerp(0.5, 1, ea));
           ctx.rotate(lerp(-0.62, 0, ea));
           const s = lerp(0.35, 1, ea);
           ctx.scale(s, s);
-          ctx.translate(-PW / 2, -PH / 2);
+          ctx.translate(-DL.pw / 2, -DL.ph / 2);
           dashboard(t);
           ctx.restore();
         }
         if (pages) {
+          const fanX = PORTRAIT ? 120 : 300;
+          const pcy = PORTRAIT ? CY - 90 : 470;
+          const ps = PORTRAIT ? 0.86 : 1;
           PAGES.forEach((pg, i) => {
-            const fan = E.back(clamp((t - b(45.25) - b(0.25) * i) / 0.35));
+            const fan = E.back(clamp((t - b(49.25) - b(0.25) * i) / 0.35));
             ctx.save();
             ctx.translate(
-              960 + (i - 1.5) * 300 * fan,
-              470 + Math.abs(i - 1.5) * 26 * fan,
+              CX + (i - 1.5) * fanX * fan,
+              pcy + Math.abs(i - 1.5) * 26 * fan,
             );
-            ctx.rotate((i - 1.5) * 0.09 * fan);
-            ctx.scale(i === 0 ? Math.max(sx, fan) : fan, i === 0 ? 1 : fan);
-            if (i === 0 || fan > 0) page(pg, t);
+            ctx.rotate((i - 1.5) * (PORTRAIT ? 0.1 : 0.09) * fan);
+            ctx.scale(ps * (i === 0 ? Math.max(sx, fan) : fan), ps * (i === 0 ? 1 : fan));
+            if (i === 0 || fan > 0) page(pg);
             ctx.restore();
           });
           // the workbook goes out as a file
-          const btn = E.back(clamp((t - b(46)) / 0.3));
+          const btn = E.back(clamp((t - b(50)) / 0.3));
           if (btn > 0) {
-            const press = 1 - 0.06 * bump(t, b(46.75), 0.16);
+            const press = 1 - 0.06 * bump(t, b(50.75), 0.16);
             ctx.save();
-            ctx.translate(960, 905);
+            ctx.translate(CX, PORTRAIT ? CY + 360 : 905);
             ctx.scale(btn * press, btn * press);
             ctx.fillStyle = C.ink;
             rr(-230, -44, 460, 88, 44);
@@ -1666,7 +1840,7 @@
             ctx.fillStyle = C.white;
             ctx.textAlign = "center";
             ctx.fillText(
-              t >= b(46.9) ? "✓  MIS · March 2026.xlsx" : "↓  Download workbook",
+              t >= b(50.9) ? "✓  MIS · March 2026.xlsx" : "↓  Download workbook",
               0,
               11,
             );
@@ -1676,29 +1850,43 @@
         reset();
 
         // headline, then the caption it becomes
-        if (t < b(33)) {
-          const sh2 = shake(t, [b(32)], 20);
-          slam("A clean dashboard.", W / 2 + sh2.x, 600 + sh2.y, 168, t, b(32), {
-            color: C.white,
-          });
+        if (t < b(37)) {
+          const s2 = shake(t, [b(36)], 20);
+          if (PORTRAIT) {
+            slam("A clean", CX + s2.x, CY - 30 + s2.y, 180, t, b(36), { color: C.white });
+            slam("dashboard.", CX + s2.x, CY + 150 + s2.y, 180, t, b(36), {
+              color: C.white,
+            });
+          } else
+            slam("A clean dashboard.", CX + s2.x, 600 + s2.y, 168, t, b(36), {
+              color: C.white,
+            });
         }
         const cur = CAPTIONS.filter((k) => t >= b(k.at)).pop();
         if (cur) {
-          const into = t < b(33.5) ? E.out(clamp((t - b(33)) / b(0.5))) : 1;
-          setFont(54, 600);
+          const cap = PORTRAIT
+            ? { y: H - 250, h: 110, size: 48, x: 64 }
+            : { y: 900, h: 116, size: 54, x: 76 };
+          const into = t < b(37.5) ? E.out(clamp((t - b(37)) / b(0.5))) : 1;
+          setFont(cap.size, 600);
           const w = tw(cur.s);
-          const bw = (w + 150) * E.expo(clamp((t - b(33)) / 0.3));
+          const bw = (w + cap.x * 2) * E.expo(clamp((t - b(37)) / 0.3));
           ctx.fillStyle = C.ink;
-          ctx.fillRect(0, 900, bw, 116);
+          ctx.fillRect(0, cap.y, bw, cap.h);
           ctx.save();
           ctx.beginPath();
-          ctx.rect(0, 900, bw, 116);
+          ctx.rect(0, cap.y, bw, cap.h);
           ctx.clip();
           const prev = CAPTIONS[CAPTIONS.indexOf(cur) - 1];
           const swap = E.expo(clamp((t - b(cur.at)) / 0.34));
+          const base = cap.y + cap.h * 0.66;
           ctx.fillStyle = C.white;
-          if (prev && swap < 1) ctx.fillText(prev.s, 76, 976 - swap * 116);
-          ctx.fillText(cur.s, 76, 976 + (prev ? (1 - swap) * 116 : (1 - into) * 116));
+          if (prev && swap < 1) ctx.fillText(prev.s, cap.x, base - swap * cap.h);
+          ctx.fillText(
+            cur.s,
+            cap.x,
+            base + (prev ? (1 - swap) * cap.h : (1 - into) * cap.h),
+          );
           ctx.restore();
         }
 
@@ -1719,21 +1907,31 @@
       }
 
       /* ================================================================ 7 · the half day
-       * 48 → 52 beats. "No more spending half a day making Excel look presentable."
-       * Ink. "half a day" is struck through on the beat, and its letters fall away. */
+       * 52 → 60 beats. "No more spending half a day making Excel look presentable."
+       * Ink. "half a day" lands a word a beat, is struck through on beat 58, and its letters
+       * fall away. */
 
       function s7(t) {
         bg(C.ink);
-        const x = 150;
-        const fall = t - b(51.5);
+        const x = M;
+        const fall = t - b(59);
         const fade = 1 - clamp(fall / 0.25);
-        words(at(["No", "more", "spending"], 48, 0.25), x, 300, 84, t, {
-          color: C.white,
-          weight: 500,
-          alpha: fade,
-        });
+        const size = PORTRAIT ? fit("half a day", 290, W - 2 * M, 700, -0.045) : 290;
+        const base = PORTRAIT ? CY + 40 : 610;
+        words(
+          at(["No", "more", "spending"], 52, 0.5),
+          x,
+          PORTRAIT ? CY - 330 : 300,
+          PORTRAIT ? 78 : 84,
+          t,
+          {
+            color: C.white,
+            weight: 500,
+            alpha: fade,
+          },
+        );
         // "half a day", letter by letter so the letters can fall
-        setFont(290, 700, DISPLAY, -0.045);
+        setFont(size, 700, DISPLAY, -0.045);
         ctx.textAlign = "left";
         const word = "half a day";
         const full = tw(word);
@@ -1743,50 +1941,52 @@
           if (ch === " ") continue;
           const lx = x + tw(word.slice(0, i));
           const wordIndex = word.slice(0, i).split(" ").length - 1;
-          const t0 = b(48.75 + wordIndex * 0.25);
+          const t0 = b(54 + wordIndex * 0.5);
           if (t < t0) continue;
           const p = E.expo(clamp((t - t0) / 0.22));
-          const delay = r() * 0.12;
-          const ft = Math.max(0, fall - delay);
+          const ft = Math.max(0, fall - r() * 0.12);
           const vy = -300 - r() * 500;
           const dy = vy * ft + 0.5 * 9000 * ft * ft;
           const rot = (r() - 0.5) * 6 * ft;
           ctx.save();
-          ctx.translate(lx + cw(ch) / 2, 610 + dy - 100);
+          ctx.translate(lx + cw(ch) / 2, base + dy - 100);
           ctx.rotate(rot);
           ctx.scale(lerp(1.4, 1, p), lerp(1.4, 1, p));
-          ctx.globalAlpha = clamp((t - t0) / 0.04) * (t >= b(51.25) ? 0.42 : 1);
+          ctx.globalAlpha = clamp((t - t0) / 0.04) * (t >= b(58.4) ? 0.42 : 1);
           ctx.fillStyle = C.white;
           ctx.fillText(ch, -cw(ch) / 2, 100);
           ctx.restore();
         }
         // the strike
-        const strike = E.inout(clamp((t - b(51)) / b(0.4)));
+        const strike = E.inout(clamp((t - b(58)) / b(0.6)));
         if (strike > 0 && fall < 0) {
+          const th = Math.max(16, size * 0.1);
           ctx.fillStyle = C.indigo5;
-          ctx.fillRect(x - 24, 610 - 290 * 0.3 - 14, (full + 48) * strike, 28);
+          ctx.fillRect(x - 24, base - size * 0.3 - th / 2, (full + 48) * strike, th);
         }
         words(
-          at(["making", "Excel", "look", "presentable."], 49.75, 0.25),
+          at(["making", "Excel", "look", "presentable."], 56, 0.5),
           x,
-          790,
-          72,
+          PORTRAIT ? CY + 250 : 790,
+          PORTRAIT ? 66 : 72,
           t,
-          { color: C.lav, weight: 500, alpha: fade },
+          { color: C.lav, weight: 500, alpha: fade, maxW: W - 2 * M },
         );
       }
 
       /* ================================================================ 8 · the becoming
-       * 52 → 56 beats. "Just your data… becoming a decision-ready MIS."
+       * 60 → 68 beats. "Just your data… becoming a decision-ready MIS."
        * Figures scattered across the paper fly, each on its own curve, into the rising line
        * of the mark. */
 
-      const MK = { cx: 960, cy: 660, size: 540 };
-      const MK_K = MK.size / 64;
-      const MK_X0 = MK.cx - MK.size / 2;
-      const MK_Y0 = MK.cy - MK.size / 2;
+      const MK = PORTRAIT
+        ? { cx: CX, cy: 1200, size: 620 }
+        : { cx: 960, cy: 660, size: 540 };
       const PARTICLES = (() => {
         const r = rng(2026);
+        const k = MK.size / 64;
+        const x0 = MK.cx - MK.size / 2;
+        const y0 = MK.cy - MK.size / 2;
         const segs = [];
         let len = 0;
         for (let i = 0; i < MARK.length - 1; i++) {
@@ -1798,6 +1998,7 @@
         }
         const N = 280;
         const cols = [C.n700, C.n500, C.indigo, C.lav];
+        const top = PORTRAIT ? 680 : 360;
         return Array.from({ length: N }, (_, i) => {
           const d = ((i + r() * 0.8) / N) * len;
           const s = segs.find((g) => d <= g.from + g.l) ?? segs[segs.length - 1];
@@ -1805,13 +2006,13 @@
           const nx = -(s.by - s.ay) / s.l;
           const ny = (s.bx - s.ax) / s.l;
           const j = (r() - 0.5) * 3.2;
-          const tx = MK_X0 + (s.ax + (s.bx - s.ax) * f + nx * j) * MK_K;
-          const ty = MK_Y0 + (s.ay + (s.by - s.ay) * f + ny * j) * MK_K;
+          const tx = x0 + (s.ax + (s.bx - s.ax) * f + nx * j) * k;
+          const ty = y0 + (s.ay + (s.by - s.ay) * f + ny * j) * k;
           let sx;
           let sy;
           do {
-            sx = 60 + r() * (W - 120);
-            sy = 360 + r() * (H - 400);
+            sx = 50 + r() * (W - 100);
+            sy = top + r() * (H - top - 50);
           } while (Math.hypot(sx - tx, sy - ty) < 160);
           return {
             sx,
@@ -1820,9 +2021,9 @@
             ty,
             ch: String(Math.floor(r() * 10)),
             col: cols[Math.floor(r() * cols.length)],
-            pop: b(52) + r() * b(0.9),
-            go: b(53) + r() * b(1.3),
-            dur: b(0.9) + r() * b(0.5),
+            pop: b(60) + r() * b(1.5),
+            go: b(62) + r() * b(2),
+            dur: b(1.2) + r() * b(0.6),
             bend: (r() - 0.5) * 700,
             ph: r() * 6.28,
           };
@@ -1832,23 +2033,35 @@
       function s8(t) {
         bg(C.paper);
         dotGrid(C.n400, 0.22);
-        words(at(["Just", "your", "data…"], 52, 0.25), W / 2, 190, 78, t, {
-          align: "center",
-          weight: 500,
-        });
+        words(
+          at(["Just", "your", "data…"], 60, 0.5),
+          CX,
+          PORTRAIT ? 380 : 190,
+          PORTRAIT ? 80 : 78,
+          t,
+          {
+            align: "center",
+            weight: 500,
+          },
+        );
         words(
           at(
-            ["becoming", "a", "decision-ready", { s: "MIS.", color: C.indigo }],
-            53.75,
-            0.25,
+            [
+              "becoming",
+              "a",
+              { s: "decision-ready", nl: PORTRAIT },
+              { s: "MIS.", color: C.indigo },
+            ],
+            63,
+            0.5,
           ),
-          W / 2,
-          290,
-          78,
+          CX,
+          PORTRAIT ? 500 : 290,
+          PORTRAIT ? 80 : 78,
           t,
-          { align: "center" },
+          { align: "center", lead: 1.15 },
         );
-        const solid = clamp((t - b(55.4)) / b(0.5));
+        const solid = clamp((t - b(66)) / b(0.75));
         setFont(40, 600, BODY);
         ctx.textAlign = "center";
         for (const p of PARTICLES) {
@@ -1890,61 +2103,88 @@
       }
 
       /* ================================================================ 9 · the mark
-       * 56 → 64 beats. "Magic MIS. Turn your business data into valuable insights."
-       * The tile lands behind the line, the ring pops, the mark slides into its lockup and
-       * the frame comes to rest: the last second and a half does not move. */
+       * 68 → 76 beats. "Magic MIS. Turn your business data into valuable insights."
+       * The tile lands behind the line, the ring pops, the mark slides into its lockup —
+       * beside the wordmark in landscape, above it in portrait — and the frame comes to rest:
+       * the last second and a half does not move. */
 
-      const LOCK = { tile: 196, gap: 50, size: 168, y: 500 };
       function s9(t) {
         bg(C.ink);
-        setFont(LOCK.size, 600, DISPLAY, -0.02);
-        const ww = tw("Magic MIS");
-        const total = LOCK.tile + LOCK.gap + ww;
-        const left = W / 2 - total / 2;
-        const m = E.inout(clamp((t - b(57.5)) / b(1.25)));
-        const cx = lerp(MK.cx, left + LOCK.tile / 2, m);
-        const cy = lerp(MK.cy, LOCK.y, m);
-        const size = lerp(MK.size, LOCK.tile, m);
-        const sh = shake(t, [b(56)], 18);
-        const tile = lerp(0.82, 1, E.back(clamp((t - b(56)) / 0.4)));
-        const ring = E.back(clamp((t - b(56.5)) / 0.35));
-        mark(cx + sh.x, cy + sh.y, size, { tile, tileColor: C.indigo5, ring });
+        const word = "Magic MIS";
+        const size = PORTRAIT ? 150 : 168;
+        setFont(size, 600, DISPLAY, -0.02);
+        const ww = tw(word);
+        const lock = PORTRAIT
+          ? { cx: CX, cy: CY - 260, tile: 300, tx: CX - ww / 2, base: CY + 110 }
+          : (() => {
+              const tile = 196;
+              const left = CX - (tile + 50 + ww) / 2;
+              return {
+                cx: left + tile / 2,
+                cy: 500,
+                tile,
+                tx: left + tile + 50,
+                base: 500 + size * 0.35,
+              };
+            })();
+        const m = E.inout(clamp((t - b(69.5)) / b(1.25)));
+        const sh = shake(t, [b(68)], 18);
+        mark(
+          lerp(MK.cx, lock.cx, m) + sh.x,
+          lerp(MK.cy, lock.cy, m) + sh.y,
+          lerp(MK.size, lock.tile, m),
+          {
+            tile: lerp(0.82, 1, E.back(clamp((t - b(68)) / 0.4))),
+            tileColor: C.indigo5,
+            ring: E.back(clamp((t - b(68.5)) / 0.35)),
+          },
+        );
 
         // the wordmark rises letter by letter, "MIS" in the accent
-        const word = "Magic MIS";
-        const baseline = LOCK.y + LOCK.size * 0.35;
-        const tx = left + LOCK.tile + LOCK.gap;
-        setFont(LOCK.size, 600, DISPLAY, -0.02);
+        setFont(size, 600, DISPLAY, -0.02);
         ctx.textAlign = "left";
         ctx.save();
         ctx.beginPath();
-        ctx.rect(tx - 20, baseline - LOCK.size * 1.05, ww + 60, LOCK.size * 1.35);
+        ctx.rect(lock.tx - 20, lock.base - size * 1.05, ww + 60, size * 1.35);
         ctx.clip();
         for (let i = 0; i < word.length; i++) {
-          const ch = word[i];
-          const t0 = b(58.25) + i * b(0.0625);
-          const p = E.expo(clamp((t - t0) / 0.42));
+          const p = E.expo(clamp((t - b(70.25) - i * b(0.0625)) / 0.42));
           if (p <= 0) continue;
           ctx.fillStyle = i >= 6 ? C.lavText : C.white;
           ctx.fillText(
-            ch,
-            tx + tw(word.slice(0, i)),
-            baseline + (1 - p) * LOCK.size * 1.2,
+            word[i],
+            lock.tx + tw(word.slice(0, i)),
+            lock.base + (1 - p) * size * 1.2,
           );
         }
         ctx.restore();
 
         words(
           at(
-            ["Turn", "your", "business", "data", "into", "valuable", "insights."],
-            59,
+            [
+              "Turn",
+              "your",
+              "business",
+              "data",
+              { s: "into", nl: PORTRAIT },
+              "valuable",
+              "insights.",
+            ],
+            71,
             0.125,
           ),
-          W / 2,
-          baseline + 150,
+          CX,
+          lock.base + (PORTRAIT ? 160 : 150),
           46,
           t,
-          { align: "center", fam: BODY, weight: 500, color: C.muted, dur: 0.5 },
+          {
+            align: "center",
+            fam: BODY,
+            weight: 500,
+            color: C.muted,
+            dur: 0.5,
+            lead: 1.4,
+          },
         );
       }
 
@@ -1953,13 +2193,13 @@
       const SCENES = [
         [0, 4, s1],
         [4, 12, s2],
-        [12, 16, s3],
-        [16, 24, s4],
-        [24, 32, s5],
-        [32, 48, s6],
-        [48, 52, s7],
-        [52, 56, s8],
-        [56, 64, s9],
+        [12, 20, s3],
+        [20, 28, s4],
+        [28, 36, s5],
+        [36, 52, s6],
+        [52, 60, s7],
+        [60, 68, s8],
+        [68, 76, s9],
       ];
       function render(time) {
         const t = clamp(time, 0, TOTAL);
@@ -1972,9 +2212,9 @@
       }
 
       /* ================================================================ the score
-       * 128 BPM in A minor: Am, F, C, G, one chord a bar. Every hit above has a sound here at
-       * the same beat. Built against any BaseAudioContext, so the recorder renders it offline
-       * and the page plays the very same buffer. */
+       * 120 BPM in A minor. Every hit above has a sound here on the same beat. Built against
+       * any BaseAudioContext, so the recorder renders it offline and the page plays the very
+       * same buffer. `T(beat)` is a time on the grid, `D(beats)` a length. */
 
       const mtof = (n) => 440 * Math.pow(2, (n - 69) / 12);
       const CHORDS = [
@@ -1984,13 +2224,15 @@
         [55, 59, 62],
       ];
       const ROOTS = [45, 41, 48, 43];
-      const chordOf = (beat) => Math.floor(beat / 4) % 4;
 
       function score(ac) {
         const T = (beat) => beat * BEAT;
+        const D = T;
         const r = rng(128);
         const out = ac.createGain();
-        out.gain.value = 0.8;
+        out.gain.setValueAtTime(0.8, 0);
+        out.gain.setValueAtTime(0.8, T(74));
+        out.gain.linearRampToValueAtTime(0.0001, TOTAL - 0.02);
         const comp = ac.createDynamicsCompressor();
         comp.threshold.value = -16;
         comp.knee.value = 10;
@@ -1998,8 +2240,6 @@
         comp.attack.value = 0.004;
         comp.release.value = 0.14;
         out.connect(comp).connect(ac.destination);
-        out.gain.setValueAtTime(0.8, T(62));
-        out.gain.linearRampToValueAtTime(0.0001, TOTAL - 0.02);
 
         const lp = ac.createBiquadFilter();
         lp.type = "lowpass";
@@ -2177,6 +2417,7 @@
             }
           });
         }
+        const up = (notes, k = 12) => notes.map((x) => x + k);
         const stab = (t, notes, v = 0.11, dur = 0.2) =>
           chord(t, notes, dur, v, 2600, 0.004, dur - 0.01);
         const pad = (t, notes, dur, v = 0.07) =>
@@ -2206,171 +2447,139 @@
         const click = (t, v = 0.08) =>
           hit(t, 0.012, "bandpass", 3600, v, fx, 2, (r() - 0.5) * 0.6);
         const tick = (t, hi, v = 0.1) => tone(t, hi ? 2100 : 1550, 0.03, v, "sine", fx);
-        const groove = (from, to, o = {}) => {
+        /** Four on the floor from `from` to `to`, the chords counted in bars from `origin`. */
+        const groove = (from, to, origin, o = {}) => {
           for (let n = from; n < to; n++) {
+            const ch = Math.floor((n - origin) / 4) % 4;
             kick(T(n));
-            if (o.clap !== false && n % 2 === 1) clap(T(n), 0.42);
+            if (n % 2 === 1) clap(T(n), 0.42);
             hat(T(n + 0.5), 0.13, o.open ?? false, -0.2);
             for (const s of [0.25, 0.75]) hat(T(n + s), 0.05, false, 0.3);
-            if (o.bass !== false)
-              for (const s of [0, 0.5])
-                bass(T(n + s), ROOTS[chordOf(n)] + (s ? 12 : 0), T(0.45), 0.3);
-            if (o.stabs)
-              stab(
-                T(n + 0.5),
-                CHORDS[chordOf(n)].map((x) => x + 12),
-                0.075,
-              );
+            for (const s of [0, 0.5])
+              bass(T(n + s), ROOTS[ch] + (s ? 12 : 0), D(0.45), 0.3);
+            if (o.stabs) stab(T(n + 0.5), up(CHORDS[ch]), 0.075);
           }
         };
 
-        // 1 · hook
+        // 1 · hook (0–4)
         impact(0);
         kick(0);
-        stab(
-          0,
-          CHORDS[0].map((x) => x + 12),
-          0.14,
-          0.35,
-        );
+        stab(0, up(CHORDS[0]), 0.14, 0.35);
         for (let s = 0; s < 8; s++) hat(T(s * 0.25), 0.04 + s * 0.012);
         impact(T(2), 0.8);
         kick(T(2));
         kick(T(3));
         clap(T(2), 0.5);
-        stab(
-          T(2),
-          CHORDS[0].map((x) => x + 12),
-          0.14,
-          0.35,
-        );
+        stab(T(2), up(CHORDS[0]), 0.14, 0.35);
         for (let s = 8; s < 16; s++) hat(T(s * 0.25), 0.07);
         for (const s of [2, 2.5, 3, 3.5])
-          bass(T(s), ROOTS[0] + (s % 1 ? 12 : 0), T(0.45));
-        whoosh(T(3.4), T(0.6), true, 0.3);
+          bass(T(s), ROOTS[0] + (s % 1 ? 12 : 0), D(0.45));
+        whoosh(T(3.4), D(0.6), true, 0.3);
 
-        // 2 · files
-        groove(4, 12, { stabs: false });
-        pad(T(4), CHORDS[1], T(4));
-        pad(T(8), CHORDS[2], T(4));
+        // 2 · files (4–12)
+        groove(4, 12, 0);
+        pad(T(4), CHORDS[1], D(4));
+        pad(T(8), CHORDS[2], D(4));
         TYPED.forEach((w, i) => {
           for (let c = 0; c < w.length; c++)
             click(T(4 + i * 0.5) + (c * 0.15) / w.length, 0.07);
         });
-        whoosh(T(8), T(2.4), false, 0.22);
-        stab(
-          T(10.5),
-          CHORDS[2].map((x) => x + 12),
-          0.16,
-          0.3,
-        );
-        stab(
-          T(11),
-          CHORDS[3].map((x) => x + 12),
-          0.16,
-          0.3,
-        );
+        whoosh(T(8), D(2.4), false, 0.22);
+        stab(T(10.5), up(CHORDS[2]), 0.16, 0.3);
+        stab(T(11), up(CHORDS[3]), 0.16, 0.3);
         impact(T(10.5), 0.35);
-        for (let i = 0; i < 3; i++) whoosh(T(11.5 + i * 0.125), T(0.3), true, 0.16);
+        for (let i = 0; i < 3; i++) whoosh(T(11.5 + i * 0.125), D(0.3), true, 0.16);
 
-        // 3 · hours
-        kick(T(12));
-        kick(T(14));
-        snare(T(13), 0.22);
-        bass(T(12), ROOTS[3], T(3.9), 0.26);
-        pad(T(12), CHORDS[3], T(4), 0.06);
-        for (let s = 12, i = 0; s < 16; s += s < 14 ? 0.5 : s < 15 ? 0.25 : 0.125, i++)
-          tick(T(s), i % 2 === 0, 0.09);
-        impact(T(15), 0.7);
-        clap(T(15), 0.55);
+        // 3 · hours (12–20): half time, the clock ticking faster
+        for (const n of [12, 14, 16]) kick(T(n));
+        for (const n of [13, 15, 17]) snare(T(n), 0.22);
+        bass(T(12), ROOTS[3], D(3.9), 0.24);
+        bass(T(16), ROOTS[1], D(3.9), 0.24);
+        pad(T(12), CHORDS[3], D(4), 0.06);
+        pad(T(16), CHORDS[1], D(4), 0.06);
+        for (let s = 12, i = 0; s < 20; s += s < 16 ? 0.5 : s < 18 ? 0.25 : 0.125, i++)
+          tick(T(s), i % 2 === 0, 0.08);
+        impact(T(18), 0.7);
+        clap(T(18), 0.55);
+        riser(T(18.5), T(20), 0.16);
 
-        // 4 · the grind: a hit and a new chord on every beat
-        const grind = [
-          CHORDS[0],
-          CHORDS[1],
-          CHORDS[2],
-          CHORDS[3],
-          CHORDS[0],
-          CHORDS[1],
-          CHORDS[3],
-        ];
-        for (let n = 16; n < 23; n++) {
+        // 4 · the grind (20–28): a hit and a new chord on every beat
+        const grind = [0, 1, 2, 3, 0, 1, 3];
+        for (let n = 20; n < 27; n++) {
+          const ch = grind[n - 20];
           kick(T(n));
           clap(T(n), 0.36);
-          stab(
-            T(n),
-            grind[n - 16].map((x) => x + 12),
-            0.12,
-            0.26,
-          );
-          bass(T(n), ROOTS[chordOf(n)], T(0.45));
-          bass(T(n + 0.5), ROOTS[chordOf(n)] + 12, T(0.45));
+          stab(T(n), up(CHORDS[ch]), 0.12, 0.26);
+          bass(T(n), ROOTS[ch], D(0.45));
+          bass(T(n + 0.5), ROOTS[ch] + 12, D(0.45));
           for (const s of [0.25, 0.5, 0.75]) hat(T(n + s), 0.06);
         }
-        for (let n = 16; n < 24; n++) click(T(n), 0.12);
-        tone(T(22), 92, T(0.9), 0.2, "square", lp);
-        tone(T(22), 97.5, T(0.9), 0.2, "square", lp);
-        kick(T(23));
+        for (let n = 20; n < 28; n++) click(T(n), 0.12);
+        tone(T(26), 92, D(0.9), 0.2, "square", lp);
+        tone(T(26), 97.5, D(0.9), 0.2, "square", lp);
+        kick(T(27));
         [0, 2, 3, 5].forEach((st, i) => {
-          clap(T(23 + i * 0.25), 0.4);
-          stab(
-            T(23 + i * 0.25),
-            CHORDS[0].map((x) => x + 12 + st),
-            0.12,
-            0.12,
-          );
+          clap(T(27 + i * 0.25), 0.4);
+          stab(T(27 + i * 0.25), up(CHORDS[0], 12 + st), 0.12, 0.12);
         });
 
-        // 5 · the turn: the beat drops out
-        pad(T(24), CHORDS[2], T(4), 0.11);
-        pad(T(28), CHORDS[3], T(3.5), 0.11);
+        // 5 · the turn (28–36): the beat drops out
+        pad(T(28), CHORDS[2], D(4), 0.11);
+        pad(T(32), CHORDS[3], D(3.5), 0.11);
         for (let s = 0; s < 15; s++) {
-          const n = 24 + s * 0.5;
-          const ch = CHORDS[chordOf(n)];
-          pluck(T(n), ch[s % 3] + 12 + (s % 4 === 3 ? 12 : 0), 0.14, s % 2 ? 0.4 : -0.4);
+          const ch = s < 8 ? CHORDS[2] : CHORDS[3];
+          pluck(
+            T(28 + s * 0.5),
+            ch[s % 3] + 12 + (s % 4 === 3 ? 12 : 0),
+            0.14,
+            s % 2 ? 0.4 : -0.4,
+          );
         }
         DROP_FILES.forEach((_, i) =>
-          tone(T(26 + i * 0.5) + 0.3, 140, 0.14, 0.4, "sine", fx),
+          tone(T(30 + i * 0.5) + 0.3, 140, 0.14, 0.4, "sine", fx),
         );
-        riser(T(28), T(31.5), 0.34);
-        for (let s = 28; s < 31.5; s += s < 30 ? 0.5 : s < 31 ? 0.25 : 0.125)
-          snare(T(s), 0.08 + ((s - 28) / 3.5) * 0.3);
-        whoosh(T(31.1), T(0.4), true, 0.3);
+        riser(T(32), T(35.5), 0.34);
+        for (let s = 32; s < 35.5; s += s < 34 ? 0.5 : s < 35 ? 0.25 : 0.125)
+          snare(T(s), 0.08 + ((s - 32) / 3.5) * 0.3);
+        whoosh(T(35.1), D(0.4), true, 0.3);
 
-        // 6 · the drop
-        impact(T(32), 1.1);
-        hit(T(32), 1.8, "highpass", 5000, 0.2, fx);
-        groove(32, 48, { stabs: true, open: true });
-        for (let bar = 0; bar < 4; bar++) pad(T(32 + bar * 4), CHORDS[bar], T(4), 0.05);
-        for (let i = 0; i < 24; i++) click(T(33.5) + (i * T(1)) / 24, 0.05);
-        whoosh(T(35.6), T(0.6), true, 0.18);
-        [0, 1, 2, 3].forEach((i) => tick(T(36.75 + i * 0.25), true, 0.08));
-        whoosh(T(39.7), T(0.5), true, 0.3);
-        hit(T(40), 1.2, "highpass", 5000, 0.14, fx);
-        bell(T(43.25), 88, 0.12);
+        // 6 · the drop (36–52)
+        impact(T(36), 1.1);
+        hit(T(36), 1.8, "highpass", 5000, 0.2, fx);
+        groove(36, 52, 36, { stabs: true, open: true });
+        for (let bar = 0; bar < 4; bar++) pad(T(36 + bar * 4), CHORDS[bar], D(4), 0.05);
+        for (let i = 0; i < 24; i++) click(T(37.5) + (i * D(1)) / 24, 0.05);
+        whoosh(T(39.6), D(0.6), true, 0.18);
+        [0, 1, 2, 3].forEach((i) => tick(T(40.75 + i * 0.25), true, 0.08));
+        whoosh(T(43.7), D(0.5), true, 0.3);
         hit(T(44), 1.2, "highpass", 5000, 0.14, fx);
-        whoosh(T(44.4), T(0.8), false, 0.2);
-        click(T(46.75), 0.25);
-        tone(T(46.9), mtof(81), 0.2, 0.1, "triangle");
-        tone(T(47.0), mtof(88), 0.3, 0.1, "triangle");
+        bell(T(47.25), 88, 0.12);
+        hit(T(48), 1.2, "highpass", 5000, 0.14, fx);
+        whoosh(T(48.4), D(0.8), false, 0.2);
+        click(T(50.75), 0.25);
+        tone(T(50.9), mtof(81), 0.2, 0.1, "triangle");
+        tone(T(51), mtof(88), 0.3, 0.1, "triangle");
 
-        // 7 · the half day: the music sinks under a closing filter
-        groove(48, 52, { stabs: true });
-        lp.frequency.setValueAtTime(19000, T(48));
-        lp.frequency.exponentialRampToValueAtTime(520, T(51.5));
-        lp.frequency.setValueAtTime(19000, T(52));
-        whoosh(T(51), T(0.45), false, 0.3);
-        [76, 72, 69, 64, 60].forEach((n, i) => pluck(T(51.5) + i * 0.07, n, 0.09));
+        // 7 · the half day (52–60): the music sinks under a closing filter
+        groove(52, 60, 48, { stabs: true });
+        lp.frequency.setValueAtTime(19000, T(54));
+        lp.frequency.exponentialRampToValueAtTime(520, T(59.5));
+        lp.frequency.setValueAtTime(19000, T(60));
+        for (const n of [54, 54.5, 55]) stab(T(n), up(CHORDS[1]), 0.12, 0.2);
+        whoosh(T(58), D(0.6), false, 0.3);
+        [76, 72, 69, 64, 60].forEach((n, i) => pluck(T(59) + i * 0.07, n, 0.09));
 
-        // 8 · the becoming
-        pad(T(52), CHORDS[1], T(2), 0.08);
-        pad(T(54), CHORDS[3], T(2), 0.08);
-        bass(T(52), ROOTS[1], T(1.9), 0.2);
-        bass(T(54), ROOTS[3], T(1.9), 0.2);
+        // 8 · the becoming (60–68)
+        pad(T(60), CHORDS[1], D(4), 0.08);
+        pad(T(64), CHORDS[3], D(4), 0.08);
+        bass(T(60), ROOTS[1], D(3.9), 0.2);
+        bass(T(64), ROOTS[3], D(3.9), 0.2);
+        for (let s = 0; s < 4; s++)
+          pluck(T(60 + s * 0.5), CHORDS[1][s % 3] + 12, 0.1, s % 2 ? 0.4 : -0.4);
         const penta = [81, 84, 86, 88, 91, 93];
-        for (let i = 0; i < 26; i++)
+        for (let i = 0; i < 30; i++)
           tone(
-            T(53) + r() * T(2.5),
+            T(62) + r() * D(3.6),
             mtof(penta[Math.floor(r() * penta.length)]),
             0.18,
             0.045,
@@ -2379,20 +2588,20 @@
             0.002,
             (r() - 0.5) * 1.4,
           );
-        riser(T(53), T(55.875), 0.3);
-        for (let s = 54; s < 55.875; s += s < 55 ? 0.25 : 0.125)
-          snare(T(s), 0.1 + ((s - 54) / 1.9) * 0.25);
+        riser(T(63), T(67.875), 0.3);
+        for (let s = 66; s < 67.875; s += s < 67 ? 0.25 : 0.125)
+          snare(T(s), 0.1 + ((s - 66) / 1.9) * 0.25);
 
-        // 9 · the mark: home, and still
-        impact(T(56), 1);
-        kick(T(56));
-        hit(T(56), 2.4, "highpass", 5000, 0.18, fx);
-        chord(T(56), [57, 60, 64, 71], TOTAL - T(56), 0.085, 1600, 0.01, 3.5, lp);
-        chord(T(56), [69, 72, 76], TOTAL - T(56), 0.035, 3000, 0.01, 3.5, lp);
-        bass(T(56), 45, TOTAL - T(56) - 0.05, 0.28);
-        bell(T(56.5), 81, 0.3);
-        whoosh(T(57.7), T(0.9), true, 0.12);
-        [76, 81, 84].forEach((n, i) => pluck(T(59 + i * 0.25), n, 0.08));
+        // 9 · the mark (68–76): home, and still
+        impact(T(68), 1);
+        kick(T(68));
+        hit(T(68), 2.4, "highpass", 5000, 0.18, fx);
+        chord(T(68), [57, 60, 64, 71], TOTAL - T(68), 0.085, 1600, 0.01, 3.5, lp);
+        chord(T(68), [69, 72, 76], TOTAL - T(68), 0.035, 3000, 0.01, 3.5, lp);
+        bass(T(68), 45, TOTAL - T(68) - 0.05, 0.28);
+        bell(T(68.5), 81, 0.3);
+        whoosh(T(69.7), D(0.9), true, 0.12);
+        [76, 81, 84].forEach((n, i) => pluck(T(71 + i * 0.25), n, 0.08));
 
         // sidechain: the bass and pads breathe around every kick
         kicks.sort((x, y) => x - y);
@@ -2463,15 +2672,15 @@
       ).then(() => document.fonts.ready);
 
       window.__duration = TOTAL;
+      window.__size = { width: W, height: H };
       window.__seek = render;
       window.__ready = ready;
       window.__score = scoreWav;
 
-      const params = new URLSearchParams(location.search);
       if (params.has("still")) document.documentElement.classList.add("still");
       ready.then(() => {
         const at0 = params.get("t");
-        render(at0 === null ? b(62) : Number(at0));
+        render(at0 === null ? TOTAL : Number(at0));
         if (params.has("still") || at0 !== null) return;
         let audio;
         document.getElementById("play").addEventListener("click", async () => {
