@@ -838,7 +838,9 @@ export function Assistant({
                   data-testid="chat-edit"
                 >
                   <p className="leading-relaxed text-neutral-800">{reply.summary}</p>
-                  {reply.scope === "in_scope" ? (
+                  {/* No operations means the board already shows what was asked: the summary
+                      says so, and there is nothing to apply, preview or undo. */}
+                  {reply.scope === "in_scope" && (reply.operations?.length ?? 0) > 0 ? (
                     <>
                       <details className="mt-2 text-[0.75rem] text-neutral-500">
                         <summary className="cursor-pointer select-none">

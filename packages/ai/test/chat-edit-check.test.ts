@@ -246,4 +246,27 @@ describe("what the chat may put on a dashboard", () => {
       ),
     ).toContain("duplicate widget id");
   });
+
+  it("no change at all when the board already shows what was asked, said in words", () => {
+    // The working capital table already carries debtor days (dso). Both Efficient and Expert
+    // answered this with no operations, which is right, and the check used to refuse it.
+    const request = "Add debtor days to the working capital table.";
+    expect(
+      check(
+        request,
+        proposal([], "That table already shows debtor days, so nothing changes."),
+      ),
+    ).toEqual([]);
+    expect(check(request, proposal([], "Debtor days is already in row 4."))).toEqual([
+      "summary: must not contain digits",
+    ]);
+    // Out of scope still means no operations, and operations still mean in scope.
+    expect(
+      check("what is the weather", {
+        scope: "out_of_scope",
+        summary: "I can change this dashboard only.",
+        operations: [add("/widgets/-", box({}))],
+      }),
+    ).toEqual(["an out-of-scope reply must have no operations"]);
+  });
 });

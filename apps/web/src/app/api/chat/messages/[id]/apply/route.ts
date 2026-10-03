@@ -39,7 +39,12 @@ export async function POST(
             threadId: body.data.threadId,
           });
           const reply = view?.messages.find((m) => m.id === id)?.reply;
-          if (view === null || reply?.kind !== "edit" || reply.scope !== "in_scope")
+          if (
+            view === null ||
+            reply?.kind !== "edit" ||
+            reply.scope !== "in_scope" ||
+            reply.operations.length === 0
+          )
             return {
               status: 404,
               body: { error: "not_found", message: "There is no change to apply." },

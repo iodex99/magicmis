@@ -279,15 +279,21 @@ const chatQuickEval: StageEval<ChatQuickInput, ChatAnswerOutput, ScopeLabel> = {
 const chatEditEval: StageEval<ChatEditInput, ChatEditOutput, EditLabel> = {
   spec: chatEditStageSpec,
   dataset: chatEditDataset,
-  // The proposal passed patch validation; it must change what was asked for.
-  score: (o, label) => ({
-    units: 1,
-    correct: o.operations.some(
-      (op) => op.path === label.path || op.path.startsWith(`${label.path}/`),
-    )
-      ? 1
-      : 0,
-  }),
+  // The proposal passed patch validation; it must change what was asked for — or, where the board
+  // already shows it, change nothing and say so in scope.
+  score: (o, label) => {
+    const path = label.path;
+    return {
+      units: 1,
+      correct: (
+        path === null
+          ? o.scope === "in_scope" && o.operations.length === 0
+          : o.operations.some((op) => op.path === path || op.path.startsWith(`${path}/`))
+      )
+        ? 1
+        : 0,
+    };
+  },
   /*
    * A perfect model's patch for each shape of edit the dataset asks for.
    *
@@ -299,6 +305,13 @@ const chatEditEval: StageEval<ChatEditInput, ChatEditOutput, EditLabel> = {
    */
   oracle: (item) => {
     const path = item.label.path;
+    // Already on the board: the perfect answer changes nothing.
+    if (path === null)
+      return {
+        scope: "in_scope" as const,
+        summary: "That table already shows it, so nothing needs changing.",
+        operations: [],
+      };
     // The dataset builds every item on DEFAULT_DASHBOARD; the input carries it as plain JSON
     // (chatEditInput takes z.json()), so read the shape from the typed value instead.
     const widgets = DEFAULT_DASHBOARD.widgets;

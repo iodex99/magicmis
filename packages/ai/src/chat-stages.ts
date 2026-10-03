@@ -228,8 +228,12 @@ export const chatEditStageSpec: StageSpec<ChatEditInput, ChatEditOutput> = {
       return output.operations.length === 0
         ? []
         : ["an out-of-scope reply must have no operations"];
+    // An in-scope request the board already satisfies — "add debtor days to the working capital
+    // table" when the table already shows them — is answered with no operations, which is the
+    // smallest change that does what was asked. Refusing it sent a correct reply back for repair
+    // and failed the message; the chat server applies nothing and the panel offers no Apply.
     if (output.operations.length === 0)
-      return ["an in-scope edit needs at least one operation"];
+      return /\p{Nd}/u.test(output.summary) ? ["summary: must not contain digits"] : [];
     const { ops, problems } = editOperations(output);
     if (problems.length > 0) return problems;
     if (/\p{Nd}/u.test(output.summary)) problems.push("summary: must not contain digits");

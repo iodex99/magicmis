@@ -835,7 +835,10 @@ export async function processMessage(
         appliedVersion: null,
       };
       const progress = await finish(env, msg, reply, { values: [], queries: [] }, 0);
-      if (target === "dashboard" && r.output.scope === "in_scope") {
+      // A reply with no operations says the board already shows what was asked: there is nothing
+      // to apply, and applying nothing would store an identical version and offer an Undo that
+      // undoes nothing.
+      if (target === "dashboard" && r.output.scope === "in_scope" && ops.length > 0) {
         try {
           const applied = await applyDashboardPatch(pool, wrapper, {
             ...scope,

@@ -792,8 +792,11 @@ export function chatQuickDataset(limit = 60): EvalItem<ChatQuickInput, ScopeLabe
   }));
 }
 
-/** The JSON Pointer the edit must change. */
-export type EditLabel = { readonly path: string };
+/**
+ * The JSON Pointer the edit must change, or null when the board already shows what was asked and
+ * the right answer is in scope with no operations at all.
+ */
+export type EditLabel = { readonly path: string | null };
 
 /**
  * The pointer an edit must land on (R-28).
@@ -812,7 +815,7 @@ export type EditLabel = { readonly path: string };
  * or as adding a comparison box, and both are right. An eval that picks one and marks the other
  * wrong measures the wording, not the model.
  */
-const EDIT_REQUESTS: readonly { id: string; request: string; path: string }[] = [
+const EDIT_REQUESTS: readonly { id: string; request: string; path: string | null }[] = [
   {
     id: "ce-rename-rev",
     request: "Call the first card Sales instead.",
@@ -963,9 +966,13 @@ const EDIT_REQUESTS: readonly { id: string; request: string; path: string }[] = 
     path: "/widgets/6/metrics",
   },
   {
+    // The working capital table already shows debtor days (dso), so this item was labelled with
+    // a change no correct answer makes. Efficient and Expert both replied, rightly, that nothing
+    // needed changing — and the stage check refused that reply. The label is now "no change";
+    // the request keeps its words, because the recordings are keyed by them.
     id: "ce-metrics-wc",
     request: "Add debtor days to the working capital table.",
-    path: "/widgets/7/metrics",
+    path: null,
   },
   {
     id: "ce-metrics-kpi",

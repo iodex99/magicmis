@@ -676,6 +676,80 @@ describe("Edit", () => {
     expect(undone.spec.widgets[0]?.title).toBe("Revenue");
   });
 
+  it("a request the board already satisfies is answered and charged, and changes nothing", async () => {
+    const c = await company();
+    const job = await createJob(pool(), {
+      ...c,
+      type: "dashboard_addon",
+      tier: "professional",
+      delivery: "standard",
+      idempotencyKey: randomUUID(),
+      size: {
+        files: 0,
+        sheets: 0,
+        columns: 0,
+        rows: 0,
+        distinctLedgerValues: 0,
+        referenceMisSheets: 0,
+      },
+    });
+    await confirmJob(pool(), { accountId: c.accountId, jobId: job.jobId });
+    await completeDashboardAddon(pool(), wrapper, {
+      accountId: c.accountId,
+      jobId: job.jobId,
+    });
+    const before = await companyDashboard(pool(), wrapper, c);
+
+    const sent = await sendMessage(pool(), wrapper, {
+      ...c,
+      threadId: null,
+      type: "edit",
+      tier: "professional",
+      text: "Add debtor days to the working capital table",
+      editTarget: "dashboard",
+      idempotencyKey: randomUUID(),
+    });
+    // One reply, accepted as it stands: no repair round is asked for.
+    const t = new ScriptedTransport([
+      {
+        kind: "message",
+        message: message(
+          JSON.stringify({
+            scope: "in_scope",
+            summary: "That table already shows debtor days, so nothing changes.",
+            operations: [],
+          }),
+        ),
+      },
+    ]);
+    const r = await processMessage(pool(), wrapper, t, {
+      accountId: c.accountId,
+      messageId: sent.messageId,
+    });
+    // Answered and paid for like any other reply, from the first answer: no repair round.
+    expect(r).toEqual({
+      status: "completed",
+      state: "completed",
+      capturedCredits: sent.priceCredits,
+    });
+    expect(t.created).toHaveLength(1);
+    const view = await threadView(pool(), wrapper, {
+      accountId: c.accountId,
+      threadId: sent.threadId,
+    });
+    const reply = view?.messages.find((m) => m.role === "assistant")?.reply;
+    if (reply?.kind !== "edit") throw new Error("no edit");
+    expect(reply.summary).toBe(
+      "That table already shows debtor days, so nothing changes.",
+    );
+    expect(reply.operations).toEqual([]);
+    // Nothing applied: no new version, and so no Undo for a change that never happened.
+    expect(reply.appliedVersion).toBeNull();
+    const after = await companyDashboard(pool(), wrapper, c);
+    expect(after?.blueprintVersion).toBe(before?.blueprintVersion);
+    expect(after?.canUndo).toBe(before?.canUndo);
+  });
+
   it("a change to the MIS template is proposed and waits for the customer", async () => {
     const c = await company();
     const sent = await sendMessage(pool(), wrapper, {
