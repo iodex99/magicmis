@@ -52,10 +52,16 @@ async function clearNetwork(ip: string): Promise<void> {
   await pool().query(`delete from auth_throttle where key = $1`, [welcomeNetworkKey(ip)]);
 }
 
+/**
+ * Back-dated a minute, as the chat tests do: the row's `effective_from` is the database's clock and
+ * `readConfig` asks with Node's, so on a machine whose Docker VM runs a few milliseconds ahead a row
+ * stamped `now()` is still in the future when it is read, and the old value wins.
+ */
 async function publishConfig(key: string, value: unknown): Promise<void> {
   await pool().query(
-    `insert into app_config (key, value, version)
-     select $1, $2::jsonb, coalesce(max(version), 0) + 1 from app_config where key = $1`,
+    `insert into app_config (key, value, version, effective_from)
+     select $1, $2::jsonb, coalesce(max(version), 0) + 1, now() - interval '1 minute'
+       from app_config where key = $1`,
     [key, JSON.stringify(value)],
   );
 }

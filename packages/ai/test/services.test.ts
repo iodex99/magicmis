@@ -115,13 +115,14 @@ describe("estimator", () => {
       estimateJob(pool(), { actionKey: "company_setup", tier: "efficient", size });
     const before = await est();
     await pool().query(
-      `insert into app_config (key, value, version)
+      // Back-dated a minute: `effective_from` is the database's clock and the read uses Node's.
+      `insert into app_config (key, value, version, effective_from)
        select key, value
                 || jsonb_build_object('chars_per_token_by_stage',
                      coalesce(value->'chars_per_token_by_stage', '{}'::jsonb) || '{"column_mapping": "4.0"}'::jsonb)
                 || jsonb_build_object('output_tokens_ratio_by_stage',
                      coalesce(value->'output_tokens_ratio_by_stage', '{}'::jsonb) || '{"column_mapping": "0.01"}'::jsonb),
-              version + 1
+              version + 1, now() - interval '1 minute'
          from app_config where key = 'ai.estimator' order by version desc limit 1`,
     );
     const after = await est();
