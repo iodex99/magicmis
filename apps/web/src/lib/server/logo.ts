@@ -19,6 +19,18 @@ export async function logoLimits(pool: Pool): Promise<LogoLimits> {
   return { maxBytes, maxSidePx };
 }
 
+/** Whether the company is this account's and not deleted. */
+export async function ownsCompany(
+  pool: Pool,
+  scope: { accountId: string; companyId: string },
+): Promise<boolean> {
+  const r = await pool.query(
+    `select 1 from public.companies where id = $1 and account_id = $2 and deleted_at is null`,
+    [scope.companyId, scope.accountId],
+  );
+  return (r.rowCount ?? 0) > 0;
+}
+
 /** The current logo's version, or null; the URL is built from it. */
 export async function logoVersion(
   pool: Pool,

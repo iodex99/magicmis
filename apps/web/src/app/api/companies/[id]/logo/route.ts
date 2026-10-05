@@ -6,6 +6,7 @@ import { checkLogo, megabytes } from "@/lib/logo";
 import {
   clearCompanyLogo,
   logoLimits,
+  ownsCompany,
   readCompanyLogo,
   setCompanyLogo,
 } from "@/lib/server/logo";
@@ -60,6 +61,9 @@ export async function PUT(request: Request, context: Ctx): Promise<Response> {
     const { id } = await context.params;
     if (!z.uuid().safeParse(id).success) return notFound();
     const pool = db();
+    // Ownership before the body: another account learns nothing from how its upload is judged.
+    if (!(await ownsCompany(pool, { accountId: account.accountId, companyId: id })))
+      return notFound();
     const limits = await logoLimits(pool);
     const body = await readBinaryBody(request, limits.maxBytes, () =>
       apiError(

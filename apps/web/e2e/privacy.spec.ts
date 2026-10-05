@@ -178,6 +178,13 @@ test("another account's resources are unreachable through every id-scoped endpoi
       url: `/api/companies/${company}/uploads`,
       body: { fileName: "tb.csv", byteSize: 10 },
     },
+    // ADR 0080: another account can neither see a company's logo nor replace or remove it.
+    ...["GET", "PUT", "DELETE"].map((method) => ({
+      route: "/api/companies/[id]/logo",
+      method,
+      url: `/api/companies/${company}/logo`,
+      ...(method === "PUT" ? { body: {} } : {}),
+    })),
     {
       route: "/api/companies/[id]/chat/names",
       method: "POST",
