@@ -108,6 +108,57 @@ export default function ManagementReportingSoftwarePage() {
         </dl>
       </Section>
 
+      <Section title="Financial reporting software for QuickBooks, Xero and Sage exports, with nothing connected">
+        <p>
+          QuickBooks, Xero and Sage each produce a trial balance and the aged receivables
+          and payables reports in a few clicks, as Excel or CSV. That export is all{" "}
+          {PRODUCT_NAME} needs. Columns are recognised by their headers, so the layout
+          each system uses is read as it comes, and every account is mapped once to a
+          report line and remembered for the months after.
+        </p>
+        <p>
+          What to export from each, and how to set it up for a monthly pack:{" "}
+          <Link
+            href="/guides/management-accounts-from-xero"
+            className="text-accent-700 hover:underline"
+          >
+            management accounts from Xero
+          </Link>
+          ,{" "}
+          <Link
+            href="/guides/management-accounts-from-quickbooks"
+            className="text-accent-700 hover:underline"
+          >
+            from QuickBooks
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/guides/management-accounts-from-sage-50"
+            className="text-accent-700 hover:underline"
+          >
+            from Sage 50
+          </Link>
+          .
+        </p>
+      </Section>
+
+      <Section title="MIS reporting software and management accounts software are one product in two vocabularies">
+        <p>
+          Buyers in India look for MIS reporting software; buyers in the UK, Ireland,
+          Australia and New Zealand look for management accounts software. They want the
+          same thing — a monthly P&amp;L, balance sheet, KPIs, ageing and commentary from
+          the books — and differ in the detail around it.
+        </p>
+        <p>
+          An MIS is usually expected in lakhs and crores, on an April-to-March year, from
+          a Tally export with dates written day first. Management accounts are expected in
+          the local currency and the local words — turnover, debtors, creditors — on
+          whatever year end the company has. Each company here records its own currency,
+          number style and financial year, and every sheet of the workbook states its
+          units.
+        </p>
+      </Section>
+
       <Section title="What is deliberately not here">
         <p>
           No live sync with your ledger, because a live sync is a standing permission and

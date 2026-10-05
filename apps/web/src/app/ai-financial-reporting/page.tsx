@@ -95,7 +95,7 @@ export default function AiFinancialReportingPage() {
         <Steps steps={STEPS} />
       </Section>
 
-      <Section title="Why it starts from raw data, not a connector">
+      <Section title="Financial reporting automation that starts from raw data, not a connector">
         <p>
           Financial reporting automation usually begins by connecting to your ledger. That
           is a standing permission, a setup project, and a dependency on one accounting
@@ -123,6 +123,34 @@ export default function AiFinancialReportingPage() {
           and a draft that contains a number of its own is rejected by a check before it
           is shown. It does not see whole files: it receives redacted structure and
           samples for the one step it is doing. And it does not run when nothing changed.
+        </p>
+      </Section>
+
+      <Section title="AI P&L analysis and balance sheet analysis, for your own month">
+        <p>
+          A general AI tool can explain what gross margin means. What it cannot do is tell
+          you why yours moved, because it does not have your month — and if you paste the
+          month in, it does the arithmetic itself and gets some of it wrong. Here the
+          analysis runs on your own statements, computed first.
+        </p>
+        <p>
+          <strong className="font-medium text-neutral-900">On the P&amp;L</strong>, the
+          commentary works through revenue, gross margin and the cost lines against last
+          month and the same month last year, and names the accounts that drove each
+          material movement.{" "}
+          <strong className="font-medium text-neutral-900">On the balance sheet</strong>,
+          it covers working capital — receivable days, payable days, inventory days — the
+          current ratio and the cash position, with the A/R aging behind them where it was
+          loaded.
+        </p>
+        <p>
+          Anything the commentary does not cover can be asked in plain English in the{" "}
+          <Link href="/chat-with-your-mis" className="text-accent-700 hover:underline">
+            chat
+          </Link>
+          : “which customers are past 90 days?” or “why did operating expenses rise?” The
+          answer is worked out by queries over your data, and every figure in it comes
+          from those results.
         </p>
       </Section>
 

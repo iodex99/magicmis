@@ -206,6 +206,44 @@ export default function KpisAndRatiosGuide() {
         </ol>
       </Section>
 
+      <Section title="Financial KPIs for a small business: five are enough to start">
+        <p>
+          A small business without a finance team does not need all eight on day one. Five
+          financial KPIs, read every month against the same month last year, cover what an
+          owner most needs to know — and each comes straight out of the trial balance:
+        </p>
+        <ol className="flex list-decimal flex-col gap-2 pl-5">
+          <li>
+            <strong className="font-medium text-neutral-900">Revenue</strong> against the
+            same month last year, so seasonality is taken out.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Gross margin</strong>, the
+            first place a pricing or cost problem shows.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">
+              Cash at the month end
+            </strong>
+            , from the bank and cash ledgers, beside last month&rsquo;s.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Debtor days</strong>, because
+            for most small businesses the cash problem is a collections problem.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Current ratio</strong>,
+            whether the bills due in the next year are covered by what will turn into
+            cash.
+          </li>
+        </ol>
+        <p>
+          Add inventory days if the business holds stock, and creditor days once suppliers
+          start asking. Everything else can wait until someone asks a question these five
+          cannot answer.
+        </p>
+      </Section>
+
       <Section title="Mistakes that make ratios lie">
         <p>
           <strong className="font-medium text-neutral-900">Mixing period lengths.</strong>{" "}

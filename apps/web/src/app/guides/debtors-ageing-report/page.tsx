@@ -27,6 +27,15 @@ export const metadata: Metadata = pageMetadata(PATH);
  * "Debtors ageing report format", "aged debtors report", "accounts receivable aging report".
  * Three names for one report; the page uses each where a reader of that market would.
  * The example is invented (SPEC §2.3) and its rows and columns were checked to add up.
+ *
+ * Read on 2026-10-05, and the only sources for what this page says about them:
+ * - Schedule III as amended by MCA notification G.S.R. 207(E) of 24 March 2021, through ICAI's
+ *   Guidance Notes on Division I and Division II (revised January 2022):
+ *   https://resource.cdn.icai.org/68981clcgc55147-gnd1.pdf
+ *   https://resource.cdn.icai.org/68982clcgc55147-gnd2.pdf
+ *   (the MCA and e-Gazette copies could not be fetched).
+ * - TallyPrime's receivables report and its ageing key, from Tally Solutions' own help:
+ *   https://help.tallysolutions.com/tally-prime/accounting-financial-reports/manage-receivables-outstanding-tally/
  */
 
 const BUCKETS = ["0–30", "31–60", "61–90", "Over 90"] as const;
@@ -209,6 +218,74 @@ export default function DebtorsAgeingGuide() {
           Debtor days say how long collection takes on average; the ageing says where the
           delay is. Rising debtor days with a clean ageing can simply mean sales rose late
           in the month, which is not a collections problem at all.
+        </p>
+      </Section>
+
+      <Section title="An aged receivables report is the same report under another name">
+        <p>
+          Aged receivables, aged debtors, accounts receivable aging and debtors ageing are
+          one report. “Aged receivables” is the name many accounting systems give it, and
+          it usually comes in two forms: a summary, with one line per customer as in the
+          example above, and a detail version listing every open invoice under its
+          customer. The summary goes in the monthly report; the detail is what the person
+          chasing payment works from.
+        </p>
+        <p>
+          Whichever name your system uses, export it as at the same date as the trial
+          balance, so the aged total can be agreed to the receivables figure on the
+          balance sheet.
+        </p>
+      </Section>
+
+      <Section title="Debtors ageing as per Schedule III runs from the due date, in five periods">
+        <p>
+          For Indian companies, Schedule III to the Companies Act 2013, as amended by the
+          Ministry of Corporate Affairs on 24 March 2021, requires an ageing schedule of
+          trade receivables in the financial statements for financial years beginning on
+          or after 1 April 2021. The periods are fixed:{" "}
+          <strong className="font-medium text-neutral-900">
+            less than 6 months, 6 months to 1 year, 1–2 years, 2–3 years, and more than 3
+            years
+          </strong>
+          , counted from the due date of payment — or from the date of the transaction
+          where no due date is specified. Unbilled dues are shown separately.
+        </p>
+        <p>
+          The rows split receivables into undisputed and disputed, each as considered good
+          or considered doubtful (Division I); companies reporting under Ind AS (Division
+          II) show each instead as considered good, which have a significant increase in
+          credit risk, or credit impaired. Trade payables have their own schedule, in
+          periods of less than 1 year, 1–2 years, 2–3 years and more than 3 years, with
+          MSME dues shown apart.
+        </p>
+        <p>
+          That is an annual disclosure, not a management format. The ageing in{" "}
+          {PRODUCT_NAME} runs from the bill date into buckets set for the company, for
+          reading every month; it is not the Schedule III schedule, which should be
+          prepared on the due-date basis the Schedule asks for.
+        </p>
+      </Section>
+
+      <Section title="Debtors ageing in TallyPrime comes from the Receivables outstanding report">
+        <p>
+          TallyPrime keeps bill-wise receivables under{" "}
+          <strong className="font-medium text-neutral-900">
+            Gateway of Tally &gt; Display More Reports &gt; Statements of Accounts &gt;
+            Outstandings &gt; Receivables
+          </strong>
+          . Press{" "}
+          <strong className="font-medium text-neutral-900">F6 (Ageing Method)</strong> to
+          age by bill date or by due date and to set the ageing periods, then export the
+          report with{" "}
+          <strong className="font-medium text-neutral-900">Alt+E (Export)</strong> and{" "}
+          <strong className="font-medium text-neutral-900">Current</strong>.
+        </p>
+        <p>
+          The ageing is only as good as the bill-wise entries behind it: a receipt posted
+          on account rather than against a bill stays unallocated, and the oldest invoices
+          look unpaid. Load the export beside the month&rsquo;s trial balance and{" "}
+          {PRODUCT_NAME} ages it into the same buckets every month, with bills that have
+          no usable date shown separately rather than guessed.
         </p>
       </Section>
 

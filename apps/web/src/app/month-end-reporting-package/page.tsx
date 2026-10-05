@@ -27,6 +27,9 @@ export const metadata: Metadata = pageMetadata(PATH);
  * "Month-end reporting package", "monthly reporting package", "financial reporting package",
  * "month-end close package" — the US controller's words. American vocabulary throughout:
  * A/R and A/P aging, financial statements, the close, FP&A.
+ *
+ * The close-length figures are APQC's, read on 2026-10-05 as CFO.com reported them:
+ * https://www.cfo.com/news/metric-of-the-month-cycle-time-for-monthly-close/659297/
  */
 
 const TIMELINE: readonly { day: string; work: string }[] = [
@@ -89,7 +92,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "How fast should the close be?",
     answer:
-      "Most small and mid-sized companies close in five to ten business days; the best in three to five. The reporting package usually lands a day or two after the close. The bottleneck is rarely the accounting; it is rebuilding the package spreadsheet and writing the commentary by hand every month.",
+      "APQC's survey of about 2,300 organisations, reported by CFO.com in 2018, put the median monthly close at 6.4 calendar days, with the quickest quarter at 4.8 days or less. The reporting package usually lands a day or two after the close. The bottleneck is rarely the accounting; it is rebuilding the package spreadsheet and writing the commentary by hand every month.",
   },
   {
     question: `Does ${PRODUCT_NAME} connect to our accounting system?`,
@@ -153,6 +156,38 @@ export default function MonthEndReportingPackagePage() {
             month-end close checklist
           </Link>{" "}
           covers the first half; the rest of this page covers the second.
+        </p>
+      </Section>
+
+      <Section title="A month-end pack is the same package under its British name">
+        <p>
+          In the UK, Ireland, Australia and New Zealand the same document is the month-end
+          pack, or the management pack: profit and loss against budget and last year, a
+          balance sheet, cash flow, KPIs, aged debtors and creditors, and commentary. The
+          vocabulary shifts — turnover rather than revenue, debtors rather than A/R — but
+          a controller in Chicago and a finance director in Leeds are producing the same
+          six parts for the same reason. In India it is the{" "}
+          <Link href="/mis-report-format" className="text-accent-700 hover:underline">
+            monthly MIS report
+          </Link>
+          .
+        </p>
+      </Section>
+
+      <Section title="A month-end close package proves the close; the reporting package explains the month">
+        <p>
+          “Month-end close package” is used two ways. Some teams mean the reporting
+          package on this page. Others mean the close binder: the bank and balance sheet
+          reconciliations, the journal entries with their support, and the signed-off
+          close checklist — the evidence that the trial balance is right, kept for the
+          reviewer and the auditor rather than sent to leadership.
+        </p>
+        <p>
+          Both start from the same closed trial balance, and they answer different
+          readers. The close package shows the books are right; the reporting package says
+          what they mean. {PRODUCT_NAME} produces the second from the trial balance the
+          first has already proved, and checks that every figure in it ties back to that
+          trial balance.
         </p>
       </Section>
 

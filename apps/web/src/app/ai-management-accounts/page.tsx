@@ -85,7 +85,7 @@ export default function AiManagementAccountsPage() {
         path={PATH}
         eyebrow="AI, honestly"
         heading="Management accounts with AI — where the AI maps and writes, and never touches a number"
-        intro="Most “AI accounting” is a feature inside your ledger: coding receipts, matching bank lines. This is the month-end pack itself, produced from the raw trial balance, with AI doing the recognising and the writing and a deterministic engine doing every figure."
+        intro="Most “AI accounting” codes receipts and matches bank lines inside your ledger; this produces your monthly management accounts themselves. The whole month-end pack comes from the raw trial balance, with AI doing the recognising and the writing and a deterministic engine doing every figure."
       />
       <AlsoCalled path={PATH} />
 
@@ -126,7 +126,7 @@ export default function AiManagementAccountsPage() {
           against last month and last year, a balance sheet summary, KPIs, aged debtors
           and creditors where the raw reports are loaded, written commentary, and a
           dashboard. In an Excel workbook with live formulas and lineage on every cell,
-          printed to PDF in one click for the board pack.{" "}
+          with the dashboard presented live, full screen, for the board.{" "}
           <Link href="/product" className="text-accent-700 hover:underline">
             See what the output looks like
           </Link>

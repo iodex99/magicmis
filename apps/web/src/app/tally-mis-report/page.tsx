@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import {
   AlsoCalled,
@@ -28,10 +29,14 @@ export const metadata: Metadata = pageMetadata(PATH);
 /**
  * "MIS report from Tally" — the query closest to what this product actually does.
  *
- * Deliberately does **not** print TallyPrime menu paths. They could not be verified against
- * Tally's own documentation (R-07), and an invented menu path on a public page is worse
- * than no page: the reader follows it, it is wrong, and every other claim here loses its
- * credibility at the same moment. The reports are named instead, which is stable.
+ * Prints only the TallyPrime menu paths read on Tally Solutions' own help pages on
+ * 2026-10-05, and no others: an invented path on a public page is worse than no page, because
+ * the reader follows it, it is wrong, and every other claim here loses its credibility at the
+ * same moment. Sources:
+ * - https://help.tallysolutions.com/tally-prime/accounting-financial-reports/trial-balance-tally/
+ * - https://help.tallysolutions.com/tally-prime/data-management/export-data-in-tally/
+ * - https://help.tallysolutions.com/tally-prime/accounting-financial-reports/manage-receivables-outstanding-tally/
+ * Everything else is named as Tally names the report, which is stable across releases.
  */
 
 const EXPORTS: readonly {
@@ -128,6 +133,11 @@ const STEPS = [
 
 const FAQS: readonly Faq[] = [
   {
+    question: "What is MIS in Tally?",
+    answer:
+      "MIS in Tally usually means the management reports a business builds from its Tally data each month: a profit and loss and balance sheet with comparatives, cash flow, ratios, debtors and creditors ageing, and commentary. Tally holds every figure those need and produces the underlying reports; the MIS is the one management report assembled from them, usually in Excel.",
+  },
+  {
     question: "Can Tally produce an MIS report by itself?",
     answer:
       "Tally produces the underlying reports — trial balance, P&L, balance sheet, registers and outstandings — but not a consolidated management report with comparatives, ratios, ageing and commentary in one workbook. That assembly is what is normally done by hand in Excel each month.",
@@ -209,9 +219,9 @@ export default function TallyMisReportPage() {
           </table>
         </div>
         <p className="mx-auto mt-4 max-w-[860px] text-[0.8125rem] text-neutral-500">
-          Menu paths are not printed here on purpose: they differ between TallyPrime
-          releases, and a path that is nearly right wastes more time than none. Each
-          report is named as Tally names it.
+          Each report is named as Tally names it. The few menu paths on this page are the
+          ones Tally&rsquo;s own help gives for TallyPrime; they can differ between
+          releases, so where your screen disagrees, trust the screen.
         </p>
       </WideSection>
 
@@ -224,6 +234,49 @@ export default function TallyMisReportPage() {
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section title="How to prepare an MIS report in TallyPrime: take the trial balance ledger by ledger">
+        <p>
+          TallyPrime opens the trial balance from{" "}
+          <strong className="font-medium text-neutral-900">
+            Gateway of Tally &gt; Display More Reports &gt; Trial Balance
+          </strong>
+          , or by pressing Alt+G (Go To) and choosing Trial Balance. It opens group-wise;
+          press <strong className="font-medium text-neutral-900">F5 (Ledger-wise)</strong>{" "}
+          so every ledger is listed by name, because the ledger names are what an MIS is
+          mapped from. In{" "}
+          <strong className="font-medium text-neutral-900">F12 (Configure)</strong>,
+          setting Show Opening Balance to Yes puts the opening balance beside the closing
+          one.
+        </p>
+        <p>
+          Set the period to the month you are reporting, export it, and repeat for each
+          month you want in the comparatives. From there the MIS is built outside Tally:
+          map each ledger to a report head, add the heads up into the P&amp;L and balance
+          sheet, set this month beside last month and last year, and write the commentary.
+          The ratios and ageing sections need the Stock Summary and the bills outstanding
+          reports listed above.
+        </p>
+      </Section>
+
+      <Section title="Tally to Excel: the export that works keeps every ledger as a number">
+        <p>
+          With the report open in TallyPrime, press{" "}
+          <strong className="font-medium text-neutral-900">Alt+E (Export)</strong> and
+          choose <strong className="font-medium text-neutral-900">Current</strong>. Press{" "}
+          <strong className="font-medium text-neutral-900">C (Configure)</strong> to set
+          the options for that export, choose Excel (.xlsx) among the formats offered, and
+          press <strong className="font-medium text-neutral-900">E (Export)</strong>. The
+          file is written to the folder set for exported files.
+        </p>
+        <p>
+          The export that works is the ledger-wise trial balance as Excel, one file per
+          month. A group-wise export loses the ledger names; a PDF turns the figures into
+          text; a year in one file cannot be split back into months. {PRODUCT_NAME} reads
+          the .xlsx as it comes out of Tally — and the other formats too — finding each
+          column by its header rather than its position.
+        </p>
       </Section>
 
       <Section title="By hand, it is a workbook per client">
@@ -258,6 +311,36 @@ export default function TallyMisReportPage() {
 
       <Section title="What people ask about an MIS from Tally">
         <Faqs faqs={FAQS} />
+      </Section>
+
+      <Section title="On BUSY, Marg, Zoho Books or Vyapar instead, the same exports make the same MIS">
+        <p>
+          Nothing above depends on Tally: the MIS is built from a trial balance, ledgers
+          and registers, whichever system kept them. Where each of the others keeps those
+          reports, and how to take them to Excel, is in its own guide:{" "}
+          <Link href="/guides/mis-report-from-busy" className="text-accent-700 underline">
+            BUSY
+          </Link>
+          ,{" "}
+          <Link href="/guides/mis-report-from-marg" className="text-accent-700 underline">
+            Marg ERP
+          </Link>
+          ,{" "}
+          <Link
+            href="/guides/mis-report-from-zoho-books"
+            className="text-accent-700 underline"
+          >
+            Zoho Books
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/guides/mis-report-from-vyapar"
+            className="text-accent-700 underline"
+          >
+            Vyapar
+          </Link>
+          .
+        </p>
       </Section>
 
       <ReadNext paths={["/mis-report-format", "/for-accountants", "/security"]} />

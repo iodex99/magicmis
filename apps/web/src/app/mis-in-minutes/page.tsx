@@ -118,6 +118,30 @@ export default function MisInMinutesPage() {
         </p>
       </Section>
 
+      <Section title="How to automate an MIS report in Excel">
+        <p>
+          In Excel alone, the automation that holds up is a mapping table and formulas
+          built on it. Paste the month&apos;s trial balance onto a data sheet, keep a
+          second sheet that gives every ledger its report head, and let SUMIFS add the
+          ledgers up into the P&amp;L and balance sheet. Next month you paste over the
+          data sheet and the report recalculates.
+        </p>
+        <p>
+          What Excel cannot automate is the part that breaks it: a ledger that is new
+          since last month falls out of every SUMIFS without a word, a renamed one stops
+          matching, and an export laid out a little differently lands in the wrong
+          columns. Somebody has to notice, every month, or the totals stop tying to the
+          trial balance.
+        </p>
+        <p>
+          That noticing is what {PRODUCT_NAME} does for you. Each column is found by its
+          header rather than its position, every ledger is mapped once, a new one is
+          brought to you rather than dropped, and the workbook you download is ordinary
+          Excel with live formulas — checked to tie back to the trial balance before you
+          receive it.
+        </p>
+      </Section>
+
       <Section title="What stays the same when it gets faster">
         <p>
           <strong className="font-medium text-neutral-900">

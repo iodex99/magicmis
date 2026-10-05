@@ -1,5 +1,6 @@
 import { uploadLimits } from "@magicmis/jobs";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import {
   ClosingCta,
@@ -105,6 +106,11 @@ export default async function SecurityPage() {
         "Only a redacted fragment of it, for the one step it is performing: a sheet's structure, a small sample and ledger names, with names and identifiers replaced by tokens. It never receives a whole file, and your data is not used to train AI models.",
     },
     {
+      question: "Is it safe to upload my accounts to an AI tool?",
+      answer:
+        "It depends on what the tool does with them, so ask four things of any of them: where the file is kept, who can open it, what the AI model receives, and what happens when you delete it. Here the file is encrypted under a key that belongs to that company alone, no member of our staff can open it and every opening is recorded for you, the AI receives only redacted fragments for the step it is performing and never a figure to calculate, and deleting the company destroys its key. A general chatbot you paste a trial balance into answers those questions very differently.",
+    },
+    {
       question: "Is there two-factor authentication?",
       answer:
         "Not for customer accounts. Sign-in is by password, with one active session per account, sign-in throttling, a password check before anything irreversible, and an email alert when a new device signs in. Stated plainly so you can weigh it: use a password manager and a password unique to this service.",
@@ -188,6 +194,16 @@ export default async function SecurityPage() {
 
       <Section title="What firms ask before uploading a client's books">
         <Faqs faqs={faqs} />
+        <p>
+          The longer answer, including what to check before pasting accounts into a
+          general chatbot, is on{" "}
+          <Link
+            href="/is-it-safe-to-upload-financial-statements-to-chatgpt"
+            className="text-accent-700 hover:underline"
+          >
+            is it safe to upload financial statements to ChatGPT?
+          </Link>
+        </p>
       </Section>
 
       <ReadNext paths={["/how-it-works", "/legal/privacy", "/for-accountants"]} />

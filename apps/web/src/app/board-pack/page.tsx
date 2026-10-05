@@ -74,7 +74,7 @@ const STEPS: readonly {
   },
   {
     title: "Bind the pack",
-    body: "Print the dashboard and commentary to PDF, add the executive summary and the non-financial papers, and send it.",
+    body: "Take the statements from the workbook into the pack, add the executive summary and the non-financial papers, and present the dashboard live at the meeting.",
     icon: "document",
   },
 ];
@@ -99,7 +99,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `Does ${PRODUCT_NAME} produce the whole board pack?`,
     answer:
-      "It produces the financial half: the management accounts workbook, a dashboard and written commentary, every figure computed from the trial balance and checked. The executive summary and the non-financial papers are yours. Both the dashboard and the commentary print to PDF for the pack.",
+      "It produces the financial half: the management accounts workbook, a dashboard and written commentary, every figure computed from the trial balance and checked. The executive summary and the non-financial papers are yours. The workbook goes into the pack; the dashboard is presented live, full screen, with every figure one click from its ledgers.",
   },
 ];
 
@@ -134,6 +134,71 @@ export default function BoardPackPage() {
           The first five are finance&rsquo;s. Of those, the management accounts, KPIs,
           ageing and commentary are computed from the same source — the month&rsquo;s
           trial balance — and that is the part that can be produced rather than assembled.
+        </p>
+      </Section>
+
+      <Section title="A financial report for a board meeting answers what the board must note or decide">
+        <p>
+          The financial report for a board meeting is not the management accounts with a
+          cover on. Directors have an hour before the meeting and a duty to understand the
+          position, so the report runs in the order they need it: what the board is asked
+          to note or decide, the headline figures against budget and last year, cash and
+          headroom, and only then the statements.
+        </p>
+        <p>
+          Keep the commentary to the movements that change a decision — a margin that has
+          slipped two months running, a large customer paying later, a facility getting
+          close to its limit — and say what management is doing about each. A figure with
+          no sentence beside it is one the board will ask about at the table, which is
+          where{" "}
+          <Link href="/guides/mis-commentary" className="text-accent-700 hover:underline">
+            commentary written against the figures
+          </Link>{" "}
+          earns its place.
+        </p>
+      </Section>
+
+      <Section title="A board report template for Australia and New Zealand follows the same order">
+        <p>
+          In Australia and New Zealand the document is more often called the board report,
+          and the financial half follows the same order as anywhere else: summary, profit
+          and loss against budget and last year, balance sheet, cash flow, KPIs, aged
+          debtors and creditors, commentary. What differs is the local detail directors
+          look for in the cash and liabilities section:
+        </p>
+        <ul className="flex list-disc flex-col gap-2 pl-5">
+          <li>
+            GST payable or refundable for the period, and in Australia PAYG withholding
+            and superannuation owed; in New Zealand PAYE and KiwiSaver deductions owed.
+          </li>
+          <li>
+            Cash at bank against the facilities available, so headroom is a figure rather
+            than a feeling.
+          </li>
+          <li>
+            Aged debtors with the largest few named, since collections are what most often
+            turns into an action for the board.
+          </li>
+        </ul>
+        <p>
+          Every one of those is a group of ledgers in the trial balance, so each is mapped
+          once and refreshed every month like the rest of the accounts.
+        </p>
+      </Section>
+
+      <Section title="Can AI write the board pack?">
+        <p>
+          It can draft the words, and it should not write the figures. A language model
+          handed a trial balance will produce a pack that reads well and adds up wrongly,
+          and a board pack is the one document where a wrong figure is read by the people
+          accountable for it.
+        </p>
+        <p>
+          In {PRODUCT_NAME} the AI maps the ledgers and drafts the commentary with a
+          placeholder wherever a figure belongs; the engine fills the placeholders, and a
+          draft holding a number of its own is rejected. The executive summary — what the
+          board is being asked to decide — stays yours, because that is judgement about
+          the business rather than about the books.
         </p>
       </Section>
 
@@ -183,7 +248,7 @@ export default function BoardPackPage() {
       />
       <ClosingCta
         heading="Next month's pack, from this month's trial balance"
-        body="Create an account, add the company, and load its trial balance. The management accounts, dashboard and commentary follow — checked, traceable, and ready to print for the pack."
+        body="Create an account, add the company, and load its trial balance. The management accounts, dashboard and commentary follow — checked, traceable, and ready to present to the board."
       />
     </PublicShell>
   );

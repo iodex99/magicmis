@@ -65,6 +65,11 @@ const faqs = (offer: WelcomeOfferCopy): readonly Faq[] => [
       "No. There is no subscription, no per-seat fee and no minimum. You buy a pack when you need credits. Each active company carries a small monthly fee in credits for keeping its mappings and history; beyond that, a month in which you run nothing costs nothing.",
   },
   {
+    question: "How does this compare with a monthly subscription?",
+    answer:
+      "A reporting subscription charges for every month and every client or organisation connected, whether or not a report was produced. Here you pay for what you run: a company is set up once, each month after that is a refresh at a fraction of the setup price, and the only standing charge is each active company's monthly memory fee. A company you report on quarterly pays for four refreshes a year and its memory fee, not twelve months of a plan, and credits you do not use never expire.",
+  },
+  {
     question: "What does a credit buy?",
     answer:
       "Each action — setting up a company, adding a month, a dashboard, written commentary, a chat question — has a standard price in credits, listed in your wallet once you have an account. Setting up a company costs the most because it is where the ledgers are mapped; every month after that reuses the mapping and costs a fraction of it.",
@@ -278,6 +283,17 @@ export default async function PricingPage() {
             <div className="mt-5">
               <Faqs faqs={FAQS} />
             </div>
+            <p className="mt-4 text-[0.9375rem] leading-relaxed text-neutral-600">
+              Comparing with a subscription tool you already use? See the{" "}
+              <Link href="/fathom-alternative" className="text-accent-700 underline">
+                Fathom alternative
+              </Link>{" "}
+              and{" "}
+              <Link href="/syft-alternative" className="text-accent-700 underline">
+                Syft alternative
+              </Link>{" "}
+              pages.
+            </p>
           </section>
         </div>
       </div>

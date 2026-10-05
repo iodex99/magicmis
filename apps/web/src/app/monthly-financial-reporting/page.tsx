@@ -94,6 +94,74 @@ export default function MonthlyFinancialReportingPage() {
         <Steps steps={STEPS} />
       </Section>
 
+      <Section title="A monthly financial reporting package is the statements, the numbers behind them and the story">
+        <p>
+          A monthly financial reporting package is what goes to the owner, the lender or
+          the client once the books are closed: the financial statements for the month,
+          the ratios and aging that explain them, and a page of commentary. The word
+          “package” matters — it is one document, sent on the same day every month, rather
+          than a set of reports exported separately and stapled together.
+        </p>
+        <p>
+          With {PRODUCT_NAME} the package is an Excel workbook with live formulas — income
+          statement with year to date, balance sheet summary, KPIs and, where the open
+          invoices and bills are loaded, A/R and A/P aging, checked to tie back to the
+          trial balance — together with a dashboard and written commentary. Every figure
+          on the dashboard opens onto the accounts it came from.
+        </p>
+      </Section>
+
+      <Section title="A monthly financial report template, section by section">
+        <ol className="flex list-decimal flex-col gap-2.5 pl-5">
+          <li>
+            <strong className="font-medium text-neutral-900">Summary.</strong> Five or six
+            headline figures and the two or three sentences that matter most.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Income statement.</strong>{" "}
+            The month, the same month last year and the year to date, from revenue down to
+            net income.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Balance sheet.</strong> At
+            the month end, beside the prior month end.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Cash flow.</strong> Opening
+            cash, operating, investing and financing movements, closing cash.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">KPIs.</strong> Gross and
+            operating margin, days sales outstanding, days payable outstanding, the
+            current ratio — each against the prior period.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">A/R and A/P aging.</strong>{" "}
+            Open balances by age, with the largest named.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Commentary.</strong> What
+            moved, by how much and why — written against the figures, not restating them.
+          </li>
+        </ol>
+      </Section>
+
+      <Section title="A monthly financial report for a board of directors leads with what needs deciding">
+        <p>
+          A board reads the same package from the top down and rarely past the second
+          page, so the order changes rather than the content. The summary and the
+          commentary come first, the KPIs next with their trend, and the full statements
+          behind them for the director who wants to check a figure. Anything that needs a
+          decision — a customer drifting past ninety days, cash running below a covenant —
+          belongs in the first paragraph, not in a footnote to the aging.
+        </p>
+        <p>
+          In {PRODUCT_NAME} the board version is the dashboard, presented live from its
+          own Present button, full screen. A director who asks where a number came from
+          gets the answer in one click, because every figure opens the ledgers behind it.
+        </p>
+      </Section>
+
       <Section title="What you can rely on">
         <p>
           <strong className="font-medium text-neutral-900">Traceable figures.</strong>{" "}
@@ -112,11 +180,11 @@ export default function MonthlyFinancialReportingPage() {
         </p>
         <p>
           <strong className="font-medium text-neutral-900">
-            Encrypted and deleted on schedule.
+            Encrypted, and opened by nobody on our side.
           </strong>{" "}
-          Files are encrypted under a key unique to each company and deleted
-          automatically; customer and vendor names are redacted before anything is sent to
-          the AI.
+          Files are encrypted under a key unique to each company, every opening is
+          recorded where you can see it, and deleting the company destroys its key;
+          customer and vendor names are redacted before anything is sent to the AI.
         </p>
       </Section>
 
@@ -130,7 +198,7 @@ export default function MonthlyFinancialReportingPage() {
         paths={[
           "/guides/month-end-close-checklist",
           "/guides/mis-kpis-and-ratios",
-          "/automated-management-accounts",
+          "/guides/management-accounts-from-quickbooks",
         ]}
       />
       <ClosingCta

@@ -100,6 +100,16 @@ const FAQS: readonly Faq[] = [
       "Statutory accounts are annual, filed, formally formatted and usually audited. Management accounts are monthly or quarterly, internal, formatted however suits the business, and can carry operational detail and forward-looking commentary that statutory accounts never would.",
   },
   {
+    question: "Are management accounts audited?",
+    answer:
+      "No. An audit is of the year-end statutory accounts, not the monthly management set. Management accounts are reviewed by whoever relies on them — the directors, a lender, an investor — and an auditor may read them as background, but nobody gives an opinion on them. That is why every figure in them should be traceable to the ledgers it came from.",
+  },
+  {
+    question: "Who can prepare management accounts?",
+    answer:
+      "Anyone who knows the books well enough to map them. Because management accounts are internal and not filed, preparing them is not reserved to a qualified accountant the way an audit is. In practice they are prepared by the bookkeeper, an in-house finance team, or the business's external accountant as a monthly service.",
+  },
+  {
     question: "Is an MIS report the same as management accounts?",
     answer:
       "Effectively yes. “MIS report” is the term used in India for the same monthly management report; “management accounts” is the term in the UK, Ireland, Australia, New Zealand and South Africa. The Indian version often carries a little more operational detail alongside the financials, but the core — P&L, balance sheet, cash flow, ratios, ageing, commentary — is the same document.",
@@ -197,6 +207,80 @@ export default function ManagementAccountsPage() {
         </div>
       </WideSection>
 
+      <Section title="Management accounts vs audited accounts: one is for running the business, the other is for the record">
+        <p>
+          Audited accounts are the year-end statutory accounts after an independent
+          auditor has examined them and given an opinion on them. They are prepared to an
+          accounting framework, filed, and read by people outside the business — HMRC,
+          Companies House, lenders, shareholders — months after the year has closed.
+        </p>
+        <p>
+          Management accounts answer a different question, sooner: how did last month go,
+          and what needs doing about it? They are produced within days or weeks of the
+          month end, cut to whatever level of detail management acts on, and they can
+          carry estimates, operational figures and commentary an auditor would never sign.
+          A business needs both, and the monthly set is what makes the year-end one
+          unsurprising.
+        </p>
+      </Section>
+
+      <Section title="Management accounts vs a trial balance: the trial balance is the raw material">
+        <p>
+          A trial balance is a list of every ledger and its closing balance, debits on one
+          side and credits on the other, totalling to the same figure. It proves the books
+          balance. It does not group anything, compare anything or explain anything, and a
+          business with a few hundred ledgers produces one nobody outside the accounts
+          team can read.
+        </p>
+        <p>
+          Management accounts are made from it. Each ledger is mapped to a report line —
+          turnover, cost of sales, administrative expenses, debtors — the lines are added
+          up into a profit and loss account and a balance sheet, and the result is set
+          beside last month and the year to date. Mapping is the step that takes the time,
+          which is why {PRODUCT_NAME} does it once and keeps it.
+        </p>
+      </Section>
+
+      <Section title="A management accounts template: what each sheet holds">
+        <p>
+          A template that survives more than one month keeps the data apart from the
+          report. The sheets that do that, in the order they usually run:
+        </p>
+        <ul className="flex list-disc flex-col gap-2 pl-5">
+          <li>
+            <strong className="font-medium text-neutral-900">Trial balance data</strong> —
+            the month&apos;s export, pasted as it came, never edited by hand.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Mapping</strong> — every
+            ledger beside the report line it belongs to. The only sheet that needs
+            judgement, and the one that goes wrong when a new ledger appears.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Profit and loss</strong> and{" "}
+            <strong className="font-medium text-neutral-900">balance sheet</strong> —
+            formulas that add the mapped ledgers up, with comparatives and year to date.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Cash flow</strong> — derived
+            from the movement between two balance sheets and the profit for the period.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">KPIs and ratios</strong>,{" "}
+            <strong className="font-medium text-neutral-900">ageing</strong> and{" "}
+            <strong className="font-medium text-neutral-900">commentary</strong> — read
+            from the sheets above, never typed in.
+          </li>
+        </ul>
+        <p>
+          There is no empty template to download here. {PRODUCT_NAME} builds its workbook
+          from your own trial balance instead — profit and loss with year to date, a
+          balance sheet summary, KPIs and, where the registers are loaded, aged debtors
+          and creditors — with live formulas, checked to tie back to the trial balance
+          before you receive it.
+        </p>
+      </Section>
+
       <Section title="Where the month actually goes">
         <p>
           <strong className="font-medium text-neutral-900">
@@ -229,10 +313,16 @@ export default function ManagementAccountsPage() {
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/for-accountants", "/how-it-works", "/mis-report-format"]} />
+      <ReadNext
+        paths={[
+          "/for-accountants",
+          "/how-it-works",
+          "/guides/management-accounts-from-xero",
+        ]}
+      />
       <ClosingCta
         heading="Or stop rebuilding them every month"
-        body={`${PRODUCT_NAME} produces a set from the raw trial balance you already have, with live formulas and every figure traceable. The mapping is built once and reused every month.`}
+        body={`${PRODUCT_NAME} produces the P&L, balance sheet summary, ratios and ageing from the raw trial balance you already have, with live formulas and every figure traceable. The mapping is built once and reused every month.`}
       />
     </PublicShell>
   );

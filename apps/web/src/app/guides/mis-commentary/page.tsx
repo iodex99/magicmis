@@ -170,7 +170,11 @@ export default function CommentaryGuide() {
       </Section>
 
       <ReadNext
-        paths={["/guides/mis-kpis-and-ratios", "/ai-mis-report", "/mis-report-format"]}
+        paths={[
+          "/guides/mis-kpis-and-ratios",
+          "/ai-mis-report",
+          "/guides/management-accounts-commentary-examples",
+        ]}
       />
       <ClosingCta
         heading="Commentary where every figure is computed"

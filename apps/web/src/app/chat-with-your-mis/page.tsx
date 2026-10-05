@@ -155,6 +155,24 @@ export default function ChatWithYourMisPage() {
         </p>
       </Section>
 
+      <Section title="Chat with your Excel accounts once they have been turned into an MIS">
+        <p>
+          If your accounts live in Excel — a trial balance kept in a spreadsheet, or one
+          exported from your accounting system as .xlsx or CSV — that is what you upload.
+          The sheet is recognised from its structure, each column is found by its header,
+          and every ledger is mapped once to a report head. What you then chat with is the
+          MIS built from those sheets: the P&amp;L, the balance sheet, the KPIs and, where
+          you loaded them, the ledgers and registers behind them.
+        </p>
+        <p>
+          That order is what makes the answers trustworthy. Pasting a spreadsheet into a
+          general chatbot asks it to read, add up and explain in one go; here the adding
+          up is done first, by the engine, and the chat only ever looks up figures that
+          already exist. Next month you upload the new sheet, the mapping is reused, and
+          the chat covers both months.
+        </p>
+      </Section>
+
       <Section title="It will not forecast, advise on tax or guess at data you have not loaded">
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>

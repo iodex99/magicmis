@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import {
   ClosingCta,
@@ -27,6 +28,11 @@ export const metadata: Metadata = pageMetadata(PATH);
 /**
  * "Trial balance to P&L", "mapping trial balance to financial statements", "how to prepare
  * management accounts from a trial balance". The mapping table is invented (SPEC §2.3).
+ *
+ * The TallyPrime facts — 28 predefined groups, 15 primary and 13 subgroups, and a ledger's
+ * group chosen in its Under field — were read on Tally Solutions' own help on 2026-10-05:
+ * https://help.tallysolutions.com/ledgers-and-groups-in-tallyprime/
+ * https://help.tallysolutions.com/tally-prime/vat-masters/india-vat-party-ledger-tally/
  */
 
 const MAPPING: readonly [string, string, string, string][] = [
@@ -162,6 +168,83 @@ export default function TrialBalanceGuide() {
           </FictionalNote>
         </div>
       </WideSection>
+
+      <Section title="A trial balance mapping template needs four columns and nothing else">
+        <p>
+          The mapping above is the template. Keep it as its own sheet, one row per ledger,
+          with four columns:
+        </p>
+        <ul className="flex list-disc flex-col gap-2 pl-5">
+          <li>
+            <strong className="font-medium text-neutral-900">Ledger</strong>, spelled
+            exactly as the export spells it, because that is what every formula matches
+            on.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Group</strong>, from the
+            accounting system, as the default for a ledger nobody has looked at yet.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Report head</strong>, the
+            line of the P&amp;L or balance sheet the ledger feeds.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">Note</strong>, why an unusual
+            ledger went where it did, so next month&rsquo;s preparer does not undo it.
+          </li>
+        </ul>
+        <p>
+          Balances do not belong on the mapping sheet; they change every month and the
+          mapping should not. Keep the trial balance on a sheet of its own and let the
+          statements read both.
+        </p>
+      </Section>
+
+      <Section title="Mapping a trial balance to financial statements in Excel takes one formula per line">
+        <p>
+          With the trial balance on one sheet and the mapping on another, add a column to
+          the trial balance that looks up each ledger&rsquo;s report head — XLOOKUP, or
+          INDEX and MATCH — and every line of the statements becomes a single SUMIFS: the
+          sum of the balance column where the head equals that line. Multiply credit heads
+          by minus one to present them as positive.
+        </p>
+        <p>
+          Then add the two checks that keep it honest: a count of trial balance rows whose
+          lookup returned nothing, which must be zero, and the balance sheet difference,
+          which must be zero too. Turning an uploaded trial balance into the statements
+          without the spreadsheet is on{" "}
+          <Link
+            href="/trial-balance-to-financial-statements"
+            className="text-accent-700 hover:underline"
+          >
+            trial balance to financial statements
+          </Link>
+          .
+        </p>
+      </Section>
+
+      <Section title="Ledger mapping in TallyPrime starts from the group under each ledger">
+        <p>
+          Every TallyPrime ledger sits under a group, chosen in the ledger&rsquo;s{" "}
+          <strong className="font-medium text-neutral-900">Under</strong> field when it is
+          created from{" "}
+          <strong className="font-medium text-neutral-900">
+            Gateway of Tally &gt; Create &gt; Ledger
+          </strong>
+          . TallyPrime provides 28 predefined groups — 15 primary groups and 13 subgroups
+          — such as Sales Accounts, Direct Expenses, Indirect Expenses and Sundry Debtors,
+          and a company can add its own beneath them.
+        </p>
+        <p>
+          That group is most of a mapping already, which is why the example above shows
+          it: Sales Accounts becomes revenue, Sundry Debtors becomes trade receivables.
+          What the group cannot do is split Indirect Expenses into employee cost, rent and
+          finance costs, or catch a ledger created under the wrong group. Export the trial
+          balance ledger-wise so the group and the ledger name both arrive, and map by
+          ledger with the group as the default. {PRODUCT_NAME} reads Tally&rsquo;s group
+          structure the same way, and keeps the mapping for the months after.
+        </p>
+      </Section>
 
       <Section title="The checks that make it trustworthy">
         <p>

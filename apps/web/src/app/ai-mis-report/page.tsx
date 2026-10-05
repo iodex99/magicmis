@@ -64,6 +64,10 @@ const FAQS: readonly Faq[] = [
       "AI can do the parts of the work that are judgement about text — recognising files, matching ledger names to report heads, drafting commentary. It should not do the arithmetic. A language model asked to produce figures can produce ones that look right and are not, and in a financial report that is the one failure that matters.",
   },
   {
+    question: "Is there an MIS report generator?",
+    answer: `Yes — ${PRODUCT_NAME} is one, built on the rule that the generator does not invent figures. It takes the raw exports you already have (a trial balance, ledgers or registers from Tally, Xero, QuickBooks, Sage, Excel, CSV or PDF) and generates a checked Excel workbook with the P&L and year to date, a balance sheet summary, key ratios and, where the registers are loaded, receivables and payables ageing — with a dashboard and written commentary. AI maps the ledgers and writes the words; every figure is computed by the engine.`,
+  },
+  {
     question: "How do I know the numbers in an AI-generated report are right?",
     answer: `In ${PRODUCT_NAME} no number is AI-generated. Every figure is computed by the engine from your mapped trial balance, the report is checked to tie back to it, and any figure can be traced to the ledgers behind it.`,
   },
@@ -132,6 +136,25 @@ export default function AiMisReportPage() {
         <p>
           It is also why the product gets cheaper to run after the first month. Once the
           mapping is confirmed, the refresh is arithmetic, and arithmetic needs no AI.
+        </p>
+      </Section>
+
+      <Section title="Using AI for an MIS report means giving it the words, not the figures">
+        <p>
+          If you are using AI for an MIS report today, it is most likely a chat assistant
+          with a trial balance pasted in. It will produce something that looks like an
+          MIS, and the trouble starts when you check it: totals that do not add, a ledger
+          counted twice, a percentage worked out on the wrong base. Next month it does the
+          whole thing again from nothing, and may do it differently.
+        </p>
+        <p>
+          Used well, AI has three jobs in a monthly MIS: recognising what was exported,
+          proposing where each ledger belongs, and writing about the month. In{" "}
+          {PRODUCT_NAME} each of those is checked before it is used — a ledger the AI
+          cannot place is shown as Unmapped rather than guessed, and commentary is
+          rejected if it holds a number of its own. The figures come from the engine, the
+          same way every time, and any of them opens onto the ledgers it was added up
+          from.
         </p>
       </Section>
 

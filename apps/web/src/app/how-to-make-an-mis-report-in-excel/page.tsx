@@ -129,6 +129,25 @@ export default function HowToMakeMisInExcelPage() {
         </p>
       </Section>
 
+      <Section title="Can I make an MIS report in Excel with formulas?">
+        <p>
+          Yes, and you should: an MIS for accounts made of formulas can be checked, and
+          one made of typed numbers cannot. Step by step, three kinds of formula do almost
+          all the work. SUMIFS adds the trial balance up by report head, reading the head
+          from the mapping sheet. A lookup such as XLOOKUP or INDEX and MATCH pulls last
+          month&rsquo;s and last year&rsquo;s figures beside this month&rsquo;s. And plain
+          division gives the ratios — gross margin, debtor days, the current ratio — from
+          cells that are already formulas.
+        </p>
+        <p>
+          Add one check cell that counts trial balance ledgers with no head in the
+          mapping, and another that shows the balance sheet difference. If both read zero,
+          the workbook is complete and balances. The workbook {PRODUCT_NAME} produces is
+          made of live formulas too, with no macros, so it can be opened and followed in
+          Excel.
+        </p>
+      </Section>
+
       <Section title="Or keep the mapping and stop rebuilding the workbook">
         <p>
           {PRODUCT_NAME} does these seven steps from the raw trial balance: it maps the

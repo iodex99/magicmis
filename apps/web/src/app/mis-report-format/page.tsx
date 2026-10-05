@@ -128,7 +128,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} produce the format above?`,
     answer:
-      "You upload the raw data and the ledger mapping is built for you. The workbook is then generated with live Excel formulas, a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
+      "You upload the raw data and the ledger mapping is built for you. The workbook is then generated with live Excel formulas — the P&L with year to date, a balance sheet summary, ratios and debtors and creditors ageing; it does not build a cash flow statement — with a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
   },
 ];
 
@@ -257,6 +257,74 @@ export default function MisReportFormatPage() {
         </div>
       </WideSection>
 
+      <Section title="An MIS format for accounts and finance is the part built from the books">
+        <p>
+          In a larger company, “MIS” covers reports from every department — sales by
+          region, production output, headcount. The MIS format for accounts and finance is
+          the one built from the ledgers, and it is the seven sections above: the figures
+          every other report is eventually reconciled to.
+        </p>
+        <p>
+          Finance teams usually add a few heads of their own beside them, all of which
+          come out of the same trial balance: bank and cash balances by account,
+          borrowings and their movement in the month, and statutory dues such as GST and
+          TDS payable. None of these needs a separate report — each is a group of ledgers
+          mapped to a head once, like everything else.
+        </p>
+      </Section>
+
+      <Section title="The same MIS format leans on different heads in each industry">
+        <p>
+          There is no separate industry format, and nothing here is an industry pack. The
+          seven sections stay the same; what changes is which heads carry the month, and
+          so which ones the commentary and the reader turn to first.
+        </p>
+        <h3 className="text-[1rem] font-semibold text-neutral-900">
+          For a manufacturing company, materials and inventory carry the report
+        </h3>
+        <p>
+          Cost of goods sold is the largest number, so it is worth splitting into raw
+          materials consumed, direct labour and manufacturing overheads such as power and
+          fuel. Inventory days matter more here than anywhere, because stock sits as raw
+          material, work in progress and finished goods, and gross margin moves with input
+          prices before it moves with sales.
+        </p>
+        <h3 className="text-[1rem] font-semibold text-neutral-900">
+          For a trading company, gross margin and stock turn are most of the story
+        </h3>
+        <p>
+          Purchases and sales are the whole business, so the report leans on gross margin,
+          inventory days and the two working-capital days either side of them — what
+          customers owe and what is owed to suppliers. The debtors ageing is usually the
+          most-read page.
+        </p>
+        <h3 className="text-[1rem] font-semibold text-neutral-900">
+          For a construction or real estate company, work in progress and advances decide
+          the month
+        </h3>
+        <p>
+          Revenue is lumpy and recognised against progress, so a single month&apos;s
+          P&amp;L says little on its own. The balance sheet carries the weight: work in
+          progress or project inventory, advances received from customers, retention money
+          held by clients, and borrowings. The year to date and the cash position are read
+          before the month.
+        </p>
+        <h3 className="text-[1rem] font-semibold text-neutral-900">
+          For a service business, people costs and debtor days are what to watch
+        </h3>
+        <p>
+          With little or no stock, cost of sales is mostly salaries and subcontractors, so
+          employee costs as a share of revenue is the margin that matters. Debtor days and
+          the receivables ageing come next, because a service firm&apos;s cash is whatever
+          its clients have not yet paid.
+        </p>
+        <p>
+          In {PRODUCT_NAME} each of these is the same MIS: every ledger is mapped to a
+          report head once, and the dashboard can be changed by chatting to bring the
+          heads that matter for your business to the front.
+        </p>
+      </Section>
+
       <Section title="What usually goes wrong">
         <p>
           <strong className="font-medium text-neutral-900">
@@ -305,7 +373,7 @@ export default function MisReportFormatPage() {
       />
       <ClosingCta
         heading="Or stop rebuilding it every month"
-        body={`${PRODUCT_NAME} produces this format from your raw accounting data, with live formulas and every figure traceable. The ledger mapping is built once and reused every month.`}
+        body={`${PRODUCT_NAME} produces the P&L, balance sheet, ratios and ageing of this format from your raw accounting data, with live formulas and every figure traceable. The ledger mapping is built once and reused every month.`}
       />
     </PublicShell>
   );

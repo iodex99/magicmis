@@ -24,6 +24,11 @@ export const metadata: Metadata = pageMetadata(PATH);
 /**
  * "Month end close checklist", "month end closing process". General practice only — no
  * jurisdiction's filing deadlines are named, because those differ by country and change.
+ *
+ * The close-length benchmark is APQC's, read on 2026-10-05 as reported by CFO.com ("Metric of
+ * the Month: Cycle Time for Monthly Close", Perry D. Wiggins, 5 March 2018):
+ * https://www.cfo.com/news/metric-of-the-month-cycle-time-for-monthly-close/659297/
+ * APQC's own page refused the request, so nothing newer is quoted.
  */
 
 const GROUPS: readonly { title: string; items: readonly string[] }[] = [
@@ -81,11 +86,6 @@ const GROUPS: readonly { title: string; items: readonly string[] }[] = [
 
 const FAQS: readonly Faq[] = [
   {
-    question: "How long should a month-end close take?",
-    answer:
-      "For a small or mid-sized business, a close that finishes within five to ten working days is common, and faster is possible once reconciliations are kept up during the month. The management report follows the close, so every day saved there is a day earlier the report reaches the people who act on it.",
-  },
-  {
     question: "Why lock the period after closing?",
     answer:
       "Because a report is only as final as the books behind it. A posting back-dated into a reported month changes a figure someone has already acted on, and the monthly reports no longer add up to the year.",
@@ -131,6 +131,69 @@ export default function MonthEndCloseChecklist() {
           </ul>
         </Section>
       ))}
+
+      <Section title="How long should the month-end close take?">
+        <p>
+          The most widely quoted benchmark is APQC&rsquo;s. Of about 2,300 organisations
+          that answered its general accounting survey, reported by CFO.com in March 2018,
+          the median took 6.4 calendar days to close the month; the quickest quarter took
+          4.8 days or less, and the slowest quarter 10 days or more. The figures are
+          several years old, so treat them as a range rather than a target.
+        </p>
+        <p>
+          For a small business the better question is what the close is waiting on. A
+          close that takes a week because supplier invoices arrive late is solved by
+          accruing them; one that takes a week because the report is rebuilt afterwards is
+          solved by not rebuilding it. Whatever the length, the management report follows
+          the close, so every day saved there is a day earlier the report reaches the
+          people who act on it.
+        </p>
+      </Section>
+
+      <Section title="How to speed up the month-end close: move the work into the month">
+        <p>
+          Most of a slow close is work that could have been done earlier, or work done
+          again that was already right last month. Five changes take the most days out:
+        </p>
+        <ul className="flex list-disc flex-col gap-2.5 pl-5">
+          <li>
+            <strong className="font-medium text-neutral-900">
+              Reconcile the bank weekly.
+            </strong>{" "}
+            Month end then has a week of items to clear rather than a month.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">
+              Keep a standing list of accruals and prepayments.
+            </strong>{" "}
+            The same twenty entries every month should be a list to tick, not a list to
+            remember.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">
+              Set a materiality threshold.
+            </strong>{" "}
+            Agree in advance which differences are chased before closing and which are
+            noted and carried.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">
+              Close to a calendar everyone can see.
+            </strong>{" "}
+            Who does what on which working day, so nobody waits to be asked for an invoice
+            or a stock figure.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900">
+              Stop rebuilding the report after the close.
+            </strong>{" "}
+            Once the trial balance is final, the report should be a refresh. With{" "}
+            {PRODUCT_NAME} the ledger mapping is kept from the month before, so the
+            workbook, dashboard and commentary come from the closed trial balance in
+            minutes rather than days.
+          </li>
+        </ul>
+      </Section>
 
       <MidCta />
 

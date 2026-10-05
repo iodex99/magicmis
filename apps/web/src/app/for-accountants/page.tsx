@@ -139,6 +139,59 @@ export default async function ForAccountantsPage() {
         </ul>
       </Section>
 
+      <Section title="Client accounting services (CAS) reporting is the same package, client after client">
+        <p>
+          For a CPA firm with a client accounting services practice, the monthly
+          deliverable is the reporting package: income statement and balance sheet with
+          comparatives, KPIs, A/R and A/P aging, and a short commentary. CAS reporting is
+          where the margin of the service is won or lost, because the bookkeeping is
+          already done and the package is rebuilt by hand for each client after the close.
+        </p>
+        <p>
+          Here each client is a company in one account, with its own mapping, history and
+          encryption key. Upload the client&apos;s raw trial balance from QuickBooks, Xero
+          or whatever they use, with the aging reports if you want them; the package comes
+          back as an Excel workbook with live formulas — income statement with year to
+          date, balance sheet summary, KPIs and aging — a dashboard and commentary,
+          checked to tie to the trial balance. From the second month it is a refresh.
+        </p>
+      </Section>
+
+      <Section title="A monthly MIS for CA firms, client by client, from the books they already keep">
+        <p>
+          Indian CA firms that offer a monthly MIS usually receive a Tally export from
+          each client and rebuild the same workbook from it: P&amp;L and balance sheet in
+          lakhs, against last month and the same month last year, ratios, debtors and
+          creditors ageing, and commentary for the promoter. The firm&apos;s time goes on
+          mapping ledgers that were mapped last month too.
+        </p>
+        <p>
+          {PRODUCT_NAME} keeps that mapping for each client company, reads the financial
+          year from April by default (configurable per company), parses dates day-first
+          and formats figures in lakhs and crores, or in absolute figures or millions if
+          the client prefers. Each client&apos;s files are encrypted under that
+          company&apos;s own key, nobody on our side can open one, and deleting a
+          client&apos;s company destroys its key.
+        </p>
+      </Section>
+
+      <Section title="Client reporting for bookkeepers turns closed books into a report the client reads">
+        <p>
+          A bookkeeper&apos;s clients see the books as a set of reports exported from the
+          ledger, which most owners do not open. Client reporting is the step after: a
+          month&apos;s figures set out as a profit and loss, a balance sheet, cash and the
+          handful of KPIs that matter, with sentences explaining what moved.
+        </p>
+        <p>
+          It is a service a bookkeeper can add without a new system. Upload the trial
+          balance you closed, and the client gets a workbook and a dashboard you can
+          present to them live, full screen, where every figure opens onto the ledgers it
+          came from — so the question “where does that number come from?” is answered in
+          the meeting. You pay per action from prepaid credits; there is no per-client
+          subscription.
+        </p>
+      </Section>
+
       <Section title="What it does not do">
         <p>
           It is worth being direct about this, because the gaps matter more to a practice
@@ -166,7 +219,7 @@ export default async function ForAccountantsPage() {
         <Faqs faqs={FAQS} />
       </Section>
 
-      <ReadNext paths={["/how-it-works", "/security", "/pricing"]} />
+      <ReadNext paths={["/how-it-works", "/security", "/fathom-alternative"]} />
       <ClosingCta
         heading="Try it on one client's month"
         body={`Create an account and run one company's last month. ${PRODUCT_NAME} charges per action rather than per seat.`}

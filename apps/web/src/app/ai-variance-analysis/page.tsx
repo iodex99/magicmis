@@ -73,7 +73,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Can I edit the commentary?",
     answer:
-      "Yes. It opens as a report you can read, print to PDF for the board pack, or copy into your own document and edit. The figures in it stay linked to their lineage in the app.",
+      "You can copy it into your own document and edit it there. In the app it is read beside the dashboard and presented from it, and the figures in it stay linked to their lineage.",
   },
   {
     question: "Does it explain why, or only what?",
@@ -123,8 +123,8 @@ export default function AiVarianceAnalysisPage() {
         <FictionalNote />
         <p>
           In the product this reads as prose, not a table: a short written review of the
-          month, section by section, that opens as a report and prints to PDF. Every
-          figure in it is a link to the formula and the ledgers behind it.
+          month, section by section, read beside the dashboard. Every figure in it is a
+          link to the formula and the ledgers behind it.
         </p>
       </Section>
 
@@ -153,6 +153,50 @@ export default function AiVarianceAnalysisPage() {
         </p>
       </Section>
 
+      <Section title="What is flux analysis in accounting?">
+        <p>
+          Flux analysis is the review of how much each account balance moved between two
+          periods, usually this month against last, with an explanation for every movement
+          over a set threshold. Controllers run it after the close to catch what the close
+          missed — an accrual that was not reversed, a cost posted to the wrong account, a
+          month of depreciation forgotten — before the numbers go to leadership. It covers
+          the balance sheet as well as the income statement, because an error in one
+          always has a twin in the other.
+        </p>
+      </Section>
+
+      <Section title="Flux analysis vs variance analysis: the same comparison against a different baseline">
+        <p>
+          The arithmetic is identical: a figure, a baseline, the difference and a reason.
+          What differs is the baseline. Flux analysis compares a period with an earlier
+          period of actuals, and its purpose is control — is the month right? Variance
+          analysis is often used for actuals against a budget or forecast, and its purpose
+          is performance — did the month go to plan?
+        </p>
+        <p>
+          {PRODUCT_NAME} has no budget, so it does the first kind: every line against last
+          month, the same month last year and the year to date, computed from your trial
+          balances and filtered to what is material. That is the comparison that both
+          checks the close and explains the month.
+        </p>
+      </Section>
+
+      <Section title="Month-over-month and year-over-year variance each answer a different question">
+        <p>
+          A month-over-month variance asks what changed since last month. It is quick to
+          act on and noisy: a five-week month, a quarterly bill or a seasonal peak all
+          show up as movement that means nothing. A year-over-year variance compares the
+          month with the same month last year, which takes the season out and leaves the
+          trend, but it reacts slowly to something that changed last week.
+        </p>
+        <p>
+          Read them together. A line that moved against both is worth a sentence; one that
+          moved against last month only is usually timing; one that moved against last
+          year only is the trend creeping. The commentary here is written against both,
+          with the year to date beside them.
+        </p>
+      </Section>
+
       <MidCta />
 
       <Section title="What finance teams ask about AI variance commentary">
@@ -162,7 +206,7 @@ export default function AiVarianceAnalysisPage() {
       <ReadNext
         paths={[
           "/month-end-reporting-package",
-          "/chat-with-your-mis",
+          "/guides/management-accounts-commentary-examples",
           "/guides/mis-commentary",
         ]}
       />

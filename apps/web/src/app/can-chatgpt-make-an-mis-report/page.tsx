@@ -85,7 +85,7 @@ export default function CanChatGptMakeMisPage() {
         paths={[
           "/ai-mis-report",
           "/ai-variance-analysis",
-          "/how-to-make-an-mis-report-in-excel",
+          "/can-ai-prepare-financial-statements",
         ]}
       />
       <ClosingCta heading="See an MIS where AI never writes a number" />

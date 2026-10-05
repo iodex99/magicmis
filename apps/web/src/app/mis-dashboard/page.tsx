@@ -171,7 +171,11 @@ export default function MisDashboardPage() {
       </Section>
 
       <ReadNext
-        paths={["/mis-report-format", "/guides/mis-kpis-and-ratios", "/ai-mis-report"]}
+        paths={[
+          "/mis-report-format",
+          "/guides/mis-kpis-and-ratios",
+          "/financial-dashboard-from-excel",
+        ]}
       />
       <ClosingCta
         heading="See it on your own month"

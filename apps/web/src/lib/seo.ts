@@ -162,33 +162,54 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/for-accountants",
-    title: "Monthly reporting for accounting firms",
+    title: "Client reporting software for accounting firms and CAS teams",
     description:
       "Management reporting across a portfolio of clients, without a junior rebuilding each workbook by hand. One mapping per client, reused every month, with every number traceable.",
     changeFrequency: "monthly",
     priority: 0.8,
     locale: "en_GB",
-    updated: "2026-09-18",
+    updated: "2026-10-05",
+    keywords: [
+      "client reporting software for accountants",
+      "client accounting services reporting",
+      "CAS reporting",
+      "monthly MIS for CA firms",
+      "client reporting for bookkeepers",
+    ],
   },
   {
     path: "/ai-mis-report",
-    title: "MIS with AI: an AI MIS report generator that never writes the numbers",
+    title: "MIS with AI: an AI tool for MIS reports that never writes the numbers",
     description:
       "MIS with AI, done safely: AI recognises your raw data, maps ledgers and drafts commentary, while every figure comes from a deterministic engine and traces back to a ledger.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_IN",
-    updated: "2026-09-18",
+    updated: "2026-10-05",
+    keywords: [
+      "MIS report using AI",
+      "AI tool for MIS report",
+      "MIS report generator",
+      "AI MIS",
+      "MIS with AI",
+    ],
   },
   {
     path: "/mis-in-minutes",
-    title: "MIS in minutes: automated MIS report from Tally or any raw trial balance",
+    title: "MIS automation: an automated MIS report from Tally or any trial balance",
     description:
       "MIS automation without a macro: confirm the ledger mapping once, then each month's MIS refreshes from the new raw trial balance in minutes, with live Excel formulas.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_IN",
-    updated: "2026-09-18",
+    updated: "2026-10-05",
+    keywords: [
+      "MIS automation",
+      "MIS report automation",
+      "automated MIS report",
+      "how to automate MIS report in Excel",
+      "MIS in minutes",
+    ],
   },
   {
     path: "/automated-management-accounts",
@@ -202,13 +223,19 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/monthly-financial-reporting",
-    title: "Monthly financial reporting software for small businesses",
+    title: "Monthly financial reporting software for small businesses and their CPAs",
     description:
       "Month-end reporting from your accounting system's trial balance: P&L with year to date, balance sheet, KPIs, A/R and A/P aging and commentary, in an Excel workbook you can audit.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_US",
-    updated: "2026-09-18",
+    updated: "2026-10-05",
+    keywords: [
+      "monthly financial reporting software",
+      "monthly financial reporting package",
+      "monthly financial report template",
+      "financial report for board of directors",
+    ],
   },
   {
     path: "/guides",
@@ -272,14 +299,16 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/chat-with-your-mis",
-    title: "Chat with your MIS: ask your financial data in plain English",
+    title: "Chat with your MIS: ask your financial data and P&L in plain English",
     description:
       "Chat with your MIS or management accounts: ask why a margin moved, or say what to put on the dashboard. Every number is computed from your books and links to its source.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_US",
-    updated: "2026-09-19",
+    updated: "2026-10-05",
     keywords: [
+      "chat with your P&L",
+      "chat with Excel accounts",
       "chat with MIS",
       "chat with your financial data",
       "chat with Tally data",
@@ -323,13 +352,19 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/ai-management-accounts",
-    title: "AI management accounts: the AI maps and writes, never the numbers",
+    title: "AI for monthly management accounts: AI maps and writes, never the numbers",
     description:
-      "Management accounts with AI, honestly: AI recognises the raw data, maps nominal codes and drafts commentary; every figure is computed and checked. From Xero, Sage or any trial balance.",
+      "Monthly management accounts with AI, honestly: AI reads the raw data, maps nominal codes and drafts commentary; every figure is computed and checked. From Xero, Sage or any trial balance.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_GB",
-    updated: "2026-09-18",
+    updated: "2026-10-05",
+    keywords: [
+      "AI for management accounts",
+      "monthly management accounts AI",
+      "AI management reporting",
+      "AI for nominal code mapping",
+    ],
   },
   {
     path: "/ai-financial-reporting",
@@ -363,13 +398,20 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
   },
   {
     path: "/board-pack",
-    title: "Board pack: what a monthly board report contains and how to produce it",
+    title: "Board pack and board packet: the monthly financial report for the board",
     description:
       "What a monthly board pack contains — management accounts, KPIs, variances, commentary — how long it takes by hand, and how to produce it from a trial balance each month.",
     changeFrequency: "monthly",
     priority: 0.85,
     locale: "en_GB",
-    updated: "2026-09-18",
+    updated: "2026-10-05",
+    keywords: [
+      "board pack",
+      "board packet",
+      "board report template",
+      "financial report for board meeting",
+      "AI board pack",
+    ],
   },
   {
     path: "/month-end-reporting-package",
@@ -489,6 +531,231 @@ export const PUBLIC_PAGES: readonly PublicPage[] = [
     keywords: ["how to calculate ebitda", "ebitda in mis report", "ebitda formula"],
   },
   {
+    path: "/guides/management-accounts-from-xero",
+    title: "Management accounts from Xero: which reports to export, and what next",
+    description:
+      "Which Xero reports to export each month for management accounts — trial balance, P&L, balance sheet, aged receivables and payables — and how to stop rebuilding the pack.",
+    changeFrequency: "monthly",
+    priority: 0.75,
+    locale: "en_GB",
+    updated: "2026-10-05",
+    keywords: [
+      "management accounts in xero",
+      "xero management report pack",
+      "how to produce management accounts in xero",
+      "xero trial balance export",
+    ],
+  },
+  {
+    path: "/guides/management-accounts-from-quickbooks",
+    title: "Management reports from QuickBooks: what to export for a monthly pack",
+    description:
+      "What to export from QuickBooks Online or Desktop for a monthly reporting package: the trial balance, P&L, balance sheet and A/R and A/P aging, and where each report lives.",
+    changeFrequency: "monthly",
+    priority: 0.75,
+    locale: "en_US",
+    updated: "2026-10-05",
+    keywords: [
+      "quickbooks management reports",
+      "how to prepare management accounts in quickbooks",
+      "quickbooks trial balance export to excel",
+      "monthly financial reporting package",
+    ],
+  },
+  {
+    path: "/guides/management-accounts-from-sage-50",
+    title: "Management accounts from Sage 50: the reports to export each month",
+    description:
+      "How to produce management accounts from Sage 50: the trial balance, P&L, balance sheet and aged debtors and creditors reports to send to Excel each month, US and Canadian editions noted.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    locale: "en_GB",
+    updated: "2026-10-05",
+    keywords: [
+      "sage 50 management accounts",
+      "how to produce management accounts on sage 50",
+      "can sage produce management accounts",
+      "sage 50 aged debtors report",
+    ],
+  },
+  {
+    path: "/fathom-alternative",
+    title: "Fathom alternative: management reports on prepaid credits, no subscription",
+    description:
+      "An honest Fathom comparison: Fathom syncs, forecasts and consolidates on a monthly subscription; this builds a checked monthly report from raw exports, paid per report from prepaid credits.",
+    changeFrequency: "monthly",
+    priority: 0.8,
+    locale: "en_GB",
+    updated: "2026-10-05",
+    keywords: [
+      "fathom alternative",
+      "fathom reporting alternatives",
+      "fathom reporting pricing",
+      "alternative to fathom reporting",
+      "management reporting without subscription",
+    ],
+  },
+  {
+    path: "/syft-alternative",
+    title: "Syft Analytics alternative: reports from raw exports, no subscription",
+    description:
+      "An honest Syft Analytics comparison: Syft connects, forecasts and consolidates on plans per entity; this builds the monthly report from raw exports, paid per report from prepaid credits.",
+    changeFrequency: "monthly",
+    priority: 0.75,
+    locale: "en_GB",
+    updated: "2026-10-05",
+    keywords: [
+      "syft analytics alternative",
+      "syft vs fathom",
+      "syft analytics pricing",
+      "alternative to syft",
+    ],
+  },
+  {
+    path: "/trial-balance-to-financial-statements",
+    title: "Trial balance to financial statements: P&L, balance sheet and KPIs",
+    description:
+      "Upload a raw trial balance and get a checked P&L, balance sheet summary and KPIs in Excel. These are monthly management statements, not statutory accounts.",
+    changeFrequency: "monthly",
+    priority: 0.8,
+    locale: "en_GB",
+    updated: "2026-10-05",
+    keywords: [
+      "trial balance to financial statements",
+      "financial statements from trial balance in excel",
+      "trial balance to balance sheet converter",
+      "ai financial statement generator",
+    ],
+  },
+  {
+    path: "/financial-dashboard-from-excel",
+    title: "Financial dashboard from Excel: a KPI dashboard from your trial balance",
+    description:
+      "A KPI dashboard built from your Excel trial balance, changed by asking in words and presented live, with every figure opening onto the ledgers it came from.",
+    changeFrequency: "monthly",
+    priority: 0.8,
+    locale: "en_US",
+    updated: "2026-10-05",
+    keywords: [
+      "financial dashboard from excel",
+      "excel to dashboard ai",
+      "ai dashboard from excel",
+      "kpi dashboard",
+      "cfo dashboard",
+      "p&l dashboard",
+    ],
+  },
+  {
+    path: "/guides/management-accounts-commentary-examples",
+    title: "Management accounts commentary examples: weak and strong, line by line",
+    description:
+      "Eight weak lines of management accounts commentary rewritten to name the cause, the six causes behind most variances, and a whole month's commentary put together.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    locale: "en_GB",
+    updated: "2026-10-05",
+    keywords: [
+      "management accounts commentary examples",
+      "p&l commentary examples",
+      "variance analysis commentary example",
+      "month end commentary",
+    ],
+  },
+  {
+    path: "/is-it-safe-to-upload-financial-statements-to-chatgpt",
+    title: "Is it safe to upload financial statements to ChatGPT?",
+    description:
+      "It can be, on a business plan or with training off and names removed first. What ChatGPT's maker says it keeps, and what a reporting tool should promise instead.",
+    changeFrequency: "monthly",
+    priority: 0.6,
+    locale: "en_US",
+    updated: "2026-10-05",
+    keywords: [
+      "is it safe to upload financial statements to chatgpt",
+      "upload financial data to chatgpt",
+      "is chatgpt safe for confidential information",
+    ],
+  },
+  {
+    path: "/can-ai-prepare-financial-statements",
+    title: "Can AI prepare financial statements from a trial balance?",
+    description:
+      "Part of the job. AI can recognise the trial balance and map ledgers; the figures must come from arithmetic, and statutory accounts still need an accountant.",
+    changeFrequency: "monthly",
+    priority: 0.6,
+    locale: "en_US",
+    updated: "2026-10-05",
+    keywords: [
+      "can ai prepare financial statements",
+      "can chatgpt create financial statements",
+      "can chatgpt make a balance sheet",
+    ],
+  },
+  {
+    path: "/guides/mis-report-from-busy",
+    title: "MIS report from BUSY: which reports to export, and what to do next",
+    description:
+      "Which BUSY reports to export for a monthly MIS: trial balance, P&L, balance sheet, outstandings and registers, where BUSY keeps them, how to export to Excel, and what to do next.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-10-05",
+    keywords: [
+      "mis report in busy software",
+      "trial balance in busy software",
+      "busy to excel export",
+      "busy software balance sheet",
+    ],
+  },
+  {
+    path: "/guides/mis-report-from-marg",
+    title: "MIS report from Marg ERP: which reports to export, and what to do next",
+    description:
+      "Which Marg ERP reports to export for a monthly MIS: trial balance, P&L, balance sheet, outstandings and sale book, where Marg keeps them, Alt+P to Excel, and what to do next.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-10-05",
+    keywords: [
+      "trial balance in marg software",
+      "profit and loss report in marg",
+      "marg balance sheet",
+      "marg export to excel",
+    ],
+  },
+  {
+    path: "/guides/mis-report-from-zoho-books",
+    title: "MIS report from Zoho Books: which reports to export, and what to do next",
+    description:
+      "Which Zoho Books reports to export for a monthly MIS: trial balance, P&L, balance sheet and aging, where Zoho keeps them, how to export, and what to do next.",
+    changeFrequency: "monthly",
+    priority: 0.7,
+    locale: "en_IN",
+    updated: "2026-10-05",
+    keywords: [
+      "mis report in zoho books",
+      "zoho books trial balance",
+      "zoho books balance sheet report",
+      "zoho books export to excel",
+    ],
+  },
+  {
+    path: "/guides/mis-report-from-vyapar",
+    title: "MIS report from Vyapar: which reports to export, and what to do next",
+    description:
+      "Which Vyapar reports to export for a monthly MIS: trial balance, P&L, balance sheet, sale aging and party balances, where they are, the Excel icon, and what to do next.",
+    changeFrequency: "monthly",
+    priority: 0.65,
+    locale: "en_IN",
+    updated: "2026-10-05",
+    keywords: [
+      "vyapar balance sheet",
+      "vyapar app aging report",
+      "vyapar reports",
+      "vyapar pdf to excel",
+    ],
+  },
+  {
     path: "/legal/terms",
     title: "Terms of service",
     description: `The terms on which ${PRODUCT_NAME} is provided: prepaid credits, what they buy, how long they last, and the limits of what a generated report is.`,
@@ -521,6 +788,8 @@ export const ANSWER_PATHS: readonly string[] = [
   "/how-to-calculate-debtor-days",
   "/how-to-calculate-gross-margin-from-a-trial-balance",
   "/how-to-calculate-ebitda-in-an-mis-report",
+  "/can-ai-prepare-financial-statements",
+  "/is-it-safe-to-upload-financial-statements-to-chatgpt",
 ];
 
 /**
@@ -538,6 +807,14 @@ export const GUIDE_PATHS: readonly string[] = [
   "/guides/mis-commentary",
   "/guides/month-end-close-checklist",
   "/tally-mis-report",
+  "/guides/management-accounts-from-xero",
+  "/guides/management-accounts-from-quickbooks",
+  "/guides/management-accounts-from-sage-50",
+  "/guides/management-accounts-commentary-examples",
+  "/guides/mis-report-from-busy",
+  "/guides/mis-report-from-marg",
+  "/guides/mis-report-from-zoho-books",
+  "/guides/mis-report-from-vyapar",
 ];
 
 /** Pages written for a search a buyer makes, rather than a question a practitioner asks. */
