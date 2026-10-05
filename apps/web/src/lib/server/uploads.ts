@@ -25,9 +25,9 @@ export function uploadErrorResponse(error: unknown): Response | null {
 export async function readBinaryBody(
   request: Request,
   maxBytes: number,
+  tooLarge: () => Response = () =>
+    apiError(413, "chunk_too_large", "That part of the file is too large."),
 ): Promise<{ ok: true; bytes: Buffer } | { ok: false; response: Response }> {
-  const tooLarge = () =>
-    apiError(413, "chunk_too_large", "That part of the file is too large.");
   const declared = request.headers.get("content-length");
   if (
     declared !== null &&

@@ -4,6 +4,7 @@ import type { ReportingConventions } from "@magicmis/core/reporting-conventions"
 
 import { Icon, type IconName } from "@/components/Icon";
 import { Badge } from "@/components/ui";
+import type { LogoLimits } from "@/lib/logo";
 
 import { NewCompanyForm } from "./NewCompanyForm";
 
@@ -36,9 +37,11 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
  */
 export function AddCompany({
   defaults,
+  logoLimits,
   first,
 }: {
   defaults: ReportingConventions;
+  logoLimits: LogoLimits;
   first: boolean;
 }) {
   return (
@@ -87,7 +90,11 @@ export function AddCompany({
               Company details
             </p>
           </div>
-          <NewCompanyForm defaults={defaults} autoFocus={!first} />
+          <NewCompanyForm
+            defaults={defaults}
+            logoLimits={logoLimits}
+            autoFocus={!first}
+          />
         </div>
       </div>
     </section>

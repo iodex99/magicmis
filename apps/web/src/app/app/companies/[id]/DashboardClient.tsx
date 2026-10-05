@@ -7,6 +7,7 @@
  * confirmation as a new blueprint version, and undoable.
  */
 
+import { CompanyLogo } from "@/components/CompanyLogo";
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import type { PeriodId } from "@magicmis/core/time";
 import type { MetricValue } from "@magicmis/engine";
@@ -548,6 +549,7 @@ function WidgetCard({
 
 export function DashboardClient({
   companyId,
+  logoUrl,
   onInvestigate,
   reloadKey,
   onVersion,
@@ -555,6 +557,8 @@ export function DashboardClient({
   onWhereToAct,
 }: {
   companyId: string;
+  /** The company's own logo, shown before its name in Present; null for none. */
+  logoUrl: string | null;
   onInvestigate: (metric: string, period: PeriodId, name: string) => void;
   /** Changes when the layout was changed elsewhere (the assistant), to load it again. */
   reloadKey: number;
@@ -1138,9 +1142,15 @@ export function DashboardClient({
           <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="eyebrow">{format.units}</p>
-              <h2 className="display mt-1 text-[2rem] leading-tight font-semibold tracking-tight text-neutral-900">
-                {payload.company.name}
-              </h2>
+              {/* The client's own mark beside its name: the room is looking at their business. */}
+              <div className="mt-1 flex items-center gap-4">
+                {logoUrl === null ? null : (
+                  <CompanyLogo src={logoUrl} name={payload.company.name} size={56} />
+                )}
+                <h2 className="display text-[2rem] leading-tight font-semibold tracking-tight text-neutral-900">
+                  {payload.company.name}
+                </h2>
+              </div>
               <p
                 className="mt-0.5 text-[1.0625rem] text-neutral-600"
                 data-testid="present-period"

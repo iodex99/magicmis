@@ -1,3 +1,5 @@
+import { CompanyLogo } from "@/components/CompanyLogo";
+import { logoUrl } from "@/lib/logo";
 import type { NumberFormatOptions } from "@magicmis/core/format";
 import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import { hiddenPeriods } from "@magicmis/jobs";
@@ -57,9 +59,10 @@ export default async function CompanyPage({
     currency: string;
     fy_start_month: number;
     date_order: "day_first" | "month_first";
+    logo_version: string | null;
   }>(
     `select name, lifecycle_state, first_setup_at, number_format, decimals, currency,
-            fy_start_month, date_order
+            fy_start_month, date_order, logo_version
        from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
@@ -70,6 +73,9 @@ export default async function CompanyPage({
     tone: "neutral" as BadgeTone,
   };
   const active = company.lifecycle_state === "active";
+  const logo = logoUrl(id, company.logo_version);
+  const headerLogo =
+    logo === null ? undefined : <CompanyLogo src={logo} name={company.name} />;
   const frame = {
     accountId: account.accountId,
     businessName: account.businessName,
@@ -82,6 +88,7 @@ export default async function CompanyPage({
       <AppFrame {...frame}>
         <PageHeader
           title={company.name}
+          logo={headerLogo}
           meta={
             <Badge tone={state.tone} dot>
               {state.label}
@@ -176,6 +183,7 @@ export default async function CompanyPage({
     <AppFrame {...frame} wide>
       <PageHeader
         title={company.name}
+        logo={headerLogo}
         meta={
           <Badge tone={state.tone} dot>
             {state.label}
@@ -205,6 +213,7 @@ export default async function CompanyPage({
       <Workspace
         companyId={id}
         companyName={company.name}
+        logoUrl={logo}
         businessName={account.businessName}
         money={{
           style: company.number_format,

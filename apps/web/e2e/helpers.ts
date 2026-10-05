@@ -5,6 +5,12 @@ import { expect, type Page } from "@playwright/test";
 export const MAILPIT = "http://127.0.0.1:54324";
 export const PASSWORD = "E2e-Correct-Horse-42";
 
+/** A real, decodable one-pixel PNG: the smallest logo a browser will actually draw. */
+export const TINY_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+  "base64",
+);
+
 export function uniqueEmail(): string {
   return `e2e-${randomUUID().slice(0, 8)}@example.test`;
 }

@@ -18,6 +18,7 @@ import { FIXTURES_OUT } from "./fixtures-setup";
 import {
   createVerifiedAccount,
   PASSWORD,
+  TINY_PNG,
   uniqueEmail,
   watchCspViolations,
   welcomeGranted,
@@ -800,6 +801,22 @@ test.describe("chat with the MIS", () => {
     await page.getByTestId("present-exit").click();
     await expect(stage).toHaveAttribute("data-presenting", "false");
     await expect(page.getByRole("button", { name: "Edit layout" })).toBeVisible();
+
+    // The company's own logo is beside its name on the header and in the room.
+    const put = await page.request.put(`/api/companies/${id}/logo`, {
+      headers: { "content-type": "application/octet-stream" },
+      data: TINY_PNG,
+    });
+    expect(put.status()).toBe(200);
+    await page.reload();
+    await expect(page.locator("header").getByTestId("company-logo")).toBeVisible();
+    await page.getByTestId("present").click();
+    const presentedLogo = stage.getByTestId("company-logo").locator("img");
+    await expect(presentedLogo).toBeVisible();
+    expect(
+      await presentedLogo.evaluate((img) => (img as HTMLImageElement).naturalWidth),
+    ).toBeGreaterThan(0);
+    await page.getByTestId("present-exit").click();
   });
 });
 

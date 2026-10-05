@@ -28,6 +28,8 @@ export interface CompanySummary {
   readonly fyStartMonth: number;
   readonly firstSetupAt: string | null;
   readonly latestPeriod: string | null;
+  /** The logo's version, from which its URL is built; null when it has none. */
+  readonly logoVersion: string | null;
 }
 
 export async function listCompanies(
@@ -41,8 +43,9 @@ export async function listCompanies(
     fy_start_month: number;
     first_setup_at: Date | null;
     latest_period: string | null;
+    logo_version: string | null;
   }>(
-    `select c.id, c.name, c.lifecycle_state, c.fy_start_month, c.first_setup_at,
+    `select c.id, c.name, c.lifecycle_state, c.fy_start_month, c.first_setup_at, c.logo_version,
             (select max(period) from public.snapshots s where s.company_id = c.id) as latest_period
      from public.companies c where c.account_id = $1 and c.deleted_at is null order by c.created_at`,
     [accountId],
@@ -54,6 +57,7 @@ export async function listCompanies(
     fyStartMonth: c.fy_start_month,
     firstSetupAt: c.first_setup_at?.toISOString() ?? null,
     latestPeriod: c.latest_period,
+    logoVersion: c.logo_version,
   }));
 }
 

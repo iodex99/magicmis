@@ -5,7 +5,9 @@ import { z } from "zod";
 
 import { AppFrame } from "@/components/AppFrame";
 import { Icon, type IconName } from "@/components/Icon";
+import { CompanyLogoSettings } from "@/components/CompanyLogo";
 import {
+  Alert,
   Badge,
   ButtonLink,
   DataTable,
@@ -20,7 +22,9 @@ import {
 import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
+import { logoUrl } from "@/lib/logo";
 import { fileRows } from "@/lib/server/files";
+import { logoLimits } from "@/lib/server/logo";
 
 import { CompanyFiles } from "../CompanyFiles";
 import { DeleteCompany } from "../DeleteCompany";
@@ -92,10 +96,14 @@ const PROMISES: readonly { icon: IconName; title: string; body: string }[] = [
  */
 export default async function ManageCompanyPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ logo?: string }>;
 }) {
   const { id } = await params;
+  // Set when a logo chosen while adding the company could not be saved (NewCompanyForm).
+  const logoFailed = (await searchParams).logo === "failed";
   const account = await accountOrRedirect(`/app/companies/${id}/manage`);
   if (!z.uuid().safeParse(id).success) notFound();
   const pool = db();
@@ -106,8 +114,10 @@ export default async function ManageCompanyPage({
     currency: string;
     fy_start_month: number;
     date_order: "day_first" | "month_first";
+    logo_version: string | null;
   }>(
-    `select name, lifecycle_state, number_format, currency, fy_start_month, date_order
+    `select name, lifecycle_state, number_format, currency, fy_start_month, date_order,
+            logo_version
        from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
@@ -115,7 +125,7 @@ export default async function ManageCompanyPage({
   if (company === undefined) notFound();
   const active = company.lifecycle_state === "active";
 
-  const [jobs, outputs, files, storage, limits] = await Promise.all([
+  const [jobs, outputs, files, storage, limits, logoLimitsNow] = await Promise.all([
     pool.query<{
       id: string;
       type: string;
@@ -146,6 +156,7 @@ export default async function ManageCompanyPage({
     fileRows(pool, { accountId: account.accountId, companyId: id }),
     companyStorage(pool, { accountId: account.accountId, companyId: id }),
     uploadLimits(pool),
+    logoLimits(pool),
   ]);
   // Whole percent, for a bar's width only; the figures beside it are the exact ones.
   const usedPercent = Math.min(
@@ -181,6 +192,24 @@ export default async function ManageCompanyPage({
       />
 
       <div className="flex flex-col gap-5">
+        {logoFailed ? (
+          <Alert tone="warning" title="The company was added, but its logo was not saved">
+            Choose it again below. Nothing else about the company is affected.
+          </Alert>
+        ) : null}
+        <Panel
+          title="Logo"
+          icon="building"
+          description="Shown beside the company's name on its dashboard and when you present it."
+        >
+          <CompanyLogoSettings
+            companyId={id}
+            name={company.name}
+            current={logoUrl(id, company.logo_version)}
+            limits={logoLimitsNow}
+          />
+        </Panel>
+
         <Panel
           title="Reporting conventions"
           icon="settings"

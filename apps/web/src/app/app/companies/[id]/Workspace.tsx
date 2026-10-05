@@ -29,6 +29,7 @@ import { DashboardClient } from "./DashboardClient";
 export function Workspace({
   companyId,
   companyName,
+  logoUrl,
   businessName,
   money,
   currencySymbol,
@@ -38,6 +39,8 @@ export function Workspace({
 }: {
   companyId: string;
   companyName: string;
+  /** The company's own logo, beside its name when the board is presented; null for none. */
+  logoUrl: string | null;
   /** Shown on the payment sheet when a chat message is short of credits. */
   businessName: string;
   money: NumberFormatOptions;
@@ -153,6 +156,7 @@ export function Workspace({
       <div className="flex min-w-0 flex-col gap-5">
         <DashboardClient
           companyId={companyId}
+          logoUrl={logoUrl}
           onInvestigate={investigate}
           reloadKey={layoutVersion}
           onVersion={setDashboardVersion}

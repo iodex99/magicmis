@@ -5,8 +5,10 @@ import { useState } from "react";
 
 import type { ReportingConventions } from "@magicmis/core/reporting-conventions";
 
+import { LogoPicker, uploadLogo } from "@/components/CompanyLogo";
 import { Alert, Button, Field, SelectField } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
+import type { LogoLimits } from "@/lib/logo";
 
 const MONTHS = [
   "January",
@@ -61,9 +63,11 @@ const CURRENCIES: readonly (readonly [string, string])[] = [
  */
 export function NewCompanyForm({
   defaults,
+  logoLimits,
   autoFocus = false,
 }: {
   defaults: ReportingConventions;
+  logoLimits: LogoLimits;
   autoFocus?: boolean;
 }) {
   const router = useRouter();
@@ -71,6 +75,7 @@ export function NewCompanyForm({
   const [fields, setFields] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [showConventions, setShowConventions] = useState(false);
+  const [logo, setLogo] = useState<File | null>(null);
 
   const monthName = MONTHS[defaults.fyStartMonth - 1] ?? "April";
   const summary = `${defaults.currency} · year starts ${monthName} · ${
@@ -93,14 +98,22 @@ export function NewCompanyForm({
             dateOrder: formText(form, "dateOrder"),
           },
           idempotencyKey: newIdempotencyKey(),
-        }).then((r) => {
-          setBusy(false);
+        }).then(async (r) => {
           if (!r.ok) {
+            setBusy(false);
             setError(r.message);
             setFields(r.fields);
             return;
           }
-          router.push(`/app/companies/${r.data.companyId}`);
+          const companyId = r.data.companyId;
+          // The company exists now, so a logo that fails to save must not leave the form here:
+          // pressing Add again would make a second company. Its settings page says what happened
+          // and offers the logo again.
+          if (logo !== null && !(await uploadLogo(companyId, logo)).ok) {
+            router.push(`/app/companies/${companyId}/manage?logo=failed`);
+            return;
+          }
+          router.push(`/app/companies/${companyId}`);
         });
       }}
     >
@@ -117,6 +130,8 @@ export function NewCompanyForm({
         maxLength={120}
         error={fields["name"]}
       />
+
+      <LogoPicker limits={logoLimits} onChange={setLogo} name="Company" />
 
       {/*
         Hidden rather than absent while collapsed: the form still submits all four, so the

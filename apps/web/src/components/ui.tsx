@@ -699,8 +699,11 @@ export function PageHeader({
   back,
   meta,
   eyebrow,
+  logo,
 }: {
   title: string;
+  /** The company's own logo, shown before its name (a company page only). */
+  logo?: ReactNode | undefined;
   /** The small line above the title the site uses on every page; the app echoes it (ADR 0042). */
   eyebrow?: string | undefined;
   description?: string | undefined;
@@ -723,6 +726,7 @@ export function PageHeader({
         <div className="min-w-0">
           {eyebrow === undefined ? null : <p className="eyebrow mb-1.5">{eyebrow}</p>}
           <div className="flex flex-wrap items-center gap-3">
+            {logo}
             <h1 className="display text-[1.75rem] leading-tight font-semibold text-neutral-900">
               {title}
             </h1>

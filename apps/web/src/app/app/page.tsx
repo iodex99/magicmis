@@ -11,6 +11,9 @@ import { PRODUCT_NAME } from "@/lib/brand";
 import { formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { listCompanies } from "@/lib/server/companies";
+import { logoLimits } from "@/lib/server/logo";
+import { logoUrl } from "@/lib/logo";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { accountOverview } from "@/lib/server/overview";
 import { firstRunCredits, welcomeStatus } from "@/lib/server/welcome";
 
@@ -50,19 +53,21 @@ export default async function AppHomePage() {
   // The new-company form is pre-filled from where this account is billed, so adding a
   // company stays two fields for almost everyone (ADR 0030). It is a default the reader
   // can see and change, never applied silently.
-  const [companies, overview, wallet, firstRun, billingCountry] = await Promise.all([
-    listCompanies(pool, account.accountId),
-    accountOverview(pool, account.accountId),
-    walletSummary(pool, account.accountId),
-    // Only ever used to word a note, so a price row that has gone is no reason to fail the page.
-    firstRunCredits(pool).catch(() => null),
-    pool
-      .query<{ billing_country: string | null }>(
-        `select billing_country from public.accounts where id = $1`,
-        [account.accountId],
-      )
-      .then((r) => r.rows[0]?.billing_country ?? null),
-  ]);
+  const [companies, overview, wallet, firstRun, billingCountry, limits] =
+    await Promise.all([
+      listCompanies(pool, account.accountId),
+      accountOverview(pool, account.accountId),
+      walletSummary(pool, account.accountId),
+      // Only ever used to word a note, so a price row that has gone is no reason to fail the page.
+      firstRunCredits(pool).catch(() => null),
+      pool
+        .query<{ billing_country: string | null }>(
+          `select billing_country from public.accounts where id = $1`,
+          [account.accountId],
+        )
+        .then((r) => r.rows[0]?.billing_country ?? null),
+      logoLimits(pool),
+    ]);
   const conventions = defaultConventions(billingCountry);
   // Welcome credits still unspent (ADR 0068). Said plainly on the first screen, because an
   // account that does not know it can run something for nothing will not try.
@@ -119,7 +124,7 @@ export default async function AppHomePage() {
             </p>
           )}
           <div data-testid="app-home">
-            <AddCompany defaults={conventions} first />
+            <AddCompany defaults={conventions} logoLimits={limits} first />
           </div>
           {wallet.available > 0n ? null : (
             <p className="mt-4 text-[0.8125rem] text-neutral-500">
@@ -222,9 +227,16 @@ export default async function AppHomePage() {
                   style={{ "--i": i.toString() } as React.CSSProperties}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
-                      <Icon name="building" size={18} />
-                    </span>
+                    {c.logoVersion === null ? (
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
+                        <Icon name="building" size={18} />
+                      </span>
+                    ) : (
+                      <CompanyLogo
+                        src={logoUrl(c.id, c.logoVersion) ?? ""}
+                        name={c.name}
+                      />
+                    )}
                     <div className="min-w-0 flex-1">
                       <Link
                         href={`/app/companies/${c.id}`}
@@ -267,7 +279,7 @@ export default async function AppHomePage() {
             })}
           </ul>
 
-          <AddCompany defaults={conventions} first={false} />
+          <AddCompany defaults={conventions} logoLimits={limits} first={false} />
         </>
       )}
     </AppFrame>
