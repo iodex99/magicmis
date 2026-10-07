@@ -9,7 +9,13 @@
 
 import { randomUUID } from "node:crypto";
 
-import { expect, test, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "@playwright/test";
 import pg from "pg";
 
 import {
@@ -68,6 +74,18 @@ async function account(email: string): Promise<AccountRow | undefined> {
   return rows[0];
 }
 
+/**
+ * A browser whose every request comes from an address of its own, as the platform edge would
+ * say. Welcome credits are granted three times per network (ADR 0068), and by the time this
+ * file runs the suite's one address has used them, so a deferral would read as never decided.
+ */
+async function freshBrowser(browser: Browser): Promise<BrowserContext> {
+  const octet = () => String(Math.floor(Math.random() * 250) + 1);
+  return browser.newContext({
+    extraHTTPHeaders: { "x-vercel-forwarded-for": `198.51.${octet()}.${octet()}` },
+  });
+}
+
 async function passwordSignIn(
   page: Page,
   email: string,
@@ -91,9 +109,10 @@ async function finish(page: Page, businessName: string): Promise<void> {
 }
 
 test("someone new through Google finishes with a name and consent, and the emailed link gives them a password", async ({
-  page,
-  context,
+  browser,
 }) => {
+  const context = await freshBrowser(browser);
+  const page = await context.newPage();
   const email = uniqueEmail();
   await signInThroughProvider(page, { email }, "/sign-up");
 
@@ -154,6 +173,7 @@ test("someone new through Google finishes with a name and consent, and the email
   await context.clearCookies();
   await passwordSignIn(page, email, NEW_PASSWORD);
   await expect(page).toHaveURL(/\/app$/u);
+  await context.close();
 });
 
 test("a returning Google sign-in goes straight to where it was going, and ends the session before it", async ({
@@ -195,7 +215,7 @@ test("a password sign-up nobody has signed in to is not handed over through Goog
   const stranger = await strangerContext.newPage();
   await signUp(stranger, email);
 
-  const ownerContext = await browser.newContext();
+  const ownerContext = await freshBrowser(browser);
   const owner = await ownerContext.newPage();
   await signInThroughProvider(owner, { email });
   // The identity service linked Google to the stranger's user, and we did not claim it.

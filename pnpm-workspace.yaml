@@ -28,3 +28,9 @@ overrides:
   "brace-expansion@>=4.0.0 <5.0.11": "5.0.12"
   # GHSA-m9gg-hp2v-232j (2026-09): reached only through Testcontainers' Docker client, in tests.
   "@grpc/grpc-js@>=1.14.0 <1.14.5": "1.14.5"
+  # GHSA-68fv-2mgg-jv7q (2026-10): a crafted source map stalls the event loop. Reached through
+  # postcss in the build and in Vitest, never from a request.
+  "source-map-js@>=1.0.0 <1.2.2": "1.2.2"
+  # GHSA-wq5f-xc86-pv6w (2026-10): librsvg inside sharp, which Next uses for image
+  # optimisation. A patch release of the same minor.
+  sharp: "^0.35.5"
