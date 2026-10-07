@@ -1,11 +1,10 @@
 /**
  * Password reset and sign-in with an identity provider (SPEC §8, ADR 0043).
  *
- * Google and Apple themselves cannot be driven from a test, and nothing here pretends to: what
- * is tested is everything on our side of them — that the buttons exist only for a provider
- * that is switched on, that starting one goes to the identity service, that someone who comes
- * back with a session and no account is asked to finish signing up, and that the emailed link
- * sets a password, once, and unlocks nothing else.
+ * Here: that the buttons exist only for a provider that is switched on, that starting one goes
+ * to the identity service, that the emailed link sets a password, once, and unlocks nothing
+ * else, and what a confirmation link proves (ADR 0071). The whole provider round trip — finish,
+ * the account a stranger left waiting, a returning sign-in, a refusal — is `provider.spec.ts`.
  */
 
 import { randomUUID } from "node:crypto";
@@ -206,68 +205,6 @@ test("a provider appears only when it is switched on, and starting it leaves for
   );
   expect((await request.get("/auth/oauth/facebook", { maxRedirects: 0 })).status()).toBe(
     404,
-  );
-});
-
-test("a proven identity with no account yet is asked to finish, and lands in the app", async ({
-  page,
-}) => {
-  // What someone arriving through Google or Apple for the first time looks like to us: a
-  // verified session whose user has no account row. Reproduced by signing up normally and
-  // moving the pending account aside before the email is confirmed.
-  const email = uniqueEmail();
-  await signUp(page, email);
-  const pool = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
-  try {
-    const moved = await pool.query(
-      `update accounts set auth_user_id = gen_random_uuid(), email = 'moved-' || email
-        where email = $1`,
-      [email],
-    );
-    expect(moved.rowCount).toBe(1);
-  } finally {
-    await pool.end();
-  }
-
-  const html = await latestEmailHtml(email, "Confirm your email");
-  await page.goto(confirmationLink(html));
-  await expect(page).toHaveURL(/\/sign-up\/finish$/u);
-
-  // Consent is not optional here any more than on the password form.
-  await page.getByLabel("Business name").fill("Finish Line Associates");
-  await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page.getByRole("main").getByRole("alert")).toContainText(
-    "Accept the Terms",
-  );
-  await page.getByLabel(/I accept the/u).check();
-  await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/app$/u);
-  await expect(page.getByTestId("app-home")).toBeVisible();
-});
-
-test("an account with no password is pointed at the link instead of asked for one", async ({
-  page,
-}) => {
-  // What an account created through Google or Apple is, as far as the re-check is concerned.
-  const email = uniqueEmail();
-  await createVerifiedAccount(page, email);
-  const pool = new pg.Pool({ connectionString: LOCAL_DB, max: 1 });
-  try {
-    await pool.query(`update accounts set has_password = false where email = $1`, [
-      email,
-    ]);
-  } finally {
-    await pool.end();
-  }
-
-  await page.goto("/settings/privacy");
-  await page.getByRole("button", { name: "Request export" }).click();
-  await page.getByLabel("Current password").fill(PASSWORD);
-  await page.getByRole("button", { name: "Confirm" }).click();
-  await expect(page.getByTestId("no-password")).toContainText("has no password yet");
-  await expect(page.getByRole("link", { name: "Email me the link" })).toHaveAttribute(
-    "href",
-    "/forgot-password",
   );
 });
 

@@ -10,6 +10,8 @@ import path from "node:path";
 
 import pg from "pg";
 
+import { startIdentityProvider } from "./support/identity-provider";
+
 export const FIXTURES_OUT = path.resolve(
   import.meta.dirname,
   "..",
@@ -22,7 +24,7 @@ export const FIXTURES_OUT = path.resolve(
 // The local Supabase stack's database (supabase/config.toml defaults; not a secret).
 const LOCAL_DB = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 
-export default async function globalSetup(): Promise<void> {
+export default async function globalSetup(): Promise<() => void> {
   const run = (script: string) => {
     execSync(`pnpm --filter @magicmis/fixtures ${script}`, {
       stdio: "inherit",
@@ -45,4 +47,7 @@ export default async function globalSetup(): Promise<void> {
   } finally {
     await pool.end();
   }
+
+  // The identity provider every provider sign-in goes through (ADR 0082). Stopped afterwards.
+  return startIdentityProvider();
 }

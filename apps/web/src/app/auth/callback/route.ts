@@ -161,13 +161,20 @@ export async function GET(request: NextRequest): Promise<Response> {
       }
     }
   }
-  const path = failed
-    ? "/sign-in?verification=failed"
-    : signedIn
-      ? next
-      : newcomer
-        ? "/sign-up/finish"
-        : "/sign-in/verified";
+  // A return from Google or Apple that brought no code: the person turned the provider down, or
+  // the provider or the identity service refused (ADR 0082). Not a link, so not "that link has
+  // expired" — say what happened and leave both ways in open.
+  const providerDeclined =
+    code === null && tokenHash === null && url.searchParams.get("error") !== null;
+  const path = providerDeclined
+    ? "/sign-in?provider=failed"
+    : failed
+      ? "/sign-in?verification=failed"
+      : signedIn
+        ? next
+        : newcomer
+          ? "/sign-up/finish"
+          : "/sign-in/verified";
 
   /**
    * Redirect to the host the browser actually used.
@@ -179,7 +186,15 @@ export async function GET(request: NextRequest): Promise<Response> {
    */
   const host = request.headers.get("host") ?? url.host;
   const response = NextResponse.redirect(new URL(path, `${url.protocol}//${host}`));
-  if (carried !== null) response.cookies.delete(OAUTH_NEXT_COOKIE);
+  // Deleted on the path it was written on: `cookies.delete` alone writes to `/`, which leaves
+  // this one in place, and a destination left behind steers the next link opened here (ADR 0082).
+  if (carried !== null)
+    response.cookies.set({
+      name: OAUTH_NEXT_COOKIE,
+      value: "",
+      path: "/auth/callback",
+      maxAge: 0,
+    });
   // Spent or useless from here on either way.
   if (emailConfirmation)
     response.cookies.set({

@@ -363,6 +363,18 @@ skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
 email_optional = false
 
+# Local stack only: the identity provider the browser suite signs in through (ADR 0082). Google's
+# and Apple's endpoints are fixed in the identity service and cannot be pointed at a test, so the
+# suite starts a real Google sign-in through the app and hands the round trip to this stand-in,
+# a container `apps/web/e2e/support/identity-provider.ts` runs on the stack's own network. The
+# app never offers it: AUTH_OAUTH_PROVIDERS accepts google and apple only. The hosted project is
+# configured in its dashboard, not from this file, so none of this reaches production.
+[auth.external.keycloak]
+enabled = true
+client_id = "magicmis-e2e"
+secret = "not-a-secret"
+url = "http://magicmis-e2e-identity:8080"
+
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
 # You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.
 [auth.web3.solana]

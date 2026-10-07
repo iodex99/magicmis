@@ -53,7 +53,10 @@ Anything other than `google` or `apple` in the list stops the app from starting,
 
 ## 3. Check it, by hand, once
 
-This is the one part no automated test can cover.
+Everything on our side of the provider is covered by `apps/web/e2e/provider.spec.ts`, which signs
+in through a stand-in provider on the local stack (ADR 0082). What no automated test can cover is
+the real Google or Apple account: the client, the secret and the redirect URI you just set. So,
+once, by hand:
 
 1. In a private window, **Continue with Google** from `/sign-up`. You should land on **One last
    thing**, asking for a business name and the terms. Complete it; you should land in the

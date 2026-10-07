@@ -60,6 +60,12 @@ function Form({ providers }: { providers: readonly OAuthProvider[] }) {
             That sign-in option is not available right now. Use your email and password.
           </Alert>
         ) : null}
+        {params.get("provider") === "failed" ? (
+          <Alert tone="error">
+            Signing in with that account did not finish, so nothing has changed. Try
+            again, or use your email and password.
+          </Alert>
+        ) : null}
         {params.get("reset") === "done" ? (
           <Alert tone="success">Your password is set. Sign in with it to continue.</Alert>
         ) : null}

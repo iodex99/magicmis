@@ -2,6 +2,12 @@ import { randomUUID } from "node:crypto";
 
 import { expect, type Page } from "@playwright/test";
 
+import {
+  IDENTITY_HOST,
+  identityCode,
+  type ProviderIdentity,
+} from "./support/identity-provider";
+
 export const MAILPIT = "http://127.0.0.1:54324";
 export const PASSWORD = "E2e-Correct-Horse-42";
 
@@ -78,6 +84,107 @@ export async function signIn(page: Page, email: string): Promise<void> {
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/app$/u);
+}
+
+/**
+ * Press "Continue with Google" on `start` and come back as `who` (ADR 0082) — or, given
+ * `"decline"`, as someone who turned the provider down.
+ *
+ * Everything on our side runs for real: the button, the start route writing the PKCE verifier and
+ * the destination into this browser, the identity service exchanging the code with a provider
+ * and linking or creating the user, and the callback exchanging and claiming the session. Two
+ * steps are stood in for. At the identity service's front door the provider is swapped for the
+ * Keycloak stand-in (`support/identity-provider.ts`), because Google's endpoints cannot be
+ * pointed anywhere else; the start route's answer is still checked to be Google's. And the page
+ * where a person signs in at the provider is played here: it hands the identity service a code
+ * that says who this is, which the stand-in then vouches for on the server side.
+ *
+ * A browser follows redirects without showing them to a route handler, so the chain is walked
+ * here, one hop at a time, from the click on the button: the start route's real response (and
+ * the cookies it writes into this browser), then the identity service's real authorize, then the
+ * provider's answer — and the browser is sent on from there to the identity service's callback,
+ * which redirects to ours.
+ *
+ * Resolves once the browser is back on the app with the round trip finished.
+ */
+export async function signInThroughProvider(
+  page: Page,
+  who: ProviderIdentity | "decline",
+  start = "/sign-in",
+): Promise<void> {
+  const isStart = (url: URL) => url.pathname === "/auth/oauth/google";
+  await page.route(isStart, async (route) => {
+    // Our start route, unchanged: a redirect to the identity service, and its cookies.
+    const started = await route.fetch({ maxRedirects: 0 });
+    expect(started.status()).toBe(307);
+    const cookies = started
+      .headersArray()
+      .filter((h) => h.name.toLowerCase() === "set-cookie")
+      .map((h) => parseSetCookie(h.value, route.request().url()));
+    await page.context().addCookies(cookies);
+    expect(cookies.map((c) => c.name)).toContain("oauth_next");
+    expect(cookies.some((c) => c.name.endsWith("-code-verifier"))).toBe(true);
+
+    const authorize = new URL(started.headers()["location"] ?? "");
+    expect(authorize.pathname).toBe("/auth/v1/authorize");
+    expect(authorize.searchParams.get("provider")).toBe("google");
+    authorize.searchParams.set("provider", "keycloak");
+
+    // The identity service's own authorize, which sends the person to the provider.
+    const toProvider = await page.request.get(authorize.toString(), { maxRedirects: 0 });
+    expect(toProvider.status()).toBe(302);
+    const asked = new URL(toProvider.headers()["location"] ?? "");
+    expect(asked.hostname).toBe(IDENTITY_HOST);
+    expect(asked.pathname).toBe("/protocol/openid-connect/auth");
+
+    // The person at the provider: who they are, or no.
+    const back = new URL(asked.searchParams.get("redirect_uri") ?? "");
+    back.searchParams.set("state", asked.searchParams.get("state") ?? "");
+    if (who === "decline") {
+      back.searchParams.set("error", "access_denied");
+      back.searchParams.set("error_description", "The person declined");
+    } else {
+      back.searchParams.set("code", identityCode(who));
+    }
+    await route.fulfill({ status: 302, headers: { location: back.toString() } });
+  });
+  try {
+    await page.goto(start);
+    await page.getByRole("link", { name: "Continue with Google" }).click();
+    // Back on the app, past the callback.
+    await page.waitForURL(
+      (url) =>
+        url.port === "3000" &&
+        !url.pathname.startsWith("/auth/") &&
+        url.href !== new URL(start, url).href,
+    );
+  } finally {
+    await page.unroute(isStart);
+  }
+}
+
+/** One `Set-Cookie` header as Playwright's `addCookies` takes it. */
+function parseSetCookie(header: string, requestUrl: string) {
+  const [pair = "", ...attributes] = header.split(";").map((part) => part.trim());
+  const at = pair.indexOf("=");
+  const attribute = (key: string) =>
+    attributes.find((a) => a.toLowerCase().startsWith(`${key}=`))?.slice(key.length + 1);
+  const flags = attributes.map((a) => a.toLowerCase());
+  const sameSite = attribute("samesite")?.toLowerCase();
+  return {
+    name: pair.slice(0, at),
+    value: pair.slice(at + 1),
+    domain: new URL(requestUrl).hostname,
+    path: attribute("path") ?? "/",
+    httpOnly: flags.includes("httponly"),
+    secure: flags.includes("secure"),
+    sameSite:
+      sameSite === "strict"
+        ? ("Strict" as const)
+        : sameSite === "none"
+          ? ("None" as const)
+          : ("Lax" as const),
+  };
 }
 
 /**
