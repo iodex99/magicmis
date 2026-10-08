@@ -114,7 +114,7 @@ describe("orchestrator", () => {
     await activateAllRoutes(pool());
   });
 
-  it("sends structured output, cached system prompt and data tags; no effort for Haiku", async () => {
+  it("sends structured output, cached system prompt and data tags; low effort on Haiku 5.5", async () => {
     const account = await newAccount(pool());
     const t = new ScriptedTransport([{ kind: "message", message: message(sheetOk) }]);
     const result = await classifySheets(ctx(account, t), sheetInput);
@@ -122,10 +122,11 @@ describe("orchestrator", () => {
     expect(result.output.sheets[0]?.report_type).toBe("trial_balance");
     expect(result.downgraded).toBe(false);
     const req = t.created[0];
-    expect(req?.model).toBe("claude-haiku-4-5-20251001");
-    expect(req?.max_tokens).toBe(4000);
+    // Migration 0075: Haiku 5.5 thinks by default, so its routes name `low` and leave room for it.
+    expect(req?.model).toBe("claude-haiku-5-5");
+    expect(req?.max_tokens).toBe(8000);
     expect(req?.output_config?.format?.type).toBe("json_schema");
-    expect(req?.output_config?.effort).toBeUndefined();
+    expect(req?.output_config?.effort).toBe("low");
     const schema = req?.output_config?.format?.schema as Record<string, unknown>;
     expect(schema["additionalProperties"]).toBe(false);
     const system = req?.system as Anthropic.TextBlockParam[];
@@ -135,6 +136,19 @@ describe("orchestrator", () => {
     expect(content.at(-1)?.text.startsWith("<data>")).toBe(true);
     expect(content.at(-2)?.cache_control).toEqual({ type: "ephemeral" });
     expect(t.counted).toHaveLength(1);
+  });
+
+  it("reads the answer past a thinking block, as Haiku 5.5 sends one by default", async () => {
+    // Haiku 5.5 thinks by default and returns each thinking block with an empty `thinking` field
+    // and only a signature, before the text (migration guide, ADR 0083). The answer is chosen by
+    // block type, never by position.
+    const account = await newAccount(pool());
+    const reply = message(sheetOk);
+    reply.content.unshift({ type: "thinking", thinking: "", signature: "sig" });
+    const t = new ScriptedTransport([{ kind: "message", message: reply }]);
+    const result = await classifySheets(ctx(account, t), sheetInput);
+    expect(result.output.sheets[0]?.report_type).toBe("trial_balance");
+    expect(t.created).toHaveLength(1);
   });
 
   it("keeps hostile sheet text inside the data boundary of a real request (SPEC §30)", async () => {
@@ -192,7 +206,7 @@ describe("orchestrator", () => {
     const c = ctx(account, t);
     const result = await classifySheets(c, sheetInput);
 
-    const model = await loadModel(pool(), "claude-haiku-4-5-20251001");
+    const model = await loadModel(pool(), "claude-haiku-5-5");
     const expected = costMicroUsd(usage, model);
     const [row] = await calls(account);
     expect(row?.usd_cost_micro).toBe(expected.toString());
@@ -310,19 +324,20 @@ describe("orchestrator", () => {
       { kind: "error", error: notFound },
       {
         kind: "message",
-        message: message(sheetOk, { model: "claude-haiku-4-5-20251001" }),
+        message: message(sheetOk, { model: "claude-haiku-5-5" }),
       },
     ]);
-    // Expert routes sheet classification to Sonnet 5 with Haiku 4.5 as fallback.
+    // Expert routes sheet classification to Sonnet 5 with Haiku 5.5 as fallback.
     const result = await classifySheets(ctx(account, t, "expert"), sheetInput);
     expect(result.modelRequested).toBe("claude-sonnet-5");
-    expect(result.modelUsed).toBe("claude-haiku-4-5-20251001");
+    expect(result.modelUsed).toBe("claude-haiku-5-5");
     expect(result.downgraded).toBe(true);
-    expect(t.created[1]?.output_config?.effort).toBeUndefined();
+    // The route's effort reaches the fallback now that the fallback accepts one.
+    expect(t.created[1]?.output_config?.effort).toBe("low");
     const rows = await calls(account);
     expect(rows.map((r) => [r.status, r.model_used, r.fallback_from])).toEqual([
       ["error", "claude-sonnet-5", null],
-      ["ok", "claude-haiku-4-5-20251001", "claude-sonnet-5"],
+      ["ok", "claude-haiku-5-5", "claude-sonnet-5"],
     ]);
 
     const overloaded = new Anthropic.InternalServerError(
@@ -395,8 +410,10 @@ describe("orchestrator", () => {
   it("throws RuntimeCapExceeded before sending when projected cost exceeds the cap", async () => {
     const account = await newAccount(pool());
     const t = new ScriptedTransport([{ kind: "message", message: message(sheetOk) }]);
-    t.countResult = 100_000;
-    // Haiku: 100k input × $1 + 4000 output × $5 = $0.12 → ₹11.87 at 98.88; cap ₹5.
+    // Past Haiku 5.5's 100k-token band, so the projection is at the long-prompt price:
+    // 150k input × $0.50 + 8000 output × $2.50 = $0.095 → ₹9.39 at 98.88; cap ₹5. At the short
+    // band it would have been $0.019, under the cap — the band is what stops it.
+    t.countResult = 150_000;
     const err = await classifySheets(
       ctx(account, t, "efficient", 500n),
       sheetInput,
@@ -469,7 +486,8 @@ describe("runtime cap pauses a job", () => {
     );
     expect(j.rows[0]?.state).toBe("needs_quote");
     expect(j.rows[0]?.reservation_id).toBeNull();
-    expect(j.rows[0]?.actual_ai_cost_micro_usd).toBe("1000");
+    // 500 input × $0.10 + 100 output × $0.50 on Haiku 5.5.
+    expect(j.rows[0]?.actual_ai_cost_micro_usd).toBe("100");
 
     const res = await pool().query<{ status: string }>(
       `select status from reservations where id = $1`,
@@ -490,7 +508,7 @@ describe("runtime cap pauses a job", () => {
       jobId,
     ]);
     expect(miss.rows).toEqual([
-      { kind: "estimation_miss", cost_micro_usd: "1000", stage: "sheet_classification" },
+      { kind: "estimation_miss", cost_micro_usd: "100", stage: "sheet_classification" },
     ]);
 
     const q = await pool().query<{

@@ -28,7 +28,8 @@ export function message(
     id: `msg_${randomUUID()}`,
     type: "message",
     role: "assistant",
-    model: over.model ?? "claude-haiku-4-5-20251001",
+    // What the seeded efficient routes request since migration 0075.
+    model: over.model ?? "claude-haiku-5-5",
     content: [{ type: "text", text, citations: null }],
     stop_reason: over.stop_reason ?? "end_turn",
     stop_sequence: null,

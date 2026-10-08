@@ -88,6 +88,23 @@ export function costMicroUsd(
   let scale = Math.max(...terms.map((t) => t.scale));
   let total = terms.reduce((s, t) => s + toScale(t, scale), 0n);
 
+  // A model priced by prompt length (Haiku 5.5, ADR 0083): past the threshold every price above
+  // is multiplied. The prompt is everything sent — uncached input, cache writes and cache reads —
+  // so a call is never priced at the lower band when it belongs in the higher one.
+  const threshold = model.long_prompt_threshold_tokens;
+  const multiplier = model.long_prompt_price_multiplier;
+  if (
+    threshold !== null &&
+    threshold !== undefined &&
+    multiplier !== null &&
+    multiplier !== undefined &&
+    usage.input_tokens + created + (usage.cache_read_input_tokens ?? 0) > threshold
+  ) {
+    const m = parseDecimal(multiplier);
+    total *= m.unscaled;
+    scale += m.scale;
+  }
+
   if (options.batch === true) {
     const d = parseDecimal(model.batch_discount);
     // × (1 − discount)
@@ -99,7 +116,10 @@ export function costMicroUsd(
   return microUsd(divideRounded(total, 1_000_000n * 10n ** BigInt(scale), "ceil"));
 }
 
-/** Upper bound for a call before it is made: counted input at full input price plus max_tokens at output price. */
+/**
+ * Upper bound for a call before it is made: counted input at full input price plus max_tokens at
+ * output price — at the long-prompt band when the counted input is past it.
+ */
 export function projectedCallCostMicroUsd(
   inputTokens: number,
   maxTokens: number,

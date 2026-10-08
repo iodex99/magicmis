@@ -33,6 +33,12 @@ export const modelRowSchema = z.object({
   cache_write_multiplier: decimal,
   cache_write_1h_multiplier: decimal,
   batch_discount: decimal,
+  /**
+   * A model priced by prompt length (Haiku 5.5, migration 0075): over this many prompt tokens,
+   * every price is multiplied by `long_prompt_price_multiplier`. Null for a single price.
+   */
+  long_prompt_threshold_tokens: z.number().int().positive().nullish(),
+  long_prompt_price_multiplier: decimal.nullish(),
   available: z.boolean(),
   version: z.number().int(),
   source_url: z.string(),
@@ -70,7 +76,9 @@ export async function loadModel(db: Queryable, modelId: string): Promise<ModelRo
             cache_read_multiplier::text as cache_read_multiplier,
             cache_write_multiplier::text as cache_write_multiplier,
             cache_write_1h_multiplier::text as cache_write_1h_multiplier,
-            batch_discount::text as batch_discount, available, version, source_url, verified_at
+            batch_discount::text as batch_discount, long_prompt_threshold_tokens,
+            long_prompt_price_multiplier::text as long_prompt_price_multiplier,
+            available, version, source_url, verified_at
      from public.model_registry where model_id = $1 order by version desc limit 1`,
     [modelId],
   );
@@ -107,6 +115,9 @@ export async function loadRoute(
   return route;
 }
 
-/** Haiku 4.5 does not accept `output_config.effort` (verified 2026-09-13, ADR 0019). */
+/**
+ * Haiku 4.5 does not accept `output_config.effort` (verified 2026-09-13, ADR 0019). Haiku 5.5
+ * does, and defaults to `medium` with thinking on (verified 2026-10-08, ADR 0083).
+ */
 export const modelSupportsEffort = (modelId: string): boolean =>
   !modelId.startsWith("claude-haiku-4-5");

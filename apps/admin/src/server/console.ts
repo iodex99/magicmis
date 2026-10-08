@@ -130,9 +130,12 @@ export async function publishModel(
       cache_write_multiplier: string;
       cache_write_1h_multiplier: string;
       batch_discount: string;
+      long_prompt_threshold_tokens: number | null;
+      long_prompt_price_multiplier: string | null;
     }>(
       `select version, display_name_internal, cache_read_multiplier::text, cache_write_multiplier::text,
-              cache_write_1h_multiplier::text, batch_discount::text
+              cache_write_1h_multiplier::text, batch_discount::text, long_prompt_threshold_tokens,
+              long_prompt_price_multiplier::text
        from public.model_registry where model_id = $1 order by version desc limit 1`,
       [m.modelId],
     );
@@ -144,8 +147,8 @@ export async function publishModel(
       `insert into public.model_registry
          (model_id, display_name_internal, input_price_per_mtok_micro_usd, output_price_per_mtok_micro_usd,
           cache_read_multiplier, cache_write_multiplier, cache_write_1h_multiplier, batch_discount, available,
-          source_url, verified_at, version)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), $11)`,
+          source_url, verified_at, version, long_prompt_threshold_tokens, long_prompt_price_multiplier)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), $11, $12, $13)`,
       [
         m.modelId,
         base.display_name_internal,
@@ -158,6 +161,10 @@ export async function publishModel(
         m.available,
         m.sourceUrl,
         version,
+        // Carried like the multipliers beside it: a new base price must not quietly drop the
+        // long-prompt band and price a long call at the short one (ADR 0083).
+        base.long_prompt_threshold_tokens,
+        base.long_prompt_price_multiplier,
       ],
     );
     await appendAudit(tx, {

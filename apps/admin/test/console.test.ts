@@ -136,6 +136,35 @@ describe("routing and registry", () => {
       60_000,
     );
   });
+
+  it("carries a long-prompt price band into the new version (ADR 0083)", async () => {
+    // Dropping it would price every long Haiku 5.5 call at the short band: cost understated.
+    const adminId = await admin();
+    await publishModel(pool(), {
+      adminId,
+      ip: null,
+      model: {
+        modelId: "claude-haiku-5-5",
+        inputPricePerMTokMicroUsd: 100_000n,
+        outputPricePerMTokMicroUsd: 500_000n,
+        available: true,
+        sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing",
+      },
+    });
+    const latest = await pool().query<{
+      version: number;
+      long_prompt_threshold_tokens: number | null;
+      long_prompt_price_multiplier: string | null;
+    }>(
+      `select version, long_prompt_threshold_tokens, long_prompt_price_multiplier::text
+         from model_registry where model_id = 'claude-haiku-5-5' order by version desc limit 1`,
+    );
+    expect(latest.rows[0]).toMatchObject({
+      long_prompt_threshold_tokens: 100_000,
+      long_prompt_price_multiplier: "5.0000",
+    });
+    expect(latest.rows[0]?.version).toBeGreaterThan(1);
+  });
 });
 
 describe("config editor", () => {

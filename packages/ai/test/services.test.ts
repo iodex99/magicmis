@@ -46,7 +46,8 @@ describe("activation gate", () => {
       promptName: "sheet_classification",
       promptVersion: 1,
       tier: "efficient" as const,
-      modelId: "claude-haiku-4-5-20251001",
+      // The model in the route: activation matches an eval on it (migration 0075).
+      modelId: "claude-haiku-5-5",
       costMicroUsd: 1234n,
       p50LatencyMs: 900,
       report: {},
@@ -222,7 +223,7 @@ describe("batch client", () => {
       "job-b_s1",
       "job-c_s1",
     ]);
-    expect(t.batches[0]?.[0]?.params.model).toBe("claude-haiku-4-5-20251001");
+    expect(t.batches[0]?.[0]?.params.model).toBe("claude-haiku-5-5");
 
     t.batchStatus = "in_progress";
     expect(
@@ -243,7 +244,7 @@ describe("batch client", () => {
       "retry_realtime",
     ]);
 
-    const model = await loadModel(pool(), "claude-haiku-4-5-20251001");
+    const model = await loadModel(pool(), "claude-haiku-5-5");
     const expected = costMicroUsd(usage, model, { batch: true });
     const rows = await pool().query<{
       is_batch: boolean;
@@ -273,7 +274,7 @@ describe("batch client", () => {
   it("applies the runtime cap per budget before submitting", async () => {
     const account = await newAccount(pool());
     const t = new ScriptedTransport();
-    t.countResult = 50_000;
+    t.countResult = 150_000;
     const budget = new CostBudget(1000n); // ₹10
     const mk = (): AiContext => ({
       db: pool(),
@@ -283,7 +284,8 @@ describe("batch client", () => {
       tier: "efficient",
       budget,
     });
-    // Each item projects 50k × $1 + 4k × $5 = $0.07 ≈ ₹6.85; two on one budget exceed ₹10.
+    // Each item projects at Haiku 5.5's long-prompt band: 150k × $0.50 + 8k × $2.50 = $0.095
+    // ≈ ₹9.39; two on one budget exceed ₹10.
     await expect(
       submitStageBatch(classifySheetsSpec, [
         { customId: "a", ctx: mk(), input: input("s1") },

@@ -158,6 +158,82 @@ describe("costMicroUsd", () => {
   });
 });
 
+describe("a model priced by prompt length (Haiku 5.5, ADR 0083)", () => {
+  // The rows migration 0075 seeds, from https://platform.claude.com/docs/en/about-claude/pricing.
+  const haiku55 = model({
+    model_id: "claude-haiku-5-5",
+    input_price_per_mtok_micro_usd: 100_000n,
+    output_price_per_mtok_micro_usd: 500_000n,
+    long_prompt_threshold_tokens: 100_000,
+    long_prompt_price_multiplier: "5.0000",
+  });
+
+  it("charges the published short-prompt prices up to 100,000 prompt tokens", () => {
+    // 100,000 × $0.10 + 10,000 × $0.50 = $0.010 + $0.005 = 15,000 µ$.
+    expect(costMicroUsd({ input_tokens: 100_000, output_tokens: 10_000 }, haiku55)).toBe(
+      15_000n,
+    );
+  });
+
+  it("charges the published long-prompt prices past it, on every token", () => {
+    // 100,001 × $0.50 + 10,000 × $2.50 = $0.0500005 + $0.025 = 75,000.5 → 75,001 µ$ (rounded up).
+    expect(costMicroUsd({ input_tokens: 100_001, output_tokens: 10_000 }, haiku55)).toBe(
+      75_001n,
+    );
+  });
+
+  it("counts cache writes and cache reads as prompt, so a cached long call is never priced short", () => {
+    const usage = {
+      input_tokens: 1000,
+      output_tokens: 0,
+      cache_creation_input_tokens: 50_000,
+      cache_read_input_tokens: 50_000,
+    };
+    // 101,000 prompt tokens: 1000 × $0.50 + 50,000 × $0.625 + 50,000 × $0.05
+    //   = $0.0005 + $0.03125 + $0.0025 = 34,250 µ$; the short band would have been 6,850.
+    expect(costMicroUsd(usage, haiku55)).toBe(34_250n);
+  });
+
+  it("stacks with the Batch API discount, as the published batch rows do", () => {
+    // Long band in batch: $0.25 in, $1.25 out. 200,000 × 0.25 + 10,000 × 1.25 = 62,500 µ$.
+    expect(
+      costMicroUsd({ input_tokens: 200_000, output_tokens: 10_000 }, haiku55, {
+        batch: true,
+      }),
+    ).toBe(62_500n);
+  });
+
+  it("projects a call past the threshold at the long band before it is made", () => {
+    expect(projectedCallCostMicroUsd(150_000, 4000, haiku55)).toBe(
+      costMicroUsd({ input_tokens: 150_000, output_tokens: 4000 }, haiku55),
+    );
+    expect(projectedCallCostMicroUsd(150_000, 4000, haiku55)).toBe(85_000n);
+  });
+
+  it("is never cheaper with more prompt tokens, across the threshold (property)", () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 0, max: 400_000 }),
+        fc.integer({ min: 0, max: 400_000 }),
+        fc.integer({ min: 0, max: 20_000 }),
+        (a, b, out) => {
+          const [lo, hi] = a <= b ? [a, b] : [b, a];
+          return (
+            costMicroUsd({ input_tokens: lo, output_tokens: out }, haiku55) <=
+            costMicroUsd({ input_tokens: hi, output_tokens: out }, haiku55)
+          );
+        },
+      ),
+    );
+  });
+
+  it("leaves a model with one price exactly as it was", () => {
+    expect(
+      costMicroUsd({ input_tokens: 1_000_000, output_tokens: 100_000 }, model()),
+    ).toBe(3_000_000n);
+  });
+});
+
 describe("costPaise", () => {
   it("converts at the FX rate plus buffer, rounding up", () => {
     // $1 at ₹95 + 3% = ₹97.85 = 9785 paise.
