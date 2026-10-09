@@ -9,6 +9,8 @@ import { divideRounded, formatDecimal, paise, parseDecimal } from "@magicmis/cor
 import { periodParts, type PeriodId } from "@magicmis/core/time";
 import { METRIC_LABELS, type MetricValue } from "@magicmis/engine";
 
+import { ANALYSIS_LABELS } from "./analysis-metrics";
+
 const MONTHS = [
   "Jan",
   "Feb",
@@ -74,7 +76,7 @@ const SUFFIXES: Readonly<Record<string, string>> = {
 
 export function metricLabel(metricId: string): string {
   const [base = "", suffix] = metricId.split(".");
-  const label = METRIC_LABELS[base] ?? base.replace(/_/gu, " ");
+  const label = METRIC_LABELS[base] ?? ANALYSIS_LABELS[base] ?? base.replace(/_/gu, " ");
   if (suffix === undefined) return label;
   return `${label}, ${SUFFIXES[suffix] ?? suffix.replace(/_/gu, " ")}`;
 }

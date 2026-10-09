@@ -23,6 +23,11 @@ describe("detectIntent", () => {
     "Put a chart of the three biggest cost lines for the last six months under the KPIs",
     "Add revenue per day to the dashboard",
     "hide the working capital table",
+    // The analysis figures a board can show since ADR 0085.
+    "Add a chart of payroll cost by designation",
+    "remove payroll by designation",
+    "hide the headcount",
+    "Put receivables ageing on the dashboard",
   ])("a change to the dashboard: %s", (text) => {
     expect(detectIntent(text)).toBe("dashboard");
   });

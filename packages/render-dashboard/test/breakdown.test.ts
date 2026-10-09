@@ -11,7 +11,12 @@ import type { MetricValue } from "@magicmis/engine";
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_DASHBOARD, dashboardSpecSchema, type Widget } from "../src/spec";
-import { buildWidgetView, type ViewFormat } from "../src/views";
+import {
+  buildWidgetView,
+  metricKey,
+  parseMetricKey,
+  type ViewFormat,
+} from "../src/views";
 
 const v = (
   metricId: string,
@@ -152,5 +157,27 @@ describe("a box split by a dimension", () => {
     const parsed = dashboardSpecSchema.parse(old);
     expect(parsed.widgets[0]?.sort).toBeNull();
     expect(parsed.widgets[0]?.limit).toBeNull();
+  });
+});
+
+describe("parseMetricKey", () => {
+  it("reads back what metricKey wrote, a breakdown's split included (ADR 0085)", () => {
+    // The board's value list took the month as everything after the "@", so a breakdown's
+    // "2026-04|designation=Accountant" reached the period formatter and the board crashed.
+    const plain = metricKey("revenue.mom_pct", "2026-04");
+    expect(parseMetricKey(plain)).toEqual({
+      metricId: "revenue.mom_pct",
+      period: "2026-04",
+      dims: {},
+    });
+    const split = metricKey("payroll_cost", "2026-04", { designation: "Accountant" });
+    expect(parseMetricKey(split)).toEqual({
+      metricId: "payroll_cost",
+      period: "2026-04",
+      dims: { designation: "Accountant" },
+    });
+    expect(
+      parseMetricKey(metricKey("receivables_ageing", "2026-04", { bucket: "31-60" })),
+    ).toMatchObject({ period: "2026-04", dims: { bucket: "31-60" } });
   });
 });

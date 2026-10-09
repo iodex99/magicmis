@@ -7,7 +7,11 @@ import {
 } from "@magicmis/ai";
 import { latestMetricStores } from "@magicmis/engine/server";
 import type { KeyWrapper } from "@magicmis/crypto";
-import { DEFAULT_DASHBOARD, type DashboardSpec } from "@magicmis/render-dashboard";
+import {
+  dashboardMetrics,
+  DEFAULT_DASHBOARD,
+  type DashboardSpec,
+} from "@magicmis/render-dashboard";
 import { METRIC_CATALOG } from "@magicmis/templates";
 import type { Pool } from "pg";
 
@@ -35,12 +39,12 @@ import type { Pool } from "pg";
  * What the stage is told about a company: which metrics it holds, which of them its books split,
  * and how many months there are.
  *
- * **Only metrics the board can show** (ADR 0084). The engine also computes figures the dashboard
- * catalog does not hold — payroll by designation, headcount, gross pay — and offering them was a
- * trap: the model, rightly reading a people business, chose a payroll box, the check refused it
- * as a metric "this dashboard can show", the repair round did the same, and the company was
- * quietly given the standard eight boxes. The first run against the real model found it on the
- * first services company it saw.
+ * **Only metrics the board can show** (ADR 0084), and the board can now show the analysis figures
+ * too — payroll by designation, receivables and payables by age, headcount, gross pay (ADR 0085).
+ * Offering a figure the check then refused was a trap: the model, rightly reading a people
+ * business, chose a payroll box, the check refused it, the repair round did the same, and the
+ * company was quietly given the standard eight boxes. The fix that keeps ADR 0056 is not to stop
+ * offering payroll but to let the board show it.
  */
 /** The three fields of a stored metric value the layout reads. */
 interface LayoutValue {
@@ -53,7 +57,8 @@ export function layoutInputFor(
   values: readonly LayoutValue[],
   months: number,
 ): DashboardLayoutInput {
-  const showable = new Set(METRIC_CATALOG.map((m) => m.id));
+  const metrics = dashboardMetrics(METRIC_CATALOG);
+  const showable = new Set(metrics.map((m) => m.id));
   const present = new Set<string>();
   const splits = new Map<string, { dimension: string; values: Set<string> }>();
   for (const v of values) {
@@ -71,7 +76,7 @@ export function layoutInputFor(
     splits.set(base, seen);
   }
   return {
-    metrics: METRIC_CATALOG.map((m) => ({ id: m.id, unit: m.unit, label: m.label })),
+    metrics,
     present: [...present].sort(),
     dimensioned: [...splits.entries()]
       // The count, never the values: see the note on `dimensioned` (ADR 0057).

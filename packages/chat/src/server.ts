@@ -58,6 +58,7 @@ import {
   readStoredTemplate,
 } from "@magicmis/jobs";
 import { assertNoRawIdentifiers } from "@magicmis/redact";
+import { dashboardMetrics } from "@magicmis/render-dashboard";
 import { METRIC_CATALOG } from "@magicmis/templates";
 import {
   captureReservation,
@@ -805,7 +806,12 @@ export async function processMessage(
       const r = await chatEditSpec(ctx, {
         target,
         spec: spec as never,
-        metrics: METRIC_CATALOG.map((m) => ({ id: m.id, label: m.label, unit: m.unit })),
+        // A dashboard box may also show the analysis figures (payroll by designation, ageing),
+        // which a template row may not bind to: the template is the library alone (ADR 0085).
+        metrics:
+          target === "dashboard"
+            ? dashboardMetrics(METRIC_CATALOG)
+            : METRIC_CATALOG.map((m) => ({ id: m.id, label: m.label, unit: m.unit })),
         splits: [...splits.keys()].slice(0, 40).map((k) => ({
           metricId: k.split("|")[0] ?? "",
           dimension: k.split("|")[1] ?? "",

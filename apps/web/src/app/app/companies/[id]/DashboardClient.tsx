@@ -16,6 +16,7 @@ import {
   companyFormat,
   formatValue,
   labelsFor,
+  parseMetricKey,
   type BoardLens,
   type CompareBasis,
   type DashboardSpec,
@@ -134,6 +135,20 @@ function movementLabel(
   const metricId = metricKey.split("@")[0] ?? "";
   const suffix = metricId.split(".")[1];
   return suffix === undefined ? format.label(metricId) : (MOVEMENTS[suffix] ?? suffix);
+}
+
+/**
+ * A value's name in the list under a chart: the figure, the split it belongs to if it is one bar
+ * of a breakdown, and its month — "Payroll cost by designation, Accountant, Apr 2026".
+ */
+function valueName(
+  metricKey: string,
+  format: { label: (metricId: string) => string; period: (period: string) => string },
+): string {
+  const { metricId, period, dims } = parseMetricKey(metricKey);
+  return [format.label(metricId), ...Object.values(dims), format.period(period)].join(
+    ", ",
+  );
 }
 
 /**
@@ -495,11 +510,7 @@ function WidgetCard({
                 .filter((p) => p.metricKey !== "")
                 .map((p) => (
                   <li key={p.metricKey} className="flex items-baseline gap-2">
-                    <span className="truncate">
-                      {format.label(p.metricKey.split("@")[0] ?? "")}
-                      {", "}
-                      {format.period(p.metricKey.split("@")[1] ?? "")}
-                    </span>
+                    <span className="truncate">{valueName(p.metricKey, format)}</span>
                     <span className="num ml-auto">
                       <ValueButton value={p} onOpen={onOpen} />
                     </span>

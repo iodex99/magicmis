@@ -16,18 +16,19 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@magicmis/core": "workspace:*",
-    "@magicmis/engine": "workspace:*",
-    "@magicmis/templates": "workspace:*",
-    "zod": "^4.1.13",
     "@magicmis/ai": "workspace:*",
+    "@magicmis/core": "workspace:*",
     "@magicmis/crypto": "workspace:*",
     "@magicmis/db": "workspace:*",
+    "@magicmis/engine": "workspace:*",
     "@magicmis/jobs": "workspace:*",
     "@magicmis/redact": "workspace:*",
+    "@magicmis/render-dashboard": "workspace:*",
+    "@magicmis/sql-guard": "workspace:*",
+    "@magicmis/templates": "workspace:*",
     "@magicmis/wallet": "workspace:*",
     "pg": "^8.16.3",
-    "@magicmis/sql-guard": "workspace:*"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "fast-check": "^4.5.0",

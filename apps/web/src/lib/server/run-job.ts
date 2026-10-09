@@ -719,6 +719,8 @@ export async function runJobOnServer(
       accountId,
       companyId,
       runJobId: jobId,
+      // Priced and chosen at the tier the customer picked for the run (ADR 0085).
+      tier: input.tier,
     });
     return {
       status: "completed",

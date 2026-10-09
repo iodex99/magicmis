@@ -589,6 +589,9 @@ importers:
       '@magicmis/redact':
         specifier: workspace:*
         version: link:../redact
+      '@magicmis/render-dashboard':
+        specifier: workspace:*
+        version: link:../render-dashboard
       '@magicmis/sql-guard':
         specifier: workspace:*
         version: link:../sql-guard

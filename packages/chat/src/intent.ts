@@ -24,9 +24,12 @@ const DRAWN =
   /\b(?:a|an|another|new|one more)\s+(?:[a-z-]+\s+){0,3}?(?:cards?|box(?:es)?|tiles?|widgets?|charts?|graphs?|kpis?|trend ?lines?)\b/u;
 const ON_DASHBOARD =
   /\b(?:on|to|onto|into|from|off) (?:the|my|our|this) (?:dashboard|board|layout)\b/u;
-/** What a box shows: enough to know "delete working capital" is about a box. */
+/**
+ * What a box shows: enough to know "delete working capital" is about a box. Payroll, headcount
+ * and ageing joined when a board could show them (ADR 0085).
+ */
 const FIGURE =
-  /\b(revenue|sales|turnover|margins?|profit|ebitda|pat|pbt|cash|bank|costs?|expenses?|opex|working capital|receivables?|debtors?|payables?|creditors?|inventory|stock|ratios?|debtor days|creditor days)\b/u;
+  /\b(revenue|sales|turnover|margins?|profit|ebitda|pat|pbt|cash|bank|costs?|expenses?|opex|working capital|receivables?|debtors?|payables?|creditors?|inventory|stock|ratios?|debtor days|creditor days|payroll|headcount|salar(?:y|ies)|wages|gross pay|ageing|aging)\b/u;
 
 /** Verbs that change a layout. "compare", "show" and "give" are not among them. */
 const CHANGE =

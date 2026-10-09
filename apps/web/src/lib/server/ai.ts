@@ -95,6 +95,26 @@ function fakeDashboardChange(prompt: string) {
     compare: "none",
     ...over,
   });
+  if (asked.includes("designation")) {
+    // An analysis figure, split as the engine stores it (ADR 0085).
+    return {
+      scope: "in_scope",
+      summary: "Adds payroll cost by designation as bars.",
+      operations: [
+        add(
+          "/widgets/-",
+          box({
+            id: `payroll_${suffix}`,
+            kind: "breakdown",
+            title: "Payroll cost by designation",
+            metrics: ["payroll_cost"],
+            dimension: "designation",
+            layout: { x: 0, y: 60, w: 6, h: 4 },
+          }),
+        ),
+      ],
+    };
+  }
   if (asked.includes("compar") || asked.includes("versus") || asked.includes("against")) {
     const lastYear = asked.includes("year");
     return {

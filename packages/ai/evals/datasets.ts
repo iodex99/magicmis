@@ -28,7 +28,7 @@ import {
   type SheetGrid,
 } from "@magicmis/ingest";
 import { assignRoles } from "@magicmis/tally";
-import { DEFAULT_DASHBOARD } from "@magicmis/render-dashboard";
+import { dashboardMetrics, DEFAULT_DASHBOARD } from "@magicmis/render-dashboard";
 import {
   bindReferenceLayout,
   METRIC_CATALOG,
@@ -815,7 +815,13 @@ export type EditLabel = { readonly path: string | null };
  * or as adding a comparison box, and both are right. An eval that picks one and marks the other
  * wrong measures the wording, not the model.
  */
-const EDIT_REQUESTS: readonly { id: string; request: string; path: string | null }[] = [
+const EDIT_REQUESTS: readonly {
+  id: string;
+  request: string;
+  path: string | null;
+  /** The splits these books make (ADR 0058), where the request needs one. */
+  splits?: readonly { metricId: string; dimension: string }[];
+}[] = [
   {
     id: "ce-rename-rev",
     request: "Call the first card Sales instead.",
@@ -1043,6 +1049,28 @@ const EDIT_REQUESTS: readonly { id: string; request: string; path: string | null
     request: "Add a second waterfall from revenue to EBITDA.",
     path: "/widgets/-",
   },
+  // The analysis figures a board can show since ADR 0085, from the reports beside the books.
+  {
+    id: "ce-add-payroll-designation",
+    request: "Show payroll cost by designation as bars.",
+    path: "/widgets/-",
+    splits: [{ metricId: "payroll_cost", dimension: "designation" }],
+  },
+  {
+    id: "ce-add-receivables-ageing",
+    request: "Add a box showing what customers owe us, by how long they have owed it.",
+    path: "/widgets/-",
+    splits: [
+      { metricId: "receivables_ageing", dimension: "bucket" },
+      { metricId: "payables_ageing", dimension: "bucket" },
+    ],
+  },
+  {
+    id: "ce-add-headcount",
+    request: "Put a headcount card on the board.",
+    path: "/widgets/-",
+    splits: [{ metricId: "payroll_cost", dimension: "designation" }],
+  },
 ];
 export function chatEditDataset(limit = 60): EvalItem<ChatEditInput, EditLabel>[] {
   return EDIT_REQUESTS.slice(0, limit).map((e) => ({
@@ -1050,7 +1078,9 @@ export function chatEditDataset(limit = 60): EvalItem<ChatEditInput, EditLabel>[
     input: {
       target: "dashboard",
       spec: DEFAULT_DASHBOARD,
-      metrics: METRIC_CATALOG.map((m) => ({ id: m.id, label: m.label, unit: m.unit })),
+      // What production gives a dashboard edit: the library and the analysis figures (ADR 0085).
+      metrics: dashboardMetrics(METRIC_CATALOG),
+      ...(e.splits === undefined ? {} : { splits: [...e.splits] }),
       summary: null,
       history: [],
       request: e.request,
@@ -1380,21 +1410,38 @@ const BREADTHS_HELD: readonly { id: string; keepPercent: number; months: number 
   { id: "half", keepPercent: 50, months: 4 },
 ];
 
-/** What the books split up, and how many values each split takes — never the values (ADR 0057). */
+/**
+ * What the books split up, and how many values each split takes — never the values (ADR 0057).
+ *
+ * These are the splits the engine really makes, from the reports beside the books (ADR 0085): a
+ * pay sheet gives payroll cost by designation, headcount and gross pay; pending bills give
+ * receivables and payables by age. The first version of this list split `employee_cost` and
+ * `receivables` by dimensions the engine never stores, so the eval scored boards on cases that
+ * cannot occur while the real ones — a payroll box — were refused in production.
+ *
+ * `requires` is the library metric a business must hold for the report to exist at all, and
+ * `adds` the analysis figures that report brings.
+ */
 const DIMENSION_SETS: readonly {
   id: string;
+  requires: string | null;
+  adds: readonly string[];
   dims: readonly { metricId: string; dimension: string; valueCount: number }[];
 }[] = [
-  { id: "none", dims: [] },
+  { id: "none", requires: null, adds: [], dims: [] },
   {
     id: "payroll",
-    dims: [{ metricId: "employee_cost", dimension: "designation", valueCount: 9 }],
+    requires: "employee_cost",
+    adds: ["payroll_cost", "headcount", "gross_pay"],
+    dims: [{ metricId: "payroll_cost", dimension: "designation", valueCount: 9 }],
   },
   {
     id: "ageing",
+    requires: "receivables",
+    adds: ["receivables_ageing", "payables_ageing"],
     dims: [
-      { metricId: "receivables", dimension: "bucket", valueCount: 4 },
-      { metricId: "payables", dimension: "bucket", valueCount: 4 },
+      { metricId: "receivables_ageing", dimension: "bucket", valueCount: 4 },
+      { metricId: "payables_ageing", dimension: "bucket", valueCount: 4 },
     ],
   },
 ];
@@ -1402,17 +1449,14 @@ const DIMENSION_SETS: readonly {
 export function dashboardLayoutDataset(
   limit = 60,
 ): EvalItem<DashboardLayoutInput, null>[] {
-  const catalog = METRIC_CATALOG.map((m) => ({
-    id: m.id,
-    unit: m.unit,
-    label: m.label,
-  }));
+  // What production offers: the library and the analysis figures (ADR 0085).
+  const catalog = dashboardMetrics(METRIC_CATALOG);
   const known = new Set(catalog.map((m) => m.id));
   const items: EvalItem<DashboardLayoutInput, null>[] = [];
   for (const shape of BUSINESS_SHAPES) {
     for (const breadth of BREADTHS_HELD) {
       for (const dimSet of DIMENSION_SETS) {
-        // Only metrics the catalog really has: the stage refuses any other, and so should a
+        // Only metrics the board really can show: the stage refuses any other, and so should a
         // dataset that claims a company holds them.
         const held = shape.metrics.filter((m) => known.has(m));
         // Integer arithmetic: the repo forbids float rounding, and a count of metrics is a
@@ -1421,10 +1465,13 @@ export function dashboardLayoutDataset(
           0,
           Math.max(3, Math.ceil((held.length * breadth.keepPercent) / 100)),
         );
-        // `present` trims from the front, so a split offered on a trimmed metric would vanish
-        // with it and turn this case back into the one with no splits at all.
-        const needed = dimSet.dims.map((d) => d.metricId).filter((m) => held.includes(m));
-        const present = [...new Set([...kept, ...needed])];
+        // A report beside the books only exists for a business that has what it is about: no
+        // pay sheet without staff costs, no bills ageing without receivables.
+        const reported =
+          dimSet.requires !== null && held.includes(dimSet.requires)
+            ? dimSet.adds.filter((m) => known.has(m))
+            : [];
+        const present = [...new Set([...kept, ...reported])];
         const inPresent = new Set(present);
         items.push({
           id: `dl-${shape.id}-${breadth.id}-${dimSet.id}`,

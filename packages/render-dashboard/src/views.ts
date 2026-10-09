@@ -167,6 +167,30 @@ export const metricKey = (
     .map((k) => `|${k}=${dims[k] ?? ""}`)
     .join("")}`;
 
+/**
+ * `metricKey` read back: the metric, the month, and the split a breakdown value carries.
+ *
+ * A breakdown's keys end in `|designation=Accountant` and the like (ADR 0056), so the month is
+ * not simply what follows the `@`. Reading it that way handed `2026-04|designation=Accountant` to
+ * the period formatter, which threw, and the first payroll box ever drawn took the whole board
+ * down with it (ADR 0085).
+ */
+export function parseMetricKey(key: string): {
+  metricId: string;
+  period: string;
+  dims: Record<string, string>;
+} {
+  const at = key.indexOf("@");
+  if (at < 0) return { metricId: key, period: "", dims: {} };
+  const [period = "", ...parts] = key.slice(at + 1).split("|");
+  const dims: Record<string, string> = {};
+  for (const part of parts) {
+    const eq = part.indexOf("=");
+    if (eq > 0) dims[part.slice(0, eq)] = part.slice(eq + 1);
+  }
+  return { metricId: key.slice(0, at), period, dims };
+}
+
 function periodsFor(
   window: Widget["periods"],
   period: PeriodId,

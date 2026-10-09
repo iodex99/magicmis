@@ -99,6 +99,37 @@ describe("the dashboard after a run", () => {
     });
   });
 
+  it.each(["efficient", "expert"] as const)(
+    "is priced at the tier the customer chose for the run: %s (ADR 0085)",
+    async (tier) => {
+      // It used to be Professional whatever the run was: an Efficient run paid more for its
+      // dashboard than it chose to, and an Expert run's first board came from a smaller model.
+      const c = await setUp(5_000n);
+      const first = await bringDashboardUpToDate(pool(), wrapper, {
+        ...c,
+        runJobId: randomUUID(),
+        tier,
+      });
+      const atTier = (
+        await priceFor(pool(), {
+          actionKey: "dashboard_addon",
+          tier,
+          delivery: "standard",
+        })
+      ).credits;
+      expect(first).toMatchObject({
+        status: "updated",
+        capturedCredits: atTier.toString(),
+      });
+      expect(atTier).not.toBe(await price("dashboard_addon"));
+      const row = await pool().query<{ tier: string }>(
+        `select tier from jobs where company_id = $1 and type = 'dashboard_addon'`,
+        [c.companyId],
+      );
+      expect(row.rows[0]?.tier).toBe(tier);
+    },
+  );
+
   it("charges for a back-dated file too: new figures reach the board though the latest month did not move", async () => {
     const c = await setUp(5_000n);
     await bringDashboardUpToDate(pool(), wrapper, { ...c, runJobId: randomUUID() });

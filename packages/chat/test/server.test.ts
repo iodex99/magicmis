@@ -644,6 +644,12 @@ describe("Edit", () => {
       messageId: sent.messageId,
     });
     expect(r).toMatchObject({ status: "completed", state: "completed" });
+    // A dashboard change may bring in the analysis figures, and is told where each box is so it
+    // copies a position rather than counting to one (ADR 0085).
+    const asked = JSON.stringify(t.created[0]);
+    expect(asked).toContain("payroll_cost");
+    expect(asked).toContain("receivables_ageing");
+    expect(asked).toContain("boxes by position");
     const view = await threadView(pool(), wrapper, {
       accountId: c.accountId,
       threadId: sent.threadId,
@@ -791,6 +797,10 @@ describe("Edit", () => {
     const reply = view?.messages.find((m) => m.role === "assistant")?.reply;
     if (reply?.kind !== "edit") throw new Error("no edit");
     expect(reply.appliedVersion).toBeNull();
+    // A template row binds to the MIS library alone: no analysis figures, no box positions.
+    const asked = JSON.stringify(t.created[0]);
+    expect(asked).not.toContain("payroll_cost");
+    expect(asked).not.toContain("boxes by position");
     // Still version one: the next workbook is not changed by a sentence in a chat.
     expect((await latestBlueprint(pool(), wrapper, c))?.version).toBe(1);
   });

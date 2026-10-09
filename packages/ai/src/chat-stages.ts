@@ -205,6 +205,43 @@ export function editOperations(o: ChatEditOutput): {
   return { ops, problems };
 }
 
+/**
+ * Each box with its JSON Pointer, so a patch copies a position instead of counting to it
+ * (ADR 0085).
+ *
+ * The prompt asks for a `test` on a box's id before it is removed or replaced, so the change
+ * cannot land on another box. Haiku 5.5 got the ids right and the positions wrong — testing
+ * `/widgets/6/id` for the box at position seven — on twelve of fifty-one first answers, and the
+ * check rightly refused each, at the price of a second call. Counting through a JSON array is the
+ * one step here the model need not do.
+ */
+export function boxPositions(spec: unknown): string | null {
+  const widgets: unknown =
+    typeof spec === "object" && spec !== null
+      ? (spec as { widgets?: unknown }).widgets
+      : null;
+  if (!Array.isArray(widgets)) return null;
+  const field = (w: object, key: string): string => {
+    const value: unknown = (w as Record<string, unknown>)[key];
+    return typeof value === "string" ? value : "";
+  };
+  const rows = widgets.flatMap((w: unknown, i) =>
+    typeof w === "object" && w !== null && field(w, "id") !== ""
+      ? [
+          [
+            `/widgets/${i.toString()}`,
+            field(w, "id"),
+            field(w, "kind"),
+            field(w, "title"),
+          ],
+        ]
+      : [],
+  );
+  return rows.length === 0
+    ? null
+    : `boxes by position (pointer, id, kind, title):\n${table(rows)}`;
+}
+
 export const chatEditStageSpec: StageSpec<ChatEditInput, ChatEditOutput> = {
   stage: "chat_edit",
   promptName: "chat_edit",
@@ -220,6 +257,7 @@ export const chatEditStageSpec: StageSpec<ChatEditInput, ChatEditOutput> = {
       `target: ${input.target}`,
       "current spec (JSON):",
       JSON.stringify(input.spec),
+      ...(input.target === "dashboard" ? [boxPositions(input.spec) ?? ""] : []),
       "request:",
       input.request,
     ].join("\n"),

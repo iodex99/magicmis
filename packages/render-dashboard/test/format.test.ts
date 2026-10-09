@@ -8,6 +8,7 @@ import {
   periodLabel,
   unitsNote,
 } from "../src/format";
+import { dashboardMetrics } from "../src/analysis-metrics";
 
 const LAKHS = { style: "lakhs_crores", decimals: 2 } as const;
 
@@ -56,5 +57,28 @@ describe("labels", () => {
       "Revenue from operations, % change on last month",
     );
     expect(periodLabel("2026-05")).toBe("May 2026");
+  });
+
+  it("names the analysis figures a board can show, not their ids (ADR 0085)", () => {
+    expect(metricLabel("payroll_cost")).toBe("Payroll cost by designation");
+    expect(metricLabel("receivables_ageing")).toBe("Receivables by age");
+    expect(metricLabel("headcount")).toBe("Headcount");
+    expect(metricLabel("gross_pay.mom_pct")).toBe("Gross pay, % change on last month");
+  });
+});
+
+describe("dashboardMetrics", () => {
+  it("is the library the caller holds, then each analysis figure once", () => {
+    const library = [
+      { id: "revenue", label: "Revenue from operations", unit: "money" },
+      { id: "headcount", label: "Headcount (library)", unit: "count" },
+    ];
+    const all = dashboardMetrics(library);
+    expect(all.slice(0, 2)).toEqual(library);
+    // The library's own entry wins over an analysis figure of the same id.
+    expect(all.filter((m) => m.id === "headcount")).toEqual([library[1]]);
+    expect(all.map((m) => m.id)).toEqual(
+      expect.arrayContaining(["payroll_cost", "receivables_ageing", "payables_ageing"]),
+    );
   });
 });

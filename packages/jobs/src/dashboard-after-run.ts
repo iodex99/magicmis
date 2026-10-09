@@ -51,6 +51,13 @@ export async function bringDashboardUpToDate(
     accountId: string;
     companyId: string;
     runJobId: string;
+    /**
+     * The tier the customer chose for the run (ADR 0085). The dashboard is priced and, for a first
+     * one, chosen at it, like every other part of the run; it used to be Professional whatever
+     * the customer picked, so an Efficient run paid more for its dashboard than it chose to and
+     * an Expert run got its first board from a smaller model. Professional when absent.
+     */
+    tier?: "efficient" | "professional" | "expert";
     now?: Date;
     /** Lets a first dashboard be chosen for the company (ADR 0056); absent keeps the default. */
     transport?: AiTransport | null;
@@ -90,7 +97,7 @@ export async function bringDashboardUpToDate(
     const job = await createJob(pool, {
       ...scope,
       type: first ? "dashboard_addon" : "dashboard_refresh",
-      tier: "professional",
+      tier: input.tier ?? "professional",
       delivery: "standard",
       // One dashboard update per run, however many times the run's request is retried.
       idempotencyKey,
