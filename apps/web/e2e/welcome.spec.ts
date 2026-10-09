@@ -273,3 +273,33 @@ test("a fourth new account from one network waits, and is granted at a sign-in f
   );
   await later.context().close();
 });
+
+test("a first company added from India opens in rupees on an April year, before any billing details (ADR 0084)", async ({
+  browser,
+}) => {
+  // Welcome credits pay for the first setup, so the first company is usually added before any
+  // purchase has asked where the account is billed. Where the request comes from fills the gap;
+  // without it a firm in India opened its first company in dollars on a calendar year.
+  const context = await browser.newContext({
+    extraHTTPHeaders: {
+      "x-vercel-forwarded-for": freshAddress(),
+      "x-vercel-ip-country": "IN",
+    },
+  });
+  const page = await context.newPage();
+  await createVerifiedAccount(page, uniqueEmail());
+  await page.goto("/app");
+  await expect(page.getByText("INR · year starts April")).toBeVisible();
+  await page.getByRole("button", { name: /Reporting conventions/u }).click();
+  await expect(page.getByLabel("Books are in")).toHaveValue("INR");
+  await expect(page.getByLabel("Financial year starts in")).toHaveValue("4");
+  await expect(page.getByLabel("Numbers shown as")).toHaveValue("lakhs_crores");
+  await context.close();
+
+  // With no country at all there is no evidence, and the international set stays the default.
+  const nowhere = await pageFrom(browser, freshAddress());
+  await createVerifiedAccount(nowhere, uniqueEmail());
+  await nowhere.goto("/app");
+  await expect(nowhere.getByText("USD · year starts January")).toBeVisible();
+  await nowhere.context().close();
+});

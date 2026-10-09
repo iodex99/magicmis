@@ -462,7 +462,15 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
 });
 
 test.describe("chat with the MIS", () => {
-  const CHAT_STAGES = ["chat_quick", "chat_deep", "chat_edit", "thread_summary"];
+  const CHAT_STAGES = [
+    "chat_quick",
+    "chat_deep",
+    "chat_edit",
+    "thread_summary",
+    // The two documents the assistant writes about a month (ADR 0084).
+    "commentary",
+    "board_actions",
+  ];
   let activated: string[] = [];
 
   test.beforeAll(async () => {
@@ -817,6 +825,44 @@ test.describe("chat with the MIS", () => {
       await presentedLogo.evaluate((img) => (img as HTMLImageElement).naturalWidth),
     ).toBeGreaterThan(0);
     await page.getByTestId("present-exit").click();
+  });
+
+  test("where to act and the commentary are written, charged and shown (ADR 0084)", async () => {
+    // Neither had been pressed by a test. The first run against the real model found both
+    // broken: the job route refused `board_actions` with a 422, and the facts pack both of them
+    // read threw on any margin, ratio or days figure whose change is a decimal.
+    // Open, because an earlier test folds the chat away and the choice is remembered (ADR 0044).
+    await page.goto(`/app/companies/${await companyId()}?chat=open`);
+    await page.getByTestId("where-to-act").click();
+    await expect(page.getByTestId("board-actions")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("board-actions")).toContainText(
+      "Review the largest movement with the accountant",
+      { timeout: 60_000 },
+    );
+
+    await page.getByRole("radio", { name: "Commentary" }).click();
+    await page.getByTestId("commentary-write").click();
+    await expect(page.getByTestId("commentary").last()).toContainText(
+      "The month is led by",
+      {
+        timeout: 60_000,
+      },
+    );
+
+    // Each is its own priced job, completed and captured at its price.
+    const jobs = await db.query<{ type: string; state: string; captured: boolean }>(
+      `select j.type, j.state,
+              exists (select 1 from credit_ledger l
+                       where l.job_id = j.id and l.entry_type = 'capture') as captured
+         from jobs j join accounts a on a.id = j.account_id
+        where a.email = $1 and j.type in ('board_actions', 'commentary')
+        order by j.created_at`,
+      [email],
+    );
+    expect(jobs.rows).toEqual([
+      { type: "board_actions", state: "completed", captured: true },
+      { type: "commentary", state: "completed", captured: true },
+    ]);
   });
 });
 

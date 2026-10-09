@@ -15,6 +15,7 @@ import { logoLimits } from "@/lib/server/logo";
 import { logoUrl } from "@/lib/logo";
 import { CompanyLogo } from "@/components/CompanyLogo";
 import { accountOverview } from "@/lib/server/overview";
+import { visitorCountry } from "@/lib/server/visitor-currency";
 import { firstRunCredits, welcomeStatus } from "@/lib/server/welcome";
 
 import { defaultConventions } from "@magicmis/core/reporting-conventions";
@@ -68,7 +69,9 @@ export default async function AppHomePage() {
         .then((r) => r.rows[0]?.billing_country ?? null),
       logoLimits(pool),
     ]);
-  const conventions = defaultConventions(billingCountry);
+  // No billing country yet is the usual case for a first company (welcome credits pay for it
+  // before any purchase asks), so where the request comes from fills the gap (ADR 0084).
+  const conventions = defaultConventions(billingCountry, await visitorCountry());
   // Welcome credits still unspent (ADR 0068). Said plainly on the first screen, because an
   // account that does not know it can run something for nothing will not try.
   const welcome = wallet.lots.find((l) => l.source === "welcome")?.remaining ?? 0n;

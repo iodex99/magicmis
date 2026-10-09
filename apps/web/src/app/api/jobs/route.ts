@@ -23,6 +23,9 @@ const bodySchema = z.object({
     "dashboard_addon",
     "dashboard_refresh",
     "commentary",
+    // Where to act (ADR 0062). Missing from this list since it was built, so the board's button
+    // was refused with a 422 for every customer; no test pressed it (ADR 0084).
+    "board_actions",
   ]),
   tier: z.enum(["efficient", "professional", "expert"]),
   // Jobs without files (dashboard, commentary) are priced from counts the caller states.

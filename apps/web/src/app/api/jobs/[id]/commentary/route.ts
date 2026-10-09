@@ -1,11 +1,10 @@
-import { anthropicTransport } from "@magicmis/ai";
 import { parsePeriodId } from "@magicmis/core/time";
 import { queueCommentary, runInstantCommentary } from "@magicmis/jobs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { serverEnv } from "@/lib/env";
 import { apiError, idempotent, ok, parseJson, withAccount } from "@/lib/http";
+import { aiTransport } from "@/lib/server/ai";
 import { rateLimited } from "@/lib/server/ratelimit";
 import { commentaryPayload } from "@/lib/server/insights";
 import { jobErrorResponse } from "@/lib/server/job-errors";
@@ -52,7 +51,10 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
           const state = await runInstantCommentary(
             pool,
             keyWrapper(),
-            anthropicTransport(serverEnv().ANTHROPIC_API_KEY),
+            // The one transport every AI route uses, so the fake model reaches this too in
+            // development; building its own client here sent the browser suite to the real API
+            // with a placeholder key (ADR 0084).
+            aiTransport(),
             base,
           );
           return { status: 200, body: { state } };

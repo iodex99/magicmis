@@ -212,6 +212,51 @@ function fakeDashboardChange(prompt: string) {
   };
 }
 
+/** The first fact in a facts pack, as its placeholder id: the only figure a fake may cite. */
+const firstFact = (text: string): string | undefined =>
+  /(m:[a-z_.]+@\d{4}-\d{2})\\t/u.exec(text)?.[1];
+
+/**
+ * Commentary in its real shape (ADR 0084): one section per heading it was asked for, each citing
+ * a figure by placeholder and typing none, so the post-check passes as a real answer's would.
+ */
+function fakeCommentary(prompt: string, fact: string | undefined) {
+  const headings = /Sections to write, in order: ([^\n]+?)\.(?:\n|$)/u
+    .exec(prompt)?.[1]
+    ?.split("; ") ?? ["Performance"];
+  return {
+    sections: headings.map((heading) => ({
+      heading,
+      paragraphs: [
+        {
+          text:
+            fact === undefined
+              ? "The data for this month is insufficient to comment."
+              : `The month is led by {{${fact}}}.`,
+        },
+      ],
+    })),
+  };
+}
+
+/** Where to act in its real shape (ADR 0084): one suggestion, its reason a placeholder. */
+function fakeBoardActions(fact: string | undefined) {
+  return {
+    summary: "One thing for the board to look at this month.",
+    actions: [
+      {
+        heading: "Review the largest movement with the accountant",
+        because:
+          fact === undefined
+            ? "The month's figures moved enough to look at."
+            : `The month stands at {{${fact}}}.`,
+        todo: "Ask the accountant which ledgers drove it and whether it repeats.",
+        urgency: "watch",
+      },
+    ],
+  };
+}
+
 function fakeTransport(): AiTransport {
   return {
     create(params) {
@@ -248,6 +293,10 @@ function fakeTransport(): AiTransport {
       let out: unknown;
       if (system.startsWith("You change a company's dashboard")) {
         out = fakeDashboardChange(promptOf(params));
+      } else if (system.startsWith("You write short management commentary")) {
+        out = fakeCommentary(`${system}\n${promptOf(params)}`, firstFact(text));
+      } else if (system.startsWith("You suggest what a company's board should act on")) {
+        out = fakeBoardActions(firstFact(text));
       } else if (system.startsWith("You summarise")) {
         out = { summary: "Earlier questions were about this company's figures." };
       } else if (/poem/iu.test(text)) {

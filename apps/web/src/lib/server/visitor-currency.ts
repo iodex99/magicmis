@@ -16,6 +16,14 @@ import { headers } from "next/headers";
  * Locally and anywhere else it is absent, which reads as "not India".
  */
 export async function visitorCurrency(): Promise<"INR" | "USD"> {
-  const country = (await headers()).get("x-vercel-ip-country");
-  return country?.toUpperCase() === "IN" ? "INR" : "USD";
+  return (await visitorCountry()) === "IN" ? "INR" : "USD";
+}
+
+/**
+ * The country a request came from, upper case, or null where the platform does not say.
+ * Evidence for a default the reader can see and change, never for a price or a tax (those
+ * follow the billing country the customer gives, ADR 0030).
+ */
+export async function visitorCountry(): Promise<string | null> {
+  return (await headers()).get("x-vercel-ip-country")?.toUpperCase() ?? null;
 }

@@ -120,9 +120,13 @@ function isMaterial(
   materiality: { pct: string; absMinor: string },
 ): boolean {
   if (change?.value == null) return false;
+  // The absolute threshold is money in minor units, so it applies to money only. A margin, a
+  // ratio or a number of days changes by a decimal string, which `BigInt` refuses: converting it
+  // anyway threw on every commentary and where-to-act request (ADR 0084).
   if (
-    abs(BigInt(change.value)) >= BigInt(materiality.absMinor) &&
-    BigInt(materiality.absMinor) > 0n
+    change.unit === "paise" &&
+    BigInt(materiality.absMinor) > 0n &&
+    abs(BigInt(change.value)) >= BigInt(materiality.absMinor)
   )
     return true;
   if (pct?.value == null) return false;

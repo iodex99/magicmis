@@ -65,6 +65,40 @@ describe("facts pack", () => {
       "₹7,45,55,500",
     );
   });
+
+  it.each(["0", "500000"])(
+    "reads a margin, a ratio and days, whose changes are decimals, with absMinor %s (ADR 0084)",
+    (absMinor) => {
+      // Found by the first run against the real model: every commentary threw "Cannot convert
+      // -3.627123 to a BigInt", because the money threshold was applied to a margin's change.
+      const withDecimals = [
+        ...store,
+        mv("gross_margin_pct", "54.993412", "percent"),
+        mv("gross_margin_pct.mom_abs", "-3.627123", "percent"),
+        mv("gross_margin_pct.mom_pct", "-6.188140", "percent"),
+        mv("current_ratio", "1.842100", "ratio"),
+        mv("current_ratio.mom_abs", "0.102779", "ratio"),
+        mv("dso", "102.779155", "days"),
+        mv("dso.mom_abs", "-0.412000", "days"),
+        mv("dso.mom_pct", "-0.399300", "percent"),
+      ];
+      const read = buildFactsPack({
+        period: P,
+        store: withDecimals,
+        materiality: { pct: "0.05", absMinor },
+        warnings: [],
+        conventions: INDIAN_REPORTING,
+      });
+      const ids = read.facts.map((f) => f.id);
+      // A 6.2% fall in the margin is material on the percentage test alone.
+      expect(ids).toContain("m:gross_margin_pct@2026-05");
+      expect(
+        read.facts.find((f) => f.id === "mv:gross_margin_pct.mom@2026-05:abs")?.text,
+      ).toBe("-3.627123%");
+      // Debtor days moved 0.4%: not material, and never compared with a money threshold.
+      expect(ids).not.toContain("m:dso@2026-05");
+    },
+  );
 });
 
 describe("placeholder post-check (V12)", () => {

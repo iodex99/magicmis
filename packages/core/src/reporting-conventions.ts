@@ -91,13 +91,24 @@ const ELSEWHERE: ReportingConventions = {
  * Never applied silently to an existing company: it seeds a form the reader can see and
  * change, which is the difference between a helpful default and a guess.
  */
-export function defaultConventions(billingCountry: string | null): ReportingConventions {
-  const code = (billingCountry ?? "").trim().toUpperCase();
+export function defaultConventions(
+  billingCountry: string | null,
+  /**
+   * Where the request came from, for an account with no billing country yet (ADR 0084).
+   *
+   * That is not a corner: billing details are asked for at the first purchase and welcome
+   * credits pay for the first setup (ADR 0068), so most first companies are added before any
+   * country is known. Without this, a firm in India opened its first company in dollars, on a
+   * calendar year and in millions, and its first April read as revenue falling through the floor.
+   * The country the request comes from is evidence the billing country later confirms or
+   * overrides; it only ever seeds a form the reader can see and change.
+   */
+  visitorCountry: string | null = null,
+): ReportingConventions {
+  const billed = (billingCountry ?? "").trim().toUpperCase();
+  const code = billed === "" ? (visitorCountry ?? "").trim().toUpperCase() : billed;
   const known = BY_COUNTRY[code];
-  // No country yet means no evidence either way, so the international set is the default
-  // rather than the Indian one. An account that says it is in India gets `INDIA` from the
-  // table above, which is the case that actually matters — this branch only covers a
-  // company added before billing details exist.
+  // No country at all means no evidence either way, so the international set is the default.
   if (known === undefined) return ELSEWHERE;
   return { ...ELSEWHERE, ...known };
 }

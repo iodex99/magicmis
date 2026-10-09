@@ -59,7 +59,12 @@ try {
   // The product's own per-IP sign-up throttle refuses repeated local runs.
   await pool.query(`delete from auth_throttle where key like 'signup:ip:%'`);
 
-  const context = await browser.newContext({ baseURL: APP_URL });
+  // The fixtures are Indian books, so the account comes from India, as Vercel would say: the
+  // first company then opens on an April year in rupees (ADR 0084), not a calendar year.
+  const context = await browser.newContext({
+    baseURL: APP_URL,
+    extraHTTPHeaders: { "x-vercel-ip-country": "IN" },
+  });
   const page = await context.newPage();
   page.setDefaultTimeout(120_000);
 
