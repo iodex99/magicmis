@@ -15,6 +15,7 @@ import {
   latestBlueprint,
   latestSnapshot,
   loadAccountRules,
+  newestSnapshotPeriod,
   openForCompany,
   sealForCompany,
 } from "@magicmis/engine/server";
@@ -208,6 +209,7 @@ export interface JobSession {
       head: string;
       period: string;
       closing: string;
+      movement: string | null;
     }[];
     readonly sourceFingerprints: Readonly<Record<string, string>>;
     /** The company's template (built-in or recreated from a reference MIS); null before setup. */
@@ -276,14 +278,28 @@ export async function jobSession(
   ]);
 
   const blueprint = await latestBlueprint(pool, wrapper, { accountId, companyId });
+  // Earlier balances come from the run made last, not the latest month (ADR 0091): it carries every
+  // month, and a back-dated or corrected file brought in after May lives only in its own snapshot.
+  // Reading May's left that correction out of every later run for good.
+  const priorPeriod = await newestSnapshotPeriod(pool, { accountId, companyId });
   const snapshot =
-    c.latest_period === null
+    priorPeriod === null
       ? null
       : await latestSnapshot(pool, wrapper, {
           accountId,
           companyId,
-          period: c.latest_period,
+          period: priorPeriod,
         });
+  const latestVersion =
+    c.latest_period === null
+      ? null
+      : ((
+          await pool.query<{ version: number | null }>(
+            `select max(version) as version from public.snapshots
+              where company_id = $1 and account_id = $2 and period = $3`,
+            [companyId, accountId, c.latest_period],
+          )
+        ).rows[0]?.version ?? null);
   const fingerprints = await pool.query<{ source_fingerprints: Record<string, string> }>(
     `select source_fingerprints from public.blueprints where company_id = $1 order by version desc limit 1`,
     [companyId],
@@ -339,14 +355,17 @@ export async function jobSession(
         ({ pattern, head }) => ({ pattern, head }),
       ),
       latestPeriod: c.latest_period,
-      latestVersion: snapshot?.version ?? null,
+      latestVersion,
       priorBalances:
-        snapshot?.ledgerBalances.map(({ ledgerKey, head, period, closing }) => ({
-          ledgerKey,
-          head,
-          period,
-          closing,
-        })) ?? [],
+        snapshot?.ledgerBalances.map(
+          ({ ledgerKey, head, period, closing, movement }) => ({
+            ledgerKey,
+            head,
+            period,
+            closing,
+            movement,
+          }),
+        ) ?? [],
       sourceFingerprints: fingerprints.rows[0]?.source_fingerprints ?? {},
       templateSpec,
     },

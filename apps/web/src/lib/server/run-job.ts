@@ -30,14 +30,17 @@ import {
   bringDashboardUpToDate,
   completeJob,
   DashboardError,
+  deliveredTierOf,
   failJob,
   heartbeatJob,
   loadStageOutput,
   loadUploadBytes,
+  MIS_SOURCE_ROLES,
   noticeFiredAlerts,
   PIPELINE,
   recordLibraryVotes,
   recordUploadPeriods,
+  rememberFingerprints,
   saveStageOutput,
   uploadLimits,
   type DashboardUpdate,
@@ -199,11 +202,15 @@ export async function loadJobFiles(
       purpose: reason.purpose,
       jobId: reason.jobId ?? null,
     });
-    const read = await readSourceFile(upload.fileName, new Uint8Array(bytes), {
-      maxEntries: 10_000,
-      maxUncompressedBytes: limits.maxFileBytes * 20,
-      maxRatio: 200,
-    });
+    const read = await readSourceFile(
+      upload.fileName,
+      new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength),
+      {
+        maxEntries: 10_000,
+        maxUncompressedBytes: limits.maxFileBytes * 20,
+        maxRatio: 200,
+      },
+    );
     if (!read.ok) {
       skipped.push({
         name: upload.fileName,
@@ -214,7 +221,7 @@ export async function loadJobFiles(
     files.push({
       fileId: upload.id,
       name: upload.fileName,
-      bytes: new Uint8Array(bytes),
+      bytes: new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength),
       sheets: read.sheets,
     });
   }
@@ -342,8 +349,14 @@ export async function runJobOnServer(
     const guidance: {
       periods: Record<string, PeriodId>;
       classified: Record<string, NonNullable<PrepareGuidance["classified"]>[string]>;
+      remembered: PrepareGuidance["remembered"];
       bestEffort: boolean;
-    } = { periods: {}, classified: {}, bestEffort: false };
+    } = {
+      periods: {},
+      classified: {},
+      remembered: rememberedLayouts(session.memory.sourceFingerprints),
+      bestEffort: false,
+    };
     const run = () =>
       prepare(loaded.files, redactor, session.company.dateOrder, guidance);
     let p = await run();
@@ -458,6 +471,15 @@ export async function runJobOnServer(
     // the whole hold, so a caller could spend our AI on unrecognisable files for free, over and
     // over, on one balance (ADR 0057).
     if (!usable(p)) return await fail(NOTHING_USABLE, false);
+    // Said, because a file was set aside to keep a month from being counted twice (ADR 0091).
+    for (const o of p.overlaps) {
+      const files = o.setAside.map((n) => `"${n}"`).join(" and ");
+      notice(
+        o.reason === "summary_beside_trial_balance"
+          ? `${files} summarises ${monthLabel(o.period)}, which the trial balance in "${o.kept}" already covers, so it was left out rather than counted twice.`
+          : `${files} and "${o.kept}" both hold balances for ${monthLabel(o.period)}. Where they overlap, "${o.kept}" — added last — was used, so nothing is counted twice. If the other file is the right one, remove "${o.kept}" and run again.`,
+      );
+    }
     if (p.unrecognised.length > 0)
       notice(
         `${p.unrecognised.length.toString()} ${p.unrecognised.length === 1 ? "sheet was" : "sheets were"} not needed for the MIS and ${p.unrecognised.length === 1 ? "was" : "were"} left out.`,
@@ -478,8 +500,13 @@ export async function runJobOnServer(
       displayName: display,
     });
     let mappings: Mapping[] = [...mapped.mappings];
+    // Ledgers the model was never asked about, or whose answer never came: left Unmapped on this
+    // run but not remembered as settled, so the next run asks again (ADR 0091). Only a ledger the
+    // model looked at and declined is settled — an outage must not become a permanent Unmapped.
+    const unasked = new Set<string>();
     if (mapped.unmatched.length > 0) {
       const batch = mapped.unmatched.slice(0, MAX_AI_LEDGERS);
+      for (const u of mapped.unmatched.slice(MAX_AI_LEDGERS)) unasked.add(u.ledgerKey);
       const ledgers: { ref: string; name: string; group_path: string[] }[] = [];
       for (const u of batch)
         ledgers.push({
@@ -495,6 +522,7 @@ export async function runJobOnServer(
           throw new NeedsQuote(outcome.quoteCredits.toString());
         return outcome.value.output;
       });
+      if (answer === null) for (const u of batch) unasked.add(u.ledgerKey);
       const refs = new Map(mapped.unmatched.map((u) => [u.ref, u.ledgerKey]));
       mappings = applyAiMappings(
         {
@@ -712,16 +740,27 @@ export async function runJobOnServer(
     const names = new Map(signed.facts.map((f) => [f.ledgerKey, f.name]));
     const nextBlueprint = nextRules(
       session.memory.mappingRules,
-      mappings,
+      mappings.filter((m) => !unasked.has(m.ledgerKey)),
       confirmed,
       names,
       HEADS_VERSION,
     );
+    const fingerprints = rememberFingerprints(
+      session.memory.sourceFingerprints,
+      signed.fingerprints,
+    );
+    // Written whenever what the next run reads from it would differ (ADR 0091): the rules, the
+    // ledgers settled as Unmapped — or every later refresh asked the model about the same ledger
+    // again — and the files' signatures, or a refresh priced as a restructure once stayed priced
+    // that way every month after.
     const changed =
       referenceUsed ||
       session.memory.mappingRules === null ||
       JSON.stringify(session.memory.mappingRules.rules) !==
-        JSON.stringify(nextBlueprint.rules.rules);
+        JSON.stringify(nextBlueprint.rules.rules) ||
+      JSON.stringify(session.memory.mappingRules.acceptedUnmapped) !==
+        JSON.stringify(nextBlueprint.rules.acceptedUnmapped) ||
+      JSON.stringify(session.memory.sourceFingerprints) !== JSON.stringify(fingerprints);
     const workbook = Buffer.from(await out.rendered.workbook.xlsx.writeBuffer());
     const completed = await completeJob(pool, wrapper, {
       accountId,
@@ -732,7 +771,7 @@ export async function runJobOnServer(
             templateSpec: template,
             recipe: {
               schemaVersion: 1,
-              sources: Object.entries(signed.fingerprints).map(([role, sig], i) => ({
+              sources: Object.entries(fingerprints).map(([role, sig], i) => ({
                 id: `s${i.toString()}`,
                 role: role.split(":")[0] ?? "trial_balance",
                 sheetSignature: sig,
@@ -754,7 +793,7 @@ export async function runJobOnServer(
               pct: template.materiality.pct,
               absPaise: template.materiality.absPaise,
             },
-            sourceFingerprints: signed.fingerprints,
+            sourceFingerprints: fingerprints,
           }
         : null,
       // Only recreating a reference MIS asks for a new layout. Every other run keeps the
@@ -763,33 +802,69 @@ export async function runJobOnServer(
       output: { fileName: out.rendered.fileName, bytes: workbook },
       outputStore: await outputStore(),
     });
-    const accountRules = nextBlueprint.accountRules.map((r) => ({
-      pattern: normaliseName(r.pattern),
-      head: r.head,
-    }));
-    await saveAccountRules(pool, wrapper, { accountId, companyId, rules: accountRules });
-    await recordLibraryVotes(pool, wrapper, { accountId, rules: accountRules });
-    await pool.query(
-      `update jobs set stage_checkpoints = stage_checkpoints || jsonb_build_object('notices', $2::jsonb) where id = $1`,
-      [jobId, JSON.stringify(notices)],
-    );
+    /*
+     * The run is delivered and charged from here on (ADR 0091). What follows is bookkeeping, and
+     * none of it may turn a delivered run into a failed one: the catch below would have told a
+     * customer who had just paid in full that nothing was charged and to try again — and the
+     * second press paid again. Each step is attempted, and one that fails is logged by its name.
+     */
+    // Said when the price fell with it (ai-boundary rule): a stage that fell back to a lower tier's
+    // model is charged at that tier, and the customer is told rather than left to wonder.
+    const deliveredAt = await deliveredTierOf(pool, jobId, input.tier).catch(() => null);
+    if (deliveredAt !== null)
+      notice(
+        `Part of this run was answered at the ${TIER_LABELS[deliveredAt]} tier, because the ${TIER_LABELS[input.tier]} tier was unavailable, so it was charged at the ${TIER_LABELS[deliveredAt]} price.`,
+      );
+    const afterwards = async (what: string, run: () => Promise<unknown>) => {
+      try {
+        await run();
+      } catch (error) {
+        console.error("run_bookkeeping_failed", {
+          jobId,
+          step: what,
+          error: error instanceof Error ? error.name : "unknown",
+        });
+      }
+    };
     // Each file remembers the months it fed, so its owner can untick it and have exactly those
     // months leave the dashboard (ADR 0047). Recorded only for a run that delivered.
     const fed = new Map<string, string[]>();
     for (const report of p.reports)
       if (report.period !== null)
         fed.set(report.fileId, [...(fed.get(report.fileId) ?? []), report.period]);
-    await recordUploadPeriods(pool, { accountId, periods: fed });
+    await afterwards("upload_periods", () =>
+      recordUploadPeriods(pool, { accountId, periods: fed }),
+    );
+    await afterwards("notices", () =>
+      pool.query(
+        `update jobs set stage_checkpoints = stage_checkpoints || jsonb_build_object('notices', $2::jsonb) where id = $1`,
+        [jobId, JSON.stringify(notices)],
+      ),
+    );
+    const accountRules = nextBlueprint.accountRules.map((r) => ({
+      pattern: normaliseName(r.pattern),
+      head: r.head,
+    }));
+    await afterwards("account_rules", () =>
+      saveAccountRules(pool, wrapper, { accountId, companyId, rules: accountRules }),
+    );
+    await afterwards("library_votes", () =>
+      recordLibraryVotes(pool, wrapper, { accountId, rules: accountRules }),
+    );
 
     // One press: the new figures go to the dashboard too, as its own priced action.
-    const dashboard = await bringDashboardUpToDate(pool, wrapper, {
-      // A company that has no dashboard yet gets one chosen from its own figures (ADR 0056).
-      transport: aiTransport(),
-      accountId,
-      companyId,
-      runJobId: jobId,
-      // Priced and chosen at the tier the customer picked for the run (ADR 0085).
-      tier: input.tier,
+    // Widened on purpose: it is set inside the closure, which narrowing cannot see.
+    let dashboard = { status: "failed" } as DashboardUpdate;
+    await afterwards("dashboard", async () => {
+      dashboard = await bringDashboardUpToDate(pool, wrapper, {
+        // A company that has no dashboard yet gets one chosen from its own figures (ADR 0056).
+        transport: aiTransport(),
+        accountId,
+        companyId,
+        runJobId: jobId,
+        // Priced and chosen at the tier the customer picked for the run (ADR 0085).
+        tier: input.tier,
+      });
     });
 
     // The owner's alerts, checked on the figures just computed: no model, no charge, and a notice
@@ -850,6 +925,23 @@ export async function runJobOnServer(
   }
 }
 
+/**
+ * Each sheet layout the company's runs have settled, as its report type (ADR 0091). The stored
+ * fingerprints are keyed `role:index` and record a sheet's signature under the type the run read
+ * it as — classified ones included — so turned round they say what a layout was last time.
+ */
+function rememberedLayouts(
+  fingerprints: Readonly<Record<string, string>>,
+): NonNullable<PrepareGuidance["remembered"]> {
+  const out: Record<string, NonNullable<PrepareGuidance["remembered"]>[string]> = {};
+  for (const [key, sig] of Object.entries(fingerprints)) {
+    const role = key.split(":")[0] ?? "";
+    if (MIS_SOURCE_ROLES.has(role))
+      out[sig] = role as NonNullable<PrepareGuidance["remembered"]>[string];
+  }
+  return out;
+}
+
 /** Counts-only pricing inputs computed from a job's own uploads (SPEC §12, now server-side). */
 export async function pricingFromUploads(
   pool: Pool,
@@ -862,7 +954,9 @@ export async function pricingFromUploads(
     purpose: "pricing",
   });
   const redactor = await Redactor.create(Buffer.from(session.redactionKey, "base64"));
-  const p = await prepare(files, redactor, session.company.dateOrder, {});
+  const p = await prepare(files, redactor, session.company.dateOrder, {
+    remembered: rememberedLayouts(session.memory.sourceFingerprints),
+  });
   let referenceSheets = 0;
   if (referenceId !== null) {
     const ref = await loadJobFiles(pool, accountId, [referenceId], {

@@ -182,3 +182,61 @@ describe("priorFacts", () => {
     ]);
   });
 });
+
+describe("one month counted once (ADR 0091)", () => {
+  it("takes overlapping ledgers from the file added last, and says so", async () => {
+    const redactor = await Redactor.create(randomBytes(32));
+    const once = await prepare(
+      [asFile("trading/clean/trial_balance_2025-04.xlsx")],
+      redactor,
+    );
+    const first = asFile("trading/clean/trial_balance_2025-04.xlsx");
+    const revised = {
+      ...asFile("trading/clean/trial_balance_2025-04.xlsx"),
+      name: "TB Apr (revised).xlsx",
+    };
+    const twice = await prepare([first, revised], redactor);
+    // The same balances twice are still the balances once: nothing doubles.
+    expect(twice.facts.map((f) => [f.ledgerKey, f.closing])).toEqual(
+      once.facts.map((f) => [f.ledgerKey, f.closing]),
+    );
+    expect(twice.facts.every((f) => f.source.fileId === revised.fileId)).toBe(true);
+    expect(twice.overlaps).toEqual([
+      {
+        period: "2025-04",
+        kept: "TB Apr (revised).xlsx",
+        setAside: [first.name],
+        reason: "same_ledgers",
+      },
+    ]);
+    expect(once.overlaps).toEqual([]);
+  });
+});
+
+describe("priorFacts carries the movement it was stored with (ADR 0091)", () => {
+  it("gives the earliest month an opening, so its movement survives the next run", () => {
+    const { facts } = priorFacts(
+      [
+        {
+          ledgerKey: "sales accounts > sales hardware",
+          head: "REV_PRODUCTS",
+          period: "2025-04",
+          closing: "-100",
+          movement: "-40",
+        },
+        {
+          ledgerKey: "sales accounts > sales hardware",
+          head: "REV_PRODUCTS",
+          period: "2025-05",
+          closing: "-250",
+          movement: null,
+        },
+      ],
+      new Set(),
+    );
+    expect(facts.map((f) => [f.period, f.opening, f.closing])).toEqual([
+      ["2025-04", -60n, -100n],
+      ["2025-05", null, -250n],
+    ]);
+  });
+});

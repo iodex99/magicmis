@@ -883,9 +883,13 @@ export async function reconcileRazorpayPurchases(
   now: Date = new Date(),
 ): Promise<ReconcileResult> {
   const cfg = await readConfig(pool, "billing.reconcile", reconcileConfigSchema, now);
+  // 'failed' included (ADR 0091): one failed attempt marks the purchase failed, but checkout lets
+  // the customer try again on the same order, and if that retry is captured and its webhook lost,
+  // this is the only path left that credits them.
   const stuck = await pool.query<{ id: string; razorpay_order_id: string }>(
     `select id, razorpay_order_id from public.purchases
-     where method = 'razorpay' and status in ('created', 'pending', 'paid') and razorpay_order_id is not null
+     where method = 'razorpay' and status in ('created', 'pending', 'paid', 'failed')
+       and razorpay_order_id is not null
        and created_at <= $1 and created_at >= $2
      order by created_at limit $3`,
     [

@@ -10,7 +10,7 @@ import { computeCube, ENGINE_VERSION } from "../src/compute";
 import { computeMetricStore } from "../src/metrics";
 import { recipeSchema } from "../src/recipe";
 import { parseSnapshotUpload, SnapshotTooLarge } from "../src/snapshot";
-import { buildStore, lineage } from "../src/store";
+import { buildStore, lineage, mergeNewestFirst } from "../src/store";
 import { divide, num } from "../src/values";
 import { at, gridOf, mapFacts, parseTb } from "./pipeline";
 
@@ -237,5 +237,40 @@ describe("recipe and snapshot schemas", () => {
     expect(() =>
       parseSnapshotUpload(JSON.stringify({ ...payload, period: "April" }), 5_000_000),
     ).toThrow();
+  });
+});
+
+describe("mergeNewestFirst (ADR 0091)", () => {
+  const value = (metricId: string, period: string, v: string, dims = {}) => ({
+    metricId,
+    period,
+    dims,
+    value: v,
+  });
+
+  it("lets the run made last speak for every month it holds, an earlier one included", () => {
+    // The newest store is a back-dated run: it restates March and carries May as it was.
+    const backdated = [
+      value("revenue", "2026-03", "120"),
+      value("revenue", "2026-05", "90"),
+    ];
+    const may = [
+      value("revenue", "2026-03", "100"),
+      value("revenue", "2026-05", "90"),
+      value("receivables_ageing", "2026-05", "7", { party: "A" }),
+    ];
+    const merged = mergeNewestFirst([backdated, may]);
+    expect(merged.find((v) => v.period === "2026-03")?.value).toBe("120");
+    // What the newer run did not compute is still read from the older one.
+    expect(merged.some((v) => v.metricId === "receivables_ageing")).toBe(true);
+  });
+
+  it("owns a figure for the whole month, every split of it", () => {
+    const corrected = [value("receivables_ageing", "2026-05", "5", { party: "A" })];
+    const earlier = [
+      value("receivables_ageing", "2026-05", "7", { party: "A" }),
+      value("receivables_ageing", "2026-05", "3", { party: "B" }),
+    ];
+    expect(mergeNewestFirst([corrected, earlier])).toEqual(corrected);
   });
 });

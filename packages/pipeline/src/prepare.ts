@@ -67,6 +67,12 @@ export interface PrepareGuidance {
   /** Report types for sheets detection could not place, keyed by `sheetKey`. */
   readonly classified?: Readonly<Record<string, ReportType | "other">>;
   /**
+   * What the company's earlier runs settled each sheet layout as, keyed by its signature
+   * (ADR 0091): a sheet only classification could place is placed the same way next month without
+   * asking again, or every refresh of such a company made an AI call on unchanged structure.
+   */
+  readonly remembered?: Readonly<Record<string, ReportType>>;
+  /**
    * The last resort when nothing was recognised and AI could not say either: any sheet shaped
    * like a list of names and amounts — including a profit and loss or balance sheet — is read
    * as balances, and the report says so. A likely report with warnings beats a refusal.
@@ -129,6 +135,17 @@ export interface Prepared {
   readonly unsigned: readonly string[];
   /** Sheets read by `bestEffort` rather than recognised. */
   readonly guessed: number;
+  /**
+   * Months more than one file gave balances for, and what was done so nothing is counted twice
+   * (ADR 0091): a group summary is left out of a month a trial balance covers, and a ledger two
+   * reports both carry is taken from the one added last. `kept` and `setAside` name files.
+   */
+  readonly overlaps: readonly {
+    period: PeriodId;
+    kept: string;
+    setAside: readonly string[];
+    reason: "summary_beside_trial_balance" | "same_ledgers";
+  }[];
   readonly periods: readonly PeriodId[];
   readonly fingerprints: Readonly<Record<string, string>>;
   readonly size: SizeDescriptors;
@@ -241,6 +258,16 @@ export async function prepare(
   const unrecognised: Prepared["unrecognised"][number][] = [];
   const needsPeriod: Prepared["needsPeriod"][number][] = [];
   const unsigned: string[] = [];
+  /** Balance reports, held back until every file is read so a month is counted once. */
+  const balanceReports: {
+    fileName: string;
+    type: "trial_balance" | "group_summary";
+    period: PeriodId;
+    facts: LedgerFact[];
+    checks: readonly SubtotalCheck[];
+    grandTotal: BalanceReport["grandTotal"];
+    unsigned: boolean;
+  }[] = [];
   let guessed = 0;
   const signatures = new Map<string, Set<string>>();
   let sheets = 0;
@@ -265,6 +292,9 @@ export async function prepare(
         inferBalanceReport(sheet, header, profile.columns)?.balanced === true
       )
         type = "trial_balance";
+      const remembered =
+        profile.signature === null ? undefined : guidance.remembered?.[profile.signature];
+      if (type === "generic" && remembered !== undefined) type = remembered;
       const classified = guidance.classified?.[key];
       if (type === "generic" && classified !== undefined && classified !== "other")
         type = classified;
@@ -347,11 +377,15 @@ export async function prepare(
               sheet: sheet.name,
               period,
             });
-            if (isUnsigned(report))
-              for (const fact of built) unsigned.push(`${fact.ledgerKey}|${fact.period}`);
-            facts.push(...built);
-            subtotalChecks.push({ period, checks: report.checks });
-            grandTotals.push({ period, reported: report.grandTotal });
+            balanceReports.push({
+              fileName: file.name,
+              type,
+              period,
+              facts: built,
+              checks: report.checks,
+              grandTotal: report.grandTotal,
+              unsigned: isUnsigned(report),
+            });
             break;
           }
           case "bills_receivable":
@@ -393,6 +427,72 @@ export async function prepare(
     }
   }
 
+  // One month, counted once (ADR 0091). Two trial balances for March — "TB Mar" and "TB Mar
+  // (revised)", or two undated files given the same assumed month — were both summed, and every
+  // figure came out doubled with the balance checks still green, because each half balanced on its
+  // own. A group summary beside a trial balance for the same month doubles whatever it covers.
+  // Reports that cover different ledgers of one month (a trial balance split across sheets, or one
+  // group summary per group) are still read together: only where they overlap is one chosen.
+  const overlaps: {
+    period: PeriodId;
+    kept: string;
+    setAside: string[];
+    reason: "summary_beside_trial_balance" | "same_ledgers";
+  }[] = [];
+  const withTrialBalance = new Set(
+    balanceReports.filter((r) => r.type === "trial_balance").map((r) => r.period),
+  );
+  const kept = balanceReports.filter((r) => {
+    if (r.type === "trial_balance" || !withTrialBalance.has(r.period)) return true;
+    const trial = balanceReports.findLast(
+      (t) => t.type === "trial_balance" && t.period === r.period,
+    );
+    overlaps.push({
+      period: r.period,
+      kept: trial?.fileName ?? "",
+      setAside: [r.fileName],
+      reason: "summary_beside_trial_balance",
+    });
+    return false;
+  });
+  const factKey = (fact: LedgerFact) => `${fact.ledgerKey}|${fact.period}`;
+  const owner = new Map<string, number>();
+  kept.forEach((r, i) => {
+    for (const fact of r.facts) owner.set(factKey(fact), i);
+  });
+  kept.forEach((r, i) => {
+    const own = r.facts.filter((fact) => owner.get(factKey(fact)) === i);
+    if (own.length < r.facts.length) {
+      const later = new Set(
+        r.facts
+          .map((fact) => owner.get(factKey(fact)))
+          .filter((j): j is number => j !== undefined && j !== i),
+      );
+      for (const j of later) {
+        const winner = kept[j]?.fileName ?? "";
+        const existing = overlaps.find(
+          (o) =>
+            o.reason === "same_ledgers" && o.period === r.period && o.kept === winner,
+        );
+        if (existing === undefined)
+          overlaps.push({
+            period: r.period,
+            kept: winner,
+            setAside: [r.fileName],
+            reason: "same_ledgers",
+          });
+        else if (!existing.setAside.includes(r.fileName))
+          existing.setAside.push(r.fileName);
+      }
+    }
+    if (r.unsigned) for (const fact of own) unsigned.push(factKey(fact));
+    facts.push(...own);
+    // A report wholly replaced by a later one says nothing about the month any more.
+    if (own.length === 0) return;
+    subtotalChecks.push({ period: r.period, checks: r.checks });
+    grandTotals.push({ period: r.period, reported: r.grandTotal });
+  });
+
   const fingerprints: Record<string, string> = {};
   for (const [role, set] of [...signatures.entries()].sort(([a], [b]) =>
     a.localeCompare(b),
@@ -417,6 +517,7 @@ export async function prepare(
     needsPeriod,
     unsigned,
     guessed,
+    overlaps,
     periods: [...new Set(facts.map((f) => f.period))].sort(),
     fingerprints,
     size: {

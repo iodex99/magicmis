@@ -20,7 +20,7 @@ import { currencySymbol } from "@magicmis/core/reporting-conventions";
 import { readConfig } from "@magicmis/db/config";
 import { withTransaction } from "@magicmis/db/tx";
 import { buildFactsPack, visibleValues, type MetricValue } from "@magicmis/engine";
-import { latestBlueprint, latestSnapshot } from "@magicmis/engine/server";
+import { boardMetricValues, latestBlueprint } from "@magicmis/engine/server";
 import { MONTHLY_FINANCIAL_MIS } from "@magicmis/templates";
 import type { Pool } from "pg";
 import { z } from "zod";
@@ -70,26 +70,17 @@ export async function factsPackFor(
       "month_hidden",
       "That month is off the dashboard because its files are unticked. Tick a file for it first.",
     );
-  // A month a run computed without a snapshot of its own — every month but the last of a
-  // first setup over several — is read from the earliest snapshot after it, which holds it.
-  // The board offers those months (ADR 0087), so the writing about them must find them too.
-  const covering = async () => {
-    const after = await pool.query<{ period: string }>(
-      `select period from public.snapshots
-        where company_id = $1 and account_id = $2 and period > $3
-        order by period asc limit 1`,
-      [input.companyId, input.accountId, input.period],
-    );
-    const period = after.rows[0]?.period;
-    if (period === undefined) return null;
-    const found = await latestSnapshot(pool, wrapper, { ...input, period });
-    return found?.metricStore.values.some((v) => v.period === input.period) === true
-      ? found
-      : null;
-  };
-  const snapshot =
-    (await latestSnapshot(pool, wrapper, { ...input })) ?? (await covering());
-  if (snapshot === null)
+  // The figures the board shows, read the way the board reads them (ADR 0091): writing about a
+  // month must describe the numbers its placeholders will be filled with. Reading the month's own
+  // snapshot described March as first stored even after a corrected March replaced it on the board,
+  // and a month computed without a snapshot of its own (every month but the last of a first setup
+  // over several, ADR 0087) is covered here the same way as any other.
+  const values = (await boardMetricValues(
+    pool,
+    wrapper,
+    input,
+  )) as unknown as MetricValue[];
+  if (!values.some((v) => v.period === input.period))
     throw new CommentaryError(
       "no_snapshot",
       "There is no MIS for that month yet. Run the refresh first.",
@@ -148,11 +139,7 @@ export async function factsPackFor(
   const pack = buildFactsPack({
     period: input.period,
     // A movement against a hidden month is not discussed either (ADR 0047).
-    store: visibleValues(
-      snapshot.metricStore.values as unknown as MetricValue[],
-      hidden,
-      company.rows[0]?.fy_start_month ?? 4,
-    ),
+    store: visibleValues(values, hidden, company.rows[0]?.fy_start_month ?? 4),
     materiality: {
       pct: company.rows[0]?.materiality_pct ?? "0.05",
       absMinor: company.rows[0]?.materiality_abs_minor ?? "0",

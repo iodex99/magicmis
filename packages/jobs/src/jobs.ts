@@ -9,7 +9,7 @@
 
 import { estimateJob, type SizeDescriptors } from "@magicmis/ai/estimator";
 import { readConfig } from "@magicmis/db/config";
-import { withTransaction } from "@magicmis/db/tx";
+import { withTransaction, type Queryable } from "@magicmis/db/tx";
 import {
   createQuote,
   decideQuote,
@@ -442,6 +442,41 @@ export async function acceptJobQuote(
 }
 
 /** Pipeline progress reported by the browser; only forward moves through SPEC §23's stages. */
+/**
+ * Claims a job for one run on the server (ADR 0091). Reading the state and then running let two
+ * presses of the same button — a double click, a retry after a dropped connection — both run the
+ * whole job: twice the model calls, each blind to the other's budget, and the later answer stored
+ * as the figures of record. The claim is a lease written in the same statement that checks the
+ * state, so exactly one request gets it; it lapses on its own if the request dies, and
+ * `releaseRun` gives it back as soon as the run returns, so an answer to the year question is not
+ * kept waiting.
+ */
+export async function claimRun(
+  db: Queryable,
+  input: { accountId: string; jobId: string; state: string; leaseSeconds: number },
+): Promise<boolean> {
+  const r = await db.query(
+    `update public.jobs
+        set stage_checkpoints = stage_checkpoints
+          || jsonb_build_object('run_lease_until', (now() + make_interval(secs => $4))::text)
+      where id = $1 and account_id = $2 and state = $3
+        and coalesce((stage_checkpoints->>'run_lease_until')::timestamptz, '-infinity') < now()`,
+    [input.jobId, input.accountId, input.state, input.leaseSeconds],
+  );
+  return r.rowCount === 1;
+}
+
+export async function releaseRun(
+  db: Queryable,
+  input: { accountId: string; jobId: string },
+): Promise<void> {
+  await db.query(
+    `update public.jobs set stage_checkpoints = stage_checkpoints - 'run_lease_until'
+      where id = $1 and account_id = $2`,
+    [input.jobId, input.accountId],
+  );
+}
+
 export async function advanceJob(
   pool: Pool,
   input: { accountId: string; jobId: string; to: JobState; now?: Date },

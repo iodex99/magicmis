@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import * as XLSX from "xlsx";
 
 import { decimalStringToPaise, numberToDecimalString, parseAmount } from "../src/amounts";
-import { detectDelimiter, detectEncoding, previewCsv } from "../src/csv";
+import { detectDelimiter, detectEncoding, previewCsv, readCsvGrid } from "../src/csv";
 import { readExcel } from "../src/excel";
 import { canonicalSignature, sha256Hex } from "../src/fingerprint";
 import { gridFromText } from "../src/grid";
@@ -11,7 +11,8 @@ import { detectHeader, parsePeriodText } from "../src/header";
 import { cellAsDate, classifyCell, inferColumn } from "../src/infer";
 import { loadSheet, sanitiseIdentifier } from "../src/loader";
 import { checkFiles, profileSheet } from "../src/profile";
-import { inspectZip } from "../src/zip";
+import { countSourceFile, readSourceFile } from "../src/source";
+import { entriesKeepTheirWord, inspectZip } from "../src/zip";
 
 import { openTestDuck } from "./duck";
 
@@ -295,6 +296,16 @@ describe("CSV sniffing", () => {
     expect(p.grid.rows[1]?.[0]?.text).toBe('Rao, K "Senior"');
     expect(p.grid.rows[2]?.[0]?.text).toBe("Two\nlines");
   });
+
+  it("reads a text file whole, past the eight megabytes a preview reads (ADR 0091)", () => {
+    const line = "Ledger name padded to make the file long enough,1000\r\n";
+    const count = Math.ceil((9 * 1024 * 1024) / line.length);
+    const bytes = new TextEncoder().encode(`Particulars,Debit\r\n${line.repeat(count)}`);
+    expect(bytes.length).toBeGreaterThan(8 * 1024 * 1024);
+    const grid = readCsvGrid(bytes, "x.csv").grid;
+    expect(grid.rows.filter((r) => r.length > 0)).toHaveLength(count + 1);
+    expect(grid.rows.at(-1)?.[1]?.text ?? grid.rows.at(-2)?.[1]?.text).toBe("1000");
+  });
 });
 
 describe("limits and zip-bomb guard", () => {
@@ -323,6 +334,52 @@ describe("limits and zip-bomb guard", () => {
     expect(inspectZip(new TextEncoder().encode("not a zip at all"), limits)).toEqual({
       ok: false,
       reason: "not_zip",
+    });
+  });
+
+  it("refuses an archive whose entry inflates past the size it declared (ADR 0091)", async () => {
+    const wb = XLSX.utils.book_new();
+    const rows = Array.from({ length: 2000 }, (_, i) => ["Ledger", i]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "S");
+    const honest = new Uint8Array(
+      XLSX.write(wb, {
+        type: "array",
+        bookType: "xlsx",
+        compression: true,
+      }) as ArrayBuffer,
+    );
+    // The same archive with the worksheet's declared size rewritten to 64 bytes: every bound
+    // `inspectZip` checks is still met, which is exactly how a bomb gets past it.
+    const lying = honest.slice();
+    const view = new DataView(lying.buffer);
+    let eocd = lying.length - 22;
+    while (view.getUint32(eocd, true) !== 0x06054b50) eocd -= 1;
+    let pos = view.getUint32(eocd + 16, true);
+    for (let n = 0; n < view.getUint16(eocd + 10, true); n += 1) {
+      const nameLen = view.getUint16(pos + 28, true);
+      const name = new TextDecoder().decode(lying.subarray(pos + 46, pos + 46 + nameLen));
+      if (name === "xl/worksheets/sheet1.xml") {
+        expect(view.getUint16(pos + 10, true)).toBe(8);
+        view.setUint32(pos + 24, 64, true);
+      }
+      pos +=
+        46 + nameLen + view.getUint16(pos + 30, true) + view.getUint16(pos + 32, true);
+    }
+
+    expect(inspectZip(lying, limits).ok).toBe(true);
+    expect(await entriesKeepTheirWord(honest)).toBe(true);
+    expect(await entriesKeepTheirWord(lying)).toBe(false);
+    expect(await readSourceFile("tb.xlsx", lying, limits)).toEqual({
+      ok: false,
+      reason: "unsafe_workbook",
+    });
+    expect(await countSourceFile("tb.xlsx", lying, limits)).toEqual({
+      ok: false,
+      reason: "unsafe_workbook",
+    });
+    expect(await countSourceFile("tb.xlsx", honest, limits)).toMatchObject({
+      ok: true,
+      rows: 2000,
     });
   });
 

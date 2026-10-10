@@ -122,15 +122,27 @@ export interface CsvPreview {
   readonly grid: SheetGrid;
 }
 
-/** The first `maxRows` rows as a grid, for header detection and type inference. */
-export function previewCsv(bytes: Uint8Array, name: string, maxRows = 500): CsvPreview {
-  const { text, encoding } = decodeText(bytes, 8 * 1024 * 1024);
+function csvGrid(
+  bytes: Uint8Array,
+  name: string,
+  maxRows: number,
+  maxBytes: number,
+): CsvPreview {
+  const { text, encoding } = decodeText(bytes, maxBytes);
   const delimiter = detectDelimiter(text);
   const rows = logicalLines(text, maxRows).map((l) => splitLine(l, delimiter));
   return { encoding, delimiter, grid: gridFromText(name, rows) };
 }
 
-/** Every row, for small files and tests. Large files go to DuckDB instead. */
+/** The first `maxRows` rows as a grid, for header detection and type inference. */
+export function previewCsv(bytes: Uint8Array, name: string, maxRows = 500): CsvPreview {
+  return csvGrid(bytes, name, maxRows, 8 * 1024 * 1024);
+}
+
+/**
+ * Every row of the whole file. It read through the preview, so a text file stopped at eight
+ * megabytes — mid-row, silently — while uploads allow far more (ADR 0091).
+ */
 export function readCsvGrid(bytes: Uint8Array, name: string): CsvPreview {
-  return previewCsv(bytes, name, Number.MAX_SAFE_INTEGER);
+  return csvGrid(bytes, name, Number.MAX_SAFE_INTEGER, Number.POSITIVE_INFINITY);
 }

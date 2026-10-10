@@ -9,6 +9,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { openWithWrappedKey, sealWithNewKey, type KeyWrapper } from "@magicmis/crypto";
 import { appendAudit, appendAuditInTransaction } from "@magicmis/db/audit";
 import { readConfig } from "@magicmis/db/config";
+import { consumeRateLimit } from "@magicmis/db/ratelimit";
 import { withTransaction, type Queryable } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 import { z } from "zod";
@@ -116,11 +117,14 @@ async function recentFailures(
     z.number().int().positive(),
   );
   // Failures count from the latest of: the window start, the last successful sign-in, or
-  // the admin's creation. Refusals made while locked out do not extend the lockout.
+  // the admin's creation. Only a wrong credential counts: refusals made while locked out do not
+  // extend the lockout, and neither does an address off the IP allowlist or one throttled for
+  // trying too often, or anyone anywhere could lock the owner out of their own console by
+  // typing their email (ADR 0091).
   const r = await db.query<{ n: string }>(
     `select count(*)::text as n from public.audit_log
      where action = 'admin.login_failed' and metadata->>'email' = $1
-       and coalesce(metadata->>'reason', '') <> 'locked_out'
+       and coalesce(metadata->>'reason', '') not in ('locked_out', 'ip_not_allowed', 'throttled')
        and created_at > greatest($2::timestamptz,
          (select max(greatest(created_at, coalesce(last_login_at, created_at)))
           from public.admin_users where lower(email) = $1))`,
@@ -161,6 +165,17 @@ export async function signIn(
   ) {
     await fail("ip_not_allowed");
     return { ok: false, reason: "ip_not_allowed" };
+  }
+  // Before any password is hashed (ADR 0091). Answered as a lockout: the address has to wait.
+  if (input.ip !== null) {
+    const gate = await consumeRateLimit(pool, "admin_login_per_ip", input.ip, {
+      windowSeconds: 600,
+      now,
+    });
+    if (!gate.allowed) {
+      await fail("throttled");
+      return { ok: false, reason: "locked_out" };
+    }
   }
   const failures = await recentFailures(pool, email, now);
   if (failures.count >= failures.limit) {

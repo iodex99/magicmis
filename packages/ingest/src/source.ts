@@ -17,7 +17,11 @@ import { countExcel, readExcel } from "./excel";
 import { gridFromText, isBlankRow, type SheetGrid } from "./grid";
 import { readPdf } from "./pdf";
 import { countXlsx } from "./xlsx-count";
-import { inspectZip, type ZipLimits } from "./zip";
+import { entriesKeepTheirWord, inspectZip, type ZipLimits } from "./zip";
+
+/** What an archive claims is within bounds, and no entry grows past its claim (ADR 0091). */
+const safeZip = async (bytes: Uint8Array, limits: ZipLimits): Promise<boolean> =>
+  inspectZip(bytes, limits).ok && (await entriesKeepTheirWord(bytes));
 
 export type SourceRefusal =
   /** A photo or scan: there is no text to read without OCR. */
@@ -133,8 +137,8 @@ export async function readSourceFile(
           : { ok: true, format, sheets };
       }
       case "workbook": {
-        const zip = inspectZip(bytes, limits);
-        if (!zip.ok) return { ok: false, reason: "unsafe_workbook" };
+        if (!(await safeZip(bytes, limits)))
+          return { ok: false, reason: "unsafe_workbook" };
         return { ok: true, format, sheets: [...readExcel(bytes, excel).sheets] };
       }
       case "legacy_workbook":
@@ -202,7 +206,7 @@ export async function countSourceFile(
 > {
   const format = sniffFormat(name, bytes);
   if (format === "workbook" || format === "legacy_workbook") {
-    if (format === "workbook" && !inspectZip(bytes, limits).ok)
+    if (format === "workbook" && !(await safeZip(bytes, limits)))
       return { ok: false, reason: "unsafe_workbook" };
     try {
       const counted =

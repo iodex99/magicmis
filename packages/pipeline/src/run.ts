@@ -68,6 +68,13 @@ export interface PriorBalance {
   readonly head: string;
   readonly period: string;
   readonly closing: string;
+  /**
+   * The month's movement as the run that stored it computed it, null where it could not. Carried
+   * so the earliest stored month keeps its movement: with no month before it in the grid, the
+   * engine takes movement from the opening, and a fact rebuilt without one lost every
+   * opening-based figure of that month on the next run (ADR 0091).
+   */
+  readonly movement?: string | null;
 }
 
 /** Earlier periods from stored snapshots, as facts, so comparatives and movement span months. */
@@ -85,7 +92,11 @@ export function priorFacts(
       name: parts.at(-1) ?? b.ledgerKey,
       groupPath: parts.slice(0, -1),
       period: b.period as PeriodId,
-      opening: null,
+      // Opening = closing − movement gives the engine back exactly the movement it stored.
+      opening:
+        b.movement === undefined || b.movement === null
+          ? null
+          : BigInt(b.closing) - BigInt(b.movement),
       debit: null,
       credit: null,
       closing: BigInt(b.closing),

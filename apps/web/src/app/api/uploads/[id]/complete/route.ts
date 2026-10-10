@@ -1,5 +1,5 @@
 import { countSourceFile, SOURCE_REFUSAL_MESSAGES } from "@magicmis/ingest";
-import { finishUpload, loadUploadBytes, uploadLimits } from "@magicmis/jobs";
+import { finishUpload, getUpload, loadUploadBytes, uploadLimits } from "@magicmis/jobs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
@@ -26,6 +26,23 @@ export async function POST(
       return apiError(404, "upload_not_found", "Upload not found.");
     const pool = db();
     try {
+      // A file already counted answers from its record (ADR 0091). Counting again decrypted and
+      // inflated the whole file on every call — a retry should be cheap, and a loop of them
+      // should not be a way to make the server do that work over and over.
+      const known = await getUpload(pool, account.accountId, id);
+      if (known.status !== "uploading")
+        return ok({
+          uploadId: id,
+          name: known.fileName,
+          size: known.byteSize,
+          ...(known.status === "refused"
+            ? { refused: known.refusal ?? SOURCE_REFUSAL_MESSAGES.unreadable }
+            : {
+                sheets: known.sheetCount ?? 0,
+                rows: known.rowCount ?? 0,
+                refused: null,
+              }),
+        });
       const { upload, bytes } = await loadUploadBytes(
         pool,
         keyWrapper(),
@@ -39,11 +56,15 @@ export async function POST(
       );
       const limits = await uploadLimits(pool);
       // Counts only before payment (SPEC §2.3): a workbook is counted without building cells.
-      const read = await countSourceFile(upload.fileName, new Uint8Array(bytes), {
-        maxEntries: 10_000,
-        maxUncompressedBytes: limits.maxFileBytes * 20,
-        maxRatio: 200,
-      });
+      const read = await countSourceFile(
+        upload.fileName,
+        new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength),
+        {
+          maxEntries: 10_000,
+          maxUncompressedBytes: limits.maxFileBytes * 20,
+          maxRatio: 200,
+        },
+      );
       if (!read.ok) {
         const message = SOURCE_REFUSAL_MESSAGES[read.reason];
         await finishUpload(pool, {

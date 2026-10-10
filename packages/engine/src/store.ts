@@ -28,6 +28,35 @@ export const metricKey = (
     .map((k) => `|${k}=${dims[k] ?? ""}`)
     .join("")}`;
 
+/**
+ * Several stored metric stores as one board, **newest run first** (ADR 0091).
+ *
+ * Every run recomputes every month it holds balances for, so the store of the run made last is
+ * the best word on each figure it carries — including a month earlier than its own, when the run
+ * brought a corrected or back-dated file. Ranking stores by the month they were stored under let
+ * May's stale March beat the corrected March for good.
+ *
+ * A store owns a figure **for a whole month**, every split of it: a corrected debtors file that
+ * no longer lists a party must not have that party filled back in from the store it replaced.
+ */
+export function mergeNewestFirst<V extends { metricId: string; period: string }>(
+  stores: readonly (readonly V[])[],
+): V[] {
+  const owned = new Set<string>();
+  const out: V[] = [];
+  for (const values of stores) {
+    const here = new Set<string>();
+    for (const v of values) {
+      const group = `${v.metricId}@${v.period}`;
+      if (owned.has(group)) continue;
+      here.add(group);
+      out.push(v);
+    }
+    for (const g of here) owned.add(g);
+  }
+  return out;
+}
+
 export function buildStore(
   values: readonly MetricValue[],
   computedAt: Date,

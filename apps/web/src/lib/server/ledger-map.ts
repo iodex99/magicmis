@@ -5,6 +5,7 @@ import {
   BlueprintConflict,
   latestBlueprint,
   latestSnapshot,
+  newestSnapshotPeriod,
   storeBlueprint,
 } from "@magicmis/engine/server";
 import {
@@ -84,14 +85,18 @@ export async function ledgerMap(
   const blueprint = await latestBlueprint(pool, wrapper, scope);
   if (blueprint === null) return null;
   const rules = mappingRulesSchema.parse(blueprint.parts.mappingRules);
-  // The latest month the company has figures for is its newest snapshot's.
-  const latest = await pool.query<{ latest_period: string | null }>(
-    `select max(period) as latest_period from snapshots where company_id = $1 and account_id = $2`,
-    [scope.companyId, scope.accountId],
-  );
-  const period = latest.rows[0]?.latest_period ?? null;
+  // The balances of the run made last, which carries every month (ADR 0091), at the latest month
+  // they cover.
+  const newest = await newestSnapshotPeriod(pool, scope);
   const snapshot =
-    period === null ? null : await latestSnapshot(pool, wrapper, { ...scope, period });
+    newest === null
+      ? null
+      : await latestSnapshot(pool, wrapper, { ...scope, period: newest });
+  const period =
+    snapshot?.ledgerBalances.reduce<string | null>(
+      (max, b) => (max === null || b.period > max ? b.period : max),
+      null,
+    ) ?? null;
   const closing = new Map(
     (snapshot?.ledgerBalances ?? [])
       .filter((b) => b.period === period)

@@ -81,6 +81,36 @@ describe("visibleValues", () => {
     ]);
   });
 
+  it("hides a movement taken against a hidden month, and what is built on it (ADR 0091)", () => {
+    const movement = (head: string, period: string): MetricInput => ({
+      kind: "head",
+      head,
+      period: P(period),
+      field: "movement",
+      ledgers: 1,
+    });
+    const april = v("revenue", "2026-04", [movement("REV", "2026-04")]);
+    const may = v("revenue", "2026-05", [movement("REV", "2026-05")]);
+    const margin = v("gross_margin_pct", "2026-05", [on("revenue", "2026-05")]);
+    const cash = v("cash", "2026-05", [
+      {
+        kind: "head",
+        head: "CA_CASH",
+        period: P("2026-05"),
+        field: "closing",
+        ledgers: 1,
+      },
+    ]);
+    const shown = ids(visibleValues([april, may, margin, cash], new Set(["2026-04"]), 4));
+    // May's revenue is May's closing less April's, and the margin stands on it; May's cash
+    // balance does not; April is the first month of the year, so its own revenue needs no March.
+    expect(shown).toEqual(["cash@2026-05"]);
+    expect(ids(visibleValues([april, may], new Set(["2026-03"]), 4))).toEqual([
+      "revenue@2026-04",
+      "revenue@2026-05",
+    ]);
+  });
+
   it("brings everything back when the month is shown again", () => {
     const hidden = new Set(["2026-05"]);
     expect(visibleValues(store, hidden, 4).length).toBeLessThan(store.length);

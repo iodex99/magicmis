@@ -278,6 +278,57 @@ describe("admin identity (SPEC §26)", () => {
       reason: "locked_out",
     });
   });
+
+  it("does not let an address outside the IP allowlist lock the owner out (ADR 0091)", async () => {
+    const e = "pinned@example.test";
+    const list = parseAllowlist(e);
+    const created = await createAdmin(pool(), wrapper, {
+      email: e,
+      password: PASSWORD,
+      allowlist: list,
+      issuer: "x",
+    });
+    const now = new Date(Date.now() + 5_000);
+    const base = { email: e, allowlist: list, userAgent: "t", now };
+    for (let i = 0; i < 8; i += 1)
+      await signIn(pool(), wrapper, {
+        ...base,
+        ipAllowlist: new Set(["10.1.1.1"]),
+        ip: "10.6.6.6",
+        password: "wrong-password-xyz",
+        code: "000000",
+      });
+    const result = await signIn(pool(), wrapper, {
+      ...base,
+      ipAllowlist: new Set(["10.1.1.1"]),
+      ip: "10.1.1.1",
+      password: PASSWORD,
+      code: codeAt(created.totpSecret, now),
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("throttles one address before hashing any password, whatever email it tries (ADR 0091)", async () => {
+    const now = new Date(Date.now() + 5_000);
+    const results = [];
+    for (let i = 0; i < 21; i += 1)
+      results.push(
+        await signIn(pool(), wrapper, {
+          email: `nobody-${i.toString()}@example.test`,
+          password: "wrong-password-xyz",
+          code: "000000",
+          allowlist,
+          ipAllowlist: null,
+          ip: "10.7.7.7",
+          userAgent: "t",
+          now,
+        }),
+      );
+    expect(
+      results.slice(0, 20).every((r) => !r.ok && r.reason === "invalid_credentials"),
+    ).toBe(true);
+    expect(results[20]).toEqual({ ok: false, reason: "locked_out" });
+  });
 });
 
 describe("catalog administration", () => {

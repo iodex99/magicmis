@@ -26,6 +26,7 @@ import { withTransaction, type Queryable } from "@magicmis/db/tx";
 import type { Pool } from "pg";
 
 import { snapshotPayloadSchema, type SnapshotPayload } from "./snapshot";
+import { mergeNewestFirst } from "./store";
 
 export class CompanyKeyDestroyed extends Error {
   constructor(companyId: string) {
@@ -241,6 +242,49 @@ export async function latestMetricStores(
     dek.fill(0);
   }
   return out;
+}
+
+/**
+ * The month whose snapshot the company's last run stored (ADR 0091): the run made last, not the
+ * latest month. A run carries every month it holds balances for, so this one is the best word on
+ * all of them — a back-dated or corrected file included.
+ */
+export async function newestSnapshotPeriod(
+  db: Queryable,
+  scope: { accountId: string; companyId: string },
+): Promise<string | null> {
+  const r = await db.query<{ period: string }>(
+    `select period from public.snapshots where company_id = $1 and account_id = $2
+      order by created_at desc, version desc limit 1`,
+    [scope.companyId, scope.accountId],
+  );
+  return r.rows[0]?.period ?? null;
+}
+
+/**
+ * Every figure the company holds, as the board shows it: the latest version of each stored month's
+ * store, merged **newest run first** (`mergeNewestFirst`, ADR 0091). One query and one key unwrap
+ * for the stores, the ledger balances left alone (ADR 0054). The board, the chat, commentary and
+ * where to act all read this, so none of them can show a figure the others do not.
+ */
+export async function boardMetricValues(
+  pool: Pool,
+  wrapper: KeyWrapper,
+  input: { accountId: string; companyId: string; limit?: number },
+): Promise<SnapshotPayload["metricStore"]["values"]> {
+  const r = await pool.query<{ period: string }>(
+    `select period from (
+       select distinct on (period) period, version, created_at
+         from public.snapshots
+        where company_id = $1 and account_id = $2
+        order by period, version desc) latest
+      order by created_at desc, period desc
+      limit $3`,
+    [input.companyId, input.accountId, input.limit ?? 24],
+  );
+  const periods = r.rows.map((p) => p.period);
+  const stores = await latestMetricStores(pool, wrapper, { ...input, periods });
+  return mergeNewestFirst(periods.map((p) => stores.get(p)?.values ?? []));
 }
 
 export async function latestSnapshot(

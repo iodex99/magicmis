@@ -44,8 +44,8 @@ import {
   type ReportingContext,
 } from "@magicmis/engine";
 import {
+  boardMetricValues,
   latestBlueprint,
-  latestMetricStores,
   openForCompany,
   openManyForCompany,
   sealForCompany,
@@ -53,9 +53,11 @@ import {
 import {
   applyDashboardPatch,
   DashboardError,
+  deliveredTierOf,
   hiddenPeriods,
   readStoredDashboard,
   readStoredTemplate,
+  type PricedTier,
 } from "@magicmis/jobs";
 import { assertNoRawIdentifiers } from "@magicmis/redact";
 import { dashboardMetrics } from "@magicmis/render-dashboard";
@@ -215,26 +217,12 @@ export async function companyMetricValues(
   wrapper: KeyWrapper,
   scope: Scope,
 ): Promise<MetricValue[]> {
-  const periods = await pool.query<{ period: string }>(
-    `select distinct period from public.snapshots where company_id = $1 and account_id = $2 order by period desc limit 24`,
-    [scope.companyId, scope.accountId],
-  );
-  // One query, one key unwrap, and the ledger balances left alone (ADR 0054). Every chat
-  // message paid this, so it was the most-repeated version of the same waste.
-  const stores = await latestMetricStores(pool, wrapper, {
-    ...scope,
-    periods: periods.rows.map((p) => p.period),
-  });
-  const seen = new Set<string>();
-  const values: MetricValue[] = [];
-  for (const { period } of periods.rows) {
-    for (const v of (stores.get(period)?.values ?? []) as unknown as MetricValue[]) {
-      const key = `${v.metricId}@${v.period}|${JSON.stringify(v.dims)}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      values.push(v);
-    }
-  }
+  // Read exactly as the board reads it: the newest run's word on each month (ADR 0091).
+  const values = (await boardMetricValues(
+    pool,
+    wrapper,
+    scope,
+  )) as unknown as MetricValue[];
   const [hidden, company] = await Promise.all([
     hiddenPeriods(pool, scope),
     pool.query<{ fy_start_month: number }>(
@@ -434,6 +422,7 @@ interface MessageRow {
   state: string;
   content: Buffer;
   reservation_id: string | null;
+  tier: string;
   price_credits: string;
   created_at: Date;
 }
@@ -445,7 +434,7 @@ async function loadMessage(
 ): Promise<MessageRow> {
   const r = await pool.query<MessageRow>(
     `select m.id, m.thread_id, m.account_id, t.company_id, m.message_type, m.state, m.content, m.reservation_id,
-            m.price_credits::text as price_credits, m.created_at
+            m.tier, m.price_credits::text as price_credits, m.created_at
      from public.chat_messages m join public.chat_threads t on t.id = m.thread_id
      where m.id = $1 and m.account_id = $2 and m.role = 'user'`,
     [messageId, accountId],
@@ -631,14 +620,29 @@ async function finish(
   // customer kept an answer nobody was charged for while their own message stayed pending. The
   // charge is the thing that may fail, so it goes first and its failure stops the reply existing.
   //
-  // The price is charged for an answer or a decline alike (SPEC §27).
+  // The price is charged for an answer or a decline alike (SPEC §27) — at the tier that answered:
+  // a message whose model fell back to a lower tier's is charged that tier's price (ADR 0091).
+  let amount = BigInt(msg.price_credits);
+  const sold = msg.tier as PricedTier;
+  const fellTo = ["efficient", "professional", "expert"].includes(sold)
+    ? await deliveredTierOf(env.pool, { chatMessageId: msg.id }, sold)
+    : null;
+  if (fellTo !== null) {
+    const lower = await priceFor(env.pool, {
+      actionKey: ACTION[msg.message_type],
+      tier: fellTo,
+      delivery: "instant",
+      at: msg.created_at,
+    });
+    if (lower.credits < amount) amount = lower.credits;
+  }
   const captured =
     msg.reservation_id === null
       ? 0n
       : (
           await captureReservation(env.pool, {
             reservationId: msg.reservation_id,
-            amount: BigInt(msg.price_credits),
+            amount,
             idempotencyKey: `chat:${msg.id}:capture`,
             now: env.now,
           })
@@ -1201,7 +1205,11 @@ export async function submitStepResult(
     );
   }
   const scope = { accountId: msg.account_id, companyId: msg.company_id };
-  await pool.query(
+  // Compare-and-swap, as `processMessage` claims a message (ADR 0057, ADR 0091): two overlapping
+  // submissions of one step both passed the reads above, and both went on to run the model — two
+  // replies, and two lots of vendor spend, for one charge. Only the one that moves the step and
+  // the message on carries on.
+  const stored = await pool.query(
     `update public.chat_query_steps set result = $2, status = $3, row_count = $4, result_digest = $5 where id = $1 and status = 'pending'`,
     [
       input.stepId,
@@ -1211,9 +1219,17 @@ export async function submitStepResult(
       createHash("sha256").update(json).digest("hex"),
     ],
   );
-  await pool.query(`update public.chat_messages set state = 'running' where id = $1`, [
-    msg.id,
-  ]);
+  if (stored.rowCount === 0)
+    throw new ChatError("invalid_state", "This query is not waiting for a result.");
+  const moved = await pool.query(
+    `update public.chat_messages set state = 'running' where id = $1 and state = 'needs_query'`,
+    [msg.id],
+  );
+  if (moved.rowCount === 0)
+    throw new ChatError(
+      "invalid_state",
+      "This message is not waiting for a query result.",
+    );
   try {
     const content = await open<{ text: string }>(
       pool,

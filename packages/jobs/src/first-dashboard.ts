@@ -5,7 +5,7 @@ import {
   type AiTransport,
   type DashboardLayoutInput,
 } from "@magicmis/ai";
-import { latestMetricStores } from "@magicmis/engine/server";
+import { boardMetricValues } from "@magicmis/engine/server";
 import type { KeyWrapper } from "@magicmis/crypto";
 import {
   dashboardMetrics,
@@ -102,22 +102,14 @@ export async function firstDashboardSpec(
 ): Promise<DashboardSpec> {
   if (input.transport === null) return DEFAULT_DASHBOARD;
   try {
-    const periods = await pool.query<{ period: string }>(
-      `select distinct period from public.snapshots where company_id = $1 and account_id = $2
-        order by period desc limit 24`,
-      [input.companyId, input.accountId],
-    );
-    if (periods.rows.length === 0) return DEFAULT_DASHBOARD;
-
-    const stores = await latestMetricStores(pool, wrapper, {
+    const values = await boardMetricValues(pool, wrapper, {
       accountId: input.accountId,
       companyId: input.companyId,
-      periods: periods.rows.map((p) => p.period),
     });
-    const layout = layoutInputFor(
-      [...stores.values()].flatMap((s) => s.values),
-      periods.rows.length,
-    );
+    if (values.length === 0) return DEFAULT_DASHBOARD;
+    // The months the figures cover, not the snapshots stored: a first setup over thirteen months
+    // stores one snapshot, and the layout was told the company had one month (ADR 0091).
+    const layout = layoutInputFor(values, new Set(values.map((v) => v.period)).size);
     if (layout.present.length === 0) return DEFAULT_DASHBOARD;
     const ctx = await jobAiContext(pool, input.transport, input.jobId);
     const result = await proposeDashboardLayout(ctx, layout);

@@ -20,6 +20,14 @@ export const rateLimitsSchema = z.object({
    * unwraps the company's key and writes a row, so a link opened in a loop is stopped here.
    */
   share_per_link: z.number().int().positive().default(60),
+  /**
+   * Admin sign-in attempts from one address in ten minutes (ADR 0091). Counted before the
+   * password is hashed: each attempt is a scrypt at 128 MiB, so an address cycling through
+   * invented emails — each under its own lockout — could otherwise exhaust the console's memory.
+   */
+  admin_login_per_ip: z.number().int().positive().default(20),
+  /** Opening a shared board, per address per minute, across every link (ADR 0091). */
+  share_per_ip: z.number().int().positive().default(60),
   api_per_ip: z.number().int().positive(),
 });
 export type RateLimitName = keyof z.infer<typeof rateLimitsSchema>;

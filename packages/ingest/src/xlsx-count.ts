@@ -20,7 +20,7 @@ const LFH = 0x04034b50;
 const WORKSHEET = /^xl\/worksheets\/sheet[^/]*\.xml$/u;
 
 interface ZlibLike {
-  inflateRawSync(data: Uint8Array): Uint8Array;
+  inflateRawSync(data: Uint8Array, options?: { maxOutputLength?: number }): Uint8Array;
 }
 
 const zlib = (): ZlibLike | null => {
@@ -84,6 +84,7 @@ export function countXlsx(bytes: Uint8Array): { sheets: number; rows: number } |
     if (pos + 46 > bytes.length || view.getUint32(pos, true) !== CDH) return null;
     const method = view.getUint16(pos + 10, true);
     const compressed = view.getUint32(pos + 20, true);
+    const declared = view.getUint32(pos + 24, true);
     const nameLen = view.getUint16(pos + 28, true);
     const extraLen = view.getUint16(pos + 30, true);
     const commentLen = view.getUint16(pos + 32, true);
@@ -99,7 +100,8 @@ export function countXlsx(bytes: Uint8Array): { sheets: number; rows: number } |
     let part: Uint8Array;
     if (method === 8) {
       try {
-        part = z.inflateRawSync(data);
+        // Never past what the part declared (ADR 0091): the zip guard has bounded that.
+        part = z.inflateRawSync(data, { maxOutputLength: declared + 1 });
       } catch {
         return null;
       }

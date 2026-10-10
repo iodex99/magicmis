@@ -18,7 +18,7 @@
 
 import { appendAudit } from "@magicmis/db/audit";
 import { readConfig } from "@magicmis/db/config";
-import { withTransaction } from "@magicmis/db/tx";
+import { withTransaction, type Queryable } from "@magicmis/db/tx";
 import type { KeyWrapper } from "@magicmis/crypto";
 import {
   BlueprintConflict,
@@ -345,6 +345,57 @@ export async function completeJob(
   return { captured, snapshotVersion, blueprintVersion, outputId };
 }
 
+/**
+ * The tier a job was actually delivered at (ADR 0091): the lowest tier any of its stages answered
+ * on, read from what was recorded of every call. A call that fell down the route's chain answered
+ * on another model; the tier it delivered is the highest one, no higher than the tier sold, whose
+ * route for that stage uses that model — and the lowest tier when none does, since what the
+ * customer received was then no tier they bought. Null when nothing fell back.
+ *
+ * Nothing wrote the `delivered_tier` this was meant to read, so an Expert run whose model was
+ * unavailable was answered by the Professional model and charged at Expert's price.
+ */
+export async function deliveredTierOf(
+  db: Queryable,
+  /** A job's id, or a chat message's, whose calls are judged. */
+  owner: string | { chatMessageId: string },
+  sold: PricedTier,
+): Promise<PricedTier | null> {
+  const fell = await db.query<{ stage: string; model_used: string }>(
+    `select distinct stage, model_used from public.ai_calls
+      where ${typeof owner === "string" ? "job_id" : "chat_message_id"} = $1
+        and status = 'ok' and fallback_from is not null
+        and model_used <> model_requested`,
+    [typeof owner === "string" ? owner : owner.chatMessageId],
+  );
+  if (fell.rows.length === 0) return null;
+  const routes = await db.query<{ tier: string; stage: string; model_id: string }>(
+    `select distinct on (tier, stage) tier, stage, model_id
+       from public.tier_routing where stage = any($1::text[])
+      order by tier, stage, version desc`,
+    [fell.rows.map((r) => r.stage)],
+  );
+  const ceiling = TIER_ORDER.indexOf(sold);
+  let lowest = ceiling;
+  for (const call of fell.rows) {
+    let delivered = 0;
+    for (let t = ceiling; t >= 0; t -= 1)
+      if (
+        routes.rows.some(
+          (r) =>
+            r.tier === TIER_ORDER[t] &&
+            r.stage === call.stage &&
+            r.model_id === call.model_used,
+        )
+      ) {
+        delivered = t;
+        break;
+      }
+    lowest = Math.min(lowest, delivered);
+  }
+  return lowest < ceiling ? (TIER_ORDER[lowest] ?? null) : null;
+}
+
 /** Captures the job's price, or the delivered (lower) tier's price after a model fallback (SPEC §14). */
 export async function captureDelivered(
   pool: Pool,
@@ -352,7 +403,10 @@ export async function captureDelivered(
   now: Date,
 ): Promise<bigint> {
   const base = await jobChargeBase(pool, job.id);
-  const delivered = job.stage_checkpoints["delivered_tier"] as PricedTier | undefined;
+  const delivered =
+    (job.stage_checkpoints["delivered_tier"] as PricedTier | undefined) ??
+    (await deliveredTierOf(pool, job.id, pricedTier(job.tier))) ??
+    undefined;
   let amount = base;
   if (
     delivered !== undefined &&

@@ -8,7 +8,7 @@ import type { MetricValue } from "@magicmis/engine";
 import { visibleValues } from "@magicmis/engine";
 import { evaluateCalculated } from "@magicmis/engine/calculated";
 import { labelsFor } from "@magicmis/render-dashboard";
-import { latestMetricStores } from "@magicmis/engine/server";
+import { boardMetricValues } from "@magicmis/engine/server";
 import {
   boardActionsForJob,
   commentaryForJob,
@@ -68,26 +68,12 @@ export async function companyMetrics(
   );
   const company = c.rows[0];
   if (company === undefined) return null;
-  const periods = await pool.query<{ period: string }>(
-    `select distinct period from public.snapshots where company_id = $1 order by period desc limit $2`,
-    [companyId, MAX_PERIODS],
-  );
-  // One query, one key unwrap, and the ledger balances left alone (ADR 0054).
-  const stores = await latestMetricStores(pool, keyWrapper(), {
+  // The newest run's word on each month wins, a back-dated correction included (ADR 0091).
+  const values = (await boardMetricValues(pool, keyWrapper(), {
     accountId,
     companyId,
-    periods: periods.rows.map((p) => p.period),
-  });
-  const seen = new Set<string>();
-  const values: MetricValue[] = [];
-  for (const { period } of periods.rows) {
-    for (const v of (stores.get(period)?.values ?? []) as unknown as MetricValue[]) {
-      const key = `${v.metricId}@${v.period}|${JSON.stringify(v.dims)}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      values.push(v);
-    }
-  }
+    limit: MAX_PERIODS,
+  })) as unknown as MetricValue[];
   return {
     company: {
       id: company.id,

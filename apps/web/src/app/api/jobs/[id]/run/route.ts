@@ -1,4 +1,4 @@
-import { cancelJob } from "@magicmis/jobs";
+import { cancelJob, claimRun, releaseRun } from "@magicmis/jobs";
 
 import { z } from "zod";
 
@@ -75,6 +75,20 @@ export async function POST(
         "invalid_transition",
         "This job has already started. Reload the page to see its progress.",
       );
+    // One run per job at a time (ADR 0091): a second press while this one works is refused.
+    const scope = { accountId: account.accountId, jobId: id };
+    if (
+      !(await claimRun(pool, {
+        ...scope,
+        state: row.state,
+        leaseSeconds: maxDuration + 60,
+      }))
+    )
+      return apiError(
+        409,
+        "invalid_transition",
+        "This job is already running. Its progress shows on the page — there is no need to press it again.",
+      );
     // "Keep the company's year" is this job's answer only: the next run asks again.
     if (waiting && body.data.keepYear === true)
       await pool.query(
@@ -91,6 +105,8 @@ export async function POST(
       return ok(outcome);
     } catch (error) {
       return jobErrorResponse(error);
+    } finally {
+      await releaseRun(pool, scope).catch(() => undefined);
     }
   });
 }
