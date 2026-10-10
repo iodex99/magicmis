@@ -46,6 +46,9 @@ export function BrandSettings({
             disabled={busy}
             onChange={(e) => {
               const next = e.target.checked;
+              // The box moves when it is clicked and goes back if the save fails: waiting for
+              // the server left a click that seemed to do nothing.
+              setOn(next);
               setBusy(true);
               setError(null);
               void api<{ on: boolean }>("/api/account/brand", {
@@ -54,6 +57,7 @@ export function BrandSettings({
               }).then((r) => {
                 setBusy(false);
                 if (!r.ok) {
+                  setOn(!next);
                   setError(r.message);
                   return;
                 }
