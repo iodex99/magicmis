@@ -121,3 +121,13 @@ export async function loadRoute(
  */
 export const modelSupportsEffort = (modelId: string): boolean =>
   !modelId.startsWith("claude-haiku-4-5");
+
+/**
+ * Opus 5.5 refuses a forced tool call — `tool_choice` `any` or `tool` — with a 400, and thinks
+ * on every request; the documented replacement is `auto`, with the prompt saying which tool to
+ * call (verified 2026-10-10, ADR 0088:
+ * https://platform.claude.com/docs/en/models/opus-5-5/migration-guide). Every other model a
+ * route names still accepts a forced call.
+ */
+export const modelAcceptsForcedTool = (modelId: string): boolean =>
+  modelId !== "claude-opus-5-5";

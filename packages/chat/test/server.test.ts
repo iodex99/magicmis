@@ -937,3 +937,55 @@ describe("sweep", () => {
     expect(await wallet(pool(), c.accountId)).toEqual({ balance: 5_000n, held: 0n });
   });
 });
+
+describe("Deep on a model that refuses a forced call (ADR 0088)", () => {
+  it("lets Opus 5.5 choose its tool, and repairs with the rejected reply sent back whole", async () => {
+    const c = await company();
+    const sent = await sendMessage(pool(), wrapper, {
+      ...c,
+      threadId: null,
+      type: "deep",
+      tier: "expert",
+      text: "Which head has the largest closing balance?",
+      idempotencyKey: randomUUID(),
+    });
+    // Opus 5.5 thinks on every request; this reply thinks, talks, and calls no tool.
+    const thinking = { type: "thinking", thinking: "", signature: "sig-opaque" };
+    const talked = {
+      ...message("", { model: "claude-opus-5-5", stop_reason: "end_turn" }),
+      content: [thinking, { type: "text", text: "Let me look at the books." }],
+    } as unknown as ScriptedMessage;
+    const t = new ScriptedTransport([
+      { kind: "message", message: talked },
+      {
+        kind: "message",
+        message: toolMessage(
+          "answer",
+          {
+            scope: "in_scope",
+            paragraphs: [{ text: "The facts given do not single out one head." }],
+          },
+          "claude-opus-5-5",
+        ),
+      },
+    ]);
+    const done = await processMessage(pool(), wrapper, t, {
+      accountId: c.accountId,
+      messageId: sent.messageId,
+    });
+    expect(done.status).toBe("completed");
+    // Never a forced call: a forced one is refused with a 400 by this model.
+    expect(t.created.map((p) => p.tool_choice)).toEqual([
+      { type: "auto", disable_parallel_tool_use: true },
+      { type: "auto", disable_parallel_tool_use: true },
+    ]);
+    expect(t.created[0]?.model).toBe("claude-opus-5-5");
+    // The repair carries the reply as it came, thinking first and untouched: a turn whose
+    // thinking was partly dropped is refused.
+    const repaired = t.created[1]?.messages.at(-2);
+    expect(repaired).toEqual({
+      role: "assistant",
+      content: [thinking, { type: "text", text: "Let me look at the books." }],
+    });
+  });
+});

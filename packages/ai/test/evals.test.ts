@@ -85,7 +85,8 @@ describe("harness", () => {
   it.each([
     ["efficient", "0.9840"],
     ["professional", "0.9920"],
-    ["expert", "0.9920"],
+    // Recorded on Opus 5.5, the model the Expert route now names (ADR 0088).
+    ["expert", "1.0000"],
   ] as const)(
     "ledger_mapping %s: the committed live recording still scores what it was activated on (ADR 0069, ADR 0087)",
     async (tier, accuracy) => {

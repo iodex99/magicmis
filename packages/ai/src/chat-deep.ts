@@ -3,7 +3,9 @@
  *
  * The model has two strict tools: `run_query(sql, purpose)` and `answer(scope, paragraphs)`. Each
  * round the tool choice forces exactly one tool call; when the round cap (config, enforced here
- * from the server's own step count) is reached, it forces `answer`. A query is returned to the
+ * from the server's own step count) is reached, it forces `answer`. A model that refuses a forced
+ * call — Opus 5.5 — is given `auto` and told in words instead, and a response with the wrong tool
+ * or none is repaired like any other (ADR 0088). A query is returned to the
  * caller, which guards it, has the browser run it, and calls again with the result as a stored
  * step. The conversation is rebuilt from those steps each round, so nothing but steps is kept.
  * Answers pass the placeholder check (facts and query cells) with one repair.
@@ -36,7 +38,12 @@ import {
   RuntimeCapExceeded,
   type AiContext,
 } from "./orchestrator";
-import { loadModel, loadRoute, modelSupportsEffort } from "./registry";
+import {
+  loadModel,
+  loadRoute,
+  modelAcceptsForcedTool,
+  modelSupportsEffort,
+} from "./registry";
 import { structuredOutputSchema } from "./schema";
 import { errorType, isFallbackError } from "./transport";
 
@@ -330,9 +337,14 @@ export async function chatDeepRound(
     };
 
     for (let attempt = 1; attempt <= 2; attempt += 1) {
-      const toolChoice: Anthropic.ToolChoice = forceAnswer
-        ? { type: "tool", name: "answer", disable_parallel_tool_use: true }
-        : { type: "any", disable_parallel_tool_use: true };
+      // A model that refuses a forced call (ADR 0088) is left to choose, and told which tool in
+      // words: the prompt asks for exactly one call a round, the cap and the repair say "answer
+      // now", and anything else is caught below as a response with the wrong tool or none.
+      const toolChoice: Anthropic.ToolChoice = !modelAcceptsForcedTool(modelId)
+        ? { type: "auto", disable_parallel_tool_use: true }
+        : forceAnswer
+          ? { type: "tool", name: "answer", disable_parallel_tool_use: true }
+          : { type: "any", disable_parallel_tool_use: true };
       const counted = await ctx.transport.countTokens({
         model: modelId,
         system,
@@ -447,14 +459,20 @@ export async function chatDeepRound(
           "invalid_output",
           "chat_deep output failed validation after one repair",
         );
-      // One repair: the rejected call with its problems, and the answer tool forced.
+      // One repair: the rejected call with its problems, and the answer tool forced. The reply
+      // goes back whole, thinking included and unchanged: a model that thinks on every request
+      // refuses a turn whose thinking was partly dropped (ADR 0088).
       const blocks: Anthropic.ContentBlockParam[] = message.content.flatMap(
         (b): Anthropic.ContentBlockParam[] =>
           b.type === "tool_use"
             ? [{ type: "tool_use", id: b.id, name: b.name, input: b.input }]
             : b.type === "text"
               ? [{ type: "text", text: b.text }]
-              : [],
+              : b.type === "thinking"
+                ? [{ type: "thinking", thinking: b.thinking, signature: b.signature }]
+                : b.type === "redacted_thinking"
+                  ? [{ type: "redacted_thinking", data: b.data }]
+                  : [],
       );
       messages = [
         ...messages,
