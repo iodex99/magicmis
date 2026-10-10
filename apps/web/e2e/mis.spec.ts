@@ -1027,6 +1027,12 @@ test("a board shared by a link opens for someone with no account, is counted, an
     [email],
   );
   expect(told.rows[0]?.n).toBe(1);
+  // The confirmation lasts a few minutes; the tests after this one expect to be asked again.
+  await db.query(
+    `update reauth_grants set expires_at = now()
+      where account_id = (select id from accounts where email = $1)`,
+    [email],
+  );
   // What is kept is the link's SHA-256, never the link: the row is found by hashing it.
   const secret = url.split("/s/")[1] ?? "";
   const stored = await db.query<{ n: number }>(
