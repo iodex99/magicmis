@@ -1018,6 +1018,9 @@ test("presenter notes follow the board on the presenter's own screen, and write 
     "Review the largest movement with the accountant",
   );
   await expect(notes.getByTestId("commentary")).toContainText("The month is led by");
+  // Opening the notes takes full screen away from the room's board, as a browser does for any
+  // new window; Present stays up, on the window, rather than closing under the presenter.
+  await expect(page.getByTestId("present-exit")).toBeVisible();
   // The board steps back a month and the notes go with it; nothing was written for that one.
   await page.getByRole("button", { name: "Earlier month" }).click();
   await expect(notes.getByTestId("notes-no-actions")).toBeVisible();

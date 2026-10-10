@@ -700,6 +700,10 @@ export function DashboardClient({
   // A tick answers at once; the board follows when the server has. Cleared by the reload.
   const [ticks, setTicks] = useState<Record<string, boolean>>({});
   const [presenting, setPresenting] = useState(false);
+  // Whether the stage has the whole screen, or only the window (refused, or given up below).
+  const [wholeScreen, setWholeScreen] = useState(false);
+  // When the presenter's notes were last opened (ADR 0087): see the full-screen handler.
+  const notesOpenedAt = useRef(0);
   const stage = useRef<HTMLDivElement>(null);
   const drawerOpen = useRef(false);
   drawerOpen.current = selected !== null;
@@ -708,10 +712,16 @@ export function DashboardClient({
     setPresenting(true);
     const el = stage.current;
     if (el !== null && typeof el.requestFullscreen === "function")
-      void el.requestFullscreen().catch(() => undefined);
+      void el.requestFullscreen().then(
+        () => {
+          setWholeScreen(true);
+        },
+        () => undefined,
+      );
   }, []);
   const stopPresenting = useCallback(() => {
     setPresenting(false);
+    setWholeScreen(false);
     if (document.fullscreenElement !== null)
       void document.exitFullscreen().catch(() => undefined);
   }, []);
@@ -730,9 +740,14 @@ export function DashboardClient({
   );
   useEffect(() => {
     if (!presenting) return;
-    // Leaving full screen by the browser's own means (Esc, F11) leaves Present too.
+    // Leaving full screen by the browser's own means (Esc, F11) leaves Present too — but not when
+    // the presenter has just opened their notes: a browser gives up full screen for any new
+    // window, and that is the presenter preparing to speak, not stopping. The board stays on the
+    // window, and Full screen takes the whole screen back.
     const onScreen = () => {
-      if (document.fullscreenElement === null) setPresenting(false);
+      const whole = document.fullscreenElement !== null;
+      setWholeScreen(whole);
+      if (!whole && Date.now() - notesOpenedAt.current > 3000) setPresenting(false);
     };
     const onKey = (event: KeyboardEvent) => {
       // Esc closes an open lineage drawer first; only with nothing open does it end Present.
@@ -769,6 +784,7 @@ export function DashboardClient({
     };
   }, [presenting, live, companyId, shownMonth]);
   const openNotes = useCallback(() => {
+    notesOpenedAt.current = Date.now();
     window.open(
       `/app/companies/${companyId}/notes${shownMonth === null ? "" : `?period=${shownMonth}`}`,
       `notes-${companyId}`,
@@ -1347,6 +1363,22 @@ export function DashboardClient({
                   Notes
                 </Button>
               ) : null}
+              {wholeScreen ? null : (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon="play"
+                  title="Give the board the whole screen again"
+                  onClick={() => {
+                    const el = stage.current;
+                    if (el !== null && typeof el.requestFullscreen === "function")
+                      void el.requestFullscreen().catch(() => undefined);
+                  }}
+                  data-testid="present-full-screen"
+                >
+                  Full screen
+                </Button>
+              )}
               <Button
                 variant="secondary"
                 size="sm"
