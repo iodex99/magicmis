@@ -239,6 +239,12 @@ export async function idempotent(
 
   try {
     const result = await run();
+    // A Response has a status and a body too, so the type let one through; stored, it became
+    // `{}` and every retry replayed it (ADR 0091). Refused here, loudly, rather than stored.
+    if (result instanceof Response)
+      throw new TypeError(
+        `idempotent(${scope}): return { status, body }, not a Response`,
+      );
     await completeIdempotent(pool, scope, key, result);
     return ok(result.body, result.status);
   } catch (error) {

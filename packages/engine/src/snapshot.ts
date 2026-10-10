@@ -6,7 +6,7 @@
 
 import { z } from "zod";
 
-import { metricStoreSchema } from "./store";
+import { metricStoreSchema } from "./value-schema";
 
 const paise = z.string().regex(/^-?\d{1,20}$/u);
 

@@ -11,7 +11,7 @@ import {
   type CommentaryOutput,
   type FactsPack,
   type MetricValue,
-} from "@magicmis/engine";
+} from "@magicmis/engine/client";
 
 import { metricKey } from "./views";
 

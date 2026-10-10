@@ -9,6 +9,7 @@
  */
 
 import { addMonths, financialYearOf } from "@magicmis/core/time";
+import { isPaiseColumn } from "@magicmis/engine";
 import { guardSql, loadGuard, SESSION_TABLES } from "@magicmis/sql-guard";
 import type { DuckConn } from "@magicmis/ingest";
 import type { Mapping } from "@magicmis/semantic";
@@ -160,6 +161,8 @@ export function textDigitRuns(tables: ChatTables): Set<string> {
 }
 
 const NUMBER = /^-?\d+(\.\d+)?$/u;
+/** What a number taken out of a name becomes in a Deep result (ADR 0091). */
+export const WITHHELD = "[withheld]";
 
 /** Guards, runs, redacts and caps one Deep query. */
 export async function runChatQuery(
@@ -218,11 +221,22 @@ export async function runChatQuery(
     for (const c of columns) {
       const raw = r[c];
       const text = cellText(raw);
-      const figure =
+      // A number whose digits sit inside a digit run of the session's text was cast out of a ledger
+      // or party name, whole or in part, and is withheld (ADR 0091): no detector recognises the
+      // first four digits of a phone number as one, so redacting it would let them through. Any
+      // other number is a figure only in a money column; elsewhere the detectors still read it.
+      const numeric = typeof raw !== "string" && NUMBER.test(text);
+      const digits = text.replace(/^-/u, "").split(".")[0] ?? "";
+      if (
+        numeric &&
         options.textDigits !== undefined &&
-        typeof raw !== "string" &&
-        NUMBER.test(text) &&
-        !options.textDigits.has(text.replace(/^-/u, "").split(".")[0] ?? "");
+        digits.length >= 4 &&
+        [...options.textDigits].some((run) => run.includes(digits))
+      ) {
+        cells.push(WITHHELD);
+        continue;
+      }
+      const figure = options.textDigits !== undefined && numeric && isPaiseColumn(c);
       cells.push((figure ? text : await options.redactText(text)).slice(0, 400));
     }
     out.push(cells);

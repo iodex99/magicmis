@@ -1,6 +1,10 @@
+import { randomBytes } from "node:crypto";
+
 import {
   claimAttempt,
   claimSession,
+  forgetSignupPassword,
+  neverSignedInAccount,
   sessionClaimsSchema,
   signupRequestSchema,
   throttleLimitFor,
@@ -14,7 +18,7 @@ import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
 import { openingSoon, prelaunch } from "@/lib/server/prelaunch";
 import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { setAccountPassword } from "@/lib/server/password";
-import { supabaseForRequest } from "@/lib/supabase/server";
+import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
 
 /**
  * POST /api/auth/reset — spend an emailed reset token on a new password (SPEC §8, ADR 0043).
@@ -73,6 +77,23 @@ export async function POST(request: Request): Promise<Response> {
   if (!claims.success || account === null) {
     await supabase.auth.signOut();
     return apiError(410, "link_expired", EXPIRED);
+  }
+
+  /*
+   * An account nobody has ever signed in to is finished by whoever proves the mailbox, not
+   * entered (ADR 0071, ADR 0091). The password form writes the account before the address is
+   * proven, so a stranger can register someone else's address under their own business name and
+   * consent; resetting its password used to sign the owner straight into that. As when the
+   * confirmation is opened in another browser, the password is destroyed, nothing is claimed,
+   * and the owner finishes the account with their own name, password and consent.
+   */
+  const unclaimed = await neverSignedInAccount(pool, claims.data.sub);
+  if (unclaimed !== null) {
+    await supabaseAdmin().auth.admin.updateUserById(claims.data.sub, {
+      password: randomBytes(48).toString("base64url"),
+    });
+    await forgetSignupPassword(pool, { accountId: unclaimed, ip });
+    return ok({ next: "finish" as const });
   }
 
   const result = await setAccountPassword({

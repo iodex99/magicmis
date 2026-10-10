@@ -1015,8 +1015,18 @@ test("a board shared by a link opens for someone with no account, is counted, an
   await page.getByTestId("share").click();
   await page.getByLabel("The link works for").selectOption("7");
   await page.getByTestId("share-create").click();
+  // Made only with the password confirmed just now, as an export is (ADR 0091).
+  await page.getByLabel("Current password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Confirm" }).click();
   const url = await page.getByTestId("share-url").inputValue();
   expect(url).toMatch(/\/s\/[A-Za-z0-9_-]{43}$/u);
+  // And its owner is told, by email and in the inbox.
+  const told = await db.query<{ n: number }>(
+    `select count(*)::int as n from notifications n join accounts a on a.id = n.account_id
+      where a.email = $1 and n.type = 'security.share_created'`,
+    [email],
+  );
+  expect(told.rows[0]?.n).toBe(1);
   // What is kept is the link's SHA-256, never the link: the row is found by hashing it.
   const secret = url.split("/s/")[1] ?? "";
   const stored = await db.query<{ n: number }>(

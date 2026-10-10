@@ -211,6 +211,15 @@ describe("templates", () => {
         { company_id: randomUUID(), company_name: "<b>Acme</b>", count: 2 },
       ],
       ["security.email_changed", {}],
+      [
+        "security.share_created",
+        {
+          company_id: randomUUID(),
+          company_name: "Synthetic <Co>",
+          month: "May 2026",
+          expires_at: "2027-01-02T00:00:00Z",
+        },
+      ],
       ["invoice_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
       ["proforma_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
       ["job.awaiting_review", { job_id: randomUUID(), company_id: randomUUID() }],

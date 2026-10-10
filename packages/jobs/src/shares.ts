@@ -17,14 +17,30 @@ import { openForCompany, sealForCompany } from "@magicmis/engine/server";
 import type { Pool } from "pg";
 import { z } from "zod";
 
+import { queueNotification } from "./notify";
+
 const PURPOSE = "share_snapshot";
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/u;
 /** 32 bytes, base64url without padding. */
 const TOKEN = /^[A-Za-z0-9_-]{43}$/u;
 
 export class ShareError extends Error {
   constructor(
-    readonly code: "not_found" | "bad_period" | "bad_days",
+    readonly code: "not_found" | "bad_period" | "bad_days" | "too_many",
     message: string,
   ) {
     super(message);
@@ -71,16 +87,32 @@ export async function createShare(
       "bad_days",
       `A link can last from one day to ${maxDays.toString()} days.`,
     );
-  const owned = await pool.query(
-    `select 1 from public.companies
+  const owned = await pool.query<{ name: string }>(
+    `select name from public.companies
       where id = $1 and account_id = $2 and deleted_at is null and purged_at is null`,
     [scope.companyId, scope.accountId],
   );
-  if (owned.rowCount === 0) throw new ShareError("not_found", "Company not found.");
+  const company = owned.rows[0];
+  if (company === undefined) throw new ShareError("not_found", "Company not found.");
+  // Each link is a sealed copy of the whole board, made at no charge: a company has only so many
+  // live at once (ADR 0091).
+  const now = input.now ?? new Date();
+  const [cap, live] = await Promise.all([
+    readConfig(pool, "share.max_active_links", z.number().int().positive()),
+    pool.query<{ n: number }>(
+      `select count(*)::int as n from public.share_links
+        where company_id = $1 and account_id = $2 and revoked_at is null and expires_at > $3`,
+      [scope.companyId, scope.accountId, now],
+    ),
+  ]);
+  if ((live.rows[0]?.n ?? 0) >= cap)
+    throw new ShareError(
+      "too_many",
+      `This company already has ${cap.toString()} links that still work. Withdraw one on Files and settings to make another.`,
+    );
 
   const id = randomUUID();
   const token = randomBytes(32).toString("base64url");
-  const now = input.now ?? new Date();
   const expiresAt = new Date(now.getTime() + input.days * 86_400_000);
   const sealed = await sealForCompany(pool, wrapper, {
     ...scope,
@@ -105,6 +137,20 @@ export async function createShare(
       expiresAt,
     ],
   );
+  // The owner is told of every link (ADR 0091), by email and in the inbox: a link made at an
+  // unattended desk outlives the session that made it.
+  const [year, month] = input.period.split("-");
+  await queueNotification(pool, {
+    accountId: scope.accountId,
+    type: "security.share_created",
+    payload: {
+      company_id: scope.companyId,
+      company_name: company.name,
+      month: `${MONTHS[Number.parseInt(month ?? "", 10) - 1] ?? ""} ${year ?? ""}`,
+      expires_at: expiresAt.toISOString(),
+    },
+    dedupeKey: `share:${id}`,
+  });
   return { id, token, expiresAt };
 }
 
@@ -169,6 +215,28 @@ export async function revokeShare(
   if (r.rowCount === 0) throw new ShareError("not_found", "Link not found.");
 }
 
+/**
+ * Worker: deletes links that expired or were withdrawn more than `share.retention_days` ago, and
+ * with them their sealed boards and their openings (ADR 0091). Until then the owner still sees
+ * that a link existed and how often it was opened.
+ */
+export async function purgeOldShares(
+  pool: Pool,
+  now: Date = new Date(),
+): Promise<number> {
+  const days = await readConfig(
+    pool,
+    "share.retention_days",
+    z.number().int().positive(),
+  );
+  const r = await pool.query(
+    `delete from public.share_links
+      where coalesce(revoked_at, expires_at) < $1 and (revoked_at is not null or expires_at < $2)`,
+    [new Date(now.getTime() - days * 86_400_000), now],
+  );
+  return r.rowCount ?? 0;
+}
+
 export interface OpenedShare {
   readonly id: string;
   readonly companyName: string;
@@ -181,7 +249,7 @@ export interface OpenedShare {
 
 /**
  * Opens a link for whoever holds it, or null — for a secret that is malformed, unknown, expired
- * or withdrawn, or a company deleted since — with no hint which. The opening is recorded before
+ * or withdrawn, or a company deleted or an account suspended since — with no hint which. The opening is recorded before
  * the board is decrypted.
  */
 export async function openShare(
@@ -206,8 +274,11 @@ export async function openShare(
             s.sealed_board, s.created_at, s.expires_at
        from public.share_links s
        join public.companies c on c.id = s.company_id and c.account_id = s.account_id
+       join public.accounts a on a.id = s.account_id
       where s.token_hash = $1 and s.revoked_at is null and s.expires_at > $2
-        and c.deleted_at is null and c.purged_at is null`,
+        and c.deleted_at is null and c.purged_at is null
+        -- A suspended or closed account's links stop with its sessions (ADR 0091).
+        and a.status = 'active'`,
     [hashOf(token), now],
   );
   const s = r.rows[0];

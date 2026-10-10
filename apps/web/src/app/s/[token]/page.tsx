@@ -5,6 +5,7 @@ import { openShare } from "@magicmis/jobs";
 import { notFound } from "next/navigation";
 
 import { db } from "@/lib/db";
+import { requestMeta } from "@/lib/http";
 import { keyWrapper } from "@/lib/server/runtime";
 import { sharedBoardSchema, type SharedBoard } from "@/lib/server/shares";
 
@@ -30,12 +31,18 @@ export default async function SharedPage({
 }) {
   const { token } = await params;
   if (!/^[A-Za-z0-9_-]{43}$/u.test(token)) notFound();
-  // Each opening unwraps the company's key and writes a row: one link is not opened in a loop.
-  const limit = await consumeRateLimit(
-    db(),
-    "share_per_link",
-    createHash("sha256").update(token).digest("hex"),
-  );
+  // One address first (ADR 0091): every distinct guess would otherwise write a counter row of its
+  // own, so guessing was limited by nothing. Then each link: an opening unwraps the company's key
+  // and writes a row, so one link is not opened in a loop either.
+  const { ip } = await requestMeta();
+  const byAddress = await consumeRateLimit(db(), "share_per_ip", ip ?? "unknown");
+  const limit = byAddress.allowed
+    ? await consumeRateLimit(
+        db(),
+        "share_per_link",
+        createHash("sha256").update(token).digest("hex"),
+      )
+    : byAddress;
   if (!limit.allowed)
     return (
       <main className="flex min-h-screen items-center justify-center px-6 py-12">

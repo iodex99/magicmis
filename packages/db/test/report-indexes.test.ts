@@ -101,6 +101,33 @@ describe("the reports and sweeps read by index, not by scanning", () => {
     });
   }
 
+  it("reads a chat message's cost, a job's workbook and a hold's ledger by index (ADR 0091)", async () => {
+    expect(
+      await plan(
+        `select coalesce(sum(usd_cost_micro), 0) from public.ai_calls
+          where chat_message_id = '00000000-0000-4000-8000-000000000001'::uuid`,
+      ),
+    ).toContain("ai_calls_chat_message_idx");
+    expect(
+      await plan(
+        `select id from public.outputs where job_id = '00000000-0000-4000-8000-000000000001'::uuid
+          order by created_at desc limit 1`,
+      ),
+    ).toContain("outputs_job_idx");
+    expect(
+      await plan(
+        `select count(*), max(created_at) from public.outputs
+          where account_id = '00000000-0000-4000-8000-000000000001'::uuid`,
+      ),
+    ).toContain("outputs_account_idx");
+    expect(
+      await plan(
+        `select id from public.credit_ledger
+          where reservation_id = '00000000-0000-4000-8000-000000000001'::uuid`,
+      ),
+    ).toContain("credit_ledger_reservation_idx");
+  });
+
   it("leaves the tenant reads on their own account-leading indexes", async () => {
     // The other half of the rule: a customer's own reads must still be answered by an index that
     // starts with their account, or one tenant's growth would slow every other tenant's page.

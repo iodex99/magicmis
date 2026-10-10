@@ -349,7 +349,7 @@ export async function runJobOnServer(
     const guidance: {
       periods: Record<string, PeriodId>;
       classified: Record<string, NonNullable<PrepareGuidance["classified"]>[string]>;
-      remembered: PrepareGuidance["remembered"];
+      remembered: NonNullable<PrepareGuidance["remembered"]>;
       bestEffort: boolean;
     } = {
       periods: {},
@@ -651,7 +651,10 @@ export async function runJobOnServer(
           outputId: null,
           fileName: null,
           checks: [],
-          notices,
+          // Nothing found in the files is said until the run is charged (ADR 0091): a question
+          // that can be provoked at will, and then cancelled for nothing, must not hand out
+          // which sheets were set aside, which months were assumed or which ledgers are unmapped.
+          notices: [],
           year,
         };
       }
@@ -899,7 +902,8 @@ export async function runJobOnServer(
         outputId: null,
         fileName: null,
         checks: [],
-        notices,
+        // Held back until the run is paid for, as for the year question (ADR 0091).
+        notices: [],
         quoteCredits: error.credits,
       };
     /*

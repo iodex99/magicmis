@@ -7,7 +7,7 @@
  */
 
 import { PRODUCT_NAME } from "@magicmis/core/brand";
-import { formatIstDate } from "@magicmis/core/time";
+import { formatIstLongDate } from "@magicmis/core/time";
 import { z } from "zod";
 
 export interface RenderedEmail {
@@ -131,6 +131,7 @@ export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
   "security.break_glass_viewed",
   "account.deletion_scheduled",
   "account.export_ready",
+  "security.share_created",
 ]);
 
 /** Notices a closed (deleted, not yet purged) account still receives: its deletion and any access to its data. */
@@ -235,7 +236,7 @@ export function renderNotification(
         email(
           "Your MIS is still waiting on one question",
           [
-            `The reservation for this job expires on ${formatIstDate(new Date(p.expires_at ?? ""))}. If it expires after analysis has run, the cancellation fee applies.`,
+            `The reservation for this job expires on ${formatIstLongDate(new Date(p.expires_at ?? ""))}. If it expires after analysis has run, the cancellation fee applies.`,
           ],
           ctx,
           { label: "Answer it", path: `/app/jobs/${p.job_id}` },
@@ -394,6 +395,28 @@ export function renderNotification(
           { label: "Open the board", path: `/app/companies/${p.company_id}` },
         );
       });
+    case "security.share_created": {
+      // Told every time (ADR 0091): a link shows the board to whoever holds it, so one made from an
+      // unattended desk must not wait to be found on Files and settings.
+      const p = z
+        .object({
+          company_id: z.uuid(),
+          company_name: z.string().max(200),
+          month: z.string().max(40),
+          expires_at: z.string(),
+        })
+        .safeParse(payload);
+      if (!p.success) return null;
+      return email(
+        `A link to ${p.data.company_name}'s board was made`,
+        [
+          `A read-only link to ${p.data.company_name}'s board, as of ${p.data.month}, was made from your account. It works until ${formatIstLongDate(new Date(p.data.expires_at))} for anyone who holds it.`,
+          "If you did not make it, withdraw it on the company's Files and settings, and change your password.",
+        ],
+        ctx,
+        { label: "See the links", path: `/app/companies/${p.data.company_id}/manage` },
+      );
+    }
     case "security.break_glass": {
       // SPEC §26: the account holder is told whenever support opens their data.
       const p = z
@@ -403,7 +426,7 @@ export function renderNotification(
       return email(
         "Support accessed your account data",
         [
-          `Our support team was granted temporary access to your company data until ${formatIstDate(new Date(p.data.expires_at))}.`,
+          `Our support team was granted temporary access to your company data until ${formatIstLongDate(new Date(p.data.expires_at))}.`,
           `Reason given: ${p.data.reason}`,
           "Every view is recorded. If you did not ask for help, contact us immediately.",
         ],
@@ -436,7 +459,7 @@ export function renderNotification(
       return email(
         "Your account is scheduled for deletion",
         [
-          `Your account has been closed. Its company data will be permanently deleted on ${formatIstDate(new Date(p.data.purge_after))}.`,
+          `Your account has been closed. Its company data will be permanently deleted on ${formatIstLongDate(new Date(p.data.purge_after))}.`,
           "Invoices and credit records are kept for the statutory retention period.",
         ],
         ctx,
@@ -451,7 +474,7 @@ export function renderNotification(
       return email(
         "Your data export is ready",
         [
-          `The export you requested is ready to download until ${formatIstDate(new Date(p.data.expires_at))}.`,
+          `The export you requested is ready to download until ${formatIstLongDate(new Date(p.data.expires_at))}.`,
           "You will need to sign in to download it. If you did not request it, change your password and contact support.",
         ],
         ctx,

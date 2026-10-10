@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { apiError, idempotent, parseJson, withAccount } from "@/lib/http";
 import { processingConsentRequired } from "@/lib/server/consent";
-import { uploadErrorResponse } from "@/lib/server/uploads";
+import { uploadErrorBody } from "@/lib/server/uploads";
 
 const bodySchema = z.object({
   fileName: z.string().min(1).max(255),
@@ -46,8 +46,8 @@ export async function POST(
           });
           return { status: 201, body: created };
         } catch (error) {
-          const response = uploadErrorResponse(error);
-          if (response !== null) return response;
+          const refused = uploadErrorBody(error);
+          if (refused !== null) return refused;
           throw error;
         }
       },

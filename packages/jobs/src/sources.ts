@@ -107,7 +107,11 @@ export async function createUpload(
 ): Promise<{ uploadId: string; chunkBytes: number; chunkCount: number }> {
   const limits = await uploadLimits(pool);
   if (input.byteSize > limits.maxFileBytes)
-    throw new UploadError("file_too_large", "This file is larger than the upload limit.");
+    throw new UploadError(
+      "file_too_large",
+      // The limit is said, so the customer knows what to aim for (ADR 0091).
+      `This file is larger than the ${Math.floor(limits.maxFileBytes / 1_048_576).toString()} MB a file may be. Export a shorter period, or split it into months.`,
+    );
   const company = await pool.query(
     `select 1 from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [input.companyId, input.accountId],

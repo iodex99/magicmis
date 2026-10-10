@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Drawer } from "@/components/Drawer";
+import { ReauthForm } from "@/components/ReauthForm";
 import { Alert, Button, SelectField } from "@/components/ui";
 import { api, newIdempotencyKey } from "@/lib/client-api";
 
@@ -43,15 +44,21 @@ export function ShareBoard({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [made, setMade] = useState<{ url: string; expiresAt: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<boolean | null>(false);
+  // A link is made only with the password confirmed just now (ADR 0091).
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setMade(null);
     setError(null);
     setCopied(false);
+    setConfirming(false);
     void api<{ limits: Limits }>(`/api/companies/${companyId}/shares`).then((r) => {
-      if (!r.ok) return;
+      if (!r.ok) {
+        setError(r.message);
+        return;
+      }
       setLimits(r.data.limits);
       setDays((d) => d ?? r.data.limits.defaultDays);
     });
@@ -77,7 +84,8 @@ export function ShareBoard({
     );
     setBusy(false);
     if (!r.ok) {
-      setError(r.message);
+      if (r.error === "reauth_required") setConfirming(true);
+      else setError(r.message);
       return;
     }
     setMade({
@@ -94,13 +102,21 @@ export function ShareBoard({
             Share this board
           </h2>
           <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-600">
-            Anyone with the link sees this board as it stands now, as of {monthLabel}:
-            read only, with every figure&rsquo;s working, and no chat, files or workbooks.
-            It is a copy, so it does not change when the books do. Each opening is counted
-            on Files and settings, where you can withdraw the link at any time.
+            Anyone with the link sees this board as you saved it, as of {monthLabel}: read
+            only, with every figure&rsquo;s working, and no chat, files or workbooks. It
+            is a copy, so it does not change when the books do. Each opening is counted on
+            Files and settings, where you can withdraw the link at any time.
           </p>
         </div>
-        {made === null ? (
+        {confirming ? (
+          <ReauthForm
+            actionLabel="share this board"
+            onGranted={() => {
+              setConfirming(false);
+              void create();
+            }}
+          />
+        ) : made === null ? (
           <>
             <label className="flex items-start gap-3 text-[0.875rem] text-neutral-800">
               <input
@@ -160,18 +176,41 @@ export function ShareBoard({
               <Button
                 variant="secondary"
                 onClick={() => {
-                  void navigator.clipboard.writeText(made.url).then(() => {
-                    setCopied(true);
-                  });
+                  navigator.clipboard.writeText(made.url).then(
+                    () => {
+                      setCopied(true);
+                    },
+                    // A browser that refuses the clipboard: the link is selected to copy by hand.
+                    () => {
+                      setCopied(null);
+                    },
+                  );
                 }}
               >
-                {copied ? "Copied" : "Copy"}
+                {copied === true ? "Copied" : "Copy"}
               </Button>
             </div>
+            {copied === null ? (
+              <p className="text-[0.8125rem] text-neutral-600" role="status">
+                This browser would not copy it. Select the link above and copy it
+                yourself.
+              </p>
+            ) : null}
             <p className="text-[0.8125rem] leading-relaxed text-neutral-600">
               It works until {day(made.expiresAt)}. Copy it now: it is not shown again,
               because only a fingerprint of it is kept. Lost it? Make another.
             </p>
+            <div>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setMade(null);
+                  setCopied(false);
+                }}
+              >
+                Make another link
+              </Button>
+            </div>
             <a
               href={`/app/companies/${companyId}/manage#shares`}
               className="text-[0.8125rem] font-medium text-accent-700 underline underline-offset-2"

@@ -26,6 +26,12 @@ export const rateLimitsSchema = z.object({
    * invented emails — each under its own lockout — could otherwise exhaust the console's memory.
    */
   admin_login_per_ip: z.number().int().positive().default(20),
+  /**
+   * Free requests that decrypt and read a customer's whole files — counting one on arrival, and
+   * looking up the names behind a chat answer's tokens — per account per minute (ADR 0091). Set
+   * well above a batch's burst of arrivals; it is there for a loop.
+   */
+  files_per_account: z.number().int().positive().default(120),
   /** Opening a shared board, per address per minute, across every link (ADR 0091). */
   share_per_ip: z.number().int().positive().default(60),
   api_per_ip: z.number().int().positive(),

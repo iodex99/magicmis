@@ -1,3 +1,4 @@
+import { hasFreshReauth } from "@magicmis/accounts";
 import {
   createShare,
   listShares,
@@ -27,6 +28,7 @@ const STATUS: Record<ShareError["code"], number> = {
   not_found: 404,
   bad_period: 422,
   bad_days: 422,
+  too_many: 409,
 };
 
 const iso = (d: Date | null) => (d === null ? null : d.toISOString());
@@ -81,6 +83,14 @@ export async function POST(request: Request, context: Ctx): Promise<Response> {
     const { id } = await context.params;
     if (!(await owned(account.accountId, id)))
       return apiError(404, "company_not_found", "Company not found.");
+    // A link shows the board to anyone who holds it, so it is made only with the password
+    // confirmed just now (SPEC §8, ADR 0091), as an export is.
+    if (!(await hasFreshReauth(db(), account)))
+      return apiError(
+        403,
+        "reauth_required",
+        "Confirm your password to share this board.",
+      );
     const parsed = await parseJson(request, createSchema);
     if (!parsed.ok) return parsed.response;
     return idempotent(

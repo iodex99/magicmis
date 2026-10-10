@@ -7,8 +7,9 @@
 import {
   ANSWER_PLACEHOLDER,
   checkPlaceholderTexts,
+  isPaiseColumn,
   type MetricValue,
-} from "@magicmis/engine";
+} from "@magicmis/engine/client";
 
 import type { CommentaryFormat } from "./commentary";
 import { metricKey } from "./views";
@@ -41,10 +42,10 @@ export type AnswerRenderResult =
 
 /**
  * Money-looking query cells (integer paise columns) are shown as money; others as text. Exported
- * for the chat_deep eval, which scores an answer by what this shows the customer.
+ * for the chat_deep eval, which scores an answer by what this shows the customer. The rule lives
+ * in the engine, where Deep's redaction reads it too.
  */
-export const isPaiseColumn = (column: string): boolean =>
-  /paise$|^total$|amount|balance|closing|opening|movement/iu.test(column);
+export { isPaiseColumn };
 
 export function renderAnswer(
   paragraphs: readonly { readonly text: string }[],

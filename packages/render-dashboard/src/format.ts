@@ -7,7 +7,7 @@
 import { formatPaise, type NumberFormatOptions } from "@magicmis/core/format";
 import { divideRounded, formatDecimal, paise, parseDecimal } from "@magicmis/core/money";
 import { periodParts, type PeriodId } from "@magicmis/core/time";
-import { METRIC_LABELS, type MetricValue } from "@magicmis/engine";
+import { METRIC_LABELS, type MetricValue } from "@magicmis/engine/client";
 
 import { ANALYSIS_LABELS } from "./analysis-metrics";
 

@@ -10,6 +10,14 @@ import type { PeriodId } from "@magicmis/core/time";
 export type Unit = "paise" | "percent" | "ratio" | "days" | "count";
 export type NullReason = "zero_denominator" | "missing_data" | "no_prior_period";
 
+/**
+ * Money-looking query cells (integer paise columns). One rule for both sides of a Deep answer:
+ * what the customer is shown as money, and the only cells allowed past the identifier detectors
+ * as figures (ADR 0077, ADR 0091).
+ */
+export const isPaiseColumn = (column: string): boolean =>
+  /paise$|^total$|amount|balance|closing|opening|movement/iu.test(column);
+
 /** Scale for non-money values. */
 export const DECIMAL_SCALE = 6;
 const SCALE = 10n ** BigInt(DECIMAL_SCALE);

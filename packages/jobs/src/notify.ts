@@ -33,7 +33,8 @@ export type NotificationType =
   | "security.break_glass"
   | "security.break_glass_viewed"
   | "account.deletion_scheduled"
-  | "account.export_ready";
+  | "account.export_ready"
+  | "security.share_created";
 
 export async function queueNotification(
   db: Queryable,

@@ -19,7 +19,7 @@ import { db } from "@/lib/db";
 
 import { CHAT_COOKIE } from "@/lib/prefs";
 import { fileRows } from "@/lib/server/files";
-import { companyMetrics } from "@/lib/server/insights";
+import { boardMonths } from "@/lib/server/insights";
 import { brandLogoUrl, readBrand } from "@/lib/server/brand";
 
 import { CompanyFiles } from "./CompanyFiles";
@@ -177,9 +177,7 @@ export default async function CompanyPage({
     // Months off the dashboard are off the chat's month list too (ADR 0047).
     hiddenPeriods(pool, { accountId: account.accountId, companyId: id }),
     // The months the board offers, which the stored figures decide (ADR 0087).
-    companyMetrics(pool, account.accountId, id).then((m) =>
-      (m?.periods ?? []).slice(0, 36),
-    ),
+    boardMonths(pool, account.accountId, id),
     pool.query<{ id: string; state: string; period: string | null; created_at: Date }>(
       `select id, state, stage_checkpoints->>'period' as period, created_at from jobs
         where company_id = $1 and account_id = $2 and type = 'commentary'

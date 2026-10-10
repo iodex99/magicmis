@@ -95,6 +95,32 @@ export async function companyMetrics(
   };
 }
 
+/**
+ * The months the board offers, newest first, without decrypting a figure (ADR 0091). Every
+ * delivered run records the months each file fed (ADR 0047), and the stored figures cover exactly
+ * those, so the files say which months there are. The workspace page needed only this, and read
+ * it by decrypting and parsing every month's stored figures — which the dashboard request beside
+ * it then did again. A company whose files predate that record falls back to the figures.
+ */
+export async function boardMonths(
+  pool: Pool,
+  accountId: string,
+  companyId: string,
+  limit = 36,
+): Promise<string[]> {
+  const r = await pool.query<{ period: string }>(
+    `select distinct p.period from public.source_uploads u, unnest(u.periods) as p(period)
+      where u.company_id = $1 and u.account_id = $2
+      order by p.period desc limit $3`,
+    [companyId, accountId, limit],
+  );
+  if (r.rows.length > 0) return r.rows.map((p) => p.period);
+  return ((await companyMetrics(pool, accountId, companyId))?.periods ?? []).slice(
+    0,
+    limit,
+  );
+}
+
 /** A stored file as the dashboard's Files control shows it: its months and its tick. */
 export interface DashboardFile {
   readonly id: string;
@@ -182,14 +208,16 @@ export async function dashboardPayload(
   accountId: string,
   companyId: string,
 ): Promise<DashboardPayload | null> {
-  const metrics = await companyMetrics(pool, accountId, companyId);
-  if (metrics === null) return null;
-  const dashboard = await companyDashboard(pool, keyWrapper(), { accountId, companyId });
-  const through = dashboard?.dataThrough ?? null;
-  const [files, hidden] = await Promise.all([
+  // Independent reads, side by side: each is a round trip, and two of them unwrap a key (ADR 0091).
+  const [metrics, dashboard, files, hidden, alerts] = await Promise.all([
+    companyMetrics(pool, accountId, companyId),
+    companyDashboard(pool, keyWrapper(), { accountId, companyId }),
     dashboardFiles(pool, { accountId, companyId }),
     hiddenPeriods(pool, { accountId, companyId }),
+    boardAlerts(pool, { accountId, companyId }),
   ]);
+  if (metrics === null) return null;
+  const through = dashboard?.dataThrough ?? null;
   // Paid for, and not unticked. Unticking a file hides its months and every figure computed
   // from them — a change on a hidden month, a year-to-date that includes one (ADR 0047).
   const paid = (period: string) =>
@@ -215,7 +243,7 @@ export async function dashboardPayload(
     company: metrics.company,
     periods,
     checks: await boardChecks(pool, { accountId, companyId }, periods),
-    alerts: await boardAlerts(pool, { accountId, companyId }),
+    alerts,
     values: [...stored, ...calculated],
     files,
     hiddenPeriods: [...hidden].sort(),

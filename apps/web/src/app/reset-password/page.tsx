@@ -28,12 +28,13 @@ function ResetForm() {
     setSubmitting(true);
     setMessage(null);
     setFieldError(undefined);
-    const result = await api<{ next: "app" }>("/api/auth/reset", {
+    const result = await api<{ next: "app" | "finish" }>("/api/auth/reset", {
       body: { tokenHash: token, newPassword: formText(form, "password") },
     });
     setSubmitting(false);
     if (result.ok) {
-      router.replace("/app");
+      // An account nobody has signed in to yet is finished by its owner (ADR 0091).
+      router.replace(result.data.next === "finish" ? "/sign-up/finish" : "/app");
       return;
     }
     if (result.error === "link_expired") setExpired(true);

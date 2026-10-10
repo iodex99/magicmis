@@ -18,6 +18,7 @@ import {
   purgeAccounts,
   purgeCompanies,
   purgeExpiredUploads,
+  purgeOldShares,
   queueLifecycleNotices,
   queueRefreshReminders,
   refreshLibraryCandidates,
@@ -123,6 +124,8 @@ export const MAINTENANCE_TASKS: readonly MaintenanceTask[] = [
           : await purgeAccounts(pool, outputs ?? null, now, wrapper),
       // ADR 0072: a deleted account's welcome fingerprint is kept a year, then erased.
       welcomeFingerprints: await forgetWelcomeFingerprints(pool, now),
+      // ADR 0091: a link long expired or withdrawn goes, with its sealed board and its openings.
+      shares: await purgeOldShares(pool, now),
     }),
   },
   {

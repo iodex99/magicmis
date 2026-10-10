@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, withAccount } from "@/lib/http";
 import { displayNamesOnServer } from "@/lib/server/chat-deep";
+import { rateLimited } from "@/lib/server/ratelimit";
 
 export const maxDuration = 60;
 
@@ -22,6 +23,9 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   return withAccount(async (account) => {
+    // Free, and it reads every file of the latest run: not a thing to call in a loop (ADR 0091).
+    const limited = await rateLimited("files_per_account", account.accountId);
+    if (limited !== null) return limited;
     const { id } = await context.params;
     if (!z.uuid().safeParse(id).success)
       return apiError(404, "company_not_found", "Company not found.");

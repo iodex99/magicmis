@@ -60,6 +60,10 @@ function themed(option: EChartsOption): EChartsOption {
     borderColor: c.line,
     textStyle: { color: c.text, fontSize: 12 },
   });
+  // Bars that grow into place are motion like any other, and a reader who asked for less sees
+  // them drawn at once (ADR 0091).
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    merged["animation"] = false;
   return merged;
 }
 
@@ -90,9 +94,9 @@ export function EChart({
     const node = el.current;
     if (node === null) return;
     // Loaded on the client only; ECharts touches the DOM at import.
-    void import("echarts").then((echarts) => {
+    void import("./echarts-lite").then(({ init }) => {
       if (disposed) return;
-      const instance = echarts.init(node, undefined, { renderer: "canvas" });
+      const instance = init(node, undefined, { renderer: "canvas" });
       chart.current = instance;
       instance.on("click", (params) => {
         handler.current(params.seriesIndex ?? 0, params.dataIndex);

@@ -113,7 +113,12 @@ describe("figures and identifiers in a Deep result", () => {
       "SELECT CAST(regexp_extract(ledger, '[0-9]+') AS BIGINT) AS n FROM balances WHERE ledger LIKE 'Mobile%'",
     );
     // Whether the guard allows the extraction or not, the digits never leave as they are.
-    if (r.status === "ok") expect(r.rows).toEqual([["MOBILE_x"]]);
+    if (r.status === "ok") expect(r.rows).toEqual([["[withheld]"]]);
+    // Nor does a piece of them, under a name that says money (ADR 0091).
+    const piece = await run(
+      "SELECT CAST(substr(regexp_extract(ledger, '[0-9]+'), 1, 4) AS BIGINT) AS amount_paise FROM balances WHERE ledger LIKE 'Mobile%'",
+    );
+    if (piece.status === "ok") expect(piece.rows).toEqual([["[withheld]"]]);
     const text = await run("SELECT ledger FROM balances WHERE ledger LIKE 'Mobile%'");
     expect(text).toMatchObject({ status: "ok", rows: [["Mobile MOBILE_x Plan"]] });
   });

@@ -5,7 +5,14 @@ import { UploadError } from "@magicmis/jobs";
 import { apiError } from "../http";
 
 /** Upload failures as plain responses that say what to do next. */
-export function uploadErrorResponse(error: unknown): Response | null {
+/**
+ * An upload refusal as a status and body. Inside `idempotent` it must be this, not a Response: a
+ * Response stored there serialised to `{}`, so a customer at the storage cap or over the file
+ * size saw "Something went wrong" — and every retry replayed it (ADR 0091).
+ */
+export function uploadErrorBody(
+  error: unknown,
+): { status: number; body: { error: string; message: string } } | null {
   if (!(error instanceof UploadError)) return null;
   const status =
     error.code === "upload_not_found"
@@ -15,7 +22,14 @@ export function uploadErrorResponse(error: unknown): Response | null {
           error.code === "storage_full"
         ? 413
         : 409;
-  return apiError(status, error.code, error.message);
+  return { status, body: { error: error.code, message: error.message } };
+}
+
+export function uploadErrorResponse(error: unknown): Response | null {
+  const refused = uploadErrorBody(error);
+  return refused === null
+    ? null
+    : apiError(refused.status, refused.body.error, refused.body.message);
 }
 
 /**

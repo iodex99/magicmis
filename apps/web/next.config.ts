@@ -48,6 +48,10 @@ const config: NextConfig = {
       { source: "/samples/:path*", destination: "/mis-dashboard", permanent: true },
     ];
   },
+  // The local store (OUTPUT_STORE=local) writes sealed files under `.data`. It is never deployed,
+  // but tracing pulled gigabytes of it into every function's file list, which a prebuilt deploy
+  // from a development machine would try to upload (ADR 0091).
+  outputFileTracingExcludes: { "/*": ["./.data/**/*"] },
   poweredByHeader: false,
   reactStrictMode: true,
 };

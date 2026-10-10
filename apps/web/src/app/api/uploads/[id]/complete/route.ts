@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { apiError, ok, withAccount } from "@/lib/http";
+import { rateLimited } from "@/lib/server/ratelimit";
 import { keyWrapper, outputStore } from "@/lib/server/runtime";
 import { uploadErrorResponse } from "@/lib/server/uploads";
 
@@ -21,6 +22,8 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   return withAccount(async (account) => {
+    const limited = await rateLimited("files_per_account", account.accountId);
+    if (limited !== null) return limited;
     const { id } = await context.params;
     if (!z.uuid().safeParse(id).success)
       return apiError(404, "upload_not_found", "Upload not found.");

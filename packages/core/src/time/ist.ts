@@ -75,6 +75,31 @@ export function formatIstDate(instant: Date): string {
   return `${pad(p.day)}-${pad(p.month)}-${pad(p.year, 4)}`;
 }
 
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+/**
+ * `3 April 2026` -- for anything read outside India too (ADR 0091). Still day-first and still IST,
+ * but no reader can take it the other way round: `03-04-2026` is the fourth of March in the
+ * United States, and some of the dates written this way are when data is deleted.
+ */
+export function formatIstLongDate(instant: Date): string {
+  const p = toIstParts(instant);
+  return `${p.day.toString()} ${MONTH_NAMES[p.month - 1] ?? ""} ${pad(p.year, 4)}`;
+}
+
 /** ISO 8601 with the explicit +05:30 offset, for anywhere the offset must be unambiguous. */
 export function formatIstIso(instant: Date): string {
   const p = toIstParts(instant);

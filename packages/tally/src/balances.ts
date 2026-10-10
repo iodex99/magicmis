@@ -331,6 +331,17 @@ export function parseBalanceReport(
         if (top) verify(top.node, top.children);
       }
     };
+    // The next row that is not a total, for every row, found once from the end (ADR 0091). It was
+    // a search of every later row from each row — quadratic in the length of the trial balance.
+    const nextReal: ((typeof rows)[number] | undefined)[] = new Array<
+      (typeof rows)[number] | undefined
+    >(rows.length);
+    let following: (typeof rows)[number] | undefined;
+    for (let k = rows.length - 1; k >= 0; k -= 1) {
+      nextReal[k] = following;
+      const row = rows[k];
+      if (row !== undefined && !TOTAL_RE.test(row.name)) following = row;
+    }
     rows.forEach((x, i) => {
       if (TOTAL_RE.test(x.name)) {
         findings.push({
@@ -346,7 +357,7 @@ export function parseBalanceReport(
       close(level);
       const parentPath =
         stack.length === 0 ? [] : (stack[stack.length - 1]?.node.path ?? []);
-      const next = rows.slice(i + 1).find((y) => !TOTAL_RE.test(y.name));
+      const next = nextReal[i];
       const isGroup = next !== undefined && ranks.indexOf(keyOf(next)) > level;
       const node: BalanceNode = {
         name: x.name,

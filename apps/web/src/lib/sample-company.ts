@@ -1,6 +1,6 @@
 import type { NumberFormat } from "@magicmis/core/reporting-conventions";
 import type { MetricValue } from "@magicmis/engine";
-import { metricValueSchema } from "@magicmis/engine";
+import { metricValueSchema } from "@magicmis/engine/client";
 import { dashboardSpecSchema } from "@magicmis/render-dashboard";
 import { z } from "zod";
 
