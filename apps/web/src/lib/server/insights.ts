@@ -20,6 +20,12 @@ import {
 import type { Pool } from "pg";
 import { z } from "zod";
 
+import { listAlerts } from "@magicmis/jobs";
+import { METRIC_CATALOG } from "@magicmis/templates";
+
+import type { BoardAlert } from "@/lib/alert-words";
+import type { CheckSummary } from "@/lib/check-words";
+
 import { keyWrapper } from "./runtime";
 
 const MAX_PERIODS = 24;
@@ -95,7 +101,10 @@ export async function companyMetrics(
       currency: company.currency,
       currencySymbol: currencySymbol(company.currency),
     },
-    periods: periods.rows.map((p) => p.period),
+    // Every month the stored figures cover, not only the months a snapshot was taken for: a
+    // first setup over thirteen months stores one snapshot holding all thirteen, and the month
+    // picker offered the last of them alone while the charts drew the rest (ADR 0087).
+    periods: [...new Set(values.map((v) => v.period))].sort().reverse(),
     values,
   };
 }
@@ -110,8 +119,66 @@ export interface DashboardFile {
   readonly deleted: boolean;
 }
 
+/** Checks as a snapshot keeps them: aggregates and outcomes, never a figure (SPEC §9). */
+const storedChecks = z
+  .array(
+    z
+      .object({
+        id: z.string(),
+        status: z.enum(["pass", "fail", "not_applicable"]),
+        severity: z.enum(["blocking", "warning"]),
+      })
+      .loose(),
+  )
+  .catch([]);
+
+/**
+ * Each month's checks (ADR 0087): those of the run that computed it — its own snapshot's, or for a
+ * month a longer run covered without storing one, the earliest snapshot after it, which holds it.
+ */
+async function boardChecks(
+  pool: Pool,
+  scope: { accountId: string; companyId: string },
+  months: readonly string[],
+): Promise<Record<string, CheckSummary[]>> {
+  const r = await pool.query<{ period: string; validation_results: unknown }>(
+    `select distinct on (period) period, validation_results from public.snapshots
+      where company_id = $1 and account_id = $2
+      order by period, version desc`,
+    [scope.companyId, scope.accountId],
+  );
+  const runs = r.rows.map((row) => ({
+    period: row.period,
+    checks: storedChecks
+      .parse(row.validation_results)
+      .map((c) => ({ id: c.id, status: c.status, severity: c.severity })),
+  }));
+  const out: Record<string, CheckSummary[]> = {};
+  for (const month of months) {
+    const run = runs.find((x) => x.period >= month);
+    if (run !== undefined) out[month] = run.checks;
+  }
+  return out;
+}
+
+/** The company's alerts with their figures' names and units, for saying them in words. */
+export async function boardAlerts(
+  pool: Pool,
+  scope: { accountId: string; companyId: string },
+): Promise<BoardAlert[]> {
+  const byId = new Map(METRIC_CATALOG.map((m) => [m.id, m]));
+  return (await listAlerts(pool, scope)).flatMap((a) => {
+    const m = byId.get(a.metricId);
+    return m === undefined ? [] : [{ ...a, label: m.label, unit: m.unit }];
+  });
+}
+
 export interface DashboardPayload extends CompanyMetrics {
   readonly dashboard: CompanyDashboard | null;
+  /** The owner's alerts, checked against the month on screen in the browser (ADR 0087). */
+  readonly alerts: readonly BoardAlert[];
+  /** The checks behind each month on the board, for saying them in words (ADR 0087). */
+  readonly checks: Readonly<Record<string, readonly CheckSummary[]>>;
   /** The company's stored files, for ticking on and off the dashboard (ADR 0047). */
   readonly files: readonly DashboardFile[];
   /** Months left out because every file that fed them is unticked. */
@@ -157,9 +224,12 @@ export async function dashboardPayload(
           stored,
           labelsFor(dashboard.spec.calculated),
         );
+  const periods = metrics.periods.filter(paid);
   return {
     company: metrics.company,
-    periods: metrics.periods.filter(paid),
+    periods,
+    checks: await boardChecks(pool, { accountId, companyId }, periods),
+    alerts: await boardAlerts(pool, { accountId, companyId }),
     values: [...stored, ...calculated],
     files,
     hiddenPeriods: [...hidden].sort(),

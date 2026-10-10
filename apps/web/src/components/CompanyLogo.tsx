@@ -45,8 +45,16 @@ export async function uploadLogo(
   companyId: string,
   file: Blob,
 ): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
+  return putLogo(`/api/companies/${companyId}/logo`, file);
+}
+
+/** The same, to any logo endpoint: a company's, or the preparer's own (ADR 0087). */
+async function putLogo(
+  endpoint: string,
+  file: Blob,
+): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
   try {
-    const response = await fetch(`/api/companies/${companyId}/logo`, {
+    const response = await fetch(endpoint, {
       method: "PUT",
       headers: { "content-type": "application/octet-stream" },
       body: file,
@@ -71,9 +79,9 @@ export async function uploadLogo(
 }
 
 /** Takes the logo off; true when the server did. */
-async function removeLogo(companyId: string): Promise<boolean> {
+async function removeLogo(endpoint: string): Promise<boolean> {
   try {
-    const r = await fetch(`/api/companies/${companyId}/logo`, {
+    const r = await fetch(endpoint, {
       method: "DELETE",
       credentials: "same-origin",
       cache: "no-store",
@@ -188,11 +196,16 @@ export function CompanyLogoSettings({
   name,
   current,
   limits,
+  endpoint = `/api/companies/${companyId}/logo`,
+  saved = "Logo saved. It is on the dashboard and in Present.",
 }: {
   companyId: string;
   name: string;
   current: string | null;
   limits: LogoLimits;
+  /** Where it is sent: the company's by default, or the preparer's own (ADR 0087). */
+  endpoint?: string;
+  saved?: string;
 }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
@@ -232,14 +245,14 @@ export function CompanyLogoSettings({
             setNotice(null);
             setBusy(true);
             void checked(file, limits)
-              .then((r) => (r.ok ? uploadLogo(companyId, file) : r))
+              .then((r) => (r.ok ? putLogo(endpoint, file) : r))
               .then((r) => {
                 if (!r.ok) {
                   setBusy(false);
                   setError(r.message);
                   return;
                 }
-                done("Logo saved. It is on the dashboard and in Present.");
+                done(saved);
               });
           }}
         />
@@ -262,7 +275,7 @@ export function CompanyLogoSettings({
                 setError(null);
                 setNotice(null);
                 setBusy(true);
-                void removeLogo(companyId).then((removed) => {
+                void removeLogo(endpoint).then((removed) => {
                   if (removed) {
                     done("Logo removed.");
                     return;

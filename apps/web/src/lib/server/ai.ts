@@ -315,7 +315,9 @@ function fakeTransport(): AiTransport {
         out = fakeDashboardChange(promptOf(params));
       } else if (system.startsWith("You write short management commentary")) {
         out = fakeCommentary(`${system}\n${promptOf(params)}`, firstFact(text));
-      } else if (system.startsWith("You suggest what a company's board should act on")) {
+      } else if (system.startsWith("You suggest what a company's board")) {
+        // The opening words every version shares: v5 goes on "board, owner or management" (ADR
+        // 0087), and a database whose routes run it must not get a chat answer back.
         out = fakeBoardActions(firstFact(text));
       } else if (system.startsWith("You summarise")) {
         out = { summary: "Earlier questions were about this company's figures." };

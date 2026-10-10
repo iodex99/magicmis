@@ -111,6 +111,13 @@ test("before the first company, a finished sample is one link away and reading i
 
 test("a non-Tally CSV with no month, a notes file and a photo still produce a workbook", async () => {
   await newCompany("Frictionless Exports Ltd");
+  // Which file to export, answered where the files are asked for (ADR 0087).
+  await page.getByTestId("export-help-open").click();
+  await page.getByRole("radio", { name: "Xero" }).click();
+  await expect(page.getByTestId("export-help-essential")).toContainText(
+    "Trial Balance at each month end",
+  );
+  await page.getByTestId("export-help").getByRole("button", { name: "Close" }).click();
   await page.getByLabel("Choose files").setInputFiles([
     {
       name: "export.csv",
@@ -268,5 +275,59 @@ test("files on another financial year stop the run to ask, and either answer car
   expect(two?.n).toBe(1);
   expect(two?.fy).toBe(1);
   expect(BigInt(two?.captured ?? "0")).toBeGreaterThan(0n);
+  expect(csp).toEqual([]);
+});
+
+test("four companies read as a portfolio, the ones whose month has closed without them first (ADR 0087)", async () => {
+  await page.goto("/app");
+  const table = page.getByTestId("portfolio-table");
+  // A header and the four companies this account has added by now.
+  await expect(table.getByRole("row")).toHaveCount(5);
+  await expect(page.getByTestId("portfolio-summary")).toContainText("still need");
+  // The calendar-year companies stopped at May 2026, so they are behind and come first; the
+  // ones whose single month was assumed are on the month that has just ended.
+  await expect(table.getByRole("row").nth(1)).toContainText("due");
+  await expect(table).toContainText("Up to date");
+  expect(csp).toEqual([]);
+});
+
+test("month end for several companies: matched by name, confirmed, then each refreshed in turn (ADR 0087)", async () => {
+  await page.goto("/app");
+  await page.getByRole("link", { name: "Month end for several" }).click();
+  await expect(page).toHaveURL(/\/app\/batch$/u);
+  const tb = (cash: number) =>
+    Buffer.from(
+      `Account,Debit,Credit\nCash at bank,${cash.toString()},\nSales,,${(cash + 1000).toString()}\nRent,1000,\n`,
+    );
+  await page.getByLabel("Choose files for several companies").setInputFiles([
+    { name: "Best Guess Traders June.csv", mimeType: "text/csv", buffer: tb(1800) },
+    { name: "Unclear.csv", mimeType: "text/csv", buffer: tb(1600) },
+  ]);
+  await expect(page.getByTestId("batch-files").getByRole("row")).toHaveCount(3);
+  // Its name says whose it is; the other waits for a person to say.
+  await expect(
+    page.getByLabel("Company for Best Guess Traders June.csv").locator("option:checked"),
+  ).toHaveText("Best Guess Traders");
+  await expect(page.getByTestId("batch-run")).toContainText(
+    "Choose a company for 1 file",
+  );
+  await page
+    .getByLabel("Company for Unclear.csv")
+    .selectOption({ label: "Frictionless Exports Ltd" });
+  await page.getByTestId("batch-run").click();
+  const outcomes = page.getByTestId("batch-outcome");
+  await expect(outcomes).toHaveCount(2);
+  for (const i of [0, 1])
+    await expect(outcomes.nth(i)).toContainText(/Done|Needs you|Not done/u, {
+      timeout: 180_000,
+    });
+  // Each company's refresh was its own job, held and settled on its own.
+  const runs = await db.query<{ n: number }>(
+    `select count(distinct j.company_id)::int as n from jobs j join companies c on c.id = j.company_id
+      where j.account_id = $1 and j.type in ('monthly_refresh', 'refresh_with_restructure')
+        and c.name in ('Best Guess Traders', 'Frictionless Exports Ltd')`,
+    [accountId],
+  );
+  expect(runs.rows[0]?.n).toBe(2);
   expect(csp).toEqual([]);
 });

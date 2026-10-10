@@ -1,7 +1,10 @@
 import { CompanyLogo } from "@/components/CompanyLogo";
 import { logoUrl } from "@/lib/logo";
 import type { NumberFormatOptions } from "@magicmis/core/format";
-import { currencySymbol } from "@magicmis/core/reporting-conventions";
+import {
+  currencySymbol,
+  type StatutoryFormat,
+} from "@magicmis/core/reporting-conventions";
 import { hiddenPeriods } from "@magicmis/jobs";
 import { walletSummary } from "@magicmis/wallet";
 import { cookies } from "next/headers";
@@ -16,6 +19,8 @@ import { db } from "@/lib/db";
 
 import { CHAT_COOKIE } from "@/lib/prefs";
 import { fileRows } from "@/lib/server/files";
+import { companyMetrics } from "@/lib/server/insights";
+import { brandLogoUrl, readBrand } from "@/lib/server/brand";
 
 import { CompanyFiles } from "./CompanyFiles";
 import { ReportingConventions } from "./ReportingConventions";
@@ -59,10 +64,12 @@ export default async function CompanyPage({
     currency: string;
     fy_start_month: number;
     date_order: "day_first" | "month_first";
+    commentary_language: string;
+    statutory_format: StatutoryFormat;
     logo_version: string | null;
   }>(
     `select name, lifecycle_state, first_setup_at, number_format, decimals, currency,
-            fy_start_month, date_order, logo_version
+            fy_start_month, date_order, commentary_language, statutory_format, logo_version
        from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
@@ -133,6 +140,8 @@ export default async function CompanyPage({
                 currency: company.currency,
                 numberFormat: company.number_format,
                 dateOrder: company.date_order,
+                commentaryLanguage: company.commentary_language,
+                statutoryFormat: company.statutory_format,
               }}
             />
           </Panel>
@@ -164,12 +173,12 @@ export default async function CompanyPage({
     );
   }
 
-  const [hidden, periods, commentaries] = await Promise.all([
+  const [hidden, periods, commentaries, brand] = await Promise.all([
     // Months off the dashboard are off the chat's month list too (ADR 0047).
     hiddenPeriods(pool, { accountId: account.accountId, companyId: id }),
-    pool.query<{ period: string }>(
-      `select distinct period from snapshots where company_id = $1 order by period desc limit 36`,
-      [id],
+    // The months the board offers, which the stored figures decide (ADR 0087).
+    companyMetrics(pool, account.accountId, id).then((m) =>
+      (m?.periods ?? []).slice(0, 36),
     ),
     pool.query<{ id: string; state: string; period: string | null; created_at: Date }>(
       `select id, state, stage_checkpoints->>'period' as period, created_at from jobs
@@ -178,6 +187,7 @@ export default async function CompanyPage({
         order by created_at desc limit 50`,
       [id, account.accountId],
     ),
+    readBrand(pool, account.accountId),
   ]);
   // Whether the chat was left open or put away, so the first paint is already that layout.
   const chatCookie = (await cookies()).get(CHAT_COOKIE)?.value;
@@ -219,6 +229,11 @@ export default async function CompanyPage({
         companyId={id}
         companyName={company.name}
         logoUrl={logo}
+        preparer={
+          brand?.on === true
+            ? { name: brand.name, logoUrl: brandLogoUrl(brand.logoVersion) }
+            : null
+        }
         businessName={account.businessName}
         money={{
           style: company.number_format,
@@ -226,7 +241,7 @@ export default async function CompanyPage({
           negativesInBrackets: true,
         }}
         currencySymbol={currencySymbol(company.currency)}
-        periods={periods.rows.map((p) => p.period).filter((p) => !hidden.has(p))}
+        periods={periods.filter((p) => !hidden.has(p))}
         commentaries={commentaries.rows.map((j) => ({
           id: j.id,
           state: j.state,

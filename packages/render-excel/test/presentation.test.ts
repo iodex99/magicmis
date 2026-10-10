@@ -157,3 +157,54 @@ describe("the workbook is typeset, not dumped (ADR 0034)", () => {
     );
   });
 });
+
+describe("the cover carries the company's mark and its preparer's (ADR 0087)", () => {
+  // The smallest valid PNG: one transparent pixel.
+  const pixel = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+    "base64",
+  );
+  const image = { bytes: pixel, extension: "png" as const, width: 400, height: 100 };
+  const branded = renderWorkbook({
+    companyName: "Northwind Traders Pvt Ltd",
+    currencySymbol: "$",
+    template: MONTHLY_FINANCIAL_MIS,
+    sections: resolveSections(MONTHLY_FINANCIAL_MIS, new Set(["balances"])),
+    period: PERIOD,
+    tierLabel: "Professional",
+    generatedAt: new Date("2026-06-05T06:30:00Z"),
+    snapshotVersion: 1,
+    cube,
+    displayName: (k) => k,
+    validation: checks,
+    brand: {
+      companyLogo: image,
+      preparer: { name: "Harbour & Co Accountants", logo: image },
+    },
+  }).workbook;
+
+  it("names the preparer among the facts, and places both logos without stretching them", () => {
+    const cover = branded.getWorksheet("Cover");
+    if (cover === undefined) throw new Error("no cover");
+    const facts = [5, 6, 7].map((r) => [
+      textOf(cover.getCell(r, 1).value),
+      textOf(cover.getCell(r, 2).value),
+    ]);
+    expect(facts).toContainEqual(["Prepared by", "Harbour & Co Accountants"]);
+    const images = cover.getImages();
+    expect(images).toHaveLength(2);
+    // A wide mark keeps its shape: four to one, fitted inside its box.
+    for (const placed of images) {
+      const { width, height } = (
+        placed.range as unknown as { ext: { width: number; height: number } }
+      ).ext;
+      expect(width / height).toBeCloseTo(4, 1);
+    }
+  });
+
+  it("is the name alone when no mark was given, as it was before", () => {
+    const plain = render("₹").getWorksheet("Cover");
+    expect(plain?.getImages()).toHaveLength(0);
+    expect(textOf(plain?.getCell(6, 1).value)).not.toBe("Prepared by");
+  });
+});

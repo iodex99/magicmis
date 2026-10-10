@@ -1,8 +1,12 @@
+import { currencySymbol, defaultConventions } from "@magicmis/core/reporting-conventions";
+
 import { AppFrame } from "@/components/AppFrame";
 import { Icon } from "@/components/Icon";
 import { ButtonLink, PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
+import { db } from "@/lib/db";
 import { sampleCompany } from "@/lib/sample-company";
+import { visitorCountry } from "@/lib/server/visitor-currency";
 
 import { SampleWorkspace } from "./SampleWorkspace";
 
@@ -20,7 +24,18 @@ export const dynamic = "force-dynamic";
  */
 export default async function SamplePage() {
   const account = await accountOrRedirect("/app/sample");
-  const sample = sampleCompany();
+  // In the reader's own money, as a company they add would start (ADR 0087).
+  const billing = await db()
+    .query<{ billing_country: string | null }>(
+      `select billing_country from public.accounts where id = $1`,
+      [account.accountId],
+    )
+    .then((r) => r.rows[0]?.billing_country ?? null);
+  const conventions = defaultConventions(billing, await visitorCountry());
+  const sample = sampleCompany({
+    currencySymbol: currencySymbol(conventions.currency),
+    style: conventions.numberFormat,
+  });
   return (
     <AppFrame accountId={account.accountId} businessName={account.businessName} wide>
       <PageHeader

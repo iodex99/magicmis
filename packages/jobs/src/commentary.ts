@@ -61,6 +61,8 @@ export async function factsPackFor(
   pack: ReturnType<typeof buildFactsPack>;
   allowlist: string[];
   ownSections: readonly string[];
+  /** The company's commentary language (ADR 0087). */
+  language: string;
 }> {
   const hidden = await hiddenPeriods(pool, input);
   if (hidden.has(input.period))
@@ -68,7 +70,25 @@ export async function factsPackFor(
       "month_hidden",
       "That month is off the dashboard because its files are unticked. Tick a file for it first.",
     );
-  const snapshot = await latestSnapshot(pool, wrapper, { ...input });
+  // A month a run computed without a snapshot of its own — every month but the last of a
+  // first setup over several — is read from the earliest snapshot after it, which holds it.
+  // The board offers those months (ADR 0087), so the writing about them must find them too.
+  const covering = async () => {
+    const after = await pool.query<{ period: string }>(
+      `select period from public.snapshots
+        where company_id = $1 and account_id = $2 and period > $3
+        order by period asc limit 1`,
+      [input.companyId, input.accountId, input.period],
+    );
+    const period = after.rows[0]?.period;
+    if (period === undefined) return null;
+    const found = await latestSnapshot(pool, wrapper, { ...input, period });
+    return found?.metricStore.values.some((v) => v.period === input.period) === true
+      ? found
+      : null;
+  };
+  const snapshot =
+    (await latestSnapshot(pool, wrapper, { ...input })) ?? (await covering());
   if (snapshot === null)
     throw new CommentaryError(
       "no_snapshot",
@@ -80,10 +100,11 @@ export async function factsPackFor(
     currency: string;
     number_format: "lakhs_crores" | "absolute" | "millions";
     fy_start_month: number;
+    commentary_language: string;
   }>(
     `select materiality_pct::text as materiality_pct,
             materiality_abs_minor::text as materiality_abs_minor,
-            currency, number_format, fy_start_month
+            currency, number_format, fy_start_month, commentary_language
        from companies where id = $1`,
     [input.companyId],
   );
@@ -150,7 +171,12 @@ export async function factsPackFor(
       "nothing_to_discuss",
       "The MIS for that month has no figures to discuss.",
     );
-  return { pack, allowlist, ownSections: own };
+  return {
+    pack,
+    allowlist,
+    ownSections: own,
+    language: company.rows[0]?.commentary_language ?? "en",
+  };
 }
 
 export async function commentaryInput(
@@ -158,7 +184,11 @@ export async function commentaryInput(
   wrapper: KeyWrapper,
   input: { accountId: string; companyId: string; period: PeriodId },
 ): Promise<GenerateCommentaryInput> {
-  const { pack, allowlist, ownSections } = await factsPackFor(pool, wrapper, input);
+  const { pack, allowlist, ownSections, language } = await factsPackFor(
+    pool,
+    wrapper,
+    input,
+  );
   return {
     factsPack: {
       period: pack.period,
@@ -172,6 +202,7 @@ export async function commentaryInput(
         ? [...ownSections]
         : MONTHLY_FINANCIAL_MIS.defaultCommentarySections,
     allowlist,
+    language,
   };
 }
 

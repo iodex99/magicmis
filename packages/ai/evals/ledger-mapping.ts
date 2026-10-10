@@ -8,6 +8,8 @@
  *
  * In practice that means flat trial balances with no group column, where only the name is left,
  * and exports from other packages whose group names Tally's defaults do not know.
+ * Since ADR 0087 there are American, British and Australian books too, grouped by account type as
+ * most systems other than Tally group them, because the product is sold everywhere.
  *
  * Labels were written by Claude on the owner's decision, not by a chartered accountant, and were
  * fixed before any live run. Each ledger names every head a careful accountant could defend under
@@ -198,6 +200,60 @@ export const LEDGER_MAPPING_BOOKS: readonly Book[] = [
       [BUSY_DIRECT, "Power Charges - Factory", ["OPEX_POWER", "COGS_DIRECT"]],
       [BUSY_INCOME, "Commission Received", ["OTH_INC_OTHER"]],
       [BUSY_INCOME, "Interest Received on FD", ["OTH_INC_INTEREST"]],
+    ],
+  },
+  {
+    // ADR 0087: an American small business's books, grouped by account type rather than by
+    // Tally's groups. Labels fixed before any run, like every other book here.
+    id: "us-account-types",
+    rows: [
+      [["Other Current Liabilities"], "Sales Tax Payable", ["CL_STATUTORY"]],
+      [
+        ["Other Current Liabilities"],
+        "Payroll Liabilities",
+        ["CL_STATUTORY", "CL_OTHER"],
+      ],
+      [["Credit Card"], "Amex Business Card", ["CL_OTHER", "CL_BORROWINGS"]],
+      [["Equity"], "Owner's Draw", ["EQ_CAPITAL"]],
+      [["Equity"], "Opening Balance Equity", ["EQ_CAPITAL", "EQ_RESERVES"]],
+      [["Other Current Assets"], "Undeposited Funds", ["CA_CASH", "CA_OTHER"]],
+      [["Income"], "Shipping Income", ["REV_OTHER_OPS", "REV_PRODUCTS"]],
+      [["Cost of Goods Sold"], "Merchant Account Fees", ["COGS_DIRECT"]],
+      [
+        ["Expenses"],
+        "Meals and Entertainment",
+        ["OPEX_OTHER", "OPEX_TRAVEL", "OPEX_MARKETING"],
+      ],
+      [["Expenses"], "Payroll Taxes", ["EMP_CONTRIB", "EMP_SALARIES"]],
+      [
+        ["Expenses"],
+        "Workers' Compensation Insurance",
+        ["OPEX_INSURANCE", "EMP_CONTRIB", "EMP_WELFARE"],
+      ],
+      [["Expenses"], "Dues and Subscriptions", ["OPEX_SOFTWARE", "OPEX_OTHER"]],
+      [["Long Term Liabilities"], "SBA Loan", ["NCL_BORROWINGS"]],
+    ],
+  },
+  {
+    // ADR 0087: British and Australian books, grouped by account type.
+    id: "uk-au-account-types",
+    rows: [
+      [["Current Liability"], "VAT", ["CL_STATUTORY"]],
+      [["Current Liability"], "PAYE & NIC Payable", ["CL_STATUTORY"]],
+      [["Current Liability"], "GST", ["CL_STATUTORY"]],
+      [["Current Liability"], "Superannuation Payable", ["CL_STATUTORY", "CL_OTHER"]],
+      [["Current Liability"], "Directors' Loan Account", ["CL_OTHER", "CL_BORROWINGS"]],
+      [["Current Liability"], "Accruals", ["CL_OTHER", "CL_PROVISIONS"]],
+      [["Expense"], "Employer's NIC", ["EMP_CONTRIB"]],
+      [["Expense"], "Superannuation", ["EMP_CONTRIB"]],
+      [["Expense"], "Light, Power, Heating", ["OPEX_POWER"]],
+      [["Expense"], "Motor Vehicle Expenses", ["OPEX_TRAVEL", "OPEX_REPAIRS"]],
+      [["Expense"], "Accountancy Fees", ["OPEX_PROFESSIONAL", "OPEX_AUDIT"]],
+      [["Direct Costs"], "Subcontractors", ["COGS_DIRECT"]],
+      [["Revenue"], "Consulting Fees", ["REV_SERVICES"]],
+      [["Equity"], "Dividends Paid", ["EQ_RESERVES"]],
+      [["Current Asset"], "Prepayments", ["CA_OTHER", "CA_LOANS_ADV"]],
+      [["Non-current Asset"], "Computer Equipment", ["NCA_PPE"]],
     ],
   },
 ];

@@ -27,6 +27,14 @@ describe("amounts (SPEC §15)", () => {
     ["1234.5", 123_450n, "none"],
     ["₹ 2,360.00", 236_000n, "international"],
     ["Rs. 500", 50_000n, "none"],
+    // ADR 0087: other markets' currency marks, before or after the amount.
+    ["$1,234.56", 123_456n, "international"],
+    ["US$ 12", 1_200n, "none"],
+    ["£980.00", 98_000n, "none"],
+    ["€5.50", 550n, "none"],
+    ["A$ 1,000.00", 100_000n, "international"],
+    ["1,234.56 USD", 123_456n, "international"],
+    ["250.00 GBP", 25_000n, "none"],
   ] as const)("%s → %s paise", (text, paise, grouping) => {
     expect(parseAmount(text)).toMatchObject({ paise, grouping, side: null });
   });
@@ -47,6 +55,29 @@ describe("amounts (SPEC §15)", () => {
       paise: 12_000_000n,
       side: "cr",
     });
+    // With a currency mark, in the ways other markets' exports write a negative (ADR 0087).
+    expect(parseAmount("($1,234.50)")?.paise).toBe(-123_450n);
+    expect(parseAmount("-£980.00")?.paise).toBe(-98_000n);
+    expect(parseAmount("$-25.00")?.paise).toBe(-2_500n);
+    // A word that only starts like a currency is still a word.
+    expect(parseAmount("Rent")).toBeNull();
+    expect(parseAmount("Euro Supplies")).toBeNull();
+  });
+
+  it("reads a cell of a quarter of a million spaces in linear time (ADR 0087)", () => {
+    // A leading `\s*` on the suffix patterns rescanned the run from every position in it: this
+    // cell took minutes and held a paid run until its time ran out.
+    const started = performance.now();
+    expect(parseAmount(`1${" ".repeat(250_000)}x`)).toBeNull();
+    expect(parseAmount(`1${" ".repeat(250_000)}Dr`)).toMatchObject({
+      paise: 100n,
+      side: "dr",
+    });
+    expect(parseAmount(`1${" ".repeat(250_000)}2 usd`)).toBeNull();
+    expect(performance.now() - started).toBeLessThan(1_000);
+    expect(parseAmount("1,250.00  USD")?.paise).toBe(125_000n);
+    expect(parseAmount("980.00 gbp.")?.paise).toBe(98_000n);
+    expect(parseAmount("1,00,000.00 Dr ")).toMatchObject({ side: "dr" });
   });
 
   it("refuses things that are not amounts", () => {
@@ -196,6 +227,34 @@ describe("header detection (SPEC §15)", () => {
     expect(h?.headerEnd).toBe(3);
     expect(h?.headers[4]).toBe("GSTIN/UIN");
     expect(h?.period).toEqual({ from: "2025-04-01", to: "2025-04-30" });
+  });
+
+  it("reads a statement whose columns are headed by dates, as most systems other than Tally export one (ADR 0087)", () => {
+    const balanceSheet = gridFromText("Balance Sheet", [
+      ["Account", "31 Mar 2026"],
+      ["Fixed Assets", ""],
+      ["Office Equipment", "6400.00"],
+      ["Business Bank Account", "25410.00"],
+      ["Accounts Receivable", "18250.40"],
+      ["Accounts Payable", "12340.10"],
+    ]);
+    expect(detectHeader(balanceSheet)?.headers).toEqual(["Account", "31 Mar 2026"]);
+    const byMonth = gridFromText("Profit and Loss", [
+      ["Profit and Loss"],
+      ["Account", "Jan 2026", "Feb 2026", "Mar 2026", "Total"],
+      ["Sales", "31200.00", "29850.50", "37715.00", "98765.50"],
+      ["Cost of Goods Sold", "13100.00", "12400.10", "15700.00", "41200.10"],
+      ["Rent Expense", "2000.00", "2000.00", "2000.00", "6000.00"],
+    ]);
+    expect(detectHeader(byMonth)?.headerStart).toBe(1);
+    // A date over dates is a body row still: a day book's first column must not become a header.
+    const dayBook = gridFromText("Day Book", [
+      ["Date", "Particulars", "Voucher Type", "Debit"],
+      ["2-Apr-25", "PARTY A", "Sales", "1,18,000.00"],
+      ["5-Apr-25", "PARTY B", "Sales", "59,000.00"],
+      ["9-Apr-25", "PARTY C", "Receipt", "12,000.00"],
+    ]);
+    expect(detectHeader(dayBook)?.headerStart).toBe(0);
   });
 
   it("parses period text variants", () => {

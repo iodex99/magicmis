@@ -156,10 +156,21 @@ test("sets up a company from thirteen months of trial balances", async () => {
     "Ratios",
     "Balance sheet",
     "Cash flow",
+    // ADR 0087: this browser is given the international default, so the books are in dollars
+    // and the statutory statements follow the MIS in the US GAAP layout.
+    "Balance sheet (US GAAP)",
+    "Income statement (US GAAP)",
     "Checks",
     "Data",
     "Lineage",
   ]);
+  const position = JSON.stringify(
+    XLSX.utils.sheet_to_json(workbook.Sheets["Balance sheet (US GAAP)"] ?? {}, {
+      header: 1,
+    }),
+  );
+  expect(position).toContain("Total liabilities and equity");
+  expect(position).toContain("Retained earnings, with net income for the year to date");
   // ADR 0086: the three sections, and the cash they come to at the foot of the sheet.
   const flow = JSON.stringify(
     XLSX.utils.sheet_to_json(workbook.Sheets["Cash flow"] ?? {}, { header: 1 }),
@@ -171,6 +182,22 @@ test("sets up a company from thirteen months of trial balances", async () => {
   expect(
     JSON.stringify(XLSX.utils.sheet_to_json(workbook.Sheets["Data"] ?? {})),
   ).toContain("Northwind");
+
+  // ADR 0087: the email about it is in the app's inbox too, and opening the inbox reads it.
+  await page.goto("/app");
+  await expect(page.getByTestId("rail-count").first()).toBeVisible();
+  // A post another site's form could send — no JSON content type — marks nothing (ADR 0087).
+  const forged = await page.request.post("/api/account/inbox", {
+    headers: { "content-type": "text/plain" },
+    data: "{}",
+  });
+  expect(forged.status()).toBe(415);
+  await expect(page.getByTestId("rail-count").first()).toBeVisible();
+  await page.getByRole("link", { name: /^Inbox/u }).click();
+  await expect(page.getByTestId("inbox")).toContainText("Your MIS is ready");
+  await expect(page.getByTestId("rail-count")).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId("rail-count")).toHaveCount(0);
 });
 
 test("refreshes the next month with no review and zero AI calls", async () => {
@@ -275,6 +302,14 @@ test("adds the dashboard, opens lineage from a number, edits with preview, and u
   const revenue = page.getByTestId("widget-kpi_revenue");
   await expect(revenue).toBeVisible();
   await expect(page.getByTestId("period-filter")).toHaveValue("2026-05");
+  // ADR 0087: every month the setup computed is on the picker, not only the two snapshots'.
+  await expect(page.getByTestId("period-filter").locator("option")).toHaveCount(14);
+  // What the run proved about the month on screen, in words rather than V-numbers.
+  await expect(page.getByTestId("board-checks")).toContainText("checks passed for");
+  await page.getByTestId("board-checks").locator("summary").click();
+  await expect(page.getByTestId("board-checks")).toContainText(
+    "The trial balance balances",
+  );
   await revenue.locator("[data-metric-key='revenue@2026-05']").click();
   await expect(page.getByTestId("lineage-panel")).toContainText("revenue");
   await expect(page.getByTestId("lineage-panel")).toContainText("Formula");
@@ -447,6 +482,8 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
     "Index",
     "P&L Summary",
     "Working Capital",
+    "Balance sheet (US GAAP)",
+    "Income statement (US GAAP)",
     "Checks",
     "Data",
     "Lineage",
@@ -844,7 +881,27 @@ test.describe("chat with the MIS", () => {
     expect(
       await presentedLogo.evaluate((img) => (img as HTMLImageElement).naturalWidth),
     ).toBeGreaterThan(0);
+    // Nobody is named as the preparer until the account turns it on (ADR 0087).
+    await expect(stage.getByTestId("present-preparer")).toHaveCount(0);
     await page.getByTestId("present-exit").click();
+
+    // An accountant presenting a client's board turns it on in the profile, with their own mark.
+    const mark = await page.request.put("/api/account/brand/logo", {
+      headers: { "content-type": "application/octet-stream" },
+      data: TINY_PNG,
+    });
+    expect(mark.status()).toBe(200);
+    await page.goto("/settings/profile");
+    await page.getByLabel(/as the preparer/u).check();
+    await expect(page.getByLabel(/as the preparer/u)).toBeChecked();
+    await page.goto(`/app/companies/${id}`);
+    await page.getByTestId("present").click();
+    await expect(stage.getByTestId("present-preparer")).toContainText("Prepared by");
+    await expect(stage.getByTestId("present-preparer").locator("img")).toBeVisible();
+    await page.getByTestId("present-exit").click();
+    // Off again: an owner presenting their own business is nobody's client.
+    const off = await page.request.patch("/api/account/brand", { data: { on: false } });
+    expect(off.ok()).toBe(true);
   });
 
   test("where to act and the commentary are written, charged and shown (ADR 0084)", async () => {
@@ -886,6 +943,92 @@ test.describe("chat with the MIS", () => {
   });
 });
 
+test("an alert the owner sets is said in words on the board's month, and taken off again (ADR 0087)", async () => {
+  const company = await db.query<{ id: string }>(
+    `select c.id from companies c join accounts a on a.id = c.account_id
+      where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+    [email],
+  );
+  const id = company.rows[0]?.id ?? "";
+  // Cash above nothing fires on any month that has cash.
+  const set = await page.request.post(`/api/companies/${id}/alerts`, {
+    data: { metricId: "cash_and_bank", comparator: "above", value: "0" },
+    headers: { "idempotency-key": randomUUID() },
+  });
+  expect(set.status()).toBe(200);
+  await page.goto(`/app/companies/${id}/manage`);
+  await expect(page.getByTestId("company-alert")).toContainText(
+    "Cash and bank balances is above",
+  );
+  await page.goto(`/app/companies/${id}`);
+  await expect(page.getByTestId("board-alerts")).toContainText(
+    "Cash and bank balances is above",
+  );
+  // Taken off on Files and settings, and the board says nothing more.
+  await page.goto(`/app/companies/${id}/manage`);
+  await page.getByTestId("company-alert").getByRole("button", { name: "Remove" }).click();
+  await expect(page.getByTestId("company-alert")).toHaveCount(0);
+  await page.goto(`/app/companies/${id}`);
+  await expect(page.getByTestId("widget-kpi_revenue")).toBeVisible();
+  await expect(page.getByTestId("board-alerts")).toHaveCount(0);
+});
+
+test("an answer is kept on the board as a box of its own, and Undo takes it off (ADR 0087)", async () => {
+  const company = await db.query<{ id: string }>(
+    `select c.id from companies c join accounts a on a.id = c.account_id
+      where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+    [email],
+  );
+  await page.goto(`/app/companies/${company.rows[0]?.id ?? ""}?chat=open`);
+  await page.getByLabel("Your question").fill("How did revenue move this month?");
+  await page.getByTestId("chat-send").click();
+  const answer = page.getByTestId("chat-answer").last();
+  await expect(answer).toContainText("The figure you asked about is", {
+    timeout: 60_000,
+  });
+  await answer.getByTestId("chat-pin").click();
+  await expect(answer.getByTestId("chat-pin")).toContainText("On the board");
+  const pinned = page.locator("[data-testid^='widget-pin_']");
+  await expect(pinned).toBeVisible();
+  // Each figure in it still opens its lineage, like any box's.
+  await pinned.locator("[data-metric-key]").first().click();
+  await expect(page.getByTestId("lineage-panel")).toBeVisible();
+  await page.getByTestId("lineage-panel").getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Undo last change" }).click();
+  await expect(pinned).toHaveCount(0);
+});
+
+test("presenter notes follow the board on the presenter's own screen, and write nothing (ADR 0087)", async () => {
+  const company = await db.query<{ id: string }>(
+    `select c.id from companies c join accounts a on a.id = c.account_id
+      where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+    [email],
+  );
+  await page.goto(`/app/companies/${company.rows[0]?.id ?? ""}`);
+  await page.getByTestId("present").click();
+  const opened = page.waitForEvent("popup");
+  await page.getByTestId("present-notes").click();
+  const notes = await opened;
+  // What was written about the month on the room's screen, where only the presenter sees it.
+  await expect(notes.getByTestId("board-actions")).toContainText(
+    "Review the largest movement with the accountant",
+  );
+  await expect(notes.getByTestId("commentary")).toContainText("The month is led by");
+  // The board steps back a month and the notes go with it; nothing was written for that one.
+  await page.getByRole("button", { name: "Earlier month" }).click();
+  await expect(notes.getByTestId("notes-no-actions")).toBeVisible();
+  await expect(notes.getByTestId("notes-no-commentary")).toBeVisible();
+  await notes.close();
+  await page.getByTestId("present-exit").click();
+  // Reading what was written charges nothing and writes nothing.
+  const jobs = await db.query<{ n: number }>(
+    `select count(*)::int as n from jobs j join accounts a on a.id = j.account_id
+      where a.email = $1 and j.type in ('board_actions', 'commentary')`,
+    [email],
+  );
+  expect(jobs.rows[0]?.n).toBe(2);
+});
+
 test("a company's own tables and names are remembered through the next month, and belong to it alone (ADR 0045)", async () => {
   const companies = await db.query<{ id: string; name: string }>(
     `select c.id, c.name from companies c join accounts a on a.id = c.account_id where a.email = $1`,
@@ -925,6 +1068,8 @@ test("a company's own tables and names are remembered through the next month, an
     "Index",
     "P&L Summary",
     "Working Capital",
+    "Balance sheet (US GAAP)",
+    "Income statement (US GAAP)",
     "Checks",
     "Data",
     "Lineage",
@@ -1066,6 +1211,27 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
     "(millions)",
   );
   await page.getByRole("button", { name: "Reset" }).click();
+  // ADR 0087: the language commentary is written in and the statutory layout are conventions
+  // like the rest — the owner's to change, saved here, and never touched by a run.
+  await expect(page.getByLabel("Statutory layout")).toHaveValue("us_gaap");
+  await page.getByLabel("Commentary written in").selectOption("es");
+  await page.getByLabel("Statutory layout").selectOption("ifrs");
+  await page.getByRole("button", { name: "Save conventions" }).click();
+  await expect(page.getByText("Saved. It applies to the next run")).toBeVisible();
+  const conventions = await db.query<{
+    commentary_language: string;
+    statutory_format: string;
+  }>(`select commentary_language, statutory_format from companies where id = $1`, [id]);
+  expect(conventions.rows[0]).toEqual({
+    commentary_language: "es",
+    statutory_format: "ifrs",
+  });
+  await page.reload();
+  await expect(page.getByLabel("Commentary written in")).toHaveValue("es");
+  await page.getByLabel("Commentary written in").selectOption("en");
+  await page.getByLabel("Statutory layout").selectOption("us_gaap");
+  await page.getByRole("button", { name: "Save conventions" }).click();
+  await expect(page.getByText("Saved. It applies to the next run")).toBeVisible();
   await expect(page.getByTestId("company-outputs")).toContainText(".xlsx");
   await expect(page.getByTestId("company-activity")).toContainText("Completed");
   // Kept files are capped, not priced, and the customer sees how much room is used (ADR 0048).

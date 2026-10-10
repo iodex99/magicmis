@@ -2,7 +2,12 @@
 
 import { describe, expect, it } from "vitest";
 
-import { defaultConventions } from "./reporting-conventions";
+import {
+  defaultConventions,
+  defaultStatutoryFormat,
+  isStatutoryFormat,
+  STATUTORY_FORMATS,
+} from "./reporting-conventions";
 
 describe("defaultConventions", () => {
   it("follows the billing country when there is one", () => {
@@ -47,5 +52,28 @@ describe("defaultConventions", () => {
     expect(defaultConventions(null, null)).toMatchObject(elsewhere);
     expect(defaultConventions(null, "BR")).toMatchObject(elsewhere);
     expect(defaultConventions("  ", "")).toMatchObject(elsewhere);
+  });
+});
+
+describe("statutory layouts (ADR 0087)", () => {
+  it("start from the currency the books are in, and IFRS for everything not named", () => {
+    expect(defaultStatutoryFormat("INR")).toBe("schedule_iii");
+    expect(defaultStatutoryFormat("gbp")).toBe("uk_companies_act");
+    expect(defaultStatutoryFormat("USD")).toBe("us_gaap");
+    for (const currency of ["EUR", "AED", "SGD", "AUD", "ZAR"])
+      expect(defaultStatutoryFormat(currency)).toBe("ifrs");
+  });
+
+  it("accept only the codes the database's check allows", () => {
+    expect(STATUTORY_FORMATS.map((f) => f.code)).toEqual([
+      "schedule_iii",
+      "uk_companies_act",
+      "us_gaap",
+      "ifrs",
+      "none",
+    ]);
+    expect(isStatutoryFormat("ifrs")).toBe(true);
+    expect(isStatutoryFormat("gaap")).toBe(false);
+    expect(isStatutoryFormat(null)).toBe(false);
   });
 });

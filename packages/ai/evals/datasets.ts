@@ -12,8 +12,14 @@
  *   resolve, no figures outside them); prose quality is reviewed by people (R-38).
  */
 
+import { COMMENTARY_LANGUAGES } from "@magicmis/core/reporting-conventions";
 import type { PeriodId } from "@magicmis/core/time";
-import { buildFactsPack, INDIAN_REPORTING, type MetricValue } from "@magicmis/engine";
+import {
+  buildFactsPack,
+  INDIAN_REPORTING,
+  type MetricValue,
+  type ReportingContext,
+} from "@magicmis/engine";
 import {
   buildFixtureSet,
   REFERENCE_MIS_SHEETS,
@@ -52,6 +58,7 @@ import type {
   MapColumnsInput,
   MapColumnsOutput,
 } from "../src/stages";
+import { GLOBAL_SHEETS } from "./global-sheets";
 
 export interface EvalItem<I, L> {
   readonly id: string;
@@ -113,28 +120,87 @@ function parsedFixtures(limit: number): Parsed[] {
   return out;
 }
 
+/** The other markets' sheets, parsed exactly as an upload is (ADR 0087). */
+function parsedGlobalSheets(): {
+  id: string;
+  report: (typeof GLOBAL_SHEETS)[number]["report"];
+  parsed: Omit<Parsed, "file">;
+}[] {
+  return GLOBAL_SHEETS.flatMap((g) => {
+    const grid = readCsvGrid(new TextEncoder().encode(g.csv), `${g.id}.csv`).grid;
+    const header = detectHeader(grid);
+    if (header === null) throw new Error(`${g.id}: no header`);
+    const body = grid.rows.slice(header.bodyStart);
+    return [
+      {
+        id: g.id,
+        report: g.report,
+        parsed: {
+          headers: header.headers.slice(0, 80),
+          types: header.headers
+            .map((_, c) => inferColumn(body.map((r) => r[c])).type)
+            .slice(0, 80),
+          samples: body
+            .slice(0, SAMPLE_ROWS)
+            .map((r) => header.headers.map((_, c) => (r[c]?.text ?? "").slice(0, 200))),
+        },
+      },
+    ];
+  });
+}
+
+/**
+ * Trial balances were twenty-one of the fifty-nine fixture sheets, all of them TallyPrime's. The
+ * other markets' sheets go first and the fixtures' trial balances stop at fourteen, so the set
+ * stays within its sixty and every other report type keeps every item it had (ADR 0087).
+ */
+const FIXTURE_TRIAL_BALANCES = 14;
+
 export function sheetClassificationDataset(
   limit = 60,
 ): EvalItem<
   ClassifySheetsInput,
   ClassifySheetsOutput["sheets"][number]["report_type"]
 >[] {
-  return parsedFixtures(limit).map((p, i) => ({
-    id: `sc-${i.toString()}`,
+  const global = parsedGlobalSheets().map((g) => ({
+    id: `sc-${g.id}`,
     input: {
       sheets: [
         {
           ref: "s1",
           name: "Sheet1",
           titleLines: [],
-          headers: [...p.headers],
-          types: [...p.types],
-          samples: p.samples.map((r) => [...r]),
+          headers: [...g.parsed.headers],
+          types: [...g.parsed.types],
+          samples: g.parsed.samples.map((r) => [...r]),
         },
       ],
     },
-    label: p.file.report,
+    label: g.report,
   }));
+  let trialBalances = 0;
+  const fixtures = parsedFixtures(1000).filter(
+    (p) => p.file.report !== "trial_balance" || ++trialBalances <= FIXTURE_TRIAL_BALANCES,
+  );
+  return [
+    ...global,
+    ...fixtures.map((p, i) => ({
+      id: `sc-${i.toString()}`,
+      input: {
+        sheets: [
+          {
+            ref: "s1",
+            name: "Sheet1",
+            titleLines: [],
+            headers: [...p.headers],
+            types: [...p.types],
+            samples: p.samples.map((r) => [...r]),
+          },
+        ],
+      },
+      label: p.file.report,
+    })),
+  ].slice(0, limit);
 }
 
 export function columnMappingDataset(
@@ -204,6 +270,17 @@ const RELABELLED: readonly { from: string; to: string; shows: string }[] = [
   { from: "Sundry Debtors", to: "Trade receivables", shows: "receivables" },
   { from: "Closing Stock", to: "Inventories at close", shows: "inventory" },
   { from: "Other Expenses", to: "Other operating costs", shows: "other_opex" },
+  // ADR 0087: American and British wording for the same rows, labelled before any run.
+  { from: "Sales", to: "Net revenues", shows: "revenue" },
+  {
+    from: "Staff Salaries & Welfare",
+    to: "Wages, salaries and benefits",
+    shows: "employee_cost",
+  },
+  { from: "Sundry Debtors", to: "Accounts receivable, net", shows: "receivables" },
+  { from: "Sundry Creditors", to: "Trade creditors", shows: "payables" },
+  { from: "Closing Stock", to: "Merchandise inventory", shows: "inventory" },
+  { from: "Depreciation", to: "Depreciation & amortization", shows: "depreciation" },
 ];
 
 type RowDef = ReferenceSheetDef["rows"][number];
@@ -337,6 +414,33 @@ export function referenceLayoutDataset(
 // ---------------------------------------------------------------------------
 
 const PERIOD = "2026-05" as PeriodId;
+
+/**
+ * The reporting a facts pack is formatted in, and the company it belongs to. The product is sold
+ * everywhere, so every fact-based set is measured a third in rupees by lakhs and crores, a third
+ * in dollars by millions and a third in pounds in full — the same months, read by an owner in
+ * Mumbai, Austin or Leeds (ADR 0087).
+ */
+const MARKETS: readonly { conventions: ReportingContext; company: string }[] = [
+  { conventions: INDIAN_REPORTING, company: "Synthetic Hardware Traders" },
+  {
+    conventions: { currencySymbol: "$", numberFormat: "millions" },
+    company: "Synthetic Outdoor Supply Inc.",
+  },
+  {
+    conventions: { currencySymbol: "£", numberFormat: "absolute" },
+    company: "Synthetic Studio Ltd",
+  },
+];
+const marketFor = (i: number) => MARKETS[i % MARKETS.length] ?? MARKETS[0];
+
+/**
+ * The language each written item asks for (ADR 0087): every language the product offers, in turn,
+ * so one run measures the placeholder discipline in all of them at once. Eleven against three
+ * markets, so the pairs fall differently across the set.
+ */
+const languageFor = (i: number) =>
+  COMMENTARY_LANGUAGES[i % COMMENTARY_LANGUAGES.length]?.code ?? "en";
 const value = (
   metricId: string,
   v: string,
@@ -455,13 +559,13 @@ const COMMENTARY_MONTHS: readonly {
   ),
 );
 export function commentaryDataset(limit = 60): EvalItem<GenerateCommentaryInput, null>[] {
-  return COMMENTARY_MONTHS.slice(0, limit).map((m) => {
+  return COMMENTARY_MONTHS.slice(0, limit).map((m, i) => {
     const pack = buildFactsPack({
       period: PERIOD,
       store: m.store,
       materiality: { pct: "0.05", absMinor: "0" },
       warnings: m.warnings,
-      conventions: INDIAN_REPORTING,
+      conventions: marketFor(i)?.conventions ?? INDIAN_REPORTING,
     });
     return {
       id: m.id,
@@ -478,6 +582,7 @@ export function commentaryDataset(limit = 60): EvalItem<GenerateCommentaryInput,
         // (packages/jobs/src/commentary.ts). Without them the model is asked to mention a
         // warning and then failed for writing its name.
         allowlist: m.warnings.length === 0 ? [] : ["V10"],
+        language: languageFor(i),
       },
       label: null,
     };
@@ -529,6 +634,17 @@ const QUICK_QUESTIONS: readonly { id: string; question: string; label: ScopeLabe
     label: "in_scope",
   },
   { id: "cq-dso", question: "What are our debtor days?", label: "in_scope" },
+  // ADR 0087: the same subject in American and British words is still this MIS.
+  {
+    id: "cq-turnover-uk",
+    question: "How did turnover move against last month?",
+    label: "in_scope",
+  },
+  {
+    id: "cq-ar-us",
+    question: "What is our accounts receivable balance?",
+    label: "in_scope",
+  },
   {
     id: "cq-dpo",
     question: "How long are we taking to pay suppliers?",
@@ -716,6 +832,13 @@ const QUICK_QUESTIONS: readonly { id: string; question: string; label: ScopeLabe
     label: "out_of_scope",
   },
   { id: "cq-valuation", question: "What is my company worth?", label: "out_of_scope" },
+  // A tax question is advice wherever it is asked (ADR 0087).
+  { id: "cq-vat", question: "Should we register for VAT?", label: "out_of_scope" },
+  {
+    id: "cq-sales-tax",
+    question: "What is the sales tax rate in Texas?",
+    label: "out_of_scope",
+  },
   {
     id: "cq-politics",
     question: "Which party is better for small business?",
@@ -770,18 +893,19 @@ export function chatQuickDataset(limit = 60): EvalItem<ChatQuickInput, ScopeLabe
     store.push(value(`${id}.mom_abs`, (12 * 1_000_00).toString()));
     store.push(value(`${id}.mom_pct`, "8.400000", "percent"));
   });
-  const facts = buildFactsPack({
-    period: PERIOD,
-    store,
-    materiality: { pct: "0.05", absMinor: "0" },
-    warnings: [],
-    conventions: INDIAN_REPORTING,
-  }).facts;
-  return QUICK_QUESTIONS.slice(0, limit).map((q) => ({
+  const factsIn = (conventions: ReportingContext) =>
+    buildFactsPack({
+      period: PERIOD,
+      store,
+      materiality: { pct: "0.05", absMinor: "0" },
+      warnings: [],
+      conventions,
+    }).facts;
+  return QUICK_QUESTIONS.slice(0, limit).map((q, i) => ({
     id: q.id,
     input: {
-      companyName: "Synthetic Hardware Traders",
-      facts: [...facts],
+      companyName: marketFor(i)?.company ?? "Synthetic Hardware Traders",
+      facts: [...factsIn(marketFor(i)?.conventions ?? INDIAN_REPORTING)],
       periods: [`p:${PERIOD}`],
       summary: null,
       history: [],
@@ -887,9 +1011,13 @@ const EDIT_REQUESTS: readonly {
     path: "/widgets/4/periods",
   },
   {
+    // The trend already runs from the start of the financial year (`fy_to_date` in
+    // DEFAULT_DASHBOARD), so the right answer is no change. It was labelled with the periods
+    // pointer, which marked "already does, nothing to change" wrong and passed a redundant
+    // replace; the recordings of 2026-10-10 showed both tiers saying so in words (ADR 0087).
     id: "ce-periods-trend-fy",
     request: "The trend should run from the start of the financial year.",
-    path: "/widgets/4/periods",
+    path: null,
   },
   {
     id: "ce-periods-costs-3",
@@ -922,9 +1050,11 @@ const EDIT_REQUESTS: readonly {
     path: "/widgets/4/compare",
   },
   {
+    // Every box in DEFAULT_DASHBOARD compares with nothing, so this asks for what the board
+    // already shows: no change, for the reason given on ce-periods-trend-fy (ADR 0087).
     id: "ce-compare-trend-none",
     request: "On the revenue trend chart, set the comparison back to none.",
-    path: "/widgets/4/compare",
+    path: null,
   },
   {
     id: "ce-compare-costs-ly",
@@ -1264,7 +1394,7 @@ export function boardActionsDataset(limit = 60): EvalItem<BoardActionsInput, nul
       store: m.store,
       materiality: { pct: "0.05", absMinor: "0" },
       warnings: m.warnings,
-      conventions: INDIAN_REPORTING,
+      conventions: marketFor(i)?.conventions ?? INDIAN_REPORTING,
     });
     return {
       id: `ba-${m.id.replace(/^cm-/u, "")}`,
@@ -1280,6 +1410,7 @@ export function boardActionsDataset(limit = 60): EvalItem<BoardActionsInput, nul
         allowlist: m.warnings.length === 0 ? [] : ["V10"],
         // Three to eight, walked across the range the schema allows.
         maxActions: 3 + (i % 6),
+        language: languageFor(i),
       },
       label: null,
     };

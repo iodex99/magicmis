@@ -23,8 +23,17 @@ export interface ParsedAmount {
   readonly grouping: "indian" | "international" | "none";
 }
 
-const CURRENCY = /^(?:₹|rs\.?|inr)\s*/iu;
-const SIDE = /\s*\b(dr|cr)\.?$/iu;
+// A currency written beside the amount, before or after it. The product is sold everywhere
+// (ADR 0087): a dollar, pound or euro sign in a PDF or CSV export is as common as a rupee sign,
+// and an amount that kept its sign used to be read as text. A bare "R" is left alone — it is a
+// letter far more often than a rand.
+const CURRENCY =
+  /^(?:₹|rs\.?|inr|usd|gbp|eur|aud|cad|nzd|sgd|hkd|aed|zar|us\$|a\$|au\$|c\$|ca\$|nz\$|s\$|hk\$|\$|£|€|¥)\s*/iu;
+// Both suffixes are matched without the space before them and trimmed after: a leading `\s*`
+// made every position in a long run of spaces rescan to the end of the cell, so one crafted cell
+// of a few hundred thousand spaces held a run for minutes (ADR 0087).
+const CURRENCY_AFTER = /\b(?:inr|usd|gbp|eur|aud|cad|nzd|sgd|hkd|aed|zar)\.?$/iu;
+const SIDE = /\b(dr|cr)\.?$/iu;
 const INDIAN_GROUPED = /^\d{1,2}(,\d{2})*,\d{3}(\.\d+)?$/u;
 const INTL_GROUPED = /^\d{1,3}(,\d{3})+(\.\d+)?$/u;
 const PLAIN = /^\d+(\.\d+)?$/u;
@@ -67,7 +76,7 @@ export function parseAmount(input: string | number): ParsedAmount | null {
   }
 
   // Non-breaking spaces (U+00A0) are common in exported numbers.
-  let s = input.trim().split(String.fromCharCode(0xa0)).join(" ");
+  let s = input.split(String.fromCharCode(0xa0)).join(" ").trim();
   if (s === "") return null;
 
   let side: DrCr | null = null;
@@ -76,6 +85,8 @@ export function parseAmount(input: string | number): ParsedAmount | null {
     side = (sideMatch[1] ?? "").toLowerCase() === "dr" ? "dr" : "cr";
     s = s.slice(0, sideMatch.index).trim();
   }
+  const after = CURRENCY_AFTER.exec(s);
+  if (after) s = s.slice(0, after.index).trim();
 
   let negative = false;
   let parenthesised = false;

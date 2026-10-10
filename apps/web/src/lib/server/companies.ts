@@ -2,7 +2,12 @@ import "server-only";
 
 import { randomBytes } from "node:crypto";
 
-import { currencySymbol, type NumberFormat } from "@magicmis/core/reporting-conventions";
+import {
+  currencySymbol,
+  defaultStatutoryFormat,
+  type NumberFormat,
+  type StatutoryFormat,
+} from "@magicmis/core/reporting-conventions";
 import type { DateOrder } from "@magicmis/core/time";
 import { readConfig } from "@magicmis/db/config";
 
@@ -81,8 +86,8 @@ export async function createCompany(
   // is a decision the reader confirmed rather than one taken for them.
   const inserted = await pool.query<{ id: string }>(
     `insert into public.companies
-       (account_id, name, fy_start_month, currency, number_format, date_order)
-     values ($1, $2, $3, $4, $5, $6) returning id`,
+       (account_id, name, fy_start_month, currency, number_format, date_order, statutory_format)
+     values ($1, $2, $3, $4, $5, $6, $7) returning id`,
     [
       input.accountId,
       input.name,
@@ -90,6 +95,8 @@ export async function createCompany(
       input.currency,
       input.numberFormat,
       input.dateOrder,
+      // The statutory layout follows the currency until the owner says otherwise (ADR 0087).
+      defaultStatutoryFormat(input.currency),
     ],
   );
   const companyId = inserted.rows[0]?.id ?? "";
@@ -129,11 +136,15 @@ export async function updateCompanyConventions(
     currency: string;
     numberFormat: NumberFormat;
     dateOrder: DateOrder;
+    commentaryLanguage?: string | undefined;
+    statutoryFormat?: StatutoryFormat | undefined;
   },
 ): Promise<boolean> {
   const r = await pool.query(
     `update public.companies
-        set fy_start_month = $3, currency = $4, number_format = $5, date_order = $6
+        set fy_start_month = $3, currency = $4, number_format = $5, date_order = $6,
+            commentary_language = coalesce($7, commentary_language),
+            statutory_format = coalesce($8, statutory_format)
       where id = $2 and account_id = $1 and deleted_at is null`,
     [
       input.accountId,
@@ -142,6 +153,8 @@ export async function updateCompanyConventions(
       input.currency,
       input.numberFormat,
       input.dateOrder,
+      input.commentaryLanguage ?? null,
+      input.statutoryFormat ?? null,
     ],
   );
   return (r.rowCount ?? 0) > 0;
@@ -171,6 +184,8 @@ export interface JobSession {
     currencySymbol: string;
     numberFormat: "lakhs_crores" | "absolute" | "millions";
     dateOrder: DateOrder;
+    /** The statutory layout the workbook adds beside the MIS (ADR 0087). */
+    statutoryFormat: StatutoryFormat;
   };
   /** Base64 of the company redaction key; never logged, never persisted by the browser. */
   readonly redactionKey: string;
@@ -220,11 +235,12 @@ export async function jobSession(
     currency: string;
     number_format: "lakhs_crores" | "absolute" | "millions";
     date_order: DateOrder;
+    statutory_format: StatutoryFormat;
     wrapped_redaction_key: Buffer | null;
     latest_period: string | null;
   }>(
     `select c.id, c.name, c.fy_start_month, c.lifecycle_state, c.wrapped_redaction_key,
-            c.currency, c.number_format, c.date_order,
+            c.currency, c.number_format, c.date_order, c.statutory_format,
             (select max(period) from public.snapshots s where s.company_id = c.id) as latest_period
      from public.companies c where c.id = $1 and c.account_id = $2 and c.deleted_at is null`,
     [companyId, accountId],
@@ -298,6 +314,7 @@ export async function jobSession(
       currencySymbol: currencySymbol(c.currency),
       numberFormat: c.number_format,
       dateOrder: c.date_order,
+      statutoryFormat: c.statutory_format,
     },
     redactionKey: key.toString("base64"),
     library: library.rows.map((l) => ({

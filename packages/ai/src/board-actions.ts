@@ -15,6 +15,8 @@
 import "server-only";
 
 import { checkPlaceholderTexts } from "@magicmis/engine";
+
+import { languageLine, writingLanguage } from "./language";
 import { z } from "zod";
 
 import {
@@ -49,6 +51,8 @@ export const boardActionsInput = z.object({
   allowlist: z.array(z.string().max(40)).max(50),
   /** How many to ask for. A board reads five things, not twenty. */
   maxActions: z.number().int().min(3).max(8),
+  /** The company's commentary language (ADR 0087): a code from a fixed list, English by default. */
+  language: writingLanguage,
 });
 export type BoardActionsInput = z.infer<typeof boardActionsInput>;
 
@@ -137,6 +141,7 @@ export const boardActionsStageSpec: StageSpec<BoardActionsInput, BoardActionsOut
   maxInputBytes: 96_000,
   stable: (input) => [
     `Give at most ${input.maxActions.toString()} actions, most pressing first.`,
+    languageLine(input.language),
   ],
   volatile: (input) =>
     [

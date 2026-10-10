@@ -4,6 +4,7 @@
  * the callbacks the caller wires to API endpoints; nothing here decides a price or a charge.
  */
 
+import type { StatutoryFormat } from "@magicmis/core/reporting-conventions";
 import type { PeriodId } from "@magicmis/core/time";
 import {
   ageing,
@@ -35,6 +36,7 @@ import {
   renderWorkbook,
   verifyWorkbook,
   type RenderedWorkbook,
+  type WorkbookBrand,
 } from "@magicmis/render-excel";
 import {
   head,
@@ -272,6 +274,10 @@ export async function computeAndRender(
     labelText?: (label: string) => string;
     validation: (cube: HeadCube) => CheckResult[];
     ageingBuckets: readonly AgeingBucket[];
+    /** The cover's logos and preparer (ADR 0087); absent, the cover carries names alone. */
+    brand?: WorkbookBrand;
+    /** The statutory layout to add beside the MIS (ADR 0087); absent adds none. */
+    statutory?: StatutoryFormat;
   },
 ): Promise<OutputBundle & { cube: HeadCube; checks: readonly CheckResult[] }> {
   const loaded = new Set<string>(prepared.periods);
@@ -317,6 +323,8 @@ export async function computeAndRender(
     displayName: input.displayName,
     validation: checks,
     extraValues: extra,
+    ...(input.brand === undefined ? {} : { brand: input.brand }),
+    ...(input.statutory === undefined ? {} : { statutory: input.statutory }),
     ...(input.labelText === undefined ? {} : { labelText: input.labelText }),
   });
   const v11 = verifyWorkbook(rendered.workbook, rendered.expectations);

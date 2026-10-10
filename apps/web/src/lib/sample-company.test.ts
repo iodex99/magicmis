@@ -82,3 +82,39 @@ describe("the sample company (ADR 0086)", () => {
     expect(text).not.toMatch(/[\w.+-]+@[\w-]+\.[a-z]{2,}/u);
   });
 });
+
+describe("the sample in the reader's own money (ADR 0087)", () => {
+  it("relabels the currency and the grouping, and changes no figure", () => {
+    const pounds = sampleCompany({ currencySymbol: "£", style: "millions" });
+    expect(pounds.dashboard.company.currencySymbol).toBe("£");
+    expect(pounds.dashboard.company.money.style).toBe("millions");
+    expect(pounds.commentary.payload.company.currencySymbol).toBe("£");
+    expect(pounds.boardActions.payload.company.money.style).toBe("millions");
+    expect(pounds.dashboard.values).toEqual(sample.dashboard.values);
+  });
+
+  it("offers every month its figures cover in the month picker", () => {
+    const months = new Set(sample.dashboard.values.map((v) => v.period));
+    expect(sample.dashboard.periods).toEqual([...months].sort().reverse());
+    expect(sample.dashboard.periods.length).toBeGreaterThan(12);
+  });
+
+  it("says nothing in its words that only holds in one country", () => {
+    const texts = [
+      ...sample.commentary.payload.output.sections.flatMap((s) => [
+        s.heading,
+        ...s.paragraphs.map((p) => p.text),
+      ]),
+      sample.boardActions.payload.output.summary,
+      ...sample.boardActions.payload.output.actions.flatMap((a) => [
+        a.heading,
+        a.because,
+        a.todo,
+      ]),
+    ];
+    for (const text of texts)
+      expect(text).not.toMatch(
+        /₹|\brupees?\b|\blakhs?\b|\bcrores?\b|\bGST\b|\bTDS\b|\bCA\b/iu,
+      );
+  });
+});

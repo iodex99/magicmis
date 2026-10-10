@@ -10,7 +10,7 @@ import type { Queryable } from "@magicmis/db/tx";
  *
  * It is not the whole catalogue: `packages/accounts` owns the `security.*` sign-in notices
  * The list that must be
- * complete is `TEMPLATE_TYPES` in `apps/worker/src/templates.ts`, which the worker's own
+ * complete is `TEMPLATE_TYPES` in `packages/jobs/src/notice-templates.ts`, which the worker's own
  * test pins to the rendered templates exactly — a type queued with no template there is
  * never delivered.
  */
@@ -29,6 +29,7 @@ export type NotificationType =
   | "billing.memory_fee_failed"
   | "billing.low_balance_before_fee"
   | "reminder.monthly_refresh"
+  | "alerts.fired"
   | "security.break_glass"
   | "security.break_glass_viewed"
   | "account.deletion_scheduled"

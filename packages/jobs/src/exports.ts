@@ -163,8 +163,11 @@ export async function buildAccountExport(
         billing_address: unknown;
         state_code: string;
         created_at: Date;
+        brand_on: boolean;
+        brand_logo: boolean;
       }>(
-        `select email, business_name, gstin, billing_address, state_code, created_at
+        `select email, business_name, gstin, billing_address, state_code, created_at,
+                brand_on, brand_logo_type is not null as brand_logo
          from public.accounts where id = $1`,
       ),
       q<{
@@ -175,8 +178,13 @@ export async function buildAccountExport(
         decimals: number;
         lifecycle_state: string;
         created_at: Date;
+        currency: string;
+        date_order: string;
+        commentary_language: string;
+        statutory_format: string;
       }>(
-        `select id, name, fy_start_month, number_format, decimals, lifecycle_state, created_at
+        `select id, name, fy_start_month, number_format, decimals, lifecycle_state, created_at,
+                currency, date_order, commentary_language, statutory_format
          from public.companies where account_id = $1 and purged_at is null order by created_at`,
       ),
       q<{
@@ -285,6 +293,18 @@ export async function buildAccountExport(
         })),
       }));
 
+  // The alerts an owner set are theirs too (ADR 0087): the figure, the rule and the threshold.
+  const alerts = await pool.query<{
+    company_id: string;
+    metric_id: string;
+    comparator: string;
+    threshold: string;
+    created_at: Date;
+  }>(
+    `select company_id, metric_id, comparator, threshold, created_at from public.company_alerts
+      where account_id = $1 and deleted_at is null order by created_at`,
+    [accountId],
+  );
   const companyData = [];
   for (const c of companies) {
     const blueprint = await latestBlueprint(pool, wrapper, {
@@ -316,8 +336,20 @@ export async function buildAccountExport(
       fyStartMonth: c.fy_start_month,
       numberFormat: c.number_format,
       decimals: c.decimals,
+      currency: c.currency,
+      dateOrder: c.date_order,
+      commentaryLanguage: c.commentary_language,
+      statutoryFormat: c.statutory_format,
       lifecycleState: c.lifecycle_state,
       createdAt: c.created_at.toISOString(),
+      alerts: alerts.rows
+        .filter((a) => a.company_id === c.id)
+        .map((a) => ({
+          metricId: a.metric_id,
+          comparator: a.comparator,
+          threshold: a.threshold,
+          createdAt: a.created_at.toISOString(),
+        })),
       blueprint:
         blueprint === null ? null : { version: blueprint.version, ...blueprint.parts },
       snapshots,
@@ -336,6 +368,8 @@ export async function buildAccountExport(
       billingAddress: profile.billing_address,
       stateCode: profile.state_code,
       createdAt: profile.created_at.toISOString(),
+      // Whether the account shows itself as preparer, and whether it keeps a logo for that.
+      preparer: { shown: profile.brand_on, logoKept: profile.brand_logo },
     },
     companies: companyData,
     jobs: jobs.map((j) => ({

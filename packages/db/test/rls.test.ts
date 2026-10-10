@@ -52,6 +52,7 @@ const TENANT_TABLES = [
   "login_events",
   "consents",
   "source_uploads",
+  "company_alerts",
 ] as const;
 
 /** Tables a customer-facing role must not read at all (SPEC §2.5, §10). */
@@ -158,6 +159,26 @@ describe("account A cannot reach account B's data", () => {
       );
       expect(count, `${table} returned rows for the other tenant`).toBe(0);
     }
+  });
+
+  it("sees only its own alerts, with one seeded for each tenant (ADR 0087)", async () => {
+    for (const t of [alpha, beta])
+      await testDb().pool.query(
+        `insert into public.company_alerts (account_id, company_id, metric_id, comparator, threshold)
+         values ($1, $2, 'cash_and_bank', 'below', '100')`,
+        [t.accountId, t.companyId],
+      );
+    const rows = await testDb().asUser(
+      alpha.authUserId,
+      "authenticated",
+      async (client) => {
+        const r = await client.query<{ account_id: string }>(
+          `select account_id from public.company_alerts`,
+        );
+        return r.rows;
+      },
+    );
+    expect(rows.map((r) => r.account_id)).toEqual([alpha.accountId]);
   });
 
   it("cannot read another tenant's company by its id", async () => {

@@ -12,8 +12,12 @@ import { z } from "zod";
 
 export interface RenderedEmail {
   readonly subject: string;
+  /** The subject without the product's name after it: the line the in-app inbox shows (ADR 0087). */
+  readonly title: string;
   readonly text: string;
   readonly html: string;
+  /** Where the notice sends its reader, as a path in the app; the inbox links there too. */
+  readonly link?: { readonly label: string; readonly path: string };
   /** The sender attaches this invoice's PDF. */
   readonly attachInvoiceId?: string;
 }
@@ -51,7 +55,13 @@ function email(
       : `<p><a href="${escapeHtml(url)}">${escapeHtml(link.label)}</a></p>`,
     `</div>`,
   ].join("");
-  return { subject: `${subject} — ${PRODUCT_NAME}`, text, html };
+  return {
+    subject: `${subject} — ${PRODUCT_NAME}`,
+    title: subject,
+    text,
+    html,
+    ...(link === undefined ? {} : { link }),
+  };
 }
 
 const IF_NOT_YOU =
@@ -73,6 +83,7 @@ const companyPayloadSchema = z.object({
   company_id: z.uuid(),
   company_name: z.string().max(200),
   days: z.number().int().optional(),
+  count: z.number().int().positive().optional(),
 });
 
 function withJob(
@@ -115,6 +126,7 @@ export const TEMPLATE_TYPES: ReadonlySet<string> = new Set([
   "lifecycle.purge_notice",
   "lifecycle.purged",
   "reminder.monthly_refresh",
+  "alerts.fired",
   "security.break_glass",
   "security.break_glass_viewed",
   "account.deletion_scheduled",
@@ -368,6 +380,20 @@ export function renderNotification(
           },
         ),
       );
+    case "alerts.fired":
+      // How many, never which figure or by how much (SPEC §29, ADR 0087): the board says the rest.
+      return withCompany(payload, (p) => {
+        const count = p.count ?? 1;
+        return email(
+          `${count.toString()} ${count === 1 ? "alert" : "alerts"} on ${p.company_name}`,
+          [
+            `${count === 1 ? "One of the alerts" : `${count.toString()} of the alerts`} you set on ${p.company_name} fired on the figures its latest run computed.`,
+            "Open its board to see which.",
+          ],
+          ctx,
+          { label: "Open the board", path: `/app/companies/${p.company_id}` },
+        );
+      });
     case "security.break_glass": {
       // SPEC §26: the account holder is told whenever support opens their data.
       const p = z

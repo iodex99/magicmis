@@ -35,6 +35,10 @@ interface NavItem {
   readonly icon: IconName;
   /** Also mark this item current for descendant paths. */
   readonly match?: string;
+  /** A count beside the label, such as unread notices. */
+  readonly count?: number;
+  /** False where merely prefetching the page would act, as opening the inbox reads it. */
+  readonly prefetch?: boolean;
 }
 
 const PRIMARY: readonly NavItem[] = [
@@ -80,6 +84,7 @@ function NavLink({
   return (
     <Link
       href={item.href}
+      {...(item.prefetch === false ? { prefetch: false } : {})}
       aria-current={current ? "page" : undefined}
       aria-label={collapsed ? item.label : undefined}
       title={collapsed ? item.label : undefined}
@@ -101,6 +106,16 @@ function NavLink({
         <Icon name={item.icon} size={14} />
       </span>
       {collapsed ? null : <span className="truncate">{item.label}</span>}
+      {item.count === undefined || item.count === 0 ? null : (
+        <span
+          className={`num rounded-full bg-accent-600 px-1.5 text-[0.6875rem] font-semibold text-white ${
+            collapsed ? "absolute -top-0.5 right-0.5" : "ml-auto"
+          }`}
+          data-testid="rail-count"
+        >
+          {item.count > 99 ? "99+" : item.count.toString()}
+        </span>
+      )}
     </Link>
   );
 }
@@ -135,6 +150,7 @@ export function Sidebar({
   chatCompanyId,
   initialCollapsed = false,
   onSignOut,
+  unread = 0,
 }: {
   businessName: string;
   /** Pre-formatted; the wallet page is the authority on the figure. */
@@ -145,6 +161,8 @@ export function Sidebar({
   /** From the `rail` cookie, so the first paint is already the right width. */
   initialCollapsed?: boolean;
   onSignOut: React.ReactNode;
+  /** Notices not yet seen, beside the Inbox (ADR 0087). */
+  unread?: number;
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
@@ -247,7 +265,18 @@ export function Sidebar({
         className="scroll-slim flex flex-col gap-5 overflow-x-hidden overflow-y-auto"
       >
         <div className="flex flex-col gap-0.5">
-          {PRIMARY.map((item) => (
+          {[
+            ...PRIMARY,
+            // Every notice we email, in the app too (ADR 0087). Opening it reads it, so the link
+            // is never prefetched.
+            {
+              href: "/app/inbox",
+              label: "Inbox",
+              icon: "mail" as const,
+              count: unread,
+              prefetch: false,
+            },
+          ].map((item) => (
             <NavLink
               key={item.href}
               item={item}

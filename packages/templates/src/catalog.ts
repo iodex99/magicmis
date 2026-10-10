@@ -13,6 +13,11 @@ export interface CatalogMetric {
   readonly unit: CatalogUnit;
   /** Normalised labels (see `normaliseLabel`) that bind to this metric without AI. */
   readonly synonyms: readonly string[];
+  /**
+   * False for a line a template binds to but a dashboard is not offered: the cash flow's working
+   * capital lines read on their sheet, and only its totals belong on a board (ADR 0087).
+   */
+  readonly onBoard?: boolean;
 }
 
 const c = (
@@ -20,12 +25,16 @@ const c = (
   label: string,
   unit: CatalogUnit,
   synonyms: string[],
+  extra: { onBoard?: boolean } = {},
 ): CatalogMetric => ({
   id,
   label,
   unit,
   synonyms,
+  ...extra,
 });
+/** A cash flow line: on its sheet and bindable, not offered to a board. */
+const line = { onBoard: false };
 
 export const METRIC_CATALOG: readonly CatalogMetric[] = [
   c("revenue", "Revenue from operations", "money", [
@@ -176,6 +185,87 @@ export const METRIC_CATALOG: readonly CatalogMetric[] = [
     "cash conversion cycle",
     "cash conversion cycle days",
   ]),
+  // The cash flow (ADR 0086), joined to the library in ADR 0087 once the stages that read this
+  // list were measured with it. Its three totals and the net change can be put on a board.
+  c("cf_operating", "Cash from operating activities", "money", [
+    "cash from operating activities",
+    "net cash from operating activities",
+    "cash flow from operations",
+    "operating cash flow",
+    "cash generated from operations",
+  ]),
+  c("cf_investing", "Cash from investing activities", "money", [
+    "cash from investing activities",
+    "net cash used in investing activities",
+    "investing cash flow",
+  ]),
+  c("cf_financing", "Cash from financing activities", "money", [
+    "cash from financing activities",
+    "net cash from financing activities",
+    "financing cash flow",
+  ]),
+  c("cf_net", "Net change in cash", "money", [
+    "net change in cash",
+    "net increase in cash",
+    "net increase decrease in cash and cash equivalents",
+    "net cash flow",
+  ]),
+  c(
+    "cash_opening",
+    "Cash and bank at the start of the month",
+    "money",
+    ["opening cash", "opening cash and bank", "cash at beginning of period"],
+    line,
+  ),
+  c(
+    "cf_receivables",
+    "Change in trade receivables",
+    "money",
+    [
+      "increase decrease in trade receivables",
+      "change in receivables",
+      "change in accounts receivable",
+    ],
+    line,
+  ),
+  c(
+    "cf_inventory",
+    "Change in inventories",
+    "money",
+    ["increase decrease in inventories", "change in inventory"],
+    line,
+  ),
+  c(
+    "cf_other_current_assets",
+    "Change in other current assets",
+    "money",
+    ["increase decrease in other current assets"],
+    line,
+  ),
+  c(
+    "cf_payables",
+    "Change in trade payables",
+    "money",
+    [
+      "increase decrease in trade payables",
+      "change in payables",
+      "change in accounts payable",
+    ],
+    line,
+  ),
+  c(
+    "cf_other_current_liabilities",
+    "Change in other current liabilities",
+    "money",
+    ["increase decrease in other current liabilities"],
+    line,
+  ),
+  c("cf_unmapped", "Change in unmapped balances", "money", [], line),
+  c("cf_fixed_assets", "Fixed assets bought, net of disposals", "money", [], line),
+  c("cf_investments", "Investments and other non-current assets", "money", [], line),
+  c("cf_borrowings", "Borrowings raised less repaid", "money", ["net borrowings"], line),
+  c("cf_other_long_term", "Other long-term liabilities", "money", [], line),
+  c("cf_equity", "Capital introduced less withdrawn", "money", [], line),
 ];
 
 export const catalogMetric = (id: string): CatalogMetric | undefined =>

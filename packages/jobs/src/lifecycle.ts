@@ -421,6 +421,8 @@ export async function purgeCompanies(
       await withTransaction(pool, async (tx) => {
         await shredCompanyKey(tx, c.id, now);
         await tx.query(`delete from public.outputs where company_id = $1`, [c.id]);
+        // A threshold the owner typed is theirs too (ADR 0087).
+        await tx.query(`delete from public.company_alerts where company_id = $1`, [c.id]);
         // The name is the customer's data too: it goes with the key.
         await tx.query(
           `update public.companies set lifecycle_state = 'purged', purged_at = $2, wrapped_redaction_key = null,
@@ -685,7 +687,8 @@ export async function purgeAccounts(
         // (invoices keep their own buyer snapshot).
         await tx.query(
           `update public.accounts set email = 'purged-' || id::text || '@invalid', business_name = 'Deleted account',
-             billing_address = '{}'::jsonb, gstin = null, purged_at = $2 where id = $1`,
+             billing_address = '{}'::jsonb, gstin = null, brand_on = false, brand_logo_sealed = null,
+             brand_logo_type = null, brand_logo_version = null, purged_at = $2 where id = $1`,
           [a.id, now],
         );
         await tx.query(`delete from public.login_events where account_id = $1`, [a.id]);

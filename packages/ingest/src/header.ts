@@ -116,8 +116,28 @@ function scoreRow(sheet: SheetGrid, r: number, width: number): number {
   const cells = rowCells(sheet, r, width);
   const filled = cells.filter((c) => !isBlankCell(c));
   if (filled.length < 2) return -1;
-  const textCells = filled.filter((c) => classifyCell(c) === "text");
-  const textRatio = textCells.length / filled.length;
+  // A date over a column of amounts is a period heading, not a value. Most systems other than
+  // Tally head a statement's columns with the date it is at or the months it covers ("31 Mar
+  // 2026", "Jan 2026"), where Tally writes the period in a title line, and without this such a
+  // statement had no header at all (ADR 0087).
+  const periodHeading = (c: number): boolean => {
+    if (classifyCell(cells[c] ?? cellAt(sheet, r, c)) !== "date") return false;
+    let amounts = 0;
+    let seen = 0;
+    for (let k = r + 1; k < Math.min(sheet.rows.length, r + 1 + CONTRAST_ROWS); k += 1) {
+      const below = cellAt(sheet, k, c);
+      if (isBlankCell(below)) continue;
+      seen += 1;
+      const type = classifyCell(below);
+      if (type === "amount" || type === "integer") amounts += 1;
+    }
+    return seen > 0 && amounts / seen >= 0.5;
+  };
+  let labels = 0;
+  cells.forEach((c, i) => {
+    if (!isBlankCell(c) && (classifyCell(c) === "text" || periodHeading(i))) labels += 1;
+  });
+  const textRatio = labels / filled.length;
   if (textRatio < 0.6) return -1;
   const unique =
     new Set(filled.map((c) => c.text.trim().toLowerCase())).size / filled.length;

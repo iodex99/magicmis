@@ -19,7 +19,7 @@ import {
   renderNotification,
   TEMPLATE_TYPES,
   type TemplateContext,
-} from "./templates";
+} from "@magicmis/jobs";
 
 export interface DeliveryStats {
   sent: number;

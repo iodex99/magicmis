@@ -16,14 +16,17 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const APP = path.resolve(import.meta.dirname, "..", "app");
+// Shared by the worker's emails and the in-app inbox since ADR 0087.
 const TEMPLATES = path.resolve(
   import.meta.dirname,
   "..",
   "..",
   "..",
-  "worker",
+  "..",
+  "packages",
+  "jobs",
   "src",
-  "templates.ts",
+  "notice-templates.ts",
 );
 
 /** Does `/a/b/c` resolve to a page, letting any segment be a `[param]` folder? */

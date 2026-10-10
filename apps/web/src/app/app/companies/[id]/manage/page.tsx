@@ -24,6 +24,12 @@ import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { ist, JOB_STATE } from "@/lib/job-display";
 import { ledgerSummary } from "@/lib/server/ledger-map";
+import { boardAlerts } from "@/lib/server/insights";
+import {
+  currencySymbol,
+  type StatutoryFormat,
+} from "@magicmis/core/reporting-conventions";
+import { METRIC_CATALOG } from "@magicmis/templates";
 import { keyWrapper } from "@/lib/server/runtime";
 import { logoUrl } from "@/lib/logo";
 import { fileRows } from "@/lib/server/files";
@@ -32,6 +38,8 @@ import { logoLimits } from "@/lib/server/logo";
 import { CompanyFiles } from "../CompanyFiles";
 import { DeleteCompany } from "../DeleteCompany";
 import { ReportingConventions } from "../ReportingConventions";
+
+import { CompanyAlerts } from "./CompanyAlerts";
 
 export const metadata = { title: "Files and settings" };
 export const dynamic = "force-dynamic";
@@ -88,12 +96,15 @@ export default async function ManageCompanyPage({
     lifecycle_state: string;
     number_format: "lakhs_crores" | "absolute" | "millions";
     currency: string;
+    decimals: number;
     fy_start_month: number;
     date_order: "day_first" | "month_first";
+    commentary_language: string;
+    statutory_format: StatutoryFormat;
     logo_version: string | null;
   }>(
-    `select name, lifecycle_state, number_format, currency, fy_start_month, date_order,
-            logo_version
+    `select name, lifecycle_state, number_format, currency, decimals, fy_start_month, date_order,
+            commentary_language, statutory_format, logo_version
        from companies where id = $1 and account_id = $2 and deleted_at is null`,
     [id, account.accountId],
   );
@@ -139,6 +150,7 @@ export default async function ManageCompanyPage({
     accountId: account.accountId,
     companyId: id,
   }).catch(() => null);
+  const alerts = await boardAlerts(pool, { accountId: account.accountId, companyId: id });
   // Whole percent, for a bar's width only; the figures beside it are the exact ones.
   const usedPercent = Math.min(
     100,
@@ -203,6 +215,8 @@ export default async function ManageCompanyPage({
               currency: company.currency,
               numberFormat: company.number_format,
               dateOrder: company.date_order,
+              commentaryLanguage: company.commentary_language,
+              statutoryFormat: company.statutory_format,
             }}
           />
         </Panel>
@@ -233,6 +247,31 @@ export default async function ManageCompanyPage({
             </div>
           </Panel>
         )}
+
+        {/* Alerts on the company's own figures (ADR 0087). */}
+        <div id="alerts">
+          <Panel
+            title="Alerts"
+            icon="alert"
+            description="Tell me when a figure crosses a line: cash below an amount, debtor days above a number."
+          >
+            <CompanyAlerts
+              companyId={id}
+              alerts={alerts}
+              metrics={METRIC_CATALOG.filter((m) => m.onBoard !== false).map((m) => ({
+                id: m.id,
+                label: m.label,
+                unit: m.unit,
+              }))}
+              money={{
+                style: company.number_format,
+                decimals: company.decimals,
+                negativesInBrackets: true,
+              }}
+              currencySymbol={currencySymbol(company.currency)}
+            />
+          </Panel>
+        </div>
 
         <Panel
           title="Your files"

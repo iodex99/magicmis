@@ -27,6 +27,7 @@
     "@magicmis/fixtures": "workspace:*",
     "@magicmis/ingest": "workspace:*",
     "@magicmis/tally": "workspace:*",
+    "fast-check": "^4.9.0",
     "hyperformula": "3.4.0",
     "tsx": "4.23.13",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"

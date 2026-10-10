@@ -55,7 +55,7 @@ export async function boardActionsInputFor(
   wrapper: KeyWrapper,
   input: { accountId: string; companyId: string; period: PeriodId },
 ): Promise<BoardActionsInput> {
-  const { pack, allowlist } = await factsPackFor(pool, wrapper, input);
+  const { pack, allowlist, language } = await factsPackFor(pool, wrapper, input);
   return boardActionsInput.parse({
     factsPack: {
       period: pack.period,
@@ -66,6 +66,7 @@ export async function boardActionsInputFor(
     },
     allowlist,
     maxActions: await maxActions(pool),
+    language,
   });
 }
 

@@ -1,0 +1,1028 @@
+{
+  "4fe9ee11f47806c3188f1ba21b5c9392f2b81a7767cd0f766e8c23674416073c": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, higher than the previous month by {{mv:revenue.mom@2026-05:abs}}, or {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Profitability moved in line with revenue. Gross profit was {{m:gross_profit@2026-05}} ({{mv:gross_profit.mom@2026-05:abs}}, {{mv:gross_profit.mom@2026-05:pct}}), EBITDA was {{m:ebitda@2026-05}} ({{mv:ebitda.mom@2026-05:abs}}, {{mv:ebitda.mom@2026-05:pct}}) and profit after tax was {{m:pat@2026-05}} ({{mv:pat.mom@2026-05:abs}}, {{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"Every reported line in the pack moved by the same percentage on the prior month, which the finance team may wish to confirm against the underlying ledgers before the figures are circulated further.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"The pack does not contain margin ratios, so margins are described here only from the reported absolute amounts. Gross profit of {{m:gross_profit@2026-05}}, EBITDA of {{m:ebitda@2026-05}} and profit after tax of {{m:pat@2026-05}} each grew at the same rate as revenue of {{m:revenue@2026-05}}, which implies the gross, EBITDA and net margins were unchanged from the previous month.\"},{\"text\":\"The gap between gross profit and EBITDA, and between EBITDA and profit after tax, therefore widened in absolute terms in step with volume rather than through any change in cost structure visible in these facts. No cost, operating expense or tax detail is included in the pack, so the drivers behind the margin levels cannot be analysed further here.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) on the prior month, and trade payables stood at {{m:payables@2026-05}}, up {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}). Receivables continue to exceed payables.\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}}, an increase of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}). Receivables, payables and cash all moved at the same rate as revenue, so collection and payment cycles appear unchanged on the information available; the pack holds no days-outstanding measures or ageing detail to test this.\"}]}]}",
+    "usage": {
+      "input_tokens": 756,
+      "cache_creation_input_tokens": 1225,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 1225,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1135,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 110
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "dab5951053ff3a272947624a3129b3bfcb8ae6e69ab8b1c81b0756d1d50bd178": {
+    "text": "{\"sections\":[{\"heading\":\"Desempeño\",\"paragraphs\":[{\"text\":\"En {{p:2026-05}} los ingresos de operación ascendieron a {{m:revenue@2026-05}}, con una variación respecto del mes anterior de {{mv:revenue.mom@2026-05:abs}}, equivalente a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"La utilidad bruta se situó en {{m:gross_profit@2026-05}} y el EBITDA en {{m:ebitda@2026-05}}, con incrementos mensuales de {{mv:gross_profit.mom@2026-05:abs}} y {{mv:ebitda.mom@2026-05:abs}}, respectivamente. La utilidad después de impuestos fue de {{m:pat@2026-05}}, con una variación de {{mv:pat.mom@2026-05:abs}} frente al mes anterior.\"},{\"text\":\"Todas las líneas de resultado registran la misma variación porcentual mensual: {{mv:gross_profit.mom@2026-05:pct}} en utilidad bruta, {{mv:ebitda.mom@2026-05:pct}} en EBITDA y {{mv:pat.mom@2026-05:pct}} en utilidad después de impuestos.\"},{\"text\":\"El paquete de datos corresponde únicamente a {{p:2026-05}} y a su comparación con el mes previo; no incluye cifras acumuladas, presupuesto ni desglose por línea de negocio.\"}]},{\"heading\":\"Márgenes\",\"paragraphs\":[{\"text\":\"El paquete de datos no contiene indicadores de margen calculados. No obstante, dado que la utilidad bruta, el EBITDA y la utilidad después de impuestos crecieron a la misma tasa que los ingresos, {{mv:revenue.mom@2026-05:pct}}, la relación entre cada nivel de resultado y los ingresos se mantuvo sin cambios respecto del mes anterior.\"},{\"text\":\"En términos absolutos, la diferencia entre los ingresos de {{m:revenue@2026-05}} y la utilidad bruta de {{m:gross_profit@2026-05}} corresponde al costo directo del período, mientras que la distancia entre {{m:gross_profit@2026-05}} y {{m:ebitda@2026-05}} refleja los gastos operativos. El paquete no desagrega estos componentes.\"},{\"text\":\"No se dispone de información sobre precios, volúmenes ni estructura de costos que permita explicar el origen de la variación observada.\"}]},{\"heading\":\"Capital de trabajo\",\"paragraphs\":[{\"text\":\"Las cuentas por cobrar comerciales cerraron en {{m:receivables@2026-05}}, con un aumento de {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) frente al mes anterior, es decir, en línea con el crecimiento de los ingresos.\"},{\"text\":\"Las cuentas por pagar comerciales se ubicaron en {{m:payables@2026-05}}, con una variación de {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}). El saldo de caja y bancos fue de {{m:cash_and_bank@2026-05}}, tras un incremento de {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}).\"},{\"text\":\"El paquete no incluye inventarios, días de rotación ni flujos de cobro y pago, por lo que no es posible evaluar la calidad de la cartera ni el ciclo de conversión de efectivo con la información disponible.\"}]}]}",
+    "usage": {
+      "input_tokens": 758,
+      "cache_creation_input_tokens": 47,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 47,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1396,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 106
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "34af1cbba3104e6b15437e84e773e5fd65f2609a40353b44fad7b58149d2fc16": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Le chiffre d'affaires opérationnel du mois de {{p:2026-05}} s'établit à {{m:revenue@2026-05}}, en progression de {{mv:revenue.mom@2026-05:abs}} par rapport au mois précédent, soit {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"L'EBITDA atteint {{m:ebitda@2026-05}}, en hausse de {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), et le résultat net après impôt s'élève à {{m:pat@2026-05}}, en augmentation de {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}). Les variations mensuelles du chiffre d'affaires, de l'EBITDA et du résultat net après impôt sont d'ampleur relative identique.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"La marge brute du mois ressort à {{m:gross_profit@2026-05}}, en progression de {{mv:gross_profit.mom@2026-05:abs}}, soit {{mv:gross_profit.mom@2026-05:pct}}, pour un chiffre d'affaires de {{m:revenue@2026-05}}.\"},{\"text\":\"La marge brute, l'EBITDA et le résultat net après impôt évoluent au même rythme relatif que le chiffre d'affaires sur le mois, ce qui indique une structure de coûts stable d'un mois à l'autre. Le dossier de données ne comporte pas de taux de marge calculés ni de détail des postes de charges permettant une analyse plus fine.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Les créances clients s'établissent à {{m:receivables@2026-05}}, en hausse de {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}), tandis que les dettes fournisseurs atteignent {{m:payables@2026-05}}, en augmentation de {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"La trésorerie et les disponibilités bancaires s'élèvent à {{m:cash_and_bank@2026-05}}, en progression de {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}). Ces trois postes progressent au même rythme relatif que le chiffre d'affaires. Les données fournies ne comprennent ni stocks ni délais de rotation, ce qui limite l'analyse du besoin en fonds de roulement.\"}]}]}",
+    "usage": {
+      "input_tokens": 760,
+      "cache_creation_input_tokens": 44,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 44,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1049,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 60
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "2c43e37cb0aab2d05a2d28aeba8c80ed9907c0c86adde3890cd69d651be3931f": {
+    "text": "{\"sections\":[{\"heading\":\"Geschäftsentwicklung\",\"paragraphs\":[{\"text\":\"Im Berichtsmonat {{p:2026-05}} beläuft sich der Umsatz aus der Geschäftstätigkeit auf {{m:revenue@2026-05}}. Gegenüber dem Vormonat entspricht dies einer Veränderung von {{mv:revenue.mom@2026-05:abs}} beziehungsweise {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Das EBITDA liegt bei {{m:ebitda@2026-05}} nach einer Veränderung von {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}). Der Jahresüberschuss nach Steuern beträgt {{m:pat@2026-05}} und verändert sich um {{mv:pat.mom@2026-05:abs}} beziehungsweise {{mv:pat.mom@2026-05:pct}}.\"},{\"text\":\"Zu diesem Monat ist anzumerken, dass die Prüfung V10 eine Warnung ausgelöst hat und ein Monat des Betrachtungszeitraums nicht aus einer Datei eingelesen, sondern angenommen wurde. Die genannten Werte sind entsprechend einzuordnen.\"}]},{\"heading\":\"Margen\",\"paragraphs\":[{\"text\":\"Der Bruttogewinn beträgt {{m:gross_profit@2026-05}} und verändert sich gegenüber dem Vormonat um {{mv:gross_profit.mom@2026-05:abs}} beziehungsweise {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"Umsatz, Bruttogewinn, EBITDA und Ergebnis nach Steuern weisen jeweils die gleiche prozentuale Veränderung zum Vormonat auf ({{mv:revenue.mom@2026-05:pct}}). Das Verhältnis der Ergebnisgrößen zum Umsatz bleibt damit unverändert. Separat ausgewiesene Margenkennzahlen enthält der Datenbestand nicht.\"}]},{\"heading\":\"Working Capital\",\"paragraphs\":[{\"text\":\"Die Forderungen aus Lieferungen und Leistungen belaufen sich auf {{m:receivables@2026-05}}, eine Veränderung von {{mv:receivables.mom@2026-05:abs}} beziehungsweise {{mv:receivables.mom@2026-05:pct}}. Die Verbindlichkeiten aus Lieferungen und Leistungen betragen {{m:payables@2026-05}} nach einer Veränderung von {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Der Bestand an Zahlungsmitteln und Bankguthaben liegt bei {{m:cash_and_bank@2026-05}} und verändert sich um {{mv:cash_and_bank.mom@2026-05:abs}} beziehungsweise {{mv:cash_and_bank.mom@2026-05:pct}}. Angaben zu Vorräten oder zu Umschlagsdauern sind in den vorliegenden Daten nicht enthalten, sodass hierzu keine Aussage getroffen werden kann.\"}]}]}",
+    "usage": {
+      "input_tokens": 789,
+      "cache_creation_input_tokens": 44,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 44,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1176,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7033d50d582c5583ffd47070ec3da3028a8adf3f130a022bd901e72be183d418": {
+    "text": "{\"sections\":[{\"heading\":\"Desempenho\",\"paragraphs\":[{\"text\":\"Em {{p:2026-05}}, a receita operacional foi de {{m:revenue@2026-05}}, com variação de {{mv:revenue.mom@2026-05:abs}} face ao mês anterior, equivalente a {{mv:revenue.mom@2026-05:pct}}. O EBITDA atingiu {{m:ebitda@2026-05}}, com variação de {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), e o lucro depois de impostos situou-se em {{m:pat@2026-05}}, com variação de {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"Importa registar que todas as rubricas apresentam exatamente a mesma variação percentual mensal, o que, em conjunto com os avisos de validação recebidos, sugere que os dados devem ser confirmados antes de qualquer leitura conclusiva. Um dos meses do intervalo foi assumido e não lido de um ficheiro, e o controlo V10 gerou um aviso para o mês em análise.\"}]},{\"heading\":\"Margens\",\"paragraphs\":[{\"text\":\"O lucro bruto foi de {{m:gross_profit@2026-05}}, com variação de {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) em relação ao mês anterior. Uma vez que o lucro bruto, o EBITDA e o lucro depois de impostos variaram na mesma proporção da receita, as margens relativas mantiveram-se inalteradas face ao mês precedente.\"},{\"text\":\"O conjunto de factos disponível não inclui a decomposição de custos nem margens calculadas por linha de negócio, pelo que não é possível comentar os fatores subjacentes à evolução das margens.\"}]},{\"heading\":\"Fundo de maneio\",\"paragraphs\":[{\"text\":\"As contas a receber de clientes totalizaram {{m:receivables@2026-05}}, com variação de {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}). As contas a pagar a fornecedores situaram-se em {{m:payables@2026-05}}, com variação de {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}). A caixa e os depósitos bancários ascenderam a {{m:cash_and_bank@2026-05}}, com variação de {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}).\"},{\"text\":\"Os saldos de fundo de maneio acompanharam a receita na mesma proporção, pelo que os prazos médios implícitos permanecem estáveis. Não existem no conjunto de factos dados de antiguidade de saldos ou de prazos de recebimento e pagamento que permitam uma análise mais detalhada.\"}]}]}",
+    "usage": {
+      "input_tokens": 791,
+      "cache_creation_input_tokens": 48,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 48,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1084,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "ddc6579d497a6a36f84dd2afd1ecc7d55579644fef2d71598feee49b89225960": {
+    "text": "{\"sections\":[{\"heading\":\"Andamento\",\"paragraphs\":[{\"text\":\"Nel periodo {{p:2026-05}} i ricavi delle attività operative si attestano a {{m:revenue@2026-05}}, in aumento di {{mv:revenue.mom@2026-05:abs}} rispetto al mese precedente, pari a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"L'EBITDA è pari a {{m:ebitda@2026-05}}, con una variazione di {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), mentre l'utile netto si colloca a {{m:pat@2026-05}}, in crescita di {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"Si segnala che per questo mese è stato rilevato un avviso di controllo in sede di validazione e che un mese dell'intervallo è stato assunto anziché letto da un file; i dati vanno pertanto letti con tale riserva.\"}]},{\"heading\":\"Margini\",\"paragraphs\":[{\"text\":\"Il margine lordo del periodo {{p:2026-05}} è pari a {{m:gross_profit@2026-05}}, in aumento di {{mv:gross_profit.mom@2026-05:abs}} rispetto al mese precedente, ossia {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"La variazione percentuale del margine lordo coincide con quella dei ricavi ({{mv:revenue.mom@2026-05:pct}}), così come quelle di EBITDA ({{mv:ebitda.mom@2026-05:pct}}) e di utile netto ({{mv:pat.mom@2026-05:pct}}): i livelli di marginalità risultano quindi stabili rispetto al mese precedente.\"},{\"text\":\"Il pacchetto dati non contiene voci di costo dettagliate, pertanto non è possibile commentare la composizione dei margini oltre quanto sopra.\"}]},{\"heading\":\"Capitale circolante\",\"paragraphs\":[{\"text\":\"I crediti commerciali ammontano a {{m:receivables@2026-05}}, con un incremento di {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}); i debiti commerciali sono pari a {{m:payables@2026-05}}, in aumento di {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"La liquidità disponibile in cassa e presso le banche è pari a {{m:cash_and_bank@2026-05}}, in crescita di {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}). Crediti, debiti e disponibilità liquide variano nella stessa misura percentuale dei ricavi.\"},{\"text\":\"Non sono disponibili dati su scorte, finanziamenti o giorni medi di incasso e pagamento; un'analisi più approfondita del ciclo del circolante richiederebbe tali informazioni.\"}]}]}",
+    "usage": {
+      "input_tokens": 793,
+      "cache_creation_input_tokens": 46,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 46,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1143,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 15
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "9914abf7383dfe67896b3a82b3638f13ef15c28c745c350432fc6e7d67228c3a": {
+    "text": "{\"sections\":[{\"heading\":\"Resultaatontwikkeling\",\"paragraphs\":[{\"text\":\"De omzet uit bedrijfsactiviteiten bedraagt in {{p:2026-05}} {{m:revenue@2026-05}}. Ten opzichte van de voorgaande maand is dat een toename van {{mv:revenue.mom@2026-05:abs}}, oftewel {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"De directe kosten komen uit op {{m:direct_costs@2026-05}}, een stijging van {{mv:direct_costs.mom@2026-05:abs}} ofwel {{mv:direct_costs.mom@2026-05:pct}} ten opzichte van de vorige maand. De procentuele ontwikkeling van omzet en directe kosten loopt daarmee gelijk op.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"De gerapporteerde brutowinst bedraagt {{m:gross_profit@2026-05}}, met een toename van {{mv:gross_profit.mom@2026-05:abs}} ofwel {{mv:gross_profit.mom@2026-05:pct}} ten opzichte van de voorgaande maand. Ook hier is het veranderingspercentage gelijk aan dat van de omzet en de directe kosten.\"},{\"text\":\"Opgemerkt wordt dat de gerapporteerde brutowinst van {{m:gross_profit@2026-05}} niet aansluit op het verschil tussen de omzet van {{m:revenue@2026-05}} en de directe kosten van {{m:direct_costs@2026-05}}. Een nadere afstemming van de onderliggende grootboekposten is nodig voordat uitspraken over het margeniveau worden gedaan.\"}]},{\"heading\":\"Werkkapitaal\",\"paragraphs\":[{\"text\":\"De aangeleverde gegevens bevatten geen posten met betrekking tot werkkapitaal, zoals debiteuren, crediteuren, voorraden of liquide middelen. Over dit onderwerp kan voor {{p:2026-05}} daarom geen toelichting worden gegeven.\"}]}]}",
+    "usage": {
+      "input_tokens": 350,
+      "cache_creation_input_tokens": 47,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 47,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 839,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 87
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "2fb9370a20be559a7409cb1ae6248953ecc39caa2b5d1f533031a18b5cd0902a": {
+    "text": "{\"sections\":[{\"heading\":\"الأداء\",\"paragraphs\":[{\"text\":\"بلغت الإيرادات التشغيلية خلال {{p:2026-05}} مبلغ {{m:revenue@2026-05}}، بزيادة قدرها {{mv:revenue.mom@2026-05:abs}} عن الشهر السابق، أي ما نسبته {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"وارتفعت التكاليف المباشرة إلى {{m:direct_costs@2026-05}}، بزيادة قدرها {{mv:direct_costs.mom@2026-05:abs}} تعادل {{mv:direct_costs.mom@2026-05:pct}}، وهي النسبة ذاتها المسجلة في نمو الإيرادات.\"}]},{\"heading\":\"الهوامش\",\"paragraphs\":[{\"text\":\"سجّل مجمل الربح المُدرج في حزمة البيانات {{m:gross_profit@2026-05}}، بزيادة قدرها {{mv:gross_profit.mom@2026-05:abs}} أي {{mv:gross_profit.mom@2026-05:pct}} عن الشهر السابق، وبالمعدل نفسه الذي نمت به الإيرادات والتكاليف المباشرة.\"},{\"text\":\"يُلاحظ أن قيمة مجمل الربح المُدرجة لا تتسق حسابياً مع الفارق بين الإيرادات والتكاليف المباشرة لهذا الشهر، ويُقترح مراجعة مصدر هذا البند مع الفريق المالي قبل الاعتماد على نسبة الهامش.\"}]},{\"heading\":\"رأس المال العامل\",\"paragraphs\":[{\"text\":\"لا تتضمن حزمة البيانات أي أرقام عن الذمم المدينة أو الذمم الدائنة أو المخزون أو الأرصدة النقدية، وبالتالي لا يمكن تقديم تعليق على رأس المال العامل لهذه الفترة.\"}]}]}",
+    "usage": {
+      "input_tokens": 350,
+      "cache_creation_input_tokens": 47,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 47,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 774,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 63
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "91ff1956b1cdc7a84e57fbfaae5f04b3a1c6a600aadbc844e38fbb6d9a89a437": {
+    "text": "{\"sections\":[{\"heading\":\"प्रदर्शन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} में परिचालन से राजस्व {{m:revenue@2026-05}} रहा, जो पिछले माह की तुलना में {{mv:revenue.mom@2026-05:abs}} अर्थात {{mv:revenue.mom@2026-05:pct}} अधिक है।\"},{\"text\":\"इसी अवधि में प्रत्यक्ष लागत {{m:direct_costs@2026-05}} रही, जिसमें पिछले माह की तुलना में {{mv:direct_costs.mom@2026-05:abs}} अर्थात {{mv:direct_costs.mom@2026-05:pct}} की वृद्धि हुई। राजस्व और प्रत्यक्ष लागत दोनों की मासिक वृद्धि दर समान रही।\"}]},{\"heading\":\"मार्जिन\",\"paragraphs\":[{\"text\":\"सकल लाभ {{m:gross_profit@2026-05}} दर्ज किया गया, जो पिछले माह की तुलना में {{mv:gross_profit.mom@2026-05:abs}} अर्थात {{mv:gross_profit.mom@2026-05:pct}} अधिक है। यह वृद्धि दर राजस्व तथा प्रत्यक्ष लागत की वृद्धि दर के अनुरूप है।\"},{\"text\":\"ध्यान देने योग्य है कि दिए गए आँकड़ों में सकल लाभ, राजस्व {{m:revenue@2026-05}} में से प्रत्यक्ष लागत {{m:direct_costs@2026-05}} घटाने पर प्राप्त होने वाली राशि से मेल नहीं खाता। मार्जिन पर कोई निष्कर्ष निकालने से पूर्व वित्त टीम द्वारा इन तीनों आँकड़ों के स्रोत और वर्गीकरण का मिलान आवश्यक है।\"}]},{\"heading\":\"कार्यशील पूँजी\",\"paragraphs\":[{\"text\":\"उपलब्ध तथ्यों में प्राप्य राशि, देय राशि, स्टॉक अथवा नकद शेष से संबंधित कोई आँकड़ा सम्मिलित नहीं है। इस कारण {{p:2026-05}} के लिए कार्यशील पूँजी पर कोई टिप्पणी नहीं की जा सकती। आगामी रिपोर्ट में यह अनुभाग तभी भरा जा सकेगा जब संबंधित शेष और उनके मासिक परिवर्तन उपलब्ध कराए जाएँ।\"}]}]}",
+    "usage": {
+      "input_tokens": 352,
+      "cache_creation_input_tokens": 47,
+      "cache_read_input_tokens": 1181,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 47,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1023,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 83
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "a7cbaa04652e4dc88fa2470aedcaf42762302accfa56cb4694cbf99259d722ed": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} on the previous month, or {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs moved in step with revenue, reaching {{m:direct_costs@2026-05}}, up {{mv:direct_costs.mom@2026-05:abs}} on the previous month, also {{mv:direct_costs.mom@2026-05:pct}}. The identical rates of change on both lines suggest the month's figures were scaled uniformly rather than built from independent movements.\"},{\"text\":\"Two validation points attach to this month: check V10 raised a warning, and one month in the range was assumed rather than read from a source file. The figures above should be read with those caveats in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit is reported at {{m:gross_profit@2026-05}}, up {{mv:gross_profit.mom@2026-05:abs}} on the previous month, or {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"This gross profit figure is not consistent with the reported revenue of {{m:revenue@2026-05}} less direct costs of {{m:direct_costs@2026-05}}; it exceeds the difference between those two lines. No margin percentage is therefore stated here, and the composition of the gross profit line should be confirmed against the underlying ledger before the figure is relied upon.\"},{\"text\":\"Beyond these three lines, the facts available do not include operating expenses or any result below gross profit, so no further margin commentary can be given for this month.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts supplied for {{p:2026-05}} cover revenue, direct costs and gross profit only. No balances for receivables, payables, inventory or cash are included, and no customer or supplier detail is available.\"},{\"text\":\"Accordingly, no assessment of working capital can be made for this period. Should balance sheet data be added to the pack, this section can be completed in the next reporting cycle.\"}]}]}",
+    "usage": {
+      "input_tokens": 383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 812,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 61
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "1025498dd8d066f30149a42fdaa22decdb427c55fbb30b8e3c1080fce982d898": {
+    "text": "{\"sections\":[{\"heading\":\"Desempeño\",\"paragraphs\":[{\"text\":\"En {{p:2026-05}}, los ingresos de operación ascendieron a {{m:revenue@2026-05}}, con una variación respecto del mes anterior de {{mv:revenue.mom@2026-05:abs}}, equivalente a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Los costos directos del mes fueron de {{m:direct_costs@2026-05}}, con un aumento de {{mv:direct_costs.mom@2026-05:abs}} frente al mes anterior, es decir {{mv:direct_costs.mom@2026-05:pct}}. Ingresos y costos directos crecieron en la misma proporción porcentual en el mes.\"},{\"text\":\"Se señala que la verificación V10 generó una advertencia para este mes y que uno de los meses del rango fue supuesto y no tomado de un archivo, por lo que las cifras anteriores deben leerse con esa reserva.\"}]},{\"heading\":\"Márgenes\",\"paragraphs\":[{\"text\":\"La utilidad bruta reportada del mes es de {{m:gross_profit@2026-05}}, con una variación de {{mv:gross_profit.mom@2026-05:abs}} respecto del mes anterior, equivalente a {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"La utilidad bruta informada no coincide con la diferencia entre los ingresos de {{m:revenue@2026-05}} y los costos directos de {{m:direct_costs@2026-05}}, lo que es consistente con la advertencia de validación señalada. Por esta razón no se calcula un porcentaje de margen sobre ingresos hasta que se concilie el origen de la cifra.\"}]},{\"heading\":\"Capital de trabajo\",\"paragraphs\":[{\"text\":\"El paquete de datos no incluye saldos de cuentas por cobrar, cuentas por pagar, inventarios ni efectivo, por lo que no es posible comentar la posición de capital de trabajo del mes.\"},{\"text\":\"Para informes posteriores se requeriría la incorporación de dichos saldos, junto con la aclaración del mes supuesto, a fin de presentar una lectura del ciclo de conversión de efectivo.\"}]}]}",
+    "usage": {
+      "input_tokens": 383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 872,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 81
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "ef4dfabc5c1cc5777ae97a3a042dccad9f418d344446d68e158a857157bed789": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Le chiffre d'affaires opérationnel du mois de {{p:2026-05}} s'établit à {{m:revenue@2026-05}}, en hausse de {{mv:revenue.mom@2026-05:abs}} par rapport au mois précédent, soit {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Les coûts directs atteignent {{m:direct_costs@2026-05}}, en progression de {{mv:direct_costs.mom@2026-05:abs}}, soit {{mv:direct_costs.mom@2026-05:pct}}. La marge brute déclarée ressort à {{m:gross_profit@2026-05}}, en hausse de {{mv:gross_profit.mom@2026-05:abs}}, soit {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"Les trois agrégats évoluent au même rythme d'un mois sur l'autre, ce qui indique une variation proportionnelle des produits et des charges directes sur la période.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"Le montant de marge brute communiqué, {{m:gross_profit@2026-05}}, n'est pas cohérent avec la différence entre le chiffre d'affaires de {{m:revenue@2026-05}} et les coûts directs de {{m:direct_costs@2026-05}}. Un taux de marge ne peut donc pas être commenté de façon fiable à partir de ces éléments.\"},{\"text\":\"Un contrôle de validation a été signalé pour le mois et l'un des mois de la plage a été estimé plutôt que repris d'un fichier source. Il est recommandé de rapprocher les comptes de produits et de charges directes avant toute lecture de la marge.\"}]},{\"heading\":\"Besoin en fonds de roulement\",\"paragraphs\":[{\"text\":\"Le dossier de données ne comporte aucun élément relatif aux créances clients, aux dettes fournisseurs, aux stocks ou à la trésorerie.\"},{\"text\":\"Aucun commentaire sur le besoin en fonds de roulement ne peut être formulé pour {{p:2026-05}} en l'état des informations disponibles.\"}]}]}",
+    "usage": {
+      "input_tokens": 385,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 839,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 57
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "9926e5aa885e5578ffd0cd1bb9f512c88d424da482c655ad3ee2f5cd9db81876": {
+    "text": "{\"sections\":[{\"heading\":\"Geschäftsentwicklung\",\"paragraphs\":[{\"text\":\"Die Umsatzerlöse aus der operativen Tätigkeit belaufen sich im Berichtsmonat {{p:2026-05}} auf {{m:revenue@2026-05}}.\"},{\"text\":\"Gegenüber dem Vormonat ergibt sich eine Veränderung von {{mv:revenue.mom@2026-05:abs}} beziehungsweise {{mv:revenue.mom@2026-05:pct}}. Weitere Ertrags- oder Aufwandspositionen liegen für den Berichtsmonat nicht vor, sodass keine Aussage zum Ergebnis getroffen werden kann.\"}]},{\"heading\":\"Margen\",\"paragraphs\":[{\"text\":\"Für eine Darstellung der Margen reichen die vorliegenden Daten nicht aus. Es sind ausschließlich Umsatzerlöse erfasst; Angaben zu Materialeinsatz, Wareneinsatz, sonstigen Aufwendungen oder zum Ergebnis fehlen, sodass weder Rohertrags- noch Ergebnismargen ermittelt werden können.\"}]},{\"heading\":\"Working Capital\",\"paragraphs\":[{\"text\":\"Zum Working Capital liegen keine Angaben vor. Der Faktenbestand enthält keine Werte zu Forderungen, Verbindlichkeiten, Vorräten oder liquiden Mitteln, weshalb auf eine Kommentierung der Kapitalbindung und der Zahlungsziele verzichtet wird.\"}]}]}",
+    "usage": {
+      "input_tokens": 140,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 596,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 34
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7efe2a457af43deae014b771e022117604e7c4adf6a70ebb1cadf9999b124239": {
+    "text": "{\"sections\":[{\"heading\":\"Desempenho\",\"paragraphs\":[{\"text\":\"No período de {{p:2026-05}}, a receita operacional foi de {{m:revenue@2026-05}}.\"},{\"text\":\"Face ao mês anterior, a receita registou uma variação de {{mv:revenue.mom@2026-05:abs}}, equivalente a {{mv:revenue.mom@2026-05:pct}}. Não há no conjunto de dados outras medidas de atividade, como volumes, carteira de encomendas ou receita por cliente, que permitam identificar a origem desta variação.\"}]},{\"heading\":\"Margens\",\"paragraphs\":[{\"text\":\"Os dados disponíveis não incluem custos, custo das mercadorias vendidas, despesas operacionais nem resultados. Por esse motivo, não é possível apurar margens brutas ou operacionais, nem comentar a sua evolução neste período.\"},{\"text\":\"Para uma análise de margens em relatórios futuros, seria necessário disponibilizar as rubricas de custo e de resultado correspondentes ao mesmo período da receita aqui reportada.\"}]},{\"heading\":\"Fundo de maneio\",\"paragraphs\":[{\"text\":\"O conjunto de factos não contém saldos de clientes, fornecedores, existências ou disponibilidades, nem indicadores de prazos médios de recebimento e pagamento.\"},{\"text\":\"Assim, não é possível apresentar qualquer apreciação sobre a posição de fundo de maneio ou sobre a conversão da receita do período em fluxos de caixa.\"}]}]}",
+    "usage": {
+      "input_tokens": 140,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1229,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 613,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 73
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "822571b9182b758b729ca43de2545b2b4c5149cce6fb386afd8977ace01b32cb": {
+    "text": "{\"sections\":[{\"heading\":\"Andamento\",\"paragraphs\":[{\"text\":\"Nel periodo {{p:2026-05}} i ricavi delle attività operative sono pari a {{m:revenue@2026-05}}.\"},{\"text\":\"Rispetto al mese precedente si registra una variazione di {{mv:revenue.mom@2026-05:abs}}, pari a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"I dati disponibili non comprendono informazioni sulla composizione dei ricavi per cliente, area o linea di attività, pertanto non è possibile indicare le componenti che hanno determinato tale variazione.\"}]},{\"heading\":\"Margini\",\"paragraphs\":[{\"text\":\"Il pacchetto dati non contiene voci di costo, di margine lordo o di risultato operativo per il periodo {{p:2026-05}}.\"},{\"text\":\"In assenza di tali elementi non è possibile commentare l'andamento dei margini né il loro confronto con il mese precedente.\"}]},{\"heading\":\"Capitale circolante\",\"paragraphs\":[{\"text\":\"Non sono disponibili dati su crediti commerciali, debiti verso fornitori, rimanenze o disponibilità liquide.\"},{\"text\":\"Di conseguenza non è possibile esprimere alcuna considerazione sul capitale circolante relativo al periodo {{p:2026-05}}. L'integrazione di queste informazioni consentirebbe un commento completo nei prossimi rendiconti mensili.\"}]}]}",
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1227,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 569,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 48
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "dd0ac8d9814809c45f75c0275dcc69791d5ea0678e3cc47a6f89fb14c5e988b6": {
+    "text": "{\"sections\":[{\"heading\":\"Prestaties\",\"paragraphs\":[{\"text\":\"De omzet uit bedrijfsactiviteiten bedroeg in {{p:2026-05}} {{m:revenue@2026-05}}. Ten opzichte van de voorgaande maand is dit een toename van {{mv:revenue.mom@2026-05:abs}}, oftewel {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Bij de beoordeling van deze cijfers dient rekening te worden gehouden met twee aandachtspunten uit de controle: er is een waarschuwing vastgesteld bij controle V10 voor deze maand, en één maand in de gehanteerde reeks is aangenomen in plaats van ingelezen uit een bronbestand. De vergelijking met de voorgaande maand is daardoor met voorbehoud te lezen.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"Het feitenoverzicht bevat uitsluitend gegevens over de omzet uit bedrijfsactiviteiten. Er zijn geen gegevens over kostprijs, brutomarge, bedrijfslasten of resultaat beschikbaar, waardoor over de marges in deze periode geen uitspraak kan worden gedaan.\"},{\"text\":\"Zodra kosten- en resultaatgegevens worden aangeleverd, kan deze paragraaf worden aangevuld met een onderbouwde margeanalyse.\"}]},{\"heading\":\"Werkkapitaal\",\"paragraphs\":[{\"text\":\"Over het werkkapitaal zijn geen gegevens opgenomen in het feitenoverzicht. Er zijn geen posten beschikbaar voor debiteuren, crediteuren, voorraden of liquide middelen, zodat de ontwikkeling van het werkkapitaal in deze maand niet kan worden toegelicht.\"},{\"text\":\"Voor een volgende rapportage wordt aanbevolen de balansposten mee te leveren, zodat de omzetontwikkeling kan worden afgezet tegen de ontwikkeling van het werkkapitaal.\"}]}]}",
+    "usage": {
+      "input_tokens": 173,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 735,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "560d14d5c36898e689db8f267252be6a63b6f83c3ee567c8ae4aa0ef92372653": {
+    "text": "{\"sections\":[{\"heading\":\"الأداء\",\"paragraphs\":[{\"text\":\"بلغت إيرادات التشغيل خلال {{p:2026-05}} ما قدره {{m:revenue@2026-05}}، بزيادة قدرها {{mv:revenue.mom@2026-05:abs}} مقارنة بالشهر السابق، أي ما نسبته {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"تجدر الإشارة إلى أن إحدى عمليات التحقق أثارت تنبيهاً لهذا الشهر، وأن أحد الأشهر ضمن النطاق قد جرى افتراضه بدلاً من قراءته من ملف. لذلك يُنصح بمراجعة مصدر البيانات قبل اعتماد الأرقام بصورة نهائية.\"}]},{\"heading\":\"هوامش الربح\",\"paragraphs\":[{\"text\":\"لا تتضمن البيانات المتاحة أي معلومات عن تكلفة المبيعات أو المصروفات أو نتائج الأرباح، ومن ثم لا يمكن احتساب أو مناقشة هوامش الربح لهذه الفترة.\"}]},{\"heading\":\"رأس المال العامل\",\"paragraphs\":[{\"text\":\"لا تتوفر بيانات عن الذمم المدينة أو الذمم الدائنة أو المخزون أو الأرصدة النقدية، وعليه لا يمكن تقديم أي تحليل لرأس المال العامل في هذا التقرير.\"}]}]}",
+    "usage": {
+      "input_tokens": 173,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 538,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "ea2777de7146a708ac709e8c5a6524f8c12c19d7960269f367471dab28a1cfd6": {
+    "text": "{\"sections\":[{\"heading\":\"प्रदर्शन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} में परिचालन से राजस्व {{m:revenue@2026-05}} रहा। पिछले माह की तुलना में इसमें {{mv:revenue.mom@2026-05:abs}} की वृद्धि हुई, जो {{mv:revenue.mom@2026-05:pct}} के बराबर है।\"},{\"text\":\"यहाँ यह उल्लेख आवश्यक है कि इस अवधि के लिए जाँच V10 पर एक चेतावनी दर्ज हुई है, तथा सीमा में सम्मिलित एक माह का आँकड़ा किसी फ़ाइल से पढ़ा नहीं गया, बल्कि अनुमानित है। अतः उपर्युक्त तुलना की पुष्टि अंतर्निहित अभिलेखों से की जानी चाहिए।\"}]},{\"heading\":\"मार्जिन\",\"paragraphs\":[{\"text\":\"उपलब्ध तथ्यों में केवल परिचालन से राजस्व सम्मिलित है। लागत, सकल लाभ अथवा परिचालन व्यय से संबंधित कोई आँकड़ा नहीं दिया गया है, इसलिए इस माह के मार्जिन पर कोई टिप्पणी नहीं की जा सकती।\"},{\"text\":\"मार्जिन विश्लेषण प्रस्तुत करने के लिए बिक्री की लागत तथा व्ययों का विवरण आगामी रिपोर्टिंग में सम्मिलित करना होगा।\"}]},{\"heading\":\"कार्यशील पूँजी\",\"paragraphs\":[{\"text\":\"प्राप्य, देय, रोकड़ शेष अथवा वस्तु-सूची से संबंधित कोई तथ्य इस संकलन में उपलब्ध नहीं है। इस कारण कार्यशील पूँजी की स्थिति या उसमें हुए परिवर्तन पर कोई निष्कर्ष नहीं निकाला जा सकता।\"}]}]}",
+    "usage": {
+      "input_tokens": 175,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 741,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "9e9b05f282a411b8ed9c6531762a0300bdce2aa686809cd00d98cff0b666b75f": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, a movement of {{mv:revenue.mom@2026-05:abs}} on the previous month, or {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Profitability moved in line with revenue. EBITDA was {{m:ebitda@2026-05}}, a change of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), and profit after tax was {{m:pat@2026-05}}, a change of {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}). The facts pack contains no volume, price or segment detail that would explain the movement.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit was {{m:gross_profit@2026-05}}, a change of {{mv:gross_profit.mom@2026-05:abs}} on the previous month, or {{mv:gross_profit.mom@2026-05:pct}}. Gross profit, EBITDA and profit after tax each moved by the same percentage as revenue, so the margin structure of the month is unchanged relative to the previous month.\"},{\"text\":\"No separate cost-line or margin-ratio facts are provided, so the composition of costs behind these results cannot be commented on from this pack.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}}, a change of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}), and trade payables at {{m:payables@2026-05}}, a change of {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank balances were {{m:cash_and_bank@2026-05}}, a change of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}). Receivables and payables moved broadly in proportion to revenue; no ageing, collection-day or inventory facts are included in this pack.\"}]}]}",
+    "usage": {
+      "input_tokens": 770,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 805,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "7c3554e2eea4e27b6826da9f825b0bffbe15419c3bd6f2cd152e81434144ca44": {
+    "text": "{\"sections\":[{\"heading\":\"Desempeño\",\"paragraphs\":[{\"text\":\"En {{p:2026-05}}, los ingresos de operación ascendieron a {{m:revenue@2026-05}}, con una disminución de {{mv:revenue.mom@2026-05:abs}} frente al mes anterior, equivalente a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Los resultados acompañaron ese movimiento: la utilidad bruta se situó en {{m:gross_profit@2026-05}} ({{mv:gross_profit.mom@2026-05:abs}}; {{mv:gross_profit.mom@2026-05:pct}}), el EBITDA en {{m:ebitda@2026-05}} ({{mv:ebitda.mom@2026-05:abs}}; {{mv:ebitda.mom@2026-05:pct}}) y la utilidad después de impuestos en {{m:pat@2026-05}} ({{mv:pat.mom@2026-05:abs}}; {{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"El paquete de datos no incluye información sobre volúmenes, precios ni composición de la facturación, por lo que no es posible atribuir la caída a un factor específico.\"}]},{\"heading\":\"Márgenes\",\"paragraphs\":[{\"text\":\"La utilidad bruta de {{m:gross_profit@2026-05}} y los ingresos de {{m:revenue@2026-05}} registraron variaciones porcentuales idénticas en el mes ({{mv:gross_profit.mom@2026-05:pct}} y {{mv:revenue.mom@2026-05:pct}}, respectivamente), lo que indica estabilidad en el margen bruto relativo.\"},{\"text\":\"El mismo comportamiento se observa en los niveles inferiores del estado de resultados: el EBITDA varió {{mv:ebitda.mom@2026-05:pct}} y la utilidad después de impuestos {{mv:pat.mom@2026-05:pct}}, de modo que la estructura de márgenes se mantuvo proporcional pese a la menor escala de actividad.\"},{\"text\":\"Los facts disponibles no desglosan costos ni gastos operativos, por lo que no se puede comentar sobre la composición del costo de ventas.\"}]},{\"heading\":\"Capital de trabajo\",\"paragraphs\":[{\"text\":\"Las cuentas por cobrar comerciales cerraron en {{m:receivables@2026-05}}, con una variación de {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) respecto del mes previo, en línea con la menor facturación.\"},{\"text\":\"Las cuentas por pagar comerciales se ubicaron en {{m:payables@2026-05}}, con una variación de {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}), y el saldo de caja y bancos en {{m:cash_and_bank@2026-05}}, tras una variación de {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}).\"},{\"text\":\"No se incluyen datos de inventarios, deuda financiera ni plazos de cobro y pago, por lo que el análisis del ciclo de conversión de efectivo queda fuera del alcance de este informe.\"}]}]}",
+    "usage": {
+      "input_tokens": 772,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1247,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 64
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "d461cd88384654bf9c4e1200c9603a05ea20b05ee9a3a4d4090c8fd22ed6e341": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Sur la période {{p:2026-05}}, le chiffre d'affaires opérationnel s'établit à {{m:revenue@2026-05}}, en recul de {{mv:revenue.mom@2026-05:abs}} par rapport au mois précédent, soit {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Les soldes de gestion suivent la même trajectoire : la marge brute atteint {{m:gross_profit@2026-05}} ({{mv:gross_profit.mom@2026-05:abs}}, soit {{mv:gross_profit.mom@2026-05:pct}}), l'EBITDA {{m:ebitda@2026-05}} ({{mv:ebitda.mom@2026-05:abs}}, soit {{mv:ebitda.mom@2026-05:pct}}) et le résultat net après impôt {{m:pat@2026-05}} ({{mv:pat.mom@2026-05:abs}}, soit {{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"Le repli est donc d'ampleur identique en pourcentage sur l'ensemble des agrégats communiqués. Le dossier de données ne contient ni comparatif annuel ni ventilation par activité ou par client permettant d'en expliquer l'origine.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"La marge brute de {{m:gross_profit@2026-05}} et l'EBITDA de {{m:ebitda@2026-05}} varient dans la même proportion que le chiffre d'affaires, respectivement {{mv:gross_profit.mom@2026-05:pct}} et {{mv:ebitda.mom@2026-05:pct}}, contre {{mv:revenue.mom@2026-05:pct}} pour les produits d'exploitation.\"},{\"text\":\"Les taux de marge exprimés en pourcentage du chiffre d'affaires ne figurent pas dans les données fournies ; la variation proportionnelle identique des produits et des soldes indique toutefois une structure de marge inchangée d'un mois sur l'autre. Le détail des coûts directs et des charges d'exploitation n'est pas disponible pour une analyse plus fine.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Les créances clients s'élèvent à {{m:receivables@2026-05}}, en diminution de {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}), et les dettes fournisseurs à {{m:payables@2026-05}}, en diminution de {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"La trésorerie et les disponibilités bancaires ressortent à {{m:cash_and_bank@2026-05}}, après une variation de {{mv:cash_and_bank.mom@2026-05:abs}}, soit {{mv:cash_and_bank.mom@2026-05:pct}}. Les créances restent supérieures aux dettes fournisseurs à la clôture de la période.\"},{\"text\":\"Les données ne comprennent ni stocks, ni délais de rotation, ni balance âgée ; aucune conclusion sur les délais d'encaissement ou de règlement ne peut être tirée à ce stade.\"}]}]}",
+    "usage": {
+      "input_tokens": 774,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1246,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 65
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "3f522fcf18e92df39cc30ff6a39f3dc6fb1133c7554584a1702148edd00652cb": {
+    "text": "{\"sections\":[{\"heading\":\"Geschäftsentwicklung\",\"paragraphs\":[{\"text\":\"Im Berichtsmonat {{p:2026-05}} beliefen sich die Umsatzerlöse aus der Geschäftstätigkeit auf {{m:revenue@2026-05}}. Gegenüber dem Vormonat entspricht dies einem Rückgang von {{mv:revenue.mom@2026-05:abs}} beziehungsweise {{mv:revenue.mom@2026-05:pct}}.\"}, {\"text\":\"Das EBITDA erreichte {{m:ebitda@2026-05}} nach einer Veränderung von {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}). Der Jahresüberschuss nach Steuern lag bei {{m:pat@2026-05}} und veränderte sich um {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"}, {\"text\":\"Zu beachten ist, dass für den Berichtszeitraum eine Prüfungswarnung (Check V10) vorliegt und ein Monat des Betrachtungszeitraums nicht aus einer Datei eingelesen, sondern angenommen wurde. Die dargestellten Werte sind insoweit mit Vorbehalt zu lesen.\"}]},{\"heading\":\"Margen\",\"paragraphs\":[{\"text\":\"Der Rohertrag betrug {{m:gross_profit@2026-05}} und lag damit um {{mv:gross_profit.mom@2026-05:abs}} beziehungsweise {{mv:gross_profit.mom@2026-05:pct}} unter dem Vormonat.\"}, {\"text\":\"Rohertrag, EBITDA und Ergebnis nach Steuern haben sich prozentual im gleichen Umfang verändert wie die Umsatzerlöse ({{mv:revenue.mom@2026-05:pct}}). Die Ergebnisstruktur blieb damit im Verhältnis zum Umsatz unverändert; der Rückgang der absoluten Ergebnisgrößen folgt dem Umsatzrückgang. Eigenständige Margenkennzahlen sind im Faktenbestand nicht enthalten.\"}]},{\"heading\":\"Working Capital\",\"paragraphs\":[{\"text\":\"Die Forderungen aus Lieferungen und Leistungen beliefen sich auf {{m:receivables@2026-05}}, nach einer Veränderung von {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}). Die Verbindlichkeiten aus Lieferungen und Leistungen lagen bei {{m:payables@2026-05}} und veränderten sich um {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"}, {\"text\":\"Der Bestand an Zahlungsmitteln und Bankguthaben betrug {{m:cash_and_bank@2026-05}} und verringerte sich um {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}). Angaben zu Vorräten oder zu Umschlagsdauern liegen im Faktenbestand nicht vor, sodass eine weitergehende Beurteilung des Working Capital derzeit nicht möglich ist.\"}]}]}",
+    "usage": {
+      "input_tokens": 803,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1297,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 89
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "ede6683692c4fd52673a52137f99bbecac2e0ebc21e8d8f18852c97954c3b8a0": {
+    "text": "{\"sections\":[{\"heading\":\"Desempenho\",\"paragraphs\":[{\"text\":\"No período de {{p:2026-05}}, a receita operacional foi de {{m:revenue@2026-05}}, o que representa uma variação de {{mv:revenue.mom@2026-05:abs}} em relação ao mês anterior, equivalente a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Os resultados acompanharam o mesmo movimento: o EBITDA foi de {{m:ebitda@2026-05}}, com variação de {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), e o lucro após impostos foi de {{m:pat@2026-05}}, com variação de {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"Observa-se que todas as rubricas apresentaram a mesma variação percentual em relação ao mês anterior. Além disso, a validação V10 gerou um alerta neste mês e um dos meses do intervalo foi assumido, e não lido de um arquivo, o que deve ser considerado na leitura dos valores.\"}]},{\"heading\":\"Margens\",\"paragraphs\":[{\"text\":\"O lucro bruto do período foi de {{m:gross_profit@2026-05}}, com variação de {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) sobre o mês anterior, em linha com a variação da receita.\"},{\"text\":\"Como receita, lucro bruto, EBITDA e lucro após impostos variaram na mesma proporção, as margens correspondentes permaneceram estáveis em relação ao mês anterior. O pacote de dados não contém a decomposição de custos ou despesas, pelo que não é possível comentar os fatores específicos por trás de cada margem.\"}]},{\"heading\":\"Capital de giro\",\"paragraphs\":[{\"text\":\"As contas a receber de clientes totalizaram {{m:receivables@2026-05}}, com variação de {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}). As contas a pagar a fornecedores totalizaram {{m:payables@2026-05}}, com variação de {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"O saldo de caixa e bancos encerrou o período em {{m:cash_and_bank@2026-05}}, após variação de {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}). Não há no pacote de dados informações sobre estoques, prazos médios ou endividamento, pelo que a análise do ciclo de capital de giro se limita aos saldos acima.\"}]}]}",
+    "usage": {
+      "input_tokens": 805,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1229,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1019,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "5f8de8fb5f2cf692378bae6ea92c0473fb2fc101d5d52b10fca9d44db11a35b1": {
+    "text": "{\"sections\":[{\"heading\":\"Andamento\",\"paragraphs\":[{\"text\":\"Nel periodo {{p:2026-05}} i ricavi delle vendite si sono attestati a {{m:revenue@2026-05}}, in diminuzione di {{mv:revenue.mom@2026-05:abs}} rispetto al mese precedente, pari a una variazione di {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"L'utile dopo le imposte è stato pari a {{m:pat@2026-05}}, con una variazione di {{mv:pat.mom@2026-05:abs}} sul mese precedente, corrispondente a {{mv:pat.mom@2026-05:pct}}. L'EBITDA è risultato pari a {{m:ebitda@2026-05}}, in calo di {{mv:ebitda.mom@2026-05:abs}}, ovvero {{mv:ebitda.mom@2026-05:pct}}.\"},{\"text\":\"Si segnala che per il mese in esame è stata rilevata una segnalazione di controllo in sede di validazione e che un mese dell'intervallo è stato assunto anziché desunto da un file; i dati vanno pertanto letti tenendo conto di tale limitazione.\"}]},{\"heading\":\"Margini\",\"paragraphs\":[{\"text\":\"Il margine lordo del periodo {{p:2026-05}} è stato pari a {{m:gross_profit@2026-05}}, con una riduzione di {{mv:gross_profit.mom@2026-05:abs}} rispetto al mese precedente, pari a {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"Le variazioni percentuali di ricavi, margine lordo, EBITDA e utile dopo le imposte risultano allineate tra loro: {{mv:revenue.mom@2026-05:pct}} per i ricavi, {{mv:gross_profit.mom@2026-05:pct}} per il margine lordo, {{mv:ebitda.mom@2026-05:pct}} per l'EBITDA e {{mv:pat.mom@2026-05:pct}} per l'utile dopo le imposte. I valori assoluti di riferimento sono {{m:gross_profit@2026-05}}, {{m:ebitda@2026-05}} e {{m:pat@2026-05}}.\"}]},{\"heading\":\"Capitale circolante\",\"paragraphs\":[{\"text\":\"I crediti commerciali ammontano a {{m:receivables@2026-05}}, in diminuzione di {{mv:receivables.mom@2026-05:abs}} rispetto al mese precedente, pari a {{mv:receivables.mom@2026-05:pct}}. I debiti commerciali sono pari a {{m:payables@2026-05}}, con una variazione di {{mv:payables.mom@2026-05:abs}}, ovvero {{mv:payables.mom@2026-05:pct}}.\"},{\"text\":\"Le disponibilità liquide e i saldi bancari si attestano a {{m:cash_and_bank@2026-05}}, in riduzione di {{mv:cash_and_bank.mom@2026-05:abs}}, pari a {{mv:cash_and_bank.mom@2026-05:pct}}. I dati disponibili non comprendono indicatori di rotazione o scadenziari, pertanto non è possibile commentare ulteriormente i tempi di incasso e di pagamento.\"}]}]}",
+    "usage": {
+      "input_tokens": 807,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1227,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1177,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "47b7e4456374d2d2ec1cb366c12e5368df2ba78d6c122854f01e61b631ca41d6": {
+    "text": "{\"sections\":[{\"heading\":\"Resultaatontwikkeling\",\"paragraphs\":[{\"text\":\"De omzet uit bedrijfsactiviteiten bedroeg in {{p:2026-05}} {{m:revenue@2026-05}}. Ten opzichte van de voorgaande maand is dit een daling van {{mv:revenue.mom@2026-05:abs}}, oftewel {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"De directe kosten kwamen uit op {{m:direct_costs@2026-05}} en daalden met {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}). Omzet en directe kosten bewogen daarmee in dezelfde procentuele verhouding.\"},{\"text\":\"De brutowinst bedraagt {{m:gross_profit@2026-05}}, een mutatie van {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) ten opzichte van de vorige maand. Andere resultaatposten, zoals indirecte kosten of nettoresultaat, zijn in de aangeleverde gegevens niet opgenomen.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"De brutowinst van {{m:gross_profit@2026-05}} laat zich niet afleiden uit het verschil tussen de gerapporteerde omzet van {{m:revenue@2026-05}} en de directe kosten van {{m:direct_costs@2026-05}}. Een margepercentage is op basis van deze gegevens daarom niet betrouwbaar te berekenen; afstemming van de onderliggende posten is nodig.\"},{\"text\":\"Wel geldt dat omzet, directe kosten en brutowinst alle drie met hetzelfde percentage zijn gedaald, namelijk {{mv:gross_profit.mom@2026-05:pct}}. Daarmee is de onderlinge verhouding tussen deze posten ten opzichte van de voorgaande maand ongewijzigd gebleven.\"}]},{\"heading\":\"Werkkapitaal\",\"paragraphs\":[{\"text\":\"De feitenset bevat geen gegevens over debiteuren, crediteuren, voorraden of liquide middelen. Over de ontwikkeling van het werkkapitaal in {{p:2026-05}} kan op basis van de beschikbare informatie geen uitspraak worden gedaan.\"},{\"text\":\"Voor een volgende rapportage zouden balansposten en kasstroomgegevens toegevoegd moeten worden om deze paragraaf inhoudelijk te kunnen invullen.\"}]}]}",
+    "usage": {
+      "input_tokens": 356,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1118,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 182
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "5baae3d469977bc5ed4a01d5dd1a2d0bf0ffe9812e2c3a0748f903f11818f607": {
+    "text": "{\"sections\":[{\"heading\":\"الأداء\",\"paragraphs\":[{\"text\":\"بلغت الإيرادات التشغيلية خلال {{p:2026-05}} مبلغ {{m:revenue@2026-05}}، بانخفاض قدره {{mv:revenue.mom@2026-05:abs}} مقارنة بالشهر السابق، أي ما نسبته {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"وسجّلت التكاليف المباشرة {{m:direct_costs@2026-05}}، بتغير قدره {{mv:direct_costs.mom@2026-05:abs}} عن الشهر السابق، أي {{mv:direct_costs.mom@2026-05:pct}}. وبذلك تحرّكت الإيرادات والتكاليف المباشرة بالنسبة المئوية نفسها خلال الشهر.\"}]},{\"heading\":\"الهوامش\",\"paragraphs\":[{\"text\":\"بلغ مجمل الربح المعروض {{m:gross_profit@2026-05}}، بانخفاض قدره {{mv:gross_profit.mom@2026-05:abs}} عن الشهر السابق، أي {{mv:gross_profit.mom@2026-05:pct}}، وهي النسبة ذاتها المسجّلة للإيرادات والتكاليف المباشرة.\"},{\"text\":\"يُلاحظ أن مبلغ مجمل الربح المُدرج يتجاوز الفرق بين الإيرادات والتكاليف المباشرة المعروضَين لنفس الفترة، ويُقترح أن يراجع فريق المالية مكوّنات هذا البند وطريقة احتسابه قبل الاعتماد النهائي للأرقام.\"}]},{\"heading\":\"رأس المال العامل\",\"paragraphs\":[{\"text\":\"لا تتضمن البيانات المتاحة لهذه الفترة أي أرقام عن الذمم المدينة أو الذمم الدائنة أو المخزون أو الأرصدة النقدية، وبالتالي لا يمكن إبداء أي تحليل لرأس المال العامل. يلزم إدراج هذه البنود ضمن حزمة البيانات لتغطية هذا القسم في التقرير القادم.\"}]}]}",
+    "usage": {
+      "input_tokens": 356,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 941,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 152
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "d4bb27fdd7573608e102eab0324990955a5f57b78c1e4ebfb021ddcece5dbdad": {
+    "text": "{\"sections\":[{\"heading\":\"प्रदर्शन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} में परिचालन से राजस्व {{m:revenue@2026-05}} रहा। पिछले माह की तुलना में इसमें {{mv:revenue.mom@2026-05:abs}} की कमी दर्ज हुई, जो प्रतिशत के रूप में {{mv:revenue.mom@2026-05:pct}} बताई गई है।\"},{\"text\":\"प्रत्यक्ष लागत इसी माह {{m:direct_costs@2026-05}} रही, जिसमें पिछले माह की तुलना में {{mv:direct_costs.mom@2026-05:abs}} अर्थात {{mv:direct_costs.mom@2026-05:pct}} की कमी आई। राजस्व और प्रत्यक्ष लागत दोनों में प्रतिशत परिवर्तन समान स्तर पर दर्ज है।\"},{\"text\":\"ध्यान देने योग्य है कि दिए गए राजस्व परिवर्तन के निरपेक्ष और प्रतिशत आँकड़े आपस में पूर्णतः संगत नहीं दिखते; तुलनात्मक माह के आधार आँकड़ों की पुष्टि वित्त टीम द्वारा की जानी उचित होगी।\"}]},{\"heading\":\"मार्जिन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} के लिए सकल लाभ {{m:gross_profit@2026-05}} दर्शाया गया है, जिसमें पिछले माह की तुलना में {{mv:gross_profit.mom@2026-05:abs}} अर्थात {{mv:gross_profit.mom@2026-05:pct}} की कमी है।\"},{\"text\":\"यह सकल लाभ आँकड़ा राजस्व {{m:revenue@2026-05}} में से प्रत्यक्ष लागत {{m:direct_costs@2026-05}} घटाने पर प्राप्त होने वाली राशि से मेल नहीं खाता। इस अंतर के कारण मार्जिन प्रतिशत पर कोई निष्कर्ष इस समय नहीं निकाला जा रहा; स्रोत आँकड़ों के मिलान के बाद ही मार्जिन पर टिप्पणी की जा सकेगी।\"},{\"text\":\"राजस्व और प्रत्यक्ष लागत में समान प्रतिशत गिरावट होने से संकेत मिलता है कि लागत संरचना का अनुपात माह दर माह अपरिवर्तित रहा।\"}]},{\"heading\":\"कार्यशील पूँजी\",\"paragraphs\":[{\"text\":\"उपलब्ध तथ्य-सूची में प्राप्य राशियाँ, देय राशियाँ, स्टॉक अथवा नकदी शेष से संबंधित कोई आँकड़ा सम्मिलित नहीं है। इस कारण {{p:2026-05}} के लिए कार्यशील पूँजी पर कोई विवरण या विश्लेषण प्रस्तुत नहीं किया जा सकता।\"},{\"text\":\"आगामी रिपोर्ट में इस अनुभाग को पूर्ण करने हेतु प्राप्य, देय, स्टॉक और नकदी से संबंधित शेष तथा उनकी आयु-सारणी उपलब्ध कराना आवश्यक होगा।\"}]}]}",
+    "usage": {
+      "input_tokens": 358,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1347,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 132
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "72d91eef1d4833b24bdb2ddda17e5a6ba675c34cdc6b07586c08e93349621902": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, a movement of {{mv:revenue.mom@2026-05:abs}} against the preceding month, equivalent to {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs for the same period were {{m:direct_costs@2026-05}}, moving by {{mv:direct_costs.mom@2026-05:abs}} or {{mv:direct_costs.mom@2026-05:pct}} on the prior month. Revenue and direct costs therefore moved by the same proportion.\"},{\"text\":\"Two data qualifications apply to this commentary: validation check V10 raised a warning for the month, and one month within the reporting range was assumed rather than read from a source file. Figures above should be read with those qualifications in mind.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit is reported at {{m:gross_profit@2026-05}}, a movement of {{mv:gross_profit.mom@2026-05:abs}} or {{mv:gross_profit.mom@2026-05:pct}} on the prior month, the same percentage movement as both revenue and direct costs.\"},{\"text\":\"The reported gross profit exceeds the difference between revenue of {{m:revenue@2026-05}} and direct costs of {{m:direct_costs@2026-05}}. The gross profit figure cannot be reconciled to the revenue and direct cost lines supplied, and the composition of the gross profit line should be confirmed before the margin is relied upon. No margin percentage is stated here for that reason.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts supplied for {{p:2026-05}} cover revenue, direct costs and gross profit only. No receivable, payable, inventory or cash balances are included, so no commentary on working capital can be given for this month.\"},{\"text\":\"If working capital reporting is required in future months, the underlying balance sheet data would need to be included in the pack.\"}]}]}",
+    "usage": {
+      "input_tokens": 389,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 801,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 93
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "f4685ce17ce104f0799b63c9320717513178ec8e76fe74c2888844694c3414c3": {
+    "text": "{\"sections\":[{\"heading\":\"Desempeño\",\"paragraphs\":[{\"text\":\"Los ingresos por operaciones del período {{p:2026-05}} ascendieron a {{m:revenue@2026-05}}, lo que representa una variación de {{mv:revenue.mom@2026-05:abs}} respecto del mes anterior, equivalente a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Los costos directos se situaron en {{m:direct_costs@2026-05}}, con una variación mensual de {{mv:direct_costs.mom@2026-05:abs}}, es decir {{mv:direct_costs.mom@2026-05:pct}}. Ingresos y costos directos se movieron en la misma proporción en el mes.\"},{\"text\":\"Debe señalarse que el control V10 generó una advertencia para este mes y que uno de los meses del rango fue supuesto y no tomado de un archivo, por lo que las comparaciones mensuales deben leerse con reserva.\"}]},{\"heading\":\"Márgenes\",\"paragraphs\":[{\"text\":\"La utilidad bruta informada del período {{p:2026-05}} es de {{m:gross_profit@2026-05}}, con una variación de {{mv:gross_profit.mom@2026-05:abs}} frente al mes anterior, equivalente a {{mv:gross_profit.mom@2026-05:pct}}.\"},{\"text\":\"La utilidad bruta informada no coincide con la diferencia entre los ingresos de {{m:revenue@2026-05}} y los costos directos de {{m:direct_costs@2026-05}}. Esta inconsistencia, junto con la advertencia de validación señalada, debe resolverse antes de calcular o interpretar el porcentaje de margen bruto.\"}]},{\"heading\":\"Capital de trabajo\",\"paragraphs\":[{\"text\":\"El conjunto de datos disponible solo contiene ingresos, costos directos y utilidad bruta del período {{p:2026-05}} y sus variaciones mensuales. No se incluyen saldos de cuentas por cobrar, cuentas por pagar, inventarios ni efectivo.\"},{\"text\":\"En consecuencia, no es posible comentar la posición ni la evolución del capital de trabajo. Se requiere incorporar los saldos de balance correspondientes para cubrir esta sección.\"}]}]}",
+    "usage": {
+      "input_tokens": 389,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 874,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 68
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "4dfd200c56182f296ade8614b4400ae388b3ac756332b956fb4f7656f1ad8514": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Le chiffre d'affaires opérationnel du mois {{p:2026-05}} s'établit à {{m:revenue@2026-05}}, en recul de {{mv:revenue.mom@2026-05:abs}} par rapport au mois précédent, soit {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Les coûts directs s'élèvent à {{m:direct_costs@2026-05}}, en baisse de {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), soit une variation relative identique à celle du chiffre d'affaires.\"},{\"text\":\"Deux réserves accompagnent ces chiffres : le contrôle V10 a généré un avertissement pour le mois, et l'un des mois de la période a été estimé plutôt que repris d'un fichier source. Les montants ci-dessus sont donc à lire sous ces réserves.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"La marge brute déclarée pour le mois s'établit à {{m:gross_profit@2026-05}}, en diminution de {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}).\"},{\"text\":\"Cette valeur n'est pas cohérente avec l'écart entre le chiffre d'affaires de {{m:revenue@2026-05}} et les coûts directs de {{m:direct_costs@2026-05}} : la marge brute communiquée dépasse le chiffre d'affaires du mois. De même, les variations en valeur et en pourcentage du chiffre d'affaires ne se recoupent pas entre elles. Aucun taux de marge n'est donc commenté tant que ces écarts, en lien avec l'avertissement du contrôle V10, n'ont pas été rapprochés des pièces comptables.\"}]},{\"heading\":\"Besoin en fonds de roulement\",\"paragraphs\":[{\"text\":\"Le jeu de données ne contient aucun élément relatif aux créances clients, aux dettes fournisseurs, aux stocks ou à la trésorerie. Aucune analyse du besoin en fonds de roulement ne peut être produite pour le mois {{p:2026-05}}.\"},{\"text\":\"La communication de ces postes dans la prochaine remise permettrait de compléter cette section.\"}]}]}",
+    "usage": {
+      "input_tokens": 391,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 977,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 129
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "97df309605b4ee9c234514b9c4cf88134a9a532ec24d2f3cf17fa53e8c6331b0": {
+    "text": "{\"sections\":[{\"heading\":\"Geschäftsentwicklung\",\"paragraphs\":[{\"text\":\"Der Umsatz aus der betrieblichen Tätigkeit beläuft sich im Berichtsmonat {{p:2026-05}} auf {{m:revenue@2026-05}}. Gegenüber dem Vormonat ergibt sich eine Veränderung von {{mv:revenue.mom@2026-05:abs}} beziehungsweise {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Hinweis zur Datenlage: Der ausgewiesene absolute Rückgang und die ausgewiesene prozentuale Veränderung stimmen rechnerisch nicht überein. Eine Abstimmung der Vormonatsbasis durch die Buchhaltung wird empfohlen, bevor die Entwicklung weiter interpretiert wird.\"},{\"text\":\"Weitere Angaben zu Umsatzträgern, Kunden oder Mengeneffekten liegen im vorliegenden Datensatz nicht vor, sodass die Ursachen des Rückgangs auf dieser Grundlage nicht erläutert werden können.\"}]},{\"heading\":\"Margen\",\"paragraphs\":[{\"text\":\"Zu den Margen können keine Aussagen getroffen werden. Der Datensatz enthält ausschließlich Umsatzangaben für {{p:2026-05}}; Angaben zu Material- oder Wareneinsatz, Bruttoergebnis, operativen Aufwendungen oder Ergebnisgrößen fehlen vollständig.\"},{\"text\":\"Für eine Margenbetrachtung in den Folgeberichten wären mindestens Einsatzkosten und operative Aufwendungen je Periode erforderlich.\"}]},{\"heading\":\"Working Capital\",\"paragraphs\":[{\"text\":\"Auch zum Working Capital liegen keine auswertbaren Informationen vor. Es fehlen Angaben zu Forderungen, Verbindlichkeiten, Vorräten und Liquidität.\"},{\"text\":\"Eine Beurteilung der Kapitalbindung und der Zahlungsfähigkeit ist daher für {{p:2026-05}} nicht möglich und bleibt bis zur Bereitstellung der entsprechenden Bilanzdaten offen.\"}]}]}",
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1012,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 206
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "c261e9eef2e62159eb661a327a78cf58ad0910bd1729cfb25cd49c9ddae3f7ef": {
+    "text": "{\"sections\":[{\"heading\":\"Desempenho\",\"paragraphs\":[{\"text\":\"A receita operacional do período {{p:2026-05}} foi de {{m:revenue@2026-05}}, com variação de {{mv:revenue.mom@2026-05:abs}} em relação ao mês anterior, equivalente a {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Observa-se que a variação absoluta e a variação percentual informadas não são plenamente consistentes entre si quando aplicadas ao valor da receita deste mês; recomenda-se que a equipe financeira verifique a base de cálculo antes da divulgação externa. Não há, no conjunto de dados, desagregação por cliente, produto ou região que permita explicar a origem da queda.\"}]},{\"heading\":\"Margens\",\"paragraphs\":[{\"text\":\"O conjunto de dados disponível contém apenas a receita operacional e sua variação mensal. Não foram fornecidos custos, despesas operacionais ou resultados intermediários, de modo que não é possível apurar margem bruta, margem operacional ou margem líquida para o período {{p:2026-05}}.\"},{\"text\":\"Para que esta seção possa ser elaborada nos próximos relatórios, seria necessário incluir, no mínimo, o custo das vendas e as despesas operacionais do mês e do mês anterior.\"}]},{\"heading\":\"Capital de giro\",\"paragraphs\":[{\"text\":\"Não há informações sobre contas a receber, estoques, contas a pagar ou saldos de caixa no material recebido. Assim, não é possível comentar a posição de capital de giro, os prazos médios de recebimento e pagamento ou a conversão de receita em caixa.\"},{\"text\":\"Dado que a receita do período {{p:2026-05}} apresentou retração de {{mv:revenue.mom@2026-05:pct}}, a inclusão dos saldos de balanço nos próximos fechamentos permitiria avaliar o eventual efeito dessa redução sobre o ciclo financeiro.\"}]}]}",
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1229,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 851,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 150
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "681a727a6f07dbff58db59dd5d3907d579fbcf023e4ed36be705df39ac2e09a9": {
+    "text": "{\"sections\":[{\"heading\":\"Andamento\",\"paragraphs\":[{\"text\":\"Nel periodo {{p:2026-05}} i ricavi delle vendite si attestano a {{m:revenue@2026-05}}.\"},{\"text\":\"Rispetto al mese precedente si registra una variazione di {{mv:revenue.mom@2026-05:abs}}, pari a {{mv:revenue.mom@2026-05:pct}}. Si segnala che l'importo della variazione assoluta e la variazione percentuale indicate nei dati non risultano tra loro coerenti: si suggerisce una verifica della base di calcolo del mese precedente.\"}]},{\"heading\":\"Margini\",\"paragraphs\":[{\"text\":\"I dati disponibili comprendono unicamente i ricavi del periodo {{p:2026-05}} e la relativa variazione mensile. Non sono presenti informazioni su costi, costo del venduto o risultato operativo, pertanto non è possibile commentare i margini. Per un'analisi della redditività occorre integrare il pacchetto dati con le voci di costo corrispondenti.\"}]},{\"heading\":\"Capitale circolante\",\"paragraphs\":[{\"text\":\"Non sono disponibili dati su crediti verso clienti, debiti verso fornitori, rimanenze o disponibilità liquide. Di conseguenza non è possibile formulare alcuna osservazione sul capitale circolante per il periodo {{p:2026-05}}.\"}]}]}",
+    "usage": {
+      "input_tokens": 144,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1227,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 575,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 74
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "0e746637f033775d83e062712c8169ceabc96f734e8f1a8ea0414cc24714f6c3": {
+    "text": "{\"sections\":[{\"heading\":\"Resultaat\",\"paragraphs\":[{\"text\":\"De omzet uit bedrijfsactiviteiten bedraagt in {{p:2026-05}} {{m:revenue@2026-05}}. Ten opzichte van de voorgaande maand is dit een wijziging van {{mv:revenue.mom@2026-05:abs}}, oftewel {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Bij deze maand is een waarschuwing van controle V10 vastgelegd, en één maand in de reeks is aangenomen in plaats van ingelezen uit een bestand. De vermelde omzetcijfers en de procentuele wijziging dienen daarom met voorbehoud te worden gelezen; een onderlinge aansluiting tussen het absolute en het procentuele verschil kan op basis van de aangeleverde gegevens niet worden bevestigd.\"},{\"text\":\"Andere opbrengsten- of kostenposten zijn niet in de gegevens opgenomen, waardoor geen verdere toelichting op de ontwikkeling van het resultaat kan worden gegeven.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"De gegevens bevatten geen kostprijs, brutomarge, bedrijfslasten of resultaatcijfers. Daardoor kan voor {{p:2026-05}} geen marge worden berekend of toegelicht.\"},{\"text\":\"Een uitspraak over de margeontwikkeling is pas mogelijk zodra naast de omzet van {{m:revenue@2026-05}} ook de bijbehorende kostenposten beschikbaar zijn.\"}]},{\"heading\":\"Werkkapitaal\",\"paragraphs\":[{\"text\":\"Over debiteuren, crediteuren, voorraden en liquide middelen zijn geen gegevens aangeleverd. Het werkkapitaal en de ontwikkeling daarvan kunnen voor {{p:2026-05}} dan ook niet worden beschreven.\"},{\"text\":\"De beschikbare informatie beperkt zich tot de omzet en de wijziging daarvan ten opzichte van de vorige maand; hieruit kunnen geen conclusies over de werkkapitaalpositie worden getrokken.\"}]}]}",
+    "usage": {
+      "input_tokens": 175,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 946,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 162
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "e7174106247a251f6ba5b232764d1993a7c08ce96590a139cca66cd746a72d34": {
+    "text": "{\"sections\":[{\"heading\":\"الأداء\",\"paragraphs\":[{\"text\":\"بلغت الإيرادات التشغيلية خلال شهر {{p:2026-05}} ما قيمته {{m:revenue@2026-05}}.\"},{\"text\":\"وبالمقارنة مع الشهر السابق، انخفضت الإيرادات بمقدار {{mv:revenue.mom@2026-05:abs}}، أي ما نسبته {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"يُشار إلى وجود ملاحظة تحقق مسجلة على بيانات هذا الشهر، كما أن أحد الأشهر ضمن النطاق قد اُفترض ولم يُقرأ من ملف مصدري؛ ويُستحسن مراجعة اتساق قيمة التغير المطلق مع النسبة المئوية المعروضة قبل اعتماد الأرقام.\"}]},{\"heading\":\"هوامش الربح\",\"paragraphs\":[{\"text\":\"لا تتضمن حزمة البيانات المتاحة أي أرقام عن تكلفة المبيعات أو المصروفات التشغيلية أو صافي الربح، وبالتالي لا يمكن احتساب أو مناقشة الهوامش لهذا الشهر.\"},{\"text\":\"يتطلب إعداد تحليل للهوامش توفير بيانات التكاليف والمصروفات إلى جانب الإيرادات المسجلة في {{p:2026-05}}.\"}]},{\"heading\":\"رأس المال العامل\",\"paragraphs\":[{\"text\":\"لا تتوفر في البيانات الحالية أرصدة الذمم المدينة أو الذمم الدائنة أو المخزون أو النقد، ولذلك لا يمكن تقييم وضع رأس المال العامل أو دورة التحصيل.\"},{\"text\":\"عند إتاحة أرصدة الميزانية العمومية المقابلة لشهر {{p:2026-05}} يمكن إدراج هذا القسم ضمن التقرير اللاحق.\"}]}]}",
+    "usage": {
+      "input_tokens": 175,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 834,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 116
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "59465615b70ed032711cebe697b6a43ebfff9b39d168d491f24d4d3b1854c481": {
+    "text": "{\"sections\":[{\"heading\":\"प्रदर्शन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} में परिचालन से राजस्व {{m:revenue@2026-05}} रहा। पिछले माह की तुलना में इसमें {{mv:revenue.mom@2026-05:abs}} का परिवर्तन दर्ज हुआ, जो प्रतिशत में {{mv:revenue.mom@2026-05:pct}} है।\"},{\"text\":\"ध्यान देने योग्य है कि इस माह के लिए एक जाँच चेतावनी (V10) दर्ज हुई है, तथा सीमा के एक माह का आँकड़ा फ़ाइल से पढ़ा नहीं गया, बल्कि अनुमानित रूप से लिया गया है। अतः उपर्युक्त राशि और परिवर्तन की पुष्टि स्रोत अभिलेखों से की जानी चाहिए; निरपेक्ष परिवर्तन और प्रतिशत परिवर्तन के बीच संगति की भी जाँच अपेक्षित है।\"},{\"text\":\"इस माह के तथ्यों में राजस्व के अतिरिक्त कोई अन्य आय या मात्रा-संबंधी विवरण उपलब्ध नहीं है, इसलिए गिरावट के कारणों पर कोई विश्लेषण प्रस्तुत नहीं किया जा सकता।\"}]},{\"heading\":\"मार्जिन\",\"paragraphs\":[{\"text\":\"उपलब्ध तथ्यों में लागत, सकल लाभ अथवा परिचालन लाभ से संबंधित कोई आँकड़ा नहीं है। इस कारण {{p:2026-05}} के लिए किसी भी स्तर के मार्जिन की गणना या उसकी प्रवृत्ति पर टिप्पणी संभव नहीं है।\"},{\"text\":\"मार्जिन पर विवरण तभी दिया जा सकेगा जब व्यय, क्रय एवं लाभ-हानि से जुड़े आँकड़े इस रिपोर्ट के तथ्य-समुच्चय में सम्मिलित किए जाएँ।\"}]},{\"heading\":\"कार्यशील पूँजी\",\"paragraphs\":[{\"text\":\"तथ्य-समुच्चय में प्राप्य राशियाँ, देय राशियाँ, स्टॉक अथवा नकद शेष से संबंधित कोई आँकड़ा नहीं दिया गया है। इसलिए {{p:2026-05}} के लिए कार्यशील पूँजी की स्थिति, वसूली अवधि या भुगतान अवधि पर कोई कथन नहीं किया जा सकता।\"},{\"text\":\"राजस्व में दर्ज {{mv:revenue.mom@2026-05:pct}} के परिवर्तन का प्राप्य राशियों एवं नकदी प्रवाह पर प्रभाव तभी आँका जा सकेगा जब तुलन-पत्र से संबंधित आँकड़े उपलब्ध कराए जाएँगे।\"}]}]}",
+    "usage": {
+      "input_tokens": 177,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1255,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 161
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "48889497ef14be17fe623b862a08c8c694a0f10c3c26a55f98d0d1543a8e0a92": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}. Profit after tax for the same month was {{m:pat@2026-05}}.\"},{\"text\":\"The facts pack contains a single period only, with no prior month, prior year or budget figures. No growth, trend or variance commentary can therefore be provided, and the result for {{p:2026-05}} should be read on a standalone basis.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} on revenue of {{m:revenue@2026-05}}. EBITDA was {{m:ebitda@2026-05}}, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"Margin ratios, cost of sales detail and operating expense splits are not included in the facts pack, so the drivers of the step from gross profit to EBITDA and from EBITDA to profit after tax cannot be explained here.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts pack contains no balance sheet or cash flow data: there are no receivable, payable, inventory or cash balances, and no collection or payment period measures.\"},{\"text\":\"No commentary on working capital can be given for {{p:2026-05}}. If working capital reporting is required, the underlying balances and ageing data would need to be added to the monthly pack.\"}]}]}",
+    "usage": {
+      "input_tokens": 152,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 595,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 86
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "87384bf9691fedd83bce8bc90820f7a11ebcf308d87f044f5ef87febca94825a": {
+    "text": "{\"sections\":[{\"heading\":\"Desempeño\",\"paragraphs\":[{\"text\":\"En {{p:2026-05}}, los ingresos por operaciones ascendieron a {{m:revenue@2026-05}}. El paquete de datos no incluye cifras de períodos anteriores ni presupuesto, por lo que no es posible comentar variaciones ni tendencias respecto de meses previos.\"},{\"text\":\"En el mismo período, el EBITDA fue de {{m:ebitda@2026-05}} y la utilidad después de impuestos de {{m:pat@2026-05}}. Estas magnitudes corresponden únicamente al mes informado y se presentan sin comparativo.\"}]},{\"heading\":\"Márgenes\",\"paragraphs\":[{\"text\":\"La utilidad bruta del mes fue de {{m:gross_profit@2026-05}} sobre ingresos de {{m:revenue@2026-05}}, lo que refleja el nivel de costo directo absorbido en {{p:2026-05}}.\"},{\"text\":\"Entre la utilidad bruta de {{m:gross_profit@2026-05}} y el EBITDA de {{m:ebitda@2026-05}} se registra el efecto de los gastos operativos del mes; entre el EBITDA y la utilidad después de impuestos de {{m:pat@2026-05}} se refleja el efecto de depreciación, costos financieros e impuestos. El paquete de datos no desglosa estos conceptos ni aporta porcentajes de margen calculados, por lo que el análisis se limita a los importes informados.\"}]},{\"heading\":\"Capital de trabajo\",\"paragraphs\":[{\"text\":\"El paquete de datos no contiene información sobre cuentas por cobrar, inventarios, cuentas por pagar, saldos de caja ni días de rotación. En consecuencia, no es posible emitir comentarios sobre la posición ni la evolución del capital de trabajo correspondiente a {{p:2026-05}}.\"},{\"text\":\"Para futuros informes se requeriría incorporar los saldos de balance y los indicadores de ciclo de conversión de efectivo a fin de completar esta sección.\"}]}]}",
+    "usage": {
+      "input_tokens": 148,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 837,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 103
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "768222c85dfbb816f366faefa23b9940160532407d36be202ed31a643d9d7120": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Pour la période {{p:2026-05}}, le chiffre d'affaires opérationnel s'établit à {{m:revenue@2026-05}}. La marge brute du mois ressort à {{m:gross_profit@2026-05}}, l'EBITDA à {{m:ebitda@2026-05}} et le résultat après impôt à {{m:pat@2026-05}}.\"},{\"text\":\"Le dossier de données ne comporte ni période comparative, ni budget, ni ventilation par activité ou par client. Aucune analyse d'évolution ou de contribution ne peut donc être présentée pour ce mois.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Les niveaux de marge ne sont disponibles qu'en valeur absolue : {{m:gross_profit@2026-05}} de marge brute, {{m:ebitda@2026-05}} d'EBITDA et {{m:pat@2026-05}} de résultat après impôt, à rapprocher d'un chiffre d'affaires de {{m:revenue@2026-05}}.\"},{\"text\":\"Aucun taux de marge calculé, ni aucune décomposition des coûts (achats, charges de personnel, autres charges d'exploitation, amortissements, charges financières, impôt) ne figure dans les données transmises. L'écart entre les différents niveaux de résultat ne peut donc pas être expliqué à ce stade.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Les données fournies ne contiennent aucun élément de bilan ou de trésorerie : ni créances clients, ni dettes fournisseurs, ni stocks, ni position de trésorerie, ni délais de rotation.\"},{\"text\":\"Aucun commentaire sur le besoin en fonds de roulement ne peut être formulé pour {{p:2026-05}}. La communication des soldes de bilan et d'un état des flux de trésorerie permettrait de compléter cette section lors du prochain reporting.\"}]}]}",
+    "usage": {
+      "input_tokens": 150,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 811,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 105
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "6ca4d00c43305e02de6b6de8c4dacfba48200922d29303e65223cecb66d90368": {
+    "text": "{\"sections\":[{\"heading\":\"Geschäftsentwicklung\",\"paragraphs\":[{\"text\":\"Im Berichtsmonat {{p:2026-05}} beliefen sich die Umsatzerlöse aus der operativen Tätigkeit auf {{m:revenue@2026-05}}. Das Ergebnis vor Zinsen, Steuern und Abschreibungen betrug {{m:ebitda@2026-05}}, der Jahresüberschuss nach Steuern {{m:pat@2026-05}}.\"},{\"text\":\"Vergleichswerte aus Vormonaten oder Planzahlen liegen im Faktenbestand nicht vor, sodass eine Aussage zur Entwicklung im Zeitverlauf nicht möglich ist. Zu beachten ist ferner, dass die Prüfung V10 für diesen Monat einen Hinweis ausgelöst hat und ein Monat des Betrachtungszeitraums nicht aus einer Datei eingelesen, sondern angenommen wurde.\"}]},{\"heading\":\"Margen\",\"paragraphs\":[{\"text\":\"Der Rohertrag des Monats {{p:2026-05}} beläuft sich auf {{m:gross_profit@2026-05}} bei Umsatzerlösen von {{m:revenue@2026-05}}. Zwischen Rohertrag und EBITDA von {{m:ebitda@2026-05}} sowie zwischen EBITDA und dem Ergebnis nach Steuern von {{m:pat@2026-05}} liegen jeweils weitere Aufwandspositionen, die im Faktenbestand nicht einzeln ausgewiesen sind.\"},{\"text\":\"Margenkennzahlen in Prozent sowie eine Aufgliederung der Kosten sind nicht Bestandteil der übermittelten Daten; eine weitergehende Analyse der Margenentwicklung ist daher an dieser Stelle nicht möglich.\"}]},{\"heading\":\"Working Capital\",\"paragraphs\":[{\"text\":\"Zum Working Capital liegen keine Angaben vor. Der Faktenbestand enthält weder Forderungen, Verbindlichkeiten oder Vorräte noch Zahlungsmittelbestände oder Umschlagskennzahlen.\"},{\"text\":\"Eine Beurteilung der Kapitalbindung und der Liquiditätslage kann erst erfolgen, wenn die entsprechenden Bilanzpositionen für {{p:2026-05}} bereitgestellt werden.\"}]}]}",
+    "usage": {
+      "input_tokens": 185,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 869,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "0b59c165b478722e14a1befef1ea7eacc0199156882dfe0e061d8f5b67d39fc5": {
+    "text": "{\"sections\":[{\"heading\":\"Desempenho\",\"paragraphs\":[{\"text\":\"No período de {{p:2026-05}}, a receita das operações foi de {{m:revenue@2026-05}}. O resultado após impostos do mês foi de {{m:pat@2026-05}}, e o EBITDA foi de {{m:ebitda@2026-05}}.\"},{\"text\":\"O pacote de dados não contém valores de meses anteriores nem de orçamento, pelo que não é possível apresentar comparações de evolução ou de desvio. Regista-se ainda que a verificação V10 gerou um alerta para este mês e que um dos meses do intervalo foi assumido e não lido de um ficheiro; os valores acima devem ser lidos tendo em conta essas ressalvas.\"}]},{\"heading\":\"Margens\",\"paragraphs\":[{\"text\":\"O lucro bruto do mês ascendeu a {{m:gross_profit@2026-05}}, sobre uma receita de {{m:revenue@2026-05}}. O EBITDA de {{m:ebitda@2026-05}} e o resultado após impostos de {{m:pat@2026-05}} situam-se abaixo do lucro bruto, refletindo os custos registados entre esses níveis da demonstração de resultados.\"},{\"text\":\"O pacote não inclui a decomposição dos custos das mercadorias vendidas, das despesas operacionais, dos encargos financeiros ou da carga fiscal, pelo que não é possível explicar as variações entre os diferentes níveis de margem.\"}]},{\"heading\":\"Capital circulante\",\"paragraphs\":[{\"text\":\"Os factos disponíveis limitam-se a indicadores de resultados do mês e não incluem saldos de clientes, fornecedores, inventários, caixa ou endividamento. Não é, por isso, possível comentar a posição ou a evolução do capital circulante neste relatório.\"},{\"text\":\"Para uma análise de capital circulante em períodos futuros seria necessário disponibilizar os saldos do balanço e os respetivos prazos médios.\"}]}]}",
+    "usage": {
+      "input_tokens": 181,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1229,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 705,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "a629d72487eccf73d2fb82bef0dcd3d016759bbd9588d493bdde1e848e3f25b7": {
+    "text": "{\"sections\":[{\"heading\":\"Andamento\",\"paragraphs\":[{\"text\":\"Nel periodo {{p:2026-05}} i ricavi delle vendite si attestano a {{m:revenue@2026-05}}. Il risultato netto del periodo è pari a {{m:pat@2026-05}}, mentre l'EBITDA si colloca a {{m:ebitda@2026-05}}.\"},{\"text\":\"Il pacchetto dati non contiene valori comparativi relativi a periodi precedenti né a budget; non è pertanto possibile commentare la variazione dell'andamento nel tempo. Si segnala inoltre che il controllo di validazione V10 ha generato un avviso per il mese in esame e che un mese dell'intervallo è stato assunto anziché desunto da un file: i valori esposti vanno letti tenendo conto di tale circostanza.\"}]},{\"heading\":\"Marginalità\",\"paragraphs\":[{\"text\":\"Il margine lordo del periodo {{p:2026-05}} ammonta a {{m:gross_profit@2026-05}}, a fronte di ricavi pari a {{m:revenue@2026-05}}. L'EBITDA, pari a {{m:ebitda@2026-05}}, evidenzia l'assorbimento dei costi operativi successivi al margine lordo.\"},{\"text\":\"Dal margine lordo si giunge al risultato netto di {{m:pat@2026-05}}. I dati disponibili non includono il dettaglio del costo del venduto, delle spese operative, degli oneri finanziari o delle imposte, pertanto non è possibile scomporre ulteriormente la formazione della marginalità.\"}]},{\"heading\":\"Capitale circolante\",\"paragraphs\":[{\"text\":\"Il pacchetto dati non contiene informazioni su crediti verso clienti, debiti verso fornitori, rimanenze o disponibilità liquide. Non è quindi possibile commentare il capitale circolante né i relativi tempi di incasso e pagamento per il periodo {{p:2026-05}}.\"},{\"text\":\"Per una valutazione del circolante nei prossimi report si rende necessaria la trasmissione dei saldi patrimoniali di fine periodo e dei relativi scadenzari.\"}]}]}",
+    "usage": {
+      "input_tokens": 183,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1227,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 767,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "4e8810e9e02c185458469534b5b3fb7e632ff13d9c763bb32beffa1c81b6205e": {
+    "text": "{\"sections\":[{\"heading\":\"Prestaties\",\"paragraphs\":[{\"text\":\"In {{p:2026-05}} bedroeg de omzet uit bedrijfsactiviteiten {{m:revenue@2026-05}}. De brutowinst over dezelfde periode kwam uit op {{m:gross_profit@2026-05}}.\"},{\"text\":\"Het feitenbestand bevat geen cijfers over voorgaande perioden, budgetten of segmenten. Een vergelijking in de tijd, een afwijkingsanalyse of een toelichting op de oorzaken van het omzetniveau is op basis van de beschikbare gegevens niet mogelijk.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"De brutowinst van {{m:gross_profit@2026-05}} staat tegenover een omzet van {{m:revenue@2026-05}} in {{p:2026-05}}. Het verschil tussen beide bedragen vormt de directe kosten van de periode.\"},{\"text\":\"Er zijn geen afzonderlijke feiten opgenomen voor het margepercentage, de kostprijs van de omzet per categorie of de operationele kosten. Een onderbouwde uitspraak over de ontwikkeling of de samenstelling van de marge kan daarom niet worden gedaan.\"}]},{\"heading\":\"Werkkapitaal\",\"paragraphs\":[{\"text\":\"Het feitenbestand bevat geen gegevens over debiteuren, crediteuren, voorraden of liquide middelen. Over de omvang, de samenstelling of de ontwikkeling van het werkkapitaal in {{p:2026-05}} kan op basis hiervan niets worden gerapporteerd.\"},{\"text\":\"Om deze sectie in een volgende rapportage te kunnen invullen, zijn balansposten en ouderdomsanalyses van vorderingen en schulden nodig.\"}]}]}",
+    "usage": {
+      "input_tokens": 95,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 720,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 67
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "c71a1096df14bea7ec4bd9d01c096bec91af3936cdd0f77ab4c31e86376cb5c3": {
+    "text": "{\"sections\":[{\"heading\":\"الأداء\",\"paragraphs\":[{\"text\":\"بلغت إيرادات التشغيل خلال {{p:2026-05}} ما قيمته {{m:revenue@2026-05}}. ولا تتضمن حزمة البيانات أرقام فترات سابقة أو أرقام الموازنة، ولذلك لا يمكن عرض اتجاه للإيرادات أو مقارنتها بفترة مرجعية في هذا التقرير.\"},{\"text\":\"كما لا تتوفر بيانات تفصيلية حسب العميل أو خط النشاط أو المنطقة، ما يحول دون تحليل مكوّنات الإيراد في {{p:2026-05}}.\"}]},{\"heading\":\"هوامش الربح\",\"paragraphs\":[{\"text\":\"سجّل مجمل الربح خلال {{p:2026-05}} مبلغ {{m:gross_profit@2026-05}} مقابل إيرادات تشغيل قدرها {{m:revenue@2026-05}}.\"},{\"text\":\"لم تُدرج في الحزمة نسبة هامش مجمل الربح ولا تفاصيل تكلفة المبيعات أو المصروفات التشغيلية أو صافي الربح، وبالتالي يقتصر العرض على المبلغين المذكورين دون تحليل لتطور الهامش.\"}]},{\"heading\":\"رأس المال العامل\",\"paragraphs\":[{\"text\":\"لا تتضمن حزمة البيانات أي أرقام تتعلق برأس المال العامل، مثل الذمم المدينة أو الذمم الدائنة أو المخزون أو الأرصدة النقدية، كما لا تتوفر مؤشرات أعمار الذمم أو دورة التحصيل.\"},{\"text\":\"وعليه لا يمكن إبداء أي عرض لوضع رأس المال العامل عن {{p:2026-05}}، ويُقترح تزويد الفريق المالي بأرصدة الميزانية ذات الصلة لإدراجها في التقرير القادم.\"}]}]}",
+    "usage": {
+      "input_tokens": 93,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 781,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 65
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "986af47b0beeb1172a216d045283398a72b9b34c9a031d067fd55094afd380bf": {
+    "text": "{\"sections\":[{\"heading\":\"प्रदर्शन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} के लिए परिचालन से राजस्व {{m:revenue@2026-05}} रहा। तथ्य संग्रह में पिछली अवधि अथवा पिछले वर्ष की तुलना के आँकड़े उपलब्ध नहीं हैं, इसलिए वृद्धि या गिरावट की दिशा पर कोई टिप्पणी नहीं की जा सकती।\"},{\"text\":\"इसी अवधि का सकल लाभ {{m:gross_profit@2026-05}} दर्ज किया गया। राजस्व और सकल लाभ के अतिरिक्त कोई अन्य परिचालन आँकड़ा, जैसे व्यय, परिचालन लाभ अथवा खंडवार विवरण, उपलब्ध नहीं कराया गया है।\"}]},{\"heading\":\"मार्जिन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} के लिए सकल लाभ {{m:gross_profit@2026-05}} तथा राजस्व {{m:revenue@2026-05}} उपलब्ध हैं। तथ्य संग्रह में सकल मार्जिन अनुपात अलग से नहीं दिया गया है, और न ही पूर्व अवधियों के मार्जिन, अतः मार्जिन के स्तर या उसमें परिवर्तन पर मात्रात्मक टिप्पणी संभव नहीं है।\"},{\"text\":\"लागत संरचना, प्रत्यक्ष लागत अथवा उत्पाद और ग्राहक स्तर के विवरण प्रस्तुत आँकड़ों में सम्मिलित नहीं हैं, इसलिए मार्जिन के कारणों का विश्लेषण इस रिपोर्ट में नहीं किया गया है।\"}]},{\"heading\":\"कार्यशील पूँजी\",\"paragraphs\":[{\"text\":\"इस खंड के लिए आवश्यक आँकड़े उपलब्ध नहीं हैं। प्राप्य राशि, देय राशि, स्कंध तथा नकदी शेष से संबंधित कोई तथ्य प्रस्तुत नहीं किया गया है, अतः कार्यशील पूँजी की स्थिति या उसके चक्र पर कोई विवरण नहीं दिया जा सकता।\"},{\"text\":\"यदि आगामी माह के लिए उक्त शेष और संबंधित संग्रहण अवधि के आँकड़े उपलब्ध कराए जाते हैं, तो इस खंड को पूर्ण रूप से तैयार किया जा सकेगा।\"}]}]}",
+    "usage": {
+      "input_tokens": 95,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1025,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 72
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "12f566929f68124fe76ae9de57cae0352093b28fe55a40661d7f143a5e986a2a": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}. No comparative period figures are included in the facts available, so no month-on-month or year-on-year movement can be reported here.\"},{\"text\":\"Two matters should be noted alongside these figures. Validation check V10 raised a warning for the month, and one month in the range was assumed rather than read from a source file. The figures below should therefore be read as provisional until the underlying records are confirmed.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}} on revenue of {{m:revenue@2026-05}}. The facts provided do not include a cost breakdown, operating expenses or a net result, so the composition of the margin and its movement over time cannot be commented on.\"},{\"text\":\"Given the open validation warning for the month, the margin shown may change once the source data is verified.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"The facts supplied contain no balance sheet or cash flow information: there are no receivable, payable, inventory or cash balances available for {{p:2026-05}}. No commentary on working capital can be given on this basis.\"},{\"text\":\"If working capital reporting is required for this period, the relevant balances would need to be added to the data pack.\"}]}]}",
+    "usage": {
+      "input_tokens": 128,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 476,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "5bf5f4a2ca9295ab14d65039cf99e2009a53d25d0125d3b66e8b0dca3daa4016": {
+    "text": "{\"sections\":[{\"heading\":\"Desempeño\",\"paragraphs\":[{\"text\":\"Los ingresos por operaciones del período {{p:2026-05}} ascendieron a {{m:revenue@2026-05}}. El paquete de datos no incluye cifras de meses anteriores ni presupuesto, por lo que no es posible comentar variaciones ni tendencias en esta ocasión.\"},{\"text\":\"Se deja constancia de dos observaciones de validación: la verificación V10 generó una advertencia para este mes y uno de los meses del rango fue supuesto en lugar de leerse de un archivo. Ambas circunstancias deben considerarse al interpretar las cifras presentadas.\"}]},{\"heading\":\"Márgenes\",\"paragraphs\":[{\"text\":\"La utilidad bruta del período {{p:2026-05}} fue de {{m:gross_profit@2026-05}}, sobre ingresos de {{m:revenue@2026-05}}. No se dispone de datos comparativos de períodos previos ni del detalle del costo de ventas, por lo que no se puede evaluar la evolución del margen ni su composición.\"}]},{\"heading\":\"Capital de trabajo\",\"paragraphs\":[{\"text\":\"El paquete de datos no contiene información sobre cuentas por cobrar, inventarios, cuentas por pagar ni saldos de caja. Por lo tanto, no es posible formular comentarios sobre el capital de trabajo para este período.\"}]}]}",
+    "usage": {
+      "input_tokens": 126,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 497,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "56109a9bf34cd9bf7debad72b98c99055c185080b9a677818efcaab1d0200bb4": {
+    "text": "{\"sections\":[{\"heading\":\"Performance\",\"paragraphs\":[{\"text\":\"Le chiffre d'affaires opérationnel du mois de {{p:2026-05}} s'établit à {{m:revenue@2026-05}}. Le dossier de données ne contient pas de valeurs comparatives pour un mois antérieur ni pour l'exercice en cours, de sorte qu'aucune évolution ne peut être commentée ici.\"},{\"text\":\"Deux réserves doivent être signalées : le contrôle V10 a déclenché un avertissement pour le mois sous revue, et un mois de la période retenue a été supposé plutôt que lu à partir d'un fichier source. Les montants présentés sont donc à lire sous ces réserves.\"}]},{\"heading\":\"Margins\",\"paragraphs\":[{\"text\":\"La marge brute du mois de {{p:2026-05}} ressort à {{m:gross_profit@2026-05}}, pour un chiffre d'affaires de {{m:revenue@2026-05}}.\"},{\"text\":\"Le dossier ne fournit ni taux de marge calculé, ni détail des coûts directs, ni point de comparaison avec une période précédente ou un budget. Aucune analyse de l'évolution de la marge n'est donc possible sur la base des éléments disponibles.\"}]},{\"heading\":\"Working capital\",\"paragraphs\":[{\"text\":\"Le dossier de données ne comporte aucun élément relatif au besoin en fonds de roulement : ni créances clients, ni dettes fournisseurs, ni stocks, ni trésorerie, ni délais d'encaissement ou de règlement.\"},{\"text\":\"Aucun commentaire sur le fonds de roulement ne peut être formulé pour le mois de {{p:2026-05}}. La fourniture des soldes de bilan correspondants permettrait de compléter cette section lors d'une prochaine édition.\"}]}]}",
+    "usage": {
+      "input_tokens": 128,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 643,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "b81cdb2603eacb6f5519c7a927a2fa15e64893f97b47bdde284714b79578f907": {
+    "text": "{\"sections\":[{\"heading\":\"Geschäftsentwicklung\",\"paragraphs\":[{\"text\":\"Der Umsatz aus der Geschäftstätigkeit beläuft sich im Berichtsmonat {{p:2026-05}} auf {{m:revenue@2026-05}}.\"},{\"text\":\"Weitere Angaben, etwa Vergleichswerte aus Vormonaten oder dem Vorjahr, liegen in den übermittelten Daten nicht vor. Eine Aussage zur Entwicklung oder zur Zielerreichung ist daher derzeit nicht möglich.\"}]},{\"heading\":\"Margen\",\"paragraphs\":[{\"text\":\"Zu Aufwendungen, Wareneinsatz oder Ergebnisgrößen enthalten die vorliegenden Daten keine Angaben. Eine Darstellung der Rohertrags- oder Ergebnismargen ist auf dieser Grundlage nicht möglich.\"},{\"text\":\"Für eine Margenbetrachtung in den kommenden Berichten wären mindestens Umsatz-, Material- und Personalaufwandsdaten sowie das Periodenergebnis erforderlich.\"}]},{\"heading\":\"Working Capital\",\"paragraphs\":[{\"text\":\"Angaben zu Forderungen, Verbindlichkeiten, Vorräten oder Liquidität sind in den übermittelten Daten nicht enthalten.\"},{\"text\":\"Eine Beurteilung der Kapitalbindung, der Außenstandsdauer oder der Zahlungsfähigkeit kann daher für {{p:2026-05}} nicht vorgenommen werden.\"}]}]}",
+    "usage": {
+      "input_tokens": 65,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1225,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 598,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 31
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "caec127992f7c29f1b0db1f0dce4d11976d09793a2effa5165a0fc88d70dee00": {
+    "text": "{\"sections\":[{\"heading\":\"Desempenho\",\"paragraphs\":[{\"text\":\"No período de {{p:2026-05}}, a receita proveniente das operações foi de {{m:revenue@2026-05}}. Este é o único indicador disponível no conjunto de dados deste mês.\"},{\"text\":\"Não há valores comparativos de períodos anteriores nem metas orçamentárias no conjunto de dados, pelo que não é possível avaliar a evolução nem o cumprimento de objetivos. Qualquer leitura de tendência exigiria a inclusão de dados históricos.\"}]},{\"heading\":\"Margens\",\"paragraphs\":[{\"text\":\"O conjunto de dados não inclui custos, despesas operacionais nem resultados intermédios. Por esse motivo, não é possível apurar margem bruta, margem operacional ou margem líquida relativas a {{p:2026-05}}.\"},{\"text\":\"Para comentar margens em relatórios futuros, seria necessário dispor, no mínimo, do custo das vendas e das despesas operacionais do mesmo período.\"}]},{\"heading\":\"Capital de giro\",\"paragraphs\":[{\"text\":\"Não constam no conjunto de dados saldos de contas a receber, contas a pagar, estoques ou disponibilidades, nem indicadores de prazos médios. Assim, não é possível analisar a posição de capital de giro em {{p:2026-05}}.\"},{\"text\":\"A receita de {{m:revenue@2026-05}}, isoladamente, não permite inferir necessidades de financiamento do ciclo operacional nem a conversão de vendas em caixa.\"}]}]}",
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1229,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 580,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 29
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "a9576251390986b678f264e26f0279d236603bc6d72e63caeef91b4f7b1e942c": {
+    "text": "{\"sections\":[{\"heading\":\"Andamento\",\"paragraphs\":[{\"text\":\"Nel periodo {{p:2026-05}} i ricavi delle vendite e delle prestazioni sono pari a {{m:revenue@2026-05}}.\"},{\"text\":\"Il pacchetto dati non contiene valori comparativi relativi a periodi precedenti né dati di budget, pertanto non è possibile commentare la variazione del fatturato né la sua composizione per cliente, linea di prodotto o area geografica.\"}]},{\"heading\":\"Marginalità\",\"paragraphs\":[{\"text\":\"Non sono disponibili dati di costo, di margine lordo o di risultato operativo per il periodo {{p:2026-05}}. In assenza di tali informazioni non è possibile formulare alcuna osservazione sulla marginalità.\"}]},{\"heading\":\"Capitale circolante\",\"paragraphs\":[{\"text\":\"Il pacchetto dati non include saldi di crediti verso clienti, debiti verso fornitori, rimanenze o disponibilità liquide. Questa sezione non può quindi essere sviluppata; si suggerisce di integrare i dati patrimoniali nelle prossime rilevazioni mensili.\"}]}]}",
+    "usage": {
+      "input_tokens": 66,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1227,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 448,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 31
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "ae023afd69fb91feda64c2ad6190cc6df78762d88627c59c07f4ee13c2ca0d85": {
+    "text": "{\"sections\":[{\"heading\":\"Prestaties\",\"paragraphs\":[{\"text\":\"De omzet uit bedrijfsactiviteiten bedraagt {{m:revenue@2026-05}} over {{p:2026-05}}. Verdere omzetgegevens, zoals een vergelijkingsperiode of een uitsplitsing naar klant of product, ontbreken in het aangeleverde feitenpakket, waardoor geen ontwikkeling of trend kan worden beschreven.\"},{\"text\":\"Bij de samenstelling van deze rapportage is een waarschuwing gesignaleerd bij controle V10 voor deze maand, en is één maand in het bereik verondersteld in plaats van ingelezen uit een bestand. De genoemde omzet dient daarom met voorbehoud te worden gelezen tot de onderliggende periode is bevestigd.\"}]},{\"heading\":\"Marges\",\"paragraphs\":[{\"text\":\"Het feitenpakket bevat geen kostprijs, brutomarge, bedrijfskosten of resultaatgegevens. Een analyse van de marges is op basis van de beschikbare gegevens niet mogelijk.\"},{\"text\":\"Zodra kosten- en resultaatgegevens voor {{p:2026-05}} beschikbaar zijn, kan de margeontwikkeling in een volgende rapportage worden toegelicht.\"}]},{\"heading\":\"Werkkapitaal\",\"paragraphs\":[{\"text\":\"Er zijn geen gegevens opgenomen over debiteuren, crediteuren, voorraden of liquide middelen. Over de ontwikkeling van het werkkapitaal kan daarom geen uitspraak worden gedaan.\"},{\"text\":\"Voor een beoordeling van het werkkapitaal zijn balansposten en, bij voorkeur, vergelijkende cijfers over meerdere perioden nodig.\"}]}]}",
+    "usage": {
+      "input_tokens": 98,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 687,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 42
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "59cfef1db7318797246e215760dade4590e907511aac3fb65b46d13c4c0cac6d": {
+    "text": "{\"sections\":[{\"heading\":\"الأداء\",\"paragraphs\":[{\"text\":\"بلغت إيرادات التشغيل خلال شهر {{p:2026-05}} ما قيمته {{m:revenue@2026-05}}. ولا تتضمن حزمة البيانات أرقام فترات سابقة أو مستهدفات، ولذلك لا يمكن عرض اتجاه أو مقارنة لهذا الشهر.\"},{\"text\":\"ننبّه إلى أن إحدى عمليات التحقق أثارت تنبيهًا لهذا الشهر، وأن الشهر المشمول بالتقرير افتُرض افتراضًا ولم يُقرأ من ملف مصدري. ويُنصح بمراجعة هذين البندين قبل الاعتماد على الرقم أعلاه في اتخاذ القرار.\"}]},{\"heading\":\"هوامش الربح\",\"paragraphs\":[{\"text\":\"لا تتضمن البيانات المتاحة أي أرقام لتكلفة المبيعات أو مجمل الربح أو المصروفات التشغيلية أو صافي النتيجة، وبالتالي لا يمكن احتساب أي هامش لهذا الشهر.\"},{\"text\":\"وعند توفير بيانات التكاليف والمصروفات لنفس الفترة، يمكن استكمال هذا القسم بعرض الهوامش ومقارنتها بالفترات السابقة.\"}]},{\"heading\":\"رأس المال العامل\",\"paragraphs\":[{\"text\":\"لا تشتمل حزمة البيانات على أرصدة الذمم المدينة أو الذمم الدائنة أو المخزون أو النقد، ومن ثمّ لا يمكن تقييم وضع رأس المال العامل أو دورة التحصيل والسداد.\"},{\"text\":\"يتطلب استكمال هذا القسم تزويدنا بأرصدة الميزانية في نهاية الفترة، ويفضَّل مع أرصدة مقارنة لفترة سابقة.\"}]}]}",
+    "usage": {
+      "input_tokens": 97,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 773,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 70
+      }
+    },
+    "model": "claude-opus-5"
+  },
+  "ede224b156796eea1b439fcdcacc487c79f4e377d74d557b9bfdcd5eccc43868": {
+    "text": "{\"sections\":[{\"heading\":\"निष्पादन\",\"paragraphs\":[{\"text\":\"{{p:2026-05}} की अवधि के लिए परिचालन से राजस्व {{m:revenue@2026-05}} रहा। तथ्य संग्रह में इस अवधि के लिए केवल यही आँकड़ा उपलब्ध है, इसलिए पिछली अवधियों से तुलना अथवा प्रवृत्ति पर कोई टिप्पणी नहीं की जा सकती।\"},{\"text\":\"ध्यान देने योग्य है कि इस माह के लिए जाँच V10 पर एक चेतावनी दर्ज हुई है, तथा सीमा में सम्मिलित एक माह किसी फ़ाइल से पढ़ा नहीं गया, बल्कि अनुमानित किया गया है। इन दोनों बिंदुओं का समाधान होने तक उपरोक्त आँकड़े को अनंतिम माना जाए।\"}]},{\"heading\":\"सकल एवं परिचालन मार्जिन\",\"paragraphs\":[{\"text\":\"मार्जिन पर टिप्पणी के लिए आवश्यक जानकारी उपलब्ध नहीं है। तथ्य संग्रह में बिक्री की लागत, सकल लाभ, परिचालन व्यय अथवा परिचालन लाभ से संबंधित कोई आँकड़ा सम्मिलित नहीं है, अतः {{m:revenue@2026-05}} के सापेक्ष किसी भी प्रकार का मार्जिन अनुपात निकालना संभव नहीं है।\"},{\"text\":\"लागत एवं व्यय से जुड़े आँकड़े उपलब्ध कराए जाने पर अगली रिपोर्ट में यह अनुभाग पूर्ण किया जा सकेगा।\"}]},{\"heading\":\"कार्यशील पूँजी\",\"paragraphs\":[{\"text\":\"कार्यशील पूँजी की स्थिति पर विवरण देने हेतु पर्याप्त तथ्य उपलब्ध नहीं हैं। प्राप्य राशियाँ, देय राशियाँ, रहतिया तथा नकद शेष से संबंधित कोई भी मद तथ्य संग्रह में सम्मिलित नहीं है।\"},{\"text\":\"इसके अतिरिक्त, अवधि संबंधी अनुमान तथा जाँच V10 की चेतावनी को देखते हुए, स्रोत आँकड़ों की पुष्टि के बाद ही कार्यशील पूँजी का विश्लेषण प्रस्तुत करना उपयुक्त होगा।\"}]}]}",
+    "usage": {
+      "input_tokens": 99,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1228,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 979,
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "output_tokens_details": {
+        "thinking_tokens": 42
+      }
+    },
+    "model": "claude-opus-5"
+  }
+}

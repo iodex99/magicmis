@@ -344,7 +344,11 @@ const wrap = (e: string | null): string | null => (e === null ? null : `(${e})`)
  * The movement under a head path (or every ledger, for null) in a month, or from the year's
  * start to the month in a year-to-date column. In paise, so the caller divides once.
  */
-function movementSum(data: DataRange, col: ColumnContext, path: string | null): string {
+export function movementSum(
+  data: DataRange,
+  col: ColumnContext,
+  path: string | null,
+): string {
   const head = path === null ? "" : `,${data.col("head_path")},${path}`;
   return col.kind === "period"
     ? `SUMIFS(${data.col("amount_paise")},${data.col("period_index")},${col.indexCell}${head},${data.col("measure")},"movement")`

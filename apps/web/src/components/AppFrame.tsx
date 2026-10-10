@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { RAIL_COOKIE } from "@/lib/prefs";
+import { unreadCount } from "@/lib/server/inbox";
 
 import { SessionWatcher } from "./SessionWatcher";
 import { Sidebar } from "./Sidebar";
@@ -40,7 +41,7 @@ export async function AppFrame({
   children: ReactNode;
 }) {
   const pool = db();
-  const [available, recent, jar] = await Promise.all([
+  const [available, recent, jar, unread] = await Promise.all([
     accountId === undefined
       ? Promise.resolve("—")
       : walletSummary(pool, accountId).then((w) => formatCredits(w.available.toString())),
@@ -55,6 +56,7 @@ export async function AppFrame({
           [accountId],
         ),
     cookies(),
+    accountId === undefined ? Promise.resolve(0) : unreadCount(pool, accountId),
   ]);
 
   return (
@@ -67,6 +69,7 @@ export async function AppFrame({
         chatCompanyId={company?.id ?? recent?.id ?? null}
         initialCollapsed={jar.get(RAIL_COOKIE)?.value === "collapsed"}
         onSignOut={<SignOutButton />}
+        unread={unread}
       />
       <main className="canvas-grid min-w-0 flex-1 px-8 py-7">
         <div className={`mx-auto w-full ${wide ? "max-w-[1680px]" : "max-w-[1180px]"}`}>

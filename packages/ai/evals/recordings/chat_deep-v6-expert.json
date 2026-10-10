@@ -1,0 +1,4832 @@
+{
+  "874a4e9bb154044c7035fa126fe9e78be9d748e7aac373e07d50ce1ceb21899c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01TR7WbdiMGrnKZeWccxSDW5",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, closing_paise AS closing_balance_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%bank%'",
+          "purpose": "Bank ledger closing balance for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 3287,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 3287,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 128,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "edbc7204875ba38486f0b741d4437934ab8f2999e801cf1e498835cc03ab80f1": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01VwcfKhGkVJiSwgA41JoKYd",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "{{q:q1:0:ledger}} stood at {{q:q1:0:closing_balance_paise}} at the end of {{p:2025-06}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 256,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 121,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "c5142047225b5fcfad0b40591066c54f70f01239233b9c8da870e1c71749d1f8": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01HLSYEqCr8duNgXVahx4RYZ",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, month_paise AS movement_paise, closing_paise AS closing_balance_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%bank%'",
+          "purpose": "Bank ledger movement in the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 138,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d83d6a5c320a7297aac0184c50ac81087f7cc002fbfae35adf0c4e29e4e401c2": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_013yrS5AxpVh7bu9as6FypN4",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The {{q:q1:0:ledger}} balance rose by {{q:q1:0:movement_paise}} during {{p:2025-06}}."
+            },
+            {
+              "text": "It stood at {{q:q1:0:closing_balance_paise}} at the month end."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 276,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 153,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "73d47da107c6e0f0cb00531a0bb1ef3d795d37115cb3181b74d79e40c3f32847": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_012C5Q7nS7WdKGGxx4bUcegp",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, month_paise, closing_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%station%'",
+          "purpose": "Find printing and stationery ledger for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 53,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 125,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "0380778d6297f2e2aa1a54f109936dbb4e971e5cb57383e5d0527ffec708f064": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01GdtUKxoTvefyvm1zhVDQsK",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Printing & Stationery for {{p:2025-06}} was {{q:q1:0:month_paise}}."
+            },
+            {
+              "text": "The financial year to date figure for this ledger at that month end stands at {{q:q1:0:closing_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 254,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 150,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "7442680ff8548325dd102ec18430bc089eab49fdc881d91d596dccf92ad801d6": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01K8q3awA3msmfbGWsxXqJAL",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, month_paise, closing_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%phone%' OR period='2025-06' AND lower(ledger) LIKE '%internet%' OR period='2025-06' AND lower(ledger) LIKE '%telecom%'",
+          "purpose": "Find telephone/internet ledger for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 183,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "11e3e0c746065319e0c649a47f869a484e43f976aaace9756ce2213621e94d4f": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01RLMz5QTSLBmChZ8cR5oGyu",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Telephone & Internet expense for {{p:2025-06}} was {{q:q1:0:month_paise}}."
+            },
+            {
+              "text": "The financial year to date figure for this ledger at that month end stands at {{q:q1:0:closing_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 315,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 152,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "1c2e3c3aaf8af057fb0722d56bd80dd77c1c7ac40208f99c8ced3a74fa16ff29": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Ve9CuM7E8jV7YFS56rj5gH",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, closing_paise, month_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%salar%'",
+          "purpose": "Salaries ledger YTD at June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 65,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 124,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8e5c0ee6a1fef9996f6e60d9e65358281364280db50acc036e0fc7617e622f03": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01HQGWPQL8PAq6dH81QwJknx",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Salaries & Wages stands at {{q:q1:1:closing_paise}} for the financial year to date through {{p:2025-06}}."
+            },
+            {
+              "text": "Of that, {{q:q1:1:month_paise}} relates to {{p:2025-06}} alone. A separate Salary Payable balance of {{q:q1:0:closing_paise}} sits under provisions and is unchanged in the month."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 293,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 202,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "c92c3495ebcade95d7d0cf5b853dd11bde4663a14076a290fd745ffdbadea76c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01H5otLaTmqnnWtcfaThXKpV",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(month_paise) AS sales_paise FROM balances WHERE period='2025-06' AND head='REV'",
+          "purpose": "June sales total"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 47,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 105,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "4af2497f42d2c01cc45afe1646e5b3d3c4e4e68ca62aba6b47000e51b0051338": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01M5kr6yMJZEbyKLap5djDDc",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT head, head_name, -SUM(month_paise) AS month_paise, -SUM(closing_paise) AS ytd_paise, COUNT(*) AS ledgers FROM balances WHERE period='2025-06' GROUP BY 1,2 ORDER BY 1",
+          "purpose": "Heads loaded for June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 192,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 160,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "309e9cd4258ab0ea0b92cb18aad401e75a56cbc4b41c161ae79d8e19b23b1d14": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01T5mXa6SW9jrDKiqKJAgHrC",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, -month_paise AS sales_paise FROM balances WHERE period='2025-06' AND head='REV_PRODUCTS'",
+          "purpose": "June product sales"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 1044,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 112,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "086e981278455070de31be38e780a6b31ea9701c428a743bc6b6db7a43ccd789": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01SXxUnPoyqv16yj8CKX4Zx5",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Sales in {{p:2025-06}} were {{q:q3:0:sales_paise}}, all from {{q:q3:0:ledger}}."
+            },
+            {
+              "text": "There was also interest income in the month, shown separately from sales."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 1212,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 144,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "4d12ae419b52025994fc1a5d75b05f216fa83b88d5a7915998e8fd988678c8c6": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_015iC8d2dR5A4gCPKKVB3gNL",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS sales_ytd_paise FROM balances WHERE period='2025-05' AND head='REV'",
+          "purpose": "Year to date sales at May 2025"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 117,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3bc8d67a5bfb6f6de46d45a6c6a96e1fa91db0761c67375088c5d5eee43686f2": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01XcXEirKxyfwBXDoZD8qYMa",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT head, head_name, -SUM(closing_paise) AS amt_paise, COUNT(*) AS ledgers FROM balances WHERE period='2025-05' GROUP BY 1,2 ORDER BY 1",
+          "purpose": "Heads available in May 2025"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 217,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 143,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "bd3071bad7f60d816faf2b57a0e1cc4e3bd1ffaecf9e93d644de11ec7cdfbced": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FpTWHMrFnsfJ8gQftHsFq1",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS sales_ytd_paise, -SUM(month_paise) AS sales_month_paise FROM balances WHERE period='2025-05' AND head LIKE 'REV%'",
+          "purpose": "YTD and May sales"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 967,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 139,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8c628a76b2bffa07fb288fae1416bdef1b6925be7e6e5c80600756a2e5e4d039": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01UgnpLrLwQCiCStJJ9UAesT",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Year-to-date sales at the end of {{p:2025-05}} are {{q:q3:0:sales_ytd_paise}}, all from sale of products."
+            },
+            {
+              "text": "Of that, {{q:q3:0:sales_month_paise}} was earned in the month itself. No other income head carries a balance for the year to date apart from interest income, which is nil."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 1165,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 185,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "21e3c1e3bfeaac4cd962d209e6dc8739cc36fa913043f4a4f2bd5646eb48c625": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FQsDT15EsLBJCdcqe2kRhV",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT SUM(closing_paise) AS receivables_paise, COUNT(*) AS customers FROM balances WHERE period='2025-06' AND head='CA_RECEIVABLES'",
+          "purpose": "Total receivables at June month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 132,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "29317e7e7e2acd6e5b2a8012a603f25c026dd6f91304dd6d0b4abd61aaa5f3be": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01DQxN7Fbee2SLM4R7KgrnYc",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Customers owed {{q:q1:0:receivables_paise}} at the end of {{p:2025-06}}."
+            },
+            {
+              "text": "This is the total closing balance of the trade receivable ledgers at that month end, across {{q:q1:0:customers}} party ledgers."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 236,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 158,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "f85140cd6864eec9cb238bd1e4fa8e09cb7a06a197cc4a5db21cb104bc9ed194": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01AgyMZktYNCm6dm48TcCuZV",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, closing_paise AS owed_paise FROM balances WHERE period='2025-05' AND head='CA_RECEIVABLES' ORDER BY closing_paise DESC LIMIT 5",
+          "purpose": "Top receivable balances at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 58,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 141,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "227e1ed33cee46370a1259c61d32ef52651ee37188da321ecb17edc3460d34a4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_017CairzcRDxAdfAMzRP13cg",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-05}}, the largest customer balance was {{q:q1:0:ledger}}, owing {{q:q1:0:owed_paise}}."
+            },
+            {
+              "text": "The next largest were {{q:q1:1:ledger}} at {{q:q1:1:owed_paise}} and {{q:q1:2:ledger}} at {{q:q1:2:owed_paise}}. These are closing balances under the trade receivables head."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 335,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 218,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "9126919d2d19f7c3fcb4b2e0d9c93104664401aacaa43ba580657f8e23bb4e5b": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_018nqZkDMiTsYKhisK6cashV",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT COUNT(*) AS customers FROM balances WHERE period='2025-06' AND head='CA_RECEIVABLES' AND closing_paise <> 0",
+          "purpose": "Count customer ledgers with outstanding balance"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 57,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 130,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "9816c7f2274e769eb9770cd73c4064ec513d40a700c9fd876f994c76d93e3b47": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_019kYrL65m5yfcnEtCLXC23J",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-06}}, {{q:q1:0:customers}} customer ledgers under trade receivables carried a non-zero outstanding balance."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 225,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 124,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "783deacc8e5b14dd4e5778595ec8a2b78e18f1512855c947b8343ccaea36dacb": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01T3WfVLCYn7onN74aELkzVP",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS payables_paise, COUNT(*) AS suppliers FROM balances WHERE period='2025-05' AND head='CL_PAYABLES'",
+          "purpose": "Total payables at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 131,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "bd188c1d472244c2c8a82c73cfb3d785d151f78caa60d352eeabf03a5e47b9ee": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01JP3FJ82QaoWSRAwCG5c3zo",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-05}} you owed suppliers {{q:q1:0:payables_paise}} in total, across {{q:q1:0:suppliers}} trade payable ledgers."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 237,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 135,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "e734611f0412b2cc323415949b788428056ba33b8fa7d465c322339a21845932": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Cr8D9j3SPW19PrJpn5UpBz",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, group_path, closing_paise AS ytd_paise FROM balances WHERE period='2025-06' AND group_path ILIKE '%Administrative Expenses%' ORDER BY closing_paise DESC LIMIT 10",
+          "purpose": "Largest YTD admin expense ledger"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 72,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 154,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "cb359ab1642824003928f9be303b6c56c180845af4feaf2c6dcc141e64933511": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FVSzCrYFBy39Tt1jM9HB2w",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "{{q:q1:0:ledger}} is the largest ledger in the Administrative Expenses group for the year to date at the end of {{p:2025-06}}, at {{q:q1:0:ytd_paise}}."
+            },
+            {
+              "text": "The other ledgers in the group are {{q:q1:1:ledger}} at {{q:q1:1:ytd_paise}} and {{q:q1:2:ledger}} at {{q:q1:2:ytd_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 370,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 224,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "99c469654ed9d105af0213f339de2576dd4a41f375d2335ceea49d8de2f8ffaa": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01VQeRbbdGh33f7uw7Dp8rXm",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, SUM(amount_paise) AS overdue_paise, COUNT(*) AS pending_bills FROM bills WHERE side='receivable' AND days_outstanding>90 GROUP BY period ORDER BY period",
+          "purpose": "Receivable bills over 90 days by month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 59,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 149,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "dd575c69c5a31fdfb34dd85a5c47e3e2c219e3c7f83d14d69cd72a9f6cbddb55": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01GX4wjQvxjqAUWWFqV6M18j",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT SUM(amount_paise) AS total_receivable_paise, SUM(CASE WHEN days_outstanding>90 THEN amount_paise ELSE 0 END)*100.0/SUM(amount_paise) AS overdue_share_pct FROM bills WHERE side='receivable' AND period='2025-06'",
+          "purpose": "Share of receivables over 90 days"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 267,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 179,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "1b9651480003a87918cf2577430f23e97936788ed25e0b01fdbadbd58ca23bfd": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01F4p3KvguZ2YQemajgNeDDv",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT party, SUM(amount_paise) AS overdue_paise, MAX(days_outstanding) AS oldest_days FROM bills WHERE side='receivable' AND period='2025-06' AND days_outstanding>90 GROUP BY party ORDER BY overdue_paise DESC",
+          "purpose": "Parties with receivables over 90 days"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 509,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 169,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "1ca2e4f14be86864fc4150c55df6c4b53fd706f111c26d3c87fdf098e51ddbb5": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_019zNqTk4bW5hGSkFz2JY48S",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At {{p:2025-06}}, {{q:q1:0:overdue_paise}} of customer bills had been outstanding for more than ninety days, across {{q:q1:0:pending_bills}} bills. That is {{q:q2:0:overdue_share_pct}} percent of the total pending receivable bills of {{q:q2:0:total_receivable_paise}}."
+            },
+            {
+              "text": "The ageing sits with three customers: {{q:q3:0:party}} with {{q:q3:0:overdue_paise}} (oldest bill {{q:q3:0:oldest_days}} days), {{q:q3:1:party}} with {{q:q3:1:overdue_paise}} (oldest {{q:q3:1:oldest_days}} days), and {{q:q3:2:party}} with {{q:q3:2:overdue_paise}} (oldest {{q:q3:2:oldest_days}} days)."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 791,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 370,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3afbe7e9662bf19343a3096e0ed34565ce2b786474351ee442ec1d117a6a4dab": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01SDxJAyDwwZZUZUTDqxruJ6",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT party, bill_date, days_outstanding, amount_paise AS bill_paise FROM bills WHERE side='payable' AND period='2025-06' ORDER BY amount_paise DESC LIMIT 5",
+          "purpose": "Largest pending payable bill"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 140,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "42d05cbc829b02db4df5da3c3cb0af1adbe8bba46a7b8182c5043a474d22ee21": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01VmED1K5cyYByhQyJn8gduy",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The largest single pending supplier bill at {{p:2025-06}} is owed to {{q:q1:0:party}}, for {{q:q1:0:bill_paise}}."
+            },
+            {
+              "text": "It has been outstanding for {{q:q1:0:days_outstanding}} days. The same supplier also holds the next largest pending bill, {{q:q1:1:bill_paise}}, aged {{q:q1:1:days_outstanding}} days."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 390,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 216,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6d8f04a4d428c72f2d7641a647a9fc237cbdae15590d1aa29599c1c41ee1d5d3": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_013WxHhtccresnUfLen6UbWy",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, COUNT(*) AS pending_bills, SUM(amount_paise) AS pending_paise FROM bills WHERE side='payable' GROUP BY period ORDER BY period",
+          "purpose": "Pending payable bills count by month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 48,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 133,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "7f256ec744f6c4ef0a066b1e5b3cbb7634289e8e2ee44b42bf1c8d39c28cc3bd": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_015EufMaSzZnd9mzZpux7XjA",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At {{p:2025-06}} there are {{q:q1:0:pending_bills}} supplier bills still pending, totalling {{q:q1:0:pending_paise}}."
+            },
+            {
+              "text": "This is the only month for which a payable bills report is loaded."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 239,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 153,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "a0622603e1d2e14fd465199b337c5af7f4ef1b4f8225f58f945205eb8b5486e9": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01UdWByg8w9xk5GYbTyRPArM",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, closing_paise AS balance_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%bank%'",
+          "purpose": "Find bank ledger balances in June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 59,
+      "cache_creation_input_tokens": 751,
+      "cache_read_input_tokens": 2530,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 751,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 125,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "85a01b02bc40859c34ba410e5393f27e920c40da6cb6f7280bdb922fc6ca42b4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01UHkBqNLjwzC3rAqgjd5iiN",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "{{q:q1:1:ledger}} closed {{p:2025-06}} at {{q:q1:1:balance_paise}}, a debit (positive) balance under cash and bank."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 277,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 130,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "73ee056f5893e1f248360cb271d832b2a5fe760522161fdfb030c7cd31adcc69": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Frz3175DNYhf3nYUNUcxMG",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, month_paise AS movement_paise, closing_paise AS closing_balance_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%bank%'",
+          "purpose": "Bank ledger movement in the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 59,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 138,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6e482dac4642dfaf7af8fa21535ab19a8703ead511be0417fe9da62aef3dca56": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01AWAKLhJApCMv3rASRTo5Dk",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The balance in {{q:q1:1:ledger}} rose by {{q:q1:1:movement_paise}} during {{p:2025-06}}, ending the month at {{q:q1:1:closing_balance_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 285,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 144,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "316b4e11a9bd5b8e92aa6be9b59df83df5bac3eef37c3d4649f820bca3fdfadf": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01B28TJGpZEDjZAYiJPRrpEz",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, month_paise, closing_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%printing%'",
+          "purpose": "Printing & stationery for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 53,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 120,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6e4f94f359772f809d198250767a93d540370719b415d8e52a77332d9a4e3b84": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01BzsNUCiEhMpBWAFaJfefHJ",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Printing & Stationery for {{p:2025-06}} was {{q:q1:0:month_paise}}."
+            },
+            {
+              "text": "The financial year to date figure for this ledger at that month end stands at {{q:q1:0:closing_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 237,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 150,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "f22447b7a2e6abde60e9da75bd15370fcf8d491325c73877b12ffda1e59ddb57": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_011QrXQ7SGek8eim5SsR6JNe",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, month_paise, closing_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%phone%' OR period='2025-06' AND lower(ledger) LIKE '%internet%' OR period='2025-06' AND lower(ledger) LIKE '%telecom%'",
+          "purpose": "Find telephone/internet ledger for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 181,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "27a4d1d5348b093ec2365acfcd56d924a4caecde008eab541f73fa4db3bdb866": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FRx13EcediUFzoxAkjeBPn",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Telephone & Internet expense for {{p:2025-06}} was {{q:q1:0:month_paise}}. The year-to-date figure on that ledger at the month end stood at {{q:q1:0:closing_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 301,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 145,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "43826c124ad7fcc30e9ef43572bde506d2283b07aa92c2f1c65418bb2c5dc79b": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_016XcMp2UZ1QymqBnEu4fKLo",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, closing_paise, month_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%salar%'",
+          "purpose": "Find salary ledger year-to-date figure"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 126,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "0da0289ce3548e07bafe59ab257e40bed65c376f34aa1f2e3de642c6e77703b4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Ayjsv6qcswsEvvYjZL4HGz",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Staff Salaries stands at {{q:q1:1:closing_paise}} for the financial year to date through {{p:2025-06}}."
+            },
+            {
+              "text": "Of that, {{q:q1:1:month_paise}} relates to the month itself."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 293,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 149,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "439ff8aa484b70d361c4face339eca553fd050d7203cec17ad3eaeb6ce47717c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01NYC47gNG9N5wJWoEpKApWH",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(month_paise) AS sales_paise FROM balances WHERE period='2025-06' AND head='REV'",
+          "purpose": "June revenue for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 47,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 108,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "e9d904ca02bb6f9dc18b2242ce7fcbf269a7719f9264550b6cf83092b2d83b34": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Rz2KjoCFFfoMkp7DEahtj3",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT head, head_name, -SUM(month_paise) AS m_paise, -SUM(closing_paise) AS ytd_paise, COUNT(*) AS ledgers FROM balances WHERE period='2025-06' GROUP BY 1,2 ORDER BY 1",
+          "purpose": "Check heads present in June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 195,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 159,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "dd06a86501921b69f0334db395bbb02962e69ea123a3d654039dac16208d3ef4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01UfBXVgBB12u7n9VtdQAaCn",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, -month_paise AS sales_paise FROM balances WHERE period='2025-06' AND head='REV_PRODUCTS'",
+          "purpose": "June sales ledger figure"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 917,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 116,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "98c85ae00eec2315ce456bdc32a9303ea89b805f41429c4e464a8db6ecf711de": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_011ambYMN6VJ66kMAc8TEn9Z",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Sales in {{p:2025-06}} were {{q:q3:0:sales_paise}}, all from the ledger {{q:q3:0:ledger}} under sale of products."
+            },
+            {
+              "text": "For context, the year-to-date figure for the same head stands at {{q:q2:16:ytd_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 1087,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 171,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "b113fbf08838d506f5de39340958c3da036fee5350b83bd7dd068c3683436537": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FrUgdyduWhYpLDMpBLGJDQ",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS ytd_sales_paise FROM balances WHERE period='2025-05' AND head='REV'",
+          "purpose": "Year-to-date revenue at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 119,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "c8d74fe93bc3ec4c94b79e24a8d5e8ae0f3dd05f7a8b3694affb628c019a1578": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01GzTGM4JWehyhWRnYiPb57E",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT head, head_name, -SUM(closing_paise) AS ytd_paise, -SUM(month_paise) AS month_paise FROM balances WHERE period='2025-05' GROUP BY 1,2 ORDER BY ytd_paise DESC",
+          "purpose": "Heads available in May"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 219,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 151,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "0b92f50a75b4f3dc41f044763602cea4d8d6686200beccf09af49d3e59c13635": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01KYVedCVR3tJV9MgU4PUzoq",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Year-to-date sales at the end of {{p:2025-05}} are {{q:q2:0:ytd_paise}}, all under sale of products; there is no other revenue head with a balance (interest income is nil)."
+            },
+            {
+              "text": "Of that, {{q:q2:0:month_paise}} relates to the month of {{p:2025-05}} itself."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 889,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 183,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "bb3889db0636593526ad05bf780f3dae1151c0b1c26fad0f0d30ccec14c4c484": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01NwT7oaVjDU3mNsFNtHN2Y1",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT SUM(closing_paise) AS receivables_paise, COUNT(*) AS customers FROM balances WHERE period='2025-06' AND head='CA_RECEIVABLES'",
+          "purpose": "Total receivables at June month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 132,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6ec1d45a6bfe42109d97c61677fbcdd0121e6d73c40a9a2a726ed5dcc5895c7b": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_015qJfDZoRSNTw7r13kyjBQ2",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Customers owed {{q:q1:0:receivables_paise}} at the end of {{p:2025-06}}, across {{q:q1:0:customers}} receivable ledgers."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 236,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 129,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "9a03620db3af6abde50e2f71e4f5bcb4fb40b40f2014a5f20bb2437587cdfbb0": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_015nTDsyoJSQfNokw8RbQfxi",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, closing_paise AS owed_paise FROM balances WHERE period='2025-05' AND head='CA_RECEIVABLES' ORDER BY closing_paise DESC LIMIT 5",
+          "purpose": "Largest customer receivable balance at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 58,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 144,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8b62b230c8ef6e17c7abb997291d8d81ec11685aeac318e989a79a163e02873c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FDSKenhVrf5AA8WhhrvjrX",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-05}}, the customer owing the most was {{q:q1:0:ledger}}, with a balance of {{q:q1:0:owed_paise}}."
+            },
+            {
+              "text": "The next largest were {{q:q1:1:ledger}} at {{q:q1:1:owed_paise}} and {{q:q1:2:ledger}} at {{q:q1:2:owed_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 330,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 206,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "e75b879dced047ac5f7fe8574fcb544214aaca49d4974553d80fb4d2dff9e3f6": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_013MqYHMuuQ2vkrQ4xv17ibz",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT COUNT(*) AS customers FROM balances WHERE period='2025-06' AND head='CA_RECEIVABLES' AND closing_paise <> 0",
+          "purpose": "Count customers with receivable balance"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 57,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 125,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6cb516737edc61afea833d1d6e1ec6d9421090ba67ca448e44cdb67548c36c82": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01G74xBAXWS4zTTuH2uQiPAD",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-06}}, {{q:q1:0:customers}} customer ledgers under trade receivables carried a non-zero balance."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 220,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 120,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6f5c71fdfe15b332aa987e26a61173a4c003750029add20626692d085a99c612": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01BpzbGwnWSJmXJF6Ta7n2uP",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS payables_paise, COUNT(*) AS suppliers FROM balances WHERE period='2025-05' AND head='CL_PAYABLES'",
+          "purpose": "Total payables at May 2025 month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 135,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "21aab53620c489ed0780af626accede70e0d591db7c97a31bc746e9d51cfa440": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_0154rS41yCGKGppnvPFbabm2",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-05}} the company owed suppliers {{q:q1:0:payables_paise}}, across {{q:q1:0:suppliers}} ledgers under trade payables."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 241,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 135,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6e0745f7b28f237e275035e9818f9a2742e0cb7892a9fdc841b030a01be357dc": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Fu2PwMb2xmbUBzsj5KqwiT",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, group_path, closing_paise AS ytd_paise FROM balances WHERE period='2025-06' AND group_path ILIKE '%Administrative Expenses%' ORDER BY closing_paise DESC LIMIT 10",
+          "purpose": "Largest YTD admin expense ledger in June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 72,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 156,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "67f7fd733cef13f8a0119e57b0bc8ec901a43a4171012c7c8c75285f25458282": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01UKbPB5vpFTj3XnV5TQBPXV",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "{{q:q1:0:ledger}} has the largest year-to-date balance in the Administrative Expenses group at the end of {{p:2025-06}}, at {{q:q1:0:ytd_paise}}."
+            },
+            {
+              "text": "The next largest are {{q:q1:1:ledger}} at {{q:q1:1:ytd_paise}} and {{q:q1:2:ledger}} at {{q:q1:2:ytd_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 370,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 218,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "ee1c8c915fe1b5892bc54d949d0cc950daac0343f06e157f76bb7f8fff0250ff": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_0198Nw15iV3rHsuL1PcviYcr",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, SUM(amount_paise) AS overdue_paise, COUNT(*) AS pending_bills FROM bills WHERE side='receivable' AND days_outstanding>90 GROUP BY period ORDER BY period",
+          "purpose": "Receivables outstanding beyond 90 days by month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 59,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 153,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "7c5b66a2de937db392fe86873e8fa41aa30bd0c50cd8072af0b848a417e7deba": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Go6DmPPLRVxqHFUgF1fmM1",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT SUM(amount_paise) AS total_receivable_paise, SUM(CASE WHEN days_outstanding>90 THEN amount_paise ELSE 0 END)*100.0/SUM(amount_paise) AS overdue_share_pct FROM bills WHERE side='receivable' AND period='2025-06'",
+          "purpose": "Share of receivables over 90 days"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 271,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 179,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "950267eb3327a99b06bf8d4f10b844b32a0ffc9ab50d4b42d96da6e4665f4c24": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01VuiqLbPstZAbJug2RXVXT1",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At {{p:2025-06}}, {{q:q1:0:overdue_paise}} of what customers owe has been pending for more than ninety days, spread over {{q:q1:0:pending_bills}} bills."
+            },
+            {
+              "text": "That is {{q:q2:0:overdue_share_pct}} percent of the total pending receivable bills of {{q:q2:0:total_receivable_paise}} at that date."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 513,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 203,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d19ec6f8c3b77f26909d03fa2f99d5bd7b39eb62efb88642fda0483687c7cbd3": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01G1BLqXe1gcYxdY9Tjrm7MP",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT party, bill_date, amount_paise, days_outstanding, period FROM bills WHERE side='payable' ORDER BY amount_paise DESC LIMIT 5",
+          "purpose": "Largest single pending payable bill"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 127,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "bb6c7b5597694044697247117882e05d741a475a8f0c48f191ea75cad636ac56": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_017nQnGASE2BTa4bFxWk1LA4",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The largest single pending supplier bill is owed to {{q:q1:0:party}}, for {{q:q1:0:amount_paise}}."
+            },
+            {
+              "text": "It was outstanding {{q:q1:0:days_outstanding}} days at the {{p:2025-06}} report date. The same supplier also holds the next largest pending bill, {{q:q1:1:amount_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 368,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 196,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3ac907f5fff044562cdb3b9f06e2ac0f6bd45dc1339e6b9c00f390eebd533db3": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01PyuWiQoYWadMhJaE6TGGn6",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, COUNT(*) AS pending_bills, SUM(amount_paise) AS pending_paise FROM bills WHERE side='payable' GROUP BY period ORDER BY period",
+          "purpose": "Count pending payable bills by month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 48,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 133,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "0b4a00ffde7d2afecaef41c93ed744b7e7b2b92bc0e6a4270f86b12782a350ff": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_013pac9EGR77YNNNu1UsmjvA",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At {{p:2025-06}} there are {{q:q1:0:pending_bills}} supplier bills still pending, totalling {{q:q1:0:pending_paise}}."
+            },
+            {
+              "text": "This is the only month of payable bills data loaded."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 239,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 150,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "dfb825d2552064dd755ff716a4ac16276f6cd966416a0b2dd8ae212f32ff9c3b": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01JS8umnB7ByFYYJiGBaKHTW",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, ledger, head, head_name, closing_paise, -closing_paise AS credit_balance_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%cash credit%'",
+          "purpose": "Find cash credit ledger balance for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 65,
+      "cache_creation_input_tokens": 754,
+      "cache_read_input_tokens": 2530,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 754,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 146,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "20711aa859f57901bfabad37579c2cef4b2d2723455418b8dc2c70e01112cf98": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FwHRwSoJP5C7So2jyfdBvJ",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-06}}, {{q:q1:0:ledger}} stood at {{q:q1:0:closing_paise}}, a debit balance under {{q:q1:0:head_name}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 316,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 140,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8b7ff97c9966b64cab49c5b00b550a66f238511ec4e556cb7d648cdad64e7654": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_013oDm95iA46KTyaG2rcFUtt",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, closing_paise, month_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%cash credit%'",
+          "purpose": "Find cash credit ledger movement in June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 65,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 127,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6c3b8783b3160f96ecc59f2ba35a3f451f6f47858b07bfc84237b6f2e2901ce4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01SX1pVUAr4khpZ5HYJk2nby",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The balance in {{q:q1:0:ledger}} rose by {{q:q1:0:month_paise}} during {{p:2025-06}}, ending the month at {{q:q1:0:closing_paise}}."
+            },
+            {
+              "text": "The ledger sits under cash and bank balances, and the figure is a debit-positive movement, so the increase reflects a higher debit balance at the month end."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 272,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 195,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "76553438a853eb68f0139836eb82fcd566ea235dcaa0061d92a7859e0bb1d137": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01VtytCSwiRcVrFpPfgPVxvH",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, month_paise, closing_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%station%' OR (period='2025-06' AND lower(ledger) LIKE '%print%')",
+          "purpose": "Find printing and stationery ledger for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 53,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 153,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "11b1fe5464f413b23e2fc3e0ba1b2fc2b494bb0dfbb96049b1a4c75e62370210": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01JvFsH43Zk9KPH5N7Qbjhp6",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Printing & Stationery for {{p:2025-06}} was {{q:q1:0:month_paise}}."
+            },
+            {
+              "text": "The year-to-date figure for this ledger at that month end was {{q:q1:0:closing_paise}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 283,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 148,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "4f661b13c90733fa6666d6195a011c6116b30ee52ca7cab530a72dfa3979463f": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Teh7vi436csBeKvwF5FCzf",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, month_paise, closing_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%phone%' OR period='2025-06' AND lower(ledger) LIKE '%internet%' OR period='2025-06' AND lower(ledger) LIKE '%telecom%'",
+          "purpose": "Find telephone/internet ledger for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 183,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "2cf0e3aa4d66bc8d74e20c97fde74ea1882d8fb04d0101bc553e0eaa36b1e96c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01DwKwQVJwZTywhgzvbsmRFQ",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Telephone & Internet cost {{q:q1:0:month_paise}} in {{p:2025-06}}."
+            },
+            {
+              "text": "The year-to-date balance on that ledger at the month end was {{q:q1:0:closing_paise}}, under the communications expense head."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 315,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 157,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "49e104803fdc691084c44d41056816c872c140f38836a979460b9d4235349a99": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Gv5eTY4VxojS3iKXNJvqeo",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, ledger, head, closing_paise AS ytd_paise, month_paise FROM balances WHERE lower(ledger) LIKE '%wage%' AND period='2025-06'",
+          "purpose": "Find factory wages ledger YTD at June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 63,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 136,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "93e16b4c01bbb1c27b0ed24609bb6e166d3c498401f9ff591b116aa2092801c0": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Vc3uRMwKA5GhXjLdCNEnAJ",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Factory Wages stands at {{q:q1:1:ytd_paise}} for the financial year to date through {{p:2025-06}}."
+            },
+            {
+              "text": "The month of {{p:2025-06}} alone accounted for {{q:q1:1:month_paise}}. The ledger sits under the employee costs head."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 314,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 171,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "4e56d3911ea9d35df200bd3ccc980b5460b43cbb3c1c9e35bc209a2020bf94dd": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01BhUb7uhBuJKL3fvCwE9yJ7",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(month_paise) AS sales_paise FROM balances WHERE period='2025-06' AND head='REV'",
+          "purpose": "June revenue for the month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 47,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 108,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "2fa0a82a78aa60e3fabcc229d286e7bb7d47e4f161c89987426b9e5297483dca": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Kk3TKtP11GAMykivZ5QRZ1",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT head, head_name, -SUM(month_paise) AS month_paise, -SUM(closing_paise) AS ytd_paise, COUNT(*) AS ledgers FROM balances WHERE period='2025-06' GROUP BY 1,2 ORDER BY 1",
+          "purpose": "Check heads available in June"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 195,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 159,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d6535a3ce9dcb2bb89b5a79c70c625d45b6c678d93a09297d1b76fdee9c722f6": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_012CM2qoMN7Pufiu8dV3M1Ww",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Sales of products in {{p:2025-06}} were {{q:q2:18:month_paise}}, against a financial year to date figure of {{q:q2:18:ytd_paise}}."
+            },
+            {
+              "text": "There was also interest income of {{q:q2:17:month_paise}} in the month, which is shown separately from sales."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 985,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 174,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8d6c8436f4c7073c3ab07747caff75ad7df12100fe7893b0db9c47984c73bf96": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_017xHLDnnJ9seo9rsFyS85i1",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS sales_ytd_paise FROM balances WHERE period='2025-05' AND head='REV'",
+          "purpose": "Year to date sales at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 116,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "0db80b760bc925ca10927e969216831ece96620223f29e0af4668deec6a2e02d": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FvdyKMCZW7h4m9sUzjVhR4",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT head, head_name, -SUM(closing_paise) AS amt_paise FROM balances WHERE period='2025-05' GROUP BY 1,2 ORDER BY 1",
+          "purpose": "Heads available in May"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 216,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 126,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "e8773cb6bfe12f4d35500b05ef306314769cd8be1a4e2a7fa2b7aa5d8a7024fe": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01DhzySQFGocr2tj6xgH6W4q",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS sales_ytd_paise, -SUM(month_paise) AS sales_month_paise FROM balances WHERE period='2025-05' AND head LIKE 'REV%'",
+          "purpose": "Sales year to date and month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 849,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 140,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "0391b96336a99036f5a18a4d0b2a6232c0aa72205d56e69b1b90d1f6270c1482": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_012YfT5VdTBu75tMmtigDRXz",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Total sales for the year to date at the end of {{p:2025-05}} are {{q:q3:0:sales_ytd_paise}}, all from sale of products."
+            },
+            {
+              "text": "Of that, {{q:q3:0:sales_month_paise}} was earned in {{p:2025-05}} itself."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 1048,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 168,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3561a676630d06aaf783f28c2d1a6af973acfa8ebe2ff68a1447f45308cc78cd": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_019q7PJwEjBkUWxcs8yhvkU9",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT SUM(closing_paise) AS receivables_paise, COUNT(*) AS customers FROM balances WHERE period='2025-06' AND head='CA_RECEIVABLES'",
+          "purpose": "Total receivables at June month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 132,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "9baa90870d9720df1c97a518dcdd891176903ffa91ee3675e112807928111d71": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01ADT5mqQY9UBwjQXBrtGBRA",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Customers owed {{q:q1:0:receivables_paise}} at the end of {{p:2025-06}}."
+            },
+            {
+              "text": "This is the closing balance across the {{q:q1:0:customers}} ledgers under trade receivables at that month end."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 236,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 151,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6a9d22869d03b5896c9a50e326fcb7b6f1accc6bac2c3fab6d4667f5c4334aa1": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_014iHLz22dPfemEk9g5dVSdP",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, closing_paise AS owed_paise FROM balances WHERE period='2025-05' AND head='CA_RECEIVABLES' ORDER BY closing_paise DESC LIMIT 5",
+          "purpose": "Largest receivable balance at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 58,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 142,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "eaed049228720413c1fa15bcd90737c834455df8e52b4b35d1a6ca8fc4f40172": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Lrua2QiEWWT5ArhY6yrSpL",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-05}}, the customer owing the most was {{q:q1:0:ledger}}, at {{q:q1:0:owed_paise}}."
+            },
+            {
+              "text": "The next largest balances were {{q:q1:1:ledger}} at {{q:q1:1:owed_paise}} and {{q:q1:2:ledger}} at {{q:q1:2:owed_paise}}. These are closing balances of the ledgers under trade receivables."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 305,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 223,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "01a466514c19679a9bd8b28586bd10d2b3cfcef68df1c7ed5f7bb9b1ff525f47": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Sn4fyioL16p1stYwxLYM1L",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT COUNT(*) AS customers FROM balances WHERE period='2025-06' AND head='CA_RECEIVABLES' AND closing_paise <> 0",
+          "purpose": "Count receivable ledgers with balance at June month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 57,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 131,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "cce1af047a2cb7a032b2ae07c4a2b59958c6cb0d7ee6dad7b91be0bfc9264ed4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01TqZTzhkYo7NUHMiQQ7hhb4",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-06}}, {{q:q1:0:customers}} customer ledgers under trade receivables had a non-zero outstanding balance."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 226,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 123,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3b4d42a681e8c44e15d6f0e1f11b63b5b8e51919838bb76ea7a63bfd17d44120": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01MbqfTVFEoKYeDz4Cy86ub1",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS payables_paise, COUNT(*) AS supplier_ledgers FROM balances WHERE period='2025-05' AND head='CL_PAYABLES'",
+          "purpose": "Total trade payables at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 137,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "e3bb537b711aa43c337d6d9f1cab21ba827a5c4d2bd5050224d2b523c32083f5": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01HMEWua4pS2LP9p5t6kyi7t",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-05}} the company owed its suppliers {{q:q1:0:payables_paise}}."
+            },
+            {
+              "text": "This is the closing balance across the {{q:q1:0:supplier_ledgers}} ledgers under trade payables at that month end."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 247,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 159,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "2d91f6ea92c45bba1d67214c355e22c78105836c753360b517626eecd516b8fb": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FzBdiBWyvz5wZH9oM1EcbU",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, group_path, closing_paise AS ytd_paise FROM balances WHERE period='2025-06' AND group_path ILIKE '%Administrative Expenses%' ORDER BY closing_paise DESC LIMIT 20",
+          "purpose": "Largest YTD admin expense ledger"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 72,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 154,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "da99f5dba436f417371f657d655d036785b2bfd08ee8e5669556857c93ffd509": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01HmkDudEZkFd8j9XyvN4B2e",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "{{q:q1:0:ledger}} has the largest year-to-date balance in the Administrative Expenses group at the end of {{p:2025-06}}, at {{q:q1:0:ytd_paise}}."
+            },
+            {
+              "text": "The only other ledger in that group is {{q:q1:1:ledger}}, at {{q:q1:1:ytd_paise}} for the year to date."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 338,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 195,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "136374020ca9031241baf90c8bb68096dd3373b44b27b011fafff15d02c506a3": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01SQbHB44oC4fJrP6Kj5au8q",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, SUM(amount_paise) AS overdue_paise, COUNT(*) AS pending_bills FROM bills WHERE side='receivable' AND days_outstanding>90 GROUP BY period ORDER BY period",
+          "purpose": "Receivable bills older than ninety days by month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 59,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 150,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "b7bc4bfa5d68fa85942dfb03aed31683e0daf10ea7fa98cdfe2e557621ecc8f3": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01HzYEUQeSh78ZNamGY52spX",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT SUM(amount_paise) AS total_receivable_paise, SUM(CASE WHEN days_outstanding>90 THEN amount_paise ELSE 0 END)*100.0/SUM(amount_paise) AS overdue_share_pct FROM bills WHERE side='receivable' AND period='2025-06'",
+          "purpose": "Total pending receivables and overdue share"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 268,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 180,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3a42f8e1f7ad1d43d2fa79e60147fab97d02d75f57b3acaf83bbabb167e9bc5c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_018FVizSgzZ9eiePUAXpvw2i",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT party, SUM(amount_paise) AS overdue_paise, MAX(days_outstanding) AS max_days FROM bills WHERE side='receivable' AND period='2025-06' AND days_outstanding>90 GROUP BY party ORDER BY overdue_paise DESC",
+          "purpose": "Parties with receivables over ninety days"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 511,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 167,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "68f21ba44fbe7f4578cf4b1184d7d1eb7182fb852a301b3fa01bf09577e14fb6": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01AViZgBT9doxyvtSAMPw8qM",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "At the end of {{p:2025-06}}, {{q:q1:0:overdue_paise}} of pending customer bills had been outstanding for more than ninety days, across {{q:q1:0:pending_bills}} bills."
+            },
+            {
+              "text": "That is {{q:q2:0:overdue_share_pct}} percent of the total pending receivable bills of {{q:q2:0:total_receivable_paise}}. It sits with two parties: {{q:q3:0:party}} at {{q:q3:0:overdue_paise}}, with the oldest bill at {{q:q3:0:max_days}} days, and {{q:q3:1:party}} at {{q:q3:1:overdue_paise}}, with the oldest at {{q:q3:1:max_days}} days."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 770,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 321,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d2ae93297bab153f445154f5bf44f7c767c2719c3de4c822918b502626aa61fb": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01VCQVGjtku6SRmkoPaZvqYq",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT party, bill_date, amount_paise AS bill_paise, days_outstanding FROM bills WHERE side='payable' AND period='2025-06' ORDER BY amount_paise DESC LIMIT 5",
+          "purpose": "Largest pending payable bill"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 140,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "9fb75561a52587ef3aa70a17c055d4ec6b934e8fdf23838c40dc8a6bc82b0db8": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_011JFruMr7uTS3dCpqMooKzj",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The largest single pending supplier bill as at {{p:2025-06}} is owed to {{q:q1:0:party}}, for {{q:q1:0:bill_paise}}."
+            },
+            {
+              "text": "It has been outstanding for {{q:q1:0:days_outstanding}} days. The next largest pending bill is {{q:q1:1:bill_paise}} owed to {{q:q1:1:party}}, who also accounts for the third and fourth largest bills."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 385,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 220,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "4217b511b5e1ba9a58fda7b5419e061cecd3738be6e10fa178be4e29c8730e58": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01DKrmziAdt1dPrjrcBdRJUi",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, COUNT(*) AS pending_bills, SUM(amount_paise) AS pending_paise FROM bills WHERE side='payable' GROUP BY period ORDER BY period",
+          "purpose": "Pending payable bills count by month"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 48,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 133,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "450f53822ccdd3bb180051e63bad96925bfaba5ffafa75306da36728573c8ad1": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01DWiDQtRSC4nQaqv9TuEtoa",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "There are {{q:q1:0:pending_bills}} supplier bills pending as at {{p:2025-06}}, totalling {{q:q1:0:pending_paise}}."
+            },
+            {
+              "text": "This is the only month of payable bills data loaded, so no comparison with earlier months is possible."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 239,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 164,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "34cd86fd7632ca48e8f7ed9a244f570f8f48f1e51db245ac2a196ea5c2cf8343": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01525xR8DUZWcawLKByZduMt",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, closing_paise AS balance_paise FROM balances WHERE period='2025-06' AND lower(ledger) LIKE '%bank%'",
+          "purpose": "Bank ledger balances at June month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 751,
+      "cache_read_input_tokens": 2530,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 751,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 124,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d3a67ea5faecf5182358a2e9cf501360c940d089df7a72680fbb2bc813cb4e4e": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01VEfk5TgCVkmaJ2SdwsZ1Ea",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "{{q:q1:0:ledger}} stood at {{q:q1:0:balance_paise}} at the end of {{p:2025-06}}."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 250,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 118,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "1559f64e77a581688d6cd28a8596a5c50931451b9dffe646affdcb682ceb5b6b": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01J6hRrBi8FNuyEij2T7pa1U",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS ytd_sales_paise FROM balances WHERE period='2025-05' AND head='REV'",
+          "purpose": "Year-to-date revenue at May month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 119,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "5f8702857de898e5eb9765a7391a2171eed08e2d8834a79e53ba75abe5924a30": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01NYTjpycV71wAyGr3h1KDYP",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT head, head_name, -SUM(closing_paise) AS ytd_paise, -SUM(month_paise) AS month_paise FROM balances WHERE period='2025-05' GROUP BY 1,2 ORDER BY ytd_paise DESC",
+          "purpose": "Heads present in May"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 219,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 151,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d0cdd612b8d07b9de0e3987a9ebecfb34ffa0431b497cdbc08e1a2a7af801dec": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01MPNtX9ncnSA9iik8V9u9Gp",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT -SUM(closing_paise) AS ytd_sales_paise FROM balances WHERE period='2025-05' AND head LIKE 'REV%'",
+          "purpose": "YTD sales total"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 1032,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 118,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "84faa712baf75243619626cde67be8f1273e1166a4f8d1e0cfbba474b99545ad": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Jn4Xkxowx8b6kKYqiAHxZs",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Year-to-date sales at the end of {{p:2025-05}} are {{q:q3:0:ytd_sales_paise}}."
+            },
+            {
+              "text": "This is entirely sale of products; no other revenue head carries a balance, and interest income is nil for the period."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 1198,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 154,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "7b6aa15df9fa96065fb03ff9eb283fd8346116b8ae1abf3b6f3c194d513dce40": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01LD2o2wrhC9APeipt8jEEsk",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT SUM(closing_paise) AS receivables_paise, COUNT(*) AS customers FROM balances WHERE period='2025-06' AND head='CA_RECEIVABLES'",
+          "purpose": "Total receivables at June month end"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 132,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "117f30e26525c4a245c713ffc5bd43bca5a22e27f83c6b8c943e689b94ee535d": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Ee3qSejYP1zTyAJMAFwW91",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "Customers owed {{q:q1:0:receivables_paise}} in total at the end of {{p:2025-06}}."
+            },
+            {
+              "text": "This is the combined closing balance of the {{q:q1:0:customers}} ledgers under trade receivables at that month end."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 237,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 155,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "07431bfffefee5eb7b70fe9b629c87f43d5f13d722c02e5f8788d92bbdaab231": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01GjwJbe2dEk96DHWRMHKwB1",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 49,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "74c39cc0e751b38cadb530b0eb5f1821ac9d74f0c9fb1bec6d99324320f27499": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01CEieCbavhtWqs7HQr619Gu",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "b6c90984799e9dc61a5757fb25913a42e1eac811d8e1c47d0503c351eb392ac1": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01RYHU4ey8CkWRRrnayDnMt4",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "62dbabdd1217fa5e124145da85726f7639c5d8ea1c7a68610ef0507053a7cd7f": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01CfdPxaZFGAcGonQqZtRsSQ",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 52,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "dc5705c6ec4bf5c598bd01d9b00054b331f3568b992607470fb77e65014fd432": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Mi7HbUgyGqDzDgh7BNZRvb",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "3da5275d044506e2e56b66f14c2dd681086b28ea82698728dc8eff21a9824684": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Gz3ygtYRyzWybVtGABLvvB",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 48,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "edd244ceb70256d37c305e0c3681237f6754716c9ca007e6663e9b459e8147ac": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01QF6qX7gs6tYoTiMy1rSpSw",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 49,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "223251927c6782697717d8a8c0a594eaf1c1e5dcd7ce49c8cf71037bdfab71f6": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01DLdJ6TRbcH8wCnDs9ekixH",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 55,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "32bb4e9ffa92491a644bf35efa9a909b6bb37f562108e6ca872424198f77af5c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Vgzcqa4F5zLbeE7z6L8yNu",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 49,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "dff0d79860b39739f3d7cce94293680b54d5b5f66c295625b57cd8ee9d5a1f6e": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01U4q6JzPAMSn8uJJH6AfHt3",
+        "name": "answer",
+        "input": {
+          "scope": "out_of_scope",
+          "paragraphs": [
+            {
+              "text": "I can only answer questions about this company's MIS."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 50,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "c44b8a7cf30b48490798c5ec264a47cbc0d7e9ccdae182a697c66b3d134d6906": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01FQjrvuTM7tkiu6HxQH4fgq",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, head_name, group_path, closing_paise FROM balances WHERE period='2025-06' AND (lower(ledger) LIKE '%chennai%' OR lower(ledger) LIKE '%branch%' OR lower(group_path) LIKE '%branch%')",
+          "purpose": "Look for Chennai branch account"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 60,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 165,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "08a4b956d68b42b8af741f24520a695a9187f59375295f6db10fbb49f60b30cb": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01EzGtP2i4sQQVJn8Wq3XSqu",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, head_name, group_path, closing_paise FROM balances WHERE period='2025-06' AND (head LIKE 'CA_%' OR lower(group_path) LIKE '%bank%') ORDER BY ledger LIMIT 50",
+          "purpose": "List bank and current asset ledgers"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 258,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 157,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "e5ca61caff10c205f549fef7a7eb15c3c0e75a0a5a7d46a9493290431196fed4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_011Ccm1h9s153VyziLwyBSbd",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "There is no Chennai branch current account in the loaded data for {{p:2025-06}}; no ledger or account group mentions a branch or Chennai."
+            },
+            {
+              "text": "The only bank ledger at that month end is {{q:q2:7:ledger}}, with a balance of {{q:q2:7:closing_paise}}, alongside cash of {{q:q2:0:closing_paise}}. If the branch account exists in your books under another name, it is not separately identified in these tables."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 865,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 223,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "37ed2068b101de50417be0339a9e2c105d3a8eee01f225ec27716edde231446b": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01XwsxR3RFFNSeTBKpr4oikd",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, month_paise, closing_paise FROM balances WHERE period='2025-05' AND (lower(ledger) LIKE '%advert%' OR lower(ledger) LIKE '%market%' OR lower(ledger) LIKE '%promot%' OR lower(head_name) LIKE '%advert%')",
+          "purpose": "Find advertising ledgers in May"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 52,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 180,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "8a9f4d60dc7bf877b81cb86324d6f569568f202cd52eaaae666811733bce0acf": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01TmJfGmyBUMVLLcV4Nny6vQ",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT ledger, head, head_name, month_paise FROM balances WHERE period='2025-05' AND head IN ('OPEX','INDIRECT_EXP','EXP') OR (period='2025-05' AND lower(group_path) LIKE '%expense%') ORDER BY month_paise DESC LIMIT 50",
+          "purpose": "List May expense ledgers"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 265,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 175,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "f842d5a1e9ffc46b2169ccf0589d7664b18a04bfcd027752eecf95d038386e9c": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01XsRw9o8q77eWxoN5yfp3bH",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "There is no advertising expense in the books for {{p:2025-05}} — no ledger under advertising, marketing or promotion exists in the loaded data."
+            },
+            {
+              "text": "The expense ledgers carrying a figure that month are {{q:q2:0:ledger}} at {{q:q2:0:month_paise}}, {{q:q2:1:ledger}} at {{q:q2:1:month_paise}}, {{q:q2:2:ledger}} at {{q:q2:2:month_paise}}, {{q:q2:3:ledger}} at {{q:q2:3:month_paise}}, {{q:q2:4:ledger}} at {{q:q2:4:month_paise}}, {{q:q2:5:ledger}} at {{q:q2:5:month_paise}} and {{q:q2:6:ledger}} at {{q:q2:6:month_paise}}. If advertising spend is booked under one of these, it cannot be separated from the data as loaded."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 694,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 387,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "2cb83e4c6c7242c7ff18bcdfb62b4381b5ec9e42fcb85b119d8424a1c91e031b": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_014NYU8zBJpsVMy1L2swsJmf",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT DISTINCT period FROM balances ORDER BY period",
+          "purpose": "Which months are loaded"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 47,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "766e731131ccb3df0f0be76ffc20424d87c1092d7d94909be9c2c89be67b80f4": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01UMGsve1dL34AZCM1gL5qJG",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "I can't give March sales: that month isn't loaded. The trial balance data covers only {{q:q1:0:period}} to {{q:q1:2:period}}."
+            },
+            {
+              "text": "If you load the earlier months, I can report sales for that month."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 188,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3284,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 147,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "a5c526d978f2cd6f600c818e20e333f7c8f67ba0adc0b22187e477da53bf7439": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01H3KuucuGjAz9iXNTm5T94v",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT period, head, head_name, ledger, group_path, closing_paise, month_paise FROM balances WHERE lower(head_name) LIKE '%salar%' OR lower(ledger) LIKE '%salar%' OR lower(ledger) LIKE '%staff%' OR lower(ledger) LIKE '%wage%' OR lower(ledger) LIKE '%employee%' OR lower(group_path) LIKE '%payroll%' LIMIT 50",
+          "purpose": "Look for payroll-related ledgers"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 47,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 228,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "aa42f115dd44666e54dd3f3f6947144b25ef439b0b5a5b8b1efc6c3c831ad821": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01NS9X6eWBLNxopsaJp3ZB3R",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The loaded data does not show an employee headcount. The tables hold only trial balance lines and pending bills, with no payroll register or staff records."
+            },
+            {
+              "text": "The only payroll-related ledgers are the salaries and wages expense, which was {{q:q1:5:month_paise}} in {{p:2025-06}}, and a salary payable provision standing at {{q:q1:2:closing_paise}} (credit) at that month end. Neither carries a number of employees."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 667,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3281,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 219,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "d0df72ecbb890083c49e893cf1ad44377ef01e8e9bcb9d70f268aacce146638f": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01HngF5MTKZACpvxqbAf4qdN",
+        "name": "run_query",
+        "input": {
+          "sql": "SELECT DISTINCT head, head_name FROM balances",
+          "purpose": "Check available heads for stock data"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 51,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  },
+  "6762ccafd1c9cdcb34c8310b2f6c5010a729fd161df598db8d903be1044c48fe": {
+    "content": [
+      {
+        "type": "tool_use",
+        "id": "toolu_01Poo91hbvS7n8KHC1uZ4xDH",
+        "name": "answer",
+        "input": {
+          "scope": "in_scope",
+          "paragraphs": [
+            {
+              "text": "The loaded data cannot answer this. The ledgers hold only inventory values in money, under the inventories head, with no item-level stock records — no item names, quantities or units."
+            },
+            {
+              "text": "If you need unit quantities, a stock summary or item-wise report would have to be loaded alongside the trial balance."
+            }
+          ]
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    ],
+    "stop_reason": "tool_use",
+    "usage": {
+      "input_tokens": 598,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 3287,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 165,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5"
+  }
+}

@@ -17,6 +17,7 @@ import {
   type StageResult,
   type StageSpec,
 } from "./orchestrator";
+import { languageLine, writingLanguage } from "./language";
 import { proseNoDigits } from "./schema";
 
 const confidence = z.enum(["high", "medium", "low"]);
@@ -324,6 +325,8 @@ export const generateCommentaryInput = z.object({
   sections: z.array(z.string().min(1).max(80)).min(1).max(8),
   /** Server config `commentary.digit_allowlist`, never from the browser. */
   allowlist: z.array(z.string().max(40)).max(50),
+  /** The company's commentary language (ADR 0087): a code from a fixed list, English by default. */
+  language: writingLanguage,
 });
 export type GenerateCommentaryInput = z.infer<typeof generateCommentaryInput>;
 
@@ -346,7 +349,10 @@ export const generateCommentarySpec: StageSpec<
   input: generateCommentaryInput,
   output: generateCommentaryOutput,
   maxInputBytes: 96_000,
-  stable: (input) => [`Sections to write, in order: ${input.sections.join("; ")}.`],
+  stable: (input) => [
+    `Sections to write, in order: ${input.sections.join("; ")}.`,
+    languageLine(input.language),
+  ],
   volatile: (input) =>
     [
       "facts:",

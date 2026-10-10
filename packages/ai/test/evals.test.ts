@@ -83,11 +83,11 @@ describe("harness", () => {
   });
 
   it.each([
-    ["efficient", "0.9895"],
-    ["professional", "0.9791"],
-    ["expert", "1.0000"],
+    ["efficient", "0.9840"],
+    ["professional", "0.9920"],
+    ["expert", "0.9920"],
   ] as const)(
-    "ledger_mapping %s: the committed live recording still scores what it was activated on (ADR 0069)",
+    "ledger_mapping %s: the committed live recording still scores what it was activated on (ADR 0069, ADR 0087)",
     async (tier, accuracy) => {
       // The recordings are the evidence the activation rests on. Replaying them costs nothing, so
       // a change to the dataset, the scorer or the prompt input that would alter the score shows
@@ -96,18 +96,19 @@ describe("harness", () => {
         pool: pool(),
         stage: "ledger_mapping",
         tier,
-        promptVersion: 1,
+        promptVersion: 2,
         mode: "replay",
         recordingPath: path.join(
           import.meta.dirname,
           "..",
           "evals",
           "recordings",
-          `ledger_mapping-v1-${tier}.json`,
+          `ledger_mapping-v2-${tier}.json`,
         ),
       });
       expect(report.oracle).toBe(false);
-      expect(report.items).toBe(96);
+      // 125: the US and UK/Australian books joined the 96 (ADR 0087).
+      expect(report.items).toBe(125);
       expect(report.accuracy).toBe(accuracy);
     },
   );

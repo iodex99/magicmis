@@ -183,3 +183,74 @@ export function currencySymbol(code: string, locale = "en"): string {
     return upper;
   }
 }
+
+/**
+ * The languages commentary and "where to act" can be written in (ADR 0087). The figures are the
+ * engine's in every one of them, so a language changes the words around them and nothing else.
+ * English is the default; the owner picks another on Files and settings, and each was measured in
+ * the commentary and board-actions evals before it was offered.
+ *
+ * A language is offered only if it writes its numbers in digits. The placeholder check refuses any
+ * Unicode digit, Arabic-Indic and Devanagari included, but Japanese and Chinese also write numbers
+ * as ideographs (三百万, 百分之十二) that no check can tell from the same characters in ordinary
+ * words (一致, 一般), so a figure the model wrote would reach the reader unseen. They are not
+ * offered, and must not be until that can be checked (locked decision 7).
+ */
+export const COMMENTARY_LANGUAGES: readonly {
+  readonly code: string;
+  readonly name: string;
+}[] = [
+  { code: "en", name: "English" },
+  { code: "es", name: "Spanish (Español)" },
+  { code: "fr", name: "French (Français)" },
+  { code: "de", name: "German (Deutsch)" },
+  { code: "pt", name: "Portuguese (Português)" },
+  { code: "it", name: "Italian (Italiano)" },
+  { code: "nl", name: "Dutch (Nederlands)" },
+  { code: "ar", name: "Arabic (العربية)" },
+  { code: "hi", name: "Hindi (हिन्दी)" },
+];
+
+export const isCommentaryLanguage = (value: unknown): value is string =>
+  typeof value === "string" && COMMENTARY_LANGUAGES.some((l) => l.code === value);
+
+/**
+ * The statutory layout a company's workbook adds beside its MIS (ADR 0087): the balance sheet
+ * and profit and loss arranged the way the company's law or accounting framework arranges them,
+ * built from the same mapped balances as every other sheet. A reporting convention like the
+ * others — chosen by the owner, never by a run — and "none" leaves the sheets out.
+ */
+export const STATUTORY_FORMATS: readonly {
+  readonly code: StatutoryFormat;
+  readonly name: string;
+}[] = [
+  { code: "schedule_iii", name: "Schedule III (India)" },
+  { code: "uk_companies_act", name: "Companies Act formats (UK)" },
+  { code: "us_gaap", name: "US GAAP" },
+  { code: "ifrs", name: "IFRS" },
+  { code: "none", name: "None" },
+];
+
+export type StatutoryFormat =
+  "schedule_iii" | "uk_companies_act" | "us_gaap" | "ifrs" | "none";
+
+export const isStatutoryFormat = (value: unknown): value is StatutoryFormat =>
+  typeof value === "string" && STATUTORY_FORMATS.some((f) => f.code === value);
+
+/**
+ * The layout a new company starts with, from the currency its books are in. A default the owner
+ * can see and change, never a claim about where the company is registered: most of the world
+ * reports under IFRS or a standard built on it, so everything not named here starts there.
+ */
+export function defaultStatutoryFormat(currency: string): StatutoryFormat {
+  switch (currency.trim().toUpperCase()) {
+    case "INR":
+      return "schedule_iii";
+    case "GBP":
+      return "uk_companies_act";
+    case "USD":
+      return "us_gaap";
+    default:
+      return "ifrs";
+  }
+}

@@ -12,6 +12,10 @@
  * `xlsx.writeBuffer()`.
  */
 
+import {
+  STATUTORY_FORMATS,
+  type StatutoryFormat,
+} from "@magicmis/core/reporting-conventions";
 import { formatIstDateTime } from "@magicmis/core/time";
 import {
   addMonths,
@@ -28,6 +32,14 @@ import type { ColumnKind, ResolvedSection, TemplateSpec } from "@magicmis/templa
 import ExcelJS from "exceljs";
 
 import { DATA_COLUMNS, dataRowsFromCube, periodIndex } from "./data";
+import {
+  lineDescription,
+  lineFormula,
+  lineValue,
+  statutoryColumns,
+  statutoryStatements,
+  type StatutoryStatement,
+} from "./statutory";
 import {
   chrome,
   FONT,
@@ -80,6 +92,43 @@ export interface Expectation {
   readonly value: string | null;
 }
 
+/** An image the cover can carry: PNG or JPEG, the only formats ExcelJS embeds. */
+export interface WorkbookImage {
+  readonly bytes: Uint8Array;
+  readonly extension: "png" | "jpeg";
+  /** Pixels, read from the image's own header by the caller. */
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * The marks on a workbook's cover (ADR 0087): the company's own logo, and the preparer — the
+ * accountant, the bookkeeper or the company's finance team — when they chose to show themselves.
+ */
+export interface WorkbookBrand {
+  readonly companyLogo: WorkbookImage | null;
+  readonly preparer: {
+    readonly name: string;
+    readonly logo: WorkbookImage | null;
+  } | null;
+}
+
+/** Fits an image inside a box without stretching or enlarging it. */
+const fitImage = (image: WorkbookImage, maxWidth: number, maxHeight: number) => {
+  // Whole pixels, in integers: the box binds on whichever side runs out first.
+  const { width, height } = image;
+  if (width <= maxWidth && height <= maxHeight) return { width, height };
+  if (width * maxHeight >= height * maxWidth)
+    return {
+      width: maxWidth,
+      height: Math.max(1, Math.floor((height * maxWidth) / width)),
+    };
+  return {
+    width: Math.max(1, Math.floor((width * maxHeight) / height)),
+    height: maxHeight,
+  };
+};
+
 export interface RenderInput {
   readonly companyName: string;
   /**
@@ -98,9 +147,16 @@ export interface RenderInput {
   readonly cube: HeadCube;
   readonly displayName: (ledgerKey: string) => string;
   readonly validation: readonly CheckResult[];
+  /** Logos and the preparer for the cover; absent means the name alone, as before (ADR 0087). */
+  readonly brand?: WorkbookBrand;
   readonly extraValues?: Readonly<Record<string, readonly MetricValue[]>>;
   /** Display text for a template row label: rehydrates redaction tokens in the browser (SPEC §17). */
   readonly labelText?: (label: string) => string;
+  /**
+   * The statutory layout to add after the MIS sheets (ADR 0087); absent or "none" adds nothing,
+   * so a workbook rendered without one is exactly what it was before.
+   */
+  readonly statutory?: StatutoryFormat;
 }
 
 export interface RenderedWorkbook {
@@ -282,14 +338,28 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
   cover.getRow(2).height = 30;
   cover.getRow(3).height = 14;
 
+  const preparer = input.brand?.preparer ?? null;
+  const statutory = cube.periods.includes(period)
+    ? statutoryStatements(input.statutory ?? "none")
+    : [];
+  const statutoryName =
+    statutory.length === 0
+      ? null
+      : (STATUTORY_FORMATS.find((f) => f.code === input.statutory)?.name ?? null);
   const coverRows: [string, string][] = [
     ["Company", input.companyName],
+    ...(preparer === null
+      ? []
+      : ([["Prepared by", preparer.name]] as [string, string][])),
     ["Period", periodLabel(period)],
     ["Amounts in", input.currencySymbol],
     ["Generated", formatIstDateTime(input.generatedAt)],
     ["Intelligence tier", input.tierLabel],
     ["Template", `${template.name} (v${template.version.toString()})`],
     ["Snapshot version", input.snapshotVersion.toString()],
+    ...(statutoryName === null
+      ? []
+      : ([["Statutory layout", statutoryName]] as [string, string][])),
   ];
   coverRows.forEach(([k, v], i) => {
     const row = 5 + i;
@@ -326,6 +396,32 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
   cover.getColumn(2).width = 46;
   cover.getColumn(3).width = 18;
   cover.getColumn(4).width = 18;
+  // The company's mark beside its name, and the preparer's beside theirs (ADR 0087). Contained,
+  // never stretched, on the white of the sheet rather than the title band's ink.
+  const companyLogo = input.brand?.companyLogo ?? null;
+  if (companyLogo !== null) {
+    cover.getColumn(5).width = 26;
+    const id = wb.addImage({
+      buffer: Buffer.from(companyLogo.bytes) as unknown as ExcelJS.Buffer,
+      extension: companyLogo.extension,
+    });
+    cover.addImage(id, {
+      tl: { col: 4.1, row: 0.15 },
+      ext: fitImage(companyLogo, 170, 72),
+    });
+  }
+  if (preparer?.logo != null) {
+    const row = 5 + coverRows.findIndex(([k]) => k === "Prepared by");
+    cover.getRow(row).height = 30;
+    const id = wb.addImage({
+      buffer: Buffer.from(preparer.logo.bytes) as unknown as ExcelJS.Buffer,
+      extension: preparer.logo.extension,
+    });
+    cover.addImage(id, {
+      tl: { col: 2.08, row: row - 1 + 0.08 },
+      ext: fitImage(preparer.logo, 120, 34),
+    });
+  }
 
   const index = wb.addWorksheet("Index");
   chrome(index, { freezeRows: 1, footer });
@@ -632,6 +728,149 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
     });
   }
 
+  // The statutory statements in the company's own layout (ADR 0087), after the MIS sheets.
+  const statutorySheets: { sheet: string; statement: StatutoryStatement }[] = [];
+  for (const statement of statutory) {
+    // A recreated MIS names its own sheets; never let one of them collide with these. Excel and
+    // ExcelJS compare sheet names without case, so "Balance Sheet (US GAAP)" clashes too, and
+    // a clash would fail every run of that company rather than one.
+    const taken = new Set(wb.worksheets.map((w) => w.name.toLowerCase()));
+    let sheet = statement.sheet;
+    for (let n = 2; taken.has(sheet.toLowerCase()); n += 1) {
+      const suffix = ` (${n.toString()})`;
+      sheet = `${statement.sheet.slice(0, 31 - suffix.length)}${suffix}`;
+    }
+    writeStatutory(sheet, statement);
+    statutorySheets.push({ sheet, statement });
+  }
+
+  /**
+   * One statutory statement: SUMIFS lines over the Data sheet and totals as cell arithmetic over
+   * them, every cell paired with its value for V11 exactly as the template sections are.
+   */
+  function writeStatutory(sheet: string, statement: StatutoryStatement) {
+    const ws = wb.addWorksheet(sheet, {
+      pageSetup: pageSetup(
+        `${HEADER_ROWS.header.toString()}:${HEADER_ROWS.header.toString()}`,
+      ),
+    });
+    chrome(ws, {
+      freezeRows: HEADER_ROWS.header,
+      freezeCols: 1,
+      footer: `${footer} · ${statement.title}`,
+    });
+    ws.getCell(HEADER_ROWS.index, 1).value = "period index";
+    ws.getCell(HEADER_ROWS.fy, 1).value = "FY start index";
+    ws.getRow(HEADER_ROWS.index).hidden = true;
+    ws.getRow(HEADER_ROWS.fy).hidden = true;
+    ws.getColumn(1).width = 56;
+
+    const cols = statutoryColumns(statement, period, cube, periodLabel);
+    const lastColumn = cols.length + 1;
+    titleBlock(
+      ws,
+      { title: HEADER_ROWS.title, subtitle: HEADER_ROWS.subtitle },
+      {
+        title: `${input.companyName} — ${statement.title}`,
+        subtitle: `${periodLabel(period)} · Amounts in ${input.currencySymbol} · From the books, for management: not a filed statement`,
+        columns: lastColumn,
+      },
+    );
+    cols.forEach((c, i) => {
+      const col = i + 2;
+      ws.getColumn(col).width = 18;
+      ws.getCell(HEADER_ROWS.header, col).value = c.header;
+      ws.getCell(HEADER_ROWS.index, col).value = periodIndex(c.period);
+      ws.getCell(HEADER_ROWS.fy, col).value = periodIndex(
+        financialYearOf(c.period, cube.fyStartMonth).start,
+      );
+    });
+    ws.getCell(HEADER_ROWS.header, 1).value = "Particulars";
+    headerBand(ws, HEADER_ROWS.header, lastColumn);
+
+    const rowNumber = new Map(
+      statement.rows.map((r, i) => [r.id, HEADER_ROWS.first + i]),
+    );
+    const written = new Map<string, Map<number, bigint>>();
+    statement.rows.forEach((r, i) => {
+      const row = HEADER_ROWS.first + i;
+      const label = ws.getCell(row, 1);
+      label.value = r.label;
+      label.font = FONT.body;
+      if (r.kind === "heading") {
+        label.font = { ...FONT.bodyBold, color: { argb: PALETTE.ink } };
+        label.alignment = { vertical: "middle" };
+        for (let col = 1; col <= lastColumn; col += 1)
+          ws.getCell(row, col).fill = solid(PALETTE.subtle);
+        ws.getRow(row).height = 18;
+        return;
+      }
+      label.alignment = { vertical: "middle", indent: r.indent };
+      const bold = r.kind === "total" && r.emphasis;
+      if (bold) label.font = FONT.bodyBold;
+      for (let col = 1; col <= lastColumn; col += 1) {
+        const cell = ws.getCell(row, col);
+        if (r.kind === "total")
+          cell.border = {
+            top: line("thin", PALETTE.rule),
+            ...(bold ? { bottom: line("double", PALETTE.rule) } : {}),
+          };
+      }
+      const own = new Map<number, bigint>();
+      written.set(r.id, own);
+      cols.forEach((c, ci) => {
+        const col = ci + 2;
+        const letter = colLetter(col);
+        let formula: string;
+        let value: bigint;
+        if (r.kind === "line") {
+          const v = lineValue(cube, statement, r.terms, r.credit, c);
+          if (v === null) return;
+          formula = lineFormula(
+            statement,
+            r.terms,
+            r.credit,
+            {
+              kind: c.kind,
+              indexCell: `${letter}${HEADER_ROWS.index.toString()}`,
+              fyCell: `${letter}${HEADER_ROWS.fy.toString()}`,
+              days: 0,
+            },
+            range,
+          );
+          value = v;
+        } else {
+          const parts: string[] = [];
+          value = 0n;
+          for (const [sign, id] of r.of) {
+            const v = written.get(id)?.get(col);
+            const at = rowNumber.get(id);
+            if (v === undefined || at === undefined) return;
+            value += sign === 1 ? v : -v;
+            parts.push(
+              `${parts.length === 0 ? (sign === 1 ? "" : "-") : sign === 1 ? "+" : "-"}${letter}${at.toString()}`,
+            );
+          }
+          formula = parts.join("");
+        }
+        own.set(col, value);
+        const cell = ws.getCell(row, col);
+        cell.value = { formula, result: Number.parseInt(value.toString(), 10) / 100 };
+        cell.numFmt = moneyFormat(value, nf.style, nf.decimals, nf.negativesInBrackets);
+        cell.font = bold ? FONT.bodyBold : FONT.body;
+        cell.alignment = { vertical: "middle", horizontal: "right" };
+        expectations.push({
+          sheet,
+          row,
+          col,
+          metricId: `statutory:${statement.id}.${r.id}@${c.header}`,
+          unit: "paise",
+          value: value.toString(),
+        });
+      });
+    });
+  }
+
   // Checks.
   const checks = wb.addWorksheet("Checks");
   chrome(checks, { freezeRows: 1, footer: `${footer} · Checks` });
@@ -766,6 +1005,28 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
       lineageRow += 1;
     }
   }
+  for (const { sheet, statement } of statutorySheets) {
+    const labelOf = new Map(statement.rows.map((r) => [r.id, r.label]));
+    for (const r of statement.rows) {
+      if (r.kind === "heading") continue;
+      const formula =
+        r.kind === "line"
+          ? lineDescription(statement, r.terms, r.credit)
+          : r.of
+              .map(
+                ([sign, id], i) =>
+                  `${i === 0 ? (sign === 1 ? "" : "− ") : sign === 1 ? "+ " : "− "}${labelOf.get(id) ?? id}`,
+              )
+              .join(" ");
+      [
+        `statutory:${statement.id}.${r.id}@${period}`,
+        r.label,
+        `${r.label} = ${formula}`,
+        r.kind === "line" ? "Data sheet, by MIS head" : `${sheet} rows`,
+      ].forEach((x, i) => (lineage.getCell(lineageRow, i + 1).value = x));
+      lineageRow += 1;
+    }
+  }
   lineage.getColumn(1).width = 26;
   lineage.getColumn(2).width = 34;
   lineage.getColumn(3).width = 60;
@@ -785,6 +1046,7 @@ export function renderWorkbook(input: RenderInput): RenderedWorkbook {
   };
   [
     ...included.map((s) => [s.section.sheet, s.section.title] as const),
+    ...statutorySheets.map((s) => [s.sheet, s.statement.title] as const),
     ...(["Checks", "Data", "Lineage"] as const).map(
       (n) => [n, INDEX_NOTES[n] ?? ""] as const,
     ),

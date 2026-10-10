@@ -296,6 +296,60 @@ describe("commentary on Standard delivery (Message Batches)", () => {
     await expect(commentaryJob(c, "instant")).resolves.toBeTypeOf("string");
   });
 
+  it("is written for a month a longer run computed without a snapshot of its own (ADR 0087)", async () => {
+    // A setup over several months stores one snapshot, for its last month, holding them all.
+    const c = await accountWithCompany(pool(), 5_000n);
+    const snap = emptySnapshot(PERIOD);
+    const at = (period: string, metricId: string, v: string) => ({
+      metricId,
+      period,
+      dims: {},
+      value: v,
+      nullReason: null,
+      unit: "paise" as const,
+      formula: "",
+      inputs: [],
+    });
+    await storeSnapshot(pool(), wrapper, {
+      accountId: c.accountId,
+      companyId: c.companyId,
+      jobId: null,
+      payload: {
+        ...snap,
+        metricStore: {
+          ...snap.metricStore,
+          values: [
+            at("2026-04", "revenue", "6900000000"),
+            at("2026-04", "pat", "610000000"),
+            at(PERIOD, "revenue", "7455550000"),
+          ],
+        },
+      },
+    });
+    const queue = async (period: string) => {
+      const job = await createJob(pool(), {
+        accountId: c.accountId,
+        companyId: c.companyId,
+        type: "commentary",
+        tier: "professional",
+        delivery: "instant",
+        idempotencyKey: randomUUID(),
+        size: ZERO,
+      });
+      await confirmJob(pool(), { accountId: c.accountId, jobId: job.jobId });
+      await queueCommentary(pool(), wrapper, {
+        accountId: c.accountId,
+        jobId: job.jobId,
+        period: period as PeriodId,
+      });
+      return job.jobId;
+    };
+    // April has no snapshot, but the May one holds it: the month the board offers is written.
+    await expect(queue("2026-04")).resolves.toBeTypeOf("string");
+    // A month nothing holds still has nothing to discuss.
+    await expect(queue("2026-01")).rejects.toMatchObject({ code: "no_snapshot" });
+  });
+
   it("Instant delivery completes in the request", async () => {
     const c = await companyWithSnapshot();
     const jobId = await commentaryJob(c, "instant");

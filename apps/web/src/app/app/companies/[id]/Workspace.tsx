@@ -30,6 +30,7 @@ export function Workspace({
   companyId,
   companyName,
   logoUrl,
+  preparer,
   businessName,
   money,
   currencySymbol,
@@ -41,6 +42,8 @@ export function Workspace({
   companyName: string;
   /** The company's own logo, beside its name when the board is presented; null for none. */
   logoUrl: string | null;
+  /** Who prepared it, named in Present when the account chose to be (ADR 0087). */
+  preparer: { name: string; logoUrl: string | null } | null;
   /** Shown on the payment sheet when a chat message is short of credits. */
   businessName: string;
   money: NumberFormatOptions;
@@ -157,6 +160,7 @@ export function Workspace({
         <DashboardClient
           companyId={companyId}
           logoUrl={logoUrl}
+          preparer={preparer}
           onInvestigate={investigate}
           reloadKey={layoutVersion}
           onVersion={setDashboardVersion}

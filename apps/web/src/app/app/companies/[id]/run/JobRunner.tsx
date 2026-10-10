@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BuyCreditsInline } from "@/components/BuyCreditsInline";
+import { ExportHelp } from "@/components/ExportHelp";
 import { FileDropZone } from "@/components/FileDropZone";
 import { Icon } from "@/components/Icon";
 import { ProcessingNotice } from "@/components/ProcessingNotice";
@@ -396,6 +397,10 @@ export function JobRunner({
                 onFiles={onFiles}
                 testId="job-drop"
               />
+              {/* What to export, where the question comes up (ADR 0087). */}
+              <div className="mt-3">
+                <ExportHelp />
+              </div>
               {files.length === 0 ? null : (
                 <div className="mt-4">
                   <DataTable

@@ -14,6 +14,7 @@ import type { MetricValue } from "@magicmis/engine";
 import {
   buildWidgetView,
   companyFormat,
+  firedAlerts,
   formatValue,
   labelsFor,
   parseMetricKey,
@@ -40,7 +41,10 @@ import { PaidJobButton } from "@/components/PaidJobButton";
 import { RollingNumber } from "@/components/RollingNumber";
 import { Icon, type IconName } from "@/components/Icon";
 import { Alert, Button, ButtonLink, MistakesNote, Panel } from "@/components/ui";
+import { alertWords, type BoardAlert } from "@/lib/alert-words";
+import { checkLines, type CheckSummary } from "@/lib/check-words";
 import { api, newIdempotencyKey } from "@/lib/client-api";
+import { presentChannelName, type PresentMessage } from "@/lib/present-channel";
 
 const SELECT =
   "h-9 rounded-md border border-neutral-200 bg-surface px-2.5 text-[0.8125rem] font-medium text-neutral-900 hover:border-neutral-300";
@@ -110,9 +114,78 @@ export interface DashboardPayload {
     deleted: boolean;
   }[];
   hiddenPeriods: string[];
+  /** The checks behind each month, said in words below the board (ADR 0087). */
+  checks?: Record<string, CheckSummary[]>;
+  /** The owner's alerts, said when the month on screen trips one (ADR 0087). */
+  alerts?: BoardAlert[];
 }
 
 type Operation = Record<string, unknown>;
+
+/**
+ * What was proved about the month on the board, in words (ADR 0087): the run's checks, passed
+ * and to look at, folded to one line until opened. An unplaced ledger links to the ledger map,
+ * where it can be put on a line.
+ */
+function ChecksLine({
+  checks,
+  month,
+  ledgerMap,
+}: {
+  checks: readonly CheckSummary[];
+  month: string;
+  ledgerMap: string | null;
+}) {
+  const { passed, look } = checkLines(checks);
+  if (passed.length === 0 && look.length === 0) return null;
+  return (
+    <details
+      className="mt-3 rounded-xl border border-neutral-200/80 bg-surface px-4 py-2.5 text-[0.8125rem] shadow-sm"
+      data-testid="board-checks"
+    >
+      <summary className="flex cursor-pointer flex-wrap items-center gap-x-2 gap-y-1 select-none">
+        <Icon name="check-circle" size={15} className="text-positive" />
+        <span className="font-medium text-neutral-900">
+          {passed.length.toString()} {passed.length === 1 ? "check" : "checks"} passed for{" "}
+          {month}
+        </span>
+        {look.length === 0 ? null : (
+          <span className="flex items-center gap-1 text-warning">
+            <Icon name="alert" size={13} />
+            {look.length.toString()} to look at
+          </span>
+        )}
+      </summary>
+      <ul className="mt-2.5 flex flex-col gap-1.5 border-t border-neutral-100 pt-2.5">
+        {look.map((l) => (
+          <li key={l.id} className="flex items-start gap-2 text-neutral-800">
+            <Icon name="alert" size={13} className="mt-0.5 shrink-0 text-warning" />
+            <span>
+              {l.text}
+              {l.id === "V1" && ledgerMap !== null ? (
+                <>
+                  {" "}
+                  <a
+                    href={ledgerMap}
+                    className="font-medium text-accent-700 underline underline-offset-2"
+                  >
+                    Open the ledger map
+                  </a>
+                </>
+              ) : null}
+            </span>
+          </li>
+        ))}
+        {passed.map((t) => (
+          <li key={t} className="flex items-start gap-2 text-neutral-600">
+            <Icon name="check" size={13} className="mt-0.5 shrink-0 text-positive" />
+            <span>{t}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
 
 /**
  * What a KPI card calls its supporting figures. The full metric label ("Revenue from
@@ -570,6 +643,7 @@ export function DashboardClient({
   onChangeBox,
   onWhereToAct,
   sample,
+  preparer = null,
 }: {
   companyId: string;
   /** The company's own logo, shown before its name in Present; null for none. */
@@ -590,6 +664,8 @@ export function DashboardClient({
    * read figures the engine computed.
    */
   sample?: DashboardPayload;
+  /** The preparer's name and mark, beside the company's in Present (ADR 0087). */
+  preparer?: { name: string; logoUrl: string | null } | null;
 }) {
   const live = sample === undefined;
   const [payload, setPayload] = useState<DashboardPayload | null>(sample ?? null);
@@ -679,6 +755,26 @@ export function DashboardClient({
       document.body.style.overflow = scroll;
     };
   }, [presenting, stopPresenting, step]);
+
+  // Presenter notes on another screen follow the month the room is looking at (ADR 0087).
+  const shownMonth = period ?? payload?.periods[0] ?? null;
+  useEffect(() => {
+    if (!presenting || !live || shownMonth === null) return;
+    if (typeof BroadcastChannel === "undefined") return;
+    const channel = new BroadcastChannel(presentChannelName(companyId));
+    const message: PresentMessage = { kind: "month", period: shownMonth };
+    channel.postMessage(message);
+    return () => {
+      channel.close();
+    };
+  }, [presenting, live, companyId, shownMonth]);
+  const openNotes = useCallback(() => {
+    window.open(
+      `/app/companies/${companyId}/notes${shownMonth === null ? "" : `?period=${shownMonth}`}`,
+      `notes-${companyId}`,
+      "popup=yes,width=560,height=860",
+    );
+  }, [companyId, shownMonth]);
 
   const version = payload?.dashboard?.blueprintVersion ?? null;
   useEffect(() => {
@@ -1026,6 +1122,40 @@ export function DashboardClient({
         </div>
       </div>
 
+      {(() => {
+        // The owner's alerts that the month on screen trips (ADR 0087): said in words here,
+        // where the figures are; the email about them says only how many.
+        const fired = noMonths
+          ? []
+          : firedAlerts(payload.alerts ?? [], payload.values, current).map(
+              (f) => f.rule as BoardAlert,
+            );
+        return fired.length === 0 ? null : (
+          <p
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-2.5 text-[0.8125rem] text-neutral-800"
+            data-testid="board-alerts"
+          >
+            <Icon name="alert" size={14} className="text-warning" />
+            <span className="font-medium">
+              {fired.length === 1 ? "An alert" : `${fired.length.toString()} alerts`} for{" "}
+              {format.period(current)}:
+            </span>
+            {fired
+              .map((a) =>
+                alertWords(a, payload.company.money, payload.company.currencySymbol),
+              )
+              .join(" · ")}
+            {live ? (
+              <a
+                href={`/app/companies/${companyId}/manage#alerts`}
+                className="ml-auto font-medium text-accent-700 underline underline-offset-2"
+              >
+                Change alerts
+              </a>
+            ) : null}
+          </p>
+        );
+      })()}
       {!live || payload.hiddenPeriods.length === 0 ? null : (
         <p
           className="flex flex-wrap items-center gap-1.5 text-[0.8125rem] text-neutral-600"
@@ -1191,8 +1321,32 @@ export function DashboardClient({
               >
                 {noMonths ? "" : format.period(current)}
               </p>
+              {preparer === null ? null : (
+                <p
+                  className="mt-2 flex items-center gap-2 text-[0.8125rem] text-neutral-500"
+                  data-testid="present-preparer"
+                >
+                  {preparer.logoUrl === null ? null : (
+                    <CompanyLogo src={preparer.logoUrl} name={preparer.name} size={24} />
+                  )}
+                  Prepared by {preparer.name}
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-1.5 opacity-60 transition-opacity focus-within:opacity-100 hover:opacity-100">
+              {/* The commentary and where to act, on the presenter's own screen (ADR 0087). */}
+              {live ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon="document"
+                  title="Open the month's commentary and suggestions in a window of their own"
+                  onClick={openNotes}
+                  data-testid="present-notes"
+                >
+                  Notes
+                </Button>
+              ) : null}
               <Button
                 variant="secondary"
                 size="sm"
@@ -1277,6 +1431,13 @@ export function DashboardClient({
             />
           ))}
         </div>
+        {presenting || noMonths ? null : (
+          <ChecksLine
+            checks={payload.checks?.[current] ?? []}
+            month={format.period(current)}
+            ledgerMap={live ? `/app/companies/${companyId}/ledgers` : null}
+          />
+        )}
         {/* Not while presenting: there the accountant is the reviewer, speaking to their client. */}
         {presenting ? null : (
           <MistakesNote className="mt-3">

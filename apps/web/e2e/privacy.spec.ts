@@ -192,6 +192,19 @@ test("another account's resources are unreachable through every id-scoped endpoi
       url: `/api/companies/${company}/ledgers`,
       body: { ledgerKey: "sales accounts > sales", head: "REV", basedOn: 1 },
     },
+    // ADR 0087: another account's alerts can be neither set nor taken off.
+    {
+      route: "/api/companies/[id]/alerts",
+      method: "POST",
+      url: `/api/companies/${company}/alerts`,
+      body: { metricId: "cash_and_bank", comparator: "below", value: "100" },
+    },
+    {
+      route: "/api/companies/[id]/alerts",
+      method: "DELETE",
+      url: `/api/companies/${company}/alerts`,
+      body: { id: "00000000-0000-0000-0000-000000000000" },
+    },
     {
       route: "/api/companies/[id]/chat/names",
       method: "POST",

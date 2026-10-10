@@ -27,6 +27,7 @@ const input: BoardActionsInput = {
     warnings: [],
   },
   allowlist: [],
+  language: "en",
   maxActions: 5,
 };
 

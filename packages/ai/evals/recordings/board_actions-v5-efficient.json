@@ -1,0 +1,1028 @@
+{
+  "052bf8e84cd0f942b20a2ad82f2d311774111f11cffd87055971b4274ee0a9ec": {
+    "text": "{\"summary\":\"Every line moved up by the same proportion this month, so the books show one shared growth pattern rather than separate problems. The actions focus on confirming that pattern is real before the board relies on it.\",\"actions\":[{\"heading\":\"Confirm the uniform rise is genuine\",\"because\":\"Revenue rose {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}}, and gross profit, EBITDA, profit after tax, receivables, payables and cash each moved by {{mv:ebitda.mom@2026-05:pct}} on the same basis. Identical percentage moves across unrelated lines are unusual and could point to a posting or allocation pattern rather than trading.\",\"todo\":\"Ask the finance team to tie this month's revenue and cash to invoices and bank statements, and to explain why every line moved by the same rate before the figures are used for decisions.\",\"urgency\":\"now\"},{\"heading\":\"Check receivables against cash collected\",\"because\":\"Trade receivables rose {{mv:receivables.mom@2026-05:abs}} to {{m:receivables@2026-05}} in the same month that cash and bank rose {{mv:cash_and_bank.mom@2026-05:abs}} to {{m:cash_and_bank@2026-05}}. Rising receivables alongside rising cash needs an explanation of where the cash came from.\",\"todo\":\"Ask the finance team for an aged receivables list and a cash receipts summary for this month, and confirm that the receivables increase matches invoices issued rather than an accrual or a timing entry.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Review the working capital build\",\"because\":\"Payables rose {{mv:payables.mom@2026-05:abs}} to {{m:payables@2026-05}} while profit after tax reached {{m:pat@2026-05}}. Growing payables alongside growing receivables means the profit is not yet matched by settled cash, which the board should track.\",\"todo\":\"Ask the finance team to confirm which supplier balances are overdue and to report net working capital next month, so the board can see whether profit is turning into cash.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 758,
+      "cache_creation_input_tokens": 2271,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 2271,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 707,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "8589272aa438e8518e79b0647242eb29f4b896578c70dacd0d96c87782eef7c0": {
+    "text": "{\"summary\":\"Todas las cifras clave de {{p:2026-05}} crecieron alrededor de un mismo porcentaje respecto al mes anterior, lo que sugiere un único impulso de volumen o de facturación más que varias mejoras independientes. Conviene confirmar la causa antes de tomar decisiones.\",\"actions\":[{\"heading\":\"Confirmar la causa del crecimiento de ingresos\",\"because\":\"Los ingresos por operaciones llegaron a {{m:revenue@2026-05}}, con un cambio de {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) frente al mes anterior. Las cuentas por cobrar subieron {{mv:receivables.mom@2026-05:pct}} en el mismo periodo.\",\"todo\":\"Pedir al equipo financiero un desglose de ingresos de {{p:2026-05}} por cliente y por producto, para saber si el aumento es recurrente o puntual antes de contar con él en el plan del próximo trimestre.\",\"urgency\":\"now\"},{\"heading\":\"Vigilar el cobro de las cuentas por cobrar\",\"because\":\"Las cuentas por cobrar cerraron en {{m:receivables@2026-05}}, con un aumento de {{mv:receivables.mom@2026-05:abs}}, al mismo ritmo que los ingresos. Mientras el saldo crece con las ventas, el efectivo no sigue necesariamente el mismo camino.\",\"todo\":\"Pedir al equipo financiero el envejecimiento de las cuentas por cobrar al cierre de {{p:2026-05}} y revisar qué porción supera los plazos de pago acordados.\",\"urgency\":\"now\"},{\"heading\":\"Revisar la posición de caja frente a los pagos\",\"because\":\"El efectivo y los bancos quedaron en {{m:cash_and_bank@2026-05}} ({{mv:cash_and_bank.mom@2026-05:pct}}), mientras las cuentas por pagar subieron {{mv:payables.mom@2026-05:abs}}. El saldo de caja no muestra aún si el crecimiento de las ganancias se convierte en efectivo disponible.\",\"todo\":\"Solicitar al equipo financiero un pronóstico de caja a tres meses que cruce cobros esperados con los vencimientos de proveedores, y compartirlo con el consejo en la próxima reunión.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Verificar la conversión de utilidades en efectivo\",\"because\":\"La utilidad después de impuestos fue de {{m:pat@2026-05}} y el EBITDA de {{m:ebitda@2026-05}}, ambos con un cambio de {{mv:pat.mom@2026-05:pct}}. Estos resultados no muestran por sí solos cuánto de ellos se ha cobrado.\",\"todo\":\"Pedir al contador o al equipo financiero una conciliación entre la utilidad y el flujo de efectivo de {{p:2026-05}}, para confirmar la calidad de la ganancia reportada.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 760,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1064,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "4589cd96236734edc693d22c3a1fbf4080b112fdbdaece0ea086d6da84c52c41": {
+    "text": "{\"summary\":\"Tous les grands postes de {{p:2026-05}} augmentent d'environ {{mv:revenue.mom@2026-05:pct}}, au même rythme, ce qui suggère un facteur commun plutôt que des évolutions indépendantes. Le pack ne contient pas de ventilation pour l'expliquer.\",\"actions\":[{\"heading\":\"Vérifier la cause commune de la hausse du chiffre d'affaires\",\"because\":\"Le chiffre d'affaires est passé à {{m:revenue@2026-05}} ({{mv:revenue.mom@2026-05:abs}} de plus que le mois précédent). Le bénéfice brut, l'EBITDA, le bénéfice après impôt, les créances, les dettes fournisseurs et la trésorerie ont tous progressé de {{mv:revenue.mom@2026-05:pct}} sur {{p:2026-05}}.\",\"todo\":\"Demander à l'équipe financière de confirmer si cette hausse uniforme vient d'un événement ponctuel, d'une facturation anticipée ou d'un changement de périmètre, avant de tenir ces chiffres pour une tendance.\",\"urgency\":\"now\"},{\"heading\":\"Contrôler la hausse des créances clients\",\"because\":\"Les créances commerciales atteignent {{m:receivables@2026-05}}, en hausse de {{mv:receivables.mom@2026-05:abs}}, soit la même proportion que le chiffre d'affaires.\",\"todo\":\"Demander à l'équipe financière la liste des créances par client et l'échéancier, pour voir si la hausse correspond à des ventes réglées ou à des retards de paiement.\",\"urgency\":\"now\"},{\"heading\":\"Suivre la trésorerie face à la croissance du fonds de roulement\",\"because\":\"La trésorerie et les avoirs bancaires s'établissent à {{m:cash_and_bank@2026-05}}, en hausse de {{mv:cash_and_bank.mom@2026-05:abs}}, alors que les créances progressent de {{mv:receivables.mom@2026-05:abs}}.\",\"todo\":\"Demander à l'équipe financière un prévisionnel de trésorerie sur les prochains mois, en tenant compte des encaissements clients attendus.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 762,
+      "cache_creation_input_tokens": 38,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 38,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 782,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "917ef2d9ee2b46eaca2a062638e3649b23b414da2ae89d448f70148e1b28ae07": {
+    "text": "{\"summary\":\"Alle Kennzahlen des Monats sind um denselben Satz gestiegen, was auf einen einzigen Treiber hindeutet; zusätzlich liegt eine ungeprüfte Prüfung V10 vor und ein Monat wurde angenommen statt gelesen.\",\"actions\":[{\"heading\":\"Prüfung V10 vor Freigabe klären\",\"because\":\"Für {{p:2026-05}} wurde die Prüfung V10 ausgelöst. Ein Monat im Zeitraum wurde angenommen statt aus einer Datei gelesen.\",\"todo\":\"Die Buchhaltung bzw. das Finanzteam soll den Grund der Prüfung V10 erklären und den angenommenen Monat anhand der Originaldatei bestätigen, bevor die Zahlen dem Vorstand als gesichert gelten.\",\"urgency\":\"now\"},{\"heading\":\"Gleichlauf aller Kennzahlen prüfen\",\"because\":\"Umsatz ({{mv:revenue.mom@2026-05:pct}}), Rohertrag, EBITDA, Gewinn nach Steuern, Forderungen, Verbindlichkeiten und Bankbestand haben sich alle um denselben Prozentsatz verändert, nämlich {{mv:revenue.mom@2026-05:pct}}. Das ist ungewöhnlich und deutet auf eine Umrechnung, einen Kopierfehler oder einen einzigen Buchungsvorgang hin.\",\"todo\":\"Das Finanzteam soll die Umsatzbuchungen von {{p:2026-05}} mit den Ausgangsrechnungen abgleichen und prüfen, ob die Vorperiode richtig übernommen wurde.\",\"urgency\":\"now\"},{\"heading\":\"Forderungen und Liquidität im Blick behalten\",\"because\":\"Die Forderungen stiegen um {{mv:receivables.mom@2026-05:abs}} auf {{m:receivables@2026-05}}, während der Bankbestand bei {{m:cash_and_bank@2026-05}} liegt. Die Umsatzsteigerung ist also nicht sofort als Geld eingegangen.\",\"todo\":\"Die Buchhaltung soll eine Liste der offenen Forderungen nach Alter erstellen und die Bank um eine Einschätzung der kurzfristigen Liquidität bitten.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 791,
+      "cache_creation_input_tokens": 38,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 38,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 830,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "28d095a60dd38fedeac60fe3140fd8993a2a1058eab8f8651b3876bb057b0712": {
+    "text": "{\"summary\":\"Todos os principais valores cresceram cerca de {{mv:revenue.mom@2026-05:pct}} em {{p:2026-05}}, em linha uma com a outra. Antes de agir sobre esse crescimento, convém confirmar a origem dos números, já que há um aviso de validação ativo.\",\"actions\":[{\"heading\":\"Confirmar o aviso de validação V10 antes de decidir\",\"because\":\"A verificação V10 gerou aviso neste mês, e um mês do intervalo foi assumido em vez de lido de um ficheiro. Com receitas de {{m:revenue@2026-05}} e variação de {{mv:revenue.mom@2026-05:abs}}, a leitura do período pesa diretamente na conclusão.\",\"todo\":\"Pedir à equipa financeira que explique o aviso V10 e confirme o mês assumido, reexportando o ficheiro desse período se for possível. Só depois usar estes números para decisões do conselho.\",\"urgency\":\"now\"},{\"heading\":\"Verificar a origem do crescimento de todas as contas\",\"because\":\"Receitas, lucro bruto, EBITDA, lucro após impostos, contas a receber, contas a pagar e caixa variaram todos cerca de {{mv:revenue.mom@2026-05:pct}}. Esta uniformidade é invulgar e pode indicar um ajuste comum ou um erro de agregação, e não um desempenho real.\",\"todo\":\"Pedir ao contabilista ou à equipa financeira uma conciliação das receitas de {{p:2026-05}} com as faturas emitidas e os recebimentos, para confirmar que o crescimento é real.\",\"urgency\":\"now\"},{\"heading\":\"Acompanhar o crescimento das contas a receber\",\"because\":\"As contas a receber atingiram {{m:receivables@2026-05}}, com aumento de {{mv:receivables.mom@2026-05:abs}}, acompanhando o crescimento das receitas. Sem mais dados sobre prazos de cobrança, não é possível avaliar o risco de liquidez.\",\"todo\":\"Pedir à equipa financeira o envelhecimento das contas a receber por cliente, para saber quanto deste saldo já está vencido.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 793,
+      "cache_creation_input_tokens": 42,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 42,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 766,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "a33e12bb6da6926c391e292bb53f73169860da91190004a19afe143d2e62870c": {
+    "text": "{\"summary\":\"Tutte le voci del mese crescono di circa lo stesso tasso, quindi il dato da verificare è la base di confronto: il controllo V10 è sollevato e un mese dell'intervallo è stato assunto, non letto.\",\"actions\":[{\"heading\":\"Verificare il mese assunto prima di leggere la crescita\",\"because\":\"Il controllo V10 è segnalato per {{p:2026-05}} e un mese dell'intervallo è stato assunto invece di essere letto da un file; i ricavi sono {{m:revenue@2026-05}} con variazione {{mv:revenue.mom@2026-05:abs}}.\",\"todo\":\"Chiedere al team finanziario di confermare i dati di {{p:2026-05}} dal file sorgente e di spiegare la segnalazione V10 prima che il consiglio consideri la variazione mensile come certa.\",\"urgency\":\"now\"},{\"heading\":\"Capire perché crediti e debiti commerciali crescono insieme\",\"because\":\"I crediti commerciali sono {{m:receivables@2026-05}} con variazione {{mv:receivables.mom@2026-05:abs}}, e i debiti commerciali sono {{m:payables@2026-05}} con variazione {{mv:payables.mom@2026-05:abs}}, entrambi con la stessa variazione percentuale dei ricavi.\",\"todo\":\"Chiedere al team finanziario di verificare se la crescita dei crediti deriva da fatturazione di fine mese o da ritardi di incasso, e se i debiti riflettono acquisti reali o un cambio di tempi di pagamento.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Seguire la liquidità disponibile\",\"because\":\"La cassa e le banche sono {{m:cash_and_bank@2026-05}} con variazione {{mv:cash_and_bank.mom@2026-05:abs}}, mentre il utile netto è {{m:pat@2026-05}}; i dati non mostrano i flussi di cassa, quindi la conversione in cassa non è verificabile.\",\"todo\":\"Chiedere alla banca o al team finanziario un prospetto dei flussi di cassa del mese per capire quanto dell'utile si è tradotto in liquidità.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 795,
+      "cache_creation_input_tokens": 40,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 40,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 771,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "7a8a8e36a1330a6d312ca63e3ddf0a4217c025120cac21a4bdf911c44c9a8059": {
+    "text": "{\"summary\":\"Omzet en directe kosten zijn in {{p:2026-05}} met vrijwel hetzelfde percentage gestegen, dus de brutowinst groeide mee; de pakket bevat geen verdeling of waarschuwingen om de oorzaak te controleren.\",\"actions\":[{\"heading\":\"Controleer of de kostenstijging bij de omzetgroei hoort\",\"because\":\"Omzet steeg met {{mv:revenue.mom@2026-05:pct}} naar {{m:revenue@2026-05}}, en de directe kosten stegen met {{mv:direct_costs.mom@2026-05:pct}} naar {{m:direct_costs@2026-05}}. De brutowinst steeg met {{mv:gross_profit.mom@2026-05:pct}} naar {{m:gross_profit@2026-05}}, dus de marge is niet verslechterd.\",\"todo\":\"Laat het financiële team bevestigen dat de directe kosten direct aan de extra omzet gekoppeld zijn, bijvoorbeeld via inkoop of uren, en meld de bevinding aan het bestuur.\",\"urgency\":\"now\"},{\"heading\":\"Vraag om een verdeling van omzet en kosten\",\"because\":\"Het pakket bevat geen klant- of productverdeling, dus niet te zien is welke onderdelen de groei droegen. Er zijn ook geen validatiewaarschuwingen gemeld voor deze maand.\",\"todo\":\"Laat het financiële team de omzet en directe kosten splitsen per klant of product voor {{p:2026-05}}, zodat het bestuur kan zien waar de groei vandaan komt.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 352,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 577,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "d5227aaf4e98ffeb33e353d9a6e0f85ef0329a6a885d8227568ecbbd76451151": {
+    "text": "{\"summary\":\"الإيرادات والتكاليف المباشرة ومجمل الربح ارتفعت بنسبة متقاربة هذا الشهر، ولا توجد تحذيرات أو تفصيل حسب العملاء، لذا لا يمكن الحكم بعد على جودة هذا النمو.\",\"actions\":[{\"heading\":\"تفصيل النمو حسب العملاء أو الخطوط\",\"because\":\"بلغت الإيرادات {{m:revenue@2026-05}} بتغير {{mv:revenue.mom@2026-05:abs}} عن الشهر السابق، وبلغت التكاليف المباشرة {{m:direct_costs@2026-05}}، ولا تتضمن الملفات أي تفصيل حسب الأبعاد.\",\"todo\":\"يطلب المجلس من فريق المالية تفصيل الإيرادات والتكاليف المباشرة حسب العميل أو الخط قبل الاجتماع القادم، لمعرفة مصدر الزيادة وهل هي متكررة.\",\"urgency\":\"now\"},{\"heading\":\"متابعة هامش مجمل الربح\",\"because\":\"بلغ مجمل الربح {{m:gross_profit@2026-05}} بتغير {{mv:gross_profit.mom@2026-05:pct}}، وقد تحرك مع الإيرادات والتكاليف المباشرة بالنسبة نفسها تقريبا، دون فرق ظاهر بينها.\",\"todo\":\"يطلب المجلس من فريق المالية إضافة نسبة الهامش إلى التقرير الشهري ومقارنتها بالأشهر السابقة، للتأكد من بقائها مستقرة مع نمو الإيرادات.\",\"urgency\":\"watch\"},{\"heading\":\"تأكيد اكتمال أرقام التكاليف المباشرة\",\"because\":\"لم تظهر أي تحذيرات تحقق لهذا الشهر، لكن التكاليف المباشرة تتحرك بالكامل تقريبا مع الإيرادات، وهو نمط يستدعي التأكد من اكتمال تسجيلها.\",\"todo\":\"يطلب المجلس من المحاسب أو فريق المالية تأكيد أن التكاليف المباشرة مسجلة بالكامل للفترة {{p:2026-05}} قبل اعتماد التقرير.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 352,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1835,
+      "output_tokens_details": {
+        "thinking_tokens": 1012
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "98dd9a7332219a1d1b9b74742b8193d2e023ecbbfcc81f5ff8bfc564df8419d0": {
+    "text": "{\"summary\":\"{{m:revenue@2026-05}} revenue and {{m:gross_profit@2026-05}} gross profit both rose by {{mv:revenue.mom@2026-05:pct}} on last month, with direct costs moving in step, so margin held but the books show no split by customer or product to explain the growth.\",\"actions\":[{\"heading\":\"बिक्री वृद्धि का स्रोत पहचानें\",\"because\":\"राजस्व {{m:revenue@2026-05}} तक पहुँचा, जो {{p:2026-05}} में {{mv:revenue.mom@2026-05:abs}} बढ़ोतरी है। इस MIS में ग्राहक या उत्पाद के हिसाब से विभाजन नहीं है, इसलिए पता नहीं चलता कि वृद्धि किससे आई।\",\"todo\":\"वित्त टीम से कहें कि राजस्व को ग्राहक और उत्पाद के हिसाब से अलग करके अगले बोर्ड पैक में दिखाए, और देखे कि बढ़ोतरी एक-बार की है या दोहराई जाने वाली।\",\"urgency\":\"now\"},{\"heading\":\"प्रत्यक्ष लागत की वृद्धि की जाँच\",\"because\":\"प्रत्यक्ष लागत {{m:direct_costs@2026-05}} है, जो {{mv:direct_costs.mom@2026-05:abs}} बढ़ी। यह वृद्धि राजस्व की {{mv:revenue.mom@2026-05:pct}} बढ़ोतरी के लगभग समान अनुपात में है।\",\"todo\":\"लेखा टीम से पुष्टि कराएँ कि लागत की बढ़ोतरी बिक्री की मात्रा से जुड़ी है या किसी कीमत वृद्धि से, और इसकी सूची बोर्ड को दें।\",\"urgency\":\"this_quarter\"},{\"heading\":\"सकल लाभ की स्थिरता पर नज़र\",\"because\":\"सकल लाभ {{m:gross_profit@2026-05}} है, जो {{mv:gross_profit.mom@2026-05:abs}} बढ़ा। लाभ और राजस्व दोनों का प्रतिशत बदलाव {{mv:gross_profit.mom@2026-05:pct}} एक जैसा है।\",\"todo\":\"अगले दो महीनों में सकल लाभ का प्रतिशत देखें; यदि यह गिरता है तो बोर्ड को तुरंत सूचित करें।\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 354,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 878,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "efb7ebeaaf4d77d06211f85f517ecc53b00f1c7d97e0cfc21c0c8f54405ad9b2": {
+    "text": "{\"summary\":\"Revenue, direct costs and gross profit all rose by the same proportion this month, so the margin held but the books give no split by customer or product. The validation warning and the assumed month need resolving before the figures are relied on.\",\"actions\":[{\"heading\":\"Confirm the assumed month before relying on this pack\",\"because\":\"One month in the range was assumed rather than read from a file, and check V10 raised a warning for {{p:2026-05}}.\",\"todo\":\"Ask the finance team to confirm which source file covers {{p:2026-05}} and to clear the V10 warning before the board takes these figures as final.\",\"urgency\":\"now\"},{\"heading\":\"Understand why revenue and direct costs moved together\",\"because\":\"Revenue from operations rose by {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}}, and direct costs rose by {{mv:direct_costs.mom@2026-05:pct}} to {{m:direct_costs@2026-05}}, so gross profit reached {{m:gross_profit@2026-05}}.\",\"todo\":\"Ask the finance team for a breakdown of revenue and direct costs by customer or product for {{p:2026-05}} to show whether the growth is broad or concentrated.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 385,
+      "cache_creation_input_tokens": 38,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 38,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 425,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "262e44ef9a81a747efefcde5b11961e994ee06c9959305669c1396a25a1d20ac": {
+    "text": "{\"summary\":\"Los ingresos y los costos directos crecieron casi en la misma proporción este mes, así que el margen bruto no cambió de forma visible; el punto a revisar es la validación V10 y un mes asumido, no el desempeño.\",\"actions\":[{\"heading\":\"Revisar la advertencia de validación V10 antes de aprobar el mes\",\"because\":\"La validación V10 generó una advertencia en {{p:2026-05}} y un mes del rango fue asumido, no leído de un archivo. Los ingresos de {{m:revenue@2026-05}} y el margen bruto de {{m:gross_profit@2026-05}} dependen de esas cifras.\",\"todo\":\"Pedir al equipo financiero que confirme el origen de la advertencia V10 y que cargue el archivo del mes asumido. Repetir el cálculo antes de presentar las cifras al directorio.\",\"urgency\":\"now\"},{\"heading\":\"Confirmar que el crecimiento de ingresos viene con el mismo costo directo\",\"because\":\"Los ingresos subieron {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) y los costos directos subieron {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), por lo que el margen bruto de {{m:gross_profit@2026-05}} se mantuvo proporcionalmente igual.\",\"todo\":\"Pedir al equipo financiero un desglose de ingresos y costos directos por cliente o línea de producto para ver si el crecimiento proviene de fuentes de margen similar.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Falta información de dimensiones para decidir\",\"because\":\"El archivo no incluye valores de dimensión, así que no es posible ver qué clientes o líneas explican el cambio mensual.\",\"todo\":\"Solicitar al equipo financiero que incluya la apertura por dimensión en el próximo informe mensual.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 385,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 694,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "72897dadc6154ef2d034e3ed13e1045809d7f1f5a60c243c1dfaa04d9bc7ac22": {
+    "text": "{\"summary\":\"Le chiffre d'affaires, les coûts directs et le bénéfice brut ont tous progressé dans la même proportion ce mois-ci. Avant toute décision, il faut confirmer que le mois {{p:2026-05}} est bien lu depuis un fichier, car un avertissement de contrôle V10 est actif.\",\"actions\":[{\"heading\":\"Confirmer les données du mois avant diffusion\",\"because\":\"Le mois {{p:2026-05}} a été supposé et non lu depuis un fichier, et le contrôle V10 signale un avertissement sur ce mois. Le chiffre d'affaires du mois est {{m:revenue@2026-05}}.\",\"todo\":\"Demander à l'équipe finance de confirmer le fichier source de {{p:2026-05}}, de corriger ou d'expliquer l'avertissement V10, puis de republier les chiffres avant le conseil.\",\"urgency\":\"now\"},{\"heading\":\"Expliquer la hausse du chiffre d'affaires\",\"because\":\"Le chiffre d'affaires a varié de {{mv:revenue.mom@2026-05:abs}} sur le mois, soit {{mv:revenue.mom@2026-05:pct}}. Aucune répartition par client ou par activité n'est fournie dans les données.\",\"todo\":\"Demander à l'équipe finance une répartition du chiffre d'affaires par client ou par activité pour identifier ce qui a porté la hausse et si elle se maintiendra.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Vérifier que la marge brute suit la hausse des coûts\",\"because\":\"Les coûts directs ont progressé de {{mv:direct_costs.mom@2026-05:pct}}, comme le chiffre d'affaires ({{mv:revenue.mom@2026-05:pct}}) et le bénéfice brut ({{mv:gross_profit.mom@2026-05:pct}}). Les coûts directs du mois sont {{m:direct_costs@2026-05}}.\",\"todo\":\"Demander à l'équipe finance si les coûts directs évoluent réellement avec le volume, et suivre la marge brute sur les prochains mois pour détecter tout écart.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 387,
+      "cache_creation_input_tokens": 38,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 38,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1249,
+      "output_tokens_details": {
+        "thinking_tokens": 494
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "a2e63013f1894166eef24ebe7c503914d2aa005a38d8c47ee45a82f13ff5c7a0": {
+    "text": "{\"summary\":\"Der Umsatz im Monat {{p:2026-05}} lag bei {{m:revenue@2026-05}} und stieg um {{mv:revenue.mom@2026-05:abs}} gegenüber dem Vormonat. Die Unterlagen zeigen nur den Umsatz, daher fehlt die Grundlage für Aussagen zu Kosten und Ergebnis.\",\"actions\":[{\"heading\":\"Ursache des Umsatzanstiegs klären\",\"because\":\"Der Umsatz stieg um {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) auf {{m:revenue@2026-05}}. Die Unterlagen enthalten keine Aufteilung nach Kunden oder Produktlinien.\",\"todo\":\"Die Finanzabteilung legt für {{p:2026-05}} die Umsatzaufteilung nach Kunden und Produktlinien vor und prüft, ob der Anstieg einmalig war.\",\"urgency\":\"now\"},{\"heading\":\"Kosten- und Zahlungsdaten ergänzen\",\"because\":\"Die Auswertung enthält nur den Umsatz. Ohne Kosten und Zahlungseingänge lässt sich die Wirkung des Anstiegs auf das Ergebnis nicht beurteilen.\",\"todo\":\"Der Vorstand bittet die Buchhaltung, Kosten, Ergebnis und Zahlungseingänge für {{p:2026-05}} in die monatliche Auswertung aufzunehmen.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 38,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 38,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1427,
+      "output_tokens_details": {
+        "thinking_tokens": 874
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "1be7e38310824aa52aadaf176c2068e85c5b62e7ca86620ba08dc5bd50d12ca1": {
+    "text": "{\"summary\":\"A receita do mês subiu fortemente em relação ao mês anterior. Antes de tratar esse número como base, é preciso confirmar a origem e se o crescimento se sustenta.\",\"actions\":[{\"heading\":\"Confirmar a origem do crescimento da receita\",\"because\":\"A receita do período {{p:2026-05}} foi de {{m:revenue@2026-05}}, uma variação de {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) sobre o mês anterior. Os dados não trazem divisão por cliente ou linha de produto.\",\"todo\":\"Pedir à equipe financeira a lista de vendas do mês por cliente e produto, para separar receita recorrente de vendas pontuais.\",\"urgency\":\"now\"},{\"heading\":\"Verificar se o aumento se sustenta\",\"because\":\"O pacote mostra apenas a variação mensal da receita. Não há série de meses anteriores nem indicadores de custo ou margem do período.\",\"todo\":\"Pedir ao financeiro a série de receita dos últimos meses e a margem do período, para confirmar se o crescimento é duradouro e se veio acompanhado de custos proporcionais.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 42,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 42,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1130,
+      "output_tokens_details": {
+        "thinking_tokens": 700
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "7ceb283080aee1e9a8d06c1a24749c468b6c4bfac84de79ec06c18756762116e": {
+    "text": "{\"summary\":\"Il ricavo di {{p:2026-05}} è salito in modo marcato rispetto al mese precedente, ma i dati disponibili non mostrano da dove nasce la crescita. Prima di contarci nei piani serve capire se è duratura.\",\"actions\":[{\"heading\":\"Verificare l'origine della crescita dei ricavi\",\"because\":\"Il ricavo da operazioni è {{m:revenue@2026-05}}, con una variazione di {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) rispetto al mese precedente. Il pacchetto non riporta clienti, linee di ricavo né anticipi di fatturazione, quindi non si può dire se la crescita sia ricorrente.\",\"todo\":\"Chiedere alla funzione finanza di scomporre la variazione per cliente e per linea di ricavo, e di segnalare eventuali vendite una tantum o fatture emesse in anticipo, prima che il consiglio consideri questo livello come base stabile.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 144,
+      "cache_creation_input_tokens": 40,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 40,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1025,
+      "output_tokens_details": {
+        "thinking_tokens": 655
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "83b2e8a6fd97baa52ba4d05bf87111e697278e66378f26395608ae932e597add": {
+    "text": "{\"summary\":\"Omzet steeg deze maand sterk ten opzichte van vorige maand, maar de cijfers bevatten een validatiewaarschuwing (V10) en één maand is aangenomen in plaats van ingelezen. Eerst de data controleren voordat er op de groei wordt gehandeld.\",\"actions\":[{\"heading\":\"Controleer de omzetstijging en validatiewaarschuwing V10\",\"because\":\"De omzet uit bedrijfsactiviteiten bedraagt {{m:revenue@2026-05}}, een stijging van {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) ten opzichte van vorige maand. Voor deze maand is V10 gemeld, en {{p:2026-05}} is niet uit een bestand gelezen maar aangenomen.\",\"todo\":\"Laat het financiële team de omzetcijfers van {{p:2026-05}} vergelijken met de brondocumenten en de oorzaak van V10 vaststellen voordat het bestuur de stijging als bevestigd beschouwt.\",\"urgency\":\"now\"},{\"heading\":\"Bevestig de periodegegevens van de maand\",\"because\":\"Eén maand in het overzicht is aangenomen en niet uit een bestand overgenomen. Daardoor is niet zeker dat de vergelijking met de vorige maand op volledige gegevens berust.\",\"todo\":\"Vraag het financiële team welke maand is aangenomen en lever het ontbrekende bestand aan, zodat de periodevergelijking kan worden herhaald.\",\"urgency\":\"now\"},{\"heading\":\"Plan verificatie van de omzetgroei voor het volgende kwartaal\",\"because\":\"De omzetgroei van {{mv:revenue.mom@2026-05:pct}} in één maand is groot. Of die groei duurzaam is, blijkt pas uit de volgende maanden.\",\"todo\":\"Laat het financiële team de omzet per klant en per periode uitsplitsen, zodat het bestuur kan zien of de stijging breed gedragen wordt.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 175,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 728,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "0f3420d8e8049af5d529fdcbef20ea3e06bae43e9655bdd3a9ca557a25ce1b4f": {
+    "text": "{\"summary\":\"الإيرادات قفزت هذا الشهر، وفي الحزمة تحذير تحقق وشهر مفترض لم يُقرأ من ملف، لذا يجب تأكيد الأرقام قبل الاعتماد عليها.\",\"actions\":[{\"heading\":\"تأكيد تحذير التحقق V10 قبل اعتماد الإيرادات\",\"because\":\"أطلق التحقق V10 تحذيرا لهذا الشهر، والإيرادات {{m:revenue@2026-05}} بتغير {{mv:revenue.mom@2026-05:abs}} عن الشهر السابق.\",\"todo\":\"أن يطلب المجلس من الفريق المالي بيان سبب التحذير وتأكيد صحة الرقم قبل الموافقة على حزمة {{p:2026-05}}.\",\"urgency\":\"now\"},{\"heading\":\"التحقق من شهر مفترض في النطاق\",\"because\":\"تم افتراض أحد الأشهر في النطاق دون قراءته من ملف، ومقارنة {{p:2026-05}} تعتمد على هذا الافتراض.\",\"todo\":\"أن يحصل الفريق المالي على ملف الشهر المعني ويستبدل الافتراض بالقيمة الفعلية، ثم يعاد احتساب المقارنة.\",\"urgency\":\"now\"},{\"heading\":\"شرح قفزة الإيرادات الشهرية\",\"because\":\"ارتفعت الإيرادات بنسبة {{mv:revenue.mom@2026-05:pct}} لتصل إلى {{m:revenue@2026-05}}، ولا تكشف الحزمة المتاحة مصدر هذه الزيادة.\",\"todo\":\"أن يطلب المجلس من الإدارة تفصيل الزيادة حسب العملاء أو المنتجات، وأن يتأكد من أنها متكررة وليست لمرة واحدة قبل التخطيط عليها.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 175,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1477,
+      "output_tokens_details": {
+        "thinking_tokens": 796
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "d794314775a2b67f4dc3686860f9012c9f9a7793635fdf7836d49b57ab20fdad": {
+    "text": "{\"summary\":\"इस महीने की आय {{m:revenue@2026-05}} रही, जो पिछले महीने से {{mv:revenue.mom@2026-05:abs}} अधिक है। पहले यह पक्का करें कि यह बढ़ोतरी सही दर्ज हुई है और चेतावनी V10 का कारण मिल गया है।\",\"actions\":[{\"heading\":\"चेतावनी V10 का कारण जाँचें\",\"because\":\"इस महीने के लिए जाँच V10 ने चेतावनी दी है, और आय {{m:revenue@2026-05}} दर्ज है।\",\"todo\":\"वित्त टीम से कहें कि V10 में दिखाए गए अंतर का स्रोत खोजकर लिखित रूप में बताएँ, और सुधार होने तक इस आँकड़े को अंतिम न मानें।\",\"urgency\":\"now\"},{\"heading\":\"आय में बढ़ोतरी की पुष्टि करें\",\"because\":\"आय पिछले महीने से {{mv:revenue.mom@2026-05:pct}} बढ़ी है, यानी {{mv:revenue.mom@2026-05:abs}} का अंतर है।\",\"todo\":\"बिक्री के बिलों और बैंक में आई राशि से मिलान करवाएँ, ताकि पता चले कि यह बढ़ोतरी असली बिक्री से है या किसी एक बार की प्रविष्टि से।\",\"urgency\":\"now\"},{\"heading\":\"असूमed महीने की जानकारी भरें\",\"because\":\"समय-सीमा में एक महीना फ़ाइल से नहीं, बल्कि अनुमान से लिया गया है, और इसकी पुष्टि अभी बाकी है।\",\"todo\":\"लेखा विभाग से उस महीने का स्रोत फ़ाइल सहित मँगवाएँ और उसे बोर्ड की अगली बैठक से पहले इस रिपोर्ट में शामिल करें।\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 177,
+      "cache_creation_input_tokens": 41,
+      "cache_read_input_tokens": 2233,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 41,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 988,
+      "output_tokens_details": {
+        "thinking_tokens": 297
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "2079e3ea9fde183d5937b8e1e597af7e3489a5d163fd63c2e24a1a53c3976533": {
+    "text": "{\"summary\":\"Every line fell by the same 20 percent on last month, from revenue down to cash, which points to one common driver, probably a volume or timing shift, rather than separate problems. The pack has no breakdown to confirm which.\",\"actions\":[{\"heading\":\"Confirm the cause of the across-the-board drop\",\"because\":\"Revenue from operations fell {{mv:revenue.mom@2026-05:pct}} to {{m:revenue@2026-05}} in {{p:2026-05}}, and gross profit, EBITDA, profit after tax, receivables, payables and cash all fell by exactly the same {{mv:gross_profit.mom@2026-05:pct}} rate. Identical moves across every line are unusual and may signal a timing or reporting issue rather than a true trading change.\",\"todo\":\"Ask the finance team to check whether the month's sales were fully posted, whether any invoices or receipts were cut off at month end, and whether the period was closed on the same basis as last month. Report back to the board before the next meeting.\",\"urgency\":\"now\"},{\"heading\":\"Review cash position against the lower sales base\",\"because\":\"Cash and bank stands at {{m:cash_and_bank@2026-05}}, down {{mv:cash_and_bank.mom@2026-05:pct}}, while trade payables are {{m:payables@2026-05}}. Lower receipts with payables still to be settled could tighten short-term liquidity.\",\"todo\":\"Ask the finance team for a 13-week cash forecast showing expected receipts and payments, and ask the bank what facility headroom exists if the lower level persists.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Get the detail behind the totals\",\"because\":\"The pack contains no customer, product or dimension split for {{p:2026-05}}, so the drop cannot be attributed to any segment from these facts.\",\"todo\":\"Request the revenue and receivables breakdown by customer and product for the month and the prior month, so the board can see whether the fall is concentrated or broad.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 772,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 667,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "c4e381fba043ff9b783974c88bac0c5104d1e83c6df2d20066792c329ce1441d": {
+    "text": "{\"summary\":\"Todas las cifras clave de {{p:2026-05}} cayeron alrededor de {{mv:revenue.mom@2026-05:pct}} frente al mes anterior, en la misma proporción. Los datos no muestran una causa, así que el primer paso es entender el origen de la caída.\",\"actions\":[{\"heading\":\"Explicar la caída de ingresos del mes\",\"because\":\"Los ingresos por operaciones bajaron {{mv:revenue.mom@2026-05:abs}} hasta {{m:revenue@2026-05}}, y el beneficio bruto, EBITDA, utilidad después de impuestos, cuentas por cobrar, cuentas por pagar y caja bajaron en la misma proporción ({{mv:revenue.mom@2026-05:pct}}). Un movimiento tan uniforme sugiere un único factor o un error de registro, no varias causas independientes.\",\"todo\":\"Pedir al equipo financiero un desglose de ingresos por cliente, producto y fecha de facturación para {{p:2026-05}} frente al mes anterior, y confirmar si hubo cierre parcial, cambio de criterio contable o un cliente grande que dejó de facturar.\",\"urgency\":\"now\"},{\"heading\":\"Verificar la coherencia de las cuentas del cierre\",\"because\":\"Todas las partidas aparecen con exactamente la misma variación porcentual, lo que es inusual en datos reales. Los datos no traen avisos de validación, así que no hay control automático que lo confirme.\",\"todo\":\"Pedir al equipo financiero o al contador que revise el cierre de {{p:2026-05}} y confirme que las cifras no son un promedio prorrateado o una copia de un período anterior antes de tomar decisiones.\",\"urgency\":\"now\"},{\"heading\":\"Revisar la liquidez con la caja actual\",\"because\":\"La caja y bancos cerró en {{m:cash_and_bank@2026-05}}, tras bajar {{mv:cash_and_bank.mom@2026-05:abs}}. Los datos no incluyen compromisos de pago ni flujos proyectados, por lo que no se puede medir la holgura.\",\"todo\":\"Pedir al equipo financiero un pronóstico de caja a tres meses que incluya cobros de cuentas por cobrar de {{m:receivables@2026-05}} y pagos de cuentas por pagar de {{m:payables@2026-05}}, y compartirlo con el consejo.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 774,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 846,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "61bb968ca429a14adf6dfb974420a578e1a27bbffeb00681f9941dc38f3b0525": {
+    "text": "{\"summary\":\"Tous les indicateurs clés ont reculé d'environ un cinquième sur le mois, ce qui laisse penser à une baisse générale d'activité plutôt qu'à un problème isolé. Le conseil doit d'abord vérifier si ce recul est réel ou dû à un décalage de clôture.\",\"actions\":[{\"heading\":\"Vérifier si la baisse du chiffre d'affaires est réelle\",\"because\":\"Le chiffre d'affaires du mois s'établit à {{m:revenue@2026-05}}, soit {{mv:revenue.mom@2026-05:abs}} par rapport au mois précédent ({{mv:revenue.mom@2026-05:pct}}). Le résultat brut, l'EBITDA et le bénéfice après impôt reculent exactement dans la même proportion ({{mv:gross_profit.mom@2026-05:pct}}, {{mv:ebitda.mom@2026-05:pct}}, {{mv:pat.mom@2026-05:pct}}).\",\"todo\":\"Demander à l'équipe finance de confirmer que la clôture de {{p:2026-05}} est complète (factures et avoirs inclus) et d'expliquer la cause de la baisse avant tout autre décision.\",\"urgency\":\"now\"},{\"heading\":\"Surveiller la trésorerie disponible\",\"because\":\"La trésorerie et les avoirs bancaires s'établissent à {{m:cash_and_bank@2026-05}}, soit {{mv:cash_and_bank.mom@2026-05:abs}} sur le mois ({{mv:cash_and_bank.mom@2026-05:pct}}). Les créances clients ({{m:receivables@2026-05}}) et les dettes fournisseurs ({{m:payables@2026-05}}) baissent dans la même proportion, ce qui ne montre pas encore de tension.\",\"todo\":\"Demander à la banque ou à l'équipe finance une prévision de trésorerie sur les prochains mois, pour vérifier que la baisse d'activité ne réduit pas la marge de manœuvre.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Suivre le rythme des encaissements clients\",\"because\":\"Les créances clients reculent de {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}), en ligne avec le chiffre d'affaires. Les données fournies ne permettent pas de savoir si les délais de paiement ont changé.\",\"todo\":\"Demander à l'équipe finance le détail des délais de règlement clients sur {{p:2026-05}} afin de vérifier qu'aucun retard ne se cache derrière la baisse.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 776,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 924,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "18fe84ee65c9096f5009b6a54e539cc66427c7bb03bc427c91c8ecfc588e8fda": {
+    "text": "{\"summary\":\"Alle Kennzahlen des Monats {{p:2026-05}} sind gegenüber dem Vormonat um jeweils {{mv:revenue.mom@2026-05:pct}} gesunken, und eine Prüfung (V10) ist offen. Zuerst muss geklärt werden, ob die Zahlen vollständig und richtig sind.\",\"actions\":[{\"heading\":\"Prüfung V10 und Vormonatsdaten klären\",\"because\":\"Die Prüfung V10 hat für diesen Monat eine Warnung ausgelöst, und ein Monat im Zeitraum wurde angenommen statt aus einer Datei gelesen. Umsatz {{m:revenue@2026-05}} und Liquidität {{m:cash_and_bank@2026-05}} hängen davon ab.\",\"todo\":\"Das Finanzteam soll die Ursache der Prüfung V10 feststellen und den angenommenen Monat anhand der Originaldatei bestätigen, bevor der Vorstand die Rückgänge bewertet.\",\"urgency\":\"now\"},{\"heading\":\"Umsatzrückgang und Ursache prüfen\",\"because\":\"Der Umsatz fiel um {{mv:revenue.mom@2026-05:abs}} auf {{m:revenue@2026-05}}. Rohertrag ({{m:gross_profit@2026-05}}) und EBITDA ({{m:ebitda@2026-05}}) sanken im gleichen Verhältnis um {{mv:ebitda.mom@2026-05:pct}}.\",\"todo\":\"Die Geschäftsführung soll Umsatz nach Kunden und Produkten für {{p:2026-05}} gegen {{p:2026-05}} aufschlüsseln, um zu sehen, ob der Rückgang auf einzelne Kunden oder auf alle zurückgeht. Die Dimensionswerte fehlen im Datenpaket, daher ist dies noch offen.\",\"urgency\":\"now\"},{\"heading\":\"Liquidität im Blick behalten\",\"because\":\"Die liquiden Mittel sanken auf {{m:cash_and_bank@2026-05}}, eine Veränderung von {{mv:cash_and_bank.mom@2026-05:abs}}. Forderungen ({{m:receivables@2026-05}}) und Verbindlichkeiten ({{m:payables@2026-05}}) sanken ebenfalls um jeweils {{mv:receivables.mom@2026-05:pct}}.\",\"todo\":\"Die Bank bzw. das Finanzteam soll eine Liquiditätsprognose für die nächsten drei Monate erstellen, damit klar ist, ob die Mittel für die laufenden Zahlungen reichen.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 805,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 945,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "9e9a37f2b39ceabd23008d4f4d8780a01bc9c29cd9d805d2b6e869cab00cd751": {
+    "text": "{\"summary\":\"Todas as principais linhas caíram cerca de vinte por cento em {{p:2026-05}} face ao mês anterior, em conjunto, o que sugere um efeito de volume ou de calendário e não um problema isolado. Há ainda um aviso de validação (V10) e um mês assumido, pelo que a leitura deve ser confirmada.\",\"actions\":[{\"heading\":\"Confirmar a origem da queda generalizada de receitas\",\"because\":\"A receita de {{m:revenue@2026-05}} variou {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) e o lucro bruto, EBITDA, lucro após impostos, contas a receber, contas a pagar e caixa variaram todos {{mv:cash_and_bank.mom@2026-05:pct}} no mesmo sentido, o que indica um fator comum.\",\"todo\":\"Pedir à equipa financeira que confirme se a queda reflete menos vendas, um ajuste contabilístico ou uma data de corte, e que compare as faturas emitidas com o mês anterior antes da próxima reunião do conselho.\",\"urgency\":\"now\"},{\"heading\":\"Validar o aviso V10 antes de confiar nos números\",\"because\":\"O aviso de validação V10 foi levantado para {{p:2026-05}} e um dos meses do intervalo foi assumido em vez de lido de um ficheiro.\",\"todo\":\"Pedir ao contabilista que resolva o aviso V10 e forneça o ficheiro do mês assumido, para que o conselho possa confiar na comparação mensal.\",\"urgency\":\"now\"},{\"heading\":\"Acompanhar a posição de caixa após a queda\",\"because\":\"O saldo de caixa e bancos fixou-se em {{m:cash_and_bank@2026-05}}, após uma redução de {{mv:cash_and_bank.mom@2026-05:abs}}, com contas a pagar de {{m:payables@2026-05}}.\",\"todo\":\"Pedir ao banco e à equipa financeira uma previsão de caixa para os próximos três meses, considerando os recebimentos de contas a receber de {{m:receivables@2026-05}}.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 807,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2275,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 763,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "c13f621d33a238d9a452bb1040ab1fd3bbf827c0695a603873e3e7010cf3ddec": {
+    "text": "{\"summary\":\"Tutte le voci di {{p:2026-05}} sono calate di circa il 20% rispetto al mese precedente, quindi il mese si gioca sulla natura del calo. Il controllo V10 è segnalato e un mese è stato assunto, non letto da un file.\",\"actions\":[{\"heading\":\"Verificare il calo uniforme dei ricavi\",\"because\":\"I ricavi da operazioni sono {{m:revenue@2026-05}}, con una variazione di {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) rispetto al mese precedente. Anche margine lordo, EBITDA, utile netto, crediti, debiti e liquidità mostrano la stessa variazione percentuale.\",\"todo\":\"Chiedere alla funzione finanza di confermare se il calo deriva da un evento reale o da un errore di caricamento o di periodo, controllando le fatture e i movimenti bancari di {{p:2026-05}}.\",\"urgency\":\"now\"},{\"heading\":\"Risolvere l'avviso di controllo V10\",\"because\":\"Il controllo V10 è stato segnalato per questo mese e uno dei mesi del periodo è stato assunto anziché letto da un file.\",\"todo\":\"Chiedere alla funzione finanza di completare il mese mancante dai file originali e di chiudere il controllo V10 prima di usare questi dati nella riunione del consiglio.\",\"urgency\":\"now\"},{\"heading\":\"Monitorare la liquidità dopo il calo\",\"because\":\"La liquidità è {{m:cash_and_bank@2026-05}}, in calo di {{mv:cash_and_bank.mom@2026-05:abs}}, mentre i crediti commerciali sono {{m:receivables@2026-05}} e i debiti commerciali {{m:payables@2026-05}}.\",\"todo\":\"Chiedere alla banca e alla funzione finanza un prospetto delle entrate e uscite previste per i prossimi mesi, per verificare che la liquidità resti adeguata.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 809,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2273,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 710,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "1f243289da18b595c80b3c56ad26bab6e446502e144ebced7ed5224d92514676": {
+    "text": "{\"summary\":\"Omzet en brutowinst zijn deze maand ongeveer een vijfde gedaald ten opzichte van vorige maand, en de directe kosten bewogen daar gelijk mee. De pack bevat geen uitsplitsing per klant of product, dus de oorzaak is nog niet vast te stellen.\",\"actions\":[{\"heading\":\"Oorzaak van de omzetdaling vaststellen\",\"because\":\"Omzet uit de bedrijfsactiviteiten bedroeg {{m:revenue@2026-05}} in {{p:2026-05}}, een verandering van {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) ten opzichte van de vorige maand.\",\"todo\":\"Laat het financiële team de omzet van {{p:2026-05}} uitsplitsen naar klant, product en volume, en vergelijk die met de vorige maand, zodat de bestuurders zien waar de daling zit voordat ze besluiten nemen.\",\"urgency\":\"now\"},{\"heading\":\"Verklaring voor gelijk dalende directe kosten controleren\",\"because\":\"De directe kosten daalden met {{mv:direct_costs.mom@2026-05:pct}} naar {{m:direct_costs@2026-05}}, bijna in dezelfde verhouding als de omzet, terwijl de brutowinst {{mv:gross_profit.mom@2026-05:pct}} daalde naar {{m:gross_profit@2026-05}}.\",\"todo\":\"Vraag het financiële team of de kosten daadwerkelijk zijn teruggelopen of dat er kosten zijn uitgesteld of verschoven naar een andere periode; de pack laat dat niet zien.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 358,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 610,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "23ad5a08202ab6fedf61024d9da4f2b5700f5eb1a66a395590fe1c7aeca71437": {
+    "text": "{\"summary\":\"هذا الشهر يتوقف على أمرين: تعارض في أرقام الربح الإجمالي يجب حسمه قبل اعتماد التقرير، وانخفاض الإيرادات والتكاليف المباشرة معاً بنسبة متقاربة جداً.\",\"actions\":[{\"heading\":\"تعارض في أرقام الربح الإجمالي\",\"because\":\"الإيرادات {{m:revenue@2026-05}} والتكاليف المباشرة {{m:direct_costs@2026-05}} لا تعطيان الربح الإجمالي المعروض {{m:gross_profit@2026-05}}، ولم تُرفع أي تحذيرات تحقق على هذا الشهر.\",\"todo\":\"اطلب من الفريق المالي أو المحاسب مطابقة الأرقام الثلاثة مع دفتر الأستاذ قبل اعتماد التقرير، وتوضيح ما الذي يدخل في حساب الربح الإجمالي.\",\"urgency\":\"now\"},{\"heading\":\"انخفاض الإيرادات والتكاليف بنسبة متقاربة\",\"because\":\"الإيرادات انخفضت بمقدار {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) والتكاليف المباشرة بمقدار {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) مقارنة بالشهر السابق، والربح الإجمالي بمقدار {{mv:gross_profit.mom@2026-05:abs}}.\",\"todo\":\"اطلب من الإدارة شرح سبب الانخفاض: هل هو حجم المبيعات أو السعر أو توقيت الفواتير، وهل هو مستمر، وأن يُعرض ذلك في الاجتماع القادم.\",\"urgency\":\"now\"},{\"heading\":\"التحقق من طبيعة التكاليف المباشرة\",\"because\":\"انخفضت التكاليف المباشرة بالنسبة نفسها تقريباً التي انخفضت بها الإيرادات، مما يوحي بأنها تتغير مع الحجم، لكن الدفاتر لا تبيّن ذلك بوضوح.\",\"todo\":\"اطلب من المالية تصنيف التكاليف المباشرة إلى ثابتة ومتغيرة، ليعرف المجلس هامش الربح عند مستويات مبيعات مختلفة.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 358,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1964,
+      "output_tokens_details": {
+        "thinking_tokens": 1085
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "3a1a919fb7c52d52969151ae217b8f8d741084149fe1b5ca4d89348b8dada333": {
+    "text": "{\"summary\":\"{{p:2026-05}} में राजस्व {{mv:revenue.mom@2026-05:pct}} घटा, और सकल लाभ भी उतना ही गिरा है, इसलिए यह महीना बिक्री की मात्रा या कीमत में बदलाव पर टिका है।\",\"actions\":[{\"heading\":\"राजस्व में गिरावट का कारण पहचानना\",\"because\":\"राजस्व {{m:revenue@2026-05}} रहा, जो पिछले महीने से {{mv:revenue.mom@2026-05:abs}} कम है ({{mv:revenue.mom@2026-05:pct}})। फैक्ट पैक में बिक्री की मात्रा, कीमत या ग्राहक के हिसाब से विभाजन नहीं है।\",\"todo\":\"वित्त टीम से कहें कि {{p:2026-05}} और उसके पिछले महीने की बिक्री को उत्पाद, ग्राहक और क्षेत्र के हिसाब से तोड़कर भेजे, ताकि बोर्ड देख सके कि गिरावट कहाँ से आई।\",\"urgency\":\"now\"},{\"heading\":\"प्रत्यक्ष लागत और सकल लाभ की समानता की जाँच\",\"because\":\"प्रत्यक्ष लागत {{mv:direct_costs.mom@2026-05:pct}} घटी और सकल लाभ {{mv:gross_profit.mom@2026-05:pct}} घटा, यानी दोनों लगभग एक ही दर से बदले हैं। सकल लाभ {{m:gross_profit@2026-05}} है।\",\"todo\":\"लेखाकार से पुष्टि कराएँ कि लागत में गिरावट वास्तविक खरीद या उत्पादन में कमी से है, या किसी समायोजन या समय के अंतर से। जब तक यह साफ़ न हो, इस महीने के लाभ को स्थिर न मानें।\",\"urgency\":\"now\"},{\"heading\":\"अगले महीने के लिए बिक्री का पूर्वानुमान\",\"because\":\"राजस्व {{mv:revenue.mom@2026-05:pct}} गिरा है, पर फैक्ट पैक में अगले महीने का अनुमान या बिक्री का रुझान नहीं दिया गया है।\",\"todo\":\"वित्त टीम से {{p:2026-05}} के आधार पर अगले तीन महीने का राजस्व और सकल लाभ का अनुमान तैयार करने को कहें, और उसे बोर्ड की अगली बैठक में रखें।\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 360,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 905,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "e4721f42fa72e5dceed4f88ed789b1fc0d854c83a36f9ded6d453689ab1925e3": {
+    "text": "{\"summary\":\"Revenue, direct costs and gross profit all fell by the same 20 percent this month, so the books show a volume-wide drop rather than a margin problem. The data cannot yet say why, and one month was assumed rather than read, so confirm the figures first.\",\"actions\":[{\"heading\":\"Confirm the month's figures before acting\",\"because\":\"Check V10 raised a warning, and one month in the range was assumed rather than read from a file. Revenue {{m:revenue@2026-05}} fell {{mv:revenue.mom@2026-05:pct}} on last month.\",\"todo\":\"Ask the finance team to confirm {{p:2026-05}} against the source ledgers and resolve the V10 warning, then re-run this pack before the board relies on the drop.\",\"urgency\":\"now\"},{\"heading\":\"Find the cause of the revenue drop\",\"because\":\"Revenue fell by {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}, and direct costs fell by {{mv:direct_costs.mom@2026-05:pct}} in step, so the business appears to have sold less rather than sold at a worse margin.\",\"todo\":\"Ask management to break the revenue fall down by customer and product for {{p:2026-05}}; the dimension split is not in this pack, so this cannot yet be seen.\",\"urgency\":\"now\"},{\"heading\":\"Check gross profit held its share\",\"because\":\"Gross profit fell by {{mv:gross_profit.mom@2026-05:abs}} to {{m:gross_profit@2026-05}}, moving with revenue rather than faster than it.\",\"todo\":\"Ask the finance team to confirm the gross margin for {{p:2026-05}} against prior months once the figures in the first action are confirmed.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 391,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 595,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "d5703a16298d54f7c8e62ea59fd51a19c31775b0deaeeaae8df969b7653bba06": {
+    "text": "{\"summary\":\"Los ingresos y el margen bruto cayeron cada uno un {{mv:revenue.mom@2026-05:pct}} frente al mes anterior, y una advertencia de validación (V10) sigue abierta, así que primero hay que confirmar que las cifras son fiables.\",\"actions\":[{\"heading\":\"Confirmar la advertencia V10 y el mes asumido antes de decidir\",\"because\":\"La verificación V10 emitió una advertencia para {{p:2026-05}} y uno de los meses del rango se asumió en lugar de leerse de un archivo. La caída de ingresos de {{mv:revenue.mom@2026-05:abs}} depende de que ambos meses sean correctos.\",\"todo\":\"Pedir al equipo financiero que explique la advertencia V10 y que confirme con el archivo original el mes asumido. Repetir el informe una vez corregido antes de presentarlo al consejo.\",\"urgency\":\"now\"},{\"heading\":\"Explicar la caída de ingresos del mes\",\"because\":\"Los ingresos de {{m:revenue@2026-05}} bajaron {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) frente al mes anterior. Los datos disponibles no muestran por cliente ni por línea de producto, así que no se sabe de dónde viene la caída.\",\"todo\":\"Pedir al equipo comercial o de ventas un desglose de ingresos por cliente y por línea de producto para {{p:2026-05}}, y comparar con el mes anterior para identificar el origen de la caída.\",\"urgency\":\"now\"},{\"heading\":\"Vigilar el margen bruto ante la caída de ingresos\",\"because\":\"El margen bruto fue de {{m:gross_profit@2026-05}}, con un cambio de {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}). Los costos directos bajaron {{mv:direct_costs.mom@2026-05:pct}}, en la misma proporción que los ingresos, por lo que el margen porcentual no cambió.\",\"todo\":\"Revisar con el equipo financiero si los costos directos bajan de forma automática con el volumen o si hay costos fijos que no se ajustaron. Sin ese dato no se puede saber si el margen se sostendrá.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 391,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 816,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "c1082fb1901f56263c86276c806c903cf7f2a05194d13a2797f8f4c81b483405": {
+    "text": "{\"summary\":\"Le chiffre d'affaires a baissé de {{mv:revenue.mom@2026-05:pct}} sur le mois, et la marge brute suit la même baisse. Le mois repose aussi sur une période supposée et une alerte de contrôle V10 à lever.\",\"actions\":[{\"heading\":\"Lever l'alerte de contrôle V10 avant de tirer des conclusions\",\"because\":\"Une alerte V10 est levée pour {{p:2026-05}}, et un mois de la plage a été supposé plutôt que lu dans un fichier. Le chiffre d'affaires de {{m:revenue@2026-05}} et la marge brute de {{m:gross_profit@2026-05}} pourraient donc être incomplets ou mal rattachés.\",\"todo\":\"Demander à l'équipe finance de confirmer la source de chaque mois de la plage et de dire ce que l'alerte V10 signale. Ne pas présenter la baisse au conseil tant que ce point n'est pas réglé.\",\"urgency\":\"now\"},{\"heading\":\"Expliquer la baisse du chiffre d'affaires\",\"because\":\"Le chiffre d'affaires est passé à {{m:revenue@2026-05}}, soit une variation de {{mv:revenue.mom@2026-05:abs}} sur le mois. Les pack ne donnent pas de détail par client ni par produit, donc la cause reste inconnue.\",\"todo\":\"Demander à l'équipe commerciale la répartition du chiffre d'affaires de {{p:2026-05}} par client et par gamme, et identifier ce qui a disparu par rapport au mois précédent.\",\"urgency\":\"now\"},{\"heading\":\"Suivre la marge brute au même rythme que les coûts directs\",\"because\":\"Les coûts directs ont baissé de {{mv:direct_costs.mom@2026-05:pct}} et la marge brute de {{mv:gross_profit.mom@2026-05:pct}}, deux baisses quasi identiques. Le pack ne permet pas de voir si la marge unitaire a changé.\",\"todo\":\"Demander à l'équipe finance de calculer la marge brute par gamme pour {{p:2026-05}} afin de vérifier que la baisse vient du volume et non d'un recul des prix.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 393,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 779,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "8aff0d0db43175ceb3bc8ca1b403aa000884bd1a638b4c20151cfc9637f09d9e": {
+    "text": "{\"summary\":\"Der Umsatz ist im Berichtsmonat gegenüber dem Vormonat gesunken. Die Ursache lässt sich aus den vorliegenden Zahlen nicht erkennen, daher steht zuerst die Klärung.\",\"actions\":[{\"heading\":\"Umsatzrückgang gegenüber Vormonat klären\",\"because\":\"Umsatz aus Lieferungen und Leistungen im Monat {{p:2026-05}} betrug {{m:revenue@2026-05}}, die Veränderung zum Vormonat {{mv:revenue.mom@2026-05:abs}} entspricht {{mv:revenue.mom@2026-05:pct}}.\",\"todo\":\"Das Finanzteam soll den Rückgang nach Kunden, Produktlinien und Auftragseingang aufschlüsseln und dem Board die Hauptursache bis zur nächsten Sitzung benennen.\",\"urgency\":\"now\"},{\"heading\":\"Umsatzaufteilung im Monatsbericht ergänzen\",\"because\":\"Der Monatsbericht enthält keine Aufteilung der Umsatzwerte nach Kunden oder anderen Dimensionen, daher lässt sich nicht prüfen, ob der Rückgang einzelne Kunden betrifft.\",\"todo\":\"Das Finanzteam soll den Umsatz ab {{p:2026-05}} nach Kunden und Produktlinien ausweisen, damit künftige Veränderungen eindeutig zugeordnet werden können.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 144,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1221,
+      "output_tokens_details": {
+        "thinking_tokens": 687
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "8e9d94f9f0657e2cd631b8c3fe0dec4d2d08447e19bb239106cf62b27559af64": {
+    "text": "{\"summary\":\"A receita do mês caiu {{mv:revenue.mom@2026-05:pct}} em relação ao mês anterior, chegando a {{m:revenue@2026-05}}. O pacote não traz a causa dessa queda, por isso o primeiro passo é identificá-la.\",\"actions\":[{\"heading\":\"Identificar a causa da queda de receita\",\"because\":\"A receita de operações em {{p:2026-05}} foi de {{m:revenue@2026-05}}, uma variação de {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) em relação ao mês anterior. O pacote não traz detalhamento por cliente, produto ou região, então não é possível saber onde a queda se concentra.\",\"todo\":\"Pedir à equipe financeira a receita de {{p:2026-05}} aberta por cliente, produto e canal, comparada com o mesmo detalhe de {{p:2026-04}}, para separar perda de volume, de preço e de clientes específicos. Levar o resultado à próxima reunião do conselho.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 144,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2275,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 384,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "82c0d567e5b7d2a39e95e77a464cef3d3604c0e5445fc7f66ce71877b05ff61f": {
+    "text": "{\"summary\":\"Il fatturato di {{p:2026-05}} è sceso di {{mv:revenue.mom@2026-05:pct}} rispetto al mese precedente, a {{m:revenue@2026-05}}. I dati disponibili non spiegano la causa, quindi il primo passo è capirla.\",\"actions\":[{\"heading\":\"Individuare la causa del calo del fatturato\",\"because\":\"Il fatturato da operazioni è pari a {{m:revenue@2026-05}} in {{p:2026-05}}, con una variazione di {{mv:revenue.mom@2026-05:abs}} rispetto al mese precedente ({{mv:revenue.mom@2026-05:pct}}). Il pacchetto non contiene dettagli per cliente, prodotto o area che permettano di attribuire il calo.\",\"todo\":\"Chiedere al team finanza di scomporre il fatturato di {{p:2026-05}} per cliente, linea di prodotto e periodo di fatturazione, confrontandolo con {{p:2026-05}} e con il mese precedente, e di riferire al consiglio quali componenti spiegano il calo.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 146,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2273,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 396,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "8866a10955a69a986f6db3806d3e6a83ae2a95d2092ea16f7a9f5ec83fd40778": {
+    "text": "{\"summary\":\"Omzet daalde deze maand sterk ten opzichte van vorige maand, en de cijfers zijn niet volledig: één maand is aangenomen in plaats van ingelezen en controle V10 gaf een waarschuwing.\",\"actions\":[{\"heading\":\"Controleer de omzetdaling voordat je conclusies trekt\",\"because\":\"Omzet uit bedrijfsactiviteiten bedroeg {{m:revenue@2026-05}} in {{p:2026-05}}, een verandering van {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) ten opzichte van vorige maand. Controle V10 gaf een waarschuwing voor deze maand.\",\"todo\":\"Laat de financiële afdeling of de accountant controleren of de omzet van {{p:2026-05}} volledig is geboekt en of de waarschuwing van V10 een echte fout of een timingverschil betreft. Pas daarna de omzetcijfers aan het bestuur voor.\",\"urgency\":\"now\"},{\"heading\":\"Bevestig de aangenomen maand in de cijfers\",\"because\":\"Eén maand in de reeks is aangenomen in plaats van uit een bestand gelezen, dus de vergelijking met eerdere maanden steunt niet volledig op bronnen.\",\"todo\":\"Vraag de financiële afdeling welke maand is aangenomen en laat het bronbestand voor die maand aanleveren, zodat de vergelijking van {{p:2026-05}} met de voorgaande maand betrouwbaar wordt.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 177,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 560,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "844081df29d70eaef3c7fa4067df49d21a3a2f934e317a12974ee48a8c9e94ee": {
+    "text": "{\"summary\":\"ظهر تراجع حاد في الإيرادات خلال {{p:2026-05}} بمقدار {{mv:revenue.mom@2026-05:abs}} مقارنة بالشهر السابق، مع تحذير من الفحص V10 وشهر مفترض لم يُقرأ من ملف.\",\"actions\":[{\"heading\":\"التحقق من تراجع الإيرادات الشهري\",\"because\":\"بلغت الإيرادات {{m:revenue@2026-05}} في {{p:2026-05}} بتغير {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) عن الشهر السابق.\",\"todo\":\"يطلب المجلس من فريق المالية مراجعة قيود الإيرادات في {{p:2026-05}} للتأكد من اكتمالها وعدم وجود فواتير أو تسويات مؤجلة، قبل اعتماد أي توقع للفترة القادمة.\",\"urgency\":\"now\"},{\"heading\":\"معالجة تحذير الفحص V10\",\"because\":\"ظهر تحذير الفحص V10 لهذا الشهر، وهو ما يضعف الثقة في الأرقام المعروضة.\",\"todo\":\"يطلب المجلس من المحاسب توضيح سبب تحذير V10 وتصحيحه، ثم إعادة إصدار تقرير الإدارة لهذا الشهر.\",\"urgency\":\"now\"},{\"heading\":\"التحقق من شهر مفترض في السلسلة الزمنية\",\"because\":\"تم افتراض أحد الأشهر في النطاق بدلاً من قراءته من ملف، لذلك قد تكون المقارنات غير دقيقة.\",\"todo\":\"يطلب المجلس من فريق المالية تزويد الملف الفعلي للشهر المفترض، ومقارنة الأرقام به قبل الاعتماد على اتجاهات الإيرادات.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 177,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 685,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "9a75d922709ce52109c363116aa84166b619aadc6d22dfc03d9f6673bc0abf5e": {
+    "text": "{\"summary\":\"राजस्व इस महीने {{mv:revenue.mom@2026-05:pct}} घटकर {{m:revenue@2026-05}} पर आ गया है, इसलिए पहले यह जांचना ज़रूरी है कि गिरावट वास्तविक है या डेटा की त्रुटि।\",\"actions\":[{\"heading\":\"राजस्व में गिरावट की पुष्टि करें\",\"because\":\"राजस्व {{m:revenue@2026-05}} है और पिछले महीने की तुलना में {{mv:revenue.mom@2026-05:abs}} का बदलाव दिखाता है। {{p:2026-05}} के लिए जांच V10 में चेतावनी आई है, और एक महीना फ़ाइल से नहीं बल्कि मान कर लिया गया था।\",\"todo\":\"वित्त टीम से कहें कि {{p:2026-05}} के बिक्री आंकड़े स्रोत फ़ाइलों से मिलाएं, V10 चेतावनी का कारण पता करें, और जिस महीने का डेटा मान कर लिया गया था उसकी पुष्टि करें। यह पक्का होने तक इस गिरावट पर कोई निर्णय न लें।\",\"urgency\":\"now\"},{\"heading\":\"पिछले महीने के मुकाबले कारण खोजें\",\"because\":\"राजस्व में {{mv:revenue.mom@2026-05:pct}} की गिरावट आई है, जबकि फैक्टरों की जानकारी इस पैक में नहीं है।\",\"todo\":\"वित्त टीम से ग्राहक, उत्पाद या क्षेत्र के अनुसार बिक्री का विवरण मंगवाएं ताकि पता चले कि गिरावट कहां केंद्रित है।\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 179,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 631,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "248a1e46e9b0a57d610be2c1a9dd9b14d29eb821428fceea0c055911c6dd73f3": {
+    "text": "{\"summary\":\"This month shows healthy margins on the figures available, but the pack has no comparison period, no cash or balance-sheet data and no breakdown by customer or product, so trends and risks cannot be judged yet.\",\"actions\":[{\"heading\":\"Add prior-period comparison to the monthly pack\",\"because\":\"Revenue for {{p:2026-05}} is {{m:revenue@2026-05}} and profit after tax is {{m:pat@2026-05}}, but no earlier period or change figure is provided, so direction cannot be read.\",\"todo\":\"Ask the finance team to include the prior month and the same month last year alongside each headline figure in the next pack.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Obtain cash position and balance sheet data\",\"because\":\"The pack shows profit lines only ({{m:ebitda@2026-05}} EBITDA, {{m:pat@2026-05}} profit after tax) with no cash, debtor or creditor figures, so profit cannot be checked against cash generated.\",\"todo\":\"Ask the finance team or the bank for the closing cash balance and the receivables and payables totals for {{p:2026-05}} to add to the board pack.\",\"urgency\":\"now\"},{\"heading\":\"Confirm gross profit reconciles to revenue\",\"because\":\"Gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} is the base for every margin the board will read, and no validation warnings were raised to confirm it.\",\"todo\":\"Ask the accountant to confirm the cost of sales behind {{m:gross_profit@2026-05}} is complete before the board relies on the margin.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 154,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 555,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "0be6878b925b24c51e945bbbc9d564e484ba37931c56498887f3c0bb013906d0": {
+    "text": "{\"summary\":\"El pack solo trae cuatro cifras de {{p:2026-05}} y ninguna comparación con periodos previos ni con presupuesto. Antes de juzgar el resultado, hay que obtener esa base de comparación.\",\"actions\":[{\"heading\":\"Obtener comparación con periodos anteriores y presupuesto\",\"because\":\"Este mes los ingresos son {{m:revenue@2026-05}} y la utilidad neta {{m:pat@2026-05}}, pero el pack no trae periodos previos ni presupuesto para saber si son una mejora o un deterioro.\",\"todo\":\"Pedir al equipo financiero las mismas cuatro cifras de {{p:2026-05}} frente a los meses anteriores y al presupuesto aprobado, y llevar esa comparación al próximo consejo.\",\"urgency\":\"now\"},{\"heading\":\"Conciliar la utilidad bruta con el resultado neto\",\"because\":\"La utilidad bruta es {{m:gross_profit@2026-05}}, el EBITDA {{m:ebitda@2026-05}} y la utilidad neta {{m:pat@2026-05}}. El pack no muestra qué gastos separan estas cifras.\",\"todo\":\"Pedir al contador un puente de la utilidad bruta al resultado neto, con los gastos operativos, la depreciación, los intereses y los impuestos, antes de presentar la cifra al consejo.\",\"urgency\":\"now\"},{\"heading\":\"Ver la concentración del ingreso por cliente\",\"because\":\"El pack no tiene apertura por cliente ni por línea de negocio, así que no se sabe qué parte del ingreso de {{m:revenue@2026-05}} depende de pocos clientes.\",\"todo\":\"Pedir al equipo comercial o de finanzas el ingreso de {{p:2026-05}} por cliente principal y por línea, y revisar si alguno pesa demasiado.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 150,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1415,
+      "output_tokens_details": {
+        "thinking_tokens": 757
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "af8f07dc3fe384b796fd62db2bdbee13fe4a77b35d91700da82b7223800269ae": {
+    "text": "{\"summary\":\"Le pack ne contient qu'un seul mois, sans comparatif ni répartition. Le résultat de {{p:2026-05}} ne peut donc pas être jugé par rapport à la tendance ni au budget.\",\"actions\":[{\"heading\":\"Compléter le pack avec les périodes précédentes et le budget\",\"because\":\"Le pack ne donne que le chiffre d'affaires {{m:revenue@2026-05}}, le bénéfice brut {{m:gross_profit@2026-05}}, l'EBITDA {{m:ebitda@2026-05}} et le résultat net {{m:pat@2026-05}} pour {{p:2026-05}}, sans aucune comparaison.\",\"todo\":\"Demander à l'équipe finance de joindre les mêmes indicateurs pour les périodes précédentes et pour le budget, afin de dire si ce résultat est en hausse ou en baisse.\",\"urgency\":\"now\"},{\"heading\":\"Expliquer l'écart entre EBITDA et résultat net\",\"because\":\"L'EBITDA {{m:ebitda@2026-05}} aboutit à un résultat net {{m:pat@2026-05}} pour {{p:2026-05}}, et le pack ne détaille pas les charges situées entre ces deux lignes.\",\"todo\":\"Demander à l'équipe finance la liste des charges entre l'EBITDA et le résultat net (amortissements, charges financières, impôt) pour ce mois, et la faire relire par le conseil.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 152,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1321,
+      "output_tokens_details": {
+        "thinking_tokens": 802
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "c7dffd2f66d0dab334a36eb7496fe8f66f981a16e6bb58639f67a40f1ed24d01": {
+    "text": "{\"summary\":\"Dieser Monat hängt davon ab, ob die Zahlen belastbar sind: Die Prüfung V10 hat eine Warnung ausgelöst, und ein Monat im Zeitraum wurde angenommen statt aus einer Datei gelesen.\",\"actions\":[{\"heading\":\"Warnung V10 vor der Weitergabe klären\",\"because\":\"Für {{p:2026-05}} hat die Prüfung V10 eine Warnung ausgelöst. Die Umsatzerlöse liegen bei {{m:revenue@2026-05}}, das Ergebnis nach Steuern bei {{m:pat@2026-05}}.\",\"todo\":\"Das Finanzteam soll klären, was V10 meldet, und die Kennzahlen des Monats erst an den Vorstand weitergeben, wenn die Ursache geschlossen ist.\",\"urgency\":\"now\"},{\"heading\":\"Angenommenen Monat mit der Quelldatei abgleichen\",\"because\":\"Ein Monat im Zeitraum wurde angenommen statt aus einer Datei gelesen. Es ist nicht sicher, ob {{p:2026-05}} vollständig und richtig übernommen wurde.\",\"todo\":\"Das Finanzteam soll den Monat mit der Quelldatei abgleichen und die Auswertung danach neu erstellen lassen.\",\"urgency\":\"now\"},{\"heading\":\"Aufteilung der Ergebnisse nach Kunden oder Bereichen schaffen\",\"because\":\"Vom Rohertrag {{m:gross_profit@2026-05}} über das EBITDA {{m:ebitda@2026-05}} bis zum Ergebnis nach Steuern {{m:pat@2026-05}} ist in dieser Auswertung keine Aufteilung nach Kunden oder Bereichen enthalten.\",\"todo\":\"Das Finanzteam soll eine Aufteilung nach Kunden oder Bereichen bereitstellen, damit der Vorstand sieht, woher Gewinn und Verlust kommen, bevor der nächste Monat berichtet wird.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 187,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1684,
+      "output_tokens_details": {
+        "thinking_tokens": 955
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "7896b2f8a43e8e272f0a3d663fdee6307aceb131e64a392d336300b1562bcd4d": {
+    "text": "{\"summary\":\"Este mês mostra receita e lucro fortes, mas a base de dados está incompleta: o aviso da verificação V10 e um mês assumido precisam ser resolvidos antes de confiar nos números.\",\"actions\":[{\"heading\":\"Resolver o aviso da verificação V10 neste mês\",\"because\":\"A verificação V10 gerou um aviso para {{p:2026-05}}, e a receita de {{m:revenue@2026-05}} com lucro após impostos de {{m:pat@2026-05}} depende desse fechamento.\",\"todo\":\"Pedir à equipe financeira ou ao contador que explique o motivo do aviso V10 e confirme se os valores de receita, lucro bruto, EBITDA e lucro após impostos estão corretos antes da reunião do conselho.\",\"urgency\":\"now\"},{\"heading\":\"Confirmar o mês assumido no intervalo\",\"because\":\"Um dos meses do intervalo foi assumido em vez de lido de um arquivo, portanto os números de referência podem não refletir a realidade.\",\"todo\":\"Pedir à equipe financeira que localize o arquivo do mês assumido e substitua a estimativa pelos dados reais, refazendo as comparações mensais.\",\"urgency\":\"now\"},{\"heading\":\"Acompanhar a margem entre receita e EBITDA\",\"because\":\"O EBITDA de {{m:ebitda@2026-05}} e o lucro bruto de {{m:gross_profit@2026-05}} sobre a receita de {{m:revenue@2026-05}} indicam a margem atual, que vale acompanhar até que os dados estejam validados.\",\"todo\":\"Incluir a margem bruta e a margem de EBITDA no próximo relatório mensal, comparando com meses anteriores assim que os dados estiverem completos.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 183,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2275,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 620,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "870c21ac9125defba8890cb4f4a1951ae88285eccf97530a1ffebd08f9a605f2": {
+    "text": "{\"summary\":\"Il mese di {{p:2026-05}} mostra una redditività molto alta sui ricavi di {{m:revenue@2026-05}}, ma il controllo V10 è segnalato e un mese del periodo è stato assunto anziché letto da file: prima di decidere occorre verificare i dati.\",\"actions\":[{\"heading\":\"Verificare la segnalazione di controllo V10\",\"because\":\"Il controllo V10 ha segnalato un avviso per questo mese, mentre il margine lordo è di {{m:gross_profit@2026-05}} su ricavi di {{m:revenue@2026-05}} e l'EBITDA è di {{m:ebitda@2026-05}}.\",\"todo\":\"Chiedere alla squadra finanziaria o al commercialista di spiegare cosa ha fatto scattare V10 e confermare che i ricavi e i costi di questo mese siano completi prima che il consiglio usi questi numeri.\",\"urgency\":\"now\"},{\"heading\":\"Confermare il mese assunto nel periodo\",\"because\":\"Un mese dell'intervallo è stato assunto anziché letto da un file, quindi il periodo presentato non è interamente basato su documenti.\",\"todo\":\"Far caricare o verificare il file mancante per {{p:2026-05}} e confrontare i totali con quelli assunti prima della prossima riunione del consiglio.\",\"urgency\":\"now\"},{\"heading\":\"Capire la differenza tra EBITDA e utile netto\",\"because\":\"L'EBITDA è di {{m:ebitda@2026-05}} mentre l'utile dopo le imposte è di {{m:pat@2026-05}}, quindi ammortamenti, interessi e imposte assorbono una quota rilevante del risultato.\",\"todo\":\"Chiedere alla squadra finanziaria un prospetto che mostri ammortamenti, interessi e imposte di questo mese, così il consiglio può vedere cosa separa il dato operativo dall'utile finale.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 185,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2273,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 680,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "806e7a1e8e2c6ed69dbe7674d642b4ee6328789327969fc3fdf7bcde5ffbbeef": {
+    "text": "{\"summary\":\"De maand laat een omzet en brutowinst zien, maar het materiaal bevat geen eerdere periode en geen kostenopbouw. Daardoor is niet vast te stellen of de marge afwijkt, dus eerst die vergelijking maken.\",\"actions\":[{\"heading\":\"Bruto-marge tegen eerdere maanden toetsen\",\"because\":\"Omzet was {{m:revenue@2026-05}} en brutowinst {{m:gross_profit@2026-05}} in {{p:2026-05}}. Het materiaal bevat geen eerdere periode, dus het is niet te zien of deze marge normaal is.\",\"todo\":\"Laat het financiële team de omzet en brutowinst van de voorgaande maanden aanleveren en naast {{p:2026-05}} leggen. Pas daarna is duidelijk of de marge verandert en of de board actie moet ondernemen.\",\"urgency\":\"now\"},{\"heading\":\"Kostprijs van de omzet uitsplitsen\",\"because\":\"Het verschil tussen omzet en brutowinst is de kostprijs van de omzet, maar de onderdelen daarvan staan niet in het materiaal. Zonder die uitsplitsing is niet te zeggen waar eventuele druk zit.\",\"todo\":\"Vraag de accountant om de kostprijs van {{p:2026-05}} per hoofdonderdeel, en vergelijk die met de voorgaande maanden.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 97,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1156,
+      "output_tokens_details": {
+        "thinking_tokens": 653
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "581517fbf05b7e590ee01fb5d9956f21817391263e43a2c2dfbc63e24dfeb105": {
+    "text": "{\"summary\":\"الشهر يبدو سليماً من حيث هامش الربح الإجمالي، لكن البيانات المتاحة محدودة جداً ولا تكفي لتحديد إجراءات دقيقة.\",\"actions\":[{\"heading\":\"استكمال بيانات الشهر قبل اتخاذ قرار\",\"because\":\"تظهر الحزمة الإيرادات من العمليات {{m:revenue@2026-05}} والربح الإجمالي {{m:gross_profit@2026-05}} فقط، دون تفصيل للتكاليف أو العملاء أو الفترات السابقة للمقارنة.\",\"todo\":\"يطلب المجلس من فريق المالية إرسال تفصيل تكلفة البضاعة والمصروفات التشغيلية وإيرادات الفترة السابقة، ثم تعاد مراجعة هذه الحزمة الشهرية.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 95,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 320,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "fff437180e7a7ab9ddd7bc0c546195540f41b5bb5aaedb2a0175cbbf6c28aa87": {
+    "text": "{\"summary\":\"इस महीने के आंकड़े सिर्फ़ कुल राजस्व और सकल लाभ दिखाते हैं। {{m:revenue@2026-05}} राजस्व और {{m:gross_profit@2026-05}} सकल लाभ, {{p:2026-05}} के लिए। इससे रुझान या कारण पता नहीं चलता।\",\"actions\":[{\"heading\":\"पिछले महीनों के साथ तुलना\",\"because\":\"पैक में केवल {{p:2026-05}} का राजस्व {{m:revenue@2026-05}} और सकल लाभ {{m:gross_profit@2026-05}} है, कोई पिछला महीना नहीं।\",\"todo\":\"लेखा टीम से पिछले महीनों के वही दो आंकड़े मंगवाएं ताकि बदलाव देखा जा सके और बोर्ड को तुलना दिखाई जा सके।\",\"urgency\":\"now\"},{\"heading\":\"बिक्री की लागत का विवरण\",\"because\":\"राजस्व और सकल लाभ के बीच का अंतर बिक्री की लागत है, पर उसकी मदें इस पैक में नहीं हैं।\",\"todo\":\"वित्त टीम से बिक्री की लागत को सामग्री, श्रम और अन्य मदों में बांटकर अगली बैठक में रखने को कहें।\",\"urgency\":\"this_quarter\"},{\"heading\":\"ग्राहक या उत्पाद के अनुसार विभाजन\",\"because\":\"इस पैक में ग्राहक या उत्पाद के हिसाब से कोई विभाजन नहीं है, इसलिए पता नहीं कौन सा हिस्सा लाभ दे रहा है।\",\"todo\":\"लेखा टीम से ग्राहक या उत्पाद के अनुसार राजस्व और लाभ का विवरण मंगवाएं, और तब तक इसे जानकारी की कमी मानें।\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 97,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1600,
+      "output_tokens_details": {
+        "thinking_tokens": 921
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "11caef35845b63cc6452f9deb0b07747597a3e06427c29d0212af115883cd907": {
+    "text": "{\"summary\":\"This month's books show revenue and gross profit only, with no comparison period and no cost detail. The main job is to confirm what check V10 flagged and to fill the missing months before judging trend.\",\"actions\":[{\"heading\":\"Clear the V10 validation warning before using this month's figures\",\"because\":\"Check V10 raised a warning for {{p:2026-05}}, and one month in the range was assumed rather than read from a file, so the figures may not match the source records.\",\"todo\":\"Ask the finance team to explain what V10 tests and to confirm {{m:revenue@2026-05}} and {{m:gross_profit@2026-05}} against the sales ledger, and to supply the file for any month that was assumed.\",\"urgency\":\"now\"},{\"heading\":\"Obtain prior-period comparatives for revenue and gross profit\",\"because\":\"The pack holds only one period, {{p:2026-05}}, with revenue of {{m:revenue@2026-05}} and gross profit of {{m:gross_profit@2026-05}}, so no change can be judged from it.\",\"todo\":\"Ask the finance team to add the preceding months to the next MIS so the board can see whether revenue and gross profit are moving.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 130,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 401,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "96ca9dbaa68a91cd0d08bc3b24dce19154b690679ddef7443fb0f48e6eef7878": {
+    "text": "{\"summary\":\"El mes de {{p:2026-05}} muestra ingresos de {{m:revenue@2026-05}} y utilidad bruta de {{m:gross_profit@2026-05}}, pero la advertencia V10 y un mes asumido impiden confiar plenamente en estas cifras.\",\"actions\":[{\"heading\":\"Confirmar la validez de las cifras de {{p:2026-05}}\",\"because\":\"La validación V10 emitió una advertencia para este mes y uno de los meses del rango fue asumido y no leído de un archivo. Los ingresos son {{m:revenue@2026-05}} y la utilidad bruta es {{m:gross_profit@2026-05}}.\",\"todo\":\"Pedir al equipo de finanzas que revise la advertencia V10 y confirme con el archivo original el mes que fue asumido, antes de que el consejo tome decisiones basadas en estas cifras.\",\"urgency\":\"now\"},{\"heading\":\"Explicar la brecha entre ingresos y utilidad bruta\",\"because\":\"Los ingresos fueron {{m:revenue@2026-05}} y la utilidad bruta {{m:gross_profit@2026-05}}, lo que indica el costo directo del mes; el pack no incluye el detalle de costos.\",\"todo\":\"Solicitar al equipo de finanzas el desglose del costo de ventas de {{p:2026-05}} para confirmar que la relación entre ingresos y utilidad bruta es la esperada.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 128,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 511,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "66fe71f08b8b20fd450a665375ac6cc9130b881b31d80e2896c7a62912081ce1": {
+    "text": "{\"summary\":\"Ce mois dépend d'abord de la fiabilité des données : un avertissement de contrôle et un mois supposé doivent être levés avant de se fier aux chiffres présentés.\",\"actions\":[{\"heading\":\"Lever l'avertissement V10 et le mois supposé\",\"because\":\"Le contrôle V10 a signalé un avertissement pour {{p:2026-05}}, et un mois de la plage a été supposé plutôt que lu depuis un fichier.\",\"todo\":\"Demander à l'équipe finance de confirmer les données de {{p:2026-05}}, de corriger l'avertissement ou de documenter le mois supposé avant de valider le rapport.\",\"urgency\":\"now\"},{\"heading\":\"Confirmer la marge brute avant diffusion\",\"because\":\"Le chiffre d'affaires de {{m:revenue@2026-05}} et la marge brute de {{m:gross_profit@2026-05}} ne peuvent être repris qu'une fois le mois vérifié.\",\"todo\":\"Faire rapprocher la marge brute avec le grand livre par l'équipe comptable, puis présenter le chiffre corrigé au conseil.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Obtenir une ventilation par client\",\"because\":\"Aucune dimension n'est fournie, donc le rapport ne montre pas quelle part du chiffre d'affaires provient de chaque client ou activité.\",\"todo\":\"Demander à la comptabilité une ventilation du chiffre d'affaires par client ou par activité pour le prochain rapport mensuel.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 130,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1237,
+      "output_tokens_details": {
+        "thinking_tokens": 697
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "5c773496f43c878d76e2c7cce8f9c849f15db2dff47b013c40ab3fc442498079": {
+    "text": "{\"summary\":\"Die Zahlen für {{p:2026-05}} sind dünn: nur der Umsatz liegt vor. Ohne Kosten, Ergebnis und Liquidität lässt sich kaum entscheiden, was zu tun ist.\",\"actions\":[{\"heading\":\"Vollständige Monatsdaten nachreichen\",\"because\":\"Im Pack steht nur {{m:revenue@2026-05}} Umsatz aus Lieferungen und Leistungen für {{p:2026-05}}. Kosten, Ergebnis und Kassenbestand fehlen völlig.\",\"todo\":\"Die Buchhaltung bzw. das Finanzteam bitten, die Gewinn- und Verlustrechnung und den Kassenbestand für {{p:2026-05}} zu liefern, bevor der Vorstand über Maßnahmen entscheidet.\",\"urgency\":\"now\"},{\"heading\":\"Umsatz gegen Vormonat und Plan prüfen\",\"because\":\"Es gibt nur einen Umsatzwert, {{m:revenue@2026-05}}, und keine Vergleichswerte aus früheren Perioden oder einem Budget.\",\"todo\":\"Das Finanzteam soll den Umsatz neben Vorperioden und Planwerten stellen, damit sichtbar wird, ob {{m:revenue@2026-05}} eine Veränderung ist.\",\"urgency\":\"this_quarter\"},{\"heading\":\"Datenaufbau auf Aufteilungen prüfen\",\"because\":\"Im Pack sind keine Dimensionswerte wie Kunden oder Produktlinien hinterlegt, und es gibt keine Prüfhinweise für {{p:2026-05}}.\",\"todo\":\"Die Buchhaltung fragen, ob der Umsatz nach Kunden oder Produktlinien aufgeteilt werden kann, um Konzentrationsrisiken zu erkennen.\",\"urgency\":\"watch\"}]}",
+    "usage": {
+      "input_tokens": 67,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 662,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "e028d09e2ab31dde165d5e8ec5ba86a05e54bf813e7d31641db531384ca5ab30": {
+    "text": "{\"summary\":\"Os dados de maio trazem uma única receita informada, sem comparação com meses anteriores nem detalhamento por cliente ou linha de negócio. Com tão pouca informação, a principal ação é completar o pacote antes de decidir.\",\"actions\":[{\"heading\":\"Completar o pacote mensal de maio\",\"because\":\"A receita de operações deste mês está em {{m:revenue@2026-05}}, mas o pacote não traz comparação com outros períodos, nem divisão por cliente ou linha de negócio, nem alertas de validação.\",\"todo\":\"Pedir à equipe financeira o resultado de {{p:2026-05}} com comparação com os meses anteriores e a divisão da receita por cliente e por linha de negócio, antes da próxima reunião da diretoria.\",\"urgency\":\"now\"},{\"heading\":\"Confirmar a base da receita de maio\",\"because\":\"A receita de {{p:2026-05}} aparece como {{m:revenue@2026-05}} sem qualquer verificação de validação registrada no mês.\",\"todo\":\"Pedir à equipe financeira que confirme que o valor reflete todas as faturas e reconhecimentos do mês e que não há lançamentos pendentes ou estornos ainda não registrados.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 66,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2275,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 435,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "7f30a45372ecca3e87da500399d68db2425abbfe9f71b6162096a08657e01a6a": {
+    "text": "{\"summary\":\"Il mese si legge da un solo dato: il fatturato di {{p:2026-05}} è {{m:revenue@2026-05}}, ma non ci sono confronti, dettagli per cliente o avvisi di controllo sufficienti per decidere un'azione concreta.\",\"actions\":[{\"heading\":\"Completare il quadro prima di decidere\",\"because\":\"Il pacchetto contiene solo il fatturato del periodo {{p:2026-05}}, pari a {{m:revenue@2026-05}}, senza variazioni, margini, costi o suddivisioni per cliente.\",\"todo\":\"Chiedere alla squadra finanziaria di fornire il confronto con il mese precedente e con lo stesso mese dell'anno scorso, insieme a margine e costi, così da poter valutare se il fatturato richiede un intervento.\",\"urgency\":\"now\"}]}",
+    "usage": {
+      "input_tokens": 68,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2273,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 296,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "75d6adc9395fe6db5a49286e24a6e4f77ea463429001409d3823de08341cec63": {
+    "text": "{\"summary\":\"Het beeld van deze maand rust op één omzetcijfer en een controle die een waarschuwing gaf; de maand is deels aangenomen, dus eerst de cijfers bevestigen.\",\"actions\":[{\"heading\":\"Controleer de waarschuwing V10 voordat het cijfer wordt gebruikt\",\"because\":\"Controle V10 gaf een waarschuwing voor {{p:2026-05}}, en één maand in het bereik is aangenomen in plaats van uit een bestand gelezen. De omzet van {{m:revenue@2026-05}} kan daardoor onvolledig of onjuist zijn.\",\"todo\":\"Laat het financiële team de oorzaak van waarschuwing V10 nagaan en bevestigen of de maand {{p:2026-05}} volledig uit de boeken is ingelezen. Pas daarna het bestuur de cijfers voor deze maand laten beoordelen.\",\"urgency\":\"now\"},{\"heading\":\"Bevestig de omzet tegen de bankgegevens en de facturen\",\"because\":\"De omzet van deze maand bedraagt {{m:revenue@2026-05}}, maar er staan in het pakket geen klant- of onderdeelsplitsingen die dit cijfer onderbouwen.\",\"todo\":\"Laat het financiële team de omzet van {{p:2026-05}} afstemmen op de verkoopfacturen en de ontvangsten op de bankrekening, en meld eventuele verschillen aan het bestuur.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 100,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 522,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "833449dd6f3e3fd1bbe4141e1492f6572d419ad389f43809427861f3480f7022": {
+    "text": "{\"summary\":\"الإيرادات الشهرية مسجلة، لكن تحذير التحقق V10 قائم وأحد الأشهر في النطاق افتُرض ولم يُقرأ من ملف، لذا يجب التحقق من الأرقام قبل الاعتماد عليها.\",\"actions\":[{\"heading\":\"التحقق من تحذير V10 قبل اعتماد الإيرادات\",\"because\":\"الإيرادات لهذا الشهر {{m:revenue@2026-05}} للفترة {{p:2026-05}}، وتحذير التحقق V10 مفعّل لهذا الشهر، وشهر في النطاق افتُرض ولم يُقرأ من ملف.\",\"todo\":\"يطلب المجلس من فريق المالية مراجعة سبب تحذير V10 ومطابقة الشهر المفترض مع الملف الفعلي، ثم إعادة إصدار حزمة الإدارة قبل اتخاذ أي قرار مبني على هذا الرقم.\",\"urgency\":\"now\"},{\"heading\":\"توفير ملف الشهر الناقص\",\"because\":\"أحد الأشهر في النطاق لم يُقرأ من ملف بل افتُرض، وهذا يحد من موثوقية المقارنات الزمنية.\",\"todo\":\"يطلب المجلس من فريق المالية تزويد الملف الفعلي لذلك الشهر، وتأكيد أنه يطابق القيم المستخدمة في التقرير.\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 99,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 522,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  },
+  "7022e33261585aef9f4243a046b91cd0d71911d5f9cce293a047f33b78a21c45": {
+    "text": "{\"summary\":\"{{m:revenue@2026-05}} में {{p:2026-05}} का राजस्व दर्ज है, पर V10 चेतावनी और एक अनुमानित महीने के कारण इस आंकड़े की पुष्टि पहले ज़रूरी है।\",\"actions\":[{\"heading\":\"V10 चेतावनी और अनुमानित महीने की पुष्टि\",\"because\":\"{{p:2026-05}} के लिए V10 जाँच में चेतावनी आई है, और इस सीमा में एक महीना फ़ाइल से पढ़ने के बजाय अनुमानित रखा गया था। राजस्व {{m:revenue@2026-05}} इसी पर टिका है।\",\"todo\":\"वित्त टीम से कहें कि {{p:2026-05}} का स्रोत बही या बिक्री रिपोर्ट से मिलाए और V10 चेतावनी का कारण बताए। जब तक यह पुष्टि न हो, इस राजस्व आंकड़े को बोर्ड में अंतिम न मानें।\",\"urgency\":\"now\"},{\"heading\":\"मासिक फ़ाइलों की पूरी सूची जुटाना\",\"because\":\"पैक में केवल एक राजस्व तथ्य और कोई आयाम मान नहीं हैं, इसलिए ग्राहक, उत्पाद या क्षेत्र के अनुसार विश्लेषण संभव नहीं है।\",\"todo\":\"अकाउंटिंग प्रणाली से {{p:2026-05}} की विस्तृत बिक्री और खर्च रिपोर्ट मँगवाएँ, ताकि अगले महीने की रिपोर्ट में आयाम और तुलना शामिल हो सके।\",\"urgency\":\"this_quarter\"}]}",
+    "usage": {
+      "input_tokens": 101,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2274,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 615,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-haiku-5-5"
+  }
+}

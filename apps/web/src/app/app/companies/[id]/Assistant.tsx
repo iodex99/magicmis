@@ -16,6 +16,7 @@ import type { MetricValue } from "@magicmis/engine";
 import {
   companyFormat,
   formatValue,
+  parseMetricKey,
   renderAnswer,
   type AnswerQuery,
   type AnswerSegment,
@@ -265,6 +266,43 @@ export function Assistant({
     Record<string, { target: string; blueprintVersion: number; undone: boolean }>
   >({});
   const [copied, setCopied] = useState<string | null>(null);
+  // An answer kept on the board (ADR 0087): pinning, pinned, or why it could not be.
+  const [pins, setPins] = useState<Record<string, "pinning" | "pinned" | "failed">>({});
+
+  /**
+   * Keeps an answer's figures on the board as a box of their own: each one this month against
+   * last month, every figure still opening its lineage. It is the board's own "add a box" — no
+   * model, no charge, a new version Undo takes back — so it is offered only where the answer
+   * cites the engine's figures, never a Deep query's cells.
+   */
+  const pin = async (messageId: string, metricIds: readonly string[]) => {
+    if (dashboardVersion === null || metricIds.length === 0) return;
+    setPins((x) => ({ ...x, [messageId]: "pinning" }));
+    const names = metricIds.slice(0, 3).map((id) => format.label(id));
+    const title = (
+      metricIds.length > 3 ? `${names.join(", ")} and more` : names.join(", ")
+    ).slice(0, 80);
+    const widget = {
+      id: `pin_${messageId.replace(/[^a-z0-9]/gu, "").slice(0, 12)}`,
+      kind: "comparison",
+      title,
+      metrics: metricIds.slice(0, 8),
+      dimension: null,
+      periods: { kind: "current" },
+      layout: { x: 0, y: 99, w: 6, h: 3 },
+      compare: "previous_month",
+    };
+    const r = await api(`/api/companies/${companyId}/dashboard`, {
+      body: {
+        action: "apply",
+        baseVersion: dashboardVersion,
+        operations: [{ op: "add", path: "/widgets/-", value: widget }],
+      },
+      idempotencyKey: newIdempotencyKey(),
+    });
+    setPins((x) => ({ ...x, [messageId]: r.ok ? "pinned" : "failed" }));
+    if (r.ok) onLayoutChanged();
+  };
   /** The question just asked, shown before the server has anything to say about it. */
   const [asking, setAsking] = useState<string | null>(null);
   const [waited, setWaited] = useState(0);
@@ -967,6 +1005,44 @@ export function Assistant({
                         <Icon name="document" size={11} />
                         {copied === m.id ? "Copied" : "Copy"}
                       </button>
+                      {(() => {
+                        // The engine's figures the answer cites, once each by metric.
+                        const metricIds = [
+                          ...new Set(
+                            rendered.paragraphs.flatMap((para) =>
+                              para.flatMap((seg) =>
+                                seg.kind === "value" && seg.metricKey !== null
+                                  ? // The figure, without its month, split or comparison.
+                                    [
+                                      parseMetricKey(seg.metricKey).metricId.split(
+                                        ".",
+                                      )[0] ?? "",
+                                    ]
+                                  : [],
+                              ),
+                            ),
+                          ),
+                        ].filter((id) => id !== "");
+                        if (metricIds.length === 0 || dashboardVersion === null)
+                          return null;
+                        const state = pins[m.id];
+                        return (
+                          <button
+                            type="button"
+                            disabled={state === "pinning" || state === "pinned"}
+                            className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[0.6875rem] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:hover:bg-transparent"
+                            onClick={() => void pin(m.id, metricIds)}
+                            data-testid="chat-pin"
+                          >
+                            <Icon name="plus" size={11} />
+                            {state === "pinned"
+                              ? "On the board"
+                              : state === "failed"
+                                ? "Could not pin; try again"
+                                : "Pin to board"}
+                          </button>
+                        );
+                      })()}
                       {followUps(m).map((q) => (
                         <button
                           key={q}

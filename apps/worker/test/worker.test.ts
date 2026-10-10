@@ -12,7 +12,7 @@ import { deliverNotifications } from "../src/deliver";
 import { loadWorkerEnv } from "../src/env";
 import type { MailSender, OutboundEmail, SendResult } from "../src/mail";
 import { MAINTENANCE_TASKS } from "../src/tasks";
-import { renderNotification, TEMPLATE_TYPES } from "../src/templates";
+import { renderNotification, TEMPLATE_TYPES } from "@magicmis/jobs";
 
 let db: TestDb | undefined;
 beforeAll(async () => {
@@ -206,6 +206,10 @@ describe("templates", () => {
         "account.export_ready",
         { export_id: randomUUID(), expires_at: "2027-02-01T00:00:00Z" },
       ],
+      [
+        "alerts.fired",
+        { company_id: randomUUID(), company_name: "<b>Acme</b>", count: 2 },
+      ],
       ["security.email_changed", {}],
       ["invoice_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
       ["proforma_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
@@ -247,6 +251,14 @@ describe("templates", () => {
       renderNotification("security.new_device_login", types[0]?.[1], CTX)?.html ?? "";
     expect(html).not.toContain("<script>");
     expect(html).toContain("&lt;script&gt;");
+    // An alert notice names how many fired and the company, escaped, and no figure (ADR 0087).
+    const alerts = renderNotification(
+      "alerts.fired",
+      { company_id: randomUUID(), company_name: "<b>Acme</b>", count: 2 },
+      CTX,
+    );
+    expect(alerts?.html).not.toContain("<b>Acme</b>");
+    expect(alerts?.subject).toContain("2 alerts");
     expect(
       renderNotification("invoice_issued", { invoiceId: "not-a-uuid" }, CTX),
     ).toBeNull();

@@ -1,6 +1,11 @@
 "use client";
 
-import { currencySymbol } from "@magicmis/core/reporting-conventions";
+import {
+  COMMENTARY_LANGUAGES,
+  currencySymbol,
+  STATUTORY_FORMATS,
+  type StatutoryFormat,
+} from "@magicmis/core/reporting-conventions";
 import { formatValue } from "@magicmis/render-dashboard";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
@@ -48,6 +53,8 @@ export interface Conventions {
   currency: string;
   numberFormat: "lakhs_crores" | "absolute" | "millions";
   dateOrder: "day_first" | "month_first";
+  commentaryLanguage: string;
+  statutoryFormat: StatutoryFormat;
 }
 
 /**
@@ -75,7 +82,9 @@ export function ReportingConventions({
     form.fyStartMonth !== current.fyStartMonth ||
     form.currency !== current.currency ||
     form.numberFormat !== current.numberFormat ||
-    form.dateOrder !== current.dateOrder;
+    form.dateOrder !== current.dateOrder ||
+    form.commentaryLanguage !== current.commentaryLanguage ||
+    form.statutoryFormat !== current.statutoryFormat;
 
   const save = async () => {
     setBusy(true);
@@ -110,7 +119,7 @@ export function ReportingConventions({
 
   return (
     <div className="flex flex-col gap-4" data-testid="reporting-conventions">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <Setting
           icon="clock"
           example={`Your year runs ${startsIn} to ${endsIn}.`}
@@ -197,6 +206,51 @@ export function ReportingConventions({
           >
             <option value="day_first">Day first</option>
             <option value="month_first">Month first</option>
+          </SelectField>
+        </Setting>
+        <Setting
+          icon="chat"
+          example="Commentary and where to act are written in it. The figures are the same in every language."
+        >
+          <SelectField
+            id="conventions-language"
+            label="Commentary written in"
+            value={form.commentaryLanguage}
+            onChange={(e) => {
+              setForm((f) => ({ ...f, commentaryLanguage: e.target.value }));
+            }}
+          >
+            {COMMENTARY_LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.name}
+              </option>
+            ))}
+          </SelectField>
+        </Setting>
+        <Setting
+          icon="document"
+          example={
+            form.statutoryFormat === "none"
+              ? "The workbook carries the MIS sheets only."
+              : "The workbook adds a balance sheet and profit and loss in this layout, from the same figures."
+          }
+        >
+          <SelectField
+            id="conventions-statutory"
+            label="Statutory layout"
+            value={form.statutoryFormat}
+            onChange={(e) => {
+              setForm((f) => ({
+                ...f,
+                statutoryFormat: e.target.value as StatutoryFormat,
+              }));
+            }}
+          >
+            {STATUTORY_FORMATS.map((f) => (
+              <option key={f.code} value={f.code}>
+                {f.name}
+              </option>
+            ))}
           </SelectField>
         </Setting>
       </div>

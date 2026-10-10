@@ -1,0 +1,1142 @@
+{
+  "6017e1d35c8dcb8e748eaffdae1b87fe50c5dc929ef9f6eb0526ebd8cb53f214": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Revenue from operations stood at {{m:revenue@2026-05}} for {{p:2026-05}}, an increase of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) compared to the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1744,
+      "cache_creation_input_tokens": 1194,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 1194,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 120,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "ec5027fd2e6b7c6796261317df634a743d0705c608e02215bdb54cb60f69b375": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Profit after tax increased in {{p:2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) on the prior month to {{m:pat@2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 48,
+      "cache_read_input_tokens": 1151,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 48,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 111,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "5127e5e41d72190970095ae0b9424f78fbf62278de4cdbd3290e8e6832364002": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}} for {{p:2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) on the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1710,
+      "cache_creation_input_tokens": 43,
+      "cache_read_input_tokens": 1151,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 43,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 114,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "0d185082efad86d4343e560b55e87a9a8186fbdd3d35ff9a928b6c7e7bd86154": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here do not include an inventory turnover ratio. We have inventory and direct costs for {{p:2026-05}} ({{m:inventory@2026-05}} and {{m:direct_costs@2026-05}} respectively), but turnover itself is not computed in this pack. A Deep question could calculate this from the ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1745,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 135,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "76d930cbee7fe21e0ab552528014b90659c742c8a96327d003309d30c7b05e8e": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Gross margin stood at {{m:gross_margin_pct@2026-05}} for {{p:2026-05}}, an increase of {{mv:gross_margin_pct.mom@2026-05:pct}} compared with the prior month, indicating an improvement in gross margin.\"}]}",
+    "usage": {
+      "input_tokens": 1711,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 181,
+      "output_tokens_details": {
+        "thinking_tokens": 64
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a4ea25dab51835901fc8efe53525849488f913c82aaa1622debd5185a47a688c": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The data for {{p:2026-05}} actually shows EBITDA increasing rather than falling, from the prior month by {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), reaching {{m:ebitda@2026-05}}.\"},{\"text\":\"This was driven by higher revenue of {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}), alongside increases in direct costs, employee cost and other operating expenses.\"},{\"text\":\"If you were expecting a decline, it may help to check a specific driver or run a Deep question for a detailed breakdown of cost movements behind this figure.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 308,
+      "output_tokens_details": {
+        "thinking_tokens": 25
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "44fcce17a0fb172b503f17a3a6c585912d5214811b62765646c4eed1ddae9200": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Cash and bank stood at {{m:cash_and_bank@2026-05}} for {{p:2026-05}}, an increase of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) over the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1746,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 129,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a5650fc6ddcccf3cff860a7901a6559b2a00353b051862fc7b1421f728bf5a0e": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Trade payables stood at {{m:payables@2026-05}} in {{p:2026-05}}, up by {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) compared to the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 113,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "2d2f81b8492b9b9d7313c4aed3763075408f580e2a36b437f562a7bb3d54867b": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Gross profit rose by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) in {{p:2026-05}}, from a {{mv:revenue.mom@2026-05:abs}} increase in revenue, partly offset by a {{mv:direct_costs.mom@2026-05:abs}} rise in direct costs.\"},{\"text\":\"The facts here do not break down the drivers within direct costs or revenue in further detail; a Deep question could look into the underlying ledgers for more granularity.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 217,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "732487cb42713b38f4d2b76421e3850a68a2f012fd57c669c4f2f79f320d23ae": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Based on the facts provided, direct costs, employee cost and other operating expenses each show the same change on last month ({{mv:direct_costs.mom@2026-05:abs}}, {{mv:employee_cost.mom@2026-05:abs}}, {{mv:other_opex.mom@2026-05:abs}} respectively, all {{mv:direct_costs.mom@2026-05:pct}} in percentage terms), so the data here does not distinguish which cost line grew the most.\"},{\"text\":\"A Deep question could look into the underlying ledgers to identify the specific cost line with the largest genuine increase.\"}]}",
+    "usage": {
+      "input_tokens": 1745,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 227,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "fd4f9aa0ade8a4ce5eea175efbfa2a877680db828c53758b27e0299bea459dc2": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Debtor days for {{p:2026-05}} stood at {{m:dso@2026-05}}, a change of {{mv:dso.mom@2026-05:abs}} ({{mv:dso.mom@2026-05:pct}}) versus the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1710,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 113,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "e039a88ae41a2c3e72927b1647e95059fde79d6b6f52f9fc2f6c53f6a4d4d925": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 113,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "25d65c7e60ab1204ef348155ad141c4d36958aa69a987c38f209c93196590ee0": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}} as of {{p:2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) from the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 115,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "f5600d5613f017be58f7377afac1c61708219c94bc2fa20f13417f6d02594b0e": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Creditor days stood at {{m:dpo@2026-05}} for {{p:2026-05}}, indicating the average time taken to pay suppliers.\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 78,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "4321e31c83c89e2a73101c35654f03c6ec0e9edd5e263c969b9b19b1a36ffdeb": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) on last month, while trade payables were {{m:payables@2026-05}}, up {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}).\"},{\"text\":\"Inventories were {{m:inventory@2026-05}}, an increase of {{mv:inventory.mom@2026-05:abs}} ({{mv:inventory.mom@2026-05:pct}}), and cash and bank balances were {{m:cash_and_bank@2026-05}}, up {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}).\"},{\"text\":\"Debtor days were {{m:dso@2026-05}} and creditor days were {{m:dpo@2026-05}} for {{p:2026-05}}, both moving versus last month.\"},{\"text\":\"These figures give an overall picture of working capital, but a Deep question could explore the underlying party-level or ageing detail further.\"}]}",
+    "usage": {
+      "input_tokens": 1709,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 428,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "1f609e9db5f6a13276c39d82ecb6854a84383ae041972dad9c0bc4b3b13517a0": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Profit after tax for {{p:2026-05}} was {{m:pat@2026-05}}, up {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) on the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1749,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 109,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "4b3d8f1bae1e09083ce0321dc96bae2acd928fec9f075abe1cd5755ceebf2960": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Revenue from operations was {{m:revenue@2026-05}} in {{p:2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on last month.\"},{\"text\":\"Direct costs rose in line with revenue, up {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) to {{m:direct_costs@2026-05}}, leaving gross profit at {{m:gross_profit@2026-05}}, an increase of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}).\"},{\"text\":\"Employee cost and other operating expenses also moved up, by {{mv:employee_cost.mom@2026-05:abs}} ({{mv:employee_cost.mom@2026-05:pct}}) and {{mv:other_opex.mom@2026-05:abs}} ({{mv:other_opex.mom@2026-05:pct}}) respectively, taking EBITDA to {{m:ebitda@2026-05}}, up {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}).\"},{\"text\":\"After depreciation, finance costs and tax, profit after tax stood at {{m:pat@2026-05}}, an increase of {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}) over last month.\"},{\"text\":\"On the balance sheet side, receivables, payables, inventory and cash all moved by similar magnitudes, with receivables at {{m:receivables@2026-05}}, payables at {{m:payables@2026-05}}, inventory at {{m:inventory@2026-05}} and cash and bank at {{m:cash_and_bank@2026-05}}.\"},{\"text\":\"Note that several of the underlying percentage and working-capital-day figures in the facts pack appear inconsistently formatted (for example gross margin % and debtor/creditor days), so those specific ratios should be treated with caution; a Deep question could verify them against the ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1711,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 793,
+      "output_tokens_details": {
+        "thinking_tokens": 19
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "b1e37d422c16e0a92f232c7c6295d71ca1fa8d8e39d0d6a84a5961381c43b861": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts provided only cover revenue for {{p:2026-05}}, showing revenue of {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) versus the prior month.\"},{\"text\":\"There is no year-to-date trend data in the facts here to confirm whether growth has been sustained across the year. A Deep question could pull the monthly revenue series to assess the full year-to-date trend.\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 192,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "183aa1b5d560ff62902777818e806dd0f6ce81cca838270519051bd6b219d054": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Based on the figures provided, all line items show the same month-on-month change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}), so no single metric stands out as distinctly worse than the others from this data alone.\"},{\"text\":\"One figure worth flagging is the gross margin % for {{p:2026-05}}, shown as {{m:gross_margin_pct@2026-05}}, which appears inconsistent with the underlying gross profit and revenue figures and may reflect a data or formatting issue rather than an actual trend.\"},{\"text\":\"If you want a proper ranking of deteriorating metrics or a check on this gross margin figure, a Deep question could examine the underlying ledgers in detail.\"}]}",
+    "usage": {
+      "input_tokens": 1745,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 440,
+      "output_tokens_details": {
+        "thinking_tokens": 163
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a6b75d7427c8ce53c0c4ecb973eca460015b63ff9e2191a192f5ba54337cb6fa": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Direct costs for {{p:2026-05}} were {{m:direct_costs@2026-05}}, an increase of {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) compared with the prior month.\"},{\"text\":\"The facts provided do not break down this movement by vendor, product line or cost category. A Deep question could trace the underlying ledgers to identify the specific drivers behind this increase.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 183,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "75de8417bffab1d9e1d9101e9453e09ac4eed32f8f6169c775a6a42e981200bb": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Employee cost for {{p:2026-05}} was {{m:employee_cost@2026-05}} against revenue of {{m:revenue@2026-05}}, which gives a ratio of employee cost to revenue of roughly 76%. The facts pack does not carry a precomputed ratio figure, so this is derived from the two values; a Deep question could confirm the exact percentage from the ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1718,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 250,
+      "output_tokens_details": {
+        "thinking_tokens": 92
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "79cc6aba96a8d3468c3bffbef30d59aee778b00032f3167b7632414e35da7f3f": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Depreciation charged in {{p:2026-05}} was {{m:depreciation@2026-05}}, an increase of {{mv:depreciation.mom@2026-05:abs}} ({{mv:depreciation.mom@2026-05:pct}}) over the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 119,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "1f11b5a2ff5a832f11a53d4b6715e5f773b742e20d4444be98819a7ad30ab8e1": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Tax charged for {{p:2026-05}} was {{m:tax@2026-05}}, an increase of {{mv:tax.mom@2026-05:abs}} ({{mv:tax.mom@2026-05:pct}}) on the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 111,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "dcfd9e775f46f778c5819e36a7ccb4554f6895b06922924e2b2bdf2a5b4ab401": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Finance costs for {{p:2026-05}} were {{m:finance_cost@2026-05}}, up {{mv:finance_cost.mom@2026-05:abs}} ({{mv:finance_cost.mom@2026-05:pct}}) on the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 117,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "7988ddd974b715545a698a75225800940f2c96c3420ca9b97660050e5f9553c9": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Other operating expenses for {{p:2026-05}} stood at {{m:other_opex@2026-05}}, up {{mv:other_opex.mom@2026-05:abs}} ({{mv:other_opex.mom@2026-05:pct}}) compared with the prior month.\"}]}",
+    "usage": {
+      "input_tokens": 1745,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 120,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "86c0fc0e13170ee7f21eaa454eb0e07f5c1ea6a26ebbf572ae764670cfd99cb7": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Inventories stood at {{m:inventory@2026-05}} in {{p:2026-05}}, higher than the prior month by {{mv:inventory.mom@2026-05:abs}} ({{mv:inventory.mom@2026-05:pct}}).\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 113,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "c894b1f12fdf39390b1ab097cbfa8c7a7618a0d5876e81bf3e18325135870ebd": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Revenue from operations was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:pct}} on last month, with gross profit of {{m:gross_profit@2026-05}} and EBITDA of {{m:ebitda@2026-05}}.\"},{\"text\":\"Profit after tax for the month was {{m:pat@2026-05}}, while trade receivables stood at {{m:receivables@2026-05}} and cash and bank at {{m:cash_and_bank@2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 201,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "7568b4d667045e9d0b28d0ee99faf827fbfb6ae5b3ee05f2a71038b1d49ca04f": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"For {{p:2026-05}}, most reported lines moved in a similar direction and magnitude versus the prior month. Revenue from operations increased by {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}), while direct costs also rose by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), leaving gross profit up by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}).\"},{\"text\":\"EBITDA improved by {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}) and profit after tax by {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}), alongside increases in employee cost of {{mv:employee_cost.mom@2026-05:abs}} ({{mv:employee_cost.mom@2026-05:pct}}) and other operating expenses of {{mv:other_opex.mom@2026-05:abs}} ({{mv:other_opex.mom@2026-05:pct}}).\"},{\"text\":\"Working capital items also shifted: trade receivables changed by {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}), trade payables by {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}), and inventories by {{mv:inventory.mom@2026-05:abs}} ({{mv:inventory.mom@2026-05:pct}}).\"},{\"text\":\"All these movements are broadly of the same scale this month, so no single line stands out as disproportionately material relative to the others based on the facts available. For a more precise materiality assessment (e.g. ranked by absolute rupee impact or against budget), a Deep question could examine the underlying ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1744,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 763,
+      "output_tokens_details": {
+        "thinking_tokens": 44
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "9f647aa8cd249fb50313374cb0ded050f0d2490b753d67924329f7feb14497dd": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts provided do not include any data-quality warnings or flags for {{p:2026-05}}. A Deep question could check the underlying ledgers for anomalies or reconciliation issues.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 88,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a70f201e68aaef0c2ab7cbe318fb31818079fe6d329e904e97e0f998a9d66e87": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The figures shown relate to {{p:2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1711,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 47,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "82e59ac5fa67d064102c03725dfbc1571bc5e3bd09b0ad753c150e86c7d492a7": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts available here only cover summarised receivables at the total level ({{m:receivables@2026-05}} for {{p:2026-05}}), not a breakdown by individual customer.\"},{\"text\":\"A Deep question could look into the underlying ledgers to identify the specific customer with the largest outstanding balance.\"}]}",
+    "usage": {
+      "input_tokens": 1745,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 126,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a3ef30a7198d19b2e67087a520619bf47c8a98fabbae029ffb5f13be25420a9b": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts available here are summarised at the whole-company level and do not break out performance by branch or location such as Pune. A Deep question could look into the loaded ledgers to provide branch-level figures.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 88,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "60191a7b2e5824a868911609ad9022e259176e6ff10351d262fc8f1a6f1c0c73": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts available here are summarised at the company level and do not break revenue down by product line. A Deep question could look into the underlying ledgers to identify the best-performing product line.\"}]}",
+    "usage": {
+      "input_tokens": 1710,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 80,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "3e66612f25a7bb5f4c8ac04af95af94c12df749e217c41c88865fc1e128761cb": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts available here cover financial figures such as employee cost but do not include headcount data. A Deep question could look into the underlying payroll ledgers to find the number of employees.\"}]}",
+    "usage": {
+      "input_tokens": 1745,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 81,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "8ffa50a0234dd7a9cfb5c14c76963a979c58042941a55dd1cce78694dae159f2": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "251d5b8547094fa003a700e05f40bb2fafe570b4cb680af8c586fc1de085e429": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1717,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "0e8c792c52a1f90ad5ef9d1a4e9cf7a637bfe7f30394a853b38a204783030263": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1751,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "bd867b48a326fafaaf16fbc4f88ebac4bd12035874b0c55f96f052903d85410b": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1720,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "cf79b9aef7dc137ccb0d80f9286c5f34a7fe493e1f2782eb2807cf556ffea990": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "06ccdc40939b6836c8bea9a30f4acc01effa87600dff4213707b25a33bb79c3c": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1750,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6428b6d614362cd99128ebac21d4b86c6bb373798f7aa7aa0915f41d527a7524": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's own MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1719,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 46,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "096c5dc2e1a3190e4be2b19a33edd5b2e651b0c1b9829725ea3d78b9c2934bd2": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1723,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "be9e87f56f896bf26bdf9ef02649a38239c9b1e4327d58ecbc7286b2ad890974": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1753,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "cad362b9b21abbc67ceac595277093c44f0d5a90bb8caab71f7ab0e908a66b8e": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "7faaac4c33e19406d34cc1de364a87dc7853da15c5d652948f654f9a43ef9a2c": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1718,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "82b081a95f1e0b6e9cce73296457c546a621afc718b35be083bb0edc66027683": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1753,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "da57f30fe7479d73a85c22073ad01b8c0fc373182ce92eab6fc625d593a4a159": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, not provide audit opinions or sign-off judgements.\"}]}",
+    "usage": {
+      "input_tokens": 1717,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 62,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "58b82cc490d771caa96820753f4f22027c11aa02949a8c540aa6dfac32fbb848": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a231fce91b871fc5d026111910ff7d1608fd87ff01273f644b548fcdd28138b5": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1743,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "943f3e38b259f2772a8e8db3f4b646ca530cbe848db0d65661846a04ee873f03": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1720,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "1c07847d6d7b59f86dd262e9bffda4fcfd02eefc56470c97855709a07fdb214b": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1719,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "34a1ab836988911527144a3d68fc5e3ca9776725423ff60f9b4a10ff091e4182": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1746,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "6a8c585d9995831b900b0d0148d4cd0ca2f18ba55d8421da6a0be2eb92ad3443": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "68d8cff1f5f8c4fbb17a9fe22bc8065ed2836e71086a89c7186d4bb9ba1f5bdd": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "d27d672460a84dc3650f03a4fcb2d32c75152c868e6b41ad032ba5b5e4b45351": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1753,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "cae6590e2cea886e7804ee534878aedfed2b53bb7eb04adb0d820d5b61747cb8": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1709,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "f5d4843e9a7c2554091c9903d87c789507e70336754cd5f07f865f86d13b9217": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1711,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "d23da0d16d47d2fa07f31119f9ef2fa017b88cfedad3c7631993e122d7c0436d": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1749,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "06d3ac102d4070d4a209e16ace6deedc45c86d680305aeba9ec779dba6bf000c": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1711,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1199,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "4dd3201d1d38d2514191ba96b9e5b71f51473d7a3252e7713e562c653f0958a3": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1720,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1194,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  }
+}

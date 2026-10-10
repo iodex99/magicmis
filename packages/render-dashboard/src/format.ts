@@ -74,9 +74,40 @@ const SUFFIXES: Readonly<Record<string, string>> = {
   ly_ytd: "last year to date",
 };
 
+/**
+ * The cash flow's names on a board and in lineage (ADR 0087). Kept here, not in the engine's
+ * METRIC_LABELS, because commentary's facts pack walks that list, and a label added there is a
+ * fact added to every commentary and every set of suggestions.
+ */
+const CASH_FLOW_LABELS: Readonly<Record<string, string>> = {
+  cf_operating: "Cash from operating activities",
+  cf_investing: "Cash from investing activities",
+  cf_financing: "Cash from financing activities",
+  cf_net: "Net change in cash",
+  cash_opening: "Cash and bank at the start of the month",
+  cf_receivables: "Change in trade receivables",
+  cf_inventory: "Change in inventories",
+  cf_other_current_assets: "Change in other current assets",
+  cf_payables: "Change in trade payables",
+  cf_other_current_liabilities: "Change in other current liabilities",
+  cf_unmapped: "Change in unmapped balances",
+  cf_net_block: "Change in net block",
+  cf_fixed_assets: "Fixed assets bought, net of disposals",
+  cf_investments: "Investments and other non-current assets",
+  cf_borrowings: "Borrowings raised less repaid",
+  cf_other_long_term: "Other long-term liabilities",
+  cf_capital_movement: "Change in capital and reserves",
+  cf_profit_carried: "Profit carried into capital at the year end",
+  cf_equity: "Capital introduced less withdrawn",
+};
+
 export function metricLabel(metricId: string): string {
   const [base = "", suffix] = metricId.split(".");
-  const label = METRIC_LABELS[base] ?? ANALYSIS_LABELS[base] ?? base.replace(/_/gu, " ");
+  const label =
+    METRIC_LABELS[base] ??
+    ANALYSIS_LABELS[base] ??
+    CASH_FLOW_LABELS[base] ??
+    base.replace(/_/gu, " ");
   if (suffix === undefined) return label;
   return `${label}, ${SUFFIXES[suffix] ?? suffix.replace(/_/gu, " ")}`;
 }

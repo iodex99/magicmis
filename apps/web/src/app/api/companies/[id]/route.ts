@@ -1,5 +1,9 @@
 import { hasFreshReauth } from "@magicmis/accounts";
-import { isReportingCurrency } from "@magicmis/core/reporting-conventions";
+import {
+  isCommentaryLanguage,
+  isReportingCurrency,
+  isStatutoryFormat,
+} from "@magicmis/core/reporting-conventions";
 import { CompanyBusy, deleteCompany } from "@magicmis/jobs";
 import { z } from "zod";
 
@@ -148,6 +152,15 @@ const conventionsSchema = z.object({
   currency: z.string().refine(isReportingCurrency, "Unsupported reporting currency"),
   numberFormat: z.enum(["lakhs_crores", "absolute", "millions"]),
   dateOrder: z.enum(["day_first", "month_first"]),
+  // Optional, so a caller written before ADR 0087 still saves the four it knows about.
+  commentaryLanguage: z
+    .string()
+    .refine(isCommentaryLanguage, "Unsupported commentary language")
+    .optional(),
+  statutoryFormat: z
+    .string()
+    .refine(isStatutoryFormat, "Unsupported statutory layout")
+    .optional(),
 });
 
 /**

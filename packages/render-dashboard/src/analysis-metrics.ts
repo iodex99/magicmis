@@ -51,11 +51,15 @@ export function dashboardMetrics(
     readonly id: string;
     readonly label: string;
     readonly unit: string;
+    /** False for a line that belongs on its sheet and not on a board (ADR 0087). */
+    readonly onBoard?: boolean;
   }[],
 ): { id: string; label: string; unit: string }[] {
   const ids = new Set(library.map((m) => m.id));
   return [
-    ...library.map((m) => ({ id: m.id, label: m.label, unit: m.unit })),
+    ...library
+      .filter((m) => m.onBoard !== false)
+      .map((m) => ({ id: m.id, label: m.label, unit: m.unit })),
     ...ANALYSIS_METRICS.filter((m) => !ids.has(m.id)).map((m) => ({
       id: m.id,
       label: m.label,

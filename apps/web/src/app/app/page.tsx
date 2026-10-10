@@ -5,7 +5,7 @@ import { AppFrame } from "@/components/AppFrame";
 import { MiniBars } from "@/components/Charts";
 import { GetStarted } from "@/components/GetStarted";
 import { Icon } from "@/components/Icon";
-import { Badge, PageHeader, StatCard, type BadgeTone } from "@/components/ui";
+import { Badge, ButtonLink, PageHeader, StatCard, type BadgeTone } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { formatCredits } from "@/lib/actions";
@@ -20,7 +20,14 @@ import { firstRunCredits, welcomeStatus } from "@/lib/server/welcome";
 
 import { defaultConventions } from "@magicmis/core/reporting-conventions";
 
+import { monthStatus } from "@/lib/portfolio-status";
+import { portfolioFacts } from "@/lib/server/portfolio";
+
 import { AddCompany } from "./AddCompany";
+import { PortfolioTable } from "./PortfolioTable";
+
+/** From this many companies the list is a table, due first (ADR 0087). */
+const PORTFOLIO_FROM = 4;
 
 export const metadata = { title: "Companies" };
 export const dynamic = "force-dynamic";
@@ -157,6 +164,16 @@ export default async function AppHomePage() {
             eyebrow="Workspace"
             title="Companies"
             description="Open a company to see its dashboard, ask about its figures or add a file."
+            actions={
+              // Month end for several at once, from two companies up (ADR 0087).
+              companies.filter(
+                (c) => c.firstSetupAt !== null && c.lifecycleState === "active",
+              ).length >= 2 ? (
+                <ButtonLink href="/app/batch" icon="upload" variant="secondary">
+                  Month end for several
+                </ButtonLink>
+              ) : undefined
+            }
           />
 
           <GetStarted
@@ -222,74 +239,96 @@ export default async function AppHomePage() {
             />
           </div>
 
-          <ul
-            className="mb-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
-            data-testid="company-list"
-          >
-            {companies.map((c, i) => {
-              const state = STATE[c.lifecycleState] ?? {
-                label: c.lifecycleState,
-                tone: "neutral" as BadgeTone,
-              };
-              const setUp = c.firstSetupAt !== null;
-              return (
-                <li
-                  key={c.id}
-                  className="lift rise group relative flex flex-col rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-sm hover:border-accent-200"
-                  style={{ "--i": i.toString() } as React.CSSProperties}
-                >
-                  <div className="flex items-start gap-3">
-                    {c.logoVersion === null ? (
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
-                        <Icon name="building" size={18} />
-                      </span>
-                    ) : (
-                      <CompanyLogo
-                        src={logoUrl(c.id, c.logoVersion) ?? ""}
-                        name={c.name}
-                      />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        href={`/app/companies/${c.id}`}
-                        className="block truncate text-[1rem] font-semibold text-neutral-900 after:absolute after:inset-0 group-hover:text-accent-700"
-                      >
-                        {c.name}
-                      </Link>
-                      <p className="mt-0.5 text-[0.8125rem] text-neutral-500">
-                        {setUp
-                          ? `Figures to ${period(c.latestPeriod)}`
-                          : "Not set up yet"}
-                      </p>
+          {companies.length >= PORTFOLIO_FROM ? (
+            <PortfolioTable
+              companies={companies}
+              facts={await portfolioFacts(pool, account.accountId)}
+              now={new Date()}
+            />
+          ) : (
+            <ul
+              className="mb-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+              data-testid="company-list"
+            >
+              {companies.map((c, i) => {
+                const state = STATE[c.lifecycleState] ?? {
+                  label: c.lifecycleState,
+                  tone: "neutral" as BadgeTone,
+                };
+                const setUp = c.firstSetupAt !== null;
+                return (
+                  <li
+                    key={c.id}
+                    className="lift rise group relative flex flex-col rounded-2xl border border-neutral-200/80 bg-surface p-5 shadow-sm hover:border-accent-200"
+                    style={{ "--i": i.toString() } as React.CSSProperties}
+                  >
+                    <div className="flex items-start gap-3">
+                      {c.logoVersion === null ? (
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
+                          <Icon name="building" size={18} />
+                        </span>
+                      ) : (
+                        <CompanyLogo
+                          src={logoUrl(c.id, c.logoVersion) ?? ""}
+                          name={c.name}
+                        />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          href={`/app/companies/${c.id}`}
+                          className="block truncate text-[1rem] font-semibold text-neutral-900 after:absolute after:inset-0 group-hover:text-accent-700"
+                        >
+                          {c.name}
+                        </Link>
+                        <p className="mt-0.5 text-[0.8125rem] text-neutral-500">
+                          {setUp
+                            ? `Figures to ${period(c.latestPeriod)}`
+                            : "Not set up yet"}
+                        </p>
+                        {(() => {
+                          const status = monthStatus(
+                            setUp ? c.latestPeriod : null,
+                            new Date(),
+                          );
+                          return status.kind === "due" ? (
+                            <p
+                              className="mt-1 text-[0.75rem] font-medium text-warning"
+                              data-testid="company-due"
+                            >
+                              {period(status.month)} is due
+                            </p>
+                          ) : null;
+                        })()}
+                      </div>
+                      <Badge tone={state.tone} dot>
+                        {state.label}
+                      </Badge>
                     </div>
-                    <Badge tone={state.tone} dot>
-                      {state.label}
-                    </Badge>
-                  </div>
-                  <div className="mt-5 flex items-center justify-between border-t border-neutral-100 pt-3.5 text-[0.8125rem]">
-                    <span className="font-medium text-accent-700">
-                      {setUp ? "Open dashboard" : "Finish setting up"}
-                    </span>
-                    {setUp && c.lifecycleState === "active" ? (
-                      <Link
-                        href={`/app/companies/${c.id}/run`}
-                        className="relative z-10 inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-                      >
-                        <Icon name="upload" size={13} />
-                        Add a file
-                      </Link>
-                    ) : (
-                      <Icon
-                        name="arrow-right"
-                        size={15}
-                        className="text-neutral-400 transition-transform group-hover:translate-x-0.5 group-hover:text-accent-600"
-                      />
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                    <div className="mt-5 flex items-center justify-between border-t border-neutral-100 pt-3.5 text-[0.8125rem]">
+                      <span className="font-medium text-accent-700">
+                        {setUp ? "Open dashboard" : "Finish setting up"}
+                      </span>
+                      {setUp && c.lifecycleState === "active" ? (
+                        <Link
+                          href={`/app/companies/${c.id}/run`}
+                          className="relative z-10 inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+                        >
+                          <Icon name="upload" size={13} />
+                          Add a file
+                        </Link>
+                      ) : (
+                        <Icon
+                          name="arrow-right"
+                          size={15}
+                          className="text-neutral-400 transition-transform group-hover:translate-x-0.5 group-hover:text-accent-600"
+                        />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
           <AddCompany defaults={conventions} logoLimits={limits} first={false} />
         </>

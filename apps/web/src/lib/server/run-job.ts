@@ -12,6 +12,7 @@ import {
 import { addMonths, periodId, type PeriodId } from "@magicmis/core/time";
 import {
   detectSourceFinancialYear,
+  type MetricValue,
   gateOutcome,
   type CheckResult,
 } from "@magicmis/engine";
@@ -33,6 +34,7 @@ import {
   heartbeatJob,
   loadStageOutput,
   loadUploadBytes,
+  noticeFiredAlerts,
   PIPELINE,
   recordLibraryVotes,
   recordUploadPeriods,
@@ -84,6 +86,7 @@ import { z } from "zod";
 import { TIER_LABELS } from "@/lib/actions";
 
 import { aiTransport } from "./ai";
+import { workbookBrand } from "./brand";
 import { jobSession, type JobSession } from "./companies";
 import { openServerDuck } from "./duck";
 import { keyWrapper, outputStore } from "./runtime";
@@ -647,6 +650,8 @@ export async function runJobOnServer(
     );
     const namesByKey = new Map(signed.facts.map((f) => [f.ledgerKey, f.name]));
     const labelText = (label: string) => label.replace(TOKEN_PATTERN, (t) => display(t));
+    // The cover's marks: the company's logo, and the preparer when named (ADR 0087).
+    const brand = await workbookBrand(pool, wrapper, { accountId, companyId });
     const duck = await openServerDuck();
     let out;
     try {
@@ -668,6 +673,8 @@ export async function runJobOnServer(
         displayName: (key) =>
           display(namesByKey.get(key) ?? key.split(" > ").at(-1) ?? key),
         ageingBuckets: session.validation.ageingBuckets,
+        brand,
+        statutory: session.company.statutoryFormat,
         validation: (cube) =>
           validate(cube, signed, {
             config: {
@@ -784,6 +791,18 @@ export async function runJobOnServer(
       // Priced and chosen at the tier the customer picked for the run (ADR 0085).
       tier: input.tier,
     });
+
+    // The owner's alerts, checked on the figures just computed: no model, no charge, and a notice
+    // that says how many fired, never a figure (ADR 0087). Sent only once the board shows the
+    // month, because the notice sends its reader there to see which; a board left behind by a
+    // short wallet shows them when it is brought up to date. An alert can never fail a run.
+    if (dashboard.status === "updated")
+      await noticeFiredAlerts(
+        pool,
+        { accountId, companyId },
+        period,
+        out.snapshot.metricStore.values as unknown as MetricValue[],
+      ).catch(() => 0);
     return {
       status: "completed",
       message: null,

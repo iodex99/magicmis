@@ -1,3 +1,4 @@
+import type { NumberFormat } from "@magicmis/core/reporting-conventions";
 import type { MetricValue } from "@magicmis/engine";
 import { metricValueSchema } from "@magicmis/engine";
 import { dashboardSpecSchema } from "@magicmis/render-dashboard";
@@ -96,20 +97,32 @@ export interface SampleCompany {
   };
 }
 
-let cached: SampleCompany | undefined;
+/**
+ * How the reader writes money, from where they are (ADR 0087). The company is invented, so its
+ * currency is a label and nothing more: a reader in London sees pounds in millions and one in
+ * Mumbai rupees in lakhs, every figure the same number the engine computed.
+ */
+export interface SampleViewer {
+  readonly currencySymbol: string;
+  readonly style: NumberFormat;
+}
+
+let parsed: z.infer<typeof sampleFileSchema> | undefined;
 
 /** The recorded sample, in the shapes the dashboard, commentary and actions views read. */
-export function sampleCompany(): SampleCompany {
-  if (cached !== undefined) return cached;
-  const file = sampleFileSchema.parse(recorded);
+export function sampleCompany(viewer?: SampleViewer): SampleCompany {
+  parsed ??= sampleFileSchema.parse(recorded);
+  const file = parsed;
   // The store's schema leaves lineage inputs open; the engine wrote them, as it does for a
   // company's own snapshot, which is read the same way.
   const values = file.values as unknown as MetricValue[];
-  const company = {
-    money: file.company.money,
-    currencySymbol: file.company.currencySymbol,
-  };
-  cached = {
+  const money =
+    viewer === undefined
+      ? file.company.money
+      : { ...file.company.money, style: viewer.style };
+  const currencySymbol = viewer?.currencySymbol ?? file.company.currencySymbol;
+  const company = { money, currencySymbol };
+  return {
     name: file.name,
     trade: file.trade,
     recordedOn: file.recordedOn,
@@ -118,10 +131,11 @@ export function sampleCompany(): SampleCompany {
         id: "sample",
         name: file.name,
         fyStartMonth: file.company.fyStartMonth,
-        money: file.company.money,
-        currencySymbol: file.company.currencySymbol,
+        money,
+        currencySymbol,
       },
-      periods: file.periods,
+      // Every month the figures cover, as a company's own board offers them (ADR 0087).
+      periods: [...new Set(values.map((v) => v.period))].sort().reverse(),
       values,
       dashboard: {
         blueprintVersion: 0,
@@ -154,5 +168,4 @@ export function sampleCompany(): SampleCompany {
       },
     },
   };
-  return cached;
 }

@@ -57,6 +57,12 @@ describe("data export (SPEC §10, §31)", () => {
     );
     const now = new Date(Date.now() + HOUR);
 
+    // An alert the owner set goes with everything else they own (ADR 0087).
+    await pool().query(
+      `insert into company_alerts (account_id, company_id, metric_id, comparator, threshold)
+       values ($1, $2, 'cash_and_bank', 'below', '5000000')`,
+      [accountId, companyId],
+    );
     const first = await requestAccountExport(pool(), { accountId, now });
     const again = await requestAccountExport(pool(), { accountId, now });
     expect(first.created).toBe(true);
@@ -103,9 +109,11 @@ describe("data export (SPEC §10, §31)", () => {
         })
       ).toString("utf8"),
     ) as {
-      profile: { email: string };
+      profile: { email: string; preparer: { shown: boolean; logoKept: boolean } };
       companies: {
         id: string;
+        statutoryFormat: string;
+        alerts: { metricId: string; comparator: string; threshold: string }[];
         snapshots: { period: string }[];
         files: {
           id: string;
@@ -120,6 +128,15 @@ describe("data export (SPEC §10, §31)", () => {
     };
     expect(opened.profile.email).toBe(email);
     expect(opened.companies[0]?.id).toBe(companyId);
+    expect(opened.profile.preparer).toEqual({ shown: false, logoKept: false });
+    expect(opened.companies[0]?.statutoryFormat).toBe("ifrs");
+    expect(opened.companies[0]?.alerts).toEqual([
+      expect.objectContaining({
+        metricId: "cash_and_bank",
+        comparator: "below",
+        threshold: "5000000",
+      }),
+    ]);
     expect(opened.companies[0]?.snapshots.map((s) => s.period)).toEqual(["2027-01"]);
     const files = opened.companies[0]?.files ?? [];
     expect(files.map((f) => f.name)).toEqual(["TB April.xlsx", "Old ledger.csv"]);

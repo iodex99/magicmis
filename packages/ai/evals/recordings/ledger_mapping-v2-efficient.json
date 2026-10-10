@@ -1,0 +1,154 @@
+{
+  "43207e0a58561eae6fa257dcce0185c9796307ec2012484cb47e813fcfb5cd29": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l1\",\"head\":\"OPEX_OTHER\",\"confidence\":\"low\"},{\"ref\":\"l2\",\"head\":\"OPEX_MARKETING\",\"confidence\":\"medium\"},{\"ref\":\"l3\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l4\",\"head\":\"CA_INVENTORY\",\"confidence\":\"high\"},{\"ref\":\"l5\",\"head\":\"COGS_PURCHASES\",\"confidence\":\"high\"},{\"ref\":\"l6\",\"head\":\"REV_PRODUCTS\",\"confidence\":\"high\"},{\"ref\":\"l7\",\"head\":\"OTH_INC_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l8\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l9\",\"head\":\"CL_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l10\",\"head\":null,\"confidence\":\"low\"},{\"ref\":\"l11\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"}]}",
+    "usage": {
+      "input_tokens": 200,
+      "cache_creation_input_tokens": 2507,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 2507,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1027,
+      "output_tokens_details": {
+        "thinking_tokens": 654
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "0a91cb19676f60404b95fe03adde5c6507b04f590715862bd408a83c2cd43204": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"OPEX_SOFTWARE\",\"confidence\":\"medium\"},{\"ref\":\"l1\",\"head\":\"REV_SERVICES\",\"confidence\":\"high\"},{\"ref\":\"l2\",\"head\":\"REV_SERVICES\",\"confidence\":\"high\"},{\"ref\":\"l3\",\"head\":\"OPEX_PROFESSIONAL\",\"confidence\":\"medium\"},{\"ref\":\"l4\",\"head\":\"OPEX_OTHER\",\"confidence\":\"low\"},{\"ref\":\"l5\",\"head\":\"EMP_WELFARE\",\"confidence\":\"medium\"},{\"ref\":\"l6\",\"head\":\"EMP_WELFARE\",\"confidence\":\"medium\"},{\"ref\":\"l7\",\"head\":\"OPEX_BANK\",\"confidence\":\"high\"},{\"ref\":\"l8\",\"head\":\"OPEX_SOFTWARE\",\"confidence\":\"medium\"},{\"ref\":\"l9\",\"head\":\"OPEX_RENT\",\"confidence\":\"medium\"},{\"ref\":\"l10\",\"head\":\"CA_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l11\",\"head\":\"CL_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l12\",\"head\":\"EMP_SALARIES\",\"confidence\":\"medium\"},{\"ref\":\"l13\",\"head\":\"OPEX_TRAVEL\",\"confidence\":\"high\"},{\"ref\":\"l14\",\"head\":\"OPEX_TRAVEL\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 220,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2507,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1010,
+      "output_tokens_details": {
+        "thinking_tokens": 533
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "90e3f580c678865a437671d6b7a72e149f3ee25149ac2f7f2cd28dc2b1e720c1": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l1\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l2\",\"head\":\"OPEX_POWER\",\"confidence\":\"high\"},{\"ref\":\"l3\",\"head\":\"REV_OTHER_OPS\",\"confidence\":\"high\"},{\"ref\":\"l4\",\"head\":\"OPEX_REPAIRS\",\"confidence\":\"high\"},{\"ref\":\"l5\",\"head\":\"OPEX_RATES\",\"confidence\":\"medium\"},{\"ref\":\"l6\",\"head\":\"EMP_WELFARE\",\"confidence\":\"high\"},{\"ref\":\"l7\",\"head\":\"CA_INVENTORY\",\"confidence\":\"high\"},{\"ref\":\"l8\",\"head\":\"NCA_PPE\",\"confidence\":\"medium\"},{\"ref\":\"l9\",\"head\":\"COGS_MATERIALS\",\"confidence\":\"high\"},{\"ref\":\"l10\",\"head\":\"COGS_MATERIALS\",\"confidence\":\"medium\"},{\"ref\":\"l11\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l12\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l13\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l14\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"}]}",
+    "usage": {
+      "input_tokens": 232,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2507,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1169,
+      "output_tokens_details": {
+        "thinking_tokens": 697
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "a3fdbb06bed78a324a564ae1c851038761f2a36ac5795048415c57f7407b06f9": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"EQ_CAPITAL\",\"confidence\":\"medium\"},{\"ref\":\"l1\",\"head\":\"EQ_CAPITAL\",\"confidence\":\"medium\"},{\"ref\":\"l2\",\"head\":\"NCL_BORROWINGS\",\"confidence\":\"high\"},{\"ref\":\"l3\",\"head\":\"CL_STATUTORY\",\"confidence\":\"high\"},{\"ref\":\"l4\",\"head\":\"NCA_DEPOSITS\",\"confidence\":\"medium\"},{\"ref\":\"l5\",\"head\":\"CA_CASH\",\"confidence\":\"medium\"},{\"ref\":\"l6\",\"head\":\"NCL_OTHER\",\"confidence\":\"low\"},{\"ref\":\"l7\",\"head\":\"NCA_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l8\",\"head\":\"NCA_INTANGIBLES\",\"confidence\":\"high\"},{\"ref\":\"l9\",\"head\":\"NCA_PPE\",\"confidence\":\"high\"},{\"ref\":\"l10\",\"head\":\"NCA_PPE\",\"confidence\":\"medium\"},{\"ref\":\"l11\",\"head\":\"NCA_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l12\",\"head\":\"NCA_INVESTMENTS\",\"confidence\":\"high\"},{\"ref\":\"l13\",\"head\":\"CA_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l14\",\"head\":\"CA_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l15\",\"head\":\"CA_RECEIVABLES\",\"confidence\":\"high\"},{\"ref\":\"l16\",\"head\":\"CL_PAYABLES\",\"confidence\":\"high\"},{\"ref\":\"l17\",\"head\":\"CL_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l18\",\"head\":\"CL_OTHER\",\"confidence\":\"high\"},{\"ref\":\"l19\",\"head\":\"CL_BORROWINGS\",\"confidence\":\"high\"},{\"ref\":\"l20\",\"head\":\"CL_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l21\",\"head\":\"CL_PROVISIONS\",\"confidence\":\"high\"},{\"ref\":\"l22\",\"head\":\"CA_CASH\",\"confidence\":\"high\"},{\"ref\":\"l23\",\"head\":\"CA_CASH\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 418,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2507,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1699,
+      "output_tokens_details": {
+        "thinking_tokens": 967
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "231322fa5e65c57e505466cd3a07d0ed6b6d7eac077f2b78f7a6f99a88899aa2": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l1\",\"head\":\"OPEX_INSURANCE\",\"confidence\":\"high\"},{\"ref\":\"l2\",\"head\":\"OPEX_PROFESSIONAL\",\"confidence\":\"medium\"},{\"ref\":\"l3\",\"head\":\"OPEX_OTHER\",\"confidence\":\"low\"},{\"ref\":\"l4\",\"head\":\"OPEX_OTHER\",\"confidence\":\"high\"},{\"ref\":\"l5\",\"head\":\"OTH_INC_OTHER\",\"confidence\":\"high\"},{\"ref\":\"l6\",\"head\":\"OTH_INC_INTEREST\",\"confidence\":\"high\"},{\"ref\":\"l7\",\"head\":\"OPEX_BAD_DEBTS\",\"confidence\":\"medium\"},{\"ref\":\"l8\",\"head\":\"TAX_CURRENT\",\"confidence\":\"medium\"},{\"ref\":\"l9\",\"head\":\"DA\",\"confidence\":\"high\"},{\"ref\":\"l10\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l11\",\"head\":\"OPEX_SOFTWARE\",\"confidence\":\"high\"},{\"ref\":\"l12\",\"head\":\"NCA_INTANGIBLES\",\"confidence\":\"medium\"},{\"ref\":\"l13\",\"head\":\"OPEX_PROFESSIONAL\",\"confidence\":\"medium\"},{\"ref\":\"l14\",\"head\":\"OPEX_RATES\",\"confidence\":\"medium\"},{\"ref\":\"l15\",\"head\":\"OPEX_COMMS\",\"confidence\":\"high\"},{\"ref\":\"l16\",\"head\":\"OPEX_TRAVEL\",\"confidence\":\"high\"},{\"ref\":\"l17\",\"head\":\"EMP_WELFARE\",\"confidence\":\"high\"},{\"ref\":\"l18\",\"head\":\"EMP_CONTRIB\",\"confidence\":\"high\"},{\"ref\":\"l19\",\"head\":\"EMP_CONTRIB\",\"confidence\":\"high\"},{\"ref\":\"l20\",\"head\":null,\"confidence\":\"low\"},{\"ref\":\"l21\",\"head\":null,\"confidence\":\"low\"},{\"ref\":\"l22\",\"head\":null,\"confidence\":\"low\"}]}",
+    "usage": {
+      "input_tokens": 345,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2507,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1579,
+      "output_tokens_details": {
+        "thinking_tokens": 870
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "9cdc10d0de436d3ddb67801de751b6204b77d638113ffe3d3a12d5bb2ce7ba82": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l1\",\"head\":\"OPEX_COMMS\",\"confidence\":\"medium\"},{\"ref\":\"l2\",\"head\":\"OPEX_OTHER\",\"confidence\":\"low\"},{\"ref\":\"l3\",\"head\":\"OPEX_TRAVEL\",\"confidence\":\"medium\"},{\"ref\":\"l4\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l5\",\"head\":\"OTH_INC_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l6\",\"head\":\"OTH_INC_INTEREST\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 191,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2507,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 664,
+      "output_tokens_details": {
+        "thinking_tokens": 431
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "86c65311c82268b9017d584bc24435f18a79b600101d3525b480d99e217031d7": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"CL_STATUTORY\",\"confidence\":\"high\"},{\"ref\":\"l1\",\"head\":\"CL_STATUTORY\",\"confidence\":\"medium\"},{\"ref\":\"l2\",\"head\":\"CL_BORROWINGS\",\"confidence\":\"medium\"},{\"ref\":\"l3\",\"head\":\"EQ_CAPITAL\",\"confidence\":\"medium\"},{\"ref\":\"l4\",\"head\":\"EQ_CAPITAL\",\"confidence\":\"medium\"},{\"ref\":\"l5\",\"head\":\"CA_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l6\",\"head\":\"REV_OTHER_OPS\",\"confidence\":\"medium\"},{\"ref\":\"l7\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l8\",\"head\":\"OPEX_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l9\",\"head\":\"EMP_CONTRIB\",\"confidence\":\"medium\"},{\"ref\":\"l10\",\"head\":\"OPEX_INSURANCE\",\"confidence\":\"medium\"},{\"ref\":\"l11\",\"head\":\"OPEX_OTHER\",\"confidence\":\"low\"},{\"ref\":\"l12\",\"head\":\"NCL_BORROWINGS\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 255,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2507,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 963,
+      "output_tokens_details": {
+        "thinking_tokens": 544
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  },
+  "8c2907e767d6864ed81bb58eba8dffa2448c66fe3862e6ece861e4d0b255966d": {
+    "text": "{\"mappings\":[{\"ref\":\"l0\",\"head\":\"CL_STATUTORY\",\"confidence\":\"high\"},{\"ref\":\"l1\",\"head\":\"CL_STATUTORY\",\"confidence\":\"high\"},{\"ref\":\"l2\",\"head\":\"CL_STATUTORY\",\"confidence\":\"high\"},{\"ref\":\"l3\",\"head\":\"CL_STATUTORY\",\"confidence\":\"medium\"},{\"ref\":\"l4\",\"head\":\"CL_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l5\",\"head\":\"CL_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l6\",\"head\":\"EMP_CONTRIB\",\"confidence\":\"high\"},{\"ref\":\"l7\",\"head\":\"EMP_CONTRIB\",\"confidence\":\"high\"},{\"ref\":\"l8\",\"head\":\"OPEX_POWER\",\"confidence\":\"high\"},{\"ref\":\"l9\",\"head\":\"OPEX_TRAVEL\",\"confidence\":\"medium\"},{\"ref\":\"l10\",\"head\":\"OPEX_PROFESSIONAL\",\"confidence\":\"high\"},{\"ref\":\"l11\",\"head\":\"COGS_DIRECT\",\"confidence\":\"medium\"},{\"ref\":\"l12\",\"head\":\"REV_SERVICES\",\"confidence\":\"medium\"},{\"ref\":\"l13\",\"head\":\"EQ_RESERVES\",\"confidence\":\"medium\"},{\"ref\":\"l14\",\"head\":\"CA_OTHER\",\"confidence\":\"medium\"},{\"ref\":\"l15\",\"head\":\"NCA_PPE\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 268,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2507,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1016,
+      "output_tokens_details": {
+        "thinking_tokens": 518
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5"
+  }
+}
