@@ -941,6 +941,35 @@ test.describe("chat with the MIS", () => {
       { type: "commentary", state: "completed", captured: true },
     ]);
   });
+
+  // Inside the chat block, whose stages are switched on for it: a clean stack has none on.
+  test("an answer is kept on the board as a box of its own, and Undo takes it off (ADR 0087)", async () => {
+    const company = await db.query<{ id: string }>(
+      `select c.id from companies c join accounts a on a.id = c.account_id
+        where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+      [email],
+    );
+    await page.goto(`/app/companies/${company.rows[0]?.id ?? ""}?chat=open`);
+    await page.getByLabel("Your question").fill("How did revenue move this month?");
+    await page.getByTestId("chat-send").click();
+    const answer = page.getByTestId("chat-answer").last();
+    await expect(answer).toContainText("The figure you asked about is", {
+      timeout: 60_000,
+    });
+    await answer.getByTestId("chat-pin").click();
+    await expect(answer.getByTestId("chat-pin")).toContainText("On the board");
+    const pinned = page.locator("[data-testid^='widget-pin_']");
+    await expect(pinned).toBeVisible();
+    // Each figure in it still opens its lineage, like any box's.
+    await pinned.locator("[data-metric-key]").first().click();
+    await expect(page.getByTestId("lineage-panel")).toBeVisible();
+    await page
+      .getByTestId("lineage-panel")
+      .getByRole("button", { name: "Close" })
+      .click();
+    await page.getByRole("button", { name: "Undo last change" }).click();
+    await expect(pinned).toHaveCount(0);
+  });
 });
 
 test("an alert the owner sets is said in words on the board's month, and taken off again (ADR 0087)", async () => {
@@ -971,31 +1000,6 @@ test("an alert the owner sets is said in words on the board's month, and taken o
   await page.goto(`/app/companies/${id}`);
   await expect(page.getByTestId("widget-kpi_revenue")).toBeVisible();
   await expect(page.getByTestId("board-alerts")).toHaveCount(0);
-});
-
-test("an answer is kept on the board as a box of its own, and Undo takes it off (ADR 0087)", async () => {
-  const company = await db.query<{ id: string }>(
-    `select c.id from companies c join accounts a on a.id = c.account_id
-      where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
-    [email],
-  );
-  await page.goto(`/app/companies/${company.rows[0]?.id ?? ""}?chat=open`);
-  await page.getByLabel("Your question").fill("How did revenue move this month?");
-  await page.getByTestId("chat-send").click();
-  const answer = page.getByTestId("chat-answer").last();
-  await expect(answer).toContainText("The figure you asked about is", {
-    timeout: 60_000,
-  });
-  await answer.getByTestId("chat-pin").click();
-  await expect(answer.getByTestId("chat-pin")).toContainText("On the board");
-  const pinned = page.locator("[data-testid^='widget-pin_']");
-  await expect(pinned).toBeVisible();
-  // Each figure in it still opens its lineage, like any box's.
-  await pinned.locator("[data-metric-key]").first().click();
-  await expect(page.getByTestId("lineage-panel")).toBeVisible();
-  await page.getByTestId("lineage-panel").getByRole("button", { name: "Close" }).click();
-  await page.getByRole("button", { name: "Undo last change" }).click();
-  await expect(pinned).toHaveCount(0);
 });
 
 test("presenter notes follow the board on the presenter's own screen, and write nothing (ADR 0087)", async () => {
