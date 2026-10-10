@@ -1,8 +1,8 @@
 {
-  "4b223ce6b4b2ddaa13e8b0d3ad2134e0a44f4c8de32a87ce7748cc97fb98006a": {
+  "ee978596fe4578eda8555c708078b5abea076c0828a4ecfb13128e61c6b6cfd9": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 407,
+      "input_tokens": 409,
       "cache_creation_input_tokens": 1271,
       "cache_read_input_tokens": 0,
       "cache_creation": {
@@ -16,50 +16,50 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "6e6758080e09608d06cde364ce7f269d007c6aab99b2f81cbd490fa922633316": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"low\"}]}",
+  "791c848cdc2e712444a0fe3931be3de6fe295c4dc1f3f6576bee28d9e7f38527": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"debit\",\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"low\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"low\"}]}",
     "usage": {
-      "input_tokens": 344,
+      "input_tokens": 346,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 152,
+      "output_tokens": 150,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "9b5de0f59285f161468a9ddbbcbbee82d9b0468ec0caa5bcbce9fb8a0f0e3542": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening_dr\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"closing_dr\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"opening_cr\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"closing_cr\",\"confidence\":\"medium\"}]}",
+  "86d5f61bd584a85517aaa1078f003fa83dfcee03a3d470164c7ddc232f6412cd": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing\",\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c5\",\"role\":null,\"confidence\":\"low\"}]}",
     "usage": {
-      "input_tokens": 377,
+      "input_tokens": 379,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 166,
+      "output_tokens": 146,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "8e455f9c6b9d86ea810f94a410004f0569e3c0ffff72c1ac503f0dfcbe9267b8": {
+  "9bd553fdfb140434969891c23f5d08c045059f105d7b8f9ecbb7d5468da13da5": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 245,
+      "input_tokens": 247,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -73,294 +73,9 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "1e84358ee181f5267db10a9743b54a514c2c5fe6bc60ab46b7733991f6024045": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 348,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 152,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "7b897aa2c02a2ac8624c4ed017cef7b8e79a652ff89039c4ee34b64137ae8e5a": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 376,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 152,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "edb83009c545e024f9f5cfe4259ec1f94434983332bd094faddd0a7bdb9a430b": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 733,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 247,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "590cb80558b92ecd71f6ffc1b815fe7c2d6a36d5d51222d2ff5e0d92894f98c6": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 712,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 247,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "a900ad73912ba1aba223278295c2e830d0e4f69037c284c38ef561839d91e66f": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 376,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 154,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "7251eeab1ab06440df3460080db9b8e915e4c55ee47aad144d13eb434e91f876": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 442,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 154,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "5bea34c760de75e343a5760a3884c1947f1066e4ce3cf8a3da0ab39536b02743": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"quantity\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"rate\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"value\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 284,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 103,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "59b0455e689abcd66cac4457f62c7d195cf1ec9da63a2b5d094ce1324252a5fc": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"employee\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"designation\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c4\",\"role\":\"gross_pay\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c6\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c7\",\"role\":\"net_pay\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 519,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 211,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "b11faebd46c14832bcb8404d9df6b9b6658a34f61f075597992175eb676aec83": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"level\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 254,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 108,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "007a58d846fc60d5cc67b2de1f26074d73724da4660255de419daaca2830c6bc": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 174,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 86,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "a797fcb7beed9ce9934040cbf395a2feee2635b7efedb3f8529176569eb9d812": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 182,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 57,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "43c21e24dba347495eb811d5b9619bd4dd64f497f16588a87f9f050dbb6bdd7e": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"parent_group\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 461,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 209,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "c95c21e41ed928090948395807b7f6dfa9f7e150587f40ee34038ccd5cc02dd4": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 193,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 86,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "be85e36e76951d3e0cea38e7a7aeff3a4a82b6d51462a4147d8549e009fddbda": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 212,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 86,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "1af49c3d6c65f52b783fd0cf8b0841bb907b7d605b0df139a5a05128d70d3653": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"credit\",\"confidence\":\"medium\"}]}",
-    "usage": {
-      "input_tokens": 177,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 81,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "659853aae97c524b624bb7773c16bd44008296a63ca2b98efe165ae22a2ffa58": {
+  "b85c25fdde6a9fd159720edbdd1cc7d93dba4adb4283496f4bf9b5d841f94ae0": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
     "usage": {
       "input_tokens": 350,
@@ -377,88 +92,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "de0563dc9bfa1c50f9d4aaa24f7a3b6abe0a197a046d076ae334f036acbcd9f2": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 400,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 184,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "ec8f2709b4fe0e18e75e802506c40ee09f42dcee015d8a11cc7fa9053e01a6f9": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"medium\"}]}",
-    "usage": {
-      "input_tokens": 335,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 154,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "55cb617330003d2584f37d788faca2f428fb593bb162127bb79dc4e33724dc43": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"opening\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"closing\",\"confidence\":\"medium\"}]}",
-    "usage": {
-      "input_tokens": 366,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 154,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "eade8c1721eecab0b3b30bfad24ee2518a85120734704f7d30b3eb3b9ea6f75d": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 199,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 86,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "61cd5c15809767d930967c4ce66cc5e188c5e18639f7451c5e5df9b7dc420d97": {
+  "9ca58f216a9a26aa296d3721f70114720e3575c5368382c651e96a8e17083465": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 341,
+      "input_tokens": 378,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -472,69 +111,50 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "3424bd92f135549811552028974f61f22f4455fd3b1903c3ce33fe8753b94f96": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
+  "19afc23a26598ae1aa1dc448e219639a02ad0f848bdf64924b7b66d9dc83ae00": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
     "usage": {
-      "input_tokens": 375,
+      "input_tokens": 735,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 152,
+      "output_tokens": 248,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "8a475e66b2db8a91882c276009439d4bac645f7b36ab941b35ffc6138cea8395": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"high\"}]}",
+  "9afb40810d147f55f6acdf2676908ac45ee8643b2324209bdb1887e41a618ede": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
     "usage": {
-      "input_tokens": 722,
+      "input_tokens": 714,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 247,
+      "output_tokens": 248,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "0beab6e63197df253a9dd529ddd81ca9162179f273a5398ca4d1ee0c10c2222d": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 462,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 247,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "e0ec608cd29d26fdfca5563157e41813820939430b1b6dece0b2d3806cd8ab17": {
+  "1449f5370cb51eb35c0c76a669c210be590c89c05f54184c6ec1e420e9743aaa": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 368,
+      "input_tokens": 378,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -548,12 +168,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "80c6e966d66fffb184f052773875aca1c023f2c6b3ec444bb9eea0469a2930ac": {
+  "5ee6524f3b41be21fd11deebe028eda906d84e15db094072d67b1e4802fe5358": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 288,
+      "input_tokens": 444,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -567,31 +187,50 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "bb2c8e55f768952338585e36ef28057e89f365e88e5e11240cc81dd75599957e": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"employee\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"designation\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c4\",\"role\":\"gross_pay\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c6\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c7\",\"role\":\"net_pay\",\"confidence\":\"high\"}]}",
+  "6698d7e5dfaa4fb4835b162e7b15f42735445112141c1d3c57e789dc3f572598": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"quantity\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"rate\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"value\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 519,
+      "input_tokens": 286,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 211,
+      "output_tokens": 103,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "f32f6708455b8c163fb57fcfb43cab10487bd478c7a5102752c1592e7ca03a2c": {
+  "53eceede37f674cfd516378737957547fa3fb3df4fd7ca64271459413f67db4c": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"employee\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"designation\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":\"gross_pay\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c6\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c7\",\"role\":\"net_pay\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 521,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 199,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "d7bd579180e98c16af415e2720c24ec0d2e31eb75e6a87cfbd52b4866e423808": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"level\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 255,
+      "input_tokens": 256,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -605,12 +244,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "0c3b95f21e2bac021944b4f47fc4946c49735765a7d333741da8af0f60a43124": {
+  "9294563994be41c57de6712ba73787443cdd4d84758eb03cc01f363b646d4cc4": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 169,
+      "input_tokens": 176,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -624,12 +263,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "fbb7b2863aaa48b23677de857df8d27976070f945a73e7389c69cef178d58614": {
+  "b21e4e0a19a8e4edfe11fc0c09485e6cccdc2fbc4996302b0e932e5d24fecd4e": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 183,
+      "input_tokens": 184,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -643,12 +282,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "e7ff7486ea0142b596012dcf7ca9bd865b67f20663aee646b817eeb88379944f": {
+  "db171d5e9a20dec09e4bbe256e7974eb0e338fc5a5ef15a0a623783632a7780a": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"parent_group\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 458,
+      "input_tokens": 463,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -662,12 +301,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "84a9948f54e84fc922993cd696b45828a2d0bd823cc7d3e03db58ace307c878d": {
+  "98b303412a6932b9ac9a4e6d133f7e120ee09bf16ce136287f5eea2d22b88de0": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 188,
+      "input_tokens": 195,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -681,12 +320,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "f74098d33c009588d5600eabf9eebc36ba51b92668c75354aa4a333590bf3534": {
+  "0cfb1e8f73f599c5b669168731035560cdf6361b4ea6ce821bc4315ab5f4e66d": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 213,
+      "input_tokens": 214,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -700,12 +339,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "d6547c2eca586231e26ac2162b5724577fa2a4ad61d25d57111f24ea4cb8cd0e": {
+  "10ac4a02ef0c58915597ccda5eefd2af22a7aa5b9a1c965de0d128b824743d24": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
     "usage": {
-      "input_tokens": 170,
+      "input_tokens": 179,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -719,9 +358,104 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "b44a4227dfed34b6b006f0f145fe0f370d38ff4b882929ad93424679eeb48c1f": {
+  "ef2069c7e26a9608bca715ab46f2ceab3861da6ac6832a581dcd60db1b0de9ce": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 352,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 152,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "a257f32c5c1a276cdf200f3e40e8863850b0f5d4c91d1c04b5323a336522e4ca": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 402,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 184,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "243648acd8e8e13c1dce7bd6a760541aba5675f615b3eb0af6c415d3f30ed7d8": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c5\",\"role\":null,\"confidence\":\"low\"}]}",
+    "usage": {
+      "input_tokens": 337,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 144,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "e96457b63a31c9af17dc237bb53b7d9f4ba1063d904ffc1f15222dc196afd1cd": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing\",\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c5\",\"role\":null,\"confidence\":\"low\"}]}",
+    "usage": {
+      "input_tokens": 368,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 146,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "dd0d3c4e776cab46185675b751eaeedee5d91e8a25eefe6d6743e67668ea8fad": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 201,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "b3a3a957fa4b03ed51680937384f2a748dfe32d2133a997a0c29910339f0d4c8": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
     "usage": {
       "input_tokens": 343,
@@ -738,88 +472,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "e176f0558f0eb1de09d4270edac094f84b3392031b013d8773988f3560ff6df9": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 408,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 184,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "c51b92adf1f436e9dd86312c3a441a13ccbaebb18aa3e785c972ad92b1145874": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"debit\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"medium\"}]}",
-    "usage": {
-      "input_tokens": 353,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 154,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "023e8860642e0139b8dfc1608c526559446d595db538cefef2ce7e2dc485f12e": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_cr\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"closing_dr\",\"confidence\":\"medium\"},{\"ref\":\"c5\",\"role\":\"closing_dr\",\"confidence\":\"low\"}]}",
-    "usage": {
-      "input_tokens": 383,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 164,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "6996270f0541e8819cac0bafedf74ce7f3281e32e058bc1bddf99402ff82618b": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 191,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 86,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "e37f568be172a73f5d45a7c415c4708fd6c9b2d5249eba4e921aa747892d9c55": {
+  "a70cbe66945dc19cf57ff89cd8d228018d2ccef00ac5b8fbb12f6122201507c0": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 350,
+      "input_tokens": 377,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -833,69 +491,50 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "bbcdb33bc3983c8542b9a8ec6241ef4e5d5ff989fe1af926fd5dd7dc9f36946a": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
+  "c8c4e67288f9f9d8998c84138b762ba4b3303264d7bab45112957a6eb4927c1e": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
     "usage": {
-      "input_tokens": 375,
+      "input_tokens": 724,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 152,
+      "output_tokens": 248,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "5463bff1184fab9c79277a9595d342f8f2aeacef8c25eb76b1ee7355ab8705cd": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"high\"}]}",
+  "829fb10926c6a0f720d2d32651190e0547269ae181cca7142d6b1924faacbda4": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
     "usage": {
-      "input_tokens": 711,
+      "input_tokens": 464,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 247,
+      "output_tokens": 248,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "e6503c2fc07af25528bd9183a8c1bfadd61b4c527e35d1a33121f4fbfe339eb0": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 625,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 247,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "9974b1c56c517dd307e46179010132fe2d4bff9c7f1bc66c8d926a862299f116": {
+  "42e8d1fb8f74e4ca93b219677dff6b083b5bf33788982e612c2f5061236fd023": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 362,
+      "input_tokens": 370,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -909,12 +548,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "09a4bc1946ffe1be4c6a43d8e402d910025c1d0ae8d1e5d3d0105f2060ecbcea": {
+  "2203aaacac4264a67361e80f89997ae9be2ec27813c1ce4bb288cf8e07f91d98": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 399,
+      "input_tokens": 290,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -928,50 +567,31 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "711ac8c56522cacd23ec012b091eb4db31f9d0202dcbb47c0995583d91dccdde": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"quantity\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"rate\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"value\",\"confidence\":\"high\"}]}",
+  "83c2d59448f7fd2cfbd334909bcf90cc229f2d129360a970431aafd4b7c2a93d": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"employee\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"designation\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"pay_component\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pay_component\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gross_pay\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"pay_component\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"pay_component\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"net_pay\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 242,
+      "input_tokens": 521,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 103,
+      "output_tokens": 207,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "3235aff34aac80d2a0002dcd1675dbfcfd06378d25fbcf535d5e0bb975e2a555": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"employee\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"designation\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c4\",\"role\":\"gross_pay\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c6\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c7\",\"role\":\"net_pay\",\"confidence\":\"high\"}]}",
-    "usage": {
-      "input_tokens": 519,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 1271,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 211,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "ea872515d175d3ecad8d8e3fa6ec70e190aaa24312c4b0a392c207902cdf3ff6": {
+  "91a1b335476cae66916e35a52150b8f2ea11b4a3ee67644b7ce21940fb0e218a": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"level\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 251,
+      "input_tokens": 257,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -985,12 +605,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "5aa460d1a876ef5b2b31fde39ee5d1f8f6b357ded2bf29ac8fa2b20c5384762d": {
+  "c4d23199b5b754d7bf0ff67fdb8f83c4f1078ba9090eccdf63a52b79dbcf3f7e": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 180,
+      "input_tokens": 171,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -1004,12 +624,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "353b4540279405b9db6eb8d54e971f30ef840e90aea33ef758243c274cf1c4fc": {
+  "9be9658865c56e1f4385db379e76c2d56ca3541dc8a56f5230d36831e1e6e14f": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 179,
+      "input_tokens": 185,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -1023,12 +643,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "62130ac5da743bfae51d32abf4c6a17167f65f1a45c952508d1b78bed9bc1f82": {
+  "36bd712f19e86fab597170edfa6927c4f736965264e50a4ebb6777565060864c": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"parent_group\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 466,
+      "input_tokens": 460,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -1042,12 +662,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "078569814fb007ffeb3b6f160d099dad75ce7b3caa0fc9c0755cb44f8ac7a1ef": {
+  "359797aed6bb9840e8b3357074746b01eed4f93df90c9418136ff2191486d0e9": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 191,
+      "input_tokens": 190,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -1061,12 +681,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "e0438fb59876220dc2ebaeadbe8a09117a22aae83969cedccbe965015e7e6540": {
+  "0026fa5e0a098fc57052a0781ef434fd93978c727f1992df39f29ee329d97866": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 209,
+      "input_tokens": 215,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -1080,12 +700,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "d036f50e1b8aba30d110ce788b130c58dc2f63b39482a2596893cf289cec21ea": {
-    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
+  "95b765f5dc428b4f55c56370c91744bd227afcc355da93cd224706ed0b556fe8": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"low\"}]}",
     "usage": {
-      "input_tokens": 175,
+      "input_tokens": 172,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -1099,12 +719,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "884fe3bd766827a846e72b579ad56034c9d1716595aebda1c2fde2101be9b893": {
+  "6b2adfcd26d757f111a39af3f74d3ffd843512a7911e0400fb9444f9047830ec": {
     "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
     "usage": {
-      "input_tokens": 344,
+      "input_tokens": 345,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 1271,
       "cache_creation": {
@@ -1118,6 +738,386 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
+  },
+  "c3919cccfc229a649c32820340e8536fbba1537cbc86de788b659deb682d028e": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 410,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 184,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "67b5d88de7f1d8f56ec5537f0058a572a88010c2835106187cf85004973b3187": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"value\",\"confidence\":\"medium\"},{\"ref\":\"c2\",\"role\":\"value\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c5\",\"role\":null,\"confidence\":\"low\"}]}",
+    "usage": {
+      "input_tokens": 355,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 145,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "b357f5b7e3a6f252b1030e46efbde205e07bf6d93d77ad0029ff5a4fd895f9f7": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing\",\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"low\"},{\"ref\":\"c3\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c5\",\"role\":null,\"confidence\":\"low\"}]}",
+    "usage": {
+      "input_tokens": 385,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 146,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "8ccb98060be6dce5a205e37bb4ac3718ca151816a17c796d39cd76af480371e2": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 193,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "9ec43bdb4986399c220da7d17fa26ca22274075906d150b42725bc70a8840c35": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 352,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 152,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "25ae32010cb678d9c6548c3d75b113eae81403765fce6bb0062a5ee691bf3edd": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 377,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 152,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "b10089aa7238154f515b692030eb7813ee200085bbe271363d7ef2350fe8f975": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
+    "usage": {
+      "input_tokens": 713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 248,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "d02cb3c0e88658aed2417392b6a5c00509a4a528367b58d929fac41fb84270d3": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"gstin\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"taxable\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"cgst\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"sgst\",\"confidence\":\"high\"},{\"ref\":\"c8\",\"role\":\"igst\",\"confidence\":\"high\"},{\"ref\":\"c9\",\"role\":\"value\",\"confidence\":\"medium\"}]}",
+    "usage": {
+      "input_tokens": 627,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 248,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "1ae32a917a03189a5bb5439ec96983bf3284c61c002d0053cf1d03699b3302c9": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 364,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 154,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "6654704b815a15087f79de6d85244439c134cdc2af8cd3a2268e1879060d37ce": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"ref_no\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"pending\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"due_on\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"overdue_days\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 401,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 154,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "223cc931af55e270b57a139127e718c8ae779966ce41031d1c2a083d67e8313b": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"quantity\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"rate\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"value\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 244,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 103,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "9fcd1742166efe732ee4a36a3d00e297fdc6380e23ebb9d2836baf9f13e747c1": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"employee\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"designation\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"pay_component\",\"confidence\":\"medium\"},{\"ref\":\"c3\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c4\",\"role\":\"gross_pay\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c6\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c7\",\"role\":\"net_pay\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 521,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 199,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "1ef6b275878fa631488e4ab924a4c83c768b91b7daa1ca4a64739893a14529ef": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"level\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 253,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 108,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "b5e4bfbdda7bf5615b18235d3088d1e40973e1f22a869efbe3cdd07f5d8b2876": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 182,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "00563aab103e2c1e175066b1749c2b5483123e46e405c5193711768be3379bde": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 181,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 57,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "b953f6a354cd25577c0c92bc78df11c971a774a5fb2ff13c190ec81f36baadf8": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"parent_group\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"opening_dr\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"opening_cr\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"},{\"ref\":\"c6\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c7\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 468,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 209,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "155f9a6f62af72ca7f910de012956ab3ea5a59d15840ace8f911134499796b10": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 193,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "6b7a06d1731e7c4e1c478b14538f01c568b4dc2e0f4741ce50537028d5efc885": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"closing_dr\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"closing_cr\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 211,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "1361425ff33c4295acf00b5e549d560bd7501c4f75df9e7067a062d0f31e17c0": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":null,\"confidence\":\"low\"},{\"ref\":\"c2\",\"role\":\"closing\",\"confidence\":\"low\"}]}",
+    "usage": {
+      "input_tokens": 177,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "0d7cfa1e77903ef36dc00bf7f4fddd1068dec7b13ba7951fb6e02668084a06ad": {
+    "text": "{\"columns\":[{\"ref\":\"c0\",\"role\":\"date\",\"confidence\":\"high\"},{\"ref\":\"c1\",\"role\":\"particulars\",\"confidence\":\"high\"},{\"ref\":\"c2\",\"role\":\"vch_type\",\"confidence\":\"high\"},{\"ref\":\"c3\",\"role\":\"vch_no\",\"confidence\":\"high\"},{\"ref\":\"c4\",\"role\":\"debit\",\"confidence\":\"high\"},{\"ref\":\"c5\",\"role\":\"credit\",\"confidence\":\"high\"}]}",
+    "usage": {
+      "input_tokens": 346,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1271,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 152,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
   }
 }

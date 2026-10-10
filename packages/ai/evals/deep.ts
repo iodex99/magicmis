@@ -277,6 +277,12 @@ export interface DeepLabel {
   readonly scope: "in_scope" | "out_of_scope";
   /** Empty for a question the books cannot answer, or one out of scope. */
   readonly expect: readonly DeepExpect[];
+  /**
+   * A decision about the company (ADR 0089): in scope, and answered with at least one of the
+   * books' own amounts — which ones bear on it is the model's to choose, so none is named here.
+   * Without this, an empty `expect` means the opposite: an answer that cites no amount at all.
+   */
+  readonly decision?: boolean;
 }
 
 export interface DeepItem {
@@ -531,6 +537,16 @@ const OUT_OF_SCOPE = [
   "Write me Python code that scrapes a website.",
 ];
 
+/**
+ * A decision about this company (ADR 0089): in scope, answered with the figures that bear on it,
+ * and no recommendation — the decision is the reader's.
+ */
+const DECISIONS = [
+  "Should we hire two more salespeople?",
+  "Can we afford a working capital loan?",
+  "What is the business worth?",
+];
+
 /** About these books, but not something they can answer: still in scope, said plainly. */
 const UNANSWERABLE = [
   "What was the balance of our Chennai branch current account at the end of June 2025?",
@@ -557,6 +573,21 @@ export function deepDataset(limit = Number.POSITIVE_INFINITY): DeepItem[] {
       oracle: { sql: null, answer: DECLINE },
     }),
   );
+  DECISIONS.forEach((question, i) => {
+    const month = books[i % books.length]?.months.at(-1) ?? "";
+    items.push({
+      id: `decision:${i.toString()}`,
+      company: company(i),
+      question,
+      label: { scope: "in_scope", expect: [], decision: true },
+      oracle: {
+        sql: `SELECT sum(closing_paise) AS cash_paise FROM balances WHERE head = 'CA_CASH' AND period = '${month}'`,
+        answer: answer(
+          `The decision is yours, and this MIS cannot make it. Cash and bank stood at {{q:q1:0:cash_paise}} at the end of {{p:${month}}}.`,
+        ),
+      },
+    });
+  });
   UNANSWERABLE.forEach((question, i) =>
     items.push({
       id: `unanswerable:${i.toString()}`,
@@ -616,6 +647,7 @@ export function scoreDeep(
     INTEGER.test(c.value) && isPaiseColumn(c.column);
   // A question the books cannot answer has no figure in its answer: any cited amount is either
   // made up or an answer to a different question.
+  if (label.decision === true) return cells.some(money);
   if (label.scope === "in_scope" && label.expect.length === 0) return !cells.some(money);
   return label.expect.every((e) => {
     // Exactly, sign and all: a sale shown in brackets reads as a loss.

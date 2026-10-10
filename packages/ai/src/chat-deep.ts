@@ -4,8 +4,8 @@
  * The model has two strict tools: `run_query(sql, purpose)` and `answer(scope, paragraphs)`. Each
  * round the tool choice forces exactly one tool call; when the round cap (config, enforced here
  * from the server's own step count) is reached, it forces `answer`. A model that refuses a forced
- * call — Opus 5.5 — is given `auto` and told in words instead, and a response with the wrong tool
- * or none is repaired like any other (ADR 0088). A query is returned to the
+ * call — Opus 5.5 and Sonnet 5.5 — is given `auto` and told in words instead, and a response with
+ * the wrong tool or none is repaired like any other (ADR 0088, 0089). A query is returned to the
  * caller, which guards it, has the browser run it, and calls again with the result as a stored
  * step. The conversation is rebuilt from those steps each round, so nothing but steps is kept.
  * Answers pass the placeholder check (facts and query cells) with one repair.

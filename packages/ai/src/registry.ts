@@ -123,11 +123,13 @@ export const modelSupportsEffort = (modelId: string): boolean =>
   !modelId.startsWith("claude-haiku-4-5");
 
 /**
- * Opus 5.5 refuses a forced tool call — `tool_choice` `any` or `tool` — with a 400, and thinks
- * on every request; the documented replacement is `auto`, with the prompt saying which tool to
- * call (verified 2026-10-10, ADR 0088:
- * https://platform.claude.com/docs/en/models/opus-5-5/migration-guide). Every other model a
+ * Opus 5.5 and Sonnet 5.5 refuse a forced tool call — `tool_choice` `any` or `tool` — with a
+ * 400, and think on every request; the documented replacement is `auto`, with the prompt saying
+ * which tool to call (verified 2026-10-10, ADR 0088 and ADR 0089:
+ * https://platform.claude.com/docs/en/models/opus-5-5/migration-guide,
+ * https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide). Every other model a
  * route names still accepts a forced call.
  */
+const REFUSE_FORCED_TOOL = new Set(["claude-opus-5-5", "claude-sonnet-5-5"]);
 export const modelAcceptsForcedTool = (modelId: string): boolean =>
-  modelId !== "claude-opus-5-5";
+  !REFUSE_FORCED_TOOL.has(modelId);

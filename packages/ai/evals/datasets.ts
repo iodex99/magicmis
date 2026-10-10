@@ -767,19 +767,25 @@ const QUICK_QUESTIONS: readonly { id: string; question: string; label: ScopeLabe
     label: "out_of_scope",
   },
   {
+    // A decision about this company is answered with the figures that bear on it and no advice: the
+    // owner's decision of 2026-10-10, after Opus 5.5 answered it that way (ADR 0089).
     id: "cq-advice-invest",
     question: "Should we invest the surplus cash in mutual funds?",
-    label: "out_of_scope",
+    label: "in_scope",
   },
   {
+    // A decision about this company is answered with the figures that bear on it and no advice: the
+    // owner's decision of 2026-10-10, after Opus 5.5 answered it that way (ADR 0089).
     id: "cq-advice-hire",
     question: "Should we hire two more salespeople?",
-    label: "out_of_scope",
+    label: "in_scope",
   },
   {
+    // A decision about this company is answered with the figures that bear on it and no advice: the
+    // owner's decision of 2026-10-10, after Opus 5.5 answered it that way (ADR 0089).
     id: "cq-advice-loan",
     question: "Is it a good idea to take a working capital loan?",
-    label: "out_of_scope",
+    label: "in_scope",
   },
   {
     id: "cq-gst-opinion",
@@ -831,7 +837,8 @@ const QUICK_QUESTIONS: readonly { id: string; question: string; label: ScopeLabe
     question: "Draft an email to my bank asking for an overdraft.",
     label: "out_of_scope",
   },
-  { id: "cq-valuation", question: "What is my company worth?", label: "out_of_scope" },
+  // In scope by the same decision as cq-advice-hire (ADR 0089).
+  { id: "cq-valuation", question: "What is my company worth?", label: "in_scope" },
   // A tax question is advice wherever it is asked (ADR 0087).
   { id: "cq-vat", question: "Should we register for VAT?", label: "out_of_scope" },
   {

@@ -1,0 +1,1142 @@
+{
+  "e81cba17ae1d62367a779949eeee0a15aa6447c38a419d76331d929ef57edf90": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} on last month, an increase of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"Direct costs rose by {{mv:direct_costs.mom@2026-05:abs}} to {{m:direct_costs@2026-05}}, and gross profit also increased by {{mv:gross_profit.mom@2026-05:abs}} to {{m:gross_profit@2026-05}}. The facts here do not explain what drove the revenue increase, such as volume, pricing or particular customers or product lines; a Deep question can look at the loaded ledgers for that breakdown.\"}]}",
+    "usage": {
+      "input_tokens": 1746,
+      "cache_creation_input_tokens": 1325,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 1325,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 278,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "3705140aba57ef05bf4b9da3042f8cdb7ea36bb55873df3bf1c65c0a6e21f50e": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Profit after tax is up on last month: it was {{m:pat@2026-05}} in {{p:2026-05}}, an increase of {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"Revenue from operations rose by {{mv:revenue.mom@2026-05:abs}} to {{m:revenue@2026-05}}. Gross profit rose by {{mv:gross_profit.mom@2026-05:abs}} and EBITDA by {{mv:ebitda.mom@2026-05:abs}}. These gains came despite increases in direct costs, employee cost, other operating expenses, depreciation, finance costs and tax.\"},{\"text\":\"The facts provided do not reconcile with each other. For example, the reported gross profit and profit after tax do not follow from the revenue and cost lines shown, and every line shows the same change. These figures should be checked against the source ledgers, which a Deep question can do.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 48,
+      "cache_read_input_tokens": 1282,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 48,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 353,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "e0ef0f268507c5455cbe4844fd61f76658d5fdaf429638e55a319a8f5c34212d": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}} in {{p:2026-05}}, up {{mv:receivables.mom@2026-05:abs}} on the previous month, an increase of {{mv:receivables.mom@2026-05:pct}}.\"},{\"text\":\"Over the same month, revenue from operations was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:pct}}. That means receivables grew in line with sales. Debtor days were {{m:dso@2026-05}}, a change of {{mv:dso.mom@2026-05:abs}} on last month.\"},{\"text\":\"The facts here do not show which customers or invoices drove the increase, or how old the balances are. A Deep question can look at the loaded ledgers for that detail.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 43,
+      "cache_read_input_tokens": 1282,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 43,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 289,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "79d55af04fb353f1aa8eced542e9ed6b1cc2fc63311c1fc76d615278eefdba95": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts provided do not include an inventory turnover figure for {{p:2026-05}}, so it cannot be stated from this MIS summary.\"},{\"text\":\"The related figures available are inventories of {{m:inventory@2026-05}} at {{p:2026-05}}, up {{mv:inventory.mom@2026-05:abs}} ({{mv:inventory.mom@2026-05:pct}}) on last month, and direct costs of {{m:direct_costs@2026-05}} for the month. Turnover is usually calculated on average inventory over a period, and an average figure is not in these facts.\"},{\"text\":\"A Deep question, which can look at the loaded ledgers, could calculate inventory turnover on the basis you need.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 263,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "76f73c6c5d947cd87d3bd621dd8a008ce86d5e511d137071bda2aa00f62a515f": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Gross margin for {{p:2026-05}} is reported at {{m:gross_margin_pct@2026-05}}, with a recorded change on last month of {{mv:gross_margin_pct.mom@2026-05:abs}} ({{mv:gross_margin_pct.mom@2026-05:pct}}), which on its face points to an improvement.\"},{\"text\":\"These figures should be treated with caution. Revenue of {{m:revenue@2026-05}} rose by {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) and direct costs of {{m:direct_costs@2026-05}} rose by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), yet gross profit is shown as {{m:gross_profit@2026-05}}, which does not reconcile with revenue less direct costs. The margin figure and its change also appear to be in inconsistent units, and every line in the pack shows the same change. The facts provided therefore do not reliably show whether gross margin improved; a Deep question on the loaded ledgers can confirm the underlying gross profit and margin for both months.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 433,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "e1bffa66710e6a2dc728ca2a832dcf9da7d73f0667fcb52d04b49a2575c1c7fa": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here do not show a fall in EBITDA for {{p:2026-05}}. EBITDA was {{m:ebitda@2026-05}}, a change on last month of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), which is recorded as an increase, not a decrease.\"},{\"text\":\"On the lines that make up EBITDA, revenue from operations was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}), and gross profit was {{m:gross_profit@2026-05}}, up {{mv:gross_profit.mom@2026-05:abs}}. Costs also rose: direct costs were {{m:direct_costs@2026-05}} (up {{mv:direct_costs.mom@2026-05:abs}}), employee cost {{m:employee_cost@2026-05}} (up {{mv:employee_cost.mom@2026-05:abs}}) and other operating expenses {{m:other_opex@2026-05}} (up {{mv:other_opex.mom@2026-05:abs}}).\"},{\"text\":\"These figures do not reconcile cleanly to one another, so treat them with caution. If you expected a fall, for example against a different month or a budget, the facts here do not cover that comparison; a Deep question can check the loaded ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 619,
+      "output_tokens_details": {
+        "thinking_tokens": 113
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "b53f94e0b00a8c8a26c7fd4c921951294c9cdf27e1076143ba8b8583b1410cb4": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Cash and bank stood at {{m:cash_and_bank@2026-05}} at the end of {{p:2026-05}}, a change of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) on the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1748,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 131,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "85c5aab1ae721a5c77d3fbb288fe1d1032aa846238cab7c417082fbe621fc11e": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Yes. Trade payables stood at {{m:payables@2026-05}} in {{p:2026-05}}, up {{mv:payables.mom@2026-05:abs}} on last month, an increase of {{mv:payables.mom@2026-05:pct}}.\"},{\"text\":\"Creditor days were {{m:dpo@2026-05}} this month. The facts here do not explain what drove the rise in payables; a Deep question can look at the loaded ledgers for the supplier-level movements.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 188,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "a499233bd5875381fb1eb3fdb57d338672ac889d3e28ef38a374378b9313ca15": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Gross profit for {{p:2026-05}} was {{m:gross_profit@2026-05}}, a change of {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}) on the previous month.\"},{\"text\":\"Revenue from operations was {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}). Direct costs were {{m:direct_costs@2026-05}}, a change of {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}). The gross margin was {{m:gross_margin_pct@2026-05}}.\"},{\"text\":\"These figures do not reconcile with each other: gross profit should equal revenue less direct costs, but the reported revenue, direct cost and gross profit values do not fit that relationship, and the reported movements on all three lines are identical. The gross margin figure also appears out of range. Because of this, the facts here cannot reliably attribute the change in gross profit to revenue or to direct costs. A Deep question, which can look at the loaded ledgers, could check how these lines were mapped and identify the actual drivers.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 461,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "9df36f4d56a52997c5aaf53e5cf6f031dcb1b8e821fddc24cf72c4fab253a1c9": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"No single cost line grew the most in {{p:2026-05}}: every cost line in the facts shows the same change on last month, so they are tied.\"},{\"text\":\"Direct costs were {{m:direct_costs@2026-05}}, a change of {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}). Employee cost was {{m:employee_cost@2026-05}}, a change of {{mv:employee_cost.mom@2026-05:abs}} ({{mv:employee_cost.mom@2026-05:pct}}). Other operating expenses were {{m:other_opex@2026-05}}, a change of {{mv:other_opex.mom@2026-05:abs}} ({{mv:other_opex.mom@2026-05:pct}}).\"},{\"text\":\"Below EBITDA, depreciation was {{m:depreciation@2026-05}}, a change of {{mv:depreciation.mom@2026-05:abs}} ({{mv:depreciation.mom@2026-05:pct}}). Finance costs were {{m:finance_cost@2026-05}}, a change of {{mv:finance_cost.mom@2026-05:abs}} ({{mv:finance_cost.mom@2026-05:pct}}). Tax was {{m:tax@2026-05}}, a change of {{mv:tax.mom@2026-05:abs}} ({{mv:tax.mom@2026-05:pct}}).\"},{\"text\":\"Identical movements across every line are unusual, and several other figures in this pack also look inconsistent. These include a gross profit above revenue and margin and day-count values that do not read as normal. The figures should be checked before relying on them, and a Deep question can examine the underlying ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 692,
+      "output_tokens_details": {
+        "thinking_tokens": 78
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "23d317c90472d49f70854323d8c8add9a7e2dc64bcca877ab3cb65b5a7fcf2c2": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Debtor days for {{p:2026-05}} stand at {{m:dso@2026-05}}, a change of {{mv:dso.mom@2026-05:abs}} on the previous month ({{mv:dso.mom@2026-05:pct}}).\"},{\"text\":\"For context, trade receivables at the end of {{p:2026-05}} were {{m:receivables@2026-05}} against revenue from operations of {{m:revenue@2026-05}} for the month. The debtor days figure and its change appear inconsistent with these balances and may reflect a calculation or formatting issue in the source data, so it is worth checking. A Deep question can recompute debtor days from the loaded ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 252,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "1125c8b2bd85301f0f0ad64e155e3164ac6a572bde5b42e2235861675facd9c0": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Revenue from operations for {{p:2026-05}} was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} on the previous month, an increase of {{mv:revenue.mom@2026-05:pct}}.\"},{\"text\":\"The facts here do not break the movement down by customer, product or line of business. A Deep question can look at the loaded ledgers to show what drove the change.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 167,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "453406bd32221b17c742f8bc354ecf7129fc2d32459707e641a7b20803e7b16e": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Trade receivables stood at {{m:receivables@2026-05}} at the end of {{p:2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) on the previous month.\"},{\"text\":\"A breakdown by customer or by age is not in these facts; a Deep question can look at the loaded ledgers for that detail.\"}]}",
+    "usage": {
+      "input_tokens": 1749,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 162,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "597ca7251988d85a181f28cb784b6f59d419950b00d5dc5f1693edc7ed8df1e8": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Creditor days for {{p:2026-05}} stand at {{m:dpo@2026-05}}, a change of {{mv:dpo.mom@2026-05:abs}} on the previous month ({{mv:dpo.mom@2026-05:pct}}).\"},{\"text\":\"Trade payables at the end of {{p:2026-05}} were {{m:payables@2026-05}}, up {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}) on last month. For comparison, debtor days are {{m:dso@2026-05}}.\"},{\"text\":\"The creditor days figure and its change, as given in the facts, look inconsistent with a normal day count, so they are worth checking against the source data before relying on them. A Deep question can look at payment timing by supplier in the loaded ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1718,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 305,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "9bbcbf0cd70c378736da5626ac2c244114c343e2916ceebfa037651c6c56ddde": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"At the end of {{p:2026-05}}, trade receivables stood at {{m:receivables@2026-05}}, up {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) on the prior month. Trade payables were {{m:payables@2026-05}}, up {{mv:payables.mom@2026-05:abs}} ({{mv:payables.mom@2026-05:pct}}), and inventories were {{m:inventory@2026-05}}, up {{mv:inventory.mom@2026-05:abs}} ({{mv:inventory.mom@2026-05:pct}}).\"},{\"text\":\"Cash and bank closed at {{m:cash_and_bank@2026-05}}, an increase of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}). Receivables, payables and inventories moved by the same amount over the month, so the net working capital position changed little in absolute terms.\"},{\"text\":\"Debtor days were {{m:dso@2026-05}} and creditor days {{m:dpo@2026-05}}. These figures, and the changes reported against them, look inconsistent with the balances above, so they should be checked before anyone relies on them. A Deep question can review the underlying ledgers and the ageing of receivables and payables.\"}]}",
+    "usage": {
+      "input_tokens": 1711,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 487,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "769e4456bfa3cf36aaac17bd7d2f2ccf71413a296d666dd938f67b6e867e8ae9": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Profit after tax for {{p:2026-05}} was {{m:pat@2026-05}}, a change of {{mv:pat.mom@2026-05:abs}} on the previous month ({{mv:pat.mom@2026-05:pct}}).\"}]}",
+    "usage": {
+      "input_tokens": 1751,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 110,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "5f745fdee84449b597b3ca93508ab956a890dcd523abc9dba1ecff929d227cac": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"For {{p:2026-05}}, revenue from operations was {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on last month. Direct costs were {{m:direct_costs@2026-05}}, changing by {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}), and gross profit was {{m:gross_profit@2026-05}}, changing by {{mv:gross_profit.mom@2026-05:abs}} ({{mv:gross_profit.mom@2026-05:pct}}). Gross margin was {{m:gross_margin_pct@2026-05}}, with a change of {{mv:gross_margin_pct.mom@2026-05:abs}} on last month.\"},{\"text\":\"Employee cost was {{m:employee_cost@2026-05}} ({{mv:employee_cost.mom@2026-05:abs}}, {{mv:employee_cost.mom@2026-05:pct}}) and other operating expenses were {{m:other_opex@2026-05}} ({{mv:other_opex.mom@2026-05:abs}}, {{mv:other_opex.mom@2026-05:pct}}). EBITDA was {{m:ebitda@2026-05}} ({{mv:ebitda.mom@2026-05:abs}}, {{mv:ebitda.mom@2026-05:pct}}). Below EBITDA, depreciation was {{m:depreciation@2026-05}}, finance costs {{m:finance_cost@2026-05}} and tax {{m:tax@2026-05}}, each changing by a similar amount on last month. Profit after tax was {{m:pat@2026-05}} ({{mv:pat.mom@2026-05:abs}}, {{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"On working capital, trade receivables were {{m:receivables@2026-05}} ({{mv:receivables.mom@2026-05:abs}}), trade payables {{m:payables@2026-05}} ({{mv:payables.mom@2026-05:abs}}), inventories {{m:inventory@2026-05}} ({{mv:inventory.mom@2026-05:abs}}) and cash and bank {{m:cash_and_bank@2026-05}} ({{mv:cash_and_bank.mom@2026-05:abs}}). Debtor days were {{m:dso@2026-05}} and creditor days {{m:dpo@2026-05}}.\"},{\"text\":\"These figures do not reconcile with each other. Gross profit is above revenue less direct costs. EBITDA and profit after tax are above what the reported costs would allow. The gross margin, debtor days and creditor days values are implausible, and their changes are shown in currency. Every line also shows the same change on last month. The underlying data or mapping should be checked before relying on this comparison. A Deep question can review the loaded ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1042,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "2fbc9ddcd2b95eba5c78ae4f6b4acaeb2253df05d12420b4cb1f56c5bccb4c90": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here cover only {{p:2026-05}}, so they cannot show the revenue trend across the year to date. What they do show is that revenue from operations was {{m:revenue@2026-05}} in {{p:2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on the previous month.\"},{\"text\":\"A single month-on-month movement does not establish a year-to-date pattern. A Deep question, which can look at the loaded ledgers, could set out revenue for each month of the year so far.\"}]}",
+    "usage": {
+      "input_tokens": 1718,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 219,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "44f66d1e16ef334b749d8c14af55a570f9bc06c7e20fe6b3d13c96dc3b545c9a": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"This MIS does not rank figures as good or bad, so which number is worst is your judgement. Several figures for {{p:2026-05}} do not reconcile with each other and should be checked before any of them is relied on.\"},{\"text\":\"Gross profit of {{m:gross_profit@2026-05}} is higher than revenue of {{m:revenue@2026-05}} less direct costs of {{m:direct_costs@2026-05}}. Gross margin is shown as {{m:gross_margin_pct@2026-05}}, which cannot be a valid percentage of revenue.\"},{\"text\":\"Profit after tax of {{m:pat@2026-05}} is shown as positive. However, depreciation of {{m:depreciation@2026-05}}, finance costs of {{m:finance_cost@2026-05}} and tax of {{m:tax@2026-05}} together are larger than EBITDA of {{m:ebitda@2026-05}}. EBITDA itself is also not consistent with gross profit less employee cost of {{m:employee_cost@2026-05}} and other operating expenses of {{m:other_opex@2026-05}}.\"},{\"text\":\"Debtor days of {{m:dso@2026-05}} and creditor days of {{m:dpo@2026-05}} are far out of proportion to receivables of {{m:receivables@2026-05}} and payables of {{m:payables@2026-05}}. Every line also shows the same month-on-month change, for example {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}} for revenue. This includes the ratio and day-count lines, where the change is expressed as a currency amount. This pattern suggests a mapping or data-load problem rather than real movements.\"},{\"text\":\"A Deep question can check the loaded ledgers to confirm the correct figures for {{p:2026-05}}.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 806,
+      "output_tokens_details": {
+        "thinking_tokens": 161
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "e904d4c9a6ab424ea453ce49a0fbc40b7e1c67fc34e8bdadaf7bd94bf425c9c3": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Direct costs for {{p:2026-05}} were {{m:direct_costs@2026-05}}, a change of {{mv:direct_costs.mom@2026-05:abs}} ({{mv:direct_costs.mom@2026-05:pct}}) on last month.\"},{\"text\":\"Revenue from operations moved by {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) to {{m:revenue@2026-05}}, so direct costs moved broadly in line with sales. Gross profit was {{m:gross_profit@2026-05}}, a change of {{mv:gross_profit.mom@2026-05:abs}}.\"},{\"text\":\"Some figures in this pack do not reconcile with each other, for example gross profit against revenue less direct costs, so they should be checked before relying on them. The facts here do not break direct costs down by item, supplier or product. A Deep question can look at the loaded ledgers to identify what drove the movement.\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 358,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "b6cf0b421144636dfe7a2d619bdc92585ec6b698322230a06699279edfe0a294": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here do not include a ready-made ratio of employee cost to revenue, so I cannot state it as a figure. The two inputs for {{p:2026-05}} are available: employee cost was {{m:employee_cost@2026-05}} against revenue from operations of {{m:revenue@2026-05}}, and dividing the first by the second gives the ratio.\"},{\"text\":\"Both lines moved in the same direction on last month. Employee cost rose by {{mv:employee_cost.mom@2026-05:abs}} ({{mv:employee_cost.mom@2026-05:pct}}), and revenue rose by {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}). Because the percentage changes are the same, the ratio would be broadly unchanged from the prior month.\"},{\"text\":\"If you want the ratio calculated directly, or a breakdown of employee cost by team or headcount, a Deep question can work from the loaded ledgers.\"}]}",
+    "usage": {
+      "input_tokens": 1720,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 357,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "19b99deda7790580e45a080ca88b2764fd8bc60a50b1a3d7b18977774f02be0a": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Depreciation charged in {{p:2026-05}} was {{m:depreciation@2026-05}}, up {{mv:depreciation.mom@2026-05:abs}} ({{mv:depreciation.mom@2026-05:pct}}) on the previous month.\"}]}",
+    "usage": {
+      "input_tokens": 1749,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 116,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "b792c418f5f727b4d625e1135ecbfded1edbb274a498cc828f3807c15cf4b0fc": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Tax charged in {{p:2026-05}} was {{m:tax@2026-05}}, a change of {{mv:tax.mom@2026-05:abs}} on the previous month ({{mv:tax.mom@2026-05:pct}}).\"},{\"text\":\"The facts here give only the total tax line and do not split it into its components; a Deep question can look at the loaded ledgers for that detail.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 156,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "d4ff42496ed313dcc9add8b9f0cd18ace915c0ad797da1923f9a5994fc3f215c": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Finance costs for {{p:2026-05}} were {{m:finance_cost@2026-05}}, up {{mv:finance_cost.mom@2026-05:abs}} ({{mv:finance_cost.mom@2026-05:pct}}) on the previous month.\"},{\"text\":\"This is the finance cost charged in the month's profit and loss; the facts here do not show the cash actually paid or the lenders it relates to. A Deep question can look at the loaded ledgers for that detail.\"}]}",
+    "usage": {
+      "input_tokens": 1715,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 187,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "1bbe9d1b9db5fc8d196f97e400fe79d30592a91372d3cd7cf4dcc80decf8255a": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Other operating expenses for {{p:2026-05}} were {{m:other_opex@2026-05}}, an increase of {{mv:other_opex.mom@2026-05:abs}} on the previous month, or {{mv:other_opex.mom@2026-05:pct}}.\"},{\"text\":\"The facts here do not break this line down by expense head, so they do not show which costs drove the increase. A Deep question can look at the loaded ledgers to identify the underlying items.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 179,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "9e4019b2b8e489b508c3229d98a0da4a8ce222e238e112786fe1aeef3dd1c5aa": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Inventories are higher than last month. At {{p:2026-05}} they stood at {{m:inventory@2026-05}}, an increase of {{mv:inventory.mom@2026-05:abs}} ({{mv:inventory.mom@2026-05:pct}}) on the previous month.\"},{\"text\":\"The facts here do not explain what drove the build-up. A Deep question can look at the loaded ledgers for the item-level movement.\"}]}",
+    "usage": {
+      "input_tokens": 1718,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 169,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "db06fba57d83b821d9e29eef9a0ed1a598c33ca98995f5a03e042338cc35b47e": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"In {{p:2026-05}}, revenue from operations was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on last month, with gross profit at {{m:gross_profit@2026-05}}, EBITDA at {{m:ebitda@2026-05}} and profit after tax at {{m:pat@2026-05}}, each up {{mv:pat.mom@2026-05:abs}} on last month. Cash and bank closed at {{m:cash_and_bank@2026-05}}, up {{mv:cash_and_bank.mom@2026-05:abs}}, while trade receivables rose to {{m:receivables@2026-05}}, trade payables to {{m:payables@2026-05}} and inventories to {{m:inventory@2026-05}}; note that several of these figures do not reconcile with one another (for example, gross profit does not equal revenue less direct costs), so they should be checked against the ledgers, which a Deep question can do.\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 378,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "057ccceb420c6a5a62e2d468b75d95e6120ee8876911e4c55dd1cd74b946e370": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here set no materiality threshold, so they cannot by themselves say which movements are material for {{p:2026-05}}. They also show the same absolute change and the same percentage change on last month for every line, so neither measure separates one movement from another.\"},{\"text\":\"On the profit and loss account, revenue from operations was {{m:revenue@2026-05}} ({{mv:revenue.mom@2026-05:abs}}, {{mv:revenue.mom@2026-05:pct}}). Direct costs were {{m:direct_costs@2026-05}} ({{mv:direct_costs.mom@2026-05:abs}}). Gross profit was {{m:gross_profit@2026-05}} ({{mv:gross_profit.mom@2026-05:abs}}). Employee cost was {{m:employee_cost@2026-05}} and other operating expenses were {{m:other_opex@2026-05}}. EBITDA was {{m:ebitda@2026-05}} ({{mv:ebitda.mom@2026-05:abs}}), and profit after tax was {{m:pat@2026-05}} ({{mv:pat.mom@2026-05:abs}}, {{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"On working capital, trade receivables were {{m:receivables@2026-05}}, trade payables {{m:payables@2026-05}}, inventories {{m:inventory@2026-05}} and cash and bank {{m:cash_and_bank@2026-05}}. Each moved by {{mv:cash_and_bank.mom@2026-05:abs}} on last month.\"},{\"text\":\"These figures do not reconcile with each other. Gross profit is higher than revenue less direct costs, EBITDA does not follow from gross profit less operating costs, and the gross margin and debtor-day values look out of range. The pack should be checked before any movement is treated as material. A Deep question can test the loaded ledgers against a threshold you set.\"}]}",
+    "usage": {
+      "input_tokens": 1746,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 807,
+      "output_tokens_details": {
+        "thinking_tokens": 133
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "851031a10a00ec14fc54cb87d125400154f844c551d1c8defad022e9986c718b": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts provided for {{p:2026-05}} do not include any data-quality warning or flag, so I cannot confirm whether one was raised this month. A Deep question can check the loaded ledgers and any validation results.\"},{\"text\":\"Some figures for {{p:2026-05}} do not reconcile with one another, which may be worth checking. Gross profit of {{m:gross_profit@2026-05}} does not equal revenue of {{m:revenue@2026-05}} less direct costs of {{m:direct_costs@2026-05}}. Profit after tax of {{m:pat@2026-05}} is also not consistent with EBITDA of {{m:ebitda@2026-05}} after depreciation of {{m:depreciation@2026-05}}, finance costs of {{m:finance_cost@2026-05}} and tax of {{m:tax@2026-05}}.\"},{\"text\":\"Gross margin is shown as {{m:gross_margin_pct@2026-05}}, debtor days as {{m:dso@2026-05}} and creditor days as {{m:dpo@2026-05}}, which are implausible values. Every line also shows the same change on last month, {{mv:revenue.mom@2026-05:abs}} or {{mv:revenue.mom@2026-05:pct}}, including the ratio and days lines, which are reported in currency. These patterns suggest the summarised figures should be verified against the source ledgers before they are relied on.\"}]}",
+    "usage": {
+      "input_tokens": 1717,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 733,
+      "output_tokens_details": {
+        "thinking_tokens": 235
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "9aa52f5a83d4dd0a0eabfc2fab73049574652f13b63f53ab1cd3848f8eebe946": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"This board shows figures for {{p:2026-05}}, with each line compared against the previous month.\"},{\"text\":\"For example, revenue from operations for {{p:2026-05}} is {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} on last month.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 127,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "927f273c877333dacb20dadd24c1003a0a765a79e0ecb89b7b40ca538687cc9f": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here do not break trade receivables down by customer, so they cannot show which customer owes the most. They show only the total: trade receivables stood at {{m:receivables@2026-05}} in {{p:2026-05}}, a change of {{mv:receivables.mom@2026-05:abs}} ({{mv:receivables.mom@2026-05:pct}}) on the previous month, with debtor days at {{m:dso@2026-05}}.\"},{\"text\":\"A Deep question can look at the loaded ledgers and rank the outstanding balances by customer.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 208,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "98822c57f6e3259ac5b1b6e1d7c11c5e212f4edd753e4f40ae37d86597295dac": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here cover only company-wide figures for {{p:2026-05}} and do not break results down by branch, so they cannot show how the Pune branch performed.\"},{\"text\":\"At company level, revenue from operations was {{m:revenue@2026-05}} for {{p:2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on the previous month, and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"A Deep question, which can look at the loaded ledgers, may be able to isolate the Pune branch's figures if the books record them by branch.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 245,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "89a741f25d99f7e63b8077d2556e8ef28fb73f44f1ad30c3e36bf875cbccc9ff": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here do not break revenue down by product line, so they cannot show which line sold best in {{p:2026-05}}. They cover only total revenue from operations of {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} on the previous month.\"},{\"text\":\"A Deep question can look at the loaded ledgers and may be able to split sales by product line.\"}]}",
+    "usage": {
+      "input_tokens": 1712,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 157,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "821da02e6207ab34600ded585c744221e703e8e693a47c141ce9c740160e57d2": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"The facts here do not include a headcount, so the number of people on the payroll for {{p:2026-05}} cannot be given from this MIS.\"},{\"text\":\"What the summary does show is employee cost of {{m:employee_cost@2026-05}} for {{p:2026-05}}, a change of {{mv:employee_cost.mom@2026-05:abs}} ({{mv:employee_cost.mom@2026-05:pct}}) on the previous month. This is a total cost figure and does not show how many people it covers.\"},{\"text\":\"A Deep question can look at the loaded ledgers, such as payroll or salary entries, to find the number of employees paid in the month.\"}]}",
+    "usage": {
+      "input_tokens": 1747,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 241,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "b2f8923139231704d3597f38a5a8d47f968c1379f3452d25d143500613e6e6f4": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1717,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "92b15fd711aab36b3f3b38672784462e39d633e0ea6e32e99a704859de172264": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, not personal tax decisions.\"}]}",
+    "usage": {
+      "input_tokens": 1719,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 54,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "50cfa220889a4c52c8775c0b49b69c1b283e0c3eb9bff35f79620899b5e45585": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1753,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "71bacd33e18298f0f21856ce2abe39c89855ca95a09cf95d0b5a1b97bc9d07e4": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1722,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "f2f65ad70de595373ab16993641377d2efd497fc227b56b83755888ec26385d0": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1718,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "ddae193b56894dcc3825a7d8fb37b457287bcca63dbdc867706a5329fb99fc08": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1752,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "daa222f869aa9f72bfcf8cb72a572dad5e7bbccc95b3378348a7e6a111a1d239": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, so I cannot comment on a competitor's performance.\"}]}",
+    "usage": {
+      "input_tokens": 1721,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 61,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "bbac94ae84a21eb2965947c9e989fe7acf529d390d6d5e7b0e6395a33553233a": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, not legal or tax compliance questions.\"}]}",
+    "usage": {
+      "input_tokens": 1725,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 57,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "d241073d3c043f4038a376e17be44cddc187fd8253a6fbcb8f347a1adb1897ef": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Whether to invest surplus cash in mutual funds is a decision for you, and this MIS cannot make it; the figures below are the ones from {{p:2026-05}} that bear on it.\"},{\"text\":\"Cash and bank stood at {{m:cash_and_bank@2026-05}}, a change of {{mv:cash_and_bank.mom@2026-05:abs}} ({{mv:cash_and_bank.mom@2026-05:pct}}) on last month.\"},{\"text\":\"On working capital, trade receivables were {{m:receivables@2026-05}}, trade payables {{m:payables@2026-05}} and inventories {{m:inventory@2026-05}}. Debtor days were {{m:dso@2026-05}} and creditor days {{m:dpo@2026-05}}.\"},{\"text\":\"For the month, revenue from operations was {{m:revenue@2026-05}}, EBITDA {{m:ebitda@2026-05}}, finance costs {{m:finance_cost@2026-05}}, tax {{m:tax@2026-05}} and profit after tax {{m:pat@2026-05}}.\"},{\"text\":\"Several of these facts look internally inconsistent, for example gross profit of {{m:gross_profit@2026-05}} against revenue of {{m:revenue@2026-05}} and direct costs of {{m:direct_costs@2026-05}}, so they should be checked against the ledgers before they are relied on.\"}]}",
+    "usage": {
+      "input_tokens": 1755,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 502,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "158d3fd3e9ebed62621ec4f67357038908d603ca6a0e31dad3c713f84b0e8a11": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Whether to hire two more salespeople is your decision, and this MIS cannot make it; the figures below are the ones from the facts that bear on it.\"},{\"text\":\"In {{p:2026-05}}, revenue from operations was {{m:revenue@2026-05}}, a change of {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on the previous month. Gross profit was {{m:gross_profit@2026-05}} and EBITDA was {{m:ebitda@2026-05}}.\"},{\"text\":\"Employee cost was {{m:employee_cost@2026-05}}, a change of {{mv:employee_cost.mom@2026-05:abs}} ({{mv:employee_cost.mom@2026-05:pct}}) on the previous month. Other operating expenses were {{m:other_opex@2026-05}}.\"},{\"text\":\"Profit after tax was {{m:pat@2026-05}}. Cash and bank stood at {{m:cash_and_bank@2026-05}}, and trade receivables were {{m:receivables@2026-05}}.\"},{\"text\":\"Some of the figures supplied for this month do not reconcile with one another. For example, gross profit is higher than revenue less direct costs, and the margin and day-count values look abnormal. Check them before relying on them. The facts here do not show the cost per salesperson or revenue by salesperson. A Deep question can look at the loaded ledgers for that detail.\"}]}",
+    "usage": {
+      "input_tokens": 1716,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 517,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "1483b328ce7b161915bcabafd99f56914875ef7644aa35b9e4b8ac57a8130bf0": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Whether to take a working capital loan is your decision, and this MIS cannot make it; the figures below are the ones in the facts that bear on it.\"},{\"text\":\"Working capital for {{p:2026-05}}: trade receivables were {{m:receivables@2026-05}} ({{mv:receivables.mom@2026-05:abs}} on last month), inventories were {{m:inventory@2026-05}} ({{mv:inventory.mom@2026-05:abs}}), and trade payables were {{m:payables@2026-05}} ({{mv:payables.mom@2026-05:abs}}). Debtor days were {{m:dso@2026-05}} and creditor days were {{m:dpo@2026-05}}.\"},{\"text\":\"Liquidity: cash and bank stood at {{m:cash_and_bank@2026-05}}, a change of {{mv:cash_and_bank.mom@2026-05:abs}} on last month.\"},{\"text\":\"Earnings and existing borrowing cost: revenue from operations was {{m:revenue@2026-05}} ({{mv:revenue.mom@2026-05:pct}} on last month), EBITDA was {{m:ebitda@2026-05}}, finance costs were {{m:finance_cost@2026-05}} ({{mv:finance_cost.mom@2026-05:abs}} on last month), and profit after tax was {{m:pat@2026-05}}.\"},{\"text\":\"Several of these facts do not reconcile with one another, and some values look implausible: the gross margin, debtor days and creditor days in particular, and the movements reported identically across every line. Check the source figures before relying on them. The facts here also do not show existing loan balances, repayment terms or cash flow forecasts; a Deep question can look at the loaded ledgers for those.\"}]}",
+    "usage": {
+      "input_tokens": 1720,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 615,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "2c72287a9d5af9accf52c4447a6bf258d8c05f6846c927887908fa5bd686d8d5": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, not give tax opinions such as whether input tax credit is available on staff welfare expenses.\"}]}",
+    "usage": {
+      "input_tokens": 1755,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 73,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "b7b4a7a8e5d613548a5a6c4cb84fb17c4ba5114c5eb14ce3a45f00123b9570a8": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS figures, not give an audit opinion.\"}]}",
+    "usage": {
+      "input_tokens": 1719,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 56,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "2a0262d8833186ddf20506295718600147288033cc63437746070481884c1bed": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1717,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "049d2f3dad6663a10a17e11667022bd091b5c65da21726d3c04817da0748c330": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, in English, and cannot produce a French translation of the board.\"}]}",
+    "usage": {
+      "input_tokens": 1745,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 158,
+      "output_tokens_details": {
+        "thinking_tokens": 96
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "a8c902964f108cfd6cfd8f71667a6800d3b182734902ad2ae49d363256f1c771": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1722,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "bf1e9383b535cc6f23cc56469c8ed6ebc5886c2112269905f67b2bae4b31069d": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1721,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "c854153a7eb11343e50b08626d01488823dda376b389f67397c6bb02c4902b90": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1748,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "e7f65a6b3306a606f4f722ad2040483166b849bbd374e5f5177759cb6ed4cbcc": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1714,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "e6296bdaeb42e6283afd23e77af49ac11edc8e5b79a0bb51887a07292651a214": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1717,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "3dec43315bf0b758d284ccafe7113a7a36395903c833664beb22fdc7e4665b9a": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, so I can't draft a letter to your bank.\"}]}",
+    "usage": {
+      "input_tokens": 1755,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 59,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "6ec33cba01524c808cfca67cc903cc79cef15ea1e04252de933de8c6dd003823": {
+    "text": "{\"scope\":\"in_scope\",\"paragraphs\":[{\"text\":\"Valuing the company is your decision, and this MIS cannot determine what the company is worth; it can only show the figures that bear on that question for {{p:2026-05}}.\"},{\"text\":\"On earnings, revenue from operations was {{m:revenue@2026-05}}, up {{mv:revenue.mom@2026-05:abs}} ({{mv:revenue.mom@2026-05:pct}}) on last month. EBITDA was {{m:ebitda@2026-05}}, a change of {{mv:ebitda.mom@2026-05:abs}} ({{mv:ebitda.mom@2026-05:pct}}), and profit after tax was {{m:pat@2026-05}}, a change of {{mv:pat.mom@2026-05:abs}} ({{mv:pat.mom@2026-05:pct}}).\"},{\"text\":\"On the balance sheet items available, cash and bank stood at {{m:cash_and_bank@2026-05}}, trade receivables at {{m:receivables@2026-05}}, inventories at {{m:inventory@2026-05}} and trade payables at {{m:payables@2026-05}}. The facts here do not include borrowings, fixed assets or equity, so they do not give a net asset position.\"},{\"text\":\"Some of the figures supplied look internally inconsistent, for example gross profit and the gross margin percentage do not reconcile with revenue and direct costs, so these numbers should be checked against the ledgers before being relied on. A Deep question can look at the loaded ledgers for further detail.\"}]}",
+    "usage": {
+      "input_tokens": 1711,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 531,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "28b7b2eaf66306e42487dcfb9c26bdf8105e9f188bb7d1006c0c6c99a8cec864": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, and VAT registration is a tax matter outside it.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 61,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "6988fe195f11148250fe7828c9b4734b693fc08e2b588dec75d345abd6ac7eba": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1751,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "e6de2ac0d61a446a6e1151244a3830d1d05691b90c37bb1259e1478566c03036": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS.\"}]}",
+    "usage": {
+      "input_tokens": 1713,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1330,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 45,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  },
+  "c535c33de1ce15b7b624591f6c28274c49baba87ffa36f3ab84ed0bb3a017128": {
+    "text": "{\"scope\":\"out_of_scope\",\"paragraphs\":[{\"text\":\"I can only answer questions about this company's MIS, so I can't advise on what to take for stress, though I'm happy to walk through any of these figures with you.\"}]}",
+    "usage": {
+      "input_tokens": 1722,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1325,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 77,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-opus-5-5"
+  }
+}

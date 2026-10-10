@@ -179,7 +179,7 @@ describe("orchestrator", () => {
       ],
     });
     const t = new ScriptedTransport([
-      { kind: "message", message: message(out, { model: "claude-sonnet-5" }) },
+      { kind: "message", message: message(out, { model: "claude-sonnet-5-5" }) },
     ]);
     await mapColumns(ctx(account, t, "professional"), {
       report_type: "trial_balance",
@@ -188,7 +188,7 @@ describe("orchestrator", () => {
         { ref: "c2", header: "Debit", type: "amount", samples: [] },
       ],
     });
-    expect(t.created[0]?.model).toBe("claude-sonnet-5");
+    expect(t.created[0]?.model).toBe("claude-sonnet-5-5");
     expect(t.created[0]?.output_config?.effort).toBe("low");
   });
 
@@ -276,8 +276,8 @@ describe("orchestrator", () => {
       mappings: [{ ref: "l1", head: "made_up", confidence: "high" }],
     });
     const t = new ScriptedTransport([
-      { kind: "message", message: message(wrong, { model: "claude-sonnet-5" }) },
-      { kind: "message", message: message(wrong, { model: "claude-sonnet-5" }) },
+      { kind: "message", message: message(wrong, { model: "claude-sonnet-5-5" }) },
+      { kind: "message", message: message(wrong, { model: "claude-sonnet-5-5" }) },
     ]);
     await expect(
       mapLedgers(ctx(account, t), {
@@ -329,15 +329,15 @@ describe("orchestrator", () => {
     ]);
     // Expert routes sheet classification to Sonnet 5 with Haiku 5.5 as fallback.
     const result = await classifySheets(ctx(account, t, "expert"), sheetInput);
-    expect(result.modelRequested).toBe("claude-sonnet-5");
+    expect(result.modelRequested).toBe("claude-sonnet-5-5");
     expect(result.modelUsed).toBe("claude-haiku-5-5");
     expect(result.downgraded).toBe(true);
     // The route's effort reaches the fallback now that the fallback accepts one.
     expect(t.created[1]?.output_config?.effort).toBe("low");
     const rows = await calls(account);
     expect(rows.map((r) => [r.status, r.model_used, r.fallback_from])).toEqual([
-      ["error", "claude-sonnet-5", null],
-      ["ok", "claude-haiku-5-5", "claude-sonnet-5"],
+      ["error", "claude-sonnet-5-5", null],
+      ["ok", "claude-haiku-5-5", "claude-sonnet-5-5"],
     ]);
 
     const overloaded = new Anthropic.InternalServerError(

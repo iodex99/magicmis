@@ -314,8 +314,9 @@ describe("Deep", () => {
     });
     if (first.status !== "needs_query") throw new Error(first.status);
     expect(first).toMatchObject({ stepRef: "q1", sql: Q1 });
+    // Deep runs on Sonnet 5.5 here, which refuses a forced call: it chooses (ADR 0089).
     expect(t.created[0]?.tool_choice).toEqual({
-      type: "any",
+      type: "auto",
       disable_parallel_tool_use: true,
     });
     expect(t.created[0]?.tools?.map((tool) => ("name" in tool ? tool.name : ""))).toEqual(
@@ -445,11 +446,15 @@ describe("Deep", () => {
         });
       }
       expect(p.status).toBe("completed");
+      // At the cap the model is told in words to answer, since Sonnet 5.5 cannot be forced to
+      // (ADR 0089); the server still refuses a query there, as the second half shows.
       expect(t.created[2]?.tool_choice).toEqual({
-        type: "tool",
-        name: "answer",
+        type: "auto",
         disable_parallel_tool_use: true,
       });
+      expect(JSON.stringify(t.created[2]?.messages.at(-1))).toContain(
+        "The query limit for this question is reached. Answer now with what you have.",
+      );
       const rounds = await pool().query(
         `select rounds_used from chat_messages where id = $1`,
         [sent.messageId],

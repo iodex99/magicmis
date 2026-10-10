@@ -1,578 +1,46 @@
 {
-  "84ada200c062b6b706e93d387b96bcaf2746a9f7c38d5b5f74fb5292802a0dbd": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span equity, payables, receivables, sales and expenses, covering the whole chart of accounts rather than one group.\"}]}",
+  "d27c79e212b2f890e14b079daff82c3b77fefe744eb13d56b82405d3d4ff3ca3": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Account list spans bank, receivables, inventory, fixed assets, payables, equity, sales and expense accounts with debit and credit columns, which is the shape of a trial balance for the whole set of books.\"}]}",
     "usage": {
-      "input_tokens": 273,
+      "input_tokens": 275,
       "cache_creation_input_tokens": 2179,
       "cache_read_input_tokens": 0,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 2179,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 81,
+      "output_tokens": 107,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "65efa4c0a24852f3bb2e0dbaa448b92a25f175855756e4b7a01dd329ac008a16": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span the whole chart of accounts including bank, receivables, payables, equity, revenue and expense accounts, typical of a full trial balance rather than one group.\"}]}",
+  "e9f74cc63a544e128a1a06149887e9deee39ffb3eb5c3f884f7c7d6b3a5eb427": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Account list spans bank, receivables, stock, fixed assets, payables, tax liabilities, equity, sales, cost of sales and expenses, with separate debit and credit columns, so it covers the whole chart of accounts.\"}]}",
     "usage": {
-      "input_tokens": 340,
+      "input_tokens": 342,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 95,
+      "output_tokens": 115,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "58b08409e1e8aedcd99009c975df5b95d8def836910fd1f8c4a624dce6d4e2c3": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Shows income accounts and expense accounts with totals leading to net income, typical of an income statement\"}]}",
+  "a6176ea185483fdbad4a59b2220e8780638cfbf24dbd294bbac31a0f7da63cd8": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Single account and total column listing income, cost of goods sold, gross profit, expenses and net income, which is the layout of an income statement.\"}]}",
     "usage": {
-      "input_tokens": 181,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 75,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "c2b4afdab8ae0434a96a12d1f308551200a0057b49ba3391d4cee0565f2096e6": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Lists fixed assets, current assets, liabilities and equity sections culminating in net assets and total equity, typical of a statement of financial position at a date\"}]}",
-    "usage": {
-      "input_tokens": 230,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 92,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "0fcc697e15d02a39c1e5f473023ab1945d0773402465c646dc66231dee16b2d3": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"medium\",\"reason\":\"Aging buckets by customer with totals suggest outstanding amounts owed by customers, consistent with a receivables aging rather than a payables one\"}]}",
-    "usage": {
-      "input_tokens": 260,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 91,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "9b81cc9e52820eacdbacec3d90521eaf28dfb2ec9a8733ffff132c92ab7ce6f5": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Lists suppliers with aging buckets and totals, typical of outstanding payables owed by the business to vendors\"}]}",
-    "usage": {
-      "input_tokens": 211,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 79,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "e36c4a90fed428afd0849c99db00f15a79558319b1ef226e3131f57cf59cc282": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Rows list employees with job titles and salary components such as gross pay, tax deductions and net pay\"}]}",
-    "usage": {
-      "input_tokens": 277,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 75,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "5194a59277d2bd37ec1cf1a5a7811eba1ffee395a4dc6bf692640b721e57f2f2": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice level rows with customer, amount and sales tax columns, typical of a sales register\"}]}",
-    "usage": {
-      "input_tokens": 289,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 71,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "e2fe6c724b3aef9d99b9a1a590185c193c2c0fda9233bd6b8940968efef794fc": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated account groups like capital, loans, liabilities and tax duties, typical of a full trial balance across the whole chart of accounts.\"}]}",
-    "usage": {
-      "input_tokens": 456,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 91,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "bcb17d4d78e5246a54ffcab0318104d390d874b476e102ff74e63d00d3ce6657": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Two Particulars panels side by side with expenses on the left and income on the right, matching a profit and loss layout\"}]}",
-    "usage": {
-      "input_tokens": 381,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 80,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "1147c3858a2274d64535731fce227a17f35a850905b53e373d88d4a0210cbdd1": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Two side-by-side particulars panels with liabilities on one side and assets on the other, typical of a balance sheet statement layout\"}]}",
-    "usage": {
-      "input_tokens": 565,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 85,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "ffbf45c436c10bf6fe78315edcf5239b5d44f186955b64250a237de09180d4b0": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"high\",\"reason\":\"rows are specific business party names all on the debit side, consistent with members of one group such as customers, rather than the full spread of account groups expected in a trial balance\"}]}",
-    "usage": {
-      "input_tokens": 220,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 90,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "4dd904b4b21e62f16d98895cb69088c08ff616899a828388e177af5c507c8cad": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Shows a mix of voucher types like purchase, sales and payment across different ledgers with dates and voucher numbers, typical of a day book rather than a single ledger or register\"}]}",
-    "usage": {
-      "input_tokens": 455,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 96,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "9677f56559892e9f28442c306df8beb95ce8955702e5992a0afc6c5ddd6ee3cb": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"ledger_vouchers\",\"confidence\":\"high\",\"reason\":\"Single ledger account showing opening balance, individual vouchers with types and numbers, and closing balance, typical of a ledger account transaction history\"}]}",
-    "usage": {
-      "input_tokens": 311,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 91,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "71d5c832dd335f197676b6518a446f49fb7e72cae104c63cc4fe27b03cf04366": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice level rows with taxable value and tax columns including CGST, SGST and IGST, and gross total, typical of a sales register\"}]}",
-    "usage": {
-      "input_tokens": 947,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 85,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "8965b9375b6ce555ac21aaf01b4cbc867abf0f49a690e3891a530e0e74a71eb3": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice level rows with taxable value and tax columns for purchases, matching a purchase register\"}]}",
-    "usage": {
-      "input_tokens": 477,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 73,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "f9adf90991d253c390109b6f015cfcfa710d93630dda111ec5b412028adc5a4f": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills with due dates and overdue days, amounts marked as debit owed by customers, party names appear to be business customers\"}]}",
-    "usage": {
-      "input_tokens": 560,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 85,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "51684b78d3ecdca7ad02906895443d49c9e8c77e463ced2e0e6ee2154509fda8": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills with due dates and overdue days, amounts marked as credit owed to suppliers\"}]}",
-    "usage": {
-      "input_tokens": 316,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 76,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "2cbd070aedbb26a7cc1ff77bbb5367cb193a2cbbe94127c469b2cf353bdb1016": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"stock_summary\",\"confidence\":\"high\",\"reason\":\"Rows list items with closing quantity, rate and value, typical of a stock summary\"}]}",
-    "usage": {
-      "input_tokens": 209,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 69,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "1e0c4c2a7ee3f553d6d721598564834aa3125ac71affad4168f10cfda83e7f11": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Lists employees with salary components like basic, allowances, deductions and net pay\"}]}",
-    "usage": {
-      "input_tokens": 334,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 69,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "0405871c26075aee796cf9dab2375768e4b00c4b4aeff3f189126dcd3339123b": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span capital, loans, liabilities, taxes and duties across the whole chart of accounts with closing debit and credit columns and group indentation, typical of a full trial balance rather than one group opened up.\"}]}",
-    "usage": {
-      "input_tokens": 332,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 108,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "b4c5bc529017025c62991f9fe99c3926c59b56b512427faa8e8f67fd42a55e76": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span capital, loans, liabilities, and tax accounts, covering diverse account groups typical of a full trial balance with closing debit and credit columns.\"}]}",
-    "usage": {
-      "input_tokens": 226,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 93,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "cba97eb9f5bd6f831bd2d5bae47ad56ec8fa9489d8adc4cc68614978cc52b16b": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated account groups such as capital, loans, current liabilities and duties and taxes, with a single closing balance column carrying debit or credit suffix, typical of a whole chart of accounts trial balance.\"}]}",
-    "usage": {
-      "input_tokens": 349,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 112,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "125e7812197a559324408188cb96f6ab3916f1183c24ae27da6f36a45dda63e1": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated groups such as capital, loans, duties and taxes, provisions, creditors, and fixed assets, typical of a whole chart of accounts rather than one group opened up.\"}]}",
-    "usage": {
-      "input_tokens": 565,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 104,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "c8b41946d356cbf1fa787a5b525ecced2fe3ac6f67f28fa3818c9058a5850721": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows cover unrelated account groups such as capital, loans, and current liabilities with duties and taxes, spanning the whole chart of accounts with closing debit and credit columns\"}]}",
-    "usage": {
-      "input_tokens": 272,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 100,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "bd89e0e61d3b1a3a2c4588408898863d778c4b20b27adbbe5cf4e150a4e8d9ff": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"rows span unrelated account groups like capital, loans, current liabilities and tax accounts, typical of a full chart of accounts with closing debit and credit columns\"}]}",
-    "usage": {
-      "input_tokens": 308,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 94,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "875d63f69a0a10fc02599d4d227d670b57b593c2a1cdd782b53f222289032c78": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Shows income and expense groups like sales, purchase, direct and indirect expenses, which is characteristic of a profit and loss statement\"}]}",
-    "usage": {
-      "input_tokens": 295,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 88,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "ff7ef949ca5b365c5e38314da177e472836f35d1fb0f0880e02f46b5788245a2": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Shows vouchers of multiple types such as payment, sales and purchase across different ledgers in date order with debit and credit amounts, typical of a day book rather than a single ledger.\"}]}",
-    "usage": {
-      "input_tokens": 463,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 98,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "2efac1838d4704394368eb80ec70a908b9767cbb4d499001e42a070bdda596e5": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span capital, loans, liabilities, duties and provisions, covering diverse account groups typical of a full chart of accounts with opening, transaction and closing columns split debit and credit\"}]}",
-    "usage": {
-      "input_tokens": 441,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 103,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "a484ebf38e2b70902ec9a239335b4ed2a29c9cf73429a6242cb1a242fe255812": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Two side-by-side Particulars panels with expenses on one side and sales/income on the other, totals matching, and a net profit line, consistent with a two-panel profit and loss statement\"}]}",
-    "usage": {
-      "input_tokens": 327,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 103,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "9c58a2afe136ba5261a700257d2a40b7c39502d31681633be77f96243a6226dd": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Two panels with repeated Particulars columns, liabilities on left and assets on right, typical of a Tally balance sheet layout\"}]}",
-    "usage": {
-      "input_tokens": 519,
+      "input_tokens": 183,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -586,50 +54,69 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "3356febcca30878ac153810014c3e198f37a06628872627a8f742c3ba949d32a": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"medium\",\"reason\":\"Rows list specific party names with balances all on one side, consistent with members of a single group such as customers, rather than a full chart of accounts\"}]}",
+  "c33b709db5d3ee2c82885444b96e064e498c4676087a90d1b4b7db47b6d06bc3": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Single dated amount column lists fixed assets, current assets, current liabilities, net assets and equity with totals, which is the layout of a balance sheet statement rather than a trial balance.\"}]}",
     "usage": {
-      "input_tokens": 159,
+      "input_tokens": 232,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 118,
-      "output_tokens_details": {
-        "thinking_tokens": 34
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "bca1861ea88777e5a08ef5eba9ba49176144eeb180d0071bc137826afb18d897": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Multiple voucher types like sales, payment and purchase across different ledgers, dated sequentially with debit and credit amounts, typical of a day book rather than a single ledger or register.\"}]}",
-    "usage": {
-      "input_tokens": 426,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 99,
+      "output_tokens": 102,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "4a7e912b895e0f9c6f39b5dcb1be3e41c67255dde479571342aabb290e855a8c": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"ledger_vouchers\",\"confidence\":\"high\",\"reason\":\"Single ledger account showing opening balance, individual vouchers with types and numbers, and a closing balance, typical of a ledger vouchers report.\"}]}",
+  "4b7b34623ef8bd210e382407c3a6b579d73a09e1c868aeac9937ae90e4aac443": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"medium\",\"reason\":\"Aged balances by customer in ageing buckets with a total, which is an outstanding customer bills listing, so amounts are owed to the business. No due dates or Dr/Cr marks are shown, so the side is inferred from the customer column.\"}]}",
     "usage": {
-      "input_tokens": 315,
+      "input_tokens": 262,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 120,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "e45abb1d25a0b91709b31a501b247789f0359230a1cc2fbaaa426be63e88ed79": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"medium\",\"reason\":\"Aged balance listing by supplier with current and overdue period buckets and a total, so it reads as outstanding amounts owed to suppliers; no due date or Dr/Cr marker is present.\"}]}",
+    "usage": {
+      "input_tokens": 213,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 105,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "b95e85be71818fc25a57f3d45c9a292c5d7ebc282d1c0669e88c4a8d5549a140": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Each row is an employee with gross pay, several tax and contribution deductions and a net pay figure, which is the shape of a salary components sheet per employee.\"}]}",
+    "usage": {
+      "input_tokens": 279,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -643,50 +130,126 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "94172a09b3f9255bc052943b14573521c3b95d34d0a4811a68ac3d43c2cdb04f": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with party names, voucher numbers, tax identifiers, taxable value and tax columns broken into components, indicating a sales register\"}]}",
+  "83bc20c93464eb61dace989f8e1427cf36eb2f210b6ebc91abab31a996844b3d": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level list with date, invoice number, customer, amount before tax, sales tax and total, which is the shape of a sales register.\"}]}",
     "usage": {
-      "input_tokens": 564,
+      "input_tokens": 291,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 90,
+      "output_tokens": 84,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "c7eca2732139fabe9c569b94da656c4c4dfaa6090fb8d44c71ea7c407a531a43": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with party names, taxable value, and tax columns including CGST, SGST and IGST, typical of a purchase register\"}]}",
+  "77afb4e7763b1f64dd53635153bda85b717fa569004013072e605f8fb0add03b": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Single Particulars column with opening, transaction and closing debit and credit columns. Rows span unrelated standard groups such as capital, loans and current liabilities with nested ledgers, which indicates the whole chart of accounts.\"}]}",
     "usage": {
-      "input_tokens": 268,
+      "input_tokens": 458,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 87,
+      "output_tokens": 115,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "6933579eb67a8ab40da9fa8d53244e73fb5e42fd78a0566d70524c141036a8c8": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Lists outstanding bills with due dates and overdue days, amounts marked Dr indicating money owed to the business, grouped by customer name\"}]}",
+  "b0a21d9b1546eb593651c68c9b818e46558483df6586083716d21ea126a1b658": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Particulars repeats in two panels with expenses such as purchases, direct and indirect expenses and a net profit line on the left, and sales income on the right, with matching totals, so it is an income and expenditure statement.\"}]}",
     "usage": {
-      "input_tokens": 359,
+      "input_tokens": 383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 112,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "87c59f015f1d30cacd537eca18399531a881a8cfec55cdb5ec58f8916d73eb4a": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Two panels side by side with a repeated Particulars column: liabilities such as capital, loans and current liabilities on the left, assets such as fixed assets, current assets, stock and debtors on the right.\"}]}",
+    "usage": {
+      "input_tokens": 567,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 107,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "0d167d94f3f817639b02f4b90c2f4a7a397a323c297c6ce8ae0039624665727d": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"medium\",\"reason\":\"Rows are individual business names, all with balances on the debit side only, which reads as the members of one group such as sundry debtors rather than a whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 222,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 93,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "0092c5fdc3170e4405c31fa8c1ad3fa6e08469e6a069940b281641a8081a251e": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Vouchers with date, voucher type and number are listed across many different ledgers, including purchases, sales and payments, with debit and credit lines per voucher and no opening or closing balance rows for a single ledger.\"}]}",
+    "usage": {
+      "input_tokens": 457,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 107,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "76d711c24ed68fd8534d7f8dd8a44b80907c3c3994b1f2588129687e02f038e5": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"ledger_vouchers\",\"confidence\":\"high\",\"reason\":\"Vouchers with date, type and number are listed for a single ledger, framed by an opening balance row, a current total row and a closing balance row.\"}]}",
+    "usage": {
+      "input_tokens": 313,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -700,69 +263,31 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "83941759d746bc74029191ba449ab7c0e312d5c3122dd8ee6b709ff91b945b41": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills with due dates and overdue days, amounts marked credit indicating owed by the business to suppliers\"}]}",
+  "5ea786092647f191c2b49d11cd72015041d11173260c8e9666f48b35f14293e6": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with date, party, sales voucher type, voucher number, tax registration number, taxable value, central, state and integrated tax columns and a gross total, which is the layout of a sales register.\"}]}",
     "usage": {
-      "input_tokens": 186,
+      "input_tokens": 949,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 81,
+      "output_tokens": 106,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "4def6958fbfe8290a0d6d41984947946c8898ada262fa2ebd21dd6617a790a64": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Rows list employee names with designation and salary components such as basic, allowances, deductions and net pay\"}]}",
+  "b69644ceccd53d4383ac66da7032620b0c1b602844e7b7ea15f4f862589ed59d": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with supplier names, purchase voucher type and numbers, supplier tax identifiers, taxable value, central, state and integrated tax columns and a gross total.\"}]}",
     "usage": {
-      "input_tokens": 381,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 75,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "4529670e6728aa230c2e3bc4ca9ac89468d33504f17c5b5eb321bccb7f7eb9c0": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows cover a broad range of account groups such as capital, loans, current liabilities, duties and taxes, and provisions, with closing debit and credit columns and a level column for indentation, typical of a full trial balance rather than one group opened up.\"}]}",
-    "usage": {
-      "input_tokens": 331,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 119,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "c0b991379a21b15bdffad7d086a904cbc3916546397f3db2500969830ac3289a": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated account groups such as capital, loans, and duties and taxes, each with closing debit or credit, typical of a whole chart of accounts rather than one group opened up.\"}]}",
-    "usage": {
-      "input_tokens": 222,
+      "input_tokens": 479,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -776,69 +301,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "c3a895668e79d40f0064cef2e307096cb448b9cff019df941f5cd002e302b610": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated account groups like capital, loans, current liabilities, duties and taxes, which together cover the whole chart of accounts rather than one group's members\"}]}",
+  "335d86042540f3cd9c1b6f4a9822f2be46cd3d70d930fabd5c48fac34463d89a": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills grouped under customer names with reference numbers, due dates, overdue days and pending amounts marked as debit, so owed to the business.\"}]}",
     "usage": {
-      "input_tokens": 348,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 95,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "60f61ce9959a581e74e2d04215c004c95370098a5b3d421caef4e51342a0018f": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated account groups such as capital, bank, taxes, creditors, fixed assets and cash, which is characteristic of a full trial balance rather than a single group listing.\"}]}",
-    "usage": {
-      "input_tokens": 577,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 101,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "93c7b1ec9156e553e8c0968de553cced8a292e9bfe6fddb2338de89da96aec8d": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated account groups such as capital, loans, and duties and taxes, which is typical of a whole chart of accounts rather than a single group opened up\"}]}",
-    "usage": {
-      "input_tokens": 269,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 94,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "0b0d3a6e14a5998e343ecdc516449fd6ae1c1f93b2b115216c3576ba0bfe8038": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated account groups like capital, loans, liabilities and taxes, typical of a full chart of accounts with closing debit and credit columns\"}]}",
-    "usage": {
-      "input_tokens": 307,
+      "input_tokens": 562,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -852,69 +320,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "175bac42b95867dbb3b386d572ed412b35cf17b3f403c6ce9a4331a8fc90d4bb": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Rows show income and expense categories such as sales, professional fees, direct and indirect expenses, salaries and depreciation, typical of an income and expenditure statement rather than a balance sheet or trial balance.\"}]}",
+  "aaca6881b1d9d7666505980fa0af6b9e71f03e453709f3bdf450fbcafbed52db": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills list with reference numbers, party names, pending amounts marked Cr, due dates and overdue days, so the amounts are owed by the business.\"}]}",
     "usage": {
-      "input_tokens": 279,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 111,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "dff8c6a83bb409f858b824baf2695d1ff44be932c9c44deb1dfad432ee726f1e": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Shows a sequence of mixed voucher types such as sales, payment and purchase across different ledgers with dates and voucher numbers, typical of a day book rather than a single ledger or register.\"}]}",
-    "usage": {
-      "input_tokens": 462,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 101,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "fe6eb5063a871f483509f6424e44e2c4a5680d7d086e9d213c3bc4fe5029cd84": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Two side by side particulars panels with expenses on left and sales income on right, showing net loss, matches a profit and loss statement layout\"}]}",
-    "usage": {
-      "input_tokens": 386,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 87,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "5461c8d478d76bb6a30c123eab931aa8f39d7999bb0e148fbacc8ad5556295ab": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Two side by side Particulars panels showing liabilities like capital and loans on the left and assets like fixed assets, bank, stock and debtors on the right\"}]}",
-    "usage": {
-      "input_tokens": 533,
+      "input_tokens": 318,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -928,126 +339,12 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "df1ff5af53c5c38987fc7bef651d0575514a303c4afd7f1bd95728e660b7fbd1": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"medium\",\"reason\":\"rows list specific business party names all on the debit side only, consistent with one group opened up such as sundry debtors\"}]}",
+  "fd8c253eaecc5bc3becccfc64dbdd5f86dc8259bf53c5d3f2b68bace595747ca": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"stock_summary\",\"confidence\":\"high\",\"reason\":\"Rows list stock items with closing quantity, rate and value, ending in a grand total, which is the shape of a stock summary.\"}]}",
     "usage": {
-      "input_tokens": 151,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 77,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "b6d6870cfada32ae969af89e759d64d86b76fb9d41930efa6497578035bfe78a": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Shows vouchers of multiple types such as purchase, sales and payment across different ledgers, with dates and voucher numbers, typical of a day book rather than a single ledger or register.\"}]}",
-    "usage": {
-      "input_tokens": 449,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 99,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "71caaf94bcf0f026a0aa77ac6e91ab6b20a1b63f9a258c4c8993a2776346858b": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"ledger_vouchers\",\"confidence\":\"high\",\"reason\":\"Single account showing opening balance, individual vouchers of various types, and closing balance, typical of one ledger's transaction history\"}]}",
-    "usage": {
-      "input_tokens": 310,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 85,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "88e07e7e2fbf22f302d88f3dc9cfd80ca1ef874f42f914c1f4b466aa9e6247f3": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice level rows with taxable value, tax columns and gross total under sales voucher type\"}]}",
-    "usage": {
-      "input_tokens": 545,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 71,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "3a8a53b0ba1bd2904d381d7396ab2dc7561e1e77674e738e826483078cc0b8fd": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with party names, voucher numbers, taxable value and tax splits across central and state or integrated tax columns, typical of a purchase register\"}]}",
-    "usage": {
-      "input_tokens": 403,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 93,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "55c38b5734ce1d920d172dfe602ffc7b028e293a2c3edf7f43f15e6980c0346b": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills grouped by party with due dates and amounts marked debit, matching receivable from customers\"}]}",
-    "usage": {
-      "input_tokens": 349,
-      "cache_creation_input_tokens": 0,
-      "cache_read_input_tokens": 2179,
-      "cache_creation": {
-        "ephemeral_5m_input_tokens": 0,
-        "ephemeral_1h_input_tokens": 0
-      },
-      "output_tokens": 78,
-      "output_tokens_details": {
-        "thinking_tokens": 0
-      },
-      "service_tier": "standard",
-      "inference_geo": "global"
-    },
-    "model": "claude-sonnet-5"
-  },
-  "0abe815ed9cce3d6eafb7e3d0fe6db5b50483249eda9b028dfe72acc55e92e68": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills with due dates and overdue days, amounts marked as credit meaning owed by the business to suppliers\"}]}",
-    "usage": {
-      "input_tokens": 281,
+      "input_tokens": 211,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -1061,69 +358,202 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "81eec8dde892325cb602a1ba3e320db4c7e187245d0aa92e6371b8ee580f7bed": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"stock_summary\",\"confidence\":\"high\",\"reason\":\"Lists items with quantity, rate and value columns typical of inventory valuation\"}]}",
+  "0a2c1d97b555d386594c90998f27a774dc7c163c7d532be3cb634d58094cba7c": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Each row is an employee with salary components such as basic, allowance, gross earnings, deductions and net pay.\"}]}",
     "usage": {
-      "input_tokens": 170,
+      "input_tokens": 336,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 68,
+      "output_tokens": 78,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "9acaede5cf894eb01c4bac438ef3f3856cbee1f25c664c2ad8530552b0e206a2": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Employee names with designation and salary components like basic, HRA, PF, TDS and net pay\"}]}",
+  "86516778a47eee5630e3da54df9e606169f1da01179cb66ce2e821494cef510c": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows are standard account groups and ledgers such as capital, loans and current liabilities with duties and taxes beneath, with a level column for indentation and closing balance only split into debit and credit, which fits a trial balance for the whole books.\"}]}",
     "usage": {
-      "input_tokens": 381,
+      "input_tokens": 334,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 74,
+      "output_tokens": 117,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "c934ebdf95a19a7998309a328efdf657bb50a9e3a5e5f50df94c2aaeaa96e147": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Rows list income and expense groups such as sales, purchases, direct and indirect expenses, typical of a profit and loss statement rather than a trial balance or group summary.\"}]}",
+  "23c68dab0921dbc814c588819c1256a383a78f80accc4a34faefe17bac01a4af": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated standard account groups such as capital, loans, current liabilities and duties and taxes, with closing balance split into debit and credit columns, which indicates a whole-books trial balance.\"}]}",
     "usage": {
-      "input_tokens": 291,
+      "input_tokens": 228,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
         "ephemeral_5m_input_tokens": 0,
         "ephemeral_1h_input_tokens": 0
       },
-      "output_tokens": 98,
+      "output_tokens": 106,
       "output_tokens_details": {
         "thinking_tokens": 0
       },
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
   },
-  "ae326c6d256019fb547ca61b0f79873929a9018bd57a2b1af60b1c6a0cc5496c": {
-    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Shows vouchers of multiple types such as purchase and payment across different ledgers, with dates and voucher numbers, consistent with a daybook rather than a single ledger.\"}]}",
+  "a144b3e8ab8b351fa67fa5abab4af1099e5f3a5b4fa966280c3fdb293beff8bf": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Single closing balance column with Dr or Cr suffixes, listing standard account groups such as capital, loans and current liabilities with indented ledgers beneath, which spans the whole chart of accounts rather than one group.\"}]}",
     "usage": {
-      "input_tokens": 459,
+      "input_tokens": 351,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 112,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "d11e0fcb7db722d14f58491487e6a68e7a9839d96cc084fa53a6c2d68e3c6925": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated natures such as capital, loans, duties and taxes, provisions, creditors and fixed assets, with opening, transaction and closing debit and credit columns, so it covers the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 567,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 114,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "0645b8e7b0ac407f4d92c252580ccc8ad41c276d39d986e8ec6b38d7a570d9f1": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Closing balance only in debit and credit columns, with standard account groups such as capital, loans and current liabilities and their ledgers nested beneath, spanning unrelated natures across the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 274,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 109,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "6c03b267497dc8bda5309bfcc8b7249609bc83bc6325bef71ab3aa7570d5deb7": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Closing balance only split into debit and credit columns, with rows running across unrelated standard account groups such as capital, loans and current liabilities with nested ledgers beneath, which points to the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 310,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 110,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "cae3f36c8a2b75d6cb9ef79cb18598996f2b4809db571b6c44dd2fc7b2caac66": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Rows list income groups such as sales, then purchases, direct and indirect expenses with their ledgers, and there is no capital, loans or asset rows, so this is an income and expenditure statement in a single panel rather than a trial balance.\"}]}",
+    "usage": {
+      "input_tokens": 297,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 119,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "a416ec8db79e7144a067e7500206a728ab4a079f7b1f60f37841598da843d28d": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Vouchers of several types (payment, sales, purchase) across many different ledgers with dates, voucher numbers and debit and credit lines, so it covers all ledgers for a period rather than a single ledger.\"}]}",
+    "usage": {
+      "input_tokens": 465,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 107,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "1a048660b5e0dd08d52f983bbf9438a2bd9401d8a0a7981afa13753617dbb004": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated standard account groups such as capital, loans and current liabilities with duties and taxes beneath them, and the columns give opening, transactions and closing split into debit and credit, which is the full trial balance layout.\"}]}",
+    "usage": {
+      "input_tokens": 443,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 114,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "5761d24e9ed8552d244b4083b12b2a4779a85649b8dd220a19ad835e197a7a23": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Particulars repeats in two panels with expenses and net profit on the left and sales income on the right, balanced by matching totals, which is an income and expenditure statement.\"}]}",
+    "usage": {
+      "input_tokens": 329,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2179,
       "cache_creation": {
@@ -1137,6 +567,576 @@
       "service_tier": "standard",
       "inference_geo": "global"
     },
-    "model": "claude-sonnet-5"
+    "model": "claude-sonnet-5-5"
+  },
+  "dd40115529c3c85252843d5c97784884ec2f7822a66191e2443f4b6fccb6a414": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Two panels side by side with Particulars repeated; liabilities such as capital, loans and current liabilities on the left and assets such as fixed assets, current assets and debtors on the right.\"}]}",
+    "usage": {
+      "input_tokens": 521,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 102,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "a35903a73a631ef36e9e907206053847d0335549ea2b8cc2f4b95b6db415c027": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"medium\",\"reason\":\"Rows are individual business names of one kind with balances only on the debit side, which reads as the members of a single group such as customers, not a full chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 161,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 90,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "03c6ba37ea7f775dbc2680689aa4dd55ed69fd1aab47aff73c7f1c69ed36404e": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Vouchers of several types (sales, payment, purchase) across different ledgers appear together with date, voucher type and number, and each voucher is split into debit and credit lines, so this is a day book rather than a single-ledger or register export.\"}]}",
+    "usage": {
+      "input_tokens": 428,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 114,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "5d87d11d627f3ece26a84e7f7238d198a3d66b2e5e6435670170ed53a350a42b": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"ledger_vouchers\",\"confidence\":\"high\",\"reason\":\"Vouchers with date, voucher type and number posted against one ledger, bracketed by an opening balance row and a closing balance row with a current total line in between.\"}]}",
+    "usage": {
+      "input_tokens": 317,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 94,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "8625cbc810f9c41573dbe10417f689b272bf53209c322fcb465d7cc045df1f0a": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with party, voucher type Sales, voucher number, tax registration number, taxable value, split central, state and integrated tax columns, and a gross total.\"}]}",
+    "usage": {
+      "input_tokens": 566,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 96,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "caa6a886f87220cb10b9ceb7b852e1ab4b1a333ab8d1c64351ce47f7feae5978": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with supplier GSTIN, taxable value, split central, state and integrated tax columns, gross total, and voucher type shown as Purchase.\"}]}",
+    "usage": {
+      "input_tokens": 270,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 96,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "020f918ce7d44a10064b789908490bdaa58bdace8677297b9178d46fea1e7ae8": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills grouped by party with reference numbers, due dates and overdue days, and pending amounts are marked Dr, meaning owed to the business.\"}]}",
+    "usage": {
+      "input_tokens": 361,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 94,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "d485bb0fd801955aa5f799eea22a3231094931621f6ab2d95f24279f98546a8a": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills with due dates and overdue days; pending amounts are marked Cr, meaning owed by the business, and the party names read as suppliers.\"}]}",
+    "usage": {
+      "input_tokens": 188,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 92,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "a43c047e6496badae5c5d130030afe57556ae48a764d4e477f4f15fd969f90d6": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Each row is an employee with salary components such as basic, house allowance, gross earnings, deductions and net pay.\"}]}",
+    "usage": {
+      "input_tokens": 383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "856abae9284e76a0bdcb1b2fb72bffbf7381c2f783a8babb18ce8332e5ff0e26": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows are standard account groups of unrelated natures such as capital, loans and current liabilities with nested ledgers, shown with a level column and closing debit and credit columns, which is the shape of a trial balance.\"}]}",
+    "usage": {
+      "input_tokens": 333,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 109,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "822b10446869b278064cb3ee9a5b1f5c7c6927e25219f23549b1fafdf85f1ed4": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Closing balance only with debit and credit columns; rows span unrelated standard account groups such as capital, loans and current liabilities with duties and taxes, so it covers the whole chart of accounts rather than one group.\"}]}",
+    "usage": {
+      "input_tokens": 224,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 110,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "4e5d3dea85e3e8872dd0cfc3f9f62877ae89b40d2b1136fa3883c84fb22e85ee": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"medium\",\"reason\":\"Single closing balance column with Dr or Cr suffix. Rows are indented standard account groups such as capital, loans and current liabilities with their ledgers beneath, which spans the chart of accounts rather than one group. Only liability groups are visible in the sample, so a balance sheet is possible, but there is no second panel.\"}]}",
+    "usage": {
+      "input_tokens": 350,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 146,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "885dbf30ef7f755ed83d660eaf7ce8677ea831b9951303983fbb1437d76537fb": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Rows span unrelated groups such as capital, bank overdraft, duties and taxes, provisions, creditors, fixed assets, bank and cash, with opening, transaction and closing debit and credit columns, so it covers the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 579,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 124,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "9ff757c56f39da18b272a4b66f2c7664981a0f9af94ff07d18d5ebe27bba5b3f": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Closing balance only in debit and credit columns, listing unrelated standard account groups such as capital, loans and current liabilities with nested ledgers beneath, which is the shape of a trial balance for the whole set of books.\"}]}",
+    "usage": {
+      "input_tokens": 271,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 112,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "3fc3d58117af615babf53a8e38a9ac6e4af2bcf02cdee17c7906bc0dd3c993cc": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"trial_balance\",\"confidence\":\"high\",\"reason\":\"Closing balance only with debit and credit columns; rows span unrelated standard groups such as capital account, loans and current liabilities with their ledgers nested beneath, so it covers the whole chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 309,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 109,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "70551cf3179752d35082732d555c02ab3fc05e9b0210cf90b312ad8d377a3745": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Single-panel statement listing income groups followed by direct and indirect expense groups with nested ledgers and subtotals, which is an income and expenditure statement rather than a trial balance.\"}]}",
+    "usage": {
+      "input_tokens": 281,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 103,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "2e227371bc9114eb738aef07ffdc3464d43f3c48e7c0eb543cfed3b85baa561b": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Vouchers with date, voucher type and number are listed across many unrelated ledgers such as sales, payments and purchases, with debit and credit lines per voucher. It is not for a single ledger, so it is a day book.\"}]}",
+    "usage": {
+      "input_tokens": 464,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 110,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "25f76d40bf5deb5996642a31cc0e41e2cdcb895b678a31a6e9376a7b1ff2255f": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Two panels side by side with a repeated Particulars header; expenses such as purchases, direct and indirect expenses on the left and sales income on the right, with a net loss balancing the totals.\"}]}",
+    "usage": {
+      "input_tokens": 388,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 104,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "6e96027dd703211aecc3b335cead9f2818c9bd32aa1e7d4a668812b3037d9d9e": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"balance_sheet\",\"confidence\":\"high\",\"reason\":\"Particulars repeats with a second unnamed set of amounts on the same rows; liabilities such as capital, loans and current liabilities sit on the left and assets such as fixed assets, bank, stock and debtors on the right, so it is a two-panel balance sheet.\"}]}",
+    "usage": {
+      "input_tokens": 535,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 129,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "25e9cc9ff09e71bc0279f0953684b5c1f3eae2d2200ea2eda65eaa974a40bef0": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"group_summary\",\"confidence\":\"medium\",\"reason\":\"Rows are individual business names with balances only on the debit side, which reads as the members of one group such as a customer list rather than a full chart of accounts.\"}]}",
+    "usage": {
+      "input_tokens": 153,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 88,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "a2c3c21b62514d37104a286a8ee458bb534e997adedd7be8f3093aa922c50c4b": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Vouchers of several types such as purchase, sales and payment are listed with dates, voucher numbers and debit and credit lines across many unrelated ledgers, with no opening or closing balance rows, so it is a day book for the period.\"}]}",
+    "usage": {
+      "input_tokens": 451,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 114,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "828dd577a4ae84117a6afe7816200e78a1aabadff1c0ac30b8988c0e5e4d477d": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"ledger_vouchers\",\"confidence\":\"high\",\"reason\":\"Vouchers posted to a single ledger with date, voucher type and number, plus opening balance, current total and closing balance rows.\"}]}",
+    "usage": {
+      "input_tokens": 312,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 86,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "ba00527f133a2f41159f040e094957303b01f3186814661ea086c8c6c8d75043": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"sales_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with party, sales voucher type, voucher number, taxable value and split central, state and integrated tax columns plus gross total, which is the shape of a sales register.\"}]}",
+    "usage": {
+      "input_tokens": 547,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 99,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "71fb5f1f751d46ae5f1f67c0bbd6f6691222730a612ec56d6f1bc3a6fca50017": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"purchase_register\",\"confidence\":\"high\",\"reason\":\"Invoice-level rows with supplier names, voucher type Purchase, purchase invoice numbers, taxable value, CGST, SGST and IGST columns and gross total, which is the shape of a purchase register.\"}]}",
+    "usage": {
+      "input_tokens": 405,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 111,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "e897491e1df14d58afd7e6367b95aabcd113823b15fd26f5a25e59e72b6d411a": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_receivable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills grouped by party with reference numbers, pending amounts marked as debit, due dates and overdue days, so the amounts are owed to the business.\"}]}",
+    "usage": {
+      "input_tokens": 351,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 95,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "c08180e2c6ef40ad85a7d4946d8633fb01d6f76dcfe53b6a5ac5e08ef99680a4": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"bills_payable\",\"confidence\":\"high\",\"reason\":\"Outstanding bills with reference numbers, due dates and overdue days; pending amounts are marked Cr, meaning they are owed by the business to its suppliers.\"}]}",
+    "usage": {
+      "input_tokens": 283,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 95,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "c4eeb69000ac3c346cf9affb06c2020cc2a7131731a116021a62c3191cf9c4c3": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"stock_summary\",\"confidence\":\"high\",\"reason\":\"Items are listed with closing quantity, rate and value, with a grand total row, which is the shape of a stock summary.\"}]}",
+    "usage": {
+      "input_tokens": 172,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 79,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "bdd8bafd211d523cafa60a944db1d1ec4507598330095da7f56f2ab0bc258396": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"pay_sheet\",\"confidence\":\"high\",\"reason\":\"Each row is an employee with salary components such as basic, allowances, gross earnings, deductions and net pay.\"}]}",
+    "usage": {
+      "input_tokens": 383,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 78,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "63ecc17091349415823bba32a82207f8abd1b1695191670e68c574a035c9a652": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"profit_and_loss\",\"confidence\":\"high\",\"reason\":\"Single-panel statement listing income groups such as sales, then purchases, direct and indirect expenses with nested ledgers and subtotals, which is an income and expenditure layout rather than a trial balance.\"}]}",
+    "usage": {
+      "input_tokens": 293,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 109,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
+  },
+  "ff24499ca7a9636cc250f2edba34c9f7fce97d9dd8bdb388e25933741624ccdd": {
+    "text": "{\"sheets\":[{\"ref\":\"s1\",\"report_type\":\"day_book\",\"confidence\":\"high\",\"reason\":\"Vouchers of several types (purchase, payment) are posted across many different ledgers, each with date, voucher type, number and debit and credit lines, and there is no single ledger with opening and closing rows, so this is a day book.\"}]}",
+    "usage": {
+      "input_tokens": 461,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 2179,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 111,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "model": "claude-sonnet-5-5"
   }
 }
