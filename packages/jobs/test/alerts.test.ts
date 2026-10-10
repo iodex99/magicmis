@@ -168,7 +168,8 @@ describe("alerts on a company's own figures (ADR 0087)", () => {
       appUrl: "https://app.example.test",
     });
     expect(email?.title).toMatch(/^2 alerts on /u);
-    // How many, never which figure or by how much.
-    expect(email?.text).not.toMatch(/450000|72|₹|\$/u);
+    // How many, never which figure or by how much. The link's company id is random and held
+    // "72" one run in four, so it is taken out before the figures are looked for (ADR 0091).
+    expect(email?.text.replaceAll(c.companyId, "")).not.toMatch(/450000|72|₹|\$/u);
   });
 });
