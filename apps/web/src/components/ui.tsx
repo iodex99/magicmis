@@ -781,9 +781,13 @@ export function Tabs({
 
 /**
  * The moment a visitor is in, which decides what the brand panel says to them (ADR 0042).
- * Sign-up is three of these in a row, so those three also carry a step.
+ * Sign-up is three of these in a row, so those three also carry a step. Each says only what is
+ * true on the page it frames (ADR 0091): the confirmation link signs in only the browser that
+ * signed up (ADR 0071), a page that is not taking sign-ups shows no sign-up progress, and a
+ * page that asks for a sign-in does not say "you are in".
  */
-export type AuthMoment = "return" | "join" | "confirm" | "welcome" | "leave";
+export type AuthMoment =
+  "return" | "join" | "confirm" | "verified" | "finish" | "welcome" | "leave" | "soon";
 
 const AUTH_MOMENTS: Record<
   AuthMoment,
@@ -811,10 +815,29 @@ const AUTH_MOMENTS: Record<
   },
   confirm: {
     eyebrow: "One more step",
-    heading: "The link in your inbox signs you in.",
+    heading: "Open the link in this browser and you are in.",
     points: [
-      "No second password, no code to type",
-      "It lands you in your workspace, ready for a company",
+      "In the browser you signed up in, it signs you straight in",
+      "Opened anywhere else, it confirms the address and you choose your password there",
+      "It lasts an hour, and you can ask for another",
+    ],
+    step: 2,
+  },
+  verified: {
+    eyebrow: "Address confirmed",
+    heading: "Sign in once, and your workspace is ready.",
+    points: [
+      "Your email address is confirmed",
+      "Next, add a company and drop in last month",
+    ],
+    step: 2,
+  },
+  finish: {
+    eyebrow: "Nearly there",
+    heading: "Your address is confirmed. One screen to go.",
+    points: [
+      "Your business name goes on your invoices, and you can change it later",
+      "Then add a company and drop in last month",
     ],
     step: 2,
   },
@@ -837,7 +860,40 @@ const AUTH_MOMENTS: Record<
     ],
     step: null,
   },
+  soon: {
+    eyebrow: "Opening soon",
+    heading: "Raw data in. A checked MIS out. Opening shortly.",
+    points: [
+      "Works from any accounting system's trial balance",
+      "Every figure traceable to the ledger it came from",
+      "Prepaid credits, no subscription",
+    ],
+    step: null,
+  },
 };
+
+/**
+ * The first thing a keyboard reaches on a page with navigation before its content (WCAG 2.4.1,
+ * ADR 0091): above the top of the window until focused, then a plain button-shaped link at the
+ * top left. Moved rather than `sr-only`, so nothing depends on which of two `position` utilities
+ * wins. The target must carry the id it names; a `tabIndex={-1}` on it lets the jump move focus.
+ */
+export function SkipLink({
+  target = "content",
+  children = "Skip to content",
+}: {
+  target?: string | undefined;
+  children?: ReactNode | undefined;
+}) {
+  return (
+    <a
+      href={`#${target}`}
+      className="fixed top-3 left-3 z-50 -translate-y-32 rounded-md border border-neutral-200 bg-surface px-3.5 py-2 text-[0.8125rem] font-medium text-neutral-900 shadow-lg focus:translate-y-0"
+    >
+      {children}
+    </a>
+  );
+}
 
 const AUTH_STEPS: readonly string[] = ["Account", "Confirm email", "First company"];
 
@@ -859,7 +915,8 @@ export function AuthShell({
   moment = "return",
 }: {
   title: string;
-  description?: string | undefined;
+  /** A sentence, or a sentence with a link in it (the welcome offer's terms, ADR 0072). */
+  description?: ReactNode | undefined;
   children: ReactNode;
   footer?: ReactNode | undefined;
   /** Sign-up carries more fields and needs the room; everything else does not. */
@@ -869,6 +926,8 @@ export function AuthShell({
   const aside = AUTH_MOMENTS[moment];
   return (
     <main className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      {/* Past the panel's home link straight to the form (ADR 0091). */}
+      <SkipLink target="auth-form">Skip to the form</SkipLink>
       <aside className="on-ink ink-grid relative hidden flex-col justify-between overflow-hidden bg-ink-900 p-10 text-white lg:flex xl:p-14">
         <Link href="/" aria-label={`${PRODUCT_NAME} home`} className="w-fit">
           <Logo size={30} onInk animate />
@@ -916,12 +975,17 @@ export function AuthShell({
           </ul>
         </div>
 
+        {/* neutral-400, not 500: on the ink the pinned 500 is too dim to read (ADR 0091). */}
         <p className="text-[0.8125rem] text-neutral-400">
           Prepaid credits · No subscription · Every figure traceable
         </p>
       </aside>
 
-      <section className="canvas-grid flex items-center justify-center px-4 py-12">
+      <section
+        id="auth-form"
+        tabIndex={-1}
+        className="canvas-grid flex items-center justify-center px-4 py-12"
+      >
         <div className={`w-full ${width === "wide" ? "max-w-[32rem]" : "max-w-[26rem]"}`}>
           <Link
             href="/"
@@ -973,7 +1037,7 @@ export function AuthShell({
               {footer}
             </div>
           )}
-          <p className="mt-6 text-center text-[0.75rem] text-neutral-400">
+          <p className="mt-6 text-center text-[0.75rem] text-neutral-500">
             <Link href="/" className="hover:text-neutral-700">
               ← Back to {PRODUCT_NAME}
             </Link>
@@ -1015,7 +1079,7 @@ export function MistakesNote({
   return (
     <p
       data-testid="mistakes-note"
-      className={`text-[0.6875rem] leading-snug text-neutral-400 ${className}`}
+      className={`text-[0.6875rem] leading-snug text-neutral-500 ${className}`}
     >
       {PRODUCT_NAME} can make mistakes. {children}
     </p>

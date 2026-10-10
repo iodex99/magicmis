@@ -3,16 +3,18 @@
 /**
  * A paid action without files (dashboard add-on, dashboard refresh): one press holds the credits
  * and hands the held job to `onHeld` (ADR 0033). A quote over the AI cost cap is shown and must
- * be accepted first (locked decision 6); a wallet that cannot cover it says so and holds nothing.
+ * be accepted first (locked decision 6); a wallet that cannot cover it says so and holds nothing,
+ * and is topped up right here (ADR 0049, ADR 0091) rather than sent to the Wallet and back.
  */
 
-import Link from "next/link";
 import { useState } from "react";
 
 import { Alert, Button } from "@/components/ui";
 import { formatCredits } from "@/lib/actions";
+import { istLabelled } from "@/lib/job-display";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 
+import { BuyCreditsInline } from "./BuyCreditsInline";
 import type { IconName } from "./Icon";
 
 const ZERO_SIZE = {
@@ -81,7 +83,7 @@ export function PaidJobButton({
             credits
             {stopped.expiresAt === null
               ? "."
-              : `, held until ${new Date(stopped.expiresAt).toLocaleString("en-IN")}.`}
+              : `, held until ${istLabelled(new Date(stopped.expiresAt))}.`}
           </p>
           <div className="mt-3 flex gap-2">
             <Button
@@ -119,12 +121,18 @@ export function PaidJobButton({
         </Button>
       )}
       {stopped?.kind === "short" ? (
-        <Alert tone="warning" title="Not enough credits">
-          Top up your wallet and press it again. Nothing has been charged.{" "}
-          <Link href="/wallet" className="font-medium underline">
-            Add credits
-          </Link>
-        </Alert>
+        <>
+          <p className="text-[0.8125rem] text-neutral-600">
+            Not enough credits for this. Nothing has been charged.
+          </p>
+          <BuyCreditsInline
+            need={stopped.need}
+            onCredited={() => {
+              // Back to the quote that was waiting, if there was one; else the button.
+              setStopped(stopped.quote ?? null);
+            }}
+          />
+        </>
       ) : null}
       {stopped?.kind === "error" ? <Alert tone="error">{stopped.message}</Alert> : null}
     </div>

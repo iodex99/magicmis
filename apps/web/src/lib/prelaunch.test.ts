@@ -31,11 +31,14 @@ describe("pre-launch", () => {
     expect(unguarded).toEqual([]);
   });
 
-  it("shows the sign-up and sign-in pages as opening soon", () => {
+  it("shows the sign-up, sign-in and password pages as opening soon", () => {
     for (const page of [
       ["sign-up", "page.tsx"],
       ["sign-in", "page.tsx"],
       ["sign-up", "finish", "page.tsx"],
+      // A form whose only answer is "not open yet" is a dead end (ADR 0091).
+      ["forgot-password", "page.tsx"],
+      ["reset-password", "page.tsx"],
     ])
       expect(readFileSync(path.join(APP, ...page), "utf8")).toContain(
         "if (prelaunch()) return <OpeningSoon />;",

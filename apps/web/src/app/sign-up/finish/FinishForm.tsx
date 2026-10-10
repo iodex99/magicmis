@@ -29,6 +29,7 @@ export function FinishForm({ askPassword }: { askPassword: boolean }) {
     const accepted = form.get("accept") === "on";
     if (!accepted) {
       setMessage("Accept the Terms and the Privacy notice to continue.");
+      document.getElementById("accept")?.focus();
       return;
     }
     setSubmitting(true);
@@ -45,6 +46,11 @@ export function FinishForm({ askPassword }: { askPassword: boolean }) {
     if (!result.ok) {
       setFields(result.fields);
       setMessage(result.message);
+      // Focus lands on the first field to fix, which reads its message out (ADR 0091).
+      const first = ["password", "businessName"].find(
+        (n) => result.fields[n] !== undefined,
+      );
+      if (first !== undefined) document.getElementById(first)?.focus();
       return;
     }
     router.replace("/app");
@@ -52,7 +58,8 @@ export function FinishForm({ askPassword }: { askPassword: boolean }) {
 
   return (
     <AuthShell
-      moment="join"
+      // Past the first step: the address is already proven (ADR 0091).
+      moment="finish"
       title="One last thing"
       description={
         askPassword
@@ -98,13 +105,14 @@ export function FinishForm({ askPassword }: { askPassword: boolean }) {
           required
         />
         <label className="flex items-start gap-2.5 text-[0.8125rem] text-neutral-700">
-          <input type="checkbox" name="accept" className="mt-0.5" />
+          <input id="accept" type="checkbox" name="accept" className="mt-0.5" />
           <span>
             I accept the{" "}
             <Link
               href="/legal/terms"
               className="text-accent-700 underline"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Terms
             </Link>{" "}
@@ -113,6 +121,7 @@ export function FinishForm({ askPassword }: { askPassword: boolean }) {
               href="/legal/privacy"
               className="text-accent-700 underline"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Privacy notice
             </Link>

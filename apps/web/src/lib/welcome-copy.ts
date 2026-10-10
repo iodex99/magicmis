@@ -63,6 +63,37 @@ export function trialAnswer(offer: WelcomeOfferCopy): string {
   return `New accounts start with ${n(offer)} free credits${enough}: one grant per person or business, not for throwaway email addresses. There is no card to enter and nothing to cancel: the credits are added when you first sign in, and every action shows its price before you press it. After that you buy credits in packs, which never expire, and each company you keep has a monthly memory fee.`;
 }
 
+/**
+ * What evaluating the product costs a practice, for the accountants' page: the offer with its
+ * conditions, or plainly that it is paid when the offer is off. Followed on the page by a link to
+ * the offer's terms (ADR 0091).
+ */
+export function welcomeEvaluation(offer: WelcomeOfferCopy): string {
+  if (offer.credits <= 0n)
+    return "There is no free tier or trial, so evaluating it means buying credits for a real month.";
+  const enough = offer.coversFirstCompany
+    ? ", enough to set up one client’s company on a real month of its books at its standard price"
+    : "";
+  return `Evaluating it costs nothing up front: a new account starts with ${n(offer)} free credits${enough} — one grant per person or business, not for throwaway email addresses, and after that you buy credits in packs and each company you keep has a monthly memory fee.`;
+}
+
+/**
+ * The closing band on the credit packs page, or null when the offer is off (ADR 0091): a heading
+ * and a body, so the claim and its conditions are written in one place.
+ */
+export function welcomePacksClosing(
+  offer: WelcomeOfferCopy,
+): { heading: string; body: string } | null {
+  const label = welcomeCreditsLabel(offer);
+  if (label === null) return null;
+  return {
+    heading: `Start with ${label}. Buy a pack when you want more.`,
+    body: offer.coversFirstCompany
+      ? "Your first company is set up on your own books at its standard price before you spend anything, and every action shows its price before you press it. One grant per person or business, not for throwaway email addresses; each company you keep has a monthly memory fee."
+      : "Try it on your own books before you spend anything; every action shows its price before you press it. One grant per person or business, not for throwaway email addresses; each company you keep has a monthly memory fee.",
+  };
+}
+
 /** A closing band's body, or null when the offer is off. */
 export function welcomeClosing(offer: WelcomeOfferCopy): string | null {
   if (offer.credits <= 0n) return null;

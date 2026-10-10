@@ -364,5 +364,38 @@ describe("review model", () => {
     ]);
     expect(rules.acceptedUnmapped).toEqual(["c"]);
     expect(accountRules).toEqual([{ pattern: "godown rent", head: "OPEX_RENT" }]);
+    // Nothing was kept off by its owner, so nothing says so: older blueprints read the same.
+    expect(rules).not.toHaveProperty("keptOff");
+  });
+
+  it("write-back keeps what the owner kept off, until the ledger is put on a line (ADR 0091)", () => {
+    const unmapped = (ledgerKey: string, head: string) => ({
+      ledgerKey,
+      head,
+      source: "company_rule" as const,
+      confidence: "high" as const,
+      needsReview: false,
+      reason: null,
+      applyToAllCompanies: false,
+      normalisedName: ledgerKey,
+    });
+    const { rules } = writeBack(
+      {
+        schemaVersion: 1,
+        headsVersion: 1,
+        rules: [],
+        acceptedUnmapped: ["kept", "moved", "run"],
+        keptOff: ["kept", "moved"],
+      },
+      // A refresh re-confirms every accepted Unmapped, and this month one went on a line.
+      [
+        unmapped("kept", "UNMAPPED"),
+        unmapped("run", "UNMAPPED"),
+        unmapped("moved", "DA"),
+      ],
+      1,
+    );
+    expect(rules.acceptedUnmapped).toEqual(["kept", "run"]);
+    expect(rules.keptOff).toEqual(["kept"]);
   });
 });

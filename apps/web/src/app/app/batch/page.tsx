@@ -1,3 +1,5 @@
+import { priceFor } from "@magicmis/wallet";
+
 import { AppFrame } from "@/components/AppFrame";
 import { EmptyState, PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
@@ -15,6 +17,24 @@ export const dynamic = "force-dynamic";
  */
 export default async function BatchPage() {
   const account = await accountOrRedirect("/app/batch");
+  // What each company's refresh holds at each tier, said where the tier is chosen (ADR 0091).
+  // Instant, the only delivery a run has (ADR 0050); unreadable says nothing rather than fail.
+  const prices = await Promise.all(
+    (["efficient", "professional", "expert"] as const).map(async (tier) => {
+      const q = await priceFor(db(), {
+        actionKey: "monthly_refresh",
+        tier,
+        delivery: "instant",
+      });
+      return q.credits.toString();
+    }),
+  )
+    .then(([efficient = "0", professional = "0", expert = "0"]) => ({
+      efficient,
+      professional,
+      expert,
+    }))
+    .catch(() => null);
   const r = await db().query<{ id: string; name: string; file_names: string[] }>(
     `select c.id, c.name,
             coalesce(array_agg(u.file_name order by u.created_at desc)
@@ -52,6 +72,7 @@ export default async function BatchPage() {
             fileNames: c.file_names,
           }))}
           businessName={account.businessName}
+          prices={prices}
         />
       )}
     </AppFrame>

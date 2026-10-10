@@ -20,6 +20,10 @@ import type { WalletView } from "@/lib/billing";
  *
  * `onCredited` fires once the webhook has actually granted the credits, so the caller can
  * re-price and let the run proceed. Nothing about the job is touched here.
+ *
+ * ADR 0091: credits bought in another tab — the Wallet, opened from here for billing details,
+ * carries straight on to payment (ADR 0050) — are noticed when this tab is looked at again, and
+ * the caller carries on, rather than leaving "you need N more" up to invite a second purchase.
  */
 export function BuyCreditsInline({
   need,
@@ -28,7 +32,8 @@ export function BuyCreditsInline({
 }: {
   /** Credits the waiting action needs, so the smallest covering pack can be offered. */
   need: bigint;
-  businessName: string;
+  /** Named on the payment sheet; a caller with no account context leaves it out. */
+  businessName?: string;
   onCredited: () => void;
 }) {
   const [view, setView] = useState<WalletView | null>(null);
@@ -54,13 +59,35 @@ export function BuyCreditsInline({
   // Read through a call: a bare `live.current` check stays narrowed across every await
   // that follows it, so the later guards would be compiled away as "always true".
   const isLive = () => live.current;
+  // What was available when this card first looked, so a purchase made anywhere since shows as
+  // the difference — "need" is a shortfall, not a balance.
+  const baseline = useRef<bigint | null>(null);
+  const credited = useRef(onCredited);
+  credited.current = onCredited;
+  // Once only: the payment window closing hands focus back too, and a caller that carries on
+  // twice (a batch) would start its next run twice.
+  const fired = useRef(false);
+  const carryOn = () => {
+    if (fired.current) return;
+    fired.current = true;
+    credited.current();
+  };
   useEffect(() => {
     live.current = true;
     const load = () =>
       void api<WalletView>("/api/wallet").then((r) => {
         if (!isLive()) return;
-        if (r.ok) setView(r.data);
-        else setNotice({ tone: "error", text: r.message });
+        if (!r.ok) {
+          setNotice({ tone: "error", text: r.message });
+          return;
+        }
+        setView(r.data);
+        const available = BigInt(r.data.available);
+        if (baseline.current === null) baseline.current = available;
+        else if (available - baseline.current >= need) {
+          setNotice({ tone: "success", text: "Credits added. You can carry on now." });
+          carryOn();
+        }
       });
     load();
     // Billing details are added in another tab (below), so that this one keeps its files or its
@@ -70,7 +97,7 @@ export function BuyCreditsInline({
       live.current = false;
       window.removeEventListener("focus", load);
     };
-  }, []);
+  }, [need]);
 
   async function buy(packId: string) {
     setBusy(true);
@@ -106,7 +133,10 @@ export function BuyCreditsInline({
       amount: created.data.amountMinor,
       currency: created.data.currency,
       name: PRODUCT_NAME,
-      description: `Credits for ${businessName}`,
+      description:
+        businessName === undefined
+          ? `${PRODUCT_NAME} credits`
+          : `Credits for ${businessName}`,
       order_id: created.data.orderId,
       handler: (response) => {
         void (async () => {
@@ -139,7 +169,7 @@ export function BuyCreditsInline({
             ) {
               setBusy(false);
               setNotice({ tone: "success", text: "Credits added. You can run it now." });
-              onCredited();
+              carryOn();
               return;
             }
           }
@@ -200,8 +230,8 @@ export function BuyCreditsInline({
       <div className="flex flex-col gap-3">
         {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
         <p className="text-[0.8125rem] text-neutral-600">
-          You need {formatCredits(need.toString())} more. Buying here keeps your files
-          loaded.
+          You need {formatCredits(need.toString())} more credits. Buying here keeps
+          everything on this page as it is.
         </p>
         {view === null ? (
           <p className="text-[0.8125rem] text-neutral-500">Loading packs…</p>
@@ -222,14 +252,17 @@ export function BuyCreditsInline({
             </Button>
           ))
         )}
-        <p className="text-[0.75rem] text-neutral-500">
-          {/* A sale outside India is a zero-rated export, and the document is an export
-              invoice, not a tax invoice (ADR 0030, ADR 0057). The Wallet already said this
-              correctly; the inline top-up did not. */}
-          {(view?.currency ?? "INR") === "INR"
-            ? "Includes GST. A tax invoice is issued the moment the payment is confirmed."
-            : "No tax added. An invoice is issued the moment the payment is confirmed."}
-        </p>
+        {/* A sale outside India is a zero-rated export, and the document is an export
+            invoice, not a tax invoice (ADR 0030, ADR 0057). The Wallet already said this
+            correctly; the inline top-up did not. Nothing is said until the wallet has loaded,
+            because guessing showed the rupee sentence to everyone first (ADR 0091). */}
+        {view?.currency === undefined || view.currency === null ? null : (
+          <p className="text-[0.75rem] text-neutral-500">
+            {view.currency === "INR"
+              ? "Includes GST. A tax invoice is issued the moment the payment is confirmed."
+              : "No tax added. An invoice is issued the moment the payment is confirmed."}
+          </p>
+        )}
       </div>
     </Panel>
   );

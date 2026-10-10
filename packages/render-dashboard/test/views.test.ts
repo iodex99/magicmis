@@ -92,6 +92,19 @@ describe("buildWidgetView", () => {
     expect(view.points[1]?.[0]?.metricKey).toBe("gross_profit@2026-04");
   });
 
+  it("a line over a single month is drawn as a bar, not a lone dot (ADR 0091)", () => {
+    const view = buildWidgetView(
+      widget({ kind: "line", metrics: ["revenue"], periods: { kind: "current" } }),
+      store,
+      input,
+    );
+    if (view.kind !== "chart") throw new Error(view.kind);
+    expect(view.option.series).toMatchObject([
+      { type: "bar", name: "REVENUE", data: [12000] },
+    ]);
+    expect(view.points[0]?.[0]?.metricKey).toBe("revenue@2026-05");
+  });
+
   it("stacked bars stack; tables show a column per period", () => {
     const bars = buildWidgetView(
       widget({

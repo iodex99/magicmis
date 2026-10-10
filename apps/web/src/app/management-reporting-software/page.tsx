@@ -70,7 +70,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Can several people in my firm use one account?",
     answer:
-      "No. One account is one login, with a single active session. There are no team members, roles or share links. The workbook it produces can be shared like any file.",
+      "No. One account is one login, with a single active session, and there are no team members or roles. To show someone the dashboard you can send a read-only link to a copy of it, frozen when the link is made, which expires and which you can withdraw at any time. The workbook it produces can be shared like any file.",
   },
   {
     question: "What happens to the files I upload?",
@@ -163,10 +163,11 @@ export default function ManagementReportingSoftwarePage() {
         <p>
           No live sync with your ledger, because a live sync is a standing permission and
           a standing risk. No forecasting or budgeting module, because a forecast is a
-          judgement and this product computes. No team seats, client portals or share
-          links, because one login per account is the simplest security model there is.
-          Nothing paid for with your data, because a product that is free for ever is paid
-          for by someone: you pay for what you run, from prepaid credits.
+          judgement and this product computes. No team seats or client portals, because
+          one login per account is the simplest security model there is; what can be
+          shared is a read-only copy of one board, by a link that expires and that you can
+          withdraw. Nothing paid for with your data, because a product that is free for
+          ever is paid for by someone: you pay for what you run, from prepaid credits.
         </p>
         <p>
           What is here is the report:{" "}

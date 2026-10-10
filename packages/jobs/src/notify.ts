@@ -36,6 +36,23 @@ export type NotificationType =
   | "account.export_ready"
   | "security.share_created";
 
+/**
+ * A company's name for a notice about one of its runs (ADR 0091): with several companies an
+ * inbox of "Your MIS is ready" cannot be told apart. A label, never a figure (SPEC §29); null when
+ * the run has no company or the company is gone, and the notice then says nothing of one.
+ */
+export async function companyNameFor(
+  db: Queryable,
+  companyId: string | null,
+): Promise<string | null> {
+  if (companyId === null) return null;
+  const r = await db.query<{ name: string }>(
+    `select name from public.companies where id = $1 and deleted_at is null`,
+    [companyId],
+  );
+  return r.rows[0]?.name ?? null;
+}
+
 export async function queueNotification(
   db: Queryable,
   input: {

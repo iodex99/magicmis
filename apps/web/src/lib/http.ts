@@ -54,7 +54,8 @@ const REFUSAL: Record<AccountRefusal, { status: number; message: string }> = {
   no_account: { status: 401, message: "Sign in to continue." },
   account_not_active: {
     status: 403,
-    message: "This account is not active. Contact support to restore access.",
+    message:
+      "This account is not active. To restore it, write to us from the contact page.",
   },
   session_not_claimed: { status: 401, message: "Sign in again to continue." },
   session_superseded: {

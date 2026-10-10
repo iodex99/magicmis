@@ -24,17 +24,24 @@ const day = (iso: string) =>
  * Share this board (ADR 0090): a link to the board as it stands now, as of the month on screen,
  * read-only, for anyone who holds it until it expires or is withdrawn. The link is shown once —
  * only a hash of it is kept — so it is copied here or a new one is made.
+ *
+ * It is the saved board: a Range or Compare the owner is reading with is a view, never saved
+ * (ADR 0064), so it is not part of the copy either, and the drawer says so while one is set
+ * rather than letting the owner expect the reader to see what they see (ADR 0091).
  */
 export function ShareBoard({
   companyId,
   month,
   monthLabel,
+  lensSet,
   open,
   onClose,
 }: {
   companyId: string;
   month: string;
   monthLabel: string;
+  /** Whether the owner is reading the board through Range or Compare right now. */
+  lensSet: boolean;
   open: boolean;
   onClose: () => void;
 }) {
@@ -107,6 +114,15 @@ export function ShareBoard({
             is a copy, so it does not change when the books do. Each opening is counted on
             Files and settings, where you can withdraw the link at any time.
           </p>
+          {lensSet ? (
+            <p
+              className="mt-2 text-[0.8125rem] leading-relaxed text-neutral-800"
+              data-testid="share-as-saved"
+            >
+              It opens as saved, not with the Range and Compare you are reading it with
+              now.
+            </p>
+          ) : null}
         </div>
         {confirming ? (
           <ReauthForm

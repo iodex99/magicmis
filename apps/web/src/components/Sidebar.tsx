@@ -47,10 +47,13 @@ const PRIMARY: readonly NavItem[] = [
 ];
 
 const SETTINGS: readonly NavItem[] = [
-  { href: "/settings/profile", label: "Profile", icon: "user" },
+  { href: "/settings/profile", label: "Billing details", icon: "user" },
   { href: "/settings/security", label: "Security", icon: "shield" },
   { href: "/settings/privacy", label: "Privacy and data", icon: "lock" },
 ];
+
+/** Somewhere to go when stuck (ADR 0091): every "contact support" in the product points here. */
+const HELP: NavItem = { href: "/contact", label: "Help and contact", icon: "mail" };
 
 function workspaceItems(id: string): readonly NavItem[] {
   return [
@@ -148,6 +151,7 @@ export function Sidebar({
   availableCredits,
   company,
   chatCompanyId,
+  chatUnavailable = "Chat opens once a company is set up.",
   initialCollapsed = false,
   onSignOut,
   unread = 0,
@@ -158,6 +162,8 @@ export function Sidebar({
   company?: { id: string; name: string };
   /** The company whose chat the rail opens: the one on screen, or the most recent. */
   chatCompanyId: string | null;
+  /** Why there is no chat to open, said on the button when `chatCompanyId` is null. */
+  chatUnavailable?: string;
   /** From the `rail` cookie, so the first paint is already the right width. */
   initialCollapsed?: boolean;
   onSignOut: React.ReactNode;
@@ -197,7 +203,6 @@ export function Sidebar({
   }, [toggle]);
 
   const chatPath = chatCompanyId === null ? null : `/app/companies/${chatCompanyId}`;
-  const chatHref = chatPath === null ? "/app" : `${chatPath}?${OPEN_CHAT_PARAM}=open`;
 
   return (
     <aside
@@ -233,31 +238,56 @@ export function Sidebar({
       </div>
 
       {/* The chat, from anywhere. On its own company's workspace it opens in place; from any
-          other page it goes there and opens on arrival. */}
-      <Link
-        href={chatHref}
-        onClick={(event) => {
-          if (chatPath !== null && pathname === chatPath) {
-            event.preventDefault();
-            window.dispatchEvent(new Event(OPEN_CHAT_EVENT));
-          }
-        }}
-        aria-label={collapsed ? "Chat with the MIS" : undefined}
-        title={
-          chatPath === null
-            ? "Add a company, and you can chat with its MIS"
-            : "Chat with the MIS (Ctrl K)"
-        }
-        className={`press mb-5 flex items-center gap-2.5 rounded-lg bg-accent-600 py-2 text-[0.8125rem] font-semibold text-white shadow-sm transition-colors hover:bg-accent-500 ${
-          collapsed ? "justify-center px-0" : "px-2.5"
-        }`}
-        data-testid="rail-chat"
-      >
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-          <Icon name="chat" size={15} />
-        </span>
-        {collapsed ? null : <span className="truncate">Chat with the MIS</span>}
-      </Link>
+          other page it goes there and opens on arrival. With nothing set up to chat with, it
+          stays where it is, unavailable, and says why (ADR 0091). */}
+      {chatPath === null ? (
+        <div
+          aria-disabled="true"
+          title={chatUnavailable}
+          className={`mb-5 flex cursor-not-allowed flex-col rounded-lg border border-white/10 py-2 text-[0.8125rem] font-semibold text-neutral-300 ${
+            collapsed ? "items-center px-0" : "px-2.5"
+          }`}
+          data-testid="rail-chat"
+          data-disabled="true"
+        >
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              <Icon name="chat" size={15} />
+            </span>
+            {collapsed ? (
+              <span className="sr-only">Chat with the MIS. {chatUnavailable}</span>
+            ) : (
+              <span className="truncate">Chat with the MIS</span>
+            )}
+          </span>
+          {collapsed ? null : (
+            <span className="mt-0.5 pl-[2.125rem] text-[0.6875rem] leading-snug font-normal text-neutral-300">
+              {chatUnavailable}
+            </span>
+          )}
+        </div>
+      ) : (
+        <Link
+          href={`${chatPath}?${OPEN_CHAT_PARAM}=open`}
+          onClick={(event) => {
+            if (pathname === chatPath) {
+              event.preventDefault();
+              window.dispatchEvent(new Event(OPEN_CHAT_EVENT));
+            }
+          }}
+          aria-label={collapsed ? "Chat with the MIS" : undefined}
+          title="Chat with the MIS (Ctrl K)"
+          className={`press mb-5 flex items-center gap-2.5 rounded-lg bg-accent-600 py-2 text-[0.8125rem] font-semibold text-white shadow-sm transition-colors hover:bg-accent-500 ${
+            collapsed ? "justify-center px-0" : "px-2.5"
+          }`}
+          data-testid="rail-chat"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+            <Icon name="chat" size={15} />
+          </span>
+          {collapsed ? null : <span className="truncate">Chat with the MIS</span>}
+        </Link>
+      )}
 
       <nav
         id="rail-nav"
@@ -308,6 +338,7 @@ export function Sidebar({
               collapsed={collapsed}
             />
           ))}
+          <NavLink item={HELP} current={pathname === HELP.href} collapsed={collapsed} />
         </Group>
       </nav>
 

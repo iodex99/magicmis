@@ -39,11 +39,11 @@ test.beforeAll(async ({ browser }) => {
   runUrl = page.url();
   // SPEC §31: the first upload in an account waits for the processing notice to be accepted.
   await expect(page.getByTestId("processing-notice")).toBeVisible();
-  await expect(page.getByLabel("Choose files")).toHaveCount(0);
+  await expect(page.getByLabel("Choose files", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: /I understand/u }).click();
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
   await page.reload();
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
   await expect(page.getByTestId("processing-notice")).toHaveCount(0);
 });
 
@@ -53,14 +53,14 @@ test.afterAll(async () => {
 
 async function openRun() {
   await page.goto(runUrl);
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
 }
 
 test("files upload and only names, sizes, sheets and rows are shown before payment", async () => {
   await openRun();
   const tb = fixture("trading", "clean", "trial_balance_2025-04.xlsx");
   const register = fixture("trading", "clean", "sales_register_2025-04.csv");
-  await page.getByLabel("Choose files").setInputFiles([tb, register]);
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles([tb, register]);
 
   const table = page.getByTestId("job-files");
   await expect(table.getByRole("row")).toHaveCount(3);
@@ -86,7 +86,7 @@ test("files upload and only names, sizes, sheets and rows are shown before payme
 
 test("a photo is refused with what to export instead, and other formats are read", async () => {
   await openRun();
-  await page.getByLabel("Choose files").setInputFiles([
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles([
     {
       name: "trial balance.jpg",
       mimeType: "image/jpeg",
@@ -140,7 +140,7 @@ test("a text PDF of a trial balance is read", async () => {
   for (const o of offsets) pdf += `${o.toString().padStart(10, "0")} 00000 n \n`;
   pdf += `trailer\n<< /Size ${(objects.length + 1).toString()} /Root 1 0 R >>\nstartxref\n${xref.toString()}\n%%EOF`;
 
-  await page.getByLabel("Choose files").setInputFiles({
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles({
     name: "tb.pdf",
     mimeType: "application/pdf",
     buffer: Buffer.from(pdf, "latin1"),
@@ -153,7 +153,7 @@ test("a text PDF of a trial balance is read", async () => {
 
 test("the drop zone reacts while a file is dragged over it", async () => {
   await openRun();
-  const zone = page.getByRole("button", { name: "Drag your files here" });
+  const zone = page.getByRole("button", { name: "Choose files to add" });
   const data = await page.evaluateHandle(() => {
     const dt = new DataTransfer();
     dt.items.add(new File(["a,b"], "x.csv", { type: "text/csv" }));
@@ -173,7 +173,7 @@ test("a 50 MB workbook is uploaded and read in under 60 seconds (SPEC §33)", as
   await openRun();
 
   const started = Date.now();
-  await page.getByLabel("Choose files").setInputFiles(large);
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles(large);
   const row = page.getByTestId("job-files").getByRole("row", { name: /large-day-book/u });
   await expect(row).toContainText("370,004", { timeout: 90_000 });
   const elapsed = Date.now() - started;
@@ -186,8 +186,13 @@ test("a company's kept files are listed and can be deleted", async () => {
   await page.getByTestId("kept-files").locator("summary").click();
   const table = page.getByTestId("uploaded-files");
   await expect(table).toContainText("trial_balance_2025-04.xlsx");
-  const row = table.getByRole("row", { name: /tb\.pdf/u });
-  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  const row = table.getByRole("row", { name: /tb\.pdf/u }).first();
+  // The button names its file, and nothing is deleted until the consequence is confirmed (ADR 0091).
+  await row.getByRole("button", { name: "Delete tb.pdf", exact: true }).click();
+  await expect(table.getByTestId("file-delete-confirm")).toContainText(
+    "cannot be downloaded again",
+  );
+  await table.getByRole("button", { name: "Delete the file", exact: true }).click();
   await expect(table.getByRole("row", { name: /tb\.pdf/u })).toHaveCount(0);
   await page.reload();
   await page.getByTestId("kept-files").locator("summary").click();
@@ -204,7 +209,7 @@ test("an empty wallet is said gently and early, and topped up in place without l
   );
   // It is a note, not a wall: files are added as usual.
   await page
-    .getByLabel("Choose files")
+    .getByLabel("Choose files", { exact: true })
     .setInputFiles(fixture("trading", "clean", "trial_balance_2025-05.xlsx"));
   await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 120_000 });
   await page.getByTestId("job-run").click();
@@ -214,7 +219,7 @@ test("an empty wallet is said gently and early, and topped up in place without l
   await expect(billing).toBeVisible({ timeout: 60_000 });
   await expect(billing).toHaveAttribute("target", "_blank");
   await expect(page.getByTestId("job-files")).toContainText("trial_balance_2025-05.xlsx");
-  await expect(page.getByText("The job could not be completed")).toHaveCount(0);
+  await expect(page.getByText("This run could not be finished")).toHaveCount(0);
   // Nothing was held for the press: the rail still shows an empty wallet.
   await expect(page.getByTestId("rail")).toContainText("0");
 });

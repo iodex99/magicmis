@@ -15,15 +15,48 @@ import type { EChartsOption, EChartsType } from "echarts";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /** The tokens a chart needs, read from the document so there is one source of colour. */
-function themeColours(): { axis: string; line: string; surface: string; text: string } {
-  const style = getComputedStyle(document.documentElement);
+function themeColours(): {
+  axis: string;
+  line: string;
+  surface: string;
+  text: string;
+  series: string[];
+} {
+  const root = document.documentElement;
+  const style = getComputedStyle(root);
   const token = (name: string, fallback: string) =>
     style.getPropertyValue(name).trim() || fallback;
+  /*
+   * The series colours, in the order `views.ts` gives them: the accent, the two variance colours
+   * either side of the warning, a neutral and a second accent. The accent ramp is not inverted in
+   * the dark theme the way the neutrals are, so the steps that clear 3:1 against a card differ:
+   * on the dark card the light theme's indigo and its second accent fell to 2.6:1 and under, and
+   * a chart mark below 3:1 is one a reader cannot pick out (ADR 0091).
+   */
+  const dark = root.dataset["theme"] === "dark";
+  const series = dark
+    ? [
+        token("--color-accent-500", "#7c6bec"),
+        token("--color-positive", "#5cd39b"),
+        token("--color-warning", "#f0b45c"),
+        token("--color-neutral-500", "#9d99bd"),
+        token("--color-accent-800", "#c6bdf8"),
+        token("--color-negative", "#ff8f84"),
+      ]
+    : [
+        token("--color-accent-600", "#5846d2"),
+        token("--color-positive", "#15724a"),
+        token("--color-warning", "#8a5300"),
+        token("--color-neutral-500", "#6f6c85"),
+        token("--color-accent-400", "#8a79ee"),
+        token("--color-negative", "#b03024"),
+      ];
   return {
     axis: token("--color-neutral-500", "#6f6c85"),
     line: token("--color-neutral-100", "#eceaf3"),
     surface: token("--color-surface", "#ffffff"),
     text: token("--color-neutral-800", "#2a2937"),
+    series,
   };
 }
 
@@ -39,7 +72,7 @@ const isPart = (value: unknown): value is Part =>
  */
 function themed(option: EChartsOption): EChartsOption {
   const c = themeColours();
-  const merged: Part = { ...(option as Part) };
+  const merged: Part = { ...(option as Part), color: c.series };
   const patch = (key: string, extra: Part) => {
     const value = merged[key];
     if (!isPart(value)) return;

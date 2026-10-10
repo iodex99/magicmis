@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { PRODUCT_NAME } from "@/lib/brand";
 
 import { Logo } from "./Logo";
+import { SkipLink } from "./ui";
 
 /**
  * The shell for pages a signed-out visitor can reach (SPEC §32).
@@ -11,8 +12,9 @@ import { Logo } from "./Logo";
  * These stay responsive down to a phone -- only the app itself is desktop-only -- so the
  * header collapses rather than hides, and no call to action is ever behind a menu.
  *
- * Exactly one link here is named "Create an account": the page's own primary call to
- * action. The header offers "Sign in" instead, so the two never compete.
+ * The header's "Get started" is the one sign-up link that is on every page; the page's own
+ * call to action sits in its body. A skip link goes first, so a keyboard reaches the page's
+ * content without walking the header (WCAG 2.4.1, ADR 0091).
  */
 const FOOTER_GROUPS: readonly {
   heading: string;
@@ -63,6 +65,8 @@ const FOOTER_GROUPS: readonly {
     links: [
       ["/legal/terms", "Terms of service"],
       ["/legal/privacy", "Privacy notice"],
+      // Where "contact us" in any message leads (ADR 0091).
+      ["/contact", "Contact"],
     ],
   },
 ];
@@ -76,6 +80,7 @@ export function PublicShell({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
+      <SkipLink />
       <header className="sticky top-0 z-20 border-b border-neutral-200/70 bg-neutral-50/85 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-4 px-6">
           <Link href="/" className="flex items-center" aria-label={PRODUCT_NAME}>
@@ -121,7 +126,9 @@ export function PublicShell({
         </div>
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main id="content" tabIndex={-1} className="flex-1">
+        {children}
+      </main>
 
       {/* A real footer, not a copyright line: it is how a reader who arrived on one guide
           from search finds the rest of the site, and how a crawler reaches every page from
@@ -134,8 +141,8 @@ export function PublicShell({
                 <Logo size={26} />
               </Link>
               <p className="mt-3 text-[0.8125rem] leading-relaxed text-neutral-500">
-                Monthly management reports from your accounting data, for accountants and
-                finance teams.
+                Monthly management reports from your accounting data, for owners, finance
+                teams and accountants.
               </p>
             </div>
             {FOOTER_GROUPS.map((group) => (

@@ -25,7 +25,7 @@ import type { Pool } from "pg";
 import { z } from "zod";
 
 import { compareFingerprints, type DriftResult } from "./drift";
-import { queueNotification } from "./notify";
+import { companyNameFor, queueNotification } from "./notify";
 import { lockJob, transition, JobStateError, type JobState } from "./states";
 
 export type JobType =
@@ -274,6 +274,7 @@ export async function createJob(
         type: "job.quote_offered",
         payload: {
           job_id: jobId,
+          company_name: await companyNameFor(tx, input.companyId),
           credits: credits.toString(),
           expires_at: q.expiresAt.toISOString(),
         },
@@ -515,7 +516,11 @@ export async function advanceJob(
       await queueNotification(tx, {
         accountId: input.accountId,
         type: "job.awaiting_review",
-        payload: { job_id: job.id, company_id: job.company_id },
+        payload: {
+          job_id: job.id,
+          company_id: job.company_id,
+          company_name: await companyNameFor(tx, job.company_id),
+        },
         dedupeKey: `review:${job.id}`,
       });
     }

@@ -106,7 +106,7 @@ test("a services company's payroll by designation goes on the board when asked f
   const companyId = page.url().split("/").pop() ?? "";
 
   await page
-    .getByLabel("Choose files")
+    .getByLabel("Choose files", { exact: true })
     .setInputFiles([
       ...MONTHS.map((m) => services(`trial_balance_${m}.xlsx`)),
       ...MONTHS.map((m) => services(`pay_sheet_${m}.csv`)),

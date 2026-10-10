@@ -26,10 +26,12 @@ const ON_DASHBOARD =
   /\b(?:on|to|onto|into|from|off) (?:the|my|our|this) (?:dashboard|board|layout)\b/u;
 /**
  * What a box shows: enough to know "delete working capital" is about a box. Payroll, headcount
- * and ageing joined when a board could show them (ADR 0085).
+ * and ageing joined when a board could show them (ADR 0085). The words a US or UK finance team
+ * types for the same figures joined in ADR 0091: "hide COGS" and "remove net income" were sent
+ * as charged questions with no hint, because only one market's vocabulary was here.
  */
 const FIGURE =
-  /\b(revenue|sales|turnover|margins?|profit|ebitda|pat|pbt|cash|bank|costs?|expenses?|opex|working capital|receivables?|debtors?|payables?|creditors?|inventory|stock|ratios?|debtor days|creditor days|payroll|headcount|salar(?:y|ies)|wages|gross pay|ageing|aging)\b/u;
+  /\b(revenue|sales|turnover|income|earnings|margins?|profit|p ?& ?l|ebitda|ebit|pat|pbt|cogs|overheads?|depreciation|amorti[sz]ation|interest|cash|bank|costs?|expenses?|opex|capex|working capital|receivables?|debtors?|a\/r|dso|payables?|creditors?|a\/p|dpo|inventory|stock|dio|assets?|liabilit(?:y|ies)|equity|net worth|debt|loans?|borrowings?|ratios?|debtor days|creditor days|payroll|headcount|salar(?:y|ies)|wages|gross pay|ageing|aging)\b/u;
 
 /** Verbs that change a layout. "compare", "show" and "give" are not among them. */
 const CHANGE =
@@ -42,6 +44,13 @@ const OPENS_WITH = /^(rename|remove|delete|resize|reorder|pin|move|hide)\b/u;
 /** Other parts of the product. "Delete my account" is not a change to a dashboard. */
 const ELSEWHERE =
   /\b(accounts?|passwords?|files?|uploads?|compan(?:y|ies)|credits?|wallet|invoices?|subscription|workbooks?|data|entries|ledgers?|months?)\b/u;
+/**
+ * Figures whose names carry one of those words. "Delete accounts payable" is a box, not the
+ * customer's account, so these are taken out before the other-parts test (ADR 0091). Global, for
+ * `replace`; never `test` with it, which would carry `lastIndex` from one message to the next.
+ */
+const FIGURE_NAMED_ACCOUNT =
+  /\b(?:accounts? (?:receivable|payable)|(?:profit and loss|p ?& ?l|trading|income and expenditure) accounts?)\b/gu;
 
 const POLITE =
   /^(please|kindly|can you|could you|would you|will you|i want to|i would like to|i'd like to|let's|lets)[\s,]+/u;
@@ -55,7 +64,7 @@ export function detectIntent(text: string): ChatIntent {
   for (let i = 0; i < 3 && POLITE.test(t); i += 1) t = t.replace(POLITE, "");
   if (t === "" || QUESTION.test(t)) return "ask";
   const box = BOX.test(t);
-  if (!box && ELSEWHERE.test(t)) return "ask";
+  if (!box && ELSEWHERE.test(t.replace(FIGURE_NAMED_ACCOUNT, "figure"))) return "ask";
   if (OPENS_WITH.test(t))
     return box || FIGURE.test(t) || ON_DASHBOARD.test(t) ? "dashboard" : "ask";
   if (CHANGE.test(t) && (box || ON_DASHBOARD.test(t))) return "dashboard";

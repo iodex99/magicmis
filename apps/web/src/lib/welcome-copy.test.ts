@@ -6,7 +6,9 @@ import {
   welcomeClosing,
   welcomeConditions,
   welcomeCreditsLabel,
+  welcomeEvaluation,
   welcomeLine,
+  welcomePacksClosing,
 } from "./welcome-copy";
 
 // ADR 0068, ADR 0072: the site's claims about welcome credits are built from the live offer, so
@@ -33,17 +35,27 @@ describe("welcome credit copy", () => {
       welcomeConditions(covers),
       trialAnswer(covers),
       welcomeClosing(covers),
+      welcomeEvaluation(covers),
+      welcomePacksClosing(covers)?.body,
+      welcomePacksClosing(short)?.body,
     ]) {
       expect(text).toContain("per person or business");
       expect(text).toContain("monthly memory fee");
     }
-    expect(welcomeConditions(covers)).toContain("not for throwaway email addresses");
+    for (const text of [
+      welcomeConditions(covers),
+      welcomeEvaluation(covers),
+      welcomePacksClosing(covers)?.body,
+    ])
+      expect(text).toContain("not for throwaway email addresses");
   });
 
   it("claims a first company only while the price book makes it true", () => {
     expect(welcomeLine(short)).toBe("Start with 500 free credits. No card needed.");
     expect(trialAnswer(short)).not.toContain("enough");
     expect(welcomeClosing(short)).not.toContain("enough");
+    expect(welcomeEvaluation(short)).not.toContain("enough");
+    expect(welcomePacksClosing(short)?.body).not.toContain("set up on your own books");
   });
 
   it("says plainly that it is paid when the offer is off", () => {
@@ -52,7 +64,9 @@ describe("welcome credit copy", () => {
     expect(welcomeBand(off)).toBeNull();
     expect(welcomeConditions(off)).toBeNull();
     expect(welcomeClosing(off)).toBeNull();
+    expect(welcomePacksClosing(off)).toBeNull();
     expect(trialAnswer(off)).toMatch(/^No\./u);
     expect(trialAnswer(off)).not.toContain("free credits");
+    expect(welcomeEvaluation(off)).not.toContain("free credits");
   });
 });

@@ -87,7 +87,7 @@ export default async function SecurityPage() {
     },
     {
       title: "One session, and a second check for anything irreversible",
-      body: "A new sign-in ends the previous one; there are no shared logins or access links. Exporting data, deleting a company or an account, and changing credentials each ask for your password again.",
+      body: "A new sign-in ends the previous one, and there are no shared logins. A board you choose to share goes out as a read-only copy, frozen when the link is made, that expires and that you can withdraw; it opens no chat, file or workbook. Exporting data, deleting a company or an account, and changing credentials each ask for your password again.",
     },
     {
       title: "Our own access is limited and visible to you",

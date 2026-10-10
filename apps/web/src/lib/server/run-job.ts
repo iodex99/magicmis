@@ -897,7 +897,7 @@ export async function runJobOnServer(
       return {
         status: "needs_quote",
         message:
-          "This job needs more analysis than its price covers. Review the quote to continue.",
+          "This run needs more analysis than its standard price covers. Review the quote to carry on.",
         capturedCredits: "0",
         outputId: null,
         fileName: null,

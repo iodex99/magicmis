@@ -13,18 +13,20 @@ import { z } from "zod";
 
 import { AppFrame } from "@/components/AppFrame";
 import { Icon } from "@/components/Icon";
-import { Badge, ButtonLink, PageHeader, Panel, type BadgeTone } from "@/components/ui";
+import { Badge, ButtonLink, PageHeader, type BadgeTone } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { db } from "@/lib/db";
 
-import { CHAT_COOKIE } from "@/lib/prefs";
+import { MONTHS_TO_ADD } from "@/lib/job-display";
+import { CHAT_COOKIE, CHAT_THREAD_COOKIE } from "@/lib/prefs";
 import { fileRows } from "@/lib/server/files";
 import { boardMonths } from "@/lib/server/insights";
 import { brandLogoUrl, readBrand } from "@/lib/server/brand";
 
 import { CompanyFiles } from "./CompanyFiles";
-import { ReportingConventions } from "./ReportingConventions";
-import { JobRunner } from "./run/JobRunner";
+import { ClosedCompany } from "./run/ClosedCompany";
+import { closedState, pendingRun, runPrices } from "./run/run-context";
+import { SetupRunner } from "./SetupRunner";
 import { Workspace } from "./Workspace";
 
 export const metadata = { title: "Company" };
@@ -90,7 +92,19 @@ export default async function CompanyPage({
   };
 
   if (company.first_setup_at === null) {
-    const files = await fileRows(pool, { accountId: account.accountId, companyId: id });
+    // The run already there, if one is (ADR 0091): a reload mid-run follows it, and a run waiting
+    // on a quote or the year question is answered here rather than paid for a second time.
+    const [files, wallet, pending, prices, closed] = await Promise.all([
+      fileRows(pool, { accountId: account.accountId, companyId: id }),
+      walletSummary(pool, account.accountId),
+      pendingRun(pool, { accountId: account.accountId, companyId: id, asked: null }),
+      runPrices(pool, { accountId: account.accountId, companyId: id, mode: "setup" }),
+      closedState(pool, {
+        accountId: account.accountId,
+        companyId: id,
+        lifecycleState: company.lifecycle_state,
+      }),
+    ]);
     return (
       <AppFrame {...frame}>
         <PageHeader
@@ -101,50 +115,41 @@ export default async function CompanyPage({
               {state.label}
             </Badge>
           }
-          description="Drop in the files you have, for every month you want in the MIS. We read them, map every ledger and build the first MIS and its dashboard; from there you chat it into shape."
+          description={`Set up its MIS, the monthly management report. ${MONTHS_TO_ADD} We read them, map every ledger and build the first MIS and its dashboard; from there you chat it into shape.`}
         />
-        {active ? (
-          <JobRunner
+        {active || pending.live !== null ? (
+          <SetupRunner
             companyId={id}
-            mode="setup"
-            businessName={account.businessName}
-            availableCredits={(
-              await walletSummary(pool, account.accountId)
-            ).available.toString()}
-            conventions={{
+            current={{
+              fyStartMonth: company.fy_start_month,
               currency: company.currency,
               numberFormat: company.number_format,
               dateOrder: company.date_order,
+              commentaryLanguage: company.commentary_language,
+              statutoryFormat: company.statutory_format,
             }}
-          />
-        ) : (
-          <Panel>
-            <p className="text-sm text-neutral-600">
-              This company is {state.label.toLowerCase()}. Restore it to set it up.
-            </p>
-          </Panel>
-        )}
-        {active ? (
-          // Open, not folded away: the financial year has to be right before the first run,
-          // and a setting nobody sees is a setting nobody checks.
-          <Panel
-            className="mt-5"
-            title="Reporting conventions"
-            icon="settings"
-            description="How this company's own books are kept. Check the financial year before you build: it has to match the raw data."
-          >
-            <ReportingConventions
-              companyId={id}
-              current={{
-                fyStartMonth: company.fy_start_month,
+            runner={{
+              companyId: id,
+              mode: "setup",
+              businessName: account.businessName,
+              availableCredits: wallet.available.toString(),
+              pendingQuote: pending.quote,
+              pendingYear: pending.year,
+              liveRun: pending.live,
+              prices,
+              conventions: {
                 currency: company.currency,
                 numberFormat: company.number_format,
                 dateOrder: company.date_order,
-                commentaryLanguage: company.commentary_language,
-                statutoryFormat: company.statutory_format,
-              }}
-            />
-          </Panel>
+              },
+            }}
+          />
+        ) : closed !== null ? (
+          <ClosedCompany
+            companyId={id}
+            closed={closed}
+            businessName={account.businessName}
+          />
         ) : null}
         {files.length === 0 ? null : (
           <details
@@ -173,24 +178,47 @@ export default async function CompanyPage({
     );
   }
 
-  const [hidden, periods, commentaries, brand] = await Promise.all([
+  const [hidden, periods, commentaries, brand, newestThread] = await Promise.all([
     // Months off the dashboard are off the chat's month list too (ADR 0047).
     hiddenPeriods(pool, { accountId: account.accountId, companyId: id }),
     // The months the board offers, which the stored figures decide (ADR 0087).
     boardMonths(pool, account.accountId, id),
-    pool.query<{ id: string; state: string; period: string | null; created_at: Date }>(
-      `select id, state, stage_checkpoints->>'period' as period, created_at from jobs
-        where company_id = $1 and account_id = $2 and type = 'commentary'
+    // Both write-ups the assistant keeps in History (ADR 0062). Where to act was left out, so
+    // suggestions a customer had paid for could be found again only in the presenter's notes.
+    pool.query<{
+      id: string;
+      state: string;
+      type: "commentary" | "board_actions";
+      period: string | null;
+      created_at: Date;
+    }>(
+      `select id, state, type, stage_checkpoints->>'period' as period, created_at from jobs
+        where company_id = $1 and account_id = $2 and type in ('commentary', 'board_actions')
           and state not in ('draft', 'estimated', 'cancelled')
         order by created_at desc limit 50`,
       [id, account.accountId],
     ),
     readBrand(pool, account.accountId),
+    pool.query<{ id: string }>(
+      `select id from chat_threads where company_id = $1 and account_id = $2
+        order by created_at desc limit 1`,
+      [id, account.accountId],
+    ),
   ]);
+  const jar = await cookies();
   // Whether the chat was left open or put away, so the first paint is already that layout.
-  const chatCookie = (await cookies()).get(CHAT_COOKIE)?.value;
+  const chatCookie = jar.get(CHAT_COOKIE)?.value;
   const chatPreference =
     chatCookie === "open" || chatCookie === "closed" ? chatCookie : null;
+  // The conversation to come back to (ADR 0091): the one this browser was last in, if it was in
+  // this company, else the company's newest. "new" means it was left on a fresh one.
+  const [lastCompany, lastThread] = (jar.get(CHAT_THREAD_COOKIE)?.value ?? "").split(".");
+  const resumeThreadId =
+    lastCompany !== id
+      ? (newestThread.rows[0]?.id ?? null)
+      : lastThread !== undefined && z.uuid().safeParse(lastThread).success
+        ? lastThread
+        : null;
 
   return (
     <AppFrame {...frame} wide>
@@ -245,8 +273,10 @@ export default async function CompanyPage({
           state: j.state,
           period: j.period,
           createdAt: j.created_at.toISOString(),
+          kind: j.type,
         }))}
         chatPreference={chatPreference}
+        resumeThreadId={resumeThreadId}
       />
     </AppFrame>
   );

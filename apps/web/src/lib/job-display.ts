@@ -32,3 +32,22 @@ export const ist = (d: Date): string =>
     hour: "2-digit",
     minute: "2-digit",
   });
+
+/** A moment that is a deadline, with its zone said: a quote held until then (ADR 0091). */
+export const istLabelled = (d: Date): string => `${ist(d)} IST`;
+
+/** A file's size in the unit that reads best, grouped the same way for everyone (ADR 0091). */
+export const fileSize = (n: number): string =>
+  n >= 1_073_741_824
+    ? `${(n / 1_073_741_824).toFixed(1)} GB`
+    : n >= 1_048_576
+      ? `${(n / 1_048_576).toFixed(1)} MB`
+      : `${Math.max(1, Math.ceil(n / 1024)).toString()} KB`;
+
+/**
+ * How many months to add, said the same way on every screen that asks for files (ADR 0091). The
+ * welcome page said "last month", the setup page "every month you want" and the add-company
+ * steps nothing at all, so a first board was often one month with nothing to compare it to.
+ */
+export const MONTHS_TO_ADD =
+  "One trial balance per month, for as many recent months as you have: thirteen puts last year beside every month.";

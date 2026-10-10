@@ -12,6 +12,8 @@ import type { Pool } from "pg";
 export interface InboxItem {
   readonly id: string;
   readonly title: string;
+  /** The notice's first paragraph, so two notices with one title can still be told apart (ADR 0091). */
+  readonly summary: string;
   readonly link: { readonly label: string; readonly path: string } | null;
   readonly at: Date;
   readonly read: boolean;
@@ -43,6 +45,7 @@ export async function inbox(pool: Pool, accountId: string): Promise<InboxItem[]>
           {
             id: row.id,
             title: rendered.title,
+            summary: rendered.summary,
             link: rendered.link ?? null,
             at: row.created_at,
             read: row.read_at !== null,

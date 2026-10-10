@@ -152,7 +152,7 @@ test("wallet shows GST before payment, issues a proforma and serves its PDF", as
 
   // Billing details are asked for at the first purchase rather than at sign-up: the place of
   // supply is needed to work out tax and at no earlier moment. They can also be given ahead.
-  await page.getByRole("button", { name: "Add invoice details now" }).click();
+  await page.getByRole("button", { name: "Add billing details now" }).click();
   await expect(
     page.getByRole("heading", { name: "Where should we invoice this?" }),
   ).toBeVisible();
@@ -178,7 +178,11 @@ test("wallet shows GST before payment, issues a proforma and serves its PDF", as
   expect(body).toMatchObject({ credits: "999", available: "0", sufficient: false });
   expect(JSON.stringify(body)).not.toMatch(/cap|ratio|paise/iu);
 
+  // A proforma is a numbered document, issued and emailed at once, so it is asked for on
+  // purpose (ADR 0091).
   await row.getByRole("button", { name: "Pay by bank transfer" }).click();
+  await expect(row).toContainText("A numbered proforma invoice for ₹29,500.00");
+  await row.getByRole("button", { name: "Issue the proforma" }).click();
   await expect(page.getByRole("status")).toContainText(
     /Proforma PRO\/\d\d-\d\d\/\d{6} issued/u,
   );

@@ -24,11 +24,14 @@ export function MarketingHeader({
   eyebrow,
   heading,
   intro,
+  tourOnPage = false,
 }: {
   path: string;
   eyebrow: string;
   heading: string;
   intro: string;
+  /** The page shows the tour itself under `#tour`, so the link stays on it (ADR 0091). */
+  tourOnPage?: boolean | undefined;
 }) {
   return (
     <header className="mx-auto w-full max-w-[760px] px-6 pt-12 pb-8 sm:pt-16">
@@ -59,7 +62,7 @@ export function MarketingHeader({
           Create an account
         </ButtonLink>
         <Link
-          href="/#tour"
+          href={tourOnPage ? "#tour" : "/#tour"}
           className="inline-flex items-center gap-1.5 text-[0.875rem] font-medium text-neutral-600 hover:text-accent-700"
         >
           <Icon name="play" className="size-4" />
@@ -101,14 +104,16 @@ export function Section({
 export function WideSection({
   title,
   intro,
+  id,
   children,
 }: {
   title: string;
   intro?: string | undefined;
+  id?: string | undefined;
   children: ReactNode;
 }) {
   return (
-    <section className="mx-auto w-full max-w-[1120px] px-6 py-10">
+    <section id={id} className="mx-auto w-full max-w-[1120px] scroll-mt-20 px-6 py-10">
       <div className="mx-auto max-w-[760px]">
         <h2 className="text-[1.375rem] font-semibold tracking-tight text-neutral-900">
           {title}
@@ -212,9 +217,12 @@ export function FictionalNote({ children }: { children?: ReactNode }) {
 export function ClosingCta({
   heading = "See it on your own month",
   body = "Create an account, load last month's trial balance, and get the report — paid per action.",
+  packsLink = true,
 }: {
   heading?: string | undefined;
   body?: string | undefined;
+  /** Off on the credit packs page itself, where the link would lead back to the same page. */
+  packsLink?: boolean | undefined;
 }) {
   return (
     <section className="mx-auto w-full max-w-[1120px] px-6 py-14">
@@ -228,9 +236,11 @@ export function ClosingCta({
             <ButtonLink href="/sign-up" size="lg" iconAfter="arrow-right">
               Create an account
             </ButtonLink>
-            <ButtonLink href="/pricing" size="lg" variant="secondary">
-              See credit packs
-            </ButtonLink>
+            {packsLink ? (
+              <ButtonLink href="/pricing" size="lg" variant="secondary">
+                See credit packs
+              </ButtonLink>
+            ) : null}
           </div>
           <p className="mt-4 text-[0.8125rem] text-neutral-500">
             Prepaid credits, no subscription. Credits never expire.

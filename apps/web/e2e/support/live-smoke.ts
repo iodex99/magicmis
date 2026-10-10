@@ -85,9 +85,10 @@ async function setUp(
   await page.getByRole("button", { name: "Add company" }).click();
   await page.waitForURL(/\/app\/companies\/[0-9a-f-]+$/u);
   const companyId = page.url().split("/").pop() ?? "";
-  await page.getByLabel("Choose files").setInputFiles([...files]);
-  // The tier sits under Options, folded away because most people never change it.
-  await page.getByRole("button", { name: "Options" }).click();
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles([...files]);
+  // The tier sits under its own disclosure, which names the tier chosen, folded away because
+  // most people never change it.
+  await page.getByRole("button", { name: /^Intelligence tier:/u }).click();
   await page.getByLabel("Intelligence tier").selectOption(tier);
   await page.getByTestId("job-run").click({ timeout: 180_000 });
   await page.getByTestId("job-done").waitFor({ timeout: 600_000 });

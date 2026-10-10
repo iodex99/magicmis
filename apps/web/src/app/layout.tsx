@@ -50,10 +50,11 @@ export const metadata: Metadata = {
   // The app is behind a sign-in and desktop-only; the marketing pages opt themselves in.
   robots: { index: true, follow: true },
   formatDetection: { telephone: false, address: false, email: false },
+  // No locale at the floor (ADR 0091): the product is sold anywhere, so a page with no market
+  // of its own claims none. Each public page states the market it was written for (seo.ts).
   openGraph: {
     type: "website",
     siteName: PRODUCT_NAME,
-    locale: "en_IN",
     title: publicPage("/").title,
     description: publicPage("/").description,
   },
@@ -71,7 +72,9 @@ export const viewport: Viewport = {
  *
  * The theme is read from a cookie here rather than set by a script after paint, so a reader who
  * has chosen dark never sees a white flash on the way in (ADR 0034). With no cookie the attribute
- * is absent and the stylesheet follows the operating system.
+ * is absent and the page is light: the stylesheet has no `prefers-color-scheme` rule, so the
+ * operating system's setting is not followed until the reader chooses (ADR 0091 corrected this
+ * comment, which said otherwise).
  */
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await connection();

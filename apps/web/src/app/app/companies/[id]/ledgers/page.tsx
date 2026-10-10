@@ -69,7 +69,7 @@ export default async function LedgerMapPage({
     >
       <PageHeader
         title="Ledger map"
-        description="Every ledger in this company's books and the MIS line it feeds. Move one and it stays moved: the change reaches the figures the next time the MIS is built."
+        description="Every ledger in this company's books and the MIS line it feeds. Move one and it stays moved: the change reaches the figures the next time you add a file for this company."
         back={{ href: `/app/companies/${id}/manage`, label: "Files and settings" }}
       />
       {map === null || map.rows.length === 0 ? (
@@ -78,17 +78,22 @@ export default async function LedgerMapPage({
         </EmptyState>
       ) : (
         <LedgerMapClient
+          // A newer version of the map, from a reload after a refusal, starts the table afresh
+          // rather than keeping the copy that was refused (ADR 0091).
+          key={map.version}
           companyId={id}
           version={map.version}
           asAt={map.period === null ? null : periodLabel(map.period)}
           heads={headChoices()}
           unmapped={UNMAPPED}
+          live={map.live}
           rows={map.rows.map((row) => ({
             key: row.key,
             group: row.group,
             name: row.name,
             tokenised: row.tokenised,
             head: row.head,
+            keptOff: row.keptOff,
             balance: balance(row.closing),
           }))}
         />

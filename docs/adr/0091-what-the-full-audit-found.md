@@ -84,6 +84,32 @@ snapshot's ledger cap (200,000) is checked only after the workbook has been rend
 The three experience reviews were acted on area by area; what changed is in the commit that
 carries them. The rule each followed: no price step (ADR 0033), running out of credits never loses
 work (ADR 0049), copy for a reader anywhere (ADR 0081), and nothing free (locked decision 3).
+The ones that change how something works, rather than what it says:
+
+- **A run is followed, not trusted to its one response.** A dropped connection or a gateway
+  timeout no longer says nothing was charged: the screen keeps reading the job and says the run is
+  still finishing and will be emailed. The run page and the setup page find a run already working
+  by its `claimRun` lease, and a quote or a year question still waiting, without `?job=`, so
+  coming back never offers the uploader — or a second charge — beside a live run.
+- **The price is on the button.** Build shows its credits, each tier shows its own, and the line
+  under it gives the dashboard that follows; read from the price book through `priceFor`, never
+  written in. No step was added (ADR 0033).
+- **The last conversation comes back.** A `chat_thread` cookie, read by the server like the chat's
+  other state (ADR 0044), reopens it; "New conversation" clears it. A failed message keeps its
+  text and its idempotency key, so sending it again cannot charge twice, and a quote for where to
+  act is accepted against where to act — it was being sent to the commentary endpoint.
+- **"Kept off on purpose" is not "not placed yet."** Every run re-settles an accepted Unmapped, so
+  the ledger map could never tell the owner's choice from a ledger nothing placed. `keptOff` on the
+  mapping rules is optional, carried forward by `writeBack` while the ledger stays Unmapped, and
+  read by nothing but the map: the cascade still reads `acceptedUnmapped` alone.
+- **A pack's worth counts the dashboard.** `packWorth` prices a setup with its first dashboard and
+  each month with its dashboard refresh and the memory fee, and `/pricing` and the Wallet now read
+  the same function.
+- **Help has a page.** `/contact` shows the support address from `legal.contacts` once the owner
+  has set it, and says plainly what a customer can do meanwhile; the rail, the footer and every
+  "contact support" message lead there.
+- **A postal code is optional outside India**, which still requires its six-digit PIN; an invoice
+  prints the city alone.
 
 ## For the owner
 

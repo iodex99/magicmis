@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { periodLabel } from "@magicmis/render-dashboard";
 import { z } from "zod";
@@ -9,8 +10,17 @@ import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { ist, jobState } from "@/lib/job-display";
 
-export const metadata = { title: "Job" };
+// "Run", not "Job": the internal word stays out of what a customer reads (ADR 0091).
+export const metadata = { title: "Run" };
 export const dynamic = "force-dynamic";
+
+/** Runs from uploaded files, which the run screen follows while they work (ADR 0091). */
+const FROM_FILES = new Set([
+  "company_setup",
+  "reference_mis_recreate",
+  "monthly_refresh",
+  "refresh_with_restructure",
+]);
 
 /** Jobs whose result is a document or a dashboard, and so lives in the company's workspace. */
 const IN_THE_WORKSPACE = new Set([
@@ -53,6 +63,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
     notices: unknown;
     output_id: string | null;
     output_name: string | null;
+    live: boolean;
   }>(
     `select j.type, j.state, j.company_id, c.name as company_name,
             (c.id is null or c.deleted_at is not null) as company_gone,
@@ -60,7 +71,8 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
             j.created_at, j.completed_at,
             j.stage_checkpoints ->> 'period' as period,
             j.stage_checkpoints -> 'notices' as notices,
-            o.id as output_id, o.file_name as output_name
+            o.id as output_id, o.file_name as output_name,
+            coalesce((j.stage_checkpoints->>'run_lease_until')::timestamptz, '-infinity') > now() as live
        from jobs j
        left join companies c on c.id = j.company_id and c.account_id = j.account_id
        left join outputs o on o.job_id = j.id and o.account_id = j.account_id
@@ -78,10 +90,13 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
       ? { id: job.company_id, name: job.company_name ?? "Company" }
       : null;
   // A run waiting on its owner — a quote, or the year question (ADR 0086) — is answered where it
-  // was started.
+  // was started. A run still working is followed there too (ADR 0091): "we lost contact" links
+  // here, and the run screen shows its progress and its result rather than a status to reload.
   if (
     company !== null &&
-    (job.state === "needs_quote" || job.state === "awaiting_review")
+    (job.state === "needs_quote" ||
+      job.state === "awaiting_review" ||
+      (FROM_FILES.has(job.type) && job.live))
   )
     redirect(`/app/companies/${company.id}/run?job=${id}`);
   if (company !== null && IN_THE_WORKSPACE.has(job.type))
@@ -89,7 +104,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
       `/app/companies/${company.id}${job.type.startsWith("dashboard") ? "" : "?chat=open"}`,
     );
 
-  const label = (ACTION_LABELS as Record<string, string | undefined>)[job.type] ?? "Job";
+  const label = (ACTION_LABELS as Record<string, string | undefined>)[job.type] ?? "Run";
   const state = jobState(job.state);
   const failed = job.state.startsWith("failed");
   const notices = Array.isArray(job.notices)
@@ -149,6 +164,14 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
         {failed ? (
           <Alert tone="error" title="What happened">
             {failure}
+            {/contact support/iu.test(failure) ? (
+              <>
+                {" "}
+                <Link href="/contact" className="font-medium underline">
+                  Open the contact page
+                </Link>
+              </>
+            ) : null}
           </Alert>
         ) : null}
         {notices.length > 0 ? (

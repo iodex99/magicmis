@@ -4,10 +4,10 @@ import {
   claimAttempt,
   newSignupNonce,
   provisionAccount,
-  signupRequestSchema,
   throttleLimitFor,
 } from "@magicmis/accounts";
 
+import { signupBodySchema } from "@/lib/auth-fields";
 import { db } from "@/lib/db";
 import { appPublicEnv } from "@/lib/env";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
@@ -24,7 +24,7 @@ import { supabaseForRequest } from "@/lib/supabase/server";
  */
 export async function POST(request: Request): Promise<Response> {
   if (prelaunch()) return openingSoon();
-  const parsed = await parseJson(request, signupRequestSchema);
+  const parsed = await parseJson(request, signupBodySchema);
   if (!parsed.ok) return parsed.response;
   const input = parsed.data;
   const { ip } = await requestMeta();

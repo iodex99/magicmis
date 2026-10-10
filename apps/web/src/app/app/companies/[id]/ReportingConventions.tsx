@@ -8,7 +8,7 @@ import {
 } from "@magicmis/core/reporting-conventions";
 import { formatValue } from "@magicmis/render-dashboard";
 import { useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Icon, type IconName } from "@/components/Icon";
 import { Alert, Button, SelectField } from "@/components/ui";
@@ -67,9 +67,15 @@ export interface Conventions {
 export function ReportingConventions({
   companyId,
   current,
+  onChanged,
 }: {
   companyId: string;
   current: Conventions;
+  /**
+   * Told whether there are changes not yet saved, so the setup page can hold its first run until
+   * they are (ADR 0091): a year chosen here and not saved was silently ignored by the build.
+   */
+  onChanged?: (changed: boolean) => void;
 }) {
   const router = useRouter();
   const [form, setForm] = useState<Conventions>(current);
@@ -85,6 +91,9 @@ export function ReportingConventions({
     form.dateOrder !== current.dateOrder ||
     form.commentaryLanguage !== current.commentaryLanguage ||
     form.statutoryFormat !== current.statutoryFormat;
+  useEffect(() => {
+    onChanged?.(changed);
+  }, [changed, onChanged]);
 
   const save = async () => {
     setBusy(true);
@@ -99,9 +108,10 @@ export function ReportingConventions({
       setNote({ tone: "error", text: r.message });
       return;
     }
+    // One wording, and the same promise each setting makes beneath it (ADR 0091).
     setNote({
       tone: "success",
-      text: "Saved. It applies to the next run; months already delivered are unchanged.",
+      text: "Saved. Each setting takes effect as it says beneath it.",
     });
     router.refresh();
   };
@@ -123,6 +133,7 @@ export function ReportingConventions({
         <Setting
           icon="clock"
           example={`Your year runs ${startsIn} to ${endsIn}.`}
+          when="The board's year-to-date figures follow it as soon as it is saved. The next file you add is read with it."
           testId="conventions-fy-example"
         >
           <SelectField
@@ -143,7 +154,16 @@ export function ReportingConventions({
             ))}
           </SelectField>
         </Setting>
-        <Setting icon="wallet" example={`Every figure carries ${symbol}.`}>
+        <Setting
+          icon="wallet"
+          example={`Every figure carries ${symbol}.`}
+          when="Relabels every figure on the board as soon as it is saved. Nothing is converted: choose the currency the books are kept in. Workbooks already made keep their label."
+          warning={
+            form.currency === current.currency
+              ? undefined
+              : `Saving puts ${symbol} on the same amounts that now read ${currencySymbol(current.currency)}. They are relabelled, not converted.`
+          }
+        >
           <SelectField
             id="conventions-currency"
             label="Books are in"
@@ -167,6 +187,7 @@ export function ReportingConventions({
               {form.numberFormat === "millions" ? " (millions)" : ""}.
             </>
           }
+          when="The board shows it as soon as it is saved. Workbooks already made keep their format."
           testId="conventions-number-example"
         >
           <SelectField
@@ -180,9 +201,9 @@ export function ReportingConventions({
               }));
             }}
           >
-            <option value="lakhs_crores">Lakhs and crores</option>
             <option value="absolute">Full figures</option>
             <option value="millions">Millions</option>
+            <option value="lakhs_crores">Lakhs and crores</option>
           </SelectField>
         </Setting>
         <Setting
@@ -192,6 +213,7 @@ export function ReportingConventions({
               ? "03/04 in a file is read as 3 April."
               : "03/04 in a file is read as 4 March."
           }
+          when="Used to read the next file you add. Months already on the board are unchanged."
         >
           <SelectField
             id="conventions-date-order"
@@ -211,6 +233,7 @@ export function ReportingConventions({
         <Setting
           icon="chat"
           example="Commentary and where to act are written in it. The figures are the same in every language."
+          when="Used the next time either is written. What was written before stays in its language."
         >
           <SelectField
             id="conventions-language"
@@ -232,8 +255,9 @@ export function ReportingConventions({
           example={
             form.statutoryFormat === "none"
               ? "The workbook carries the MIS sheets only."
-              : "The workbook adds a balance sheet and profit and loss in this layout, from the same figures."
+              : "The workbook adds a balance sheet and profit and loss in this layout, from the same figures, for management use rather than for filing."
           }
+          when="Added to the workbook of the next run. Workbooks already made are unchanged."
         >
           <SelectField
             id="conventions-statutory"
@@ -272,8 +296,8 @@ export function ReportingConventions({
           </Button>
         ) : null}
         <span className="text-[0.75rem] text-neutral-500">
-          Applies from the next file you add. Nothing already delivered changes, and
-          saving costs nothing.
+          Saving costs nothing and reads no data. Each setting says beneath it when it
+          takes effect.
         </span>
       </div>
     </div>
@@ -284,11 +308,21 @@ export function ReportingConventions({
 function Setting({
   icon,
   example,
+  when,
+  warning,
   testId,
   children,
 }: {
   icon: IconName;
   example: ReactNode;
+  /**
+   * When the choice takes effect, said per setting (ADR 0091): some reach the board the moment
+   * they are saved and some only the next file or the next commentary, and one sentence for all
+   * of them was untrue of most.
+   */
+  when: string;
+  /** What saving this particular change will do that cannot be taken for granted. */
+  warning?: string | undefined;
   testId?: string;
   children: ReactNode;
 }) {
@@ -302,6 +336,15 @@ function Setting({
         <Icon name={icon} size={13} className="mt-0.5 shrink-0 text-accent-600" />
         <span>{example}</span>
       </p>
+      <p className="text-[0.75rem] leading-relaxed text-neutral-500">{when}</p>
+      {warning === undefined ? null : (
+        <p
+          className="rounded-md bg-warning-subtle px-2.5 py-1.5 text-[0.75rem] leading-relaxed text-warning"
+          role="status"
+        >
+          {warning}
+        </p>
+      )}
     </div>
   );
 }

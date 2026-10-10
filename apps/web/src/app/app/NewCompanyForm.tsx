@@ -122,7 +122,7 @@ export function NewCompanyForm({
         id="company-name"
         name="name"
         label="Company name"
-        placeholder="Northwind Traders Pvt Ltd"
+        placeholder="Northwind Traders"
         className="h-12 text-base"
         autoFocus={autoFocus}
         required

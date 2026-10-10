@@ -16,6 +16,7 @@ import {
   confirmationLink,
   createVerifiedAccount,
   latestEmailHtml,
+  MAILPIT,
   PASSWORD,
   signUp,
   uniqueEmail,
@@ -286,4 +287,51 @@ test("a confirmation opened in the browser that signed up signs in, as it always
   } finally {
     await pool.end();
   }
+});
+
+test("an unconfirmed address gets a new link from sign-in, and a reset can be sent again (ADR 0091)", async ({
+  page,
+}) => {
+  // Signing in before confirming used to end at "check your inbox". It now sends a new link
+  // through /api/auth/resend — never a second sign-up, which would leave this browser's
+  // secret behind — so the new link still signs in the browser that signed up (ADR 0071).
+  const email = uniqueEmail();
+  await signUp(page, email);
+  await latestEmailHtml(email, "Confirm your email");
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByText("Confirm your email address first")).toBeVisible();
+  await page.getByRole("button", { name: "Send a new link" }).click();
+  await expect(page.getByText("A new link is on its way")).toBeVisible();
+
+  const confirmations = async (): Promise<number> => {
+    const search = await fetch(
+      `${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`,
+    );
+    const body = (await search.json()) as { messages?: { Subject: string }[] };
+    return (body.messages ?? []).filter((m) => m.Subject.includes("Confirm your email"))
+      .length;
+  };
+  await expect.poll(confirmations, { timeout: 30_000 }).toBe(2);
+  await page.goto(confirmationLink(await latestEmailHtml(email, "Confirm your email")));
+  await expect(page).toHaveURL(/\/app$/u);
+  await page.context().clearCookies();
+
+  // The reset names where it went, and can be sent again or sent elsewhere without the
+  // form being gone.
+  await page.goto("/forgot-password");
+  await page.getByLabel("Email").fill(email);
+  await page.getByRole("button", { name: "Send the link" }).click();
+  await expect(page.getByTestId("reset-sent")).toContainText(email);
+  await page.getByTestId("reset-send-again").click();
+  await expect(page.getByText("Sent again")).toBeVisible();
+  await page.getByRole("button", { name: "Use a different address" }).click();
+  await expect(page.getByRole("button", { name: "Send the link" })).toBeVisible();
+
+  // A lapsed link lands on sign-in with the same way forward.
+  await page.goto("/sign-in?verification=failed");
+  await expect(page.getByText("invalid or has expired")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Send a new link" })).toBeDisabled();
 });

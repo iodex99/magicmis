@@ -1,6 +1,7 @@
 "use client";
 
 import type { NumberFormatOptions } from "@magicmis/core/format";
+import { formatValue } from "@magicmis/render-dashboard";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,6 +11,28 @@ import { api, newIdempotencyKey } from "@/lib/client-api";
 
 const FIELD =
   "h-9 rounded-md border border-neutral-200 bg-surface px-2.5 text-[0.8125rem] text-neutral-900";
+
+/**
+ * A typed amount in whole currency units as minor units, rounded half up as the server rounds it
+ * (`decimalStringToPaise`), or null when it is not a plain number. Only for saying back what was
+ * understood: the server does its own reading.
+ */
+function typedMinor(typed: string): string | null {
+  const m = /^(-?)(\d{1,15})(?:\.(\d{1,6}))?$/u.exec(typed);
+  if (m === null) return null;
+  const [, sign = "", whole = "0", fraction = ""] = m;
+  const digits = `${fraction}000`;
+  let minor = BigInt(whole) * 100n + BigInt(digits.slice(0, 2));
+  if ((digits[2] ?? "0") >= "5") minor += 1n;
+  return `${sign === "-" && minor !== 0n ? "-" : ""}${minor.toString()}`;
+}
+
+/** How the board writes amounts, as a phrase: what a typed amount is not in. */
+const SCALE: Record<NumberFormatOptions["style"], string | null> = {
+  millions: "millions",
+  lakhs_crores: "lakhs or crores",
+  absolute: null,
+};
 
 /**
  * The owner's alerts on this company (ADR 0087): a short list, each said in words, added and
@@ -36,12 +59,33 @@ export function CompanyAlerts({
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const unit = metrics.find((m) => m.id === metricId)?.unit ?? "money";
+  const metric = metrics.find((m) => m.id === metricId);
+  const unit = metric?.unit ?? "money";
+  // Grouping is the reader's habit, not part of the number.
+  const typed = value.replace(/[,\s]/gu, "");
+  // A threshold is typed in full, whatever scale the board is read in, so it is written back in
+  // full too: "5" on a board in millions is five, not five million (ADR 0091).
+  const full: NumberFormatOptions = {
+    ...money,
+    style: money.style === "millions" ? "absolute" : money.style,
+  };
+  const minor = unit === "money" ? typedMinor(typed) : null;
+  const understood =
+    typed === "" || !/^-?\d+(\.\d+)?$/u.test(typed)
+      ? null
+      : unit === "money"
+        ? minor === null
+          ? null
+          : formatValue(minor, "paise", full, currencySymbol)
+        : unit === "percent"
+          ? `${typed}%`
+          : unit === "days"
+            ? `${typed} days`
+            : typed;
+  const scale = SCALE[money.style];
 
   const add = async () => {
     setError(null);
-    // Grouping is the reader's habit, not part of the number.
-    const typed = value.replace(/[,\s]/gu, "");
     if (!/^-?\d+(\.\d+)?$/u.test(typed)) {
       setError("Enter the threshold as a number.");
       return;
@@ -87,7 +131,7 @@ export function CompanyAlerts({
               data-testid="company-alert"
             >
               <span className="flex-1 text-neutral-800">
-                {alertWords(a, money, currencySymbol)}
+                {alertWords(a, full, currencySymbol)}
               </span>
               <Button
                 variant="ghost"
@@ -135,7 +179,7 @@ export function CompanyAlerts({
         </label>
         <label className="flex flex-col gap-1 text-[0.75rem] font-medium text-neutral-600">
           {unit === "money"
-            ? `Amount, ${currencySymbol}`
+            ? `Amount in ${currencySymbol}, in full${scale === null ? "" : `, not in ${scale}`}`
             : unit === "percent"
               ? "Percent"
               : unit === "days"
@@ -144,6 +188,7 @@ export function CompanyAlerts({
           <input
             id="alert-value"
             inputMode="decimal"
+            aria-describedby="alert-understood"
             className={`${FIELD} w-40`}
             value={value}
             onChange={(e) => {
@@ -159,6 +204,16 @@ export function CompanyAlerts({
           Add alert
         </Button>
       </div>
+      <p
+        id="alert-understood"
+        className="min-h-[1.125rem] text-[0.8125rem] text-neutral-700"
+        aria-live="polite"
+        data-testid="alert-understood"
+      >
+        {understood === null || metric === undefined
+          ? ""
+          : `Understood as: ${metric.label} is ${comparator} ${understood}.`}
+      </p>
       <p className="text-[0.75rem] text-neutral-500">
         Checked on every run&rsquo;s figures, with nothing charged. The email when one
         fires says how many, never a figure; the board says which.

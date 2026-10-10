@@ -8,6 +8,7 @@ import {
 } from "@magicmis/accounts";
 import { z } from "zod";
 
+import { businessNameField } from "@/lib/auth-fields";
 import { SupabaseAuthProvider } from "@/lib/auth-provider";
 import { db } from "@/lib/db";
 import { apiError, ok, parseJson, requestMeta } from "@/lib/http";
@@ -27,7 +28,7 @@ import { supabaseAdmin, supabaseForRequest } from "@/lib/supabase/server";
  * chooses what their business is called, not whose account this is.
  */
 const bodySchema = z.object({
-  businessName: signupRequestSchema.shape.businessName,
+  businessName: businessNameField,
   /**
    * The owner's own password, for a password sign-up whose confirmation link was opened in
    * another browser (ADR 0071): the one chosen at sign-up was destroyed at the callback.
@@ -105,7 +106,7 @@ export async function POST(request: Request): Promise<Response> {
     return apiError(
       409,
       "cannot_finish",
-      "This account could not be created. Sign in the way you did before, or contact support.",
+      "This account could not be created. Sign in the way you did before, or write to us: the address is on the Contact page.",
     );
   }
 

@@ -17,14 +17,15 @@ import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 export function BillingDetailsForm({
   onSaved,
   defaultCountry,
-  description = "Needed once, to work out tax and print your invoice. You can change it later in Settings.",
+  description = "Needed once, to work out tax and print your invoice. You can change them later in Business profile.",
   submitLabel = "Save",
   onCancel,
 }: {
   onSaved: () => void;
   /**
    * Where the form starts (ADR 0050): India for a visitor priced in rupees, otherwise the
-   * first country that is not India. A customer abroad should not open on an Indian tax form.
+   * visitor's own country (ADR 0091). A customer abroad should not open on an Indian tax form,
+   * nor on another country's. A code the list does not hold falls back to the United States.
    */
   defaultCountry: string;
   description?: string;
@@ -37,7 +38,9 @@ export function BillingDetailsForm({
   const [saving, setSaving] = useState(false);
   // Changing the country switches the currency, drops the GST fields and changes the invoice,
   // all of which the reader should see happen.
-  const [country, setCountry] = useState(defaultCountry);
+  const [country, setCountry] = useState(() =>
+    countryOptions().some((c) => c.code === defaultCountry) ? defaultCountry : "US",
+  );
   const isIndia = country === "IN";
   // Never ask twice for something already given: the business name came in at sign-up.
   const [known, setKnown] = useState<{ businessName: string; gstin: string } | null>(
@@ -114,6 +117,8 @@ export function BillingDetailsForm({
           name="businessName"
           label="Business name"
           defaultValue={known.businessName}
+          // It opens on a press of Buy, which leaves focus behind on the card (ADR 0091).
+          autoFocus
           required
           error={fields["businessName"]}
         />
@@ -171,13 +176,14 @@ export function BillingDetailsForm({
             required
             error={fields["billingAddress.city"]}
           />
+          {/* Some countries have none, so only an Indian PIN code is required (ADR 0091). */}
           <Field
             id="billing-postalCode"
             name="postalCode"
-            label={isIndia ? "PIN code" : "Postal code"}
+            label={isIndia ? "PIN code" : "Postal code (if you have one)"}
             inputMode={isIndia ? "numeric" : "text"}
             autoComplete="postal-code"
-            required
+            required={isIndia}
             error={fields["billingAddress.postalCode"]}
           />
         </div>
@@ -201,9 +207,10 @@ export function BillingDetailsForm({
             ))}
           </SelectField>
         ) : (
+          // The statute is on the invoice; a buyer abroad needs the consequence (ADR 0091).
           <p className="text-[0.8125rem] text-neutral-500">
-            Billed in US dollars. No Indian GST applies — this is an export of services,
-            zero-rated under section 16 of the IGST Act, and your invoice will say so.
+            Billed in US dollars. We add no tax. Your invoice records it as an export of
+            services.
           </p>
         )}
         <div className="flex flex-wrap items-center gap-2">

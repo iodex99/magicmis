@@ -5,16 +5,17 @@ import { PRODUCT_NAME } from "@/lib/brand";
 import { AuthShell } from "./ui";
 
 /**
- * What sign-up and sign-in show before launch (ADR 0078). No form and no email capture: a
- * waiting list would be personal data held for a purpose the privacy notice does not name.
- * Everything a visitor might want to read meanwhile is one link away.
+ * What sign-up, sign-in and the password pages show before launch (ADR 0078). No form and no
+ * email capture: a waiting list would be personal data held for a purpose the privacy notice
+ * does not name. Everything a visitor might want to read meanwhile is one link away. Its own
+ * panel, without sign-up's progress or "free to create", since nobody can sign up yet (ADR 0091).
  */
 export function OpeningSoon() {
   return (
     <AuthShell
-      moment="join"
+      moment="soon"
       title="Opening soon"
-      description={`${PRODUCT_NAME} is not taking sign-ups yet. Accounts open shortly, and nothing is charged before then.`}
+      description={`${PRODUCT_NAME} accounts are not open yet. They open shortly, and nothing is charged before then.`}
       footer={
         <Link href="/" className="font-medium text-accent-700 hover:underline">
           Back to the home page

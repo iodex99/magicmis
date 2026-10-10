@@ -49,7 +49,7 @@ export const CHECK_WORDS: Readonly<Record<string, CheckWords>> = {
   },
   V10: {
     passed: "Every line runs in its usual direction",
-    look: "A line runs against its usual direction, such as cash below nothing",
+    look: "A line runs against its usual direction, such as a negative cash balance",
   },
   V11: {
     passed: "Every formula in the workbook recalculates to the figure shown",
@@ -63,7 +63,11 @@ export interface CheckSummary {
   readonly severity: "blocking" | "warning";
 }
 
-/** What a reader sees: the passes and the things to look at, each in words, in the engine's order. */
+/**
+ * What a reader sees: the passes and the things to look at, each in words, in the engine's order
+ * — except that a blocking failure is put before a warning (ADR 0091). "The balance sheet does not
+ * balance" is the first thing to read about a month, never the fourth.
+ */
 export function checkLines(checks: readonly CheckSummary[]): {
   passed: string[];
   look: { id: string; text: string }[];
@@ -72,12 +76,14 @@ export function checkLines(checks: readonly CheckSummary[]): {
   const known = [...checks]
     .filter((c) => CHECK_WORDS[c.id] !== undefined && c.status !== "not_applicable")
     .sort((a, b) => order(a.id) - order(b.id));
+  const weight = (c: CheckSummary) => (c.severity === "blocking" ? 0 : 1);
   return {
     passed: known
       .filter((c) => c.status === "pass")
       .map((c) => CHECK_WORDS[c.id]?.passed ?? c.id),
     look: known
       .filter((c) => c.status === "fail")
+      .sort((a, b) => weight(a) - weight(b))
       .map((c) => ({ id: c.id, text: CHECK_WORDS[c.id]?.look ?? c.id })),
   };
 }

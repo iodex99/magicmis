@@ -35,11 +35,21 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 const ENTRY_LABELS: Record<string, string> = {
   grant: "Credits added",
-  reserve: "Action started",
+  reserve: "Held",
   release: "Returned, unused",
   capture: "Charged",
   expire: "Expired",
   admin_adjust: "Adjustment",
+};
+
+/** What each document is, as its reader would call it (ADR 0091): a credit note is a refund, not a bill. */
+const INVOICE_TYPES: Record<
+  string,
+  { label: string; tone: "accent" | "neutral" | "warning" }
+> = {
+  tax_invoice: { label: "Tax invoice", tone: "accent" },
+  proforma: { label: "Proforma", tone: "neutral" },
+  credit_note: { label: "Credit note", tone: "warning" },
 };
 
 /**
@@ -55,23 +65,18 @@ const DIRECTION: Record<string, "up" | "down" | "none"> = {
   release: "none",
 };
 
-const istDate = (iso: string): string =>
-  new Intl.DateTimeFormat("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(iso));
-
 export function WalletClient({
   initial,
   businessName,
   need,
+  visitorCountry,
 }: {
   initial: WalletView;
   businessName: string;
   /** Credits a run needs, when the customer arrived here from one that was short. */
   need: string | null;
+  /** Where the request came from, upper case, or null where the platform does not say. */
+  visitorCountry: string | null;
 }) {
   const [view, setView] = useState(initial);
   const [busy, setBusy] = useState<string | null>(null);
@@ -191,8 +196,13 @@ export function WalletClient({
     checkout.open();
   }
 
+  // The pack whose bank transfer is being confirmed: a proforma is a numbered document, issued and
+  // emailed the moment it is asked for, so it is asked for on purpose (ADR 0091).
+  const [transferring, setTransferring] = useState<string | null>(null);
+
   async function bankTransfer(packId: string) {
     setBusy(packId);
+    setTransferring(null);
     setNotice(null);
     const result = await api<{ proformaNumber: string | null }>(
       "/api/wallet/bank-transfer",
@@ -393,6 +403,7 @@ export function WalletClient({
         >
           {cards.map((p) => {
             const recommended = p.packId === suggested;
+            const packName = p.name ?? `${formatCredits(p.credits)} credits`;
             return (
               <li
                 key={p.packId}
@@ -407,7 +418,7 @@ export function WalletClient({
                   </span>
                 ) : null}
                 <h3 className="text-[0.9375rem] font-semibold text-neutral-900">
-                  {p.name ?? `${formatCredits(p.credits)} credits`}
+                  {packName}
                 </h3>
                 <p className="mt-3 flex items-baseline gap-1.5">
                   <span className="display num text-left text-[1.875rem] leading-none font-semibold tracking-tight text-neutral-900">
@@ -443,16 +454,58 @@ export function WalletClient({
                   }}
                 >
                   {busy === p.packId ? "Opening payment…" : p.action}
+                  {/* Six buttons named "Buy" said nothing on their own to a screen reader. */}
+                  {busy === p.packId ? null : (
+                    <span className="sr-only">
+                      {view.billingReady ? ` for ${packName}` : ` ${packName}`}
+                    </span>
+                  )}
                 </Button>
-                {p.bankTransferEligible ? (
+                {p.bankTransferEligible && transferring !== p.packId ? (
                   <button
                     type="button"
                     className="mt-2 text-center text-[0.75rem] font-medium text-neutral-600 underline underline-offset-2 hover:text-neutral-900 disabled:opacity-50"
                     disabled={busy !== null}
-                    onClick={() => void bankTransfer(p.packId)}
+                    onClick={() => {
+                      setNotice(null);
+                      setTransferring(p.packId);
+                    }}
                   >
                     Pay by bank transfer
                   </button>
+                ) : null}
+                {p.bankTransferEligible && transferring === p.packId ? (
+                  <div
+                    className="mt-3 flex flex-col gap-2 rounded-lg border border-neutral-200/80 bg-raised p-3 text-[0.75rem] text-neutral-700"
+                    role="group"
+                    aria-label={`Pay for ${packName} by bank transfer`}
+                  >
+                    <p>
+                      A numbered proforma invoice for {p.price} is issued and emailed to
+                      you now, with our bank details. Credits are added once the transfer
+                      has arrived.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={busy !== null}
+                        onClick={() => void bankTransfer(p.packId)}
+                      >
+                        Issue the proforma
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={busy !== null}
+                        onClick={() => {
+                          setTransferring(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
                 ) : null}
               </li>
             );
@@ -471,15 +524,24 @@ export function WalletClient({
                     setAskingBilling(true);
                   }}
                 >
-                  Add invoice details now
+                  Add billing details now
                 </button>
               </p>
             ) : (
               <BillingDetailsForm
-                defaultCountry={view.listed?.currency === "INR" ? "IN" : "US"}
+                // The visitor's own country (ADR 0050 §3), so a buyer in the UK does not open on
+                // a US invoice address one inattentive press away (ADR 0091). India for anyone
+                // priced in rupees; the first country that is not India only with no evidence.
+                defaultCountry={
+                  view.listed?.currency === "INR"
+                    ? "IN"
+                    : visitorCountry !== null && visitorCountry !== "IN"
+                      ? visitorCountry
+                      : "US"
+                }
                 description={
                   wanted === null
-                    ? "Asked once, to work out tax and print your invoice. You can change it later in Settings."
+                    ? "Asked once, to work out tax and print your invoice. You can change them later in Business profile."
                     : `One thing before paying for ${chosenName}: where to invoice you. Asked once; tax depends on it.`
                 }
                 submitLabel={wanted === null ? "Save" : "Save and continue to payment"}
@@ -555,7 +617,9 @@ export function WalletClient({
                   <Th>Type</Th>
                   <Th>Date</Th>
                   <Th numeric>Total</Th>
-                  <Th />
+                  <Th>
+                    <span className="sr-only">Download</span>
+                  </Th>
                 </>
               }
             >
@@ -565,11 +629,11 @@ export function WalletClient({
                     {i.number}
                   </Td>
                   <Td>
-                    <Badge tone={i.type === "tax_invoice" ? "accent" : "neutral"}>
-                      {i.type === "tax_invoice" ? "Tax invoice" : "Proforma"}
+                    <Badge tone={INVOICE_TYPES[i.type]?.tone ?? "neutral"}>
+                      {INVOICE_TYPES[i.type]?.label ?? "Document"}
                     </Badge>
                   </Td>
-                  <Td className="whitespace-nowrap">{istDate(i.issuedAt)}</Td>
+                  <Td className="whitespace-nowrap">{i.issuedLabel}</Td>
                   <Td numeric>{money(i.totalMinor, i.currency)}</Td>
                   <Td className="text-right">
                     <a
@@ -589,7 +653,7 @@ export function WalletClient({
 
       <Panel
         title="History"
-        description="Every movement of credits, newest first."
+        description="Every movement of credits, newest first, with what it was for. Credits are held when an action starts, then charged for what it used, and the rest returned."
         icon="clock"
         padding="none"
       >
@@ -617,9 +681,15 @@ export function WalletClient({
               const magnitude = formatCredits(e.amount.replace(/^-/u, ""));
               return (
                 <Tr key={e.seq}>
-                  <Td className="whitespace-nowrap">{istDate(e.createdAt)}</Td>
+                  <Td className="whitespace-nowrap">{e.createdLabel}</Td>
                   <Td className="text-neutral-900">
-                    {ENTRY_LABELS[e.entryType] ?? e.entryType}
+                    {ENTRY_LABELS[e.entryType] ?? "Adjustment"}
+                    {/* What it was for, so a hold, its charge and its return read as one action. */}
+                    {e.forLabel === null ? null : (
+                      <span className="block text-[0.75rem] text-neutral-500">
+                        {e.forLabel}
+                      </span>
+                    )}
                   </Td>
                   <Td
                     numeric

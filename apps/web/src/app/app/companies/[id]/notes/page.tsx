@@ -1,3 +1,4 @@
+import { hiddenPeriods } from "@magicmis/jobs";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
@@ -34,25 +35,33 @@ export default async function NotesPage({
   const name = company.rows[0]?.name;
   if (name === undefined) notFound();
   // The newest completed piece of each kind for each month.
-  const written = await pool.query<{ id: string; type: string; period: string }>(
-    `select distinct on (type, stage_checkpoints->>'period')
-            id, type, stage_checkpoints->>'period' as period
-       from jobs
-      where account_id = $1 and company_id = $2 and state = 'completed'
-        and type in ('commentary', 'board_actions')
-        and stage_checkpoints ? 'period'
-      order by type, stage_checkpoints->>'period', created_at desc`,
-    [account.accountId, id],
-  );
+  const [written, hidden] = await Promise.all([
+    pool.query<{ id: string; type: string; period: string }>(
+      `select distinct on (type, stage_checkpoints->>'period')
+              id, type, stage_checkpoints->>'period' as period
+         from jobs
+        where account_id = $1 and company_id = $2 and state = 'completed'
+          and type in ('commentary', 'board_actions')
+          and stage_checkpoints ? 'period'
+        order by type, stage_checkpoints->>'period', created_at desc`,
+      [account.accountId, id],
+    ),
+    // A month off the board is off the notes too (ADR 0048): its writing will not open, and
+    // opening on it showed an error where the presenter expected their notes (ADR 0091).
+    hiddenPeriods(pool, { accountId: account.accountId, companyId: id }),
+  ]);
   const byMonth: Record<string, { commentary?: string; actions?: string }> = {};
   for (const w of written.rows) {
     const entry = (byMonth[w.period] ??= {});
     if (w.type === "commentary") entry.commentary = w.id;
     else entry.actions = w.id;
   }
-  const months = Object.keys(byMonth).sort().reverse();
+  const months = Object.keys(byMonth)
+    .filter((m) => !hidden.has(m))
+    .sort()
+    .reverse();
   const first =
-    period !== undefined && /^\d{4}-(0[1-9]|1[0-2])$/u.test(period)
+    period !== undefined && /^\d{4}-(0[1-9]|1[0-2])$/u.test(period) && !hidden.has(period)
       ? period
       : (months[0] ?? null);
   return (
@@ -60,6 +69,7 @@ export default async function NotesPage({
       companyId={id}
       companyName={name}
       initialPeriod={first}
+      months={months}
       written={byMonth}
     />
   );

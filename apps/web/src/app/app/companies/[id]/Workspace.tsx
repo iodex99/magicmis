@@ -4,13 +4,27 @@ import type { NumberFormatOptions } from "@magicmis/core/format";
 import type { PeriodId } from "@magicmis/core/time";
 import { companyFormat } from "@magicmis/render-dashboard";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 import { Icon } from "@/components/Icon";
 import { CHAT_COOKIE, OPEN_CHAT_EVENT, OPEN_CHAT_PARAM, remember } from "@/lib/prefs";
 
 import { Assistant, type CommentaryRow } from "./Assistant";
 import { DashboardClient } from "./DashboardClient";
+
+/**
+ * The chat's shortcut as this reader's keyboard writes it (ADR 0091): ⌘ K on a Mac, where "Ctrl
+ * K" named a key that is not the one to press. The server and the first paint say Ctrl K, and a
+ * Mac corrects it as soon as the page is live; the platform never changes, so nothing subscribes.
+ */
+const noSubscription = () => () => undefined;
+function useShortcutLabel(): string {
+  return useSyncExternalStore(
+    noSubscription,
+    () => (/Mac|iPhone|iPad/u.test(navigator.userAgent) ? "⌘ K" : "Ctrl K"),
+    () => "Ctrl K",
+  );
+}
 
 /**
  * The company workspace (ADR 0033): the dashboard with the chat beside it, so a question is
@@ -37,6 +51,7 @@ export function Workspace({
   periods,
   commentaries,
   chatPreference,
+  resumeThreadId,
 }: {
   companyId: string;
   companyName: string;
@@ -52,6 +67,8 @@ export function Workspace({
   commentaries: readonly CommentaryRow[];
   /** From the `chat` cookie; null when the reader has never chosen. */
   chatPreference: "open" | "closed" | null;
+  /** The conversation the chat reopens on, from the `chat_thread` cookie (ADR 0091). */
+  resumeThreadId: string | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -70,6 +87,8 @@ export function Workspace({
   } | null>(null);
   const [chatOpen, setChatOpen] = useState(chatPreference !== "closed");
   const [focusNonce, setFocusNonce] = useState(0);
+
+  const shortcut = useShortcutLabel();
 
   const [layoutVersion, setLayoutVersion] = useState(0);
   const [dashboardVersion, setDashboardVersion] = useState<number | null>(null);
@@ -182,6 +201,7 @@ export function Workspace({
           currencySymbol={currencySymbol}
           periods={periods}
           commentaries={commentaries}
+          resumeThreadId={resumeThreadId}
           prefill={prefill}
           runAction={runAction}
           focusNonce={focusNonce}
@@ -198,14 +218,14 @@ export function Workspace({
           onClick={openChat}
           className="press rise fixed right-6 bottom-6 z-40 flex items-center gap-2.5 rounded-full bg-accent-600 py-3 pr-5 pl-4 text-[0.875rem] font-semibold text-white shadow-lg transition-colors hover:bg-accent-700"
           aria-label="Chat with the MIS"
-          title="Chat with the MIS (Ctrl K)"
+          title={`Chat with the MIS (${shortcut})`}
           data-testid="chat-launcher"
           data-print="hide"
         >
           <Icon name="chat" size={18} />
           Chat with the MIS
           <kbd className="ml-1 rounded bg-white/15 px-1.5 py-0.5 font-sans text-[0.6875rem] font-medium">
-            Ctrl K
+            {shortcut}
           </kbd>
         </button>
       )}

@@ -11,8 +11,10 @@ import {
 import type { Currency } from "@magicmis/core/money";
 import { walletSummary } from "@magicmis/wallet";
 
+import { ACTION_LABELS } from "./actions";
 import { db } from "./db";
 import { serverEnv } from "./env";
+import { istLabelled } from "./job-display";
 import { listedPacks, packWorth } from "./server/packs";
 
 let gateway: PaymentGateway | undefined;
@@ -96,6 +98,8 @@ export interface WalletView {
     type: string;
     number: string;
     issuedAt: string;
+    /** `issuedAt` in IST, labelled so, written on the server (ADR 0091). */
+    issuedLabel: string;
     currency: Currency;
     totalMinor: string;
   }[];
@@ -105,7 +109,47 @@ export interface WalletView {
     amount: string;
     balanceAfter: string;
     createdAt: string;
+    /** `createdAt` in IST, labelled so, written on the server (ADR 0091). */
+    createdLabel: string;
+    /**
+     * What the credits were held, charged or returned for, in words: the action and the company
+     * ("Company setup · Acme Traders"). Null for credits added (ADR 0091).
+     */
+    forLabel: string | null;
   }[];
+}
+
+/** A chat message's kind, as the price book names it. */
+const CHAT_LABELS: Record<string, string> = {
+  quick: ACTION_LABELS.chat_quick,
+  deep: ACTION_LABELS.chat_deep,
+  edit: ACTION_LABELS.chat_edit,
+  investigate: "Investigate",
+};
+
+/**
+ * What a ledger entry was for: the run's action, the chat message, or the company's own fee,
+ * and whose company it was. A fee is told apart from a restore by the key it was held under
+ * (`packages/jobs/src/lifecycle.ts`), the one thing the reservation records about it.
+ */
+function entryFor(row: {
+  job_type: string | null;
+  message_type: string | null;
+  reservation_key: string | null;
+  company_name: string | null;
+}): string | null {
+  const what =
+    row.job_type !== null
+      ? ((ACTION_LABELS as Record<string, string | undefined>)[row.job_type] ?? "Run")
+      : row.message_type !== null
+        ? (CHAT_LABELS[row.message_type] ?? "Chat")
+        : row.reservation_key?.startsWith("restore:") === true
+          ? ACTION_LABELS.company_restore
+          : row.reservation_key?.startsWith("memory_fee:") === true
+            ? "Monthly memory fee"
+            : null;
+  if (what === null) return row.company_name;
+  return row.company_name === null ? what : `${what} · ${row.company_name}`;
 }
 
 /** Everything the Wallet page shows, as JSON-safe strings (bigints never cross to the client). */
@@ -144,10 +188,31 @@ export async function walletView(
       amount: string;
       balance_after: string;
       created_at: Date;
+      job_type: string | null;
+      message_type: string | null;
+      reservation_key: string | null;
+      company_name: string | null;
     }>(
-      `select seq::text as seq_text, entry_type, amount::text as amount,
-              balance_after::text as balance_after, created_at
-       from public.credit_ledger where account_id = $1 order by seq desc limit 50`,
+      // What each movement was for (ADR 0091): the reservation it moved names a run, a chat
+      // message or a company's fee. Fifty rows, each joined by primary key, all the account's own.
+      `select l.seq::text as seq_text, l.entry_type, l.amount::text as amount,
+              l.balance_after::text as balance_after, l.created_at,
+              j.type as job_type, m.message_type, r.idempotency_key as reservation_key,
+              c.name as company_name
+         from public.credit_ledger l
+         left join public.reservations r
+           on r.id = l.reservation_id and r.account_id = l.account_id
+         left join public.jobs j
+           on j.id = coalesce(l.job_id, r.job_id) and j.account_id = l.account_id
+         left join public.chat_messages m
+           on m.id = r.chat_message_id and m.account_id = l.account_id
+         left join public.chat_threads t
+           on t.id = m.thread_id and t.account_id = l.account_id
+         left join public.companies c
+           on c.id = coalesce(j.company_id, t.company_id, r.company_id)
+          and c.account_id = l.account_id
+        where l.account_id = $1
+        order by l.seq desc limit 50`,
       [accountId],
     ),
   ]);
@@ -208,6 +273,7 @@ export async function walletView(
       type: i.type,
       number: i.number,
       issuedAt: i.issuedAt.toISOString(),
+      issuedLabel: istLabelled(i.issuedAt),
       currency: i.totals.currency,
       totalMinor: i.totals.total_minor,
     })),
@@ -217,6 +283,8 @@ export async function walletView(
       amount: r.amount,
       balanceAfter: r.balance_after,
       createdAt: r.created_at.toISOString(),
+      createdLabel: istLabelled(r.created_at),
+      forLabel: r.entry_type === "grant" ? null : entryFor(r),
     })),
   };
 }

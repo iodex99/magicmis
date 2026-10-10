@@ -17,7 +17,7 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "upload",
     title: "Drop in its trial balances",
-    body: "Excel, CSV or PDF, from any accounting software.",
+    body: "One per month, as many recent months as you have. Excel, CSV or PDF, from any accounting software.",
   },
   {
     icon: "chart",
@@ -56,8 +56,8 @@ export function AddCompany({
             Add a company. Its MIS is minutes away.
           </h2>
           <p className="mt-4 max-w-xl text-[1rem] leading-relaxed text-neutral-600">
-            One company holds one MIS: its ledger mapping, every month you give it, and
-            everything it produces. Adding it is free.
+            One company holds one MIS, its monthly management report: its ledger mapping,
+            every month you give it, and everything it produces. Adding it is free.
           </p>
           <ol className="relative mt-8 flex flex-col gap-5 before:absolute before:top-4 before:bottom-4 before:left-[1.125rem] before:w-px before:bg-neutral-200">
             {STEPS.map((step, i) => (
@@ -71,7 +71,7 @@ export function AddCompany({
                 </span>
                 <div>
                   <p className="text-[0.9375rem] font-semibold text-neutral-900">
-                    <span className="mr-1.5 text-neutral-400">{i + 1}.</span>
+                    <span className="mr-1.5 text-neutral-500">{i + 1}.</span>
                     {step.title}
                   </p>
                   <p className="mt-0.5 text-[0.8125rem] text-neutral-500">{step.body}</p>
@@ -90,11 +90,9 @@ export function AddCompany({
               Company details
             </p>
           </div>
-          <NewCompanyForm
-            defaults={defaults}
-            logoLimits={logoLimits}
-            autoFocus={!first}
-          />
+          {/* Open but not focused (ADR 0091): below a returning account's companies, focusing it
+              scrolled the page down to it on every visit. ADR 0061 asks for it to be there. */}
+          <NewCompanyForm defaults={defaults} logoLimits={logoLimits} />
         </div>
       </div>
     </section>

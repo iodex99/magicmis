@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import {
   AlsoCalled,
@@ -16,11 +17,11 @@ import {
   FaqSchema,
   type Faq,
 } from "@/components/StructuredData";
-import { formatCredits } from "@/lib/actions";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { db } from "@/lib/db";
 import { pageMetadata } from "@/lib/seo";
 import { welcomeOffer } from "@/lib/server/welcome";
+import { WELCOME_TERMS_HREF, welcomeEvaluation } from "@/lib/welcome-copy";
 
 const PATH = "/for-accountants";
 export const metadata: Metadata = pageMetadata(PATH);
@@ -50,7 +51,7 @@ const PRESSURES: readonly { title: string; body: string }[] = [
   },
   {
     title: "Client data lives in email and shared drives",
-    body: "Trial balances move by attachment and sit in inboxes. Under the DPDP Act that is the firm's exposure, not the client's.",
+    body: "Trial balances move by attachment and sit in inboxes. Under data-protection law that is the firm's exposure, not the client's.",
   },
 ];
 
@@ -77,7 +78,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Can I use one account for several clients?",
     answer:
-      "Yes. One account holds as many companies as you need, each with its own mapping, its own history and its own encryption key. What an account does not have is multiple logins — there are no team members, roles or shared access, and a second sign-in ends the first session.",
+      "Yes. One account holds as many companies as you need, each with its own mapping, its own history and its own encryption key. What an account does not have is multiple logins — there are no team members, roles or shared logins, and a second sign-in ends the first session.",
   },
   {
     question: "Can my team have their own logins?",
@@ -198,13 +199,20 @@ export default async function ForAccountantsPage() {
           than the features.
         </p>
         <p>
-          There are no team logins, client portals or share links, and none are planned —
-          one account is one login. There is no live connector to any accounting system:
-          you take the raw reports and load the files. There is no scheduled refresh
-          without someone uploading the month.{" "}
-          {offer.credits > 0n
-            ? `Evaluating it costs nothing up front: a new account starts with ${formatCredits(offer.credits.toString())} free credits${offer.coversFirstCompany ? ", enough to set up one client’s company on a real month of its books at its standard price" : ""} — one grant per person or business, and after that each company you keep has a monthly memory fee.`
-            : "And there is no free tier or trial, so evaluating it means buying credits for a real month."}
+          There are no team logins or client portals, and none are planned — one account
+          is one login. What a client can be sent is a read-only link to a copy of their
+          board, frozen when the link is made, which expires and which you can withdraw;
+          it opens no chat, file or workbook. There is no live connector to any accounting
+          system: you take the raw reports and load the files. There is no scheduled
+          refresh without someone uploading the month. {welcomeEvaluation(offer)}
+          {offer.credits > 0n ? (
+            <>
+              {" "}
+              <Link href={WELCOME_TERMS_HREF} className="text-accent-700 underline">
+                Offer terms
+              </Link>
+            </>
+          ) : null}
         </p>
         <p>
           The professional judgement stays yours. The workbook is a prepared report to be

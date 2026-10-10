@@ -27,11 +27,13 @@ export async function GET(
       quote_credits: string | null;
       quote_expires_at: Date | null;
       output_id: string | null;
+      running: boolean;
     }>(
       `select j.id, j.company_id, j.type, j.tier, j.delivery_mode, j.state, j.price_credits::text as price_credits,
               j.captured_credits::text as captured_credits, j.failure_class, j.failure_code, j.failure_detail,
               q.credits::text as quote_credits, q.expires_at as quote_expires_at,
-              (select o.id from outputs o where o.job_id = j.id order by o.created_at desc limit 1) as output_id
+              (select o.id from outputs o where o.job_id = j.id order by o.created_at desc limit 1) as output_id,
+              coalesce((j.stage_checkpoints->>'run_lease_until')::timestamptz, '-infinity') > now() as running
        from jobs j left join quotes q on q.id = j.quote_id
        where j.id = $1 and j.account_id = $2`,
       [id, account.accountId],
@@ -45,6 +47,9 @@ export async function GET(
       tier: j.tier,
       delivery: j.delivery_mode,
       state: j.state,
+      // Whether a server run holds this job now (ADR 0091), the same lease the run route checks:
+      // a screen that lost its connection to a run, or came back to one, follows it by this.
+      running: j.running,
       priceCredits: j.price_credits,
       capturedCredits: j.captured_credits,
       failure:

@@ -48,7 +48,9 @@ export const billingAddressSchema = z
       .string()
       .transform(normaliseCountry)
       .refine(isCountryCode, "Choose a country"),
-    postalCode: printed(20).min(1),
+    // Empty is allowed: some countries have no postal codes, and an invoice prints the city
+    // alone (ADR 0091). India's six-digit PIN code is still required, below.
+    postalCode: printed(20),
     /** India only: the GST state that decides place of supply. */
     stateCode: z.string().optional(),
   })

@@ -1,6 +1,5 @@
 "use client";
 
-import { formatIstDateTime } from "@magicmis/core/time";
 import { useEffect, useState, type SyntheticEvent } from "react";
 
 import { ReauthForm } from "@/components/ReauthForm";
@@ -17,6 +16,7 @@ import {
   Tr,
 } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
+import { istLabelled } from "@/lib/job-display";
 
 interface LoginEvent {
   type: string;
@@ -49,6 +49,13 @@ export function SecuritySettings() {
     tone: "success" | "error";
     text: string;
   } | null>(null);
+  // A new password the rules refuse is said on its field, not in a banner above the page.
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const cancel = () => {
+    setPending(null);
+    setGranted(null);
+    setPasswordError(null);
+  };
 
   async function load() {
     const history = await api<{ events: LoginEvent[] }>("/api/account/login-history");
@@ -67,12 +74,13 @@ export function SecuritySettings() {
       idempotencyKey: newIdempotencyKey(),
     });
     if (result.ok) {
-      setPending(null);
-      setGranted(null);
+      cancel();
       setNotice({ tone: "success", text: "Your password has been changed." });
       void load();
+    } else if (result.fields["newPassword"] !== undefined) {
+      setPasswordError(result.fields["newPassword"]);
     } else {
-      setNotice({ tone: "error", text: result.fields["newPassword"] ?? result.message });
+      setNotice({ tone: "error", text: result.message });
     }
   }
 
@@ -96,6 +104,7 @@ export function SecuritySettings() {
             onGranted={() => {
               setGranted("password");
             }}
+            onCancel={cancel}
           />
         ) : (
           <form
@@ -112,9 +121,16 @@ export function SecuritySettings() {
               label="New password"
               autoComplete="new-password"
               hint="At least 12 characters, with upper- and lower-case letters and a digit."
+              error={passwordError ?? undefined}
+              autoFocus
               required
             />
-            <Button type="submit">Save new password</Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="submit">Save new password</Button>
+              <Button type="button" variant="ghost" onClick={cancel}>
+                Cancel
+              </Button>
+            </div>
           </form>
         )}
       </Panel>
@@ -138,17 +154,18 @@ export function SecuritySettings() {
             maxHeight="26rem"
             head={
               <>
-                <Th>When (IST)</Th>
+                <Th>When</Th>
                 <Th>Event</Th>
                 <Th>Device</Th>
+                <Th>Where</Th>
                 <Th>IP address</Th>
               </>
             }
           >
             {events.map((e, i) => (
               <Tr key={`${e.at}-${String(i)}`}>
-                <Td className="font-mono text-[0.8125rem] whitespace-nowrap text-neutral-900">
-                  {formatIstDateTime(new Date(e.at))}
+                <Td className="text-[0.8125rem] whitespace-nowrap text-neutral-900">
+                  {istLabelled(new Date(e.at))}
                 </Td>
                 <Td>
                   {EVENT_LABEL[e.type] ?? e.type}
@@ -159,6 +176,8 @@ export function SecuritySettings() {
                   ) : null}
                 </Td>
                 <Td>{e.device ?? "—"}</Td>
+                {/* Where the address places it, roughly: what an owner checks a sign-in by. */}
+                <Td>{e.location ?? "—"}</Td>
                 <Td className="font-mono text-[0.8125rem]">{e.ip ?? "—"}</Td>
               </Tr>
             ))}

@@ -33,7 +33,7 @@ import { DashboardError } from "./layout-error";
 import { releasingOnLayoutFault } from "./layout-fault";
 import { readStoredDashboard, type StoredDashboard } from "./stored-layout";
 import { captureDelivered, finish } from "./settle";
-import { queueNotification } from "./notify";
+import { companyNameFor, queueNotification } from "./notify";
 import { lockJob, transition } from "./states";
 
 export interface CompanyDashboard {
@@ -216,7 +216,12 @@ export async function completeDashboardAddon(
   await queueNotification(pool, {
     accountId: input.accountId,
     type: "job.completed",
-    payload: { job_id: job.id, company_id: companyId, job_type: job.type },
+    payload: {
+      job_id: job.id,
+      company_id: companyId,
+      company_name: await companyNameFor(pool, companyId),
+      job_type: job.type,
+    },
     dedupeKey: `completed:${job.id}`,
   });
   await finish(pool, job, "completed", captured);

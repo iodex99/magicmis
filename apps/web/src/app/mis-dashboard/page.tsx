@@ -32,10 +32,14 @@ export const metadata: Metadata = pageMetadata(PATH);
  * into a slide: every number opens its lineage.
  */
 
+/**
+ * In dollars, as the home page's illustration is: a public page shows a rupee only where the
+ * visitor is billed in rupees (ADR 0041), and this one is read everywhere (ADR 0091).
+ */
 const CARDS: readonly { label: string; value: string; note: string }[] = [
-  { label: "Revenue", value: "₹1.28 Cr", note: "↑ 6.4% vs last month" },
+  { label: "Revenue", value: "$1.28M", note: "↑ 6.4% vs last month" },
   { label: "Gross margin", value: "31.4%", note: "↓ 0.6 pts vs last month" },
-  { label: "EBITDA", value: "₹21.2 L", note: "↑ 9.1% vs last month" },
+  { label: "EBITDA", value: "$212k", note: "↑ 9.1% vs last month" },
   { label: "Debtor days", value: "47", note: "↓ 3 days" },
 ];
 
@@ -70,12 +74,12 @@ const FAQS: readonly Faq[] = [
   {
     question: "Is the MIS dashboard built in Excel or on the web?",
     answer:
-      "Both, from the same figures. The workbook is Excel with live formulas; the dashboard is on the web beside a chat that answers questions about it, and it prints to PDF for a board pack. Every number on the dashboard opens its lineage — the formula and the ledgers behind it — so it is the same figure as the workbook, not a chart drawn separately.",
+      "Both, from the same figures. The workbook is Excel with live formulas; the dashboard is on the web beside a chat that answers questions about it, and its Present button puts it full screen for the board meeting. Every number on the dashboard opens its lineage — the formula and the ledgers behind it — so it is the same figure as the workbook, not a chart drawn separately.",
   },
   {
     question: "Can I change the dashboard layout?",
     answer:
-      "Yes. Rename, reorder and remove cards, with a preview before anything is saved and an undo afterwards — or ask in the chat, in words, for the change. The layout is kept with the company, so next month's refresh lands on the same dashboard.",
+      "Yes. Say in the chat what the board should show — rename a box, add last year beside this one, take a chart away, add a ratio of your own — and the dashboard changes as it answers, with Undo beside it. The layout is kept with the company, so next month's refresh lands on the same dashboard.",
   },
   {
     question: "Does the dashboard update automatically each month?",

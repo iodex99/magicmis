@@ -64,7 +64,7 @@ async function newCompany(name: string) {
   await page.getByRole("button", { name: "Add company" }).click();
   // A new company is set up from its own workspace (ADR 0033).
   await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+$/u);
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
 }
 
 test("before the first company, a finished sample is one link away and reading it charges nothing (ADR 0086)", async () => {
@@ -118,7 +118,7 @@ test("a non-Tally CSV with no month, a notes file and a photo still produce a wo
     "Trial Balance at each month end",
   );
   await page.getByTestId("export-help").getByRole("button", { name: "Close" }).click();
-  await page.getByLabel("Choose files").setInputFiles([
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles([
     {
       name: "export.csv",
       mimeType: "text/csv",
@@ -157,7 +157,7 @@ test("a non-Tally CSV with no month, a notes file and a photo still produce a wo
 
 test("a profit and loss with no sides is used as a best guess rather than refused", async () => {
   await newCompany("Best Guess Traders");
-  await page.getByLabel("Choose files").setInputFiles({
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles({
     name: "Profit and loss March 2026.csv",
     mimeType: "text/csv",
     buffer: Buffer.from("Particulars,Amount\nSales,5000\nRent,2000\nNet Profit,3000\n"),
@@ -222,7 +222,7 @@ test("files on another financial year stop the run to ask, and either answer car
     });
     expect(set.ok()).toBe(true);
     await page.reload();
-    await page.getByLabel("Choose files").setInputFiles(books);
+    await page.getByLabel("Choose files", { exact: true }).setInputFiles(books);
     await page.getByTestId("job-run").click({ timeout: 120_000 });
     const question = page.getByTestId("job-year");
     await expect(question).toContainText("starts in April", { timeout: 120_000 });

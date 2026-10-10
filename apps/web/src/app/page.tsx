@@ -63,8 +63,9 @@ const STEPS: readonly { icon: IconName; title: string; body: string }[] = [
 const PROOF: readonly { icon: IconName; title: string; body: string; href: string }[] = [
   {
     icon: "shield",
-    title: "Files encrypted, then deleted",
-    body: "Each company's files are encrypted under its own key, and nobody on our side has a way to open one. The AI sees redacted samples and ledger names, never a whole file.",
+    // Kept until their owner deletes them (ADR 0047), so never "then deleted" (ADR 0091).
+    title: "No person on our side can open your files",
+    body: "Each company's files are encrypted under its own key and kept until you delete them. No person on our side can open one, and every opening is on a record you see. The AI sees redacted samples and ledger names, never a whole file.",
     href: "/security",
   },
   {
@@ -143,7 +144,7 @@ const faqs = (offer: WelcomeOfferCopy): readonly Faq[] => [
   {
     question: "Can several people in my firm use one account?",
     answer:
-      "No. One account is one login, with a single active session — a new sign-in ends the previous one. There are no team members, roles, invitations or share links.",
+      "No. One account is one login, with a single active session — a new sign-in ends the previous one. There are no team members, roles or invitations. To show someone a board, you can send a read-only link to a copy of it, frozen when the link is made; it expires, you can withdraw it at any time, and it opens no chat, file or workbook.",
   },
 ];
 
@@ -162,7 +163,8 @@ export default async function HomePage() {
       <section className="mx-auto w-full max-w-[1120px] px-6 pt-16 pb-14 sm:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div>
-            <Badge tone="accent">For accountants and finance teams</Badge>
+            {/* Owners first: most buyers run the business the report is about (ADR 0087). */}
+            <Badge tone="accent">For owners, finance teams and accountants</Badge>
             <h1 className="display rise mt-5 text-[2.625rem] leading-[1.05] font-semibold text-neutral-900 sm:text-[3.5rem]">
               Monthly MIS and management accounts from your{" "}
               <span className="relative inline-block">
@@ -310,7 +312,7 @@ export default async function HomePage() {
                 </div>
               ))}
             </dl>
-            <p className="mt-4 text-[0.6875rem] text-neutral-400">
+            <p className="mt-4 text-[0.6875rem] text-neutral-500">
               Illustration on fictional data. Not a sample of any customer&rsquo;s
               figures.
             </p>
@@ -484,9 +486,11 @@ export default async function HomePage() {
                 "Creating an account and adding a company cost nothing. You buy credits when you are ready to run something, and are charged only for what you run."}
             </p>
           </div>
+          {/* White on the ink in both themes: `bg-surface` turns near-black in dark mode and
+              left dark text on a dark button (ADR 0091). */}
           <Link
             href="/sign-up"
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-surface px-5 text-[0.9375rem] font-semibold text-ink-900 hover:bg-neutral-100"
+            className="press inline-flex h-11 items-center gap-2 rounded-lg bg-white px-5 text-[0.9375rem] font-semibold text-ink-900 hover:bg-white/85"
           >
             Get started
             <Icon name="arrow-right" size={16} />

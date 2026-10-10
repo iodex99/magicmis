@@ -111,7 +111,7 @@ async function aprilYear() {
 }
 
 async function runJob(files: string[]) {
-  await page.getByLabel("Choose files").setInputFiles(files);
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles(files);
   await expect(page.getByTestId("job-files").getByRole("row")).toHaveCount(
     files.length + 1,
   );
@@ -133,7 +133,7 @@ test("sets up a company from thirteen months of trial balances", async () => {
   await page.getByRole("button", { name: "Add company" }).click();
   // A new company is set up from its own workspace (ADR 0033).
   await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+$/u);
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
 
   await runJob(SETUP_MONTHS.map(tb));
   await expect(page.getByTestId("job-checks")).toContainText("V11");
@@ -194,7 +194,11 @@ test("sets up a company from thirteen months of trial balances", async () => {
   expect(forged.status()).toBe(415);
   await expect(page.getByTestId("rail-count").first()).toBeVisible();
   await page.getByRole("link", { name: /^Inbox/u }).click();
-  await expect(page.getByTestId("inbox")).toContainText("Your MIS is ready");
+  // Each notice names its company and says what it was (ADR 0091).
+  await expect(page.getByTestId("inbox")).toContainText(/Your MIS for .+ is ready/u);
+  await expect(page.getByTestId("inbox")).toContainText(
+    "Its workbook is ready to download",
+  );
   await expect(page.getByTestId("rail-count")).toHaveCount(0);
   await page.reload();
   await expect(page.getByTestId("rail-count")).toHaveCount(0);
@@ -204,7 +208,7 @@ test("refreshes the next month with no review and zero AI calls", async () => {
   const aiBefore = await aiCallsForAccount();
   await page.goto("/app");
   await page.getByRole("link", { name: "Add a file" }).click();
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
   // A wallet with credits in it gets no nudge.
   await expect(page.getByTestId("job-empty-wallet")).toHaveCount(0);
 
@@ -234,7 +238,7 @@ test("refreshes the next month with no review and zero AI calls", async () => {
   await page.route(/\/api\/jobs\/[^/]+\/accept-quote$/u, (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
-  await page.getByLabel("Choose files").setInputFiles([tb("2026-05")]);
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles([tb("2026-05")]);
   await expect(page.getByTestId("job-run")).toBeEnabled({ timeout: 120_000 });
   await page.getByTestId("job-run").click();
   await expect(page.getByText("Paused: this one needs a little more")).toBeVisible({
@@ -242,7 +246,7 @@ test("refreshes the next month with no review and zero AI calls", async () => {
   });
   await expect(page.getByTestId("job-quote")).toHaveText("450");
   await expect(page.getByText("Nothing has been charged")).toBeVisible();
-  await expect(page.getByText("The job could not be completed")).toHaveCount(0);
+  await expect(page.getByText("This run could not be finished")).toHaveCount(0);
   // The file is still there: nothing has to be added again.
   await expect(page.getByTestId("job-files")).toContainText("trial_balance_2026-05.xlsx");
   await page.getByRole("button", { name: "Accept and carry on" }).click();
@@ -453,8 +457,10 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
   await page.getByLabel("Company name").fill("Synthetic Recreated Traders");
   await aprilYear();
   await page.getByRole("button", { name: "Add company" }).click();
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
-  await page.getByLabel("Choose files").setInputFiles(SETUP_MONTHS.map(tb));
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
+  await page
+    .getByLabel("Choose files", { exact: true })
+    .setInputFiles(SETUP_MONTHS.map(tb));
   await page.getByLabel("Choose reference MIS").setInputFiles(referencePath);
   await expect(page.getByTestId("job-reference")).toContainText("sheets", {
     timeout: 60_000,
@@ -952,6 +958,9 @@ test.describe("chat with the MIS", () => {
       [email],
     );
     await page.goto(`/app/companies/${company.rows[0]?.id ?? ""}?chat=open`);
+    // The chat reopens on the last conversation (ADR 0091), whose turns the model reads — this
+    // one asked for a poem, which the fake model declines on sight. A question asked afresh.
+    await page.getByRole("button", { name: "New conversation" }).click();
     await page.getByLabel("Your question").fill("How did revenue move this month?");
     await page.getByTestId("chat-send").click();
     const answer = page.getByTestId("chat-answer").last();
@@ -1072,6 +1081,9 @@ test("a board shared by a link opens for someone with no account, is counted, an
   const row = page.getByTestId("share-link").first();
   await expect(row.getByTestId("share-views")).toHaveText("1");
   await row.getByTestId("share-withdraw").click();
+  // Withdrawing is for good, so it says so and asks first (ADR 0091).
+  await expect(row).toContainText("stops being able to open it at once");
+  await row.getByTestId("share-withdraw-confirm").click();
   await expect(row).toContainText("Withdrawn");
   const gone = await reader.goto(url);
   expect(gone?.status()).toBe(404);
@@ -1140,7 +1152,7 @@ test("a company's own tables and names are remembered through the next month, an
 
   // The next month arrives. The workbook still has this company's tables, not the standard ones.
   await page.goto(`/app/companies/${recreated}/run`);
-  await expect(page.getByLabel("Choose files")).toBeEnabled();
+  await expect(page.getByLabel("Choose files", { exact: true })).toBeEnabled();
   await runJob([tb("2026-05")]);
   const download = page.waitForEvent("download");
   await page.getByTestId("job-download").click();
@@ -1237,13 +1249,17 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
   await expect(page.getByTestId("dashboard-files")).toContainText("14 of 14");
   await page.getByTestId("dashboard-files").click();
   const drawer = page.getByTestId("files-drawer");
+  // Its Close is the drawer frame's own, which every drawer has (ADR 0091).
+  const closeFiles = page
+    .getByRole("dialog", { name: "Files on this dashboard" })
+    .getByTestId("drawer-close");
   const may = drawer
     .getByRole("listitem")
     .filter({ hasText: "trial_balance_2026-05.xlsx" });
   await expect(may).toContainText(periodLabel("2026-05"));
   await may.getByRole("checkbox").uncheck();
   await expect(page.getByTestId("dashboard-files")).toContainText("13 of 14");
-  await drawer.getByRole("button", { name: "Close" }).click();
+  await closeFiles.click();
   await expect(page.getByTestId("period-filter")).toHaveValue("2026-04");
   expect(
     await page.getByTestId("period-filter").locator("option").allTextContents(),
@@ -1268,7 +1284,7 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
     .filter({ hasText: "trial_balance_2026-05.xlsx" })
     .getByRole("checkbox")
     .check();
-  await drawer.getByRole("button", { name: "Close" }).click();
+  await closeFiles.click();
   await expect(page.getByTestId("period-filter")).toHaveValue("2026-05");
   await expect(page.getByTestId("hidden-months")).toHaveCount(0);
   const after = await db.query<{ n: number; balance: string }>(
@@ -1301,7 +1317,9 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
   await page.getByLabel("Commentary written in").selectOption("es");
   await page.getByLabel("Statutory layout").selectOption("ifrs");
   await page.getByRole("button", { name: "Save conventions" }).click();
-  await expect(page.getByText("Saved. It applies to the next run")).toBeVisible();
+  await expect(
+    page.getByText("Saved. Each setting takes effect as it says beneath it."),
+  ).toBeVisible();
   const conventions = await db.query<{
     commentary_language: string;
     statutory_format: string;
@@ -1315,7 +1333,9 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
   await page.getByLabel("Commentary written in").selectOption("en");
   await page.getByLabel("Statutory layout").selectOption("us_gaap");
   await page.getByRole("button", { name: "Save conventions" }).click();
-  await expect(page.getByText("Saved. It applies to the next run")).toBeVisible();
+  await expect(
+    page.getByText("Saved. Each setting takes effect as it says beneath it."),
+  ).toBeVisible();
   await expect(page.getByTestId("company-outputs")).toContainText(".xlsx");
   await expect(page.getByTestId("company-activity")).toContainText("Completed");
   // Kept files are capped, not priced, and the customer sees how much room is used (ADR 0048).
@@ -1440,7 +1460,11 @@ test("the ledger map shows every ledger and the line it feeds, and a move stays 
       .first();
   const original = await ledger().getByRole("combobox").inputValue();
   const before = await versions();
+  // Picking a line saves nothing; Save does, once (ADR 0091: arrowing through the list used to
+  // write a version per keystroke).
   await ledger().getByRole("combobox").selectOption("OTH_INC_OTHER");
+  expect(await versions()).toBe(before);
+  await ledger().getByRole("button", { name: /^Save/u }).click();
   await expect(ledger()).toContainText("Saved");
   expect(await versions()).toBe(before + 1);
   await page.reload();
@@ -1459,6 +1483,7 @@ test("the ledger map shows every ledger and the line it feeds, and a move stays 
   expect(nowhere.status()).toBe(422);
 
   await ledger().getByRole("combobox").selectOption(original);
+  await ledger().getByRole("button", { name: /^Save/u }).click();
   await expect(ledger()).toContainText("Saved");
   await page.reload();
   await expect(ledger().getByRole("combobox")).toHaveValue(original);

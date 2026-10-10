@@ -13,6 +13,7 @@ import { unreadCount } from "@/lib/server/inbox";
 import { SessionWatcher } from "./SessionWatcher";
 import { Sidebar } from "./Sidebar";
 import { SignOutButton } from "./SignOutButton";
+import { SkipLink } from "./ui";
 
 /**
  * The signed-in shell: a dark navigation rail against the light working surface.
@@ -22,8 +23,11 @@ import { SignOutButton } from "./SignOutButton";
  * and hunting for it on the Wallet page each time is the wrong answer.
  *
  * So does the chat (ADR 0044). It belongs to a company, so from a page that is not about one
- * the rail opens the chat of the company most recently worked on; an account with nothing set
- * up yet is sent to add a company, which is the only honest answer to "chat with what?".
+ * the rail opens the chat of the company most recently worked on. A company that is not set up
+ * has no MIS to chat with, so on its pages — and for an account with nothing set up yet — the
+ * button stays in the rail, visibly unavailable, and says why (ADR 0091): it used to send the
+ * reader to the page they were already on, or fire an event nothing on the page was listening
+ * for.
  */
 export async function AppFrame({
   accountId,
@@ -41,7 +45,7 @@ export async function AppFrame({
   children: ReactNode;
 }) {
   const pool = db();
-  const [available, recent, jar, unread] = await Promise.all([
+  const [available, recent, jar, unread, here] = await Promise.all([
     accountId === undefined
       ? Promise.resolve("—")
       : walletSummary(pool, accountId).then((w) => formatCredits(w.available.toString())),
@@ -57,21 +61,42 @@ export async function AppFrame({
         ),
     cookies(),
     accountId === undefined ? Promise.resolve(0) : unreadCount(pool, accountId),
+    accountId === undefined || company === undefined
+      ? Promise.resolve(null)
+      : one<{ set_up: boolean }>(
+          pool,
+          `select first_setup_at is not null as set_up from public.companies
+            where id = $1 and account_id = $2 and deleted_at is null`,
+          [company.id, accountId],
+        ),
   ]);
+  const chatCompanyId =
+    company === undefined
+      ? (recent?.id ?? null)
+      : accountId === undefined || here?.set_up === true
+        ? company.id
+        : null;
 
   return (
     <div className="flex min-h-screen">
+      {/* Past the rail to the page, for a keyboard (ADR 0091). */}
+      <SkipLink />
       <SessionWatcher />
       <Sidebar
         businessName={businessName}
         availableCredits={available}
         {...(company === undefined ? {} : { company })}
-        chatCompanyId={company?.id ?? recent?.id ?? null}
+        chatCompanyId={chatCompanyId}
+        chatUnavailable={
+          company === undefined
+            ? "Chat opens once a company is set up."
+            : "Chat opens once this company is set up."
+        }
         initialCollapsed={jar.get(RAIL_COOKIE)?.value === "collapsed"}
         onSignOut={<SignOutButton />}
         unread={unread}
       />
-      <main className="canvas-grid min-w-0 flex-1 px-8 py-7">
+      <main id="content" tabIndex={-1} className="canvas-grid min-w-0 flex-1 px-8 py-7">
         <div className={`mx-auto w-full ${wide ? "max-w-[1680px]" : "max-w-[1180px]"}`}>
           {children}
         </div>

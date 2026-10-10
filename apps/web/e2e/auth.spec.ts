@@ -78,6 +78,16 @@ test("desktop-only gate shows a clear page to a phone", async ({ browser }) => {
   await expect(
     page.getByRole("heading", { name: "Please use a desktop computer" }),
   ).toBeVisible();
+  // A link from an email says what it was for and that it still works (ADR 0091).
+  await page.goto("/reset-password?code=unused");
+  await expect(
+    page.getByRole("heading", { name: "Open this link on your computer" }),
+  ).toBeVisible();
+  await expect(page.getByText("has not been used")).toBeVisible();
+  await page.goto("/s/not-a-real-link-but-shaped-like-one-1234567");
+  await expect(
+    page.getByRole("heading", { name: "Someone shared a board with you" }),
+  ).toBeVisible();
 
   // The public home stays reachable on a phone (SPEC §32).
   await page.goto("/");

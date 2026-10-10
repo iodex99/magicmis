@@ -44,6 +44,11 @@ export interface LedgerRow {
   readonly tokenised: boolean;
   readonly head: string;
   readonly headName: string;
+  /**
+   * Unmapped because its owner chose to keep it off (ADR 0091), not because a run could not place
+   * it. Only ever true with `head` Unmapped.
+   */
+  readonly keptOff: boolean;
   /** Closing balance in the latest month, in minor units, where the snapshot holds it. */
   readonly closing: string | null;
 }
@@ -52,6 +57,11 @@ export interface LedgerMap {
   readonly version: number;
   readonly period: string | null;
   readonly rows: readonly LedgerRow[];
+  /**
+   * A run for the company is in progress, so a change would be refused (ADR 0091). Said before
+   * anyone picks a line, rather than after.
+   */
+  readonly live: boolean;
 }
 
 const HEAD_BY_CODE = new Map(CANONICAL_HEADS.map((h) => [h.code, h]));
@@ -107,23 +117,36 @@ export async function ledgerMap(
   for (const key of rules.acceptedUnmapped) heads.set(key, UNMAPPED);
   // A rule wins over an accepted Unmapped for the same key, as it does in the cascade.
   for (const r of rules.rules) heads.set(r.ledgerKey, r.head);
+  const keptOff = new Set(rules.keptOff ?? []);
 
   const rows = [...heads.entries()].map(([key, head]) => ({
     key,
     ...describe(key),
     head,
     headName: HEAD_BY_CODE.get(head)?.name ?? head,
+    keptOff: head === UNMAPPED && keptOff.has(key),
     closing: closing.get(key) ?? null,
   }));
-  const order = (h: string) =>
-    h === UNMAPPED ? -1 : (HEAD_BY_CODE.get(h)?.sortOrder ?? 0);
+  // Not placed yet first, because those are the ledgers missing from the figures nobody has
+  // looked at; then the ones kept off on purpose; then every other by the line it feeds.
+  const order = (row: { head: string; keptOff: boolean }) =>
+    row.head === UNMAPPED
+      ? row.keptOff
+        ? -1
+        : -2
+      : (HEAD_BY_CODE.get(row.head)?.sortOrder ?? 0);
   rows.sort(
     (a, b) =>
-      order(a.head) - order(b.head) ||
+      order(a) - order(b) ||
       a.group.localeCompare(b.group) ||
       a.name.localeCompare(b.name),
   );
-  return { version: blueprint.version, period, rows };
+  return {
+    version: blueprint.version,
+    period,
+    rows,
+    live: await runIsLive(pool, scope),
+  };
 }
 
 export class LedgerMapError extends Error {
@@ -157,11 +180,28 @@ const IN_FLIGHT = [
 ];
 
 /**
- * Put one ledger on a head, or leave it Unmapped for good. Returns the new blueprint version.
+ * Whether a run for the company is live: one that writes its mapping back when it ends, with a
+ * heartbeat in the last ten minutes, so a run that died does not lock the map for ever.
+ */
+export async function runIsLive(
+  pool: Pool,
+  scope: { accountId: string; companyId: string },
+): Promise<boolean> {
+  const live = await pool.query(
+    `select 1 from jobs
+      where account_id = $1 and company_id = $2 and type = any($3) and state = any($4)
+        and heartbeat_at > now() - interval '10 minutes'
+      limit 1`,
+    [scope.accountId, scope.companyId, RUN_TYPES, IN_FLIGHT],
+  );
+  return live.rowCount !== 0;
+}
+
+/**
+ * Put one ledger on a head, or keep it off the MIS for good. Returns the new blueprint version.
  *
- * Refused while a run for the company is live: a run writes its own mapping back when it ends,
- * which would put the old head back without a word. "Live" means a heartbeat in the last ten
- * minutes, so a run that died does not lock the map for ever.
+ * Refused while a run for the company is live (`runIsLive`): a run writes its own mapping back
+ * when it ends, which would put the old head back without a word.
  */
 export async function setLedgerHead(
   pool: Pool,
@@ -176,14 +216,7 @@ export async function setLedgerHead(
 ): Promise<number> {
   if (input.head !== UNMAPPED && !MAPPABLE_HEADS.some((h) => h.code === input.head))
     throw new LedgerMapError("unknown_head", "Choose a line from the list.");
-  const live = await pool.query(
-    `select 1 from jobs
-      where account_id = $1 and company_id = $2 and type = any($3) and state = any($4)
-        and heartbeat_at > now() - interval '10 minutes'
-      limit 1`,
-    [input.accountId, input.companyId, RUN_TYPES, IN_FLIGHT],
-  );
-  if (live.rowCount !== 0)
+  if (await runIsLive(pool, input))
     throw new LedgerMapError(
       "busy",
       "A run for this company is in progress. Change the map once it has finished.",
@@ -223,6 +256,11 @@ export async function setLedgerHead(
       ...rules.acceptedUnmapped.filter((k) => k !== input.ledgerKey),
       ...(input.head === UNMAPPED ? [input.ledgerKey] : []),
     ],
+    // Choosing to keep it off is the owner's own decision, and is remembered as one (ADR 0091).
+    keptOff: [
+      ...(rules.keptOff ?? []).filter((k) => k !== input.ledgerKey),
+      ...(input.head === UNMAPPED ? [input.ledgerKey] : []),
+    ],
   };
   try {
     const stored = await storeBlueprint(pool, wrapper, {
@@ -242,16 +280,21 @@ export async function setLedgerHead(
   }
 }
 
-/** How many ledgers the map holds and how many are off the MIS: the blueprint alone, no balances. */
+/**
+ * How many ledgers the map holds, how many are off the MIS because no run could place them, and
+ * how many their owner kept off on purpose: the blueprint alone, no balances.
+ */
 export async function ledgerSummary(
   pool: Pool,
   wrapper: KeyWrapper,
   scope: { accountId: string; companyId: string },
-): Promise<{ ledgers: number; unmapped: number } | null> {
+): Promise<{ ledgers: number; unplaced: number; keptOff: number } | null> {
   const blueprint = await latestBlueprint(pool, wrapper, scope);
   if (blueprint === null) return null;
   const rules = mappingRulesSchema.parse(blueprint.parts.mappingRules);
   const mapped = new Set(rules.rules.map((r) => r.ledgerKey));
-  const unmapped = rules.acceptedUnmapped.filter((k) => !mapped.has(k)).length;
-  return { ledgers: mapped.size + unmapped, unmapped };
+  const off = rules.acceptedUnmapped.filter((k) => !mapped.has(k));
+  const kept = new Set(rules.keptOff ?? []);
+  const keptOff = off.filter((k) => kept.has(k)).length;
+  return { ledgers: mapped.size + off.length, unplaced: off.length - keptOff, keptOff };
 }

@@ -18,10 +18,10 @@ import {
   renderCommentary,
   type Segment,
 } from "@magicmis/render-dashboard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { Drawer } from "@/components/Drawer";
+import { Drawer, keepTabInside } from "@/components/Drawer";
 import { LineagePanel } from "@/components/LineagePanel";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { Alert, Button, MistakesNote } from "@/components/ui";
@@ -89,15 +89,33 @@ export function CommentaryView({
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [report, setReport] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
 
-  // While the report is open, printing prints the report and nothing else.
+  // While the report is open, printing prints the report and nothing else. It is a modal dialog
+  // to a keyboard too (ADR 0091): focus goes into it, and back to "Open as a report" after.
   useEffect(() => {
     if (!report) return;
     document.body.dataset["printing"] = "report";
+    const back = opener.current;
+    dialog.current?.focus();
     return () => {
       delete document.body.dataset["printing"];
+      if (back?.isConnected === true) back.focus();
     };
   }, [report]);
+
+  // Escape closes the report, unless a figure's lineage is open over it: that closes first.
+  useEffect(() => {
+    if (!report || selected !== null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setReport(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [report, selected]);
 
   useEffect(() => {
     if (sample !== undefined) return;
@@ -132,6 +150,40 @@ export function CommentaryView({
       </Alert>
     );
   const sections = rendered.commentary.sections.map((section, i) => ({ section, i }));
+  const lineage = (
+    <Drawer
+      open={selected !== null}
+      label="Lineage"
+      onClose={() => {
+        setSelected(null);
+      }}
+      closeButton={false}
+    >
+      {selected === null ? null : (
+        <LineagePanel
+          selected={selected}
+          values={payload.values}
+          label={
+            companyFormat(payload.company.money, payload.company.currencySymbol).label
+          }
+          display={(v) =>
+            v.value === null
+              ? "—"
+              : formatValue(
+                  v.value,
+                  v.unit,
+                  payload.company.money,
+                  payload.company.currencySymbol,
+                )
+          }
+          onSelect={setSelected}
+          onClose={() => {
+            setSelected(null);
+          }}
+        />
+      )}
+    </Drawer>
+  );
 
   return (
     <>
@@ -152,6 +204,7 @@ export function CommentaryView({
           </section>
         ))}
         <button
+          ref={opener}
           type="button"
           className="w-fit rounded-md px-1.5 py-1 text-[0.6875rem] font-medium text-accent-700 hover:bg-accent-50"
           onClick={() => {
@@ -168,9 +221,21 @@ export function CommentaryView({
       </article>
 
       {!report
-        ? null
+        ? lineage
         : createPortal(
-            <div className="report-overlay fixed inset-0 z-50 overflow-y-auto bg-canvas">
+            <div
+              ref={dialog}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${companyName}: commentary for ${periodLabel}`}
+              tabIndex={-1}
+              onKeyDown={(e) => {
+                // While a figure's lineage is open over the report, the drawer keeps Tab itself.
+                if (selected === null && dialog.current !== null)
+                  keepTabInside(dialog.current, e);
+              }}
+              className="report-overlay fixed inset-0 z-50 overflow-y-auto bg-canvas outline-none"
+            >
               <div className="mx-auto w-full max-w-[52rem] px-8 py-10">
                 <div
                   className="mb-8 flex items-start justify-between gap-4"
@@ -188,6 +253,7 @@ export function CommentaryView({
                   <div className="flex shrink-0 gap-2">
                     <Button
                       variant="secondary"
+                      title="Close (Esc)"
                       onClick={() => {
                         setReport(false);
                       }}
@@ -236,40 +302,12 @@ export function CommentaryView({
                   review. {PRODUCT_NAME} can make mistakes.
                 </footer>
               </div>
+              {/* Inside the report, so a figure opened from it is drawn over it rather than
+                  underneath, where it used to open out of sight (ADR 0091). */}
+              {lineage}
             </div>,
             document.body,
           )}
-      <Drawer
-        open={selected !== null}
-        label="Lineage"
-        onClose={() => {
-          setSelected(null);
-        }}
-      >
-        {selected === null ? null : (
-          <LineagePanel
-            selected={selected}
-            values={payload.values}
-            label={
-              companyFormat(payload.company.money, payload.company.currencySymbol).label
-            }
-            display={(v) =>
-              v.value === null
-                ? "—"
-                : formatValue(
-                    v.value,
-                    v.unit,
-                    payload.company.money,
-                    payload.company.currencySymbol,
-                  )
-            }
-            onSelect={setSelected}
-            onClose={() => {
-              setSelected(null);
-            }}
-          />
-        )}
-      </Drawer>
     </>
   );
 }

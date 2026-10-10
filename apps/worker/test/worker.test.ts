@@ -222,15 +222,28 @@ describe("templates", () => {
       ],
       ["invoice_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
       ["proforma_issued", { invoiceId: randomUUID(), purchaseId: randomUUID() }],
-      ["job.awaiting_review", { job_id: randomUUID(), company_id: randomUUID() }],
+      [
+        "job.awaiting_review",
+        { job_id: randomUUID(), company_id: randomUUID(), company_name: null },
+      ],
       [
         "job.review_expiring",
-        { job_id: randomUUID(), expires_at: "2027-01-02T00:00:00Z" },
+        {
+          job_id: randomUUID(),
+          company_name: "Synthetic <Co>",
+          expires_at: "2027-01-02T00:00:00Z",
+        },
       ],
+      // A notice queued before job notices carried the company still renders (ADR 0091).
       ["job.completed", { job_id: randomUUID() }],
       [
         "job.failed",
-        { job_id: randomUUID(), failure_class: "data_fault", charged: "299" },
+        {
+          job_id: randomUUID(),
+          company_name: "Synthetic <Co>",
+          failure_class: "data_fault",
+          charged: "299",
+        },
       ],
       [
         "job.quote_offered",
@@ -268,6 +281,38 @@ describe("templates", () => {
     );
     expect(alerts?.html).not.toContain("<b>Acme</b>");
     expect(alerts?.subject).toContain("2 alerts");
+    // ADR 0091: every notice about a company names it in the line the inbox shows, a run's
+    // notice says what kind of thing is ready, and a data fault says what it charged and that
+    // there is no report to look for beyond the run's own page.
+    for (const [type, payload] of types) {
+      const p = payload as { company_name?: unknown };
+      if (typeof p.company_name !== "string") continue;
+      expect(renderNotification(type, payload, CTX)?.title, type).toContain(
+        p.company_name,
+      );
+    }
+    const job = randomUUID();
+    expect(
+      renderNotification(
+        "job.completed",
+        { job_id: job, company_name: "Acme", job_type: "commentary" },
+        CTX,
+      )?.title,
+    ).toBe("Commentary for Acme is written");
+    expect(
+      renderNotification(
+        "job.completed",
+        { job_id: job, company_name: "Acme", job_type: "monthly_refresh" },
+        CTX,
+      )?.title,
+    ).toBe("Your MIS for Acme is ready");
+    const failed = renderNotification(
+      "job.failed",
+      { job_id: job, failure_class: "data_fault", charged: "299" },
+      CTX,
+    );
+    expect(failed?.summary).toContain("299 credits were charged");
+    expect(failed?.text).not.toMatch(/diagnostic report|\bjob\b/iu);
     expect(
       renderNotification("invoice_issued", { invoiceId: "not-a-uuid" }, CTX),
     ).toBeNull();

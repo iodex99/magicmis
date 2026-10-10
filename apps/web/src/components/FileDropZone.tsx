@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import { useId, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 
 import { Icon } from "./Icon";
 
@@ -15,6 +15,10 @@ import { Icon } from "./Icon";
  *
  * Any file type is offered. What a file is gets decided from its contents, and a file that
  * cannot be read comes back with a reason rather than being greyed out in the picker.
+ *
+ * Its accessible name says what pressing it does — "Choose files to add" — and the hint
+ * describes it (ADR 0091). The title it used to be named by, "Drag your files here", is a mouse
+ * instruction, and the one thing a keyboard or a screen reader cannot do.
  */
 export function FileDropZone({
   onFiles,
@@ -40,6 +44,7 @@ export function FileDropZone({
   testId?: string;
 }) {
   const input = useRef<HTMLInputElement>(null);
+  const hintId = useId();
   // dragenter/dragleave fire for every child element; a depth count keeps the state steady.
   const depth = useRef(0);
   const [over, setOver] = useState(false);
@@ -96,7 +101,8 @@ export function FileDropZone({
       role="button"
       tabIndex={inactive ? -1 : 0}
       aria-disabled={inactive}
-      aria-label={title}
+      aria-label={multiple ? "Choose files to add" : "Choose a file to add"}
+      aria-describedby={hint === undefined ? undefined : hintId}
       data-testid={testId}
       data-dragging={over ? "true" : undefined}
       onClick={() => {
@@ -143,8 +149,15 @@ export function FileDropZone({
               ? `${added.toString()} ${added === 1 ? "file" : "files"} added`
               : title}
       </p>
-      {hint === undefined || over || busy ? null : (
-        <p className="max-w-md text-[0.75rem] leading-relaxed text-neutral-500">{hint}</p>
+      {hint === undefined ? null : (
+        <p
+          id={hintId}
+          className={`max-w-md text-[0.75rem] leading-relaxed text-neutral-500 ${
+            over || busy ? "sr-only" : ""
+          }`}
+        >
+          {hint}
+        </p>
       )}
       {over || busy ? null : (
         <span className="mt-1 inline-flex h-8 items-center rounded-md bg-accent-600 px-3 text-[0.8125rem] font-medium text-white shadow-sm">

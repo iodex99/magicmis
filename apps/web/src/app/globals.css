@@ -150,6 +150,12 @@
     --color-neutral-300: #c2bfd2;
     --color-neutral-400: #928fa6;
     --color-neutral-500: #6f6c85;
+    /*
+     * The light accent the ink writes its eyebrows, ticks, "MIS" and focus ring in. Dark mode
+     * darkens accent-300 for tints on a black page, which on the ink fell to about 2.7:1 — under
+     * the 3:1 a focus ring needs and the 4.5:1 text does (ADR 0091).
+     */
+    --color-accent-300: #ab9ef5;
   }
 }
 
@@ -165,39 +171,45 @@ html {
  * The working canvas carries a faint dot grid (ADR 0036): enough texture that cards read as
  * sitting on something, faint enough that it never competes with a figure. A pattern, not a
  * gradient, and gone in print.
+ *
+ * In the components layer, so a utility on the same element wins: Present's stage is `fixed` and
+ * the lineage drawer inside it is `fixed` too, and an unlayered `position: relative` here beat
+ * both, leaving the stage in the page whenever the browser was not in full screen (ADR 0091).
  */
-.canvas-grid {
-  position: relative;
-}
-.canvas-grid::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-color: var(--color-neutral-200);
-  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><circle cx='1' cy='1' r='0.9' fill='black'/></svg>");
-  mask-size: 22px 22px;
-}
-.canvas-grid > * {
-  position: relative;
-}
-/* The same dots on the ink of the rail and the sign-in panel (ADR 0042). */
-.ink-grid::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-color: #ffffff;
-  opacity: 0.07;
-  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><circle cx='1' cy='1' r='0.9' fill='black'/></svg>");
-  mask-size: 22px 22px;
-}
-.ink-grid > * {
-  position: relative;
-}
-@media print {
+@layer components {
+  .canvas-grid {
+    position: relative;
+  }
   .canvas-grid::before {
-    display: none;
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-color: var(--color-neutral-200);
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><circle cx='1' cy='1' r='0.9' fill='black'/></svg>");
+    mask-size: 22px 22px;
+  }
+  .canvas-grid > * {
+    position: relative;
+  }
+  /* The same dots on the ink of the rail and the sign-in panel (ADR 0042). */
+  .ink-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-color: #ffffff;
+    opacity: 0.07;
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><circle cx='1' cy='1' r='0.9' fill='black'/></svg>");
+    mask-size: 22px 22px;
+  }
+  .ink-grid > * {
+    position: relative;
+  }
+  @media print {
+    .canvas-grid::before {
+      display: none;
+    }
   }
 }
 
@@ -372,7 +384,9 @@ html {
  * Sample dashboards drifting past on the public site (ADR 0051). Each row is laid out twice and
  * slides by exactly one copy, so it meets itself without a seam; the group's trailing padding is
  * the gap, which is what makes "one copy" exactly half the track. It stops under the pointer so a
- * board can be read. No fade at the edges: a fade is a gradient (ADR 0036).
+ * board can be read, and for everyone else at its Pause button, since motion that runs past five
+ * seconds needs a way to stop it that is not a mouse (WCAG 2.2.2, ADR 0091). No fade at the
+ * edges: a fade is a gradient (ADR 0036).
  */
 .marquee {
   overflow: hidden;
@@ -388,7 +402,8 @@ html {
   animation-direction: reverse;
 }
 
-.marquee:hover .marquee-track {
+.marquee:hover .marquee-track,
+.marquee-paused .marquee-track {
   animation-play-state: paused;
 }
 

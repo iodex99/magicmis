@@ -1,11 +1,12 @@
 import { Donut, MiniBars, Sparkline } from "@/components/Charts";
+import { MarqueePause } from "@/components/MarqueePause";
 
 /**
  * Sample dashboards, drifting past in two rows (ADR 0051).
  *
  * The dashboard is the product, so the public site shows dashboards rather than offering a
  * workbook to download. Two rows move in opposite directions, slowly enough to read a card as it
- * passes, and stop under the pointer. Every company here is invented (SPEC §2.3 permits public
+ * passes, and stop under the pointer or at the Pause button (ADR 0091). Every company here is invented (SPEC §2.3 permits public
  * samples on fictional data only) and the section says so where a reader will see it.
  *
  * Drawn with the chart components the product uses, not screenshots, so both themes work and
@@ -439,10 +440,10 @@ export function DashboardCarousel() {
           companies are invented, and so is every figure on them.
         </p>
       </div>
-      <div className="flex flex-col gap-5">
+      <MarqueePause>
         <Row samples={ROW_ONE} reverse={false} />
         <Row samples={ROW_TWO} reverse />
-      </div>
+      </MarqueePause>
     </section>
   );
 }

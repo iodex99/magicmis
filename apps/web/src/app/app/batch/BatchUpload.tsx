@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { BuyCreditsInline } from "@/components/BuyCreditsInline";
 import { FileDropZone } from "@/components/FileDropZone";
@@ -18,7 +18,7 @@ import {
   Tr,
   type BadgeTone,
 } from "@/components/ui";
-import { formatCredits, TIER_LABELS } from "@/lib/actions";
+import { formatCredits, TIER_LABELS, TIER_NOTES } from "@/lib/actions";
 import { matchFile, type BatchCompany } from "@/lib/batch-match";
 import { api } from "@/lib/client-api";
 import { startPaidJob } from "@/lib/paid-job";
@@ -34,18 +34,38 @@ interface Dropped {
   matched: boolean;
 }
 
+/** A file a company could not take, and why, in the words its refusal gave (ADR 0091). */
+interface Refusal {
+  readonly name: string;
+  readonly reason: string;
+}
+
 type Outcome =
   | { kind: "waiting" }
   | { kind: "working"; step: string }
   | { kind: "done"; credits: string }
-  | { kind: "attention"; message: string; href: string }
-  | { kind: "failed"; message: string };
+  | { kind: "attention"; message: string; href: string; refused?: readonly Refusal[] }
+  | { kind: "failed"; message: string; refused?: readonly Refusal[] };
 
 interface RunResult {
   status: "completed" | "failed" | "needs_quote" | "needs_year";
   message: string | null;
   capturedCredits: string;
 }
+
+/** GET /api/jobs/:id, as much of it as waiting out a lost connection needs. */
+interface JobStatus {
+  state: string;
+  running?: boolean;
+  capturedCredits: string | null;
+  failure: { code: string | null; detail: string | null } | null;
+}
+
+const SETTLED_BADLY = new Set(["failed_data", "failed_platform", "cancelled", "expired"]);
+const sleep = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 const TONE: Record<Outcome["kind"], BadgeTone> = {
   waiting: "muted",
@@ -65,15 +85,24 @@ const TONE: Record<Outcome["kind"], BadgeTone> = {
 export function BatchUpload({
   companies,
   businessName,
+  prices = null,
 }: {
   companies: readonly BatchCompany[];
   businessName: string;
+  /** A refresh's standard price at each tier, read on the server; null says nothing (ADR 0091). */
+  prices?: Readonly<Record<Tier, string>> | null;
 }) {
   const [files, setFiles] = useState<Dropped[]>([]);
   const [tier, setTier] = useState<Tier>("professional");
   const [running, setRunning] = useState(false);
   const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({});
   const [short, setShort] = useState<{ need: bigint; from: number } | null>(null);
+  /*
+   * A batch that has run is finished with (ADR 0091). Pressing the same button again uploaded and
+   * charged every company a second time, the ones already done included; now the button starts a
+   * new batch instead, with nothing carried over.
+   */
+  const [finished, setFinished] = useState(false);
   const order = useRef<string[]>([]);
   // What each company's files became, kept across a top-up: carrying on after a short wallet
   // starts its refresh with the files already uploaded, never a second copy of each (ADR 0087).
@@ -88,12 +117,40 @@ export function BatchUpload({
     setOutcomes((o) => ({ ...o, [id]: outcome }));
   };
 
+  // The batch runs from this page, one company after another: leaving stops the ones not yet
+  // started, so the browser asks first.
+  useEffect(() => {
+    if (!running) return;
+    const stay = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", stay);
+    return () => {
+      window.removeEventListener("beforeunload", stay);
+    };
+  }, [running]);
+
+  /**
+   * No answer from a run is not a failed run (ADR 0091): it carries on without the page and
+   * settles on its own. Its status is followed until it says how it ended, for as long as a run
+   * may take.
+   */
+  const waitOut = async (companyId: string, jobId: string): Promise<JobStatus | null> => {
+    set(companyId, { kind: "working", step: "Still finishing" });
+    for (let i = 0; i < 100; i += 1) {
+      await sleep(4000);
+      const s = await api<JobStatus>(`/api/jobs/${jobId}`);
+      if (s.ok && s.data.running !== true) return s.data;
+    }
+    return null;
+  };
+
   /** One company: upload its files, hold its refresh and run it. False stops the batch. */
   const runOne = async (companyId: string): Promise<boolean> => {
     const mine = files.filter((f) => f.companyId === companyId);
     const kept = uploaded.current.get(companyId);
     const uploadIds: string[] = kept ?? [];
-    const missed: string[] = [];
+    const missed: Refusal[] = [];
     if (kept === undefined) {
       for (const [i, f] of mine.entries()) {
         set(companyId, {
@@ -102,12 +159,20 @@ export function BatchUpload({
         });
         const r = await uploadFile(companyId, f.file, () => undefined);
         if (r.ok && r.file.refused === null) uploadIds.push(r.file.uploadId);
-        else missed.push(f.file.name);
+        else
+          missed.push({
+            name: f.file.name,
+            reason: r.ok ? (r.file.refused ?? "It could not be read.") : r.message,
+          });
       }
       uploaded.current.set(companyId, uploadIds);
     }
     if (uploadIds.length === 0) {
-      set(companyId, { kind: "failed", message: "None of its files could be read." });
+      set(companyId, {
+        kind: "failed",
+        message: "None of its files could be read, so nothing was run or charged.",
+        refused: missed,
+      });
       return true;
     }
     // A refresh on part of what the person confirmed would be charged and look complete, so a
@@ -117,12 +182,15 @@ export function BatchUpload({
       uploaded.current.delete(companyId);
       set(companyId, {
         kind: "attention",
-        message: `${missed.join(", ")} could not be added, so nothing was run or charged. Add ${missed.length === 1 ? "it" : "them"} on its page.`,
+        // All of its files, on its page: that page runs only what is added there, so adding the
+        // missing one alone would build the month on part of its files (ADR 0087, ADR 0091).
+        message: `${missed.length === 1 ? "A file" : `${missed.length.toString()} files`} could not be added, so nothing was run or charged. Add all of this company's files together on its page.`,
         href: `/app/companies/${companyId}/run`,
+        refused: missed,
       });
       return true;
     }
-    set(companyId, { kind: "working", step: "Building its MIS" });
+    set(companyId, { kind: "working", step: "Updating its MIS" });
     const started = await startPaidJob({
       companyId,
       type: "monthly_refresh",
@@ -155,7 +223,39 @@ export function BatchUpload({
     );
     const r = await api<RunResult>(`/api/jobs/${started.jobId}/run`, { body: {} });
     clearInterval(beat);
-    if (!r.ok) set(companyId, { kind: "failed", message: r.message });
+    const refused = !r.ok && r.status >= 400 && r.status < 500 && r.status !== 408;
+    if (!r.ok && !refused) {
+      const s = await waitOut(companyId, started.jobId);
+      if (s === null)
+        set(companyId, {
+          kind: "attention",
+          message:
+            "Still working after we lost contact: we will email you when it is done.",
+          href: `/app/jobs/${started.jobId}`,
+        });
+      else if (s.state === "completed")
+        set(companyId, { kind: "done", credits: s.capturedCredits ?? "0" });
+      else if (s.state === "reserved")
+        set(companyId, {
+          kind: "failed",
+          message:
+            "Its run did not start, and nothing was charged. Add its files on its page.",
+        });
+      else if (SETTLED_BADLY.has(s.state))
+        set(companyId, {
+          kind: "failed",
+          message:
+            s.failure?.code === "server_run" && s.failure.detail !== null
+              ? s.failure.detail
+              : "The run stopped before it finished.",
+        });
+      else
+        set(companyId, {
+          kind: "attention",
+          message: "It needs an answer: open its page to carry on.",
+          href: runPage,
+        });
+    } else if (!r.ok) set(companyId, { kind: "failed", message: r.message });
     else if (r.data.status === "completed")
       set(companyId, { kind: "done", credits: r.data.capturedCredits });
     else if (r.data.status === "failed")
@@ -180,10 +280,24 @@ export function BatchUpload({
       uploaded.current = new Map();
       setOutcomes(Object.fromEntries(groups.map((g) => [g, { kind: "waiting" }])));
     }
+    let stoppedShort = false;
     for (const companyId of order.current.slice(from)) {
-      if (!(await runOne(companyId))) break;
+      if (!(await runOne(companyId))) {
+        stoppedShort = true;
+        break;
+      }
     }
     setRunning(false);
+    if (!stoppedShort) setFinished(true);
+  };
+
+  const startAgain = () => {
+    setFiles([]);
+    setOutcomes({});
+    setShort(null);
+    setFinished(false);
+    order.current = [];
+    uploaded.current = new Map();
   };
 
   return (
@@ -194,7 +308,7 @@ export function BatchUpload({
             title="Drag this month's files for all your companies here"
             hint="Each is matched to a company by its name; check the matches below before anything is uploaded."
             inputLabel="Choose files for several companies"
-            disabled={running}
+            disabled={running || finished}
             onFiles={(list) => {
               setFiles((prev) => [
                 ...prev,
@@ -233,7 +347,7 @@ export function BatchUpload({
                     <Td>
                       <select
                         aria-label={`Company for ${f.file.name}`}
-                        disabled={running}
+                        disabled={running || finished}
                         value={f.companyId ?? ""}
                         onChange={(e) => {
                           const id = e.target.value === "" ? null : e.target.value;
@@ -267,7 +381,7 @@ export function BatchUpload({
                     <Td className="text-right">
                       <button
                         type="button"
-                        disabled={running}
+                        disabled={running || finished}
                         aria-label={`Remove ${f.file.name}`}
                         className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
                         onClick={() => {
@@ -287,31 +401,56 @@ export function BatchUpload({
               id="batch-tier"
               label="Intelligence tier"
               value={tier}
+              disabled={running || short !== null}
               onChange={(e) => {
                 setTier(e.target.value as Tier);
               }}
             >
-              {Object.entries(TIER_LABELS).map(([k, v]) => (
+              {(Object.keys(TIER_LABELS) as Tier[]).map((k) => (
                 <option key={k} value={k}>
-                  {v}
+                  {TIER_LABELS[k]}
+                  {prices === null ? "" : ` — ${formatCredits(prices[k])} credits each`}
                 </option>
               ))}
             </SelectField>
-            <Button
-              size="lg"
-              icon="refresh"
-              disabled={running || files.length === 0 || unassigned > 0}
-              onClick={() => void process()}
-              data-testid="batch-run"
-            >
-              {unassigned > 0
-                ? `Choose a company for ${String(unassigned)} ${unassigned === 1 ? "file" : "files"}`
-                : `Process ${String(groups.length)} ${groups.length === 1 ? "company" : "companies"}`}
-            </Button>
+            {finished ? (
+              <Button
+                size="lg"
+                variant="secondary"
+                icon="plus"
+                onClick={startAgain}
+                data-testid="batch-again"
+              >
+                Start another batch
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                icon="refresh"
+                disabled={
+                  running || short !== null || files.length === 0 || unassigned > 0
+                }
+                onClick={() => void process()}
+                data-testid="batch-run"
+              >
+                {running
+                  ? "Working…"
+                  : short !== null
+                    ? "Add credits below to carry on"
+                    : unassigned > 0
+                      ? `Choose a company for ${String(unassigned)} ${unassigned === 1 ? "file" : "files"}`
+                      : `Process ${String(groups.length)} ${groups.length === 1 ? "company" : "companies"}`}
+              </Button>
+            )}
           </div>
           <p className="mt-2 text-[0.75rem] text-neutral-500">
-            Each company&rsquo;s refresh is its own action, held and charged at its own
-            price, exactly as if its file were added on its own page.
+            {TIER_NOTES[tier]} Each company&rsquo;s refresh is its own action, held and
+            charged at its own standard price
+            {prices === null
+              ? ""
+              : ` (${formatCredits(prices[tier])} credits at ${TIER_LABELS[tier]})`}
+            , exactly as if its file were added on its own page. Keep this page open until
+            every company is done: the batch moves from one to the next from here.
           </p>
         </Panel>
 
@@ -356,14 +495,41 @@ export function BatchUpload({
                         {o.message}
                       </Link>
                     ) : o.kind === "failed" ? (
-                      <span className="text-[0.8125rem] text-negative">{o.message}</span>
+                      <span className="text-[0.8125rem] text-negative">
+                        {o.message}
+                        {/contact support/iu.test(o.message) ? (
+                          <>
+                            {" "}
+                            <Link href="/contact" className="font-medium underline">
+                              Open the contact page
+                            </Link>
+                          </>
+                        ) : null}
+                      </span>
                     ) : o.kind === "done" ? (
                       <Link
                         href={`/app/companies/${id}`}
                         className="text-[0.8125rem] font-medium text-accent-700 hover:underline"
                       >
-                        Open the board
+                        Open the dashboard
                       </Link>
+                    ) : null}
+                    {(o.kind === "attention" || o.kind === "failed") &&
+                    o.refused !== undefined &&
+                    o.refused.length > 0 ? (
+                      <ul
+                        className="w-full pl-0.5 text-[0.75rem] text-neutral-600"
+                        data-testid="batch-refused"
+                      >
+                        {o.refused.map((x) => (
+                          <li key={x.name} className="mt-1">
+                            <span className="font-medium text-neutral-800">
+                              {x.name}:
+                            </span>{" "}
+                            {x.reason}
+                          </li>
+                        ))}
+                      </ul>
                     ) : null}
                   </li>
                 );

@@ -153,7 +153,9 @@ try {
   await page.getByRole("button", { name: "Add company" }).click();
   await page.waitForURL(/\/app\/companies\/[0-9a-f-]+$/u);
   const companyId = page.url().split("/").pop() ?? "";
-  await page.getByLabel("Choose files").setInputFiles(MONTHS.flatMap(files));
+  await page
+    .getByLabel("Choose files", { exact: true })
+    .setInputFiles(MONTHS.flatMap(files));
   await page.getByTestId("job-run").click({ timeout: 180_000 });
   await page.getByTestId("job-done").waitFor({ timeout: 600_000 });
 

@@ -12,7 +12,10 @@ export function prelaunch(): boolean {
   return serverEnv().PRELAUNCH;
 }
 
-/** What an auth endpoint answers while the product is not open yet. */
+/**
+ * What an auth endpoint answers while the product is not open yet. "Accounts", not "sign-up":
+ * the same answer comes back from sign-in and the password reset (ADR 0091).
+ */
 export function openingSoon(): Response {
-  return apiError(503, "opening_soon", "Sign-up is not open yet. It opens soon.");
+  return apiError(503, "opening_soon", "Accounts are not open yet. They open soon.");
 }

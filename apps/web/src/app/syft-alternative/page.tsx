@@ -63,7 +63,7 @@ const ROWS: readonly (readonly [string, string, string])[] = [
   [
     "Reports and dashboards",
     "Interactive dashboards, financial reports and IFRS and GAAP financial statements, exported to PDF, Excel or Word, and live dashboards shared with anyone.",
-    "A checked Excel workbook — profit and loss with year to date, a balance sheet summary, key ratios, receivables and payables ageing, and a payroll summary when payroll data is present — and a dashboard you build by chatting and present live. There are no share links.",
+    "A checked Excel workbook — profit and loss with year to date, a balance sheet summary, key ratios, receivables and payables ageing, and a payroll summary when payroll data is present — and a dashboard you build by chatting and present live, or send as a read-only copy by a link that expires and can be withdrawn.",
   ],
   [
     "AI",

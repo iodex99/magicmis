@@ -69,6 +69,53 @@ describe("detectIntent", () => {
     expect(detectIntent("Please, what is revenue?")).toBe("ask");
   });
 
+  it("knows the words a US or UK finance team types for the same figures (ADR 0091)", () => {
+    for (const said of [
+      "Remove net income",
+      "Hide COGS",
+      "Delete accounts payable",
+      "Rename accounts receivable to AR",
+      "hide the A/R ageing",
+      "remove EBIT",
+      "Move overheads below gross profit",
+      "hide depreciation and amortisation",
+      "remove interest",
+      "delete total assets",
+      "hide liabilities",
+      "remove equity",
+      "Hide debt",
+      "remove loans",
+      "Hide the P&L",
+      "remove the profit and loss account",
+      "Hide the income statement",
+      "remove turnover",
+      "delete sales",
+      "hide debtors",
+      "remove creditors",
+      "hide stock",
+      "remove inventory",
+      "hide salaries",
+      "remove DSO",
+    ])
+      expect(detectIntent(said), said).toBe("dashboard");
+
+    // The same words in a question, or about another part of the product, stay questions.
+    for (const said of [
+      "What is net income this month?",
+      "Why did COGS rise in March?",
+      "how much is in accounts payable",
+      "explain the P&L for May",
+      "show me the income statement",
+      "give me accounts receivable by customer",
+      "delete my account",
+      "remove my accounts",
+      "remove the accounts payable entries from the data",
+      "delete the loans ledger",
+      "net income for April",
+    ])
+      expect(detectIntent(said), said).toBe("ask");
+  });
+
   it("reads 'take this box off and build something else' as a change, typos included", () => {
     // The owner's own phrasings. The last one misspells EBITDA, which is why naming a box
     // has to be enough on its own: the figure word cannot be relied on.

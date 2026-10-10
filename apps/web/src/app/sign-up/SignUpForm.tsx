@@ -8,6 +8,7 @@ import { ProviderButtons } from "@/components/ProviderButtons";
 import { Alert, AuthShell, Button, Field } from "@/components/ui";
 import { api, formText, newIdempotencyKey } from "@/lib/client-api";
 import type { OAuthProvider } from "@/lib/server/oauth";
+import { WELCOME_TERMS_HREF } from "@/lib/welcome-copy";
 
 /**
  * Sign-up (SPEC §8).
@@ -53,11 +54,28 @@ export function SignUpScreen({
     setSubmitting(false);
 
     if (result.ok) {
+      // For the next page to say where the email went and send it again: kept in this tab
+      // only, never in the address bar, where it would reach logs (ADR 0091).
+      try {
+        sessionStorage.setItem("signup-email", text("email"));
+      } catch {
+        // Storage refused: the next page simply does not name the address.
+      }
       router.push("/sign-up/check-email");
       return;
     }
     setFields(result.fields);
     setMessage(result.message);
+    // Focus lands on the first field to fix, which reads its message out (ADR 0091).
+    const first = [
+      "email",
+      "password",
+      "businessName",
+      "acceptTerms",
+      "acceptPrivacy",
+    ].find((name) => result.fields[name] !== undefined);
+    if (first !== undefined)
+      document.getElementById(first.startsWith("accept") ? "accept" : first)?.focus();
     // A failed attempt may be corrected and resubmitted; that is a new request.
     idempotencyKey.current = newIdempotencyKey();
   }
@@ -69,7 +87,22 @@ export function SignUpScreen({
       moment="join"
       title="Create your account"
       description={
-        welcome ?? "Free to create. You buy credits when you are ready to run something."
+        welcome === null ? (
+          "Free to create. You buy credits when you are ready to run something."
+        ) : (
+          // The offer, its conditions and its terms together (ADR 0072).
+          <>
+            {welcome}{" "}
+            <Link
+              href={WELCOME_TERMS_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent-700 underline"
+            >
+              Offer terms
+            </Link>
+          </>
+        )
       }
       footer={
         <>
@@ -122,33 +155,50 @@ export function SignUpScreen({
         />
 
         {/* TODO(review): R-10/R-11 — link targets are placeholder legal pages until drafted. */}
+        {/* The documents open in a new tab, so reading them does not lose what is typed
+            here (ADR 0091). */}
         <label className="flex items-start gap-2.5 text-[0.8125rem] text-neutral-700">
           <input
+            id="accept"
             type="checkbox"
             name="accept"
+            aria-invalid={consentError === undefined ? undefined : true}
+            aria-describedby={consentError === undefined ? undefined : "accept-error"}
             className="mt-0.5 h-4 w-4 accent-[#5846d2]"
           />
           <span>
             I accept the{" "}
-            <Link href="/legal/terms" className="font-medium text-accent-700 underline">
+            <Link
+              href="/legal/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-accent-700 underline"
+            >
               Terms
             </Link>{" "}
             and the{" "}
-            <Link href="/legal/privacy" className="font-medium text-accent-700 underline">
+            <Link
+              href="/legal/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-accent-700 underline"
+            >
               Privacy notice
             </Link>
             .
           </span>
         </label>
         {consentError === undefined ? null : (
-          <p className="-mt-2 text-[0.75rem] font-medium text-negative">{consentError}</p>
+          <p id="accept-error" className="-mt-2 text-[0.75rem] font-medium text-negative">
+            {consentError}
+          </p>
         )}
 
         <Button type="submit" disabled={submitting} size="lg" className="mt-1 w-full">
           {submitting ? "Creating account…" : "Create account"}
         </Button>
         <p className="text-center text-[0.75rem] text-neutral-500">
-          Next: confirm your email, and you are in.
+          Next: open the link we email you in this browser, and you are in.
         </p>
       </form>
     </AuthShell>

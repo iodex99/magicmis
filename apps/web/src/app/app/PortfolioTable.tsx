@@ -111,7 +111,7 @@ export function PortfolioTable({
               <Td
                 numeric
                 className={
-                  r.facts.toLook > 0 ? "font-medium text-warning" : "text-neutral-400"
+                  r.facts.toLook > 0 ? "font-medium text-warning" : "text-neutral-500"
                 }
               >
                 {r.facts.toLook > 0 ? r.facts.toLook.toString() : "—"}

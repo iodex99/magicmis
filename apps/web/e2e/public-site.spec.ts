@@ -335,6 +335,21 @@ test("the home page shows sample dashboards drifting in two directions, and offe
     { name: "marquee", direction: "normal", state: "running" },
     { name: "marquee", direction: "reverse", state: "running" },
   ]);
+  // Motion past five seconds can be stopped without a mouse (WCAG 2.2.2, ADR 0091).
+  const playState = () =>
+    rows.evaluateAll((els) =>
+      els.map(
+        (el) =>
+          getComputedStyle(el.querySelector(".marquee-track") ?? el).animationPlayState,
+      ),
+    );
+  await carousel.getByTestId("carousel-pause").focus();
+  await page.keyboard.press("Enter");
+  await expect(carousel.getByTestId("carousel-pause")).toHaveText("Play");
+  expect(await playState()).toEqual(["paused", "paused"]);
+  await carousel.getByTestId("carousel-pause").click();
+  await page.mouse.move(0, 0);
+  expect(await playState()).toEqual(["running", "running"]);
   // The drifting rows never make the page itself scroll sideways.
   const sideways = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -364,6 +379,8 @@ test("the home page shows sample dashboards drifting in two directions, and offe
       ),
     );
   expect(names).toEqual(["none", "none"]);
+  // Nothing moves, so there is nothing to pause.
+  await expect(calm.getByTestId("carousel-pause")).toBeHidden();
   await expect(
     calm.getByTestId("dashboard-carousel").locator("article:visible"),
   ).toHaveCount(10);

@@ -17,9 +17,15 @@ import { openingSoon, prelaunch } from "@/lib/server/prelaunch";
 import { welcomeAfterClaim } from "@/lib/server/welcome";
 import { supabaseForRequest } from "@/lib/supabase/server";
 
+// The messages are shown under the fields, so they are written for a person (ADR 0091).
 const bodySchema = z.object({
-  email: z.email().transform((v) => v.trim().toLowerCase()),
-  password: z.string().min(1).max(128),
+  email: z
+    .email("Enter the email address you signed up with.")
+    .transform((v) => v.trim().toLowerCase()),
+  password: z
+    .string()
+    .min(1, "Enter your password.")
+    .max(128, "That is longer than any password here can be."),
 });
 
 /**
@@ -63,7 +69,7 @@ export async function POST(request: Request): Promise<Response> {
       return apiError(
         403,
         "email_not_verified",
-        "Verify your email address first. Check your inbox for the link.",
+        "Confirm your email address first: open the link we sent when you signed up.",
       );
     }
     // The attempt is already counted; only the failed-login record is left to write.
@@ -108,7 +114,7 @@ export async function POST(request: Request): Promise<Response> {
       403,
       claim.reason,
       claim.reason === "account_not_active"
-        ? "This account is closed. Contact support if you think that is wrong."
+        ? "This account is closed. If you think that is wrong, write to us: the address is on the Contact page."
         : "Sign-in could not be completed. Try again.",
     );
   }

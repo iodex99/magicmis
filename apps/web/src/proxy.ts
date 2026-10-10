@@ -50,11 +50,19 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   if (
     !isDeviceAgnosticPath(pathname) &&
+    // Somebody who cannot get in on a phone must still be able to find out whom to ask
+    // (ADR 0091). Not a search page, so it is not in the sitemap's device list.
+    pathname !== "/contact" &&
     !pathname.startsWith("/api/") &&
     !isDesktopUserAgent(request.headers.get("user-agent"))
   ) {
+    // The page says what the link was for — a sign-up, a reset, a shared board — from the path
+    // alone. Never the query: that is where a link's token is (ADR 0091).
+    const gate = new URL("/desktop-required", request.url);
+    gate.search = "";
+    gate.searchParams.set("from", pathname);
     return secure(
-      NextResponse.rewrite(new URL("/desktop-required", request.url), {
+      NextResponse.rewrite(gate, {
         request: { headers: requestHeaders },
       }),
     );

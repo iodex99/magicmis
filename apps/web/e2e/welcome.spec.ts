@@ -99,7 +99,7 @@ test("a new account starts with its welcome credits and runs its first company o
   await page.getByLabel("Company name").fill("Welcome Traders");
   await page.getByRole("button", { name: "Add company" }).click();
   await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+$/u);
-  await page.getByLabel("Choose files").setInputFiles({
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles({
     name: "trial balance March 2026.csv",
     mimeType: "text/csv",
     buffer: Buffer.from(
@@ -175,7 +175,7 @@ test("a new account starts with its welcome credits and runs its first company o
   const before = await calls();
   await page.goto("/app");
   await page.getByRole("link", { name: "Add a file" }).click();
-  await page.getByLabel("Choose files").setInputFiles({
+  await page.getByLabel("Choose files", { exact: true }).setInputFiles({
     name: "trial balance April 2026.csv",
     mimeType: "text/csv",
     buffer: Buffer.from(

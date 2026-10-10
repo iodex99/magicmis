@@ -17,13 +17,22 @@ import {
   firedAlerts,
   formatValue,
   labelsFor,
+  metricKey,
+  NO_LENS,
   parseMetricKey,
   type BoardLens,
   type CompareBasis,
   type DashboardSpec,
   type ValueRef,
+  type ViewFormat,
   type Widget,
 } from "@magicmis/render-dashboard";
+import {
+  variance,
+  varianceColor,
+  type MetricPolarity,
+  type VarianceDirection,
+} from "@magicmis/ui";
 import {
   useCallback,
   useEffect,
@@ -31,10 +40,11 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 
 import { Sparkline } from "@/components/Charts";
-import { Drawer } from "@/components/Drawer";
+import { Drawer, keepTabInside } from "@/components/Drawer";
 import { EChart } from "@/components/EChart";
 import { LineagePanel } from "@/components/LineagePanel";
 import { PaidJobButton } from "@/components/PaidJobButton";
@@ -44,7 +54,11 @@ import { Alert, Button, ButtonLink, MistakesNote, Panel } from "@/components/ui"
 import { alertWords, type BoardAlert } from "@/lib/alert-words";
 import { checkLines, type CheckSummary } from "@/lib/check-words";
 import { api, newIdempotencyKey } from "@/lib/client-api";
-import { presentChannelName, type PresentMessage } from "@/lib/present-channel";
+import {
+  isPresentAsk,
+  presentChannelName,
+  type PresentMessage,
+} from "@/lib/present-channel";
 
 const SELECT =
   "h-9 rounded-md border border-neutral-200 bg-surface px-2.5 text-[0.8125rem] font-medium text-neutral-900 hover:border-neutral-300";
@@ -77,12 +91,122 @@ const COMPARISONS: readonly {
   id: CompareChoice;
   label: string;
   basis: CompareBasis | null;
+  /** How Present says it to the room (ADR 0091). */
+  said: string;
 }[] = [
-  { id: "saved", label: "As saved", basis: null },
-  { id: "none", label: "Nothing", basis: "none" },
-  { id: "previous_month", label: "The month before", basis: "previous_month" },
-  { id: "last_year", label: "The same month last year", basis: "last_year" },
+  { id: "saved", label: "As saved", basis: null, said: "" },
+  { id: "none", label: "No comparison", basis: "none", said: "No comparison" },
+  {
+    id: "previous_month",
+    label: "The month before",
+    basis: "previous_month",
+    said: "Against the month before",
+  },
+  {
+    id: "last_year",
+    label: "The same month last year",
+    basis: "last_year",
+    said: "Against the same month last year",
+  },
 ];
+
+/**
+ * Whether a rise is good news (ADR 0091). Revenue up is; a cost up is not; a receivable up is
+ * neither by itself. The arrow beside a movement follows the sign of the stored figure, and its
+ * colour follows this, through the design system's own `varianceColor` — a green arrow on a rise
+ * in costs undermined every other figure on the board. A metric missing here, including any
+ * formula a customer added, is neutral: guessing would colour a cost increase green.
+ *
+ * Kept here rather than on the metric catalog, because the catalog is prompt input and a field
+ * added there is a change every AI stage that reads it must be measured again for (ADR 0087).
+ */
+const POLARITY: Readonly<Record<string, MetricPolarity>> = {
+  revenue: "higher_is_better",
+  gross_profit: "higher_is_better",
+  gross_margin_pct: "higher_is_better",
+  other_income: "higher_is_better",
+  ebitda: "higher_is_better",
+  ebitda_pct: "higher_is_better",
+  pbt: "higher_is_better",
+  pat: "higher_is_better",
+  pat_pct: "higher_is_better",
+  cash_and_bank: "higher_is_better",
+  current_ratio: "higher_is_better",
+  quick_ratio: "higher_is_better",
+  cf_operating: "higher_is_better",
+  cf_net: "higher_is_better",
+  direct_costs: "lower_is_better",
+  employee_cost: "lower_is_better",
+  employee_cost_pct: "lower_is_better",
+  other_opex: "lower_is_better",
+  finance_cost: "lower_is_better",
+  payroll_cost: "lower_is_better",
+  dso: "lower_is_better",
+  inventory_days: "lower_is_better",
+  cash_conversion_cycle: "lower_is_better",
+};
+
+/** The suffixes that state a movement, and so carry an arrow; a year-to-date total does not. */
+const MOVEMENT_SUFFIXES = new Set(["mom_abs", "mom_pct", "yoy_abs", "yoy_pct"]);
+
+/** Up, down or flat from the stored decimal string's own sign, never from how it is displayed. */
+function directionOf(value: string | null | undefined): VarianceDirection | null {
+  if (value === null || value === undefined) return null;
+  if (!/[1-9]/u.test(value)) return "flat";
+  return value.startsWith("-") ? "down" : "up";
+}
+
+/**
+ * The class for a movement's arrow. `varianceColor` answers in the light theme's hex, which a
+ * dark board must not be painted in, so its answer picks the theme's own class instead.
+ */
+function movementTone(direction: VarianceDirection, metricId: string): string {
+  const base = metricId.split(".")[0] ?? metricId;
+  const colour = varianceColor(direction, POLARITY[base] ?? "neutral");
+  return colour === variance.positive
+    ? "text-positive"
+    : colour === variance.negative
+      ? "text-negative"
+      : "text-neutral-500";
+}
+
+function MovementArrow({
+  direction,
+  metricId,
+}: {
+  direction: VarianceDirection | null;
+  metricId: string;
+}) {
+  if (direction === null || direction === "flat") return null;
+  return (
+    <Icon
+      name={direction === "down" ? "arrow-down" : "arrow-up"}
+      size={11}
+      className={movementTone(direction, metricId)}
+    />
+  );
+}
+
+/** "Mar 2026, Apr 2026 and May 2026"; past four, the first three and how many more. */
+function monthList(names: readonly string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  if (names.length > 4)
+    return `${names.slice(0, 3).join(", ")} and ${(names.length - 3).toString()} more months`;
+  return `${names.slice(0, -1).join(", ")} and ${names.at(-1) ?? ""}`;
+}
+
+/**
+ * A card's headline, sized to its card (ADR 0091). A long figure in a narrow card ran out of it:
+ * four cards a row beside the chat leave about 150px for "$1,234,567.00" at 24.5px. The size is
+ * the card's width shared out over the figure's characters — a digit at about 0.62em in Inter's
+ * tabular numerals, punctuation at about 0.4em — never more than the design size and never less
+ * than the body text's.
+ */
+function headlineSize(display: string): string {
+  let em = 0;
+  for (const ch of display) em += /\d/u.test(ch) ? 0.62 : 0.4;
+  return `min(1.75rem, max(1rem, ${(100 / Math.max(em, 1)).toFixed(2)}cqi))`;
+}
 
 import { monthsLabel } from "./CompanyFiles";
 import { ShareBoard } from "./ShareBoard";
@@ -127,34 +251,55 @@ type Operation = Record<string, unknown>;
  * What was proved about the month on the board, in words (ADR 0087): the run's checks, passed
  * and to look at, folded to one line until opened. An unplaced ledger links to the ledger map,
  * where it can be put on a line.
+ *
+ * Something to look at leads (ADR 0091): the line used to open on a green tick and "0 checks
+ * passed" with the failures after it, folded away. Now a month with anything to look at opens
+ * with its warning first and the list showing, and each failure says where to go about it.
  */
 function ChecksLine({
   checks,
   month,
   ledgerMap,
+  onFiles,
 }: {
   checks: readonly CheckSummary[];
   month: string;
   ledgerMap: string | null;
+  /** Opens the board's files, where a missing or doubled month is sorted out; null on a sample. */
+  onFiles: (() => void) | null;
 }) {
   const { passed, look } = checkLines(checks);
+  const box = useRef<HTMLDetailsElement>(null);
+  const failing = look.length > 0;
+  // Opened once per month, so a reader who folds it away is not overruled on the next render.
+  useEffect(() => {
+    if (failing && box.current !== null) box.current.open = true;
+  }, [failing, month]);
   if (passed.length === 0 && look.length === 0) return null;
+  const passedWords = `${passed.length.toString()} ${passed.length === 1 ? "check" : "checks"} passed for ${month}`;
   return (
     <details
+      ref={box}
       className="mt-3 rounded-xl border border-neutral-200/80 bg-surface px-4 py-2.5 text-[0.8125rem] shadow-sm"
       data-testid="board-checks"
     >
       <summary className="flex cursor-pointer flex-wrap items-center gap-x-2 gap-y-1 select-none">
-        <Icon name="check-circle" size={15} className="text-positive" />
-        <span className="font-medium text-neutral-900">
-          {passed.length.toString()} {passed.length === 1 ? "check" : "checks"} passed for{" "}
-          {month}
-        </span>
-        {look.length === 0 ? null : (
-          <span className="flex items-center gap-1 text-warning">
-            <Icon name="alert" size={13} />
-            {look.length.toString()} to look at
-          </span>
+        {failing ? (
+          <>
+            <Icon name="alert" size={15} className="text-warning" />
+            <span className="font-medium text-neutral-900">
+              {look.length.toString()} to look at
+              {passed.length === 0 ? ` for ${month}` : null}
+            </span>
+            {passed.length === 0 ? null : (
+              <span className="text-neutral-600">· {passedWords}</span>
+            )}
+          </>
+        ) : (
+          <>
+            <Icon name="check-circle" size={15} className="text-positive" />
+            <span className="font-medium text-neutral-900">{passedWords}</span>
+          </>
         )}
       </summary>
       <ul className="mt-2.5 flex flex-col gap-1.5 border-t border-neutral-100 pt-2.5">
@@ -172,6 +317,18 @@ function ChecksLine({
                   >
                     Open the ledger map
                   </a>
+                </>
+              ) : null}
+              {(l.id === "V8" || l.id === "V9") && onFiles !== null ? (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    className="font-medium text-accent-700 underline underline-offset-2"
+                    onClick={onFiles}
+                  >
+                    See the files
+                  </button>
                 </>
               ) : null}
             </span>
@@ -262,10 +419,16 @@ function EditTool({
 function ValueButton({
   value,
   onOpen,
+  name,
   rolling = false,
 }: {
   value: ValueRef;
   onOpen: (key: string) => void;
+  /**
+   * What the figure is and when — "Revenue from operations, May 2026" — for a screen reader,
+   * which otherwise heard a bare number with no hint that it opens anything (ADR 0091).
+   */
+  name: string;
   /** Roll the figure in a character at a time (ADR 0036), for a card's headline only. */
   rolling?: boolean;
 }) {
@@ -276,6 +439,7 @@ function ValueButton({
       onClick={() => {
         onOpen(value.metricKey);
       }}
+      aria-label={`${name}: ${value.display}. Show where it comes from`}
       data-metric-key={value.metricKey}
     >
       {rolling ? <RollingNumber value={value.display} /> : value.display}
@@ -284,14 +448,23 @@ function ValueButton({
 }
 
 /**
- * The last twelve months of a metric, for the sparkline beside its headline (ADR 0036). Chart
- * values only, never a displayed figure: the number on the card is the one that is read.
+ * Up to twelve months of a metric ending at the month on the board, for the sparkline beside its
+ * headline (ADR 0036). It ends where the picker is, not at the newest month stored: picking last
+ * March left a line ending this month beside a March figure (ADR 0091). Chart values only, never
+ * a displayed figure: the number on the card is the one that is read.
  */
-function trendOf(values: readonly MetricValue[], metricId: string): number[] {
+function trendOf(
+  values: readonly MetricValue[],
+  metricId: string,
+  period: PeriodId,
+): number[] {
   return values
     .filter(
       (v) =>
-        v.metricId === metricId && v.value !== null && Object.keys(v.dims).length === 0,
+        v.metricId === metricId &&
+        v.value !== null &&
+        v.period <= period &&
+        Object.keys(v.dims).length === 0,
     )
     .sort((a, b) => a.period.localeCompare(b.period))
     .slice(-12)
@@ -317,6 +490,7 @@ function WidgetCard({
   onChangeBox,
   lens,
   explore,
+  stored,
 }: {
   widget: Widget;
   index: number;
@@ -337,6 +511,8 @@ function WidgetCard({
   lens: BoardLens;
   /** Whether the box ends in Investigate and Change: not on the sample, which has no chat. */
   explore: boolean;
+  /** The stored value behind a metric key, whose sign decides a movement's arrow. */
+  stored: (key: string) => string | null | undefined;
 }) {
   const format = useMemo(
     () => ({
@@ -368,7 +544,8 @@ function WidgetCard({
   }, [widget.metrics, widget.title, label]);
   const path = `/widgets/${index.toString()}`;
   const trend =
-    widget.kind === "kpi_card" ? trendOf(values, widget.metrics[0] ?? "") : [];
+    widget.kind === "kpi_card" ? trendOf(values, widget.metrics[0] ?? "", period) : [];
+  const nameOf = (key: string) => valueName(key, format);
   return (
     <section
       // Beside the assistant the grid can be narrow, so a card takes twice its width there
@@ -388,9 +565,12 @@ function WidgetCard({
       data-testid={`widget-${widget.id}`}
     >
       <div className="mb-3 flex items-start justify-between gap-2">
-        <h3 className="eyebrow">{widget.title}</h3>
+        <h3 className="eyebrow min-w-0">{widget.title}</h3>
         {!editing && trend.length >= 3 ? (
-          <span className="-mt-1.5 shrink-0 opacity-90" title="Last twelve months">
+          <span
+            className="-mt-1.5 shrink-0 opacity-90"
+            title={`${trend.length.toString()} months to ${format.period(period)}`}
+          >
             <Sparkline values={trend} width={88} height={26} />
           </span>
         ) : null}
@@ -406,7 +586,7 @@ function WidgetCard({
             label="Rename"
             icon="pencil"
             onClick={() => {
-              const title = window.prompt("Widget title", widget.title);
+              const title = window.prompt("Box title", widget.title);
               if (title !== null && title.trim() !== "")
                 onEdit([{ op: "replace", path: `${path}/title`, value: title.trim() }]);
             }}
@@ -448,33 +628,51 @@ function WidgetCard({
       {view.kind === "empty" ? (
         <p className="text-[0.8125rem] text-neutral-500">{view.reason}</p>
       ) : view.kind === "kpi" ? (
-        <div className="flex flex-1 flex-col">
-          <div className="num text-[1.75rem] leading-none font-semibold tracking-tight whitespace-nowrap text-neutral-900">
+        // A container of its own, so the headline can be sized to the card's width (ADR 0091).
+        <div className="@container flex flex-1 flex-col">
+          <div
+            className="num text-[1.75rem] leading-none font-semibold tracking-tight whitespace-nowrap text-neutral-900"
+            style={
+              view.values[0] === undefined
+                ? undefined
+                : { fontSize: headlineSize(view.values[0].display) }
+            }
+          >
             {view.values[0] === undefined ? (
               "—"
             ) : (
-              <ValueButton value={view.values[0]} onOpen={onOpen} rolling />
+              <ValueButton
+                value={view.values[0]}
+                onOpen={onOpen}
+                name={nameOf(view.values[0].metricKey)}
+                rolling
+              />
             )}
           </div>
           {view.values.length < 2 ? null : (
             <dl className="mt-3 flex flex-wrap gap-1.5 text-[0.75rem]">
               {view.values.slice(1).map((v) => {
-                const down = v.display.startsWith("-") || v.display.startsWith("(");
+                // The arrow is for a movement only, from the stored figure's sign: reading it
+                // off the display missed "$(1,234.00)", where the bracket follows the symbol,
+                // and put a green up arrow on a fall (ADR 0091).
+                const { metricId } = parseMetricKey(v.metricKey);
+                const movement = MOVEMENT_SUFFIXES.has(metricId.split(".")[1] ?? "");
                 return (
                   <div
                     key={v.metricKey}
                     className="inline-flex items-center gap-1 rounded-full bg-neutral-100 py-0.5 pr-2 pl-1.5"
                   >
                     <dt className="sr-only">{movementLabel(v.metricKey, format)}</dt>
-                    <Icon
-                      name={down ? "arrow-down" : "arrow-up"}
-                      size={11}
-                      className={down ? "text-negative" : "text-positive"}
-                    />
+                    {movement ? (
+                      <MovementArrow
+                        direction={directionOf(stored(v.metricKey))}
+                        metricId={metricId}
+                      />
+                    ) : null}
                     <dd className="num font-medium text-neutral-700">
-                      <ValueButton value={v} onOpen={onOpen} />
+                      <ValueButton value={v} onOpen={onOpen} name={nameOf(v.metricKey)} />
                     </dd>
-                    <span className="text-neutral-400">
+                    <span className="text-neutral-500">
                       {movementLabel(v.metricKey, format)}
                     </span>
                   </div>
@@ -504,27 +702,39 @@ function WidgetCard({
                 >
                   <td className="py-2 pr-3 text-neutral-700">{r.label}</td>
                   <td className="num py-2 text-right font-semibold text-neutral-900">
-                    <ValueButton value={r.current} onOpen={onOpen} />
+                    <ValueButton
+                      value={r.current}
+                      onOpen={onOpen}
+                      name={nameOf(r.current.metricKey)}
+                    />
                   </td>
                   <td className="num py-2 text-right text-neutral-600">
-                    <ValueButton value={r.prior} onOpen={onOpen} />
+                    <ValueButton
+                      value={r.prior}
+                      onOpen={onOpen}
+                      name={nameOf(r.prior.metricKey)}
+                    />
                   </td>
                   <td className="num py-2 text-right">
                     <span className="inline-flex items-center justify-end gap-1.5">
-                      {r.direction === null || r.direction === "flat" ? null : (
-                        <Icon
-                          name={r.direction === "down" ? "arrow-down" : "arrow-up"}
-                          size={11}
-                          className={
-                            r.direction === "down" ? "text-negative" : "text-positive"
-                          }
-                        />
-                      )}
-                      <ValueButton value={r.change} onOpen={onOpen} />
+                      {/* Coloured by whether the move is good news for this line (ADR 0091). */}
+                      <MovementArrow
+                        direction={r.direction}
+                        metricId={parseMetricKey(r.current.metricKey).metricId}
+                      />
+                      <ValueButton
+                        value={r.change}
+                        onOpen={onOpen}
+                        name={nameOf(r.change.metricKey)}
+                      />
                       {/* No prior month: one dash says it; a second beside it says nothing more. */}
                       {r.changePct === null || r.direction === null ? null : (
                         <span className="text-[0.75rem] text-neutral-500">
-                          <ValueButton value={r.changePct} onOpen={onOpen} />
+                          <ValueButton
+                            value={r.changePct}
+                            onOpen={onOpen}
+                            name={nameOf(r.changePct.metricKey)}
+                          />
                         </span>
                       )}
                     </span>
@@ -553,7 +763,7 @@ function WidgetCard({
                   <td className="py-1.5 text-neutral-700">{r.label}</td>
                   {r.cells.map((c) => (
                     <td key={c.metricKey} className="num py-1.5">
-                      <ValueButton value={c} onOpen={onOpen} />
+                      <ValueButton value={c} onOpen={onOpen} name={nameOf(c.metricKey)} />
                     </td>
                   ))}
                 </tr>
@@ -587,9 +797,9 @@ function WidgetCard({
                 .filter((p) => p.metricKey !== "")
                 .map((p) => (
                   <li key={p.metricKey} className="flex items-baseline gap-2">
-                    <span className="truncate">{valueName(p.metricKey, format)}</span>
+                    <span className="truncate">{nameOf(p.metricKey)}</span>
                     <span className="num ml-auto">
-                      <ValueButton value={p} onOpen={onOpen} />
+                      <ValueButton value={p} onOpen={onOpen} name={nameOf(p.metricKey)} />
                     </span>
                   </li>
                 ))}
@@ -603,8 +813,13 @@ function WidgetCard({
         Investigate asks why its figures moved (SPEC §27, a Deep question); Change hands the box
         to the chat to be reshaped. Both only write the message: nothing is sent or charged
         until the customer presses send.
+
+        An empty box keeps both (ADR 0091): "No data for these months" is exactly the box that
+        needs changing, and hiding Change left Edit layout as the only way to deal with it. Each
+        names its box, because a screen reader listing the page's buttons heard "Investigate"
+        and "Change" a dozen times over with nothing to tell them apart.
       */}
-      {view.kind === "empty" || presenting || editing || !explore ? null : (
+      {presenting || editing || !explore ? null : (
         <div
           className="mt-auto -mb-1 -ml-2 flex flex-wrap items-center gap-0.5 pt-3"
           data-testid="box-actions"
@@ -612,6 +827,7 @@ function WidgetCard({
           <button
             type="button"
             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-accent-700 hover:bg-accent-50"
+            aria-label={`Investigate ${widget.title}`}
             onClick={() => {
               onInvestigate(widget.metrics[0] ?? "", period, subject);
             }}
@@ -622,6 +838,7 @@ function WidgetCard({
           <button
             type="button"
             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.75rem] font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+            aria-label={`Change ${widget.title}`}
             onClick={() => {
               onChangeBox(widget.title);
             }}
@@ -632,6 +849,70 @@ function WidgetCard({
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * What Range and Compare are doing, in a sentence, while either is set (ADR 0064, ADR 0091).
+ * They often reach fewer boxes than a reader expects — a card or a waterfall states one month
+ * whatever the range — and the only word on it was a tooltip, which a keyboard or a touch never
+ * shows. So this says how many boxes they change, that nothing is saved, and offers the board
+ * back as saved. The count draws each box with and without the lens and compares the two, so it
+ * cannot disagree with what is on the screen.
+ */
+function LensNote({
+  widgets,
+  values,
+  period,
+  fyStartMonth,
+  money,
+  currencySymbol,
+  label,
+  lens,
+  onReset,
+}: {
+  widgets: readonly Widget[];
+  values: readonly MetricValue[];
+  period: PeriodId;
+  fyStartMonth: number;
+  money: NumberFormatOptions;
+  currencySymbol: string;
+  label: (metricId: string) => string;
+  lens: BoardLens;
+  onReset: () => void;
+}) {
+  const changed = useMemo(() => {
+    const format: ViewFormat = { ...companyFormat(money, currencySymbol), label };
+    const input = { period, fyStartMonth, format, dimensionFilter: null };
+    return widgets.filter(
+      (w) =>
+        JSON.stringify(buildWidgetView(w, values, { ...input, lens: NO_LENS })) !==
+        JSON.stringify(buildWidgetView(w, values, { ...input, lens })),
+    ).length;
+  }, [widgets, values, period, fyStartMonth, money, currencySymbol, label, lens]);
+  return (
+    <p
+      className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.8125rem] text-neutral-600"
+      role="status"
+      data-testid="lens-note"
+      data-print="hide"
+    >
+      <Icon name="info" size={14} className="shrink-0 text-neutral-500" />
+      <span>
+        {changed === 0
+          ? "This changes no box on this board: Range reaches boxes that show several months, and Compare reaches comparison boxes, and line and bar charts against last year."
+          : `This changes ${changed.toString()} of ${widgets.length.toString()} ${widgets.length === 1 ? "box" : "boxes"}.`}{" "}
+        It is only how you are reading the board: nothing is saved, and it opens as saved
+        next time.
+      </span>
+      <button
+        type="button"
+        className="font-medium text-accent-700 underline underline-offset-2"
+        onClick={onReset}
+      >
+        Back to as saved
+      </button>
+    </p>
   );
 }
 
@@ -709,7 +990,12 @@ export function DashboardClient({
   const stage = useRef<HTMLDivElement>(null);
   const drawerOpen = useRef(false);
   drawerOpen.current = selected !== null;
+  // Where focus was when Present began: a keyboard user is put back there, on Present, rather
+  // than at the top of the page (ADR 0091).
+  const presentedFrom = useRef<HTMLElement | null>(null);
   const present = useCallback(() => {
+    presentedFrom.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setEditing(false);
     setPresenting(true);
     const el = stage.current;
@@ -726,6 +1012,9 @@ export function DashboardClient({
     setWholeScreen(false);
     if (document.fullscreenElement !== null)
       void document.exitFullscreen().catch(() => undefined);
+    const back = presentedFrom.current;
+    presentedFrom.current = null;
+    if (back?.isConnected === true) back.focus({ preventScroll: true });
   }, []);
   const months = payload?.periods;
   const step = useCallback(
@@ -749,7 +1038,15 @@ export function DashboardClient({
     const onScreen = () => {
       const whole = document.fullscreenElement !== null;
       setWholeScreen(whole);
-      if (!whole && Date.now() - notesOpenedAt.current > 3000) setPresenting(false);
+      if (whole) return;
+      // In full screen Esc is the browser's: it leaves full screen before the page hears the key.
+      // With a figure's working open, that Esc was meant for the working, as it is on the window,
+      // so it closes the working and Present carries on on the window (ADR 0091).
+      if (drawerOpen.current) {
+        setSelected(null);
+        return;
+      }
+      if (Date.now() - notesOpenedAt.current > 3000) stopPresenting();
     };
     const onKey = (event: KeyboardEvent) => {
       // Esc closes an open lineage drawer first; only with nothing open does it end Present.
@@ -762,29 +1059,52 @@ export function DashboardClient({
     document.addEventListener("fullscreenchange", onScreen);
     window.addEventListener("keydown", onKey);
     // Where the browser refused the whole screen the stage only covers the window: the page
-    // behind it must not scroll under it, and the keyboard starts on the stage, not behind it.
+    // behind it must not scroll under it.
     const scroll = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    stage.current?.focus();
     return () => {
       document.removeEventListener("fullscreenchange", onScreen);
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = scroll;
     };
   }, [presenting, stopPresenting, step]);
-
-  // Presenter notes on another screen follow the month the room is looking at (ADR 0087).
-  const shownMonth = period ?? payload?.periods[0] ?? null;
+  // The keyboard starts on the stage, not behind it — once, as Present begins, and not again
+  // whenever the board reloads under it.
   useEffect(() => {
-    if (!presenting || !live || shownMonth === null) return;
-    if (typeof BroadcastChannel === "undefined") return;
-    const channel = new BroadcastChannel(presentChannelName(companyId));
-    const message: PresentMessage = { kind: "month", period: shownMonth };
-    channel.postMessage(message);
-    return () => {
-      channel.close();
+    if (presenting) stage.current?.focus();
+  }, [presenting]);
+
+  /*
+   * Presenter notes on another screen follow the month the room is looking at (ADR 0087). One
+   * channel for the whole of Present: the notes ask for the month as they open and are answered
+   * at once, every step is sent, and the notes are told when Present ends (ADR 0091).
+   */
+  const shownMonth = period ?? payload?.periods[0] ?? null;
+  const shownRef = useRef(shownMonth);
+  shownRef.current = shownMonth;
+  const channel = useRef<BroadcastChannel | null>(null);
+  useEffect(() => {
+    if (!presenting || !live || typeof BroadcastChannel === "undefined") return;
+    const open = new BroadcastChannel(presentChannelName(companyId));
+    channel.current = open;
+    open.onmessage = (event: MessageEvent<unknown>) => {
+      const month = shownRef.current;
+      if (!isPresentAsk(event.data) || month === null) return;
+      const answer: PresentMessage = { kind: "month", period: month };
+      open.postMessage(answer);
     };
-  }, [presenting, live, companyId, shownMonth]);
+    return () => {
+      const ended: PresentMessage = { kind: "ended" };
+      open.postMessage(ended);
+      open.close();
+      channel.current = null;
+    };
+  }, [presenting, live, companyId]);
+  useEffect(() => {
+    if (!presenting || shownMonth === null) return;
+    const message: PresentMessage = { kind: "month", period: shownMonth };
+    channel.current?.postMessage(message);
+  }, [presenting, shownMonth]);
   const openNotes = useCallback(() => {
     notesOpenedAt.current = Date.now();
     window.open(
@@ -801,6 +1121,18 @@ export function DashboardClient({
 
   const calculated = payload?.dashboard?.spec.calculated;
   const label = useMemo(() => labelsFor(calculated ?? []), [calculated]);
+  // Each stored value by its key, for the sign a movement's arrow is read from (ADR 0091).
+  const storedValues = useMemo(
+    () =>
+      new Map(
+        (payload?.values ?? []).map((v) => [
+          metricKey(v.metricId, v.period, v.dims),
+          v.value,
+        ]),
+      ),
+    [payload?.values],
+  );
+  const stored = useCallback((key: string) => storedValues.get(key), [storedValues]);
 
   const load = useCallback(async () => {
     if (sample !== undefined) {
@@ -834,7 +1166,23 @@ export function DashboardClient({
         <div className="skeleton col-span-4 h-72" />
       </div>
     ) : (
-      <Alert tone="error">{error}</Alert>
+      // A board that did not load says so and offers to try again, rather than leaving a reader
+      // with an error and a page reload as the only way on (ADR 0091).
+      <div className="flex flex-col gap-3" data-testid="dashboard-load-error">
+        <Alert tone="error">{error}</Alert>
+        <div>
+          <Button
+            variant="secondary"
+            icon="refresh"
+            onClick={() => {
+              setError(null);
+              void load();
+            }}
+          >
+            Try again
+          </Button>
+        </div>
+      </div>
     );
 
   if (payload.dashboard === null) {
@@ -890,6 +1238,13 @@ export function DashboardClient({
   const current = period ?? ((payload.periods[0] ?? "") as PeriodId);
   // Every file unticked: no month to show. Nothing below may format or chart an empty month.
   const noMonths = payload.periods.length === 0;
+  // How the board is being read, in the words Present says it to the room (ADR 0091).
+  const lensWords = [
+    range === "saved" ? "" : (RANGES.find((r) => r.id === range)?.label ?? ""),
+    COMPARISONS.find((c) => c.id === compare)?.said ?? "",
+  ]
+    .filter((w) => w !== "")
+    .join(" · ");
   const display = (v: MetricValue) =>
     v.value === null
       ? "—"
@@ -909,7 +1264,11 @@ export function DashboardClient({
     setTicks((t) => ({ ...t, [id]: onDashboard }));
     const r = await api(`/api/uploads/${id}`, { method: "PATCH", body: { onDashboard } });
     if (!r.ok) setError(r.message);
-    setPeriod(null);
+    // The month being read stays on screen while it is still there; `load` falls back to the
+    // newest month only when it is not. Ticking an older file used to jump the board to the
+    // newest month every time (ADR 0091). A reader on the newest month follows a newer one that
+    // the tick brings back, because that is the month they were reading: the latest.
+    if (current === payload.periods[0]) setPeriod(null);
     await load();
     setTicks((t) => {
       const { [id]: _settled, ...rest } = t;
@@ -957,9 +1316,9 @@ export function DashboardClient({
       (dashboard.dataThrough === null || payload.latestPeriod > dashboard.dataThrough) ? (
         <Panel title="A newer month is available" icon="refresh">
           <p className="mb-3 text-sm text-neutral-600">
-            The dashboard shows months up to{" "}
-            {dashboard.dataThrough === null ? "—" : format.period(dashboard.dataThrough)}.
-            Refresh it to include {format.period(payload.latestPeriod)}.
+            {dashboard.dataThrough === null
+              ? `Refresh the dashboard to include ${format.period(payload.latestPeriod)}.`
+              : `The dashboard shows months up to ${format.period(dashboard.dataThrough)}. Refresh it to include ${format.period(payload.latestPeriod)}.`}
           </p>
           <PaidJobButton
             companyId={companyId}
@@ -989,7 +1348,8 @@ export function DashboardClient({
         className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200/80 bg-surface px-4 py-3 shadow-sm"
         data-print="hide"
       >
-        <div className="flex items-center gap-3">
+        {/* Wraps rather than running out of the toolbar beside the rail and the chat (ADR 0091). */}
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
           <label className="flex items-center gap-2 text-[0.8125rem] font-medium text-neutral-600">
             <span>Month</span>
             <select
@@ -1022,7 +1382,7 @@ export function DashboardClient({
               onChange={(e) => {
                 setRange(e.target.value as RangeChoice);
               }}
-              title="The window for boxes that show several months. Cards and the waterfall always state the month above."
+              title="The window for boxes that show several months: trends and tables. Cards, comparisons, splits and the waterfall keep the one month chosen under Month."
               data-testid="range-filter"
             >
               {RANGES.map((r) => (
@@ -1040,7 +1400,7 @@ export function DashboardClient({
               onChange={(e) => {
                 setCompare(e.target.value as CompareChoice);
               }}
-              title="What each box is measured against, where it can hold a comparison."
+              title="What boxes are measured against, where a box can hold a comparison: comparison boxes, and line and bar charts against last year."
               data-testid="compare-filter"
             >
               {COMPARISONS.map((c) => (
@@ -1068,7 +1428,8 @@ export function DashboardClient({
               }}
               data-testid="dashboard-files"
             >
-              Files
+              {/* Not "Files": that is Files and settings, in the header beside it. */}
+              Files shown
               <span className="num ml-1 rounded-full bg-neutral-100 px-1.5 text-[0.6875rem] text-neutral-600">
                 {usedFiles.filter((x) => x.onDashboard).length.toString()} of{" "}
                 {usedFiles.length.toString()}
@@ -1153,6 +1514,22 @@ export function DashboardClient({
           ) : null}
         </div>
       </div>
+      {noMonths || (range === "saved" && compare === "saved") ? null : (
+        <LensNote
+          widgets={spec.widgets}
+          values={payload.values}
+          period={current}
+          fyStartMonth={payload.company.fyStartMonth}
+          money={payload.company.money}
+          currencySymbol={payload.company.currencySymbol}
+          label={label}
+          lens={lens}
+          onReset={() => {
+            setRange("saved");
+            setCompare("saved");
+          }}
+        />
+      )}
 
       {(() => {
         // The owner's alerts that the month on screen trips (ADR 0087): said in words here,
@@ -1194,10 +1571,10 @@ export function DashboardClient({
           data-testid="hidden-months"
         >
           <Icon name="file" size={14} className="text-neutral-400" />
-          {payload.hiddenPeriods.length === 1
-            ? `${format.period(payload.hiddenPeriods[0] ?? "")} is left out`
-            : `${payload.hiddenPeriods.length.toString()} months are left out`}
-          , because the files they came from are unticked.
+          {/* Named, not counted: "4 months are left out" left the reader to find which. */}
+          {monthList(payload.hiddenPeriods.map((p) => format.period(p)))}{" "}
+          {payload.hiddenPeriods.length === 1 ? "is" : "are"} left out, because the files
+          they came from are unticked.
           <button
             type="button"
             className="font-medium text-accent-700 underline underline-offset-2"
@@ -1215,6 +1592,7 @@ export function DashboardClient({
           companyId={companyId}
           month={current}
           monthLabel={format.period(current)}
+          lensSet={range !== "saved" || compare !== "saved"}
           open={shareOpen}
           onClose={() => {
             setShareOpen(false);
@@ -1285,14 +1663,6 @@ export function DashboardClient({
               All files and settings
             </ButtonLink>
           </div>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setFilesOpen(false);
-            }}
-          >
-            Close
-          </Button>
         </div>
       </Drawer>
 
@@ -1343,6 +1713,11 @@ export function DashboardClient({
               "aria-modal": true,
               "aria-label": `${payload.company.name}, presented`,
               tabIndex: -1,
+              // A modal keeps Tab inside it (ADR 0091); an open working keeps it inside itself.
+              onKeyDown: (event: ReactKeyboardEvent<HTMLDivElement>) => {
+                if (!drawerOpen.current && stage.current !== null)
+                  keepTabInside(stage.current, event);
+              },
             }
           : {})}
       >
@@ -1365,6 +1740,15 @@ export function DashboardClient({
               >
                 {noMonths ? "" : format.period(current)}
               </p>
+              {/* A room shown twelve months against last year is told so, not only the month. */}
+              {lensWords === "" ? null : (
+                <p
+                  className="mt-0.5 text-[0.875rem] text-neutral-600"
+                  data-testid="present-lens"
+                >
+                  {lensWords}
+                </p>
+              )}
               {preparer === null ? null : (
                 <p
                   className="mt-2 flex items-center gap-2 text-[0.8125rem] text-neutral-500"
@@ -1377,7 +1761,9 @@ export function DashboardClient({
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-1.5 opacity-60 transition-opacity focus-within:opacity-100 hover:opacity-100">
+            {/* Quieter than the board, but never below a readable contrast: at 60% the
+                labels fell under 4:1 until hovered (ADR 0091). */}
+            <div className="flex items-center gap-1.5 opacity-80 transition-opacity focus-within:opacity-100 hover:opacity-100">
               {/* The commentary and where to act, on the presenter's own screen (ADR 0087). */}
               {live ? (
                 <Button
@@ -1488,6 +1874,7 @@ export function DashboardClient({
               onChangeBox={onChangeBox}
               lens={lens}
               explore={live}
+              stored={stored}
             />
           ))}
         </div>
@@ -1496,6 +1883,13 @@ export function DashboardClient({
             checks={payload.checks?.[current] ?? []}
             month={format.period(current)}
             ledgerMap={live ? `/app/companies/${companyId}/ledgers` : null}
+            onFiles={
+              live
+                ? () => {
+                    setFilesOpen(true);
+                  }
+                : null
+            }
           />
         )}
         {/* Not while presenting: there the accountant is the reviewer, speaking to their client. */}
@@ -1510,6 +1904,7 @@ export function DashboardClient({
           onClose={() => {
             setSelected(null);
           }}
+          closeButton={false}
         >
           {selected === null ? null : (
             <LineagePanel

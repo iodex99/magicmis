@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { priceFor } from "@magicmis/wallet";
-
 import { Icon } from "@/components/Icon";
 import { ClosingCta, Faqs } from "@/components/Marketing";
 import { PublicShell } from "@/components/PublicShell";
@@ -11,6 +9,7 @@ import { Badge, ButtonLink } from "@/components/ui";
 import { formatCredits, formatMoney } from "@/lib/actions";
 import { db } from "@/lib/db";
 import { pageMetadata } from "@/lib/seo";
+import { packWorth } from "@/lib/server/packs";
 import { visitorCurrency } from "@/lib/server/visitor-currency";
 import { welcomeOffer } from "@/lib/server/welcome";
 import {
@@ -18,7 +17,7 @@ import {
   WELCOME_TERMS_HREF,
   welcomeBand,
   welcomeConditions,
-  welcomeCreditsLabel,
+  welcomePacksClosing,
   type WelcomeOfferCopy,
 } from "@/lib/welcome-copy";
 
@@ -74,6 +73,17 @@ const faqs = (offer: WelcomeOfferCopy): readonly Faq[] => [
     answer:
       "Each action — setting up a company, adding a month, a dashboard, written commentary, a chat question — has a standard price in credits, listed in your wallet once you have an account. Setting up a company costs the most because it is where the ledgers are mapped; every month after that reuses the mapping and costs a fraction of it.",
   },
+  // The two terms the cards use and nothing else explains (ADR 0091).
+  {
+    question: "What are the three intelligence tiers?",
+    answer:
+      "Efficient, Professional and Expert. Every action that uses AI can run at any of them: a higher tier brings more careful work to ambiguous ledgers, commentary and chat answers, and costs more credits for the same action. Professional is the default and is what the estimates on this page assume. Whatever the tier, the figures are computed the same way, and a monthly refresh on unchanged ledger structure makes no AI call at all.",
+  },
+  {
+    question: "What is the monthly memory fee?",
+    answer:
+      "Each company you have set up keeps its mapping, its months, its dashboard and its files, and pays a small fee in credits once a month for that — the first month is included in its setup. It is the only standing charge. Delete a company and its fee stops at once.",
+  },
   {
     question: "What if a job needs more than its standard price?",
     answer:
@@ -96,7 +106,7 @@ const RECOMMENDED_INDEX = 2;
 export default async function PricingPage() {
   const pool = db();
   const currency = await visitorCurrency();
-  const [packs, setup, refresh, memory, offer] = await Promise.all([
+  const [packs, worth, offer] = await Promise.all([
     pool.query<PackRow>(
       `select p.name, pp.price_minor_ex_tax::text as price_minor,
               p.credits_granted::text, p.bonus_credits::text
@@ -107,44 +117,15 @@ export default async function PricingPage() {
       [currency],
     ),
     // What a pack is worth in the customer's terms, from the live price book rather than a
-    // number typed here (SPEC §0.5): one company set up, then months of reporting.
-    priceFor(pool, {
-      actionKey: "company_setup",
-      tier: "professional",
-      delivery: "standard",
-    }),
-    priceFor(pool, {
-      actionKey: "monthly_refresh",
-      tier: "professional",
-      delivery: "standard",
-    }),
-    priceFor(pool, {
-      actionKey: "company_memory_monthly",
-      tier: "professional",
-      delivery: "standard",
-    }),
+    // number typed here (SPEC §0.5) — the same sentence the Wallet shows, run and dashboard
+    // both counted, as a run charges them (ADR 0091).
+    packWorth(pool),
     welcomeOffer(pool),
   ]);
   const FAQS = faqs(offer);
   const line = welcomeBand(offer);
   const conditions = welcomeConditions(offer);
-  const free = welcomeCreditsLabel(offer);
-  const perMonth = refresh.credits + memory.credits;
-  /** One company set up and reported on for twelve months. */
-  const companyYear = setup.credits + 12n * perMonth;
-
-  // A small pack is a company's first months; a large one is a firm's client list for a
-  // year. "286 months" is true and useless, so past two years it is counted in companies.
-  const worth = (total: bigint): string => {
-    if (total <= setup.credits)
-      return "Enough to set up one company and see what it produces.";
-    const months = (total - setup.credits) / perMonth;
-    if (months <= 24n)
-      return `Roughly one company set up and ${months.toString()} ${
-        months === 1n ? "month" : "months"
-      } of reporting.`;
-    return `Roughly ${(total / companyYear).toString()} companies set up and reported on for a year.`;
-  };
+  const closing = welcomePacksClosing(offer);
 
   return (
     <PublicShell>
@@ -252,9 +233,10 @@ export default async function PricingPage() {
           </ul>
 
           <p className="mx-auto mt-6 max-w-2xl text-center text-[0.8125rem] leading-relaxed text-neutral-500">
-            Estimates are at standard prices for one company; a job that needs more than
-            its standard price shows you a quote first. Prices exclude tax, which is added
-            at checkout where it applies.
+            Estimates are at standard prices for one company at the Professional tier:
+            each month counts the refresh, the dashboard it updates and the memory fee. A
+            job that needs more than its standard price shows you a quote first. Prices
+            exclude tax, which is added at checkout where it applies.
           </p>
 
           <section className="mt-14 rounded-2xl border border-line bg-surface p-6 sm:p-8">
@@ -297,20 +279,15 @@ export default async function PricingPage() {
           </section>
         </div>
       </div>
-      {free === null ? (
+      {/* No "See credit packs" here: this is that page (ADR 0091). */}
+      {closing === null ? (
         <ClosingCta
           heading="Create the account first. Buy credits when you are ready."
           body="Signing up and adding a company are free, so you can see exactly what a run will ask of you before you spend anything."
+          packsLink={false}
         />
       ) : (
-        <ClosingCta
-          heading={`Start with ${free}. Buy a pack when you want more.`}
-          body={
-            offer.coversFirstCompany
-              ? "Your first company is set up on your own books at its standard price before you spend anything, and every action shows its price before you press it. One grant per person or business; each company you keep has a monthly memory fee."
-              : "Try it on your own books before you spend anything; every action shows its price before you press it. One grant per person or business; each company you keep has a monthly memory fee."
-          }
-        />
+        <ClosingCta heading={closing.heading} body={closing.body} packsLink={false} />
       )}
     </PublicShell>
   );

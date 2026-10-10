@@ -2,7 +2,7 @@ import { AppFrame } from "@/components/AppFrame";
 import { PageHeader } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { walletView } from "@/lib/billing";
-import { visitorCurrency } from "@/lib/server/visitor-currency";
+import { visitorCountry, visitorCurrency } from "@/lib/server/visitor-currency";
 
 import { WalletClient } from "./WalletClient";
 
@@ -27,7 +27,12 @@ export default async function WalletPage({
         description="Add credits, and see your balance, your invoices and every movement."
       />
       <div className="flex flex-col gap-5">
-        <WalletClient initial={view} businessName={account.businessName} need={needed} />
+        <WalletClient
+          initial={view}
+          businessName={account.businessName}
+          need={needed}
+          visitorCountry={await visitorCountry()}
+        />
       </div>
     </AppFrame>
   );

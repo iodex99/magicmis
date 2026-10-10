@@ -8,6 +8,13 @@
  */
 export const RAIL_COOKIE = "rail";
 export const CHAT_COOKIE = "chat";
+/**
+ * The conversation the chat was last showing, as `<company id>.<thread id>`, or
+ * `<company id>.new` after "New conversation" (ADR 0091). One company's at a time; any other
+ * company reopens its own newest. It names a thread and says nothing it holds, and the thread
+ * API answers only the account that owns it, so a copied cookie opens nothing.
+ */
+export const CHAT_THREAD_COOKIE = "chat_thread";
 
 /** Asks whichever workspace is on screen to open its chat and put the cursor in it. */
 export const OPEN_CHAT_EVENT = "magicmis:open-chat";

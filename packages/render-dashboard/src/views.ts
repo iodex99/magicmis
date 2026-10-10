@@ -67,8 +67,12 @@ export interface ViewFormat {
  * Chart styling (SPEC §32): the one accent plus neutrals that stay apart under the common
  * forms of colour vision deficiency, axes drawn as faint rules rather than boxes, and no
  * decoration. Kept here so every chart in the product looks like the same chart.
+ *
+ * Every colour is at least 3:1 against a white card, as a chart mark must be: the fifth was
+ * accent-300 at 2.35:1 and is accent-400 (ADR 0091). These are the light theme's; the page
+ * redraws a chart with the dark theme's own steps when that is the one in use (EChart.tsx).
  */
-const PALETTE = ["#5846d2", "#15724a", "#8a5300", "#6f6c85", "#ab9ef5", "#b03024"];
+const PALETTE = ["#5846d2", "#15724a", "#8a5300", "#6f6c85", "#8a79ee", "#b03024"];
 const AXIS_TEXT = "#6f6c85";
 const GRID_LINE = "#eceaf3";
 
@@ -113,8 +117,8 @@ function tooltipFrom(
 function frame(format: ViewFormat, money: boolean): EChartsOption {
   return {
     color: PALETTE,
-    // A chart draws itself in rather than appearing (ADR 0036); the option is data, and the
-    // browser honours reduced-motion by drawing at once.
+    // A chart draws itself in rather than appearing (ADR 0036). ECharts knows nothing of
+    // reduced motion, so the page turns this off for a reader who asked for it (ADR 0091).
     animationDuration: 900,
     animationEasing: "cubicOut",
     grid: { left: 4, right: 12, top: 12, bottom: 4, containLabel: true },
@@ -518,7 +522,9 @@ export function buildWidgetView(
     case "line":
     case "bar":
     case "stacked_bar": {
-      const type = widget.kind === "line" ? "line" : "bar";
+      // A line through one month is a lone dot, which reads as a chart that failed to draw; one
+      // month is drawn as a bar instead (ADR 0091), the shape a single figure has.
+      const type = widget.kind === "line" && periods.length > 1 ? "line" : "bar";
       // This year against last: each metric gets a second, quieter series holding the same
       // months a year back, on the same axis positions. Stacks stay one year: two stacked
       // years side by side read as one total.

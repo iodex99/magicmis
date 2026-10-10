@@ -22,6 +22,13 @@ export const mappingRulesSchema = z.object({
   rules: z.array(companyRuleSchema),
   /** Ledgers the user explicitly accepted as Unmapped (SPEC §21 V1). */
   acceptedUnmapped: z.array(z.string()),
+  /**
+   * The ones of those the owner chose to keep off on the ledger map (ADR 0091), as against the
+   * ones a run could not place. Every run re-confirms an accepted Unmapped, so without this the
+   * two read the same for good and the map's "not placed yet" count could never reach zero.
+   * Optional, so every blueprint written before it still reads; the cascade never looks at it.
+   */
+  keptOff: z.array(z.string()).optional(),
 });
 export type MappingRules = z.infer<typeof mappingRulesSchema>;
 
@@ -64,12 +71,16 @@ export function writeBack(
       accountRules.push({ pattern: m.normalisedName, head: m.head });
   }
 
+  // The owner's own "keep it off" outlives every run, until the ledger is put on a line (ADR 0091).
+  const keptOff = (previous?.keptOff ?? []).filter((k) => accepted.has(k)).sort();
+
   return {
     rules: mappingRulesSchema.parse({
       schemaVersion: 1,
       headsVersion,
       rules: [...byKey.values()].sort((a, b) => a.ledgerKey.localeCompare(b.ledgerKey)),
       acceptedUnmapped: [...accepted].sort(),
+      ...(keptOff.length === 0 ? {} : { keptOff }),
     }),
     accountRules,
   };

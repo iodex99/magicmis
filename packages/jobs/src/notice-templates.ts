@@ -14,6 +14,8 @@ export interface RenderedEmail {
   readonly subject: string;
   /** The subject without the product's name after it: the line the in-app inbox shows (ADR 0087). */
   readonly title: string;
+  /** The first paragraph, which the inbox shows under the title (ADR 0091). */
+  readonly summary: string;
   readonly text: string;
   readonly html: string;
   /** Where the notice sends its reader, as a path in the app; the inbox links there too. */
@@ -58,6 +60,7 @@ function email(
   return {
     subject: `${subject} — ${PRODUCT_NAME}`,
     title: subject,
+    summary: paragraphs[0] ?? "",
     text,
     html,
     ...(link === undefined ? {} : { link }),
@@ -78,7 +81,53 @@ const jobPayloadSchema = z.object({
   job_id: z.uuid(),
   failure_class: z.string().optional(),
   expires_at: z.string().optional(),
+  /**
+   * The company the run was for, so ten notices from ten companies can be told apart (ADR 0091).
+   * A label, never a figure (SPEC §29); absent on a notice queued before it was carried.
+   */
+  company_name: z.string().max(200).nullable().optional(),
+  job_type: z.string().max(60).optional(),
+  /** Credits captured, for a failure: our price, not the customer's data. */
+  charged: z
+    .string()
+    .regex(/^\d{1,12}$/u)
+    .optional(),
 });
+
+/** "for Acme Traders", or nothing when the notice does not say which company. */
+const forCompany = (name: string | null | undefined): string =>
+  name === null || name === undefined || name === "" ? "" : ` for ${name}`;
+
+/** What a completed job delivered, said for its own kind: a dashboard is not a workbook. */
+function completedWords(
+  jobType: string | undefined,
+  company: string | null | undefined,
+): { subject: string; body: string } {
+  const of = forCompany(company);
+  switch (jobType) {
+    case "commentary":
+      return {
+        subject: `Commentary${of} is written`,
+        body: "The commentary on the month is ready beside the board.",
+      };
+    case "board_actions":
+      return {
+        subject: `Where to act${of} is ready`,
+        body: "Suggestions for the month are ready beside the board.",
+      };
+    case "dashboard_addon":
+    case "dashboard_refresh":
+      return {
+        subject: `The dashboard${of} is up to date`,
+        body: "The dashboard now shows the figures of the latest run.",
+      };
+    default:
+      return {
+        subject: `Your MIS${of} is ready`,
+        body: "The run has finished. Its workbook is ready to download, and the board shows its months.",
+      };
+  }
+}
 const companyPayloadSchema = z.object({
   company_id: z.uuid(),
   company_name: z.string().max(200),
@@ -222,10 +271,10 @@ export function renderNotification(
         // Under ADR 0032 a run waits for one thing only: which financial year is right, when the
         // files run on a different one from the company (ADR 0086).
         email(
-          "One question before your MIS is built",
+          `One question before your MIS${forCompany(p.company_name)} is built`,
           [
             "The files you added run a financial year that starts in a different month from the one this company is set to. Nothing is computed until you say which is right.",
-            "The credits for this job stay reserved while it waits, and answering does not charge it again.",
+            "The credits for this run stay held while it waits, and answering does not charge it again.",
           ],
           ctx,
           { label: "Answer it", path: `/app/jobs/${p.job_id}` },
@@ -234,45 +283,46 @@ export function renderNotification(
     case "job.review_expiring":
       return withJob(payload, (p) =>
         email(
-          "Your MIS is still waiting on one question",
+          `Your MIS${forCompany(p.company_name)} is still waiting on one question`,
           [
-            `The reservation for this job expires on ${formatIstLongDate(new Date(p.expires_at ?? ""))}. If it expires after analysis has run, the cancellation fee applies.`,
+            `It waits until ${formatIstLongDate(new Date(p.expires_at ?? ""))}. Still unanswered then, it is cancelled, and if its analysis had already started the cancellation fee is charged.`,
           ],
           ctx,
           { label: "Answer it", path: `/app/jobs/${p.job_id}` },
         ),
       );
     case "job.completed":
-      return withJob(payload, (p) =>
-        email(
-          "Your MIS is ready",
-          ["The job has completed. Your workbook is ready to download."],
-          ctx,
-          {
-            label: "Open the job",
-            path: `/app/jobs/${p.job_id}`,
-          },
-        ),
-      );
+      return withJob(payload, (p) => {
+        const words = completedWords(p.job_type, p.company_name);
+        return email(words.subject, [words.body], ctx, {
+          label: "Open it",
+          path: `/app/jobs/${p.job_id}`,
+        });
+      });
     case "job.failed":
       return withJob(payload, (p) =>
         email(
-          "A job could not be completed",
+          `A run${forCompany(p.company_name)} could not be finished`,
           [
             p.failure_class === "platform_fault"
-              ? "The job stopped because of a problem on our side. No credits were charged."
-              : "The job stopped because of a problem in the uploaded data. The diagnostic report explains what failed and how to fix it.",
+              ? "The run stopped because of a problem on our side. No credits were charged."
+              : // There is no separate report: the run's page says what was wrong (ADR 0091).
+                `The run stopped because of a problem in the files you added. ${
+                  p.charged === undefined
+                    ? "The price of checking them was charged, not the price of the run."
+                    : `${p.charged} credits were charged for checking them, not the price of the run.`
+                } The run's page says what to fix; add the corrected files to try again.`,
           ],
           ctx,
-          { label: "See what happened", path: `/app/jobs/${p.job_id}` },
+          { label: "See what to fix", path: `/app/jobs/${p.job_id}` },
         ),
       );
     case "job.quote_offered":
       return withJob(payload, (p) =>
         email(
-          "A quote is waiting for your approval",
+          `A quote${forCompany(p.company_name)} is waiting for your approval`,
           [
-            "This job needs more analysis than the standard price covers. Review the quote before it expires; nothing is charged unless you accept.",
+            "This run needs more analysis than the standard price covers. Review the quote before it expires; nothing is charged unless you accept.",
           ],
           ctx,
           { label: "Review the quote", path: `/app/jobs/${p.job_id}` },
@@ -281,7 +331,7 @@ export function renderNotification(
     case "billing.memory_fee_debited":
       return withCompany(payload, (p) =>
         email(
-          "Company memory fee debited",
+          `Memory fee for ${p.company_name} debited`,
           [`The monthly memory fee for ${p.company_name} was debited from your wallet.`],
           ctx,
           {
@@ -293,7 +343,7 @@ export function renderNotification(
     case "billing.memory_fee_failed":
       return withCompany(payload, (p) =>
         email(
-          "Company memory fee could not be debited",
+          `Memory fee for ${p.company_name} could not be debited`,
           [
             `Your wallet did not have enough credits for the monthly memory fee for ${p.company_name}. Buy credits to keep the company active.`,
           ],
@@ -304,7 +354,7 @@ export function renderNotification(
     case "billing.low_balance_before_fee":
       return withCompany(payload, (p) =>
         email(
-          "Low balance before your memory fee",
+          `Low balance before the memory fee for ${p.company_name}`,
           [
             `The monthly memory fee for ${p.company_name} is due in ${String(p.days ?? "")} days and your available credits will not cover it.`,
           ],
@@ -315,9 +365,9 @@ export function renderNotification(
     case "lifecycle.grace":
       return withCompany(payload, (p) =>
         email(
-          "Company in grace period",
+          `${p.company_name} is in its grace period`,
           [
-            `${p.company_name} is in its grace period. You can view outputs and history, but new jobs and chat are paused until the fee is paid.`,
+            `${p.company_name} is in its grace period. You can view outputs and history, but new runs and chat are paused until the fee is paid.`,
           ],
           ctx,
           { label: "Buy credits", path: "/wallet" },
@@ -326,7 +376,7 @@ export function renderNotification(
     case "lifecycle.archive_notice":
       return withCompany(payload, (p) =>
         email(
-          "Company will be archived",
+          `${p.company_name} will be archived`,
           [
             `${p.company_name} will be archived in ${String(p.days ?? "")} days unless the memory fee is paid.`,
           ],
@@ -337,7 +387,7 @@ export function renderNotification(
     case "lifecycle.archived":
       return withCompany(payload, (p) =>
         email(
-          "Company archived",
+          `${p.company_name} was archived`,
           [
             `${p.company_name} has been archived. It can be restored for the restore price plus the current month's fee.`,
           ],
@@ -351,7 +401,7 @@ export function renderNotification(
     case "lifecycle.purge_notice":
       return withCompany(payload, (p) =>
         email(
-          "Company data will be permanently deleted",
+          `${p.company_name}'s data will be permanently deleted`,
           [
             `${p.company_name} and all its stored data will be permanently deleted in ${String(p.days ?? "")} days.`,
           ],
@@ -362,7 +412,7 @@ export function renderNotification(
     case "lifecycle.purged":
       return withCompany(payload, (p) =>
         email(
-          "Company data deleted",
+          `${p.company_name}'s data was deleted`,
           [
             `All stored data for ${p.company_name} has been permanently deleted and cannot be recovered.`,
           ],
@@ -372,7 +422,7 @@ export function renderNotification(
     case "reminder.monthly_refresh":
       return withCompany(payload, (p) =>
         email(
-          "Time for this month's MIS",
+          `Time for this month's MIS for ${p.company_name}`,
           [`Upload this month's files for ${p.company_name} to refresh its MIS.`],
           ctx,
           {
@@ -444,7 +494,7 @@ export function renderNotification(
         .safeParse(payload);
       if (!p.success) return null;
       return email(
-        "Support viewed your company data",
+        `Support viewed ${p.data.company_name}'s data`,
         [
           `On ${p.data.day}, our support team viewed stored data for ${p.data.company_name} under the access you were told about.`,
           `Reason given: ${p.data.reason}`,

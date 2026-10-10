@@ -5,7 +5,7 @@ import { Icon } from "@/components/Icon";
 import { EmptyState, PageHeader, Panel } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { db } from "@/lib/db";
-import { ist } from "@/lib/job-display";
+import { istLabelled } from "@/lib/job-display";
 import { inbox } from "@/lib/server/inbox";
 
 import { MarkRead } from "./MarkRead";
@@ -50,16 +50,25 @@ export default async function InboxPage() {
                 data-read={item.read ? "true" : "false"}
               >
                 <span
+                  aria-hidden="true"
                   className={`size-2 shrink-0 rounded-full ${item.read ? "bg-transparent" : "bg-accent-600"}`}
-                  aria-label={item.read ? undefined : "Unread"}
                 />
                 <div className="min-w-0 flex-1">
                   <p
                     className={`text-[0.875rem] ${item.read ? "text-neutral-700" : "font-semibold text-neutral-900"}`}
                   >
+                    {/* The dot is for the eye; a screen reader is told in words (ADR 0091). */}
+                    {item.read ? null : <span className="sr-only">Unread: </span>}
                     {item.title}
                   </p>
-                  <p className="text-[0.75rem] text-neutral-500">{ist(item.at)}</p>
+                  {item.summary === "" ? null : (
+                    <p className="mt-0.5 text-[0.8125rem] text-neutral-600">
+                      {item.summary}
+                    </p>
+                  )}
+                  <p className="mt-0.5 text-[0.75rem] text-neutral-500">
+                    {istLabelled(item.at)}
+                  </p>
                 </div>
                 {item.link === null ? null : (
                   <Link

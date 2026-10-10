@@ -17,12 +17,12 @@ import {
   Td,
   Th,
   Tr,
-  type BadgeTone,
 } from "@/components/ui";
 import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
-import { ist, JOB_STATE } from "@/lib/job-display";
+import { fileSize, istLabelled, jobState } from "@/lib/job-display";
+import { readConfig } from "@magicmis/db/config";
 import { ledgerSummary } from "@/lib/server/ledger-map";
 import { boardAlerts } from "@/lib/server/insights";
 import {
@@ -67,7 +67,9 @@ const PROMISES: readonly { icon: IconName; title: string; body: string }[] = [
   {
     icon: "search",
     title: "You can check",
-    body: "Every time a file is opened it is recorded beside it below, with the reason. The record cannot be edited or deleted.",
+    // What the table shows is a count and the last reason; the full record is in the export
+    // (ADR 0091). Saying every opening was "beside it below" claimed more than was there.
+    body: "Every time a file is opened it is recorded, with the reason. Below, each file shows how often and the last reason; your data export lists every opening. The record cannot be edited or deleted.",
   },
   {
     icon: "trash",
@@ -156,17 +158,18 @@ export default async function ManageCompanyPage({
   const alerts = await boardAlerts(pool, { accountId: account.accountId, companyId: id });
   // Links to this company's board, with how often each was opened (ADR 0090).
   const shares = await listShares(pool, { accountId: account.accountId, companyId: id });
+  // Said as a number where deletion is offered (ADR 0091), from the setting the purge runs on.
+  const purgeDays = await readConfig(
+    pool,
+    "lifecycle.deletion_purge_delay_days",
+    z.number().int().nonnegative(),
+  );
   // Whole percent, for a bar's width only; the figures beside it are the exact ones.
   const usedPercent = Math.min(
     100,
     Math.ceil((storage.bytes * 100) / Math.max(1, limits.maxCompanyBytes)),
   );
-  const size = (n: number): string =>
-    n >= 1_073_741_824
-      ? `${(n / 1_073_741_824).toFixed(1)} GB`
-      : n >= 1_048_576
-        ? `${(n / 1_048_576).toFixed(1)} MB`
-        : `${Math.ceil(n / 1024).toString()} KB`;
+  const size = fileSize;
 
   return (
     <AppFrame
@@ -238,13 +241,15 @@ export default async function ManageCompanyPage({
                 data-testid="ledger-summary"
               >
                 {ledgers.ledgers} ledgers
-                {ledgers.unmapped === 0
-                  ? ", every one on a line."
-                  : `, ${ledgers.unmapped.toString()} left unmapped.`}
+                {ledgers.unplaced === 0
+                  ? ledgers.keptOff === 0
+                    ? ", every one on a line."
+                    : `, every one on a line or kept off (${ledgers.keptOff.toString()} on purpose).`
+                  : `, ${ledgers.unplaced.toString()} not placed yet.`}
               </span>
               <ButtonLink
                 href={`/app/companies/${id}/ledgers`}
-                variant={ledgers.unmapped === 0 ? "secondary" : "primary"}
+                variant={ledgers.unplaced === 0 ? "secondary" : "primary"}
                 size="sm"
               >
                 Open the ledger map
@@ -292,11 +297,15 @@ export default async function ManageCompanyPage({
                 id: s.id,
                 monthLabel: periodLabel(s.period),
                 withWriting: s.withWriting,
-                createdAt: s.createdAt.toISOString(),
                 expiresAt: s.expiresAt.toISOString(),
                 revokedAt: s.revokedAt?.toISOString() ?? null,
                 views: s.views,
-                lastViewedAt: s.lastViewedAt?.toISOString() ?? null,
+                // Written here, in IST and labelled so, as every time on this page is (ADR 0091).
+                createdLabel: istLabelled(s.createdAt),
+                expiresLabel: istLabelled(s.expiresAt),
+                revokedLabel: s.revokedAt === null ? null : istLabelled(s.revokedAt),
+                lastViewedLabel:
+                  s.lastViewedAt === null ? null : istLabelled(s.lastViewedAt),
               }))}
             />
           </Panel>
@@ -390,7 +399,7 @@ export default async function ManageCompanyPage({
                           {o.file_name ?? "Workbook"}
                         </span>
                         <span className="block text-[0.75rem] text-neutral-500">
-                          {ist(o.created_at)} IST
+                          {istLabelled(o.created_at)}
                         </span>
                       </span>
                       <Icon
@@ -409,11 +418,15 @@ export default async function ManageCompanyPage({
             title="Activity and charges"
             icon="clock"
             padding="none"
-            description="Everything run for this company, with what it charged."
+            // Runs and the actions pressed on the board. Chat messages and the monthly memory fee
+            // are charged too, and the Wallet's history says which company each was for: this
+            // list says so rather than claim to be everything (ADR 0091).
+            description="Runs and board actions for this company, with what each charged. Chat messages and the monthly memory fee are in the Wallet's history."
           >
             {jobs.rows.length === 0 ? (
               <EmptyState icon="clock" title="Nothing has run yet">
-                Everything run for this company appears here with what it charged.
+                Runs and board actions for this company appear here with what each
+                charged.
               </EmptyState>
             ) : (
               <DataTable
@@ -422,7 +435,7 @@ export default async function ManageCompanyPage({
                 testId="company-activity"
                 head={
                   <>
-                    <Th>When (IST)</Th>
+                    <Th>When</Th>
                     <Th>Action</Th>
                     <Th>Status</Th>
                     <Th numeric>Credits charged</Th>
@@ -430,15 +443,20 @@ export default async function ManageCompanyPage({
                 }
               >
                 {jobs.rows.map((j) => {
-                  const js = JOB_STATE[j.state] ?? {
-                    label: j.state.replace(/_/gu, " "),
-                    tone: "neutral" as BadgeTone,
-                  };
+                  // Never the state's identifier: "profiling" is not a word a customer uses.
+                  const js = jobState(j.state);
                   return (
                     <Tr key={j.id}>
-                      <Td className="whitespace-nowrap">{ist(j.created_at)}</Td>
+                      <Td className="whitespace-nowrap">{istLabelled(j.created_at)}</Td>
                       <Td className="font-medium text-neutral-900">
-                        {ACTION_LABELS[j.type as keyof typeof ACTION_LABELS]}
+                        <Link
+                          href={`/app/jobs/${j.id}`}
+                          className="text-accent-700 hover:underline"
+                        >
+                          {(ACTION_LABELS as Record<string, string | undefined>)[
+                            j.type
+                          ] ?? "Run"}
+                        </Link>
                       </Td>
                       <Td>
                         <Badge tone={js.tone} dot>
@@ -461,9 +479,9 @@ export default async function ManageCompanyPage({
         <Panel
           title="Delete company"
           icon="trash"
-          description="Stops the monthly memory fee now. Stored data, files included, is destroyed after the purge period by destroying the company's key."
+          description={`Stops the monthly memory fee now. Everything kept for it, files included, is destroyed ${purgeDays.toString()} ${purgeDays === 1 ? "day" : "days"} later by destroying the company's key.`}
         >
-          <DeleteCompany companyId={id} name={company.name} />
+          <DeleteCompany companyId={id} name={company.name} purgeDays={purgeDays} />
         </Panel>
       </div>
     </AppFrame>

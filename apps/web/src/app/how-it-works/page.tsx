@@ -57,8 +57,9 @@ const STAGES: readonly {
     n: "04",
     title: "The workbook is validated before you see it",
     body: "A series of checks runs against the output: the trial balance ties, the statements agree, the ratios reconcile to their inputs.",
+    // Data faults are delivered with warnings, platform faults block (ADR 0031, ADR 0091).
     detail:
-      "A failed check stops the job rather than shipping a workbook with a quiet error in it. Where a check fails because the data is incomplete, it says which ledger is missing.",
+      "A check that fails because of the data — a trial balance that does not balance, a month missing, a balance no head takes — is never hidden: the workbook is delivered with the warning on its Checks sheet and on screen, saying exactly what to look at. A check that fails because of us — a figure lost between the file and the report, a formula that does not reproduce the engine — stops the job, and nothing is charged for it.",
   },
   {
     n: "05",
@@ -95,12 +96,12 @@ const FAQS: readonly Faq[] = [
   {
     question: "What happens if a check fails?",
     answer:
-      "The job stops and tells you which check failed and why. A workbook that does not tie is worse than no workbook, because it is a report someone will act on.",
+      "It depends whose fault it is. If the data is the cause — a trial balance that does not balance, a missing month, a ledger nothing maps to — the workbook is still delivered, with the failed check named on screen and on its Checks sheet, because a report with a stated caveat is more use mid-close than none. If we are the cause — a balance lost between your file and the report, or a formula that does not reproduce the engine's figure — the job stops, nothing is delivered and its credits go back.",
   },
   {
-    question: "Do I have to confirm before being charged?",
+    question: "Do I see the price before I am charged?",
     answer:
-      "Always. The price of an action is shown before it runs and the confirmation is the thing that starts it. There is no path where analysis, mapping results or output appear without a charge being captured or held first.",
+      "Yes. Every button that costs credits shows its price before you press it, and pressing it is what holds them. A job that would need more than its standard price stops and shows you a quote first, and nothing is charged unless you accept. There is no path where analysis, mapping results or output appear without a charge being captured or held first.",
   },
 ];
 
@@ -117,9 +118,11 @@ export default function HowItWorksPage() {
         eyebrow="How it works"
         heading="How a trial balance becomes your monthly MIS, in six stages"
         intro="The interesting part of this product is not that it produces a workbook. It is where the numbers come from, what the model is allowed to touch, and why the second month costs so much less than the first."
+        tourOnPage
       />
 
       <WideSection
+        id="tour"
         title="Watch it once"
         intro="The whole thing, end to end, before reading the detail below."
       >

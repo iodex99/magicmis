@@ -23,4 +23,13 @@ describe("the checks in plain words (ADR 0087)", () => {
     expect(lines.passed).toEqual([CHECK_WORDS["V1"]?.passed, CHECK_WORDS["V3"]?.passed]);
     expect(lines.look).toEqual([{ id: "V10", text: CHECK_WORDS["V10"]?.look }]);
   });
+
+  it("puts a blocking failure before a warning, whatever their order (ADR 0091)", () => {
+    const lines = checkLines([
+      { id: "V1", status: "fail", severity: "warning" },
+      { id: "V8", status: "fail", severity: "warning" },
+      { id: "V5", status: "fail", severity: "blocking" },
+    ]);
+    expect(lines.look.map((l) => l.id)).toEqual(["V5", "V1", "V8"]);
+  });
 });

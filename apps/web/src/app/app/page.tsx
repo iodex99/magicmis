@@ -10,6 +10,7 @@ import { accountOrRedirect } from "@/lib/account-page";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
+import { MONTHS_TO_ADD } from "@/lib/job-display";
 import { listCompanies } from "@/lib/server/companies";
 import { logoLimits } from "@/lib/server/logo";
 import { logoUrl } from "@/lib/logo";
@@ -99,8 +100,10 @@ export default async function AppHomePage() {
             <h1 className="display text-[2rem] leading-tight font-semibold text-neutral-900">
               Welcome to {PRODUCT_NAME}
             </h1>
+            {/* One sentence about how many months, the same on every screen that asks (ADR 0091):
+                "drop in last month" made a first board of one month with nothing beside it. */}
             <p className="mt-1.5 text-sm text-neutral-500">
-              Add your first company and drop in last month. That is the whole setup.
+              Add your first company, then its files. {MONTHS_TO_ADD}
             </p>
             {/* What it makes, before anything is uploaded or spent (ADR 0086). */}
             <Link

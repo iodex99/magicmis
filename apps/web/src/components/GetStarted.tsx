@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { MONTHS_TO_ADD } from "@/lib/job-display";
+
 import { Icon } from "./Icon";
 
 /**
@@ -36,6 +38,8 @@ export function GetStarted({
     state.welcomeCredits !== undefined && state.welcomeCredits !== null
       ? {
           done: true,
+          // Done, but a gift rather than a task: shown with its amount, never struck through.
+          gift: true,
           title: "Welcome credits in your wallet",
           body: `${state.welcomeCredits} credits are on us. Each action is paid from them first, at the price it shows before you press it.`,
           action: null,
@@ -49,7 +53,7 @@ export function GetStarted({
     {
       done: false,
       title: "Run your first MIS",
-      body: "Drop in your trial balances and press build. The workbook, dashboard and assistant follow.",
+      body: `${MONTHS_TO_ADD} Press Build and the workbook, dashboard and assistant follow.`,
       action:
         state.hasCompany && firstCompanyId !== null
           ? { href: `/app/companies/${firstCompanyId}`, label: "Start" }
@@ -97,13 +101,15 @@ export function GetStarted({
                 </span>
                 <h3
                   className={`text-[0.875rem] font-semibold ${
-                    step.done ? "text-neutral-400 line-through" : "text-neutral-900"
+                    step.done && !("gift" in step)
+                      ? "text-neutral-500 line-through"
+                      : "text-neutral-900"
                   }`}
                 >
                   {step.title}
                 </h3>
               </div>
-              {step.done ? null : (
+              {step.done && !("gift" in step) ? null : (
                 <>
                   <p className="mt-2 text-[0.8125rem] leading-relaxed text-neutral-600">
                     {step.body}

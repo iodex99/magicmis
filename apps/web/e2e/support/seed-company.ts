@@ -100,7 +100,9 @@ try {
   say(
     `running ${MONTHS.length.toString()} months — this is a real run, give it a minute…`,
   );
-  await page.getByLabel("Choose files").setInputFiles(MONTHS.map(trialBalance));
+  await page
+    .getByLabel("Choose files", { exact: true })
+    .setInputFiles(MONTHS.map(trialBalance));
   await page.getByTestId("job-run").click({ timeout: 180_000 });
   await page.getByTestId("job-done").waitFor({ timeout: 300_000 });
   const charged = (await page.getByTestId("job-done").textContent()) ?? "";

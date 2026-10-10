@@ -15,7 +15,14 @@ export function alertWords(
 ): string {
   const threshold =
     alert.unit === "money"
-      ? formatValue(alert.threshold, "paise", money, currencySymbol)
+      ? // In full, as it was typed (ADR 0091): on a board in millions a threshold of 50,000 read
+        // as "$0.05", which is not what anyone set.
+        formatValue(
+          alert.threshold,
+          "paise",
+          money.style === "millions" ? { ...money, style: "absolute" } : money,
+          currencySymbol,
+        )
       : alert.unit === "percent"
         ? `${alert.threshold}%`
         : alert.unit === "days"

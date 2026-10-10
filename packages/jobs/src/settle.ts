@@ -35,7 +35,7 @@ import type { Pool } from "pg";
 import { z } from "zod";
 
 import { jobChargeBase, jobPrice, type JobType, type PricedTier } from "./jobs";
-import { queueNotification } from "./notify";
+import { companyNameFor, queueNotification } from "./notify";
 import {
   JobStateError,
   lockJob,
@@ -337,7 +337,12 @@ export async function completeJob(
     await queueNotification(tx, {
       accountId: input.accountId,
       type: "job.completed",
-      payload: { job_id: job.id, company_id: companyId, job_type: job.type },
+      payload: {
+        job_id: job.id,
+        company_id: companyId,
+        company_name: await companyNameFor(tx, companyId),
+        job_type: job.type,
+      },
       dedupeKey: `completed:${job.id}`,
     });
   });
@@ -444,7 +449,12 @@ export async function completeCommentaryJob(
   await queueNotification(pool, {
     accountId: input.accountId,
     type: "job.completed",
-    payload: { job_id: job.id, company_id: job.company_id, job_type: job.type },
+    payload: {
+      job_id: job.id,
+      company_id: job.company_id,
+      company_name: await companyNameFor(pool, job.company_id),
+      job_type: job.type,
+    },
     dedupeKey: `completed:${job.id}`,
   });
   await withTransaction(pool, async (tx) => {
@@ -557,7 +567,12 @@ export async function failJob(
       await queueNotification(tx, {
         accountId: input.accountId,
         type: "job.failed",
-        payload: { job_id: job.id, failure_class: "platform_fault", charged: "0" },
+        payload: {
+          job_id: job.id,
+          company_name: await companyNameFor(tx, job.company_id),
+          failure_class: "platform_fault",
+          charged: "0",
+        },
         dedupeKey: `failed:${job.id}`,
       });
     });
@@ -587,6 +602,7 @@ export async function failJob(
     type: "job.failed",
     payload: {
       job_id: job.id,
+      company_name: await companyNameFor(pool, job.company_id),
       failure_class: "data_fault",
       charged: captured.toString(),
     },
@@ -712,6 +728,7 @@ export async function sweepJobs(
           payload: {
             job_id: j.id,
             company_id: j.company_id,
+            company_name: await companyNameFor(pool, j.company_id),
             expires_at: j.expires_at.toISOString(),
           },
           dedupeKey: `review_expiring:${j.id}`,

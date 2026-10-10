@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 
 import { Drawer } from "@/components/Drawer";
 import { Icon } from "@/components/Icon";
@@ -15,6 +15,33 @@ export function ExportHelp() {
   const [open, setOpen] = useState(false);
   const [system, setSystem] = useState(EXPORT_HELP[0]?.id ?? "other");
   const help = EXPORT_HELP.find((h) => h.id === system) ?? EXPORT_HELP[0];
+  const group = useRef<HTMLDivElement>(null);
+  /*
+   * A radio group moves with the arrow keys and is one Tab stop (ADR 0091), as the ARIA pattern
+   * for role="radio" says: Tab reaches the chosen system, arrows choose another.
+   */
+  const onKey = (event: KeyboardEvent) => {
+    const step =
+      event.key === "ArrowRight" || event.key === "ArrowDown"
+        ? 1
+        : event.key === "ArrowLeft" || event.key === "ArrowUp"
+          ? -1
+          : event.key === "Home"
+            ? "first"
+            : event.key === "End"
+              ? "last"
+              : null;
+    if (step === null) return;
+    event.preventDefault();
+    const at = EXPORT_HELP.findIndex((h) => h.id === system);
+    const n = EXPORT_HELP.length;
+    const to =
+      step === "first" ? 0 : step === "last" ? n - 1 : (Math.max(0, at) + step + n) % n;
+    const next = EXPORT_HELP[to];
+    if (next === undefined) return;
+    setSystem(next.id);
+    group.current?.querySelectorAll<HTMLButtonElement>("[role=radio]")[to]?.focus();
+  };
   return (
     <>
       <button
@@ -34,6 +61,7 @@ export function ExportHelp() {
         onClose={() => {
           setOpen(false);
         }}
+        closeButton={false}
       >
         <div className="flex flex-col gap-5" data-testid="export-help">
           <div>
@@ -45,9 +73,11 @@ export function ExportHelp() {
             </p>
           </div>
           <div
+            ref={group}
             className="flex flex-wrap gap-1.5"
             role="radiogroup"
             aria-label="Accounting system"
+            onKeyDown={onKey}
           >
             {EXPORT_HELP.map((h) => (
               <button
@@ -55,6 +85,7 @@ export function ExportHelp() {
                 type="button"
                 role="radio"
                 aria-checked={system === h.id}
+                tabIndex={system === h.id ? 0 : -1}
                 onClick={() => {
                   setSystem(h.id);
                 }}
