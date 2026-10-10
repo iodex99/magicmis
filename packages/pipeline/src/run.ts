@@ -18,6 +18,7 @@ import {
   checkSubtotals,
   checkTrialBalance,
   computeCube,
+  CASH_FLOW_METRICS,
   computeMetricStore,
   ENGINE_VERSION,
   payroll,
@@ -321,17 +322,26 @@ export async function computeAndRender(
   const v11 = verifyWorkbook(rendered.workbook, rendered.expectations);
 
   const metricIds = [
-    ...new Set(
+    ...new Set([
       // The built-in template's metrics too, so dashboards and commentary work on any template.
-      [...input.template.sections, ...MONTHLY_FINANCIAL_MIS.sections].flatMap((s) =>
+      ...[...input.template.sections, ...MONTHLY_FINANCIAL_MIS.sections].flatMap((s) =>
         s.rows.flatMap((r) => (r.kind === "metric" ? [r.metric] : [])),
       ),
-    ),
+      // Every cash flow line, helpers too, so its lineage can be walked to the end (ADR 0086).
+      ...CASH_FLOW_METRICS,
+    ]),
   ];
   const metrics = [
     ...computeMetricStore(
       cube,
-      metricIds.map((id) => ({ id, comparisons: ["mom", "yoy", "ytd"] as const })),
+      // A cash flow line is read for the month and the year to date (ADR 0086); a month-on-month
+      // change in a change in cash would be stored for every month and read by nobody.
+      metricIds.map((id) => ({
+        id,
+        comparisons: CASH_FLOW_METRICS.includes(id)
+          ? (["ytd"] as const)
+          : (["mom", "yoy", "ytd"] as const),
+      })),
     ),
     ...Object.values(extra).flat(),
   ];

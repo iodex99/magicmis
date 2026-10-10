@@ -36,7 +36,8 @@ export const MONTHLY_FINANCIAL_MIS: TemplateSpec = templateSpecSchema.parse({
   schemaVersion: 1,
   id: "monthly_financial_mis",
   name: "Monthly Financial MIS",
-  version: 1,
+  // 2: the Cash flow sheet (ADR 0086).
+  version: 2,
   numberFormat: { style: "lakhs_crores", decimals: 2, negativesInBrackets: true },
   sections: [
     {
@@ -101,6 +102,75 @@ export const MONTHLY_FINANCIAL_MIS: TemplateSpec = templateSpecSchema.parse({
       ],
     },
     {
+      // ADR 0086: the indirect method, from the books' own movements. Every line is computed,
+      // so the three sections add up to the change in cash and bank — the last three rows show
+      // it — and nothing on the sheet is a balancing figure.
+      id: "cash_flow",
+      title: "Cash flow",
+      sheet: "Cash flow",
+      requires: ["balances"],
+      columns: ["fy_months", "ytd"],
+      rows: [
+        { kind: "heading", id: "operating", label: "Operating activities" },
+        m("pat", "Profit after tax", "pat"),
+        m("depreciation", "Add: depreciation and amortisation", "depreciation", {
+          indent: 1,
+        }),
+        m("receivables", "(Increase) / decrease in trade receivables", "cf_receivables", {
+          indent: 1,
+        }),
+        m("inventory", "(Increase) / decrease in inventories", "cf_inventory", {
+          indent: 1,
+        }),
+        m(
+          "other_current_assets",
+          "(Increase) / decrease in other current assets",
+          "cf_other_current_assets",
+          { indent: 1 },
+        ),
+        m("payables", "Increase / (decrease) in trade payables", "cf_payables", {
+          indent: 1,
+        }),
+        m(
+          "other_current_liabilities",
+          "Increase / (decrease) in other current liabilities",
+          "cf_other_current_liabilities",
+          { indent: 1 },
+        ),
+        m("unmapped", "Change in unmapped balances", "cf_unmapped", { indent: 1 }),
+        m("operating_total", "Cash from operating activities", "cf_operating", {
+          emphasis: true,
+        }),
+        { kind: "heading", id: "investing", label: "Investing activities" },
+        m("fixed_assets", "Fixed assets bought, net of disposals", "cf_fixed_assets", {
+          indent: 1,
+        }),
+        m(
+          "investments",
+          "Investments, deposits and other non-current assets",
+          "cf_investments",
+          { indent: 1 },
+        ),
+        m("investing_total", "Cash from investing activities", "cf_investing", {
+          emphasis: true,
+        }),
+        { kind: "heading", id: "financing", label: "Financing activities" },
+        m("borrowings", "Borrowings raised / (repaid)", "cf_borrowings", { indent: 1 }),
+        m("other_long_term", "Other long-term liabilities", "cf_other_long_term", {
+          indent: 1,
+        }),
+        m("capital", "Capital introduced / (withdrawn)", "cf_equity", { indent: 1 }),
+        m("financing_total", "Cash from financing activities", "cf_financing", {
+          emphasis: true,
+        }),
+        m("net", "Net change in cash and bank", "cf_net", { emphasis: true }),
+        m("opening_cash", "Cash and bank at the start of the month", "cash_opening"),
+        m("closing_cash", "Cash and bank at the end of the month", "cash_and_bank", {
+          emphasis: true,
+        }),
+      ],
+    },
+    {
       id: "receivables_ageing",
       title: "Receivables ageing",
       sheet: "Receivables ageing",
@@ -147,3 +217,24 @@ export const MONTHLY_FINANCIAL_MIS: TemplateSpec = templateSpecSchema.parse({
 });
 
 export const BUILT_IN_TEMPLATES: readonly TemplateSpec[] = [MONTHLY_FINANCIAL_MIS];
+
+/** Version 1 exactly as companies stored it, so an untouched copy can be recognised. */
+const VERSION_1: TemplateSpec = templateSpecSchema.parse({
+  ...MONTHLY_FINANCIAL_MIS,
+  version: 1,
+  sections: MONTHLY_FINANCIAL_MIS.sections.filter((s) => s.id !== "cash_flow"),
+});
+
+/**
+ * The template a run renders for a company (ADR 0086). A company keeps the template stored in its
+ * blueprint — a recreated reference MIS, or a built-in one it has changed, is its own — except
+ * that an untouched copy of an earlier built-in version is brought up to the current one, so a
+ * company set up before the Cash flow sheet existed gets it on its next run. "Untouched" is exact
+ * equality with that version as it was shipped: any change at all, and the company's copy stands.
+ */
+export function templateForRun(stored: TemplateSpec | null): TemplateSpec {
+  if (stored === null) return MONTHLY_FINANCIAL_MIS;
+  const same = (a: TemplateSpec, b: TemplateSpec) =>
+    JSON.stringify(templateSpecSchema.parse(a)) === JSON.stringify(b);
+  return same(stored, VERSION_1) ? MONTHLY_FINANCIAL_MIS : stored;
+}

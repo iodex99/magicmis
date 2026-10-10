@@ -78,7 +78,7 @@ const ROWS: readonly (readonly [string, string, string])[] = [
 
 const CHOOSE_FATHOM: readonly string[] = [
   "Your clients are on Xero, QuickBooks, MYOB, Sage or FreeAgent and you want their figures to sync every day without anyone exporting a file.",
-  "You need cash flow statements, three-way forecasts, budgets or scenarios. Fathom projects the profit and loss, balance sheet and cash flow together; this product has no forecasts, and its workbook has no cash flow statement.",
+  "You need three-way forecasts, budgets or scenarios. Fathom projects the profit and loss, balance sheet and cash flow together; this product reports the months that have happened, with a cash flow statement among them, and forecasts nothing.",
   "You report on groups: consolidations with eliminations across currencies, or benchmarking franchisees and clients against each other.",
   "Several people in your firm need their own logins to the same clients.",
   "You want a predictable monthly subscription and reports whose delivery is scheduled for you.",

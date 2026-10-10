@@ -82,7 +82,7 @@ const COMPARISONS: readonly {
 
 import { monthsLabel } from "./CompanyFiles";
 
-interface Payload {
+export interface DashboardPayload {
   company: {
     id: string;
     name: string;
@@ -242,13 +242,14 @@ function WidgetCard({
   onInvestigate,
   onChangeBox,
   lens,
+  explore,
 }: {
   widget: Widget;
   index: number;
   count: number;
   values: MetricValue[];
   period: PeriodId;
-  payload: Payload;
+  payload: DashboardPayload;
   editing: boolean;
   /** On the boardroom screen: figures and charts only, nothing to operate. */
   presenting: boolean;
@@ -260,6 +261,8 @@ function WidgetCard({
   onChangeBox: (title: string) => void;
   /** How the board is being read, if not as it was saved (ADR 0064). */
   lens: BoardLens;
+  /** Whether the box ends in Investigate and Change: not on the sample, which has no chat. */
+  explore: boolean;
 }) {
   const format = useMemo(
     () => ({
@@ -527,7 +530,7 @@ function WidgetCard({
         to the chat to be reshaped. Both only write the message: nothing is sent or charged
         until the customer presses send.
       */}
-      {view.kind === "empty" || presenting || editing ? null : (
+      {view.kind === "empty" || presenting || editing || !explore ? null : (
         <div
           className="mt-auto -mb-1 -ml-2 flex flex-wrap items-center gap-0.5 pt-3"
           data-testid="box-actions"
@@ -566,6 +569,7 @@ export function DashboardClient({
   onVersion,
   onChangeBox,
   onWhereToAct,
+  sample,
 }: {
   companyId: string;
   /** The company's own logo, shown before its name in Present; null for none. */
@@ -579,8 +583,16 @@ export function DashboardClient({
   onWhereToAct: (period: PeriodId) => void;
   /** The version of the layout on screen, so the chat knows which of its changes is current. */
   onVersion?: (version: number | null) => void;
+  /**
+   * A recorded board to show in place of a company's own (ADR 0086): the sample company, read
+   * as a customer reads theirs, with nothing fetched and nothing that edits, charges or opens
+   * the chat. Range, Compare, Present and every figure's lineage still work, because they only
+   * read figures the engine computed.
+   */
+  sample?: DashboardPayload;
 }) {
-  const [payload, setPayload] = useState<Payload | null>(null);
+  const live = sample === undefined;
+  const [payload, setPayload] = useState<DashboardPayload | null>(sample ?? null);
   const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<RangeChoice>("saved");
   const [compare, setCompare] = useState<CompareChoice>("saved");
@@ -677,7 +689,11 @@ export function DashboardClient({
   const label = useMemo(() => labelsFor(calculated ?? []), [calculated]);
 
   const load = useCallback(async () => {
-    const r = await api<Payload>(`/api/companies/${companyId}/dashboard`);
+    if (sample !== undefined) {
+      setPeriod((p) => p ?? ((sample.periods[0] ?? null) as PeriodId | null));
+      return;
+    }
+    const r = await api<DashboardPayload>(`/api/companies/${companyId}/dashboard`);
     if (!r.ok) {
       setError(r.message);
       return;
@@ -688,7 +704,7 @@ export function DashboardClient({
         ? p
         : ((r.data.periods[0] ?? null) as PeriodId | null),
     );
-  }, [companyId]);
+  }, [companyId, sample]);
 
   useEffect(() => {
     void load();
@@ -822,7 +838,8 @@ export function DashboardClient({
 
   return (
     <div className="flex flex-col gap-4">
-      {payload.latestPeriod !== null &&
+      {live &&
+      payload.latestPeriod !== null &&
       (dashboard.dataThrough === null || payload.latestPeriod > dashboard.dataThrough) ? (
         <Panel title="A newer month is available" icon="refresh">
           <p className="mb-3 text-sm text-neutral-600">
@@ -928,21 +945,23 @@ export function DashboardClient({
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="secondary"
-            icon="file"
-            onClick={() => {
-              setFilesOpen(true);
-            }}
-            data-testid="dashboard-files"
-          >
-            Files
-            <span className="num ml-1 rounded-full bg-neutral-100 px-1.5 text-[0.6875rem] text-neutral-600">
-              {usedFiles.filter((x) => x.onDashboard).length.toString()} of{" "}
-              {usedFiles.length.toString()}
-            </span>
-          </Button>
-          {dashboard.canUndo && pending === null ? (
+          {live ? (
+            <Button
+              variant="secondary"
+              icon="file"
+              onClick={() => {
+                setFilesOpen(true);
+              }}
+              data-testid="dashboard-files"
+            >
+              Files
+              <span className="num ml-1 rounded-full bg-neutral-100 px-1.5 text-[0.6875rem] text-neutral-600">
+                {usedFiles.filter((x) => x.onDashboard).length.toString()} of{" "}
+                {usedFiles.length.toString()}
+              </span>
+            </Button>
+          ) : null}
+          {live && dashboard.canUndo && pending === null ? (
             <Button
               variant="secondary"
               disabled={busy}
@@ -951,14 +970,16 @@ export function DashboardClient({
               Undo last change
             </Button>
           ) : null}
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setEditing((e) => !e);
-            }}
-          >
-            {editing ? "Done editing" : "Edit layout"}
-          </Button>
+          {live ? (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setEditing((e) => !e);
+              }}
+            >
+              {editing ? "Done editing" : "Edit layout"}
+            </Button>
+          ) : null}
           <Button
             variant="secondary"
             icon="play"
@@ -983,27 +1004,29 @@ export function DashboardClient({
            * at all. The weight is the design system's own — the accent, a size, a font step and
            * the existing lift — and never a gradient or a glow (ADR 0036).
            */}
-          <Button
-            size="lg"
-            icon="target"
-            className="lift font-semibold"
-            onClick={() => {
-              onWhereToAct(current);
-            }}
-            disabled={pending !== null || noMonths}
-            title={
-              pending !== null
-                ? "Apply or discard the layout changes first"
-                : "Suggestions the board can act on, for this month"
-            }
-            data-testid="where-to-act"
-          >
-            Where to act
-          </Button>
+          {live ? (
+            <Button
+              size="lg"
+              icon="target"
+              className="lift font-semibold"
+              onClick={() => {
+                onWhereToAct(current);
+              }}
+              disabled={pending !== null || noMonths}
+              title={
+                pending !== null
+                  ? "Apply or discard the layout changes first"
+                  : "Suggestions the board can act on, for this month"
+              }
+              data-testid="where-to-act"
+            >
+              Where to act
+            </Button>
+          ) : null}
         </div>
       </div>
 
-      {payload.hiddenPeriods.length === 0 ? null : (
+      {!live || payload.hiddenPeriods.length === 0 ? null : (
         <p
           className="flex flex-wrap items-center gap-1.5 text-[0.8125rem] text-neutral-600"
           data-testid="hidden-months"
@@ -1250,6 +1273,7 @@ export function DashboardClient({
               onInvestigate={onInvestigate}
               onChangeBox={onChangeBox}
               lens={lens}
+              explore={live}
             />
           ))}
         </div>

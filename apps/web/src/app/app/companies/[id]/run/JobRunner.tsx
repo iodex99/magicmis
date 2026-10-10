@@ -33,7 +33,7 @@ import {
   type BadgeTone,
 } from "@/components/ui";
 import { formatCount, formatCredits, TIER_LABELS } from "@/lib/actions";
-import { api } from "@/lib/client-api";
+import { api, newIdempotencyKey } from "@/lib/client-api";
 import { acceptQuote, startPaidJob, type StartResult } from "@/lib/paid-job";
 import { removeUpload, uploadFile } from "@/lib/uploads";
 
@@ -48,7 +48,7 @@ interface Check {
 }
 
 interface RunOutcome {
-  status: "completed" | "failed" | "needs_quote";
+  status: "completed" | "failed" | "needs_quote" | "needs_year";
   message: string | null;
   capturedCredits: string;
   outputId: string | null;
@@ -60,7 +60,30 @@ interface RunOutcome {
   dashboard?:
     | { status: "updated"; capturedCredits: string; first: boolean }
     | { status: "short" | "failed" };
+  /** The month each year starts in, 1 to 12, when the run stopped to ask (ADR 0086). */
+  year?: YearQuestion;
 }
+
+interface YearQuestion {
+  files: number;
+  company: number;
+}
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const monthName = (m: number) => MONTHS[m - 1] ?? "";
 
 /** One file on screen: uploading, read, or refused with a reason. */
 interface FileEntry {
@@ -77,6 +100,7 @@ interface FileEntry {
 type Phase =
   | { kind: "files" }
   | { kind: "running"; jobId: string; step: string }
+  | { kind: "year"; jobId: string; question: YearQuestion; notices: string[] }
   | { kind: "done"; jobId: string; outcome: RunOutcome }
   | { kind: "failed"; jobId: string; outcome: RunOutcome };
 
@@ -86,7 +110,7 @@ const STEP_LABELS: Record<string, string> = {
   profiling: "Reading your files",
   classifying: "Recognising the reports",
   mapping: "Matching ledgers to MIS lines",
-  awaiting_review: "Matching ledgers to MIS lines",
+  awaiting_review: "Carrying on",
   computing: "Computing the figures",
   validating: "Checking every figure",
   rendering: "Building your workbook",
@@ -101,6 +125,9 @@ export function JobRunner({
   mode,
   businessName,
   availableCredits,
+  pendingQuote = null,
+  pendingYear = null,
+  conventions,
 }: {
   companyId: string;
   mode: "setup" | "refresh";
@@ -108,15 +135,32 @@ export function JobRunner({
   businessName: string;
   /** The wallet as the page loaded. Only used to say, gently and early, that it is empty. */
   availableCredits: string;
+  /**
+   * A run that paused for a quote, opened from the email about it (ADR 0086). The quote is shown
+   * as it would have been on the screen that started the run, and accepting it carries the run
+   * on from where it stopped.
+   */
+  pendingQuote?: { jobId: string; credits: string; expiresAt: string | null } | null;
+  /** A run waiting on the year question, opened from the email about it (ADR 0086). */
+  pendingYear?: { jobId: string; question: YearQuestion } | null;
+  /**
+   * The company's conventions as they stand, sent back whole when the owner changes only the
+   * year: the conventions are written by their own settings call and by nothing else.
+   */
+  conventions: { currency: string; numberFormat: string; dateOrder: string };
 }) {
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [reference, setReference] = useState<FileEntry | null>(null);
   const [tier, setTier] = useState<Tier>("professional");
   // A file is processed when it is added (ADR 0050): there is no "queue it for later" to choose.
-  const [phase, setPhase] = useState<Phase>({ kind: "files" });
+  const [phase, setPhase] = useState<Phase>(
+    pendingYear === null
+      ? { kind: "files" }
+      : { kind: "year", ...pendingYear, notices: [] },
+  );
   const [error, setError] = useState<string | null>(null);
   const [stopped, setStopped] = useState<Exclude<StartResult, { kind: "held" }> | null>(
-    null,
+    pendingQuote === null ? null : { kind: "quote", ...pendingQuote, resumed: true },
   );
   const [starting, setStarting] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -220,68 +264,91 @@ export function JobRunner({
         ? "company_setup"
         : "reference_mis_recreate";
 
-  const follow = useCallback(async (started: StartResult) => {
-    if (started.kind !== "held") {
-      setStopped(started);
-      return;
-    }
-    setStopped(null);
-    const job = started;
-    setPhase({ kind: "running", jobId: job.jobId, step: "reserved" });
-    heartbeat.current = setInterval(
-      () => void api(`/api/jobs/${job.jobId}/heartbeat`, { body: {} }),
-      60_000,
-    );
-    poll.current = setInterval(() => {
-      void api<{ state: string }>(`/api/jobs/${job.jobId}`).then((s) => {
-        if (s.ok)
-          setPhase((cur) =>
-            cur.kind === "running" ? { ...cur, step: s.data.state } : cur,
-          );
-      });
-      // Four seconds, not one and a half (ADR 0054). This only moves a progress label, and it
-      // runs for the whole length of a run that may take minutes: at 1.5 s a five-minute run
-      // spent two hundred function invocations on it, each able to wake a cold instance and
-      // open its own pool. The label is no less useful for arriving a moment later.
-    }, 4000);
-    const r = await api<RunOutcome>(`/api/jobs/${job.jobId}/run`, { body: {} });
-    stopTimers();
-    if (!r.ok) {
-      setPhase({
-        kind: "failed",
-        jobId: job.jobId,
-        outcome: {
-          status: "failed",
-          message: r.message,
-          capturedCredits: "0",
-          outputId: null,
-          fileName: null,
-          checks: [],
-          notices: [],
-        },
-      });
-      return;
-    }
-    if (r.data.status === "needs_quote" && r.data.quoteCredits !== undefined) {
-      // Part-way through, the work turned out to need more analysis than the standard price
-      // covers (locked decision 6). Nothing was charged and nothing is lost: accepting the
-      // quote resumes from the stage it stopped at, and a short wallet is topped up in place.
-      setStopped({
-        kind: "quote",
-        jobId: job.jobId,
-        credits: r.data.quoteCredits,
-        expiresAt: null,
-        resumed: true,
-      });
-      setPhase({ kind: "files" });
-      return;
-    }
-    setPhase(
-      r.data.status === "completed"
-        ? { kind: "done", jobId: job.jobId, outcome: r.data }
-        : { kind: "failed", jobId: job.jobId, outcome: r.data },
-    );
-  }, []);
+  /**
+   * Run a job whose credits are held, and show what it came to. Also how a run waiting on the
+   * year question carries on (ADR 0086): the same job, the same hold, nothing charged twice.
+   */
+  const runHeld = useCallback(
+    async (jobId: string, body: { keepYear?: boolean } = {}) => {
+      const job = { jobId };
+      setPhase({ kind: "running", jobId: job.jobId, step: "reserved" });
+      heartbeat.current = setInterval(
+        () => void api(`/api/jobs/${job.jobId}/heartbeat`, { body: {} }),
+        60_000,
+      );
+      poll.current = setInterval(() => {
+        void api<{ state: string }>(`/api/jobs/${job.jobId}`).then((s) => {
+          if (s.ok)
+            setPhase((cur) =>
+              cur.kind === "running" ? { ...cur, step: s.data.state } : cur,
+            );
+        });
+        // Four seconds, not one and a half (ADR 0054). This only moves a progress label, and it
+        // runs for the whole length of a run that may take minutes: at 1.5 s a five-minute run
+        // spent two hundred function invocations on it, each able to wake a cold instance and
+        // open its own pool. The label is no less useful for arriving a moment later.
+      }, 4000);
+      const r = await api<RunOutcome>(`/api/jobs/${job.jobId}/run`, { body });
+      stopTimers();
+      if (!r.ok) {
+        setPhase({
+          kind: "failed",
+          jobId: job.jobId,
+          outcome: {
+            status: "failed",
+            message: r.message,
+            capturedCredits: "0",
+            outputId: null,
+            fileName: null,
+            checks: [],
+            notices: [],
+          },
+        });
+        return;
+      }
+      if (r.data.status === "needs_quote" && r.data.quoteCredits !== undefined) {
+        // Part-way through, the work turned out to need more analysis than the standard price
+        // covers (locked decision 6). Nothing was charged and nothing is lost: accepting the
+        // quote resumes from the stage it stopped at, and a short wallet is topped up in place.
+        setStopped({
+          kind: "quote",
+          jobId: job.jobId,
+          credits: r.data.quoteCredits,
+          expiresAt: null,
+          resumed: true,
+        });
+        setPhase({ kind: "files" });
+        return;
+      }
+      if (r.data.status === "needs_year" && r.data.year !== undefined) {
+        setPhase({
+          kind: "year",
+          jobId: job.jobId,
+          question: r.data.year,
+          notices: r.data.notices,
+        });
+        return;
+      }
+      setPhase(
+        r.data.status === "completed"
+          ? { kind: "done", jobId: job.jobId, outcome: r.data }
+          : { kind: "failed", jobId: job.jobId, outcome: r.data },
+      );
+    },
+    [],
+  );
+
+  const follow = useCallback(
+    async (started: StartResult) => {
+      if (started.kind !== "held") {
+        setStopped(started);
+        return;
+      }
+      setStopped(null);
+      await runHeld(started.jobId);
+    },
+    [runHeld],
+  );
 
   const start = async () => {
     setError(null);
@@ -593,6 +660,31 @@ export function JobRunner({
         </ProcessingNotice>
       ) : null}
 
+      {phase.kind === "year" ? (
+        <YearQuestionPanel
+          question={phase.question}
+          notices={phase.notices}
+          onUseFiles={async () => {
+            setError(null);
+            // The owner's own change to the company, through its settings call (ADR 0035).
+            const r = await api(`/api/companies/${companyId}`, {
+              method: "PATCH",
+              body: { ...conventions, fyStartMonth: phase.question.files },
+              idempotencyKey: newIdempotencyKey(),
+            });
+            if (!r.ok) {
+              setError(r.message);
+              return;
+            }
+            await runHeld(phase.jobId);
+          }}
+          onKeep={async () => {
+            setError(null);
+            await runHeld(phase.jobId, { keepYear: true });
+          }}
+        />
+      ) : null}
+
       {phase.kind === "running" ? (
         <Panel title="Working" icon="loader">
           <div className="flex items-center gap-3">
@@ -720,6 +812,64 @@ export function JobRunner({
         </Panel>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * The one question a run asks (ADR 0086). The files and the company disagree about when the year
+ * starts, and building on the wrong one reads the first month of each year as the whole year, so
+ * the run stops before computing, with the credits held, and either answer carries it on.
+ */
+function YearQuestionPanel({
+  question,
+  notices,
+  onUseFiles,
+  onKeep,
+}: {
+  question: YearQuestion;
+  notices: readonly string[];
+  onUseFiles: () => Promise<void>;
+  onKeep: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const files = monthName(question.files);
+  const company = monthName(question.company);
+  const act = (f: () => Promise<void>) => () => {
+    setBusy(true);
+    void f().finally(() => {
+      setBusy(false);
+    });
+  };
+  return (
+    <Panel title="One question before the MIS is built" icon="calendar">
+      <div className="flex flex-col gap-4" data-testid="job-year">
+        <p className="max-w-2xl text-sm leading-relaxed text-neutral-700">
+          These files run a financial year that starts in <strong>{files}</strong>, but
+          this company is set to start its year in <strong>{company}</strong>. Built on
+          the wrong one, the first month of every year reads as the whole year. Which is
+          right?
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button disabled={busy} onClick={act(onUseFiles)} data-testid="job-year-files">
+            Use {files}, and change the company&rsquo;s year
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={busy}
+            onClick={act(onKeep)}
+            data-testid="job-year-keep"
+          >
+            Keep {company}
+          </Button>
+        </div>
+        <p className="text-[0.75rem] leading-relaxed text-neutral-500">
+          Nothing has been computed yet and answering does not charge again: the credits
+          held for this run carry it on. The company&rsquo;s year can be changed later
+          under Reporting conventions too.
+        </p>
+        <Notices notices={notices} />
+      </div>
+    </Panel>
   );
 }
 

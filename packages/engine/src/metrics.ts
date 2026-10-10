@@ -109,6 +109,116 @@ class PeriodContext {
     };
   }
 
+  /**
+   * Cash released by the month's movement in some heads (ADR 0086): the movement with its sign
+   * turned, so a fall in an asset and a rise in a liability are both inflows. The movement is the
+   * engine's own — the change from last month's closing, or from the reported opening in the
+   * first month loaded — so the first month has a cash flow too.
+   */
+  release(formula: string, terms: readonly (readonly [1 | -1, string])[]): Evaluated {
+    const inputs: MetricInput[] = [];
+    let total: Num = num(0n);
+    for (const [sign, code] of terms) {
+      const v = this.cube.get(code, this.period);
+      inputs.push({
+        kind: "head",
+        head: code,
+        period: this.period,
+        field: "movement",
+        ledgers: v?.ledgers ?? 0,
+      });
+      const moved: Num =
+        v === null
+          ? num(0n)
+          : v.movement === null
+            ? none("missing_data")
+            : num(v.movement);
+      total = sign === 1 ? sub(total, moved) : add(total, moved);
+    }
+    if (!this.hasData()) total = none("missing_data");
+    return { n: total, unit: "paise", formula, inputs };
+  }
+
+  /**
+   * The profit of a closed year as it moves into capital and reserves (ADR 0086), debit-positive:
+   * minus the year's profit in the first month of a year, nothing in any other month.
+   *
+   * Profit-and-loss ledgers restart at nought when a year opens, and the year's result arrives in
+   * capital or reserves as an increase that no cash paid for. It is found as the difference between
+   * every ledger's movement and its change in closing — which is only ever that restart — so it
+   * needs no knowledge of the year beyond what the movements already hold.
+   */
+  carried(formula: string): Evaluated {
+    const prev = addMonths(this.period, -1);
+    const inputs: MetricInput[] = [];
+    let total: Num = num(0n);
+    for (const code of ["PL", "BS", "UNMAPPED"]) {
+      const now = this.cube.get(code, this.period);
+      const before = this.cube.get(code, prev);
+      inputs.push(
+        {
+          kind: "head",
+          head: code,
+          period: this.period,
+          field: "movement",
+          ledgers: now?.ledgers ?? 0,
+        },
+        {
+          kind: "head",
+          head: code,
+          period: this.period,
+          field: "closing",
+          ledgers: now?.ledgers ?? 0,
+        },
+        {
+          kind: "head",
+          head: code,
+          period: prev,
+          field: "closing",
+          ledgers: before?.ledgers ?? 0,
+        },
+      );
+      if (now !== null && now.movement === null) total = none("missing_data");
+      else
+        total = add(
+          total,
+          num((now?.movement ?? 0n) - (now?.closing ?? 0n) + (before?.closing ?? 0n)),
+        );
+    }
+    if (!this.hasData()) total = none("missing_data");
+    return { n: total, unit: "paise", formula, inputs };
+  }
+
+  /** A balance-sheet head at the start of the month, in its normal direction: closing less movement. */
+  opening(formula: string, code: string): Evaluated {
+    const v = this.cube.get(code, this.period);
+    const inputs: MetricInput[] = [
+      {
+        kind: "head",
+        head: code,
+        period: this.period,
+        field: "closing",
+        ledgers: v?.ledgers ?? 0,
+      },
+      {
+        kind: "head",
+        head: code,
+        period: this.period,
+        field: "movement",
+        ledgers: v?.ledgers ?? 0,
+      },
+    ];
+    const sign = headDef(code).normalBalance === "credit" ? -1n : 1n;
+    const n: Num = !this.hasData()
+      ? none("missing_data")
+      : v === null
+        ? num(0n)
+        : v.movement === null
+          ? none("missing_data")
+          : num((v.closing - v.movement) * sign);
+    return { n, unit: "paise", formula, inputs };
+  }
+
   metric(id: string): Evaluated {
     const cached = this.memo.get(id);
     if (cached !== undefined) return cached;
@@ -312,7 +422,162 @@ export const METRIC_DEFS: Readonly<Record<string, Def>> = {
       inputs: [dso.input, inv.input, dpo.input],
     };
   },
+
+  /*
+   * The month's cash flow by the indirect method (ADR 0086). Every line is profit, depreciation or
+   * a movement in the balance sheet, and between them the lines cover every head the books can
+   * be mapped to — so operating, investing and financing add up to the movement in cash and bank
+   * exactly whenever the trial balances balance. Nothing is a balancing figure. It is a
+   * management cash flow from the books, not the AS 3 statement: interest stays where the books
+   * put it, and an overdraft mapped to borrowings is financing rather than cash.
+   */
+  cf_receivables: (c) =>
+    c.release("Change in trade receivables = −movement(CA_RECEIVABLES)", [
+      [1, "CA_RECEIVABLES"],
+    ]),
+  cf_inventory: (c) =>
+    c.release("Change in inventories = −movement(CA_INVENTORY)", [[1, "CA_INVENTORY"]]),
+  cf_other_current_assets: (c) =>
+    c.release(
+      "Change in other current assets = −movement(current assets other than cash, receivables and inventories)",
+      [
+        [1, "CA"],
+        [-1, "CA_CASH"],
+        [-1, "CA_RECEIVABLES"],
+        [-1, "CA_INVENTORY"],
+      ],
+    ),
+  cf_payables: (c) =>
+    c.release("Change in trade payables = −movement(CL_PAYABLES)", [[1, "CL_PAYABLES"]]),
+  cf_other_current_liabilities: (c) =>
+    c.release(
+      "Change in other current liabilities = −movement(current liabilities other than payables and borrowings)",
+      [
+        [1, "CL"],
+        [-1, "CL_PAYABLES"],
+        [-1, "CL_BORROWINGS"],
+      ],
+    ),
+  cf_unmapped: (c) =>
+    c.release("Change in unmapped balances = −movement(UNMAPPED)", [[1, "UNMAPPED"]]),
+  cf_operating: (c) =>
+    combine(
+      c,
+      "Cash from operating activities = PAT + depreciation + changes in working capital and unmapped balances",
+      [
+        [1, "pat"],
+        [1, "depreciation"],
+        [1, "cf_receivables"],
+        [1, "cf_inventory"],
+        [1, "cf_other_current_assets"],
+        [1, "cf_payables"],
+        [1, "cf_other_current_liabilities"],
+        [1, "cf_unmapped"],
+      ],
+    ),
+  cf_net_block: (c) =>
+    c.release("Change in net block = −movement(fixed and intangible assets)", [
+      [1, "NCA_PPE"],
+      [1, "NCA_INTANGIBLES"],
+    ]),
+  cf_fixed_assets: (c) =>
+    combine(
+      c,
+      "Fixed assets bought, net of disposals = change in net block − depreciation",
+      [
+        [1, "cf_net_block"],
+        [-1, "depreciation"],
+      ],
+    ),
+  cf_investments: (c) =>
+    c.release(
+      "Change in investments and other non-current assets = −movement(non-current assets other than fixed assets)",
+      [
+        [1, "NCA"],
+        [-1, "NCA_PPE"],
+        [-1, "NCA_INTANGIBLES"],
+      ],
+    ),
+  cf_investing: (c) =>
+    combine(c, "Cash from investing activities = fixed assets + investments", [
+      [1, "cf_fixed_assets"],
+      [1, "cf_investments"],
+    ]),
+  cf_borrowings: (c) =>
+    c.release(
+      "Borrowings raised less repaid = −movement(long- and short-term borrowings)",
+      [
+        [1, "NCL_BORROWINGS"],
+        [1, "CL_BORROWINGS"],
+      ],
+    ),
+  cf_other_long_term: (c) =>
+    c.release(
+      "Change in other long-term liabilities = −movement(non-current liabilities other than borrowings)",
+      [
+        [1, "NCL"],
+        [-1, "NCL_BORROWINGS"],
+      ],
+    ),
+  cf_capital_movement: (c) =>
+    c.release("Change in capital and reserves = −movement(EQ)", [[1, "EQ"]]),
+  cf_profit_carried: (c) =>
+    c.carried(
+      "Profit carried into capital at the year end = movement − change in closing, over every ledger",
+    ),
+  cf_equity: (c) =>
+    combine(
+      c,
+      "Capital introduced less withdrawn = change in capital and reserves − profit carried into them",
+      [
+        [1, "cf_capital_movement"],
+        [1, "cf_profit_carried"],
+      ],
+    ),
+  cf_financing: (c) =>
+    combine(
+      c,
+      "Cash from financing activities = borrowings + other long-term + capital",
+      [
+        [1, "cf_borrowings"],
+        [1, "cf_other_long_term"],
+        [1, "cf_equity"],
+      ],
+    ),
+  cf_net: (c) =>
+    combine(c, "Net change in cash = operating + investing + financing", [
+      [1, "cf_operating"],
+      [1, "cf_investing"],
+      [1, "cf_financing"],
+    ]),
+  cash_opening: (c) =>
+    c.opening(
+      "Cash and bank at the start of the month = closing(CA_CASH) − movement(CA_CASH)",
+      "CA_CASH",
+    ),
 };
+
+/** The cash flow lines (ADR 0086), which are flows and accumulate over the year like profit. */
+export const CASH_FLOW_METRICS: readonly string[] = [
+  "cf_receivables",
+  "cf_inventory",
+  "cf_other_current_assets",
+  "cf_payables",
+  "cf_other_current_liabilities",
+  "cf_unmapped",
+  "cf_operating",
+  "cf_net_block",
+  "cf_fixed_assets",
+  "cf_investments",
+  "cf_investing",
+  "cf_borrowings",
+  "cf_other_long_term",
+  "cf_capital_movement",
+  "cf_profit_carried",
+  "cf_equity",
+  "cf_financing",
+  "cf_net",
+];
 
 /** Money flow metrics that accumulate for YTD. */
 export const FLOW_METRICS = new Set([
@@ -329,6 +594,7 @@ export const FLOW_METRICS = new Set([
   "pbt",
   "tax",
   "pat",
+  ...CASH_FLOW_METRICS,
 ]);
 
 /** Percentages whose YTD is recomputed from YTD components, never summed. */

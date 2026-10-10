@@ -22,6 +22,9 @@ import {
 import { accountOrRedirect } from "@/lib/account-page";
 import { ACTION_LABELS, formatCredits } from "@/lib/actions";
 import { db } from "@/lib/db";
+import { ist, JOB_STATE } from "@/lib/job-display";
+import { ledgerSummary } from "@/lib/server/ledger-map";
+import { keyWrapper } from "@/lib/server/runtime";
 import { logoUrl } from "@/lib/logo";
 import { fileRows } from "@/lib/server/files";
 import { logoLimits } from "@/lib/server/logo";
@@ -32,33 +35,6 @@ import { ReportingConventions } from "../ReportingConventions";
 
 export const metadata = { title: "Files and settings" };
 export const dynamic = "force-dynamic";
-
-/** Job states as words a customer can act on (SPEC §32: no raw identifiers in the UI). */
-const JOB_STATE: Record<string, { label: string; tone: BadgeTone }> = {
-  completed: { label: "Completed", tone: "positive" },
-  failed: { label: "Failed", tone: "negative" },
-  cancelled: { label: "Cancelled", tone: "muted" },
-  paused: { label: "Paused", tone: "warning" },
-  awaiting_confirmation: { label: "Awaiting confirmation", tone: "warning" },
-  awaiting_review: { label: "Awaiting review", tone: "warning" },
-  running: { label: "Running", tone: "accent" },
-  queued: { label: "Queued", tone: "accent" },
-  expired: { label: "Expired", tone: "muted" },
-  needs_quote: { label: "Needs a quote", tone: "warning" },
-  quote_accepted: { label: "Quote accepted", tone: "accent" },
-  failed_data: { label: "Failed — check the data", tone: "negative" },
-  failed_platform: { label: "Failed — our fault", tone: "negative" },
-};
-
-const ist = (d: Date) =>
-  d.toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 
 /**
  * What is true of a stored file, said plainly (ADR 0047). Every line is something the code
@@ -158,6 +134,11 @@ export default async function ManageCompanyPage({
     uploadLimits(pool),
     logoLimits(pool),
   ]);
+  // The ledger map in one line (ADR 0086). An unreadable blueprint costs the panel, not the page.
+  const ledgers = await ledgerSummary(pool, keyWrapper(), {
+    accountId: account.accountId,
+    companyId: id,
+  }).catch(() => null);
   // Whole percent, for a bar's width only; the figures beside it are the exact ones.
   const usedPercent = Math.min(
     100,
@@ -225,6 +206,33 @@ export default async function ManageCompanyPage({
             }}
           />
         </Panel>
+
+        {ledgers === null ? null : (
+          <Panel
+            title="Ledger map"
+            icon="document"
+            description="Every ledger in this company's books and the MIS line it feeds. Move one and it stays moved."
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className="text-[0.875rem] text-neutral-700"
+                data-testid="ledger-summary"
+              >
+                {ledgers.ledgers} ledgers
+                {ledgers.unmapped === 0
+                  ? ", every one on a line."
+                  : `, ${ledgers.unmapped.toString()} left unmapped.`}
+              </span>
+              <ButtonLink
+                href={`/app/companies/${id}/ledgers`}
+                variant={ledgers.unmapped === 0 ? "secondary" : "primary"}
+                size="sm"
+              >
+                Open the ledger map
+              </ButtonLink>
+            </div>
+          </Panel>
+        )}
 
         <Panel
           title="Your files"

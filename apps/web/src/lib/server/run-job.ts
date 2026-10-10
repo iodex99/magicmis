@@ -33,11 +33,13 @@ import {
   heartbeatJob,
   loadStageOutput,
   loadUploadBytes,
+  PIPELINE,
   recordLibraryVotes,
   recordUploadPeriods,
   saveStageOutput,
   uploadLimits,
   type DashboardUpdate,
+  type JobState,
   type ReadPurpose,
 } from "@magicmis/jobs";
 import {
@@ -69,7 +71,7 @@ import {
   applyAiBindings,
   bindReferenceLayout,
   buildRecreatedTemplate,
-  MONTHLY_FINANCIAL_MIS,
+  templateForRun,
   referenceLayoutAiInput,
   unboundRefs,
   type RowBinding,
@@ -102,7 +104,7 @@ import { keyWrapper, outputStore } from "./runtime";
  */
 
 export interface RunOutcome {
-  readonly status: "completed" | "failed" | "needs_quote";
+  readonly status: "completed" | "failed" | "needs_quote" | "needs_year";
   readonly message: string | null;
   readonly capturedCredits: string;
   readonly outputId: string | null;
@@ -112,6 +114,27 @@ export interface RunOutcome {
   readonly quoteCredits?: string;
   /** What happened to the dashboard after a completed run (ADR 0047). */
   readonly dashboard?: DashboardUpdate;
+  /** The question a run paused on (ADR 0086): the month each year starts in, 1 to 12. */
+  readonly year?: YearQuestion;
+}
+
+/** The files run one financial year, the company is set to another (ADR 0086). */
+export interface YearQuestion {
+  readonly files: number;
+  readonly company: number;
+}
+
+/** What a paused run asked, from its checkpoint; null when it asked nothing. */
+export function yearQuestionOf(
+  checkpoints: Record<string, unknown>,
+): YearQuestion | null {
+  const q = z
+    .object({
+      files: z.number().int().min(1).max(12),
+      company: z.number().int().min(1).max(12),
+    })
+    .safeParse(checkpoints["year_question"]);
+  return q.success ? q.data : null;
 }
 
 export interface JobSources {
@@ -214,8 +237,13 @@ export async function runJobOnServer(
   input: { accountId: string; jobId: string; tier: keyof typeof TIER_LABELS },
 ): Promise<RunOutcome> {
   const { accountId, jobId } = input;
-  const job = await pool.query<{ company_id: string; type: string; state: string }>(
-    `select company_id, type, state from jobs where id = $1 and account_id = $2`,
+  const job = await pool.query<{
+    company_id: string;
+    type: string;
+    state: JobState;
+    stage_checkpoints: Record<string, unknown>;
+  }>(
+    `select company_id, type, state, stage_checkpoints from jobs where id = $1 and account_id = $2`,
     [jobId, accountId],
   );
   const row = job.rows[0];
@@ -225,8 +253,15 @@ export async function runJobOnServer(
   const notice = (text: string) => {
     if (!notices.includes(text)) notices.push(text);
   };
+  // A run resumed after the year question (ADR 0086) reads and maps its files again, from the
+  // checkpointed AI answers, but its job is already past those stages and never moves back.
+  const order: readonly string[] = PIPELINE;
+  let at: string = row.state;
   const step = async (to: Parameters<typeof advanceJob>[1]["to"]) => {
-    await advanceJob(pool, { accountId, jobId, to });
+    if (order.indexOf(to) > order.indexOf(at)) {
+      await advanceJob(pool, { accountId, jobId, to });
+      at = to;
+    }
     await heartbeatJob(pool, { accountId, jobId });
   };
   const fail = async (message: string, platform = true): Promise<RunOutcome> => {
@@ -486,7 +521,8 @@ export async function runJobOnServer(
     }
 
     // A reference MIS, bound by rules then AI, accepted as proposed.
-    let template: TemplateSpec = session.memory.templateSpec ?? MONTHLY_FINANCIAL_MIS;
+    // The company's own template, or the current built-in one if it never changed it (ADR 0086).
+    let template: TemplateSpec = templateForRun(session.memory.templateSpec);
     let referenceUsed = false;
     if (row.type === "reference_mis_recreate" && sources.reference !== null) {
       try {
@@ -547,7 +583,6 @@ export async function runJobOnServer(
       }
     }
 
-    await step("computing");
     const confirmed = mappings.map((m) => ({
       ledgerKey: m.ledgerKey,
       head: m.head,
@@ -557,6 +592,48 @@ export async function runJobOnServer(
       ...p,
       facts: applyNormalSides(p.facts, mappings, new Set(p.unsigned)),
     };
+    // ADR 0035: an export on a different financial year from the company stays invisible until a
+    // month of revenue comes out as the whole year with a minus sign. ADR 0086: so the run stops
+    // and asks before it computes anything, with the credits still held, rather than delivering
+    // a workbook that says so and costs a second run to put right. Only the owner changes the
+    // company's year, through its own settings; the run waits for them, and an answer of "keep
+    // it" is remembered on this job so it is not asked twice.
+    const sourceYear = detectSourceFinancialYear(
+      signed.facts,
+      (fact) => primaryOf(fact.groupPath[0] ?? "")?.statement === "profit_and_loss",
+    );
+    if (sourceYear !== null && sourceYear.startMonth !== session.company.fyStartMonth) {
+      if (row.stage_checkpoints["year_kept"] !== sourceYear.startMonth) {
+        const year: YearQuestion = {
+          files: sourceYear.startMonth,
+          company: session.company.fyStartMonth,
+        };
+        await step("awaiting_review");
+        await pool.query(
+          `update jobs set stage_checkpoints = stage_checkpoints || jsonb_build_object('year_question', $2::jsonb) where id = $1`,
+          [jobId, JSON.stringify(year)],
+        );
+        return {
+          status: "needs_year",
+          message: null,
+          capturedCredits: "0",
+          outputId: null,
+          fileName: null,
+          checks: [],
+          notices,
+          year,
+        };
+      }
+      notice(
+        [
+          `These files run a financial year starting in ${MONTH_NAMES[sourceYear.startMonth - 1] ?? ""},`,
+          `but this company is kept on a year starting in ${MONTH_NAMES[session.company.fyStartMonth - 1] ?? ""}.`,
+          "Until they match, the first month of each year reads as a whole year.",
+        ].join(" "),
+      );
+    }
+
+    await step("computing");
     const period = (signed.periods.at(-1) ?? "") as PeriodId;
     const first =
       (session.memory.latestPeriod === null
@@ -568,21 +645,6 @@ export async function runJobOnServer(
         .filter((b) => b.period === previousPeriod)
         .map((b) => [b.ledgerKey, BigInt(b.closing)]),
     );
-    // ADR 0035: an export on a different financial year from the company stays invisible until a
-    // month of revenue comes out as the whole year with a minus sign, so it is said plainly.
-    const sourceYear = detectSourceFinancialYear(
-      signed.facts,
-      (fact) => primaryOf(fact.groupPath[0] ?? "")?.statement === "profit_and_loss",
-    );
-    if (sourceYear !== null && sourceYear.startMonth !== session.company.fyStartMonth)
-      notice(
-        [
-          `These files run a financial year starting in ${MONTH_NAMES[sourceYear.startMonth - 1] ?? ""},`,
-          `but this company is set to start in ${MONTH_NAMES[session.company.fyStartMonth - 1] ?? ""}.`,
-          "Until they match, the first month of each year reads as a whole year.",
-          "Change the year under Reporting conventions on the company page, then run the month again.",
-        ].join(" "),
-      );
     const namesByKey = new Map(signed.facts.map((f) => [f.ledgerKey, f.name]));
     const labelText = (label: string) => label.replace(TOKEN_PATTERN, (t) => display(t));
     const duck = await openServerDuck();

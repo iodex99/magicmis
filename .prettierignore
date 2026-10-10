@@ -11,3 +11,7 @@ pnpm-lock.yaml
 # documents, and Prettier's table alignment makes wide tables far less readable than the
 # hand-wrapped originals. Formatting these is not a correctness concern.
 *.md
+
+# The sample company (ADR 0086): recorded by apps/web/e2e/support/record-sample.ts, kept on one
+# line, because indenting it would treble a file nobody reads by hand.
+apps/web/src/lib/sample-company.json

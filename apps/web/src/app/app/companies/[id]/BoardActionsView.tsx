@@ -31,7 +31,7 @@ interface Action {
   urgency: Urgency;
 }
 
-interface Payload {
+export interface BoardActionsPayload {
   company: { money: NumberFormatOptions; currencySymbol: string };
   output: { summary: string; actions: Action[] };
   pack: Pick<FactsPack, "facts" | "dimensions" | "periods">;
@@ -66,13 +66,21 @@ function Line({ segments }: { segments: readonly Segment[] }) {
   );
 }
 
-export function BoardActionsView({ jobId }: { jobId: string }) {
-  const [payload, setPayload] = useState<Payload | null>(null);
+export function BoardActionsView({
+  jobId,
+  sample,
+}: {
+  jobId: string;
+  /** The sample company's recorded suggestions (ADR 0086), shown without a fetch. */
+  sample?: BoardActionsPayload;
+}) {
+  const [payload, setPayload] = useState<BoardActionsPayload | null>(sample ?? null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (sample !== undefined) return;
     let live = true;
-    void api<Payload>(`/api/jobs/${jobId}/board-actions`).then((r) => {
+    void api<BoardActionsPayload>(`/api/jobs/${jobId}/board-actions`).then((r) => {
       if (!live) return;
       if (r.ok) setPayload(r.data);
       else setError(r.message);
@@ -80,7 +88,7 @@ export function BoardActionsView({ jobId }: { jobId: string }) {
     return () => {
       live = false;
     };
-  }, [jobId]);
+  }, [jobId, sample]);
 
   if (error !== null) return <Alert tone="error">{error}</Alert>;
   if (payload === null) return null;

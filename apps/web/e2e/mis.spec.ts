@@ -100,6 +100,16 @@ async function aiCallsForAccount(exceptStages: readonly string[] = []): Promise<
   return r.rows[0]?.n ?? -1;
 }
 
+/**
+ * The fixture's books run April to March, so the company is set to match, as an Indian firm's is.
+ * Left on the calendar year this browser is given, the run would rightly stop to ask (ADR 0086)
+ * — and before it asked, every figure in this suite was built on the wrong year.
+ */
+async function aprilYear() {
+  await page.getByRole("button", { name: /Reporting conventions/u }).click();
+  await page.getByLabel("Financial year starts in").selectOption("4");
+}
+
 async function runJob(files: string[]) {
   await page.getByLabel("Choose files").setInputFiles(files);
   await expect(page.getByTestId("job-files").getByRole("row")).toHaveCount(
@@ -119,6 +129,7 @@ async function runJob(files: string[]) {
 test("sets up a company from thirteen months of trial balances", async () => {
   await page.goto("/app");
   await page.getByLabel("Company name").fill("Synthetic Hardware Traders");
+  await aprilYear();
   await page.getByRole("button", { name: "Add company" }).click();
   // A new company is set up from its own workspace (ADR 0033).
   await expect(page).toHaveURL(/\/app\/companies\/[0-9a-f-]+$/u);
@@ -144,10 +155,18 @@ test("sets up a company from thirteen months of trial balances", async () => {
     "P&L",
     "Ratios",
     "Balance sheet",
+    "Cash flow",
     "Checks",
     "Data",
     "Lineage",
   ]);
+  // ADR 0086: the three sections, and the cash they come to at the foot of the sheet.
+  const flow = JSON.stringify(
+    XLSX.utils.sheet_to_json(workbook.Sheets["Cash flow"] ?? {}, { header: 1 }),
+  );
+  expect(flow).toContain("Cash from operating activities");
+  expect(flow).toContain("Cash from financing activities");
+  expect(flow).toContain("Cash and bank at the end of the month");
   // Names are rehydrated in the browser; the Data sheet shows real party names from this session.
   expect(
     JSON.stringify(XLSX.utils.sheet_to_json(workbook.Sheets["Data"] ?? {})),
@@ -397,6 +416,7 @@ test("sets up a company that recreates the user's reference MIS with no AI call"
   await page.goto("/app");
   // This account already has a company by now, and the form is still open (ADR 0061).
   await page.getByLabel("Company name").fill("Synthetic Recreated Traders");
+  await aprilYear();
   await page.getByRole("button", { name: "Add company" }).click();
   await expect(page.getByLabel("Choose files")).toBeEnabled();
   await page.getByLabel("Choose files").setInputFiles(SETUP_MONTHS.map(tb));
@@ -1035,11 +1055,11 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
   await expect(page.getByRole("heading", { name: "Files and settings" })).toBeVisible();
   // Conventions are laid out with what each choice does, and answer as it is changed.
   await expect(page.getByTestId("conventions-fy-example")).toContainText(
-    "Your year runs January to December",
-  );
-  await page.getByLabel("Financial year starts in").selectOption("4");
-  await expect(page.getByTestId("conventions-fy-example")).toContainText(
     "Your year runs April to March",
+  );
+  await page.getByLabel("Financial year starts in").selectOption("1");
+  await expect(page.getByTestId("conventions-fy-example")).toContainText(
+    "Your year runs January to December",
   );
   await page.getByLabel("Numbers shown as").selectOption("millions");
   await expect(page.getByTestId("conventions-number-example")).toContainText(
@@ -1130,6 +1150,132 @@ test("files are kept, chosen for the dashboard and opened by nobody unrecorded; 
     [id],
   );
   expect(expiring.rows[0]?.n).toBe(0);
+});
+
+test("the ledger map shows every ledger and the line it feeds, and a move stays moved (ADR 0086)", async () => {
+  const company = await db.query<{ id: string }>(
+    `select c.id from companies c join accounts a on a.id = c.account_id
+      where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+    [email],
+  );
+  const id = company.rows[0]?.id ?? "";
+  const versions = async () =>
+    (
+      await db.query<{ v: number }>(
+        `select max(version)::int as v from blueprints where company_id = $1`,
+        [id],
+      )
+    ).rows[0]?.v ?? 0;
+
+  // Files and settings says how many there are, and opens the map.
+  await page.goto(`/app/companies/${id}/manage`);
+  await expect(page.getByTestId("ledger-summary")).toContainText("ledgers");
+  await page.getByRole("link", { name: "Open the ledger map" }).click();
+  await expect(page).toHaveURL(new RegExp(`/app/companies/${id}/ledgers$`, "u"));
+  const rows = page.getByTestId("ledger-row");
+  await expect(rows.first()).toBeVisible();
+  expect(await rows.count()).toBeGreaterThan(5);
+
+  // Move one ledger: it says so, a new version of the company's memory holds it, and a reload
+  // still shows it — then it goes back, so the months after this are built as they were. The
+  // table sorts by line, so the ledger is found by its name and group, not its position.
+  const last = rows.nth((await rows.count()) - 1);
+  const name = (await last.locator("p").first().textContent()) ?? "";
+  const group = (await last.locator("p").nth(1).textContent()) ?? "";
+  const ledger = () =>
+    page
+      .getByTestId("ledger-row")
+      .filter({ hasText: name })
+      .filter({ hasText: group })
+      .first();
+  const original = await ledger().getByRole("combobox").inputValue();
+  const before = await versions();
+  await ledger().getByRole("combobox").selectOption("OTH_INC_OTHER");
+  await expect(ledger()).toContainText("Saved");
+  expect(await versions()).toBe(before + 1);
+  await page.reload();
+  await expect(ledger().getByRole("combobox")).toHaveValue("OTH_INC_OTHER");
+
+  // A change made from an old copy of the map, or to a line that does not exist, is refused.
+  const stale = await page.request.patch(`/api/companies/${id}/ledgers`, {
+    data: { ledgerKey: "anything", head: "REV", basedOn: before },
+    headers: { "idempotency-key": randomUUID() },
+  });
+  expect(stale.status()).toBe(409);
+  const nowhere = await page.request.patch(`/api/companies/${id}/ledgers`, {
+    data: { ledgerKey: "anything", head: "NOT_A_LINE", basedOn: before + 1 },
+    headers: { "idempotency-key": randomUUID() },
+  });
+  expect(nowhere.status()).toBe(422);
+
+  await ledger().getByRole("combobox").selectOption(original);
+  await expect(ledger()).toContainText("Saved");
+  await page.reload();
+  await expect(ledger().getByRole("combobox")).toHaveValue(original);
+});
+
+test("every email lands somewhere: a finished run, a failed one, a paused one, the list and the reminder (ADR 0086)", async () => {
+  // These links opened "not found" until now, and they are the emails that bring people back.
+  const setup = await db.query<{ id: string; company_id: string; account_id: string }>(
+    `select j.id, j.company_id, j.account_id from jobs j join accounts a on a.id = j.account_id
+      where a.email = $1 and j.type = 'company_setup' and j.state = 'completed'
+      order by j.created_at limit 1`,
+    [email],
+  );
+  const run = setup.rows[0];
+  if (run === undefined) throw new Error("no completed setup run");
+
+  // "Your MIS is ready": what ran, what it charged, and its workbook.
+  await page.goto(`/app/jobs/${run.id}`);
+  await expect(page.getByTestId("job-page")).toContainText("Completed");
+  await expect(page.getByTestId("job-charged")).toContainText("credits");
+  await expect(page.getByTestId("job-workbook")).toBeVisible();
+
+  // "A job could not be completed": the message the run screen gave, and the way back.
+  const failed = await db.query<{ id: string }>(
+    `insert into jobs (account_id, company_id, type, tier, state, failure_class, failure_code,
+                       failure_detail, idempotency_key)
+     values ($1, $2, 'monthly_refresh', 'professional', 'failed_data', 'data_fault', 'server_run',
+             'None of these files held balances for a month.', gen_random_uuid()::text)
+     returning id`,
+    [run.account_id, run.company_id],
+  );
+  await page.goto(`/app/jobs/${failed.rows[0]?.id ?? ""}`);
+  await expect(page.getByTestId("job-page")).toContainText(
+    "None of these files held balances for a month.",
+  );
+  await expect(page.getByRole("link", { name: "Add the files again" })).toBeVisible();
+
+  // "A quote is waiting": the run screen, holding the quote, ready to carry on.
+  const paused = await db.query<{ id: string }>(
+    `insert into jobs (account_id, company_id, type, tier, state, price_credits, idempotency_key)
+     values ($1, $2, 'monthly_refresh', 'professional', 'needs_quote', 299, gen_random_uuid()::text)
+     returning id`,
+    [run.account_id, run.company_id],
+  );
+  const pausedId = paused.rows[0]?.id ?? "";
+  await db.query(
+    `with q as (insert into quotes (account_id, job_id, reason, credits, expires_at)
+                values ($1, $2, 'runtime_cap', 449, now() + interval '1 day') returning id)
+     update jobs set quote_id = (select id from q) where id = $2`,
+    [run.account_id, pausedId],
+  );
+  await page.goto(`/app/jobs/${pausedId}`);
+  await expect(page).toHaveURL(new RegExp(`/run\\?job=${pausedId}$`, "u"));
+  await expect(page.getByTestId("job-quote")).toContainText("449");
+  await expect(page.getByRole("button", { name: "Accept and carry on" })).toBeVisible();
+  await db.query(`update jobs set state = 'cancelled' where id = any($1)`, [
+    [pausedId, failed.rows[0]?.id ?? ""],
+  ]);
+
+  // The archive emails' "Open companies" and the reminder's "Refresh now".
+  await page.goto("/app/companies");
+  await expect(page).toHaveURL(/\/app$/u);
+  await page.goto(`/app/companies/${run.company_id}/refresh`);
+  await expect(page).toHaveURL(new RegExp(`/app/companies/${run.company_id}/run$`, "u"));
+
+  // A job that is not there is not found, not an error.
+  expect((await page.request.get(`/app/jobs/${randomUUID()}`)).status()).toBe(404);
 });
 
 test("no Content Security Policy violations anywhere in the flow (SPEC §30)", () => {

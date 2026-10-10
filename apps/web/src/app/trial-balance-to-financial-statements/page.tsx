@@ -30,8 +30,8 @@ export const metadata: Metadata = pageMetadata(PATH);
  * "upload it and get the statements" page; `/guides/trial-balance-to-management-report` stays
  * the "map it by hand" guide, and this page sends readers there for the method rather than
  * repeating it. What the workbook holds is read from the Monthly Financial MIS template
- * (`packages/templates/src/monthly-financial-mis.ts`): it has no cash flow statement sheet, so
- * this page says so instead of promising one. These are management statements, not statutory
+ * (`packages/templates/src/monthly-financial-mis.ts`), which has carried a cash flow statement
+ * since ADR 0086, by the indirect method from the books' own movements. These are management statements, not statutory
  * accounts, and the page says that in its own section.
  */
 
@@ -72,6 +72,10 @@ const SHEETS: readonly { title: string; body: string }[] = [
     body: "Current assets — receivables, inventory, cash and bank — current liabilities and payables, and working capital at the month end, against last month and the same month last year.",
   },
   {
+    title: "Cash flow",
+    body: "Operating, investing and financing activities for each month of the financial year and the year to date, worked out from the movements in the books and adding up to the change in cash and bank.",
+  },
+  {
     title: "Key ratios and KPIs",
     body: "Current and quick ratio, debtor, creditor and inventory days, and the cash conversion cycle, against last month and the same month last year.",
   },
@@ -99,7 +103,7 @@ const FAQS: readonly Faq[] = [
   {
     question: "Does it produce a cash flow statement?",
     answer:
-      "Not as a sheet of its own today. The workbook carries cash and bank balances at each month end, working capital, and the cash conversion cycle among the ratios, and the dashboard can show cash month by month. A full cash flow statement split into operating, investing and financing activities is not produced.",
+      "Yes. The workbook has a cash flow sheet for every month of the year and the year to date, by the indirect method: profit, depreciation and the movements in working capital, then investing and financing. Every line is worked out from the trial balances, and the three sections add up to the change in cash and bank, shown at the foot of the sheet. It is a management cash flow from the books rather than the statutory one.",
   },
   {
     question: "Can the statements be filed as statutory accounts?",
@@ -161,9 +165,10 @@ export default function TrialBalanceToStatementsPage() {
           ))}
         </dl>
         <p>
-          A full cash flow statement is not one of the sheets. Cash and bank at each month
-          end, working capital and the cash conversion cycle are, and the cash position
-          can be followed month by month on the dashboard.
+          A cash flow statement is one of the sheets: operating, investing and financing
+          activities for each month and the year to date, worked out from the movements in
+          the trial balances, adding up to the change in cash and bank at the foot of the
+          sheet.
         </p>
       </Section>
 

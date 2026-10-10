@@ -128,7 +128,7 @@ const FAQS: readonly Faq[] = [
   {
     question: `How does ${PRODUCT_NAME} produce the format above?`,
     answer:
-      "You upload the raw data and the ledger mapping is built for you. The workbook is then generated with live Excel formulas — the P&L with year to date, a balance sheet summary, ratios and debtors and creditors ageing; it does not build a cash flow statement — with a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
+      "You upload the raw data and the ledger mapping is built for you. The workbook is then generated with live Excel formulas — the P&L with year to date, a balance sheet summary, ratios, a cash flow statement and debtors and creditors ageing — with a dashboard and commentary, and every figure traces back to the ledger it came from. Later months reuse the same mapping, so a refresh on unchanged structure makes no AI calls at all.",
   },
 ];
 

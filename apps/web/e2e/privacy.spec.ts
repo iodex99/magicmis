@@ -185,6 +185,13 @@ test("another account's resources are unreachable through every id-scoped endpoi
       url: `/api/companies/${company}/logo`,
       ...(method === "PUT" ? { body: {} } : {}),
     })),
+    // ADR 0086: another account's ledger map can be neither changed nor learnt about.
+    {
+      route: "/api/companies/[id]/ledgers",
+      method: "PATCH",
+      url: `/api/companies/${company}/ledgers`,
+      body: { ledgerKey: "sales accounts > sales", head: "REV", basedOn: 1 },
+    },
     {
       route: "/api/companies/[id]/chat/names",
       method: "POST",
@@ -367,6 +374,18 @@ test("another account's resources are unreachable through every id-scoped endpoi
     // Not found, or refused before looking (re-authentication, consent).
     expect([403, 404], label).toContain(response.status());
     expect(text, label).not.toContain("Hidden Traders");
+  }
+  // Pages an email links to (ADR 0086) know no more than the endpoints: another account's job
+  // is not found, and the run screen offers no quote for it.
+  for (const url of [
+    `/app/jobs/${job}`,
+    `/app/companies/${company}/run?job=${job}`,
+    `/app/companies/${company}/ledgers`,
+  ]) {
+    const response = await page.request.get(url);
+    const text = await response.text();
+    expect(response.status(), url).toBe(404);
+    expect(text, url).not.toContain("Hidden Traders");
   }
   // Nothing about the other tenant changed.
   const after = await db.query<{ deleted_at: Date | null; state: string }>(

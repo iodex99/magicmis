@@ -104,6 +104,11 @@ export default async function CompanyPage({
             availableCredits={(
               await walletSummary(pool, account.accountId)
             ).available.toString()}
+            conventions={{
+              currency: company.currency,
+              numberFormat: company.number_format,
+              dateOrder: company.date_order,
+            }}
           />
         ) : (
           <Panel>

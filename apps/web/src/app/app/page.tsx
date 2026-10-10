@@ -95,6 +95,15 @@ export default async function AppHomePage() {
             <p className="mt-1.5 text-sm text-neutral-500">
               Add your first company and drop in last month. That is the whole setup.
             </p>
+            {/* What it makes, before anything is uploaded or spent (ADR 0086). */}
+            <Link
+              href="/app/sample"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent-700 hover:underline"
+              data-testid="sample-link"
+            >
+              <Icon name="chart" size={15} />
+              See a finished sample company first
+            </Link>
           </div>
           {welcome > 0n ? (
             <p

@@ -206,25 +206,27 @@ export function renderNotification(
     }
     case "job.awaiting_review":
       return withJob(payload, (p) =>
+        // Under ADR 0032 a run waits for one thing only: which financial year is right, when the
+        // files run on a different one from the company (ADR 0086).
         email(
-          "Your mappings are ready to review",
+          "One question before your MIS is built",
           [
-            "A job is waiting for you to confirm how your ledgers map to the MIS. Nothing is computed until you confirm.",
-            "The credits for this job stay reserved while it waits.",
+            "The files you added run a financial year that starts in a different month from the one this company is set to. Nothing is computed until you say which is right.",
+            "The credits for this job stay reserved while it waits, and answering does not charge it again.",
           ],
           ctx,
-          { label: "Review mappings", path: `/app/jobs/${p.job_id}` },
+          { label: "Answer it", path: `/app/jobs/${p.job_id}` },
         ),
       );
     case "job.review_expiring":
       return withJob(payload, (p) =>
         email(
-          "Your mapping review expires soon",
+          "Your MIS is still waiting on one question",
           [
             `The reservation for this job expires on ${formatIstDate(new Date(p.expires_at ?? ""))}. If it expires after analysis has run, the cancellation fee applies.`,
           ],
           ctx,
-          { label: "Review mappings", path: `/app/jobs/${p.job_id}` },
+          { label: "Answer it", path: `/app/jobs/${p.job_id}` },
         ),
       );
     case "job.completed":
@@ -329,7 +331,7 @@ export function renderNotification(
           ctx,
           {
             label: "Open companies",
-            path: "/app/companies",
+            path: "/app",
           },
         ),
       );
@@ -341,7 +343,7 @@ export function renderNotification(
             `${p.company_name} and all its stored data will be permanently deleted in ${String(p.days ?? "")} days.`,
           ],
           ctx,
-          { label: "Open companies", path: "/app/companies" },
+          { label: "Open companies", path: "/app" },
         ),
       );
     case "lifecycle.purged":
@@ -362,7 +364,7 @@ export function renderNotification(
           ctx,
           {
             label: "Refresh now",
-            path: `/app/companies/${p.company_id}/refresh`,
+            path: `/app/companies/${p.company_id}/run`,
           },
         ),
       );

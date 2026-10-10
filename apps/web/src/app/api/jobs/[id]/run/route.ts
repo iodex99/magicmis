@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { apiError, ok, withAccount } from "@/lib/http";
 import { jobErrorResponse } from "@/lib/server/job-errors";
 import { rateLimited } from "@/lib/server/ratelimit";
-import { runJobOnServer } from "@/lib/server/run-job";
+import { runJobOnServer, yearQuestionOf } from "@/lib/server/run-job";
 
 // A thirteen-month setup reads, maps, computes and renders in one request.
 export const maxDuration = 300;
@@ -16,9 +16,15 @@ export const maxDuration = 300;
  * (ADR 0032). The browser calls this once after the SPEC §12 confirmation and shows progress by
  * polling GET /api/jobs/:id; the response is the outcome: the workbook, its checks and anything
  * that went differently from plan.
+ *
+ * It is called once more for a run that stopped on the year question (ADR 0086), with the credits
+ * still held: after the owner has changed the company's year through its settings, or with
+ * `keepYear` to build on the company's own year anyway. Neither charges again.
  */
+const bodySchema = z.object({ keepYear: z.boolean().optional() }).strict();
+
 export async function POST(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   return withAccount(async (account) => {
@@ -28,8 +34,13 @@ export async function POST(
     if (!z.uuid().safeParse(id).success)
       return apiError(404, "job_not_found", "Job not found.");
     const pool = db();
-    const job = await pool.query<{ state: string; type: string; tier: string }>(
-      `select state, type, tier from jobs where id = $1 and account_id = $2`,
+    const job = await pool.query<{
+      state: string;
+      type: string;
+      tier: string;
+      stage_checkpoints: Record<string, unknown>;
+    }>(
+      `select state, type, tier, stage_checkpoints from jobs where id = $1 and account_id = $2`,
       [id, account.accountId],
     );
     const row = job.rows[0];
@@ -53,11 +64,23 @@ export async function POST(
       );
       return apiError(409, "wrong_job", "This job does not run from uploaded files.");
     }
-    if (row.state !== "reserved")
+    const body = bodySchema.safeParse(await request.json().catch(() => ({})));
+    if (!body.success)
+      return apiError(400, "invalid_request", "That is not a valid request.");
+    const question = yearQuestionOf(row.stage_checkpoints);
+    const waiting = row.state === "awaiting_review" && question !== null;
+    if (row.state !== "reserved" && !waiting)
       return apiError(
         409,
         "invalid_transition",
         "This job has already started. Reload the page to see its progress.",
+      );
+    // "Keep the company's year" is this job's answer only: the next run asks again.
+    if (waiting && body.data.keepYear === true)
+      await pool.query(
+        `update jobs set stage_checkpoints = stage_checkpoints || jsonb_build_object('year_kept', $2::int)
+          where id = $1 and account_id = $3`,
+        [id, question.files, account.accountId],
       );
     try {
       const outcome = await runJobOnServer(pool, {

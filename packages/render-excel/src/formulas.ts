@@ -19,7 +19,13 @@ type XDef =
       readonly times: 100 | 1;
     }
   | { readonly kind: "days"; readonly num: string; readonly den: string }
-  | { readonly kind: "ccc" };
+  | { readonly kind: "ccc" }
+  /** Cash released by heads' movements: Σ sign × −movement (ADR 0086). */
+  | { readonly kind: "release"; readonly terms: readonly (readonly [1 | -1, string])[] }
+  /** A closed year's profit as it moves into capital: movement − change in closing, every ledger. */
+  | { readonly kind: "carried" }
+  /** A balance-sheet head at the start of the month: closing − movement. */
+  | { readonly kind: "opening"; readonly head: string };
 
 export const FORMULA_DEFS: Readonly<Record<string, XDef>> = {
   revenue: { kind: "pl", head: "REV" },
@@ -104,6 +110,109 @@ export const FORMULA_DEFS: Readonly<Record<string, XDef>> = {
   dpo: { kind: "days", num: "payables", den: "direct_costs" },
   inventory_days: { kind: "days", num: "inventory", den: "direct_costs" },
   cash_conversion_cycle: { kind: "ccc" },
+  cf_receivables: { kind: "release", terms: [[1, "CA_RECEIVABLES"]] },
+  cf_inventory: { kind: "release", terms: [[1, "CA_INVENTORY"]] },
+  cf_other_current_assets: {
+    kind: "release",
+    terms: [
+      [1, "CA"],
+      [-1, "CA_CASH"],
+      [-1, "CA_RECEIVABLES"],
+      [-1, "CA_INVENTORY"],
+    ],
+  },
+  cf_payables: { kind: "release", terms: [[1, "CL_PAYABLES"]] },
+  cf_other_current_liabilities: {
+    kind: "release",
+    terms: [
+      [1, "CL"],
+      [-1, "CL_PAYABLES"],
+      [-1, "CL_BORROWINGS"],
+    ],
+  },
+  cf_unmapped: { kind: "release", terms: [[1, "UNMAPPED"]] },
+  cf_operating: {
+    kind: "sum",
+    terms: [
+      [1, "pat"],
+      [1, "depreciation"],
+      [1, "cf_receivables"],
+      [1, "cf_inventory"],
+      [1, "cf_other_current_assets"],
+      [1, "cf_payables"],
+      [1, "cf_other_current_liabilities"],
+      [1, "cf_unmapped"],
+    ],
+  },
+  cf_net_block: {
+    kind: "release",
+    terms: [
+      [1, "NCA_PPE"],
+      [1, "NCA_INTANGIBLES"],
+    ],
+  },
+  cf_fixed_assets: {
+    kind: "sum",
+    terms: [
+      [1, "cf_net_block"],
+      [-1, "depreciation"],
+    ],
+  },
+  cf_investments: {
+    kind: "release",
+    terms: [
+      [1, "NCA"],
+      [-1, "NCA_PPE"],
+      [-1, "NCA_INTANGIBLES"],
+    ],
+  },
+  cf_investing: {
+    kind: "sum",
+    terms: [
+      [1, "cf_fixed_assets"],
+      [1, "cf_investments"],
+    ],
+  },
+  cf_borrowings: {
+    kind: "release",
+    terms: [
+      [1, "NCL_BORROWINGS"],
+      [1, "CL_BORROWINGS"],
+    ],
+  },
+  cf_other_long_term: {
+    kind: "release",
+    terms: [
+      [1, "NCL"],
+      [-1, "NCL_BORROWINGS"],
+    ],
+  },
+  cf_capital_movement: { kind: "release", terms: [[1, "EQ"]] },
+  cf_profit_carried: { kind: "carried" },
+  cf_equity: {
+    kind: "sum",
+    terms: [
+      [1, "cf_capital_movement"],
+      [1, "cf_profit_carried"],
+    ],
+  },
+  cf_financing: {
+    kind: "sum",
+    terms: [
+      [1, "cf_borrowings"],
+      [1, "cf_other_long_term"],
+      [1, "cf_equity"],
+    ],
+  },
+  cf_net: {
+    kind: "sum",
+    terms: [
+      [1, "cf_operating"],
+      [1, "cf_investing"],
+      [1, "cf_financing"],
+    ],
+  },
+  cash_opening: { kind: "opening", head: "CA_CASH" },
 };
 
 export type MetricUnitKind = "money" | "ratio" | "days";
@@ -120,7 +229,7 @@ export function unitKind(metricId: string): MetricUnitKind {
 export function isFlow(metricId: string): boolean {
   const d = FORMULA_DEFS[metricId];
   if (d === undefined) return false;
-  if (d.kind === "pl") return true;
+  if (d.kind === "pl" || d.kind === "release" || d.kind === "carried") return true;
   if (d.kind === "sum") return d.terms.every(([, id]) => isFlow(id));
   if (d.kind === "ratio") return isFlow(d.num) && isFlow(d.den);
   return false;
@@ -199,6 +308,27 @@ export function metricExpression(
       if (n === null || den === null) return null;
       return `IF(${den}=0,"",${n}/${den}*${col.days.toString()})`;
     }
+    case "release": {
+      // Each term's movement for the month, or from the year's start to the month.
+      const parts = d.terms.map(
+        ([sign, code]) =>
+          `${sign === 1 ? "-" : "+"}${movementSum(data, col, `"*/${code}/*"`)}`,
+      );
+      return `(${parts.join("")})/100`;
+    }
+    case "carried": {
+      // Every ledger's movement less its change in closing: a year's restart, and nothing else.
+      const closing = (index: string) =>
+        `SUMIFS(${data.col("amount_paise")},${data.col("period_index")},${index},${data.col("measure")},"closing")`;
+      const start = col.kind === "period" ? col.indexCell : col.fyCell;
+      return `(${movementSum(data, col, null)}-${closing(col.indexCell)}+${closing(`${start}-1`)})/100`;
+    }
+    case "opening": {
+      if (col.kind === "ytd") return null;
+      const sign = head(d.head).normalBalance === "credit" ? "-" : "";
+      const path = `"*/${d.head}/*"`;
+      return `${sign}(SUMIFS(${data.col("amount_paise")},${data.col("period_index")},${col.indexCell},${data.col("head_path")},${path},${data.col("measure")},"closing")-${movementSum(data, col, path)})/100`;
+    }
     case "ccc": {
       if (col.kind === "ytd") return null;
       const [a, b, c] = [ref("dso"), ref("inventory_days"), ref("dpo")];
@@ -209,3 +339,14 @@ export function metricExpression(
 }
 
 const wrap = (e: string | null): string | null => (e === null ? null : `(${e})`);
+
+/**
+ * The movement under a head path (or every ledger, for null) in a month, or from the year's
+ * start to the month in a year-to-date column. In paise, so the caller divides once.
+ */
+function movementSum(data: DataRange, col: ColumnContext, path: string | null): string {
+  const head = path === null ? "" : `,${data.col("head_path")},${path}`;
+  return col.kind === "period"
+    ? `SUMIFS(${data.col("amount_paise")},${data.col("period_index")},${col.indexCell}${head},${data.col("measure")},"movement")`
+    : `SUMIFS(${data.col("amount_paise")},${data.col("fy_start_index")},${col.fyCell},${data.col("period_index")},"<="&${col.indexCell}${head},${data.col("measure")},"movement")`;
+}

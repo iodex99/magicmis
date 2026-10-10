@@ -79,7 +79,7 @@ const ROWS: readonly (readonly [string, string, string])[] = [
 
 const CHOOSE_SYFT: readonly string[] = [
   "You want live connections to Xero, QuickBooks, Sage or MYOB, and to put e-commerce, payroll or bank data beside the accounts.",
-  "You need cash flow forecasts, budgets or consolidations of several entities across currencies. This product has none of them, and its workbook has no cash flow statement.",
+  "You need cash flow forecasts, budgets or consolidations of several entities across currencies. This product has none of them: its cash flow statement reports the months that have happened, and forecasts nothing.",
   "You want a free plan for dashboards and graphs, or to share a live dashboard with a client by link.",
   "Your team and your clients need their own logins.",
   "You work in Xero: the analytics inside Xero are powered by Syft.",

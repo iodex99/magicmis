@@ -6,7 +6,12 @@
  */
 
 import type { PeriodId } from "@magicmis/core/time";
-import { METRIC_DEFS, computeCube, type HeadCube } from "@magicmis/engine";
+import {
+  CASH_FLOW_METRICS,
+  METRIC_DEFS,
+  computeCube,
+  type HeadCube,
+} from "@magicmis/engine";
 import { buildFixtureSet } from "@magicmis/fixtures";
 import { detectHeader, readExcel } from "@magicmis/ingest";
 import { GLOBAL_LIBRARY_SEED, indexLibrary, runCascade } from "@magicmis/semantic";
@@ -93,9 +98,15 @@ function hyperFormulaFor(wb: ReturnType<typeof renderWorkbook>["workbook"]) {
 describe("formula definitions", () => {
   it("cover exactly the engine's metric library", () => {
     expect(Object.keys(FORMULA_DEFS).sort()).toEqual(Object.keys(METRIC_DEFS).sort());
-    // The template catalogue a reference MIS binds to is the same library.
+    // The template catalogue a reference MIS binds to is the same library, less the cash flow
+    // (ADR 0086). The catalogue is also the list the chat's dashboard edits and the first board's
+    // layout send to the model, and both were switched on by evals over the list as it was: the
+    // cash flow joins it when those are measured again, not before.
+    const cashFlow = new Set([...CASH_FLOW_METRICS, "cash_opening"]);
     expect(METRIC_CATALOG.map((m) => m.id).sort()).toEqual(
-      Object.keys(METRIC_DEFS).sort(),
+      Object.keys(METRIC_DEFS)
+        .filter((id) => !cashFlow.has(id))
+        .sort(),
     );
   });
 
@@ -205,6 +216,7 @@ describe.each(["trading", "services", "manufacturing"])("%s workbook", (company)
       "P&L",
       "Ratios",
       "Balance sheet",
+      "Cash flow",
       "Checks",
       "Data",
       "Lineage",

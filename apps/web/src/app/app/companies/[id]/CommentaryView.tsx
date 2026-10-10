@@ -27,7 +27,7 @@ import { PRODUCT_NAME } from "@/lib/brand";
 import { Alert, Button, MistakesNote } from "@/components/ui";
 import { api } from "@/lib/client-api";
 
-interface Payload {
+export interface CommentaryPayload {
   company: { money: NumberFormatOptions; currencySymbol: string };
   output: CommentaryOutput;
   pack: Pick<FactsPack, "facts" | "dimensions" | "periods">;
@@ -77,12 +77,15 @@ export function CommentaryView({
   jobId,
   companyName,
   periodLabel,
+  sample,
 }: {
   jobId: string;
   companyName: string;
   periodLabel: string;
+  /** The sample company's recorded commentary (ADR 0086), shown without a fetch. */
+  sample?: CommentaryPayload;
 }) {
-  const [payload, setPayload] = useState<Payload | null>(null);
+  const [payload, setPayload] = useState<CommentaryPayload | null>(sample ?? null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [report, setReport] = useState(false);
@@ -97,11 +100,12 @@ export function CommentaryView({
   }, [report]);
 
   useEffect(() => {
-    void api<Payload>(`/api/jobs/${jobId}/commentary`).then((r) => {
+    if (sample !== undefined) return;
+    void api<CommentaryPayload>(`/api/jobs/${jobId}/commentary`).then((r) => {
       if (r.ok) setPayload(r.data);
       else setError(r.message);
     });
-  }, [jobId]);
+  }, [jobId, sample]);
 
   const rendered = useMemo(() => {
     if (payload === null) return null;
