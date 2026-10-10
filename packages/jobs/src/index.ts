@@ -22,3 +22,4 @@ export * from "./template-edits";
 export * from "./sources";
 export * from "./notice-templates";
 export * from "./alerts";
+export * from "./shares";

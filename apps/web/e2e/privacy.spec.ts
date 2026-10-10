@@ -205,6 +205,24 @@ test("another account's resources are unreachable through every id-scoped endpoi
       url: `/api/companies/${company}/alerts`,
       body: { id: "00000000-0000-0000-0000-000000000000" },
     },
+    // ADR 0090: another account's board can be neither shared, nor its links listed or withdrawn.
+    {
+      route: "/api/companies/[id]/shares",
+      method: "GET",
+      url: `/api/companies/${company}/shares`,
+    },
+    {
+      route: "/api/companies/[id]/shares",
+      method: "POST",
+      url: `/api/companies/${company}/shares`,
+      body: { period: "2026-05", withWriting: true, days: 7 },
+    },
+    {
+      route: "/api/companies/[id]/shares",
+      method: "DELETE",
+      url: `/api/companies/${company}/shares`,
+      body: { id: "00000000-0000-0000-0000-000000000000" },
+    },
     {
       route: "/api/companies/[id]/chat/names",
       method: "POST",

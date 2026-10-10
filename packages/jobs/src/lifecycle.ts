@@ -423,6 +423,9 @@ export async function purgeCompanies(
         await tx.query(`delete from public.outputs where company_id = $1`, [c.id]);
         // A threshold the owner typed is theirs too (ADR 0087).
         await tx.query(`delete from public.company_alerts where company_id = $1`, [c.id]);
+        // A shared board is sealed under the key just shredded; its row goes too, and with it
+        // the record of who opened it when (ADR 0090).
+        await tx.query(`delete from public.share_links where company_id = $1`, [c.id]);
         // The name is the customer's data too: it goes with the key.
         await tx.query(
           `update public.companies set lifecycle_state = 'purged', purged_at = $2, wrapped_redaction_key = null,

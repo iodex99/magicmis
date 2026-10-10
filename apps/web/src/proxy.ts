@@ -102,7 +102,16 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   // Authenticated pages carry customer data; never let a CDN cache them.
   if (protectedPath) response.headers.set("cache-control", "private, no-store");
-  return secure(response);
+  const out = secure(response);
+  // A shared board (ADR 0090) carries a customer's figures to someone with no account: never
+  // cached, never indexed, and its address — which is its key — never sent on as a referrer.
+  // Set after `secure`, whose own referrer policy would otherwise replace this one.
+  if (pathname.startsWith("/s/")) {
+    out.headers.set("cache-control", "private, no-store");
+    out.headers.set("x-robots-tag", "noindex, nofollow, noarchive");
+    out.headers.set("referrer-policy", "no-referrer");
+  }
+  return out;
 }
 
 export const config = {

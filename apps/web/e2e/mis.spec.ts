@@ -10,7 +10,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { periodLabel } from "@magicmis/render-dashboard";
-import { expect, test, type Page } from "@playwright/test";
+import { devices, expect, test, type Page } from "@playwright/test";
 import pg from "pg";
 import * as XLSX from "xlsx";
 
@@ -894,6 +894,8 @@ test.describe("chat with the MIS", () => {
     await page.goto("/settings/profile");
     await page.getByLabel(/as the preparer/u).check();
     await expect(page.getByLabel(/as the preparer/u)).toBeChecked();
+    // The box ticks at once and is disabled until the save lands: leaving before then cancels it.
+    await expect(page.getByLabel(/as the preparer/u)).toBeEnabled();
     await page.goto(`/app/companies/${id}`);
     await page.getByTestId("present").click();
     await expect(stage.getByTestId("present-preparer")).toContainText("Prepared by");
@@ -1000,6 +1002,65 @@ test("an alert the owner sets is said in words on the board's month, and taken o
   await page.goto(`/app/companies/${id}`);
   await expect(page.getByTestId("widget-kpi_revenue")).toBeVisible();
   await expect(page.getByTestId("board-alerts")).toHaveCount(0);
+});
+
+test("a board shared by a link opens for someone with no account, is counted, and stops when withdrawn (ADR 0090)", async () => {
+  const company = await db.query<{ id: string; name: string }>(
+    `select c.id, c.name from companies c join accounts a on a.id = c.account_id
+      where a.email = $1 and c.name = 'Synthetic Hardware Traders'`,
+    [email],
+  );
+  const id = company.rows[0]?.id ?? "";
+  await page.goto(`/app/companies/${id}`);
+  await page.getByTestId("share").click();
+  await page.getByLabel("The link works for").selectOption("7");
+  await page.getByTestId("share-create").click();
+  const url = await page.getByTestId("share-url").inputValue();
+  expect(url).toMatch(/\/s\/[A-Za-z0-9_-]{43}$/u);
+  // What is kept is the link's SHA-256, never the link: the row is found by hashing it.
+  const secret = url.split("/s/")[1] ?? "";
+  const stored = await db.query<{ n: number }>(
+    `select count(*)::int as n from share_links
+      where company_id = $1 and token_hash = sha256(convert_to($2, 'UTF8'))`,
+    [id, secret],
+  );
+  expect(stored.rows[0]?.n).toBe(1);
+
+  // Someone with no account and no session opens it.
+  const browser = page.context().browser();
+  if (browser === null) throw new Error("no browser");
+  const stranger = await browser.newContext({ ...devices["Desktop Chrome"] });
+  const reader = await stranger.newPage();
+  const opened = await reader.goto(url);
+  expect(opened?.status()).toBe(200);
+  // Never indexed, and its address never sent on as a referrer.
+  expect(opened?.headers()["x-robots-tag"]).toContain("noindex");
+  expect(opened?.headers()["referrer-policy"]).toBe("no-referrer");
+  await expect(reader.getByTestId("share-header")).toContainText(
+    "Synthetic Hardware Traders",
+  );
+  await expect(reader.getByTestId("widget-kpi_revenue")).toBeVisible();
+  // Read only: nothing on it opens the owner's chat or changes the board.
+  await expect(reader.getByRole("button", { name: "Investigate" })).toHaveCount(0);
+  await expect(reader.getByTestId("share")).toHaveCount(0);
+  // Every figure still shows how it was computed.
+  await reader
+    .getByTestId("widget-kpi_revenue")
+    .locator("[data-metric-key]")
+    .first()
+    .click();
+  await expect(reader.getByTestId("lineage-panel")).toContainText("Formula");
+
+  // The owner sees it counted, and withdraws it.
+  await page.goto(`/app/companies/${id}/manage#shares`);
+  const row = page.getByTestId("share-link").first();
+  await expect(row.getByTestId("share-views")).toHaveText("1");
+  await row.getByTestId("share-withdraw").click();
+  await expect(row).toContainText("Withdrawn");
+  const gone = await reader.goto(url);
+  expect(gone?.status()).toBe(404);
+  await expect(reader.getByTestId("share-gone")).toBeVisible();
+  await stranger.close();
 });
 
 test("presenter notes follow the board on the presenter's own screen, and write nothing (ADR 0087)", async () => {

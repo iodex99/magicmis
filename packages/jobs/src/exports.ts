@@ -305,6 +305,27 @@ export async function buildAccountExport(
       where account_id = $1 and deleted_at is null order by created_at`,
     [accountId],
   );
+  // The links an owner made, and every opening of each (ADR 0090). The board inside a link is a
+  // copy of what the snapshots below already hold, so it is not exported twice.
+  const shares = await pool.query<{
+    id: string;
+    company_id: string;
+    period: string;
+    with_writing: boolean;
+    created_at: Date;
+    expires_at: Date;
+    revoked_at: Date | null;
+    opened: Date[] | null;
+  }>(
+    `select s.id, s.company_id, s.period, s.with_writing, s.created_at, s.expires_at, s.revoked_at,
+            array_agg(v.viewed_at order by v.viewed_at) filter (where v.id is not null) as opened
+       from public.share_links s
+       left join public.share_link_views v on v.share_id = s.id
+      where s.account_id = $1
+      group by s.id
+      order by s.created_at`,
+    [accountId],
+  );
   const companyData = [];
   for (const c of companies) {
     const blueprint = await latestBlueprint(pool, wrapper, {
@@ -349,6 +370,16 @@ export async function buildAccountExport(
           comparator: a.comparator,
           threshold: a.threshold,
           createdAt: a.created_at.toISOString(),
+        })),
+      sharedLinks: shares.rows
+        .filter((x) => x.company_id === c.id)
+        .map((x) => ({
+          period: x.period,
+          withWriting: x.with_writing,
+          createdAt: x.created_at.toISOString(),
+          expiresAt: x.expires_at.toISOString(),
+          withdrawnAt: x.revoked_at?.toISOString() ?? null,
+          opened: (x.opened ?? []).map((d) => d.toISOString()),
         })),
       blueprint:
         blueprint === null ? null : { version: blueprint.version, ...blueprint.parts },

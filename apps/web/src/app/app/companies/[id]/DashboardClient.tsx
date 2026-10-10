@@ -85,6 +85,7 @@ const COMPARISONS: readonly {
 ];
 
 import { monthsLabel } from "./CompanyFiles";
+import { ShareBoard } from "./ShareBoard";
 
 export interface DashboardPayload {
   company: {
@@ -697,6 +698,7 @@ export function DashboardClient({
    * fails to present.
    */
   const [filesOpen, setFilesOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   // A tick answers at once; the board follows when the server has. Cleared by the reload.
   const [ticks, setTicks] = useState<Record<string, boolean>>({});
   const [presenting, setPresenting] = useState(false);
@@ -1106,6 +1108,20 @@ export function DashboardClient({
           >
             Present
           </Button>
+          {/* A read-only copy for someone without an account (ADR 0090). */}
+          {live ? (
+            <Button
+              variant="secondary"
+              icon="external"
+              onClick={() => {
+                setShareOpen(true);
+              }}
+              disabled={pending !== null || noMonths}
+              data-testid="share"
+            >
+              Share
+            </Button>
+          ) : null}
           {/*
            * A board member's first question is not "what happened" but "what do we do", so the
            * button that answers it sits on the board rather than behind the assistant's month
@@ -1193,6 +1209,18 @@ export function DashboardClient({
           </button>
         </p>
       )}
+      {/* Only with a month to share: with every file unticked there is none, and no label. */}
+      {live && !noMonths ? (
+        <ShareBoard
+          companyId={companyId}
+          month={current}
+          monthLabel={format.period(current)}
+          open={shareOpen}
+          onClose={() => {
+            setShareOpen(false);
+          }}
+        />
+      ) : null}
       <Drawer
         open={filesOpen}
         label="Files on this dashboard"

@@ -15,6 +15,11 @@ export const rateLimitsSchema = z.object({
   export_per_account: z.number().int().positive(),
   /** Downloading your own stored files. Its own bucket so it cannot throttle the chat. */
   download_per_account: z.number().int().positive().default(30),
+  /**
+   * Openings of one shared board (ADR 0090), counted against the link's fingerprint: each one
+   * unwraps the company's key and writes a row, so a link opened in a loop is stopped here.
+   */
+  share_per_link: z.number().int().positive().default(60),
   api_per_ip: z.number().int().positive(),
 });
 export type RateLimitName = keyof z.infer<typeof rateLimitsSchema>;

@@ -53,6 +53,8 @@ const TENANT_TABLES = [
   "consents",
   "source_uploads",
   "company_alerts",
+  "share_links",
+  "share_link_views",
 ] as const;
 
 /** Tables a customer-facing role must not read at all (SPEC §2.5, §10). */

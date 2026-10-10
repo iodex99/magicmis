@@ -29,6 +29,8 @@ import {
   currencySymbol,
   type StatutoryFormat,
 } from "@magicmis/core/reporting-conventions";
+import { listShares } from "@magicmis/jobs";
+import { periodLabel } from "@magicmis/render-dashboard";
 import { METRIC_CATALOG } from "@magicmis/templates";
 import { keyWrapper } from "@/lib/server/runtime";
 import { logoUrl } from "@/lib/logo";
@@ -40,6 +42,7 @@ import { DeleteCompany } from "../DeleteCompany";
 import { ReportingConventions } from "../ReportingConventions";
 
 import { CompanyAlerts } from "./CompanyAlerts";
+import { ShareLinks } from "./ShareLinks";
 
 export const metadata = { title: "Files and settings" };
 export const dynamic = "force-dynamic";
@@ -151,6 +154,8 @@ export default async function ManageCompanyPage({
     companyId: id,
   }).catch(() => null);
   const alerts = await boardAlerts(pool, { accountId: account.accountId, companyId: id });
+  // Links to this company's board, with how often each was opened (ADR 0090).
+  const shares = await listShares(pool, { accountId: account.accountId, companyId: id });
   // Whole percent, for a bar's width only; the figures beside it are the exact ones.
   const usedPercent = Math.min(
     100,
@@ -269,6 +274,30 @@ export default async function ManageCompanyPage({
                 negativesInBrackets: true,
               }}
               currencySymbol={currencySymbol(company.currency)}
+            />
+          </Panel>
+        </div>
+
+        {/* Boards shared by a link, and a way to withdraw each (ADR 0090). */}
+        <div id="shares">
+          <Panel
+            title="Shared links"
+            icon="external"
+            description="Read-only copies of this board, for anyone holding the link until it expires or you withdraw it. The board's Share button makes one."
+          >
+            <ShareLinks
+              companyId={id}
+              now={new Date().toISOString()}
+              shares={shares.map((s) => ({
+                id: s.id,
+                monthLabel: periodLabel(s.period),
+                withWriting: s.withWriting,
+                createdAt: s.createdAt.toISOString(),
+                expiresAt: s.expiresAt.toISOString(),
+                revokedAt: s.revokedAt?.toISOString() ?? null,
+                views: s.views,
+                lastViewedAt: s.lastViewedAt?.toISOString() ?? null,
+              }))}
             />
           </Panel>
         </div>
